@@ -1,0 +1,14 @@
+<?php 
+
+// Zugzwang CMS
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2008
+// Configuration: paths to files
+
+
+// root directory
+$zz_conf['root'] = $_SERVER['DOCUMENT_ROOT'];
+
+// scripts library
+$zz_setting['scripts'] = $zz_conf['root'].'/_lib';
+
+?>
