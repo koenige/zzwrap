@@ -5,22 +5,30 @@
 
 global $zz_conf;
 
-$zz_sql['pages'] = 'SELECT seite_id
-	, titel'.$zz_conf['lang_suffix'].' AS titel
-	, kurztitel'.$zz_conf['lang_suffix'].' AS kurztitel
-	, inhalt'.$zz_conf['lang_suffix'].' AS inhalt
-	, kennung'.$zz_conf['lang_suffix'].' AS kennung
-	, kennung'.$zz_conf['alt_lang_suffix'].' AS alt_kennung
-	, kennung_de AS bildurl
-	, reihenfolge
-	, ober_seite_id
-	, freigabe
-	, endung
-	, erstelldatum
-	, autor_login_id AS autor_person_id
-	, menu
-	, letzte_aenderung
+$zz_sql['pages'] = 'SELECT seiten.*
+	, seiten.titel AS title
 	FROM '.$zz_conf['prefix'].'seiten seiten
-	WHERE seiten.kennung'.$zz_conf['lang_suffix'].' = "%s"';
+	WHERE seiten.kennung = "%s"';
+
+$zz_sql['is_public'] = 'freigabe ="ja"';
+
+$zz_sql['redirects'] = 'SELECT * FROM '.$zz_conf['prefix'].'umleitungen
+	WHERE alt = "%s/"
+	OR alt = "%s.html"
+	OR alt = "%s"';
+
+$zz_sql['redirects_old_fieldname'] = 'alt';
+$zz_sql['redirects_new_fieldname'] = 'neu';
+
+$zz_sql['redirects_*'] = 'SELECT * FROM '.$zz_conf['prefix'].'umleitungen
+	WHERE alt = "%s*"';
+
+$zz_field_page_id			= 'seite_id';
+$zz_field_content			= 'inhalt';
+$zz_field_title				= 'titel';
+$zz_field_ending			= 'endung';
+$zz_field_identifier		= 'kennung';
+$zz_field_lastupdate		= 'letzte_aenderung';
+$zz_field_author_id			= 'autor_person_id';
 
 ?>
