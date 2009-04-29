@@ -11,12 +11,21 @@ $zz_sql['logout'] = 'UPDATE '.$zz_conf['prefix'].'logins
 
 // Login: Passwort muss erstes Feld sein!
 $zz_sql['login'] = 'SELECT passwort 
-	, benutzername AS username
-	, logins.login_id AS user_id
-	, logins.login_id AS login_id
-	, letzter_klick AS letzter_login
+	, kennung AS username
+	, logins.person_id AS user_id
+	, logins.login_id
+	, vorname, nachname, 
+	CONCAT(vorname, " ", IFNULL(CONCAT(namenszusatz, " "), ""), nachname) AS person 
 	FROM '.$zz_conf['prefix'].'logins logins
+	LEFT JOIN '.$zz_conf['prefix'].'personen personen 
+		ON (logins.person_id = personen.person_id)
 	WHERE aktiv = "ja"
-	AND benutzername = "%s"';	// $login_username
+	AND kennung = "%s"';	// $login_username
+
+$zz_sql['last_click'] = 'UPDATE '.$zz_conf['prefix'].'logins 
+	SET eingeloggt = "ja", letzter_klick = %s 
+	WHERE login_id = %s';
+
+$zz_sql['login_extra']['settings'] = '';
 
 ?>
