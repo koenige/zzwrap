@@ -10,27 +10,28 @@ global $zz_page;
 global $zz_setting;	
 
 // basic files
-if (empty($zz_setting['scripts']))
+if (empty($zz_setting['inc']))
 	require_once realpath(dirname(__FILE__).'/../paths.inc.php');
-require_once $zz_setting['scripts'].'/config.inc.php'; // configuration
+require_once $zz_setting['inc'].'/config.inc.php'; // configuration
+require_once $zz_setting['core'].'/defaults.inc.php'; // default configuration
 
 // establish database connection
 require_once $zz_setting['db_inc'];
 
-$page['code'] = '403';
-$page['brotkrumen'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'.$zz_conf['project'].'</a></strong> &gt; Kein Zugriff';
-$page['seitentitel'] = 'Kein Zugriff';
+$page['code'] = 403;
+$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'.$zz_conf['project'].'</a></strong> &gt; Kein Zugriff';
+$page['pagetitle'] = 'Kein Zugriff';
 include $zz_page['head'];
 
 ?>
-
+<div class="errorpage">
 <h1>Kein Zugriff</h1>
 
 <div id="text">
 <p>Auf die von Ihnen gew&uuml;nschte Seite oder Ressource konnte nicht zugegriffen werden. 
 Bitte versuchen Sie es &uuml;ber unsere <a href="<?php echo $zz_setting['homepage_url']; ?>">Hauptseite</a>.</p>
 </div>
-
+</div>
 <?php
 
 include $zz_page['foot'];

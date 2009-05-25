@@ -2,7 +2,7 @@
 
 // Zugzwang CMS
 // (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007
-// Fehlerseite 503 - Service Unavailable
+// Error page 503 - Service Unavailable
 
 
 // in case config has already been included
@@ -10,17 +10,32 @@ global $zz_page;
 global $zz_setting;	
 
 // basic files
-if (empty($zz_setting['scripts']))
+if (empty($zz_setting['inc']))
 	require_once realpath(dirname(__FILE__).'/../paths.inc.php');
-require_once $zz_setting['scripts'].'/config.inc.php'; // configuration
+require_once $zz_setting['inc'].'/config.inc.php'; // configuration
+require_once $zz_setting['core'].'/defaults.inc.php'; // default configuration
+require_once $zz_setting['core'].'/language.inc.php'; // language
 
 // establish database connection
 require_once $zz_setting['db_inc'];
 
 header('HTTP/1.1 503 Service Unavailable');
 
+$page['code'] = 503;
+$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'.$zz_conf['project'].'</a></strong> &gt; '.cms_text('Service Unavailable');
+$page['pagetitle'] = cms_text('Service Unavailable');
+include $zz_page['head'];
+
+echo '<div class="errorpage">
+<h1>'.cms_text('Service Unavailable').'</h1>
+<div id="text">
+<p>'.cms_text('The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.').'</p><p>'.
+cms_text('Please try again later.').'</p>
+</div>
+</div>
+';
+
 if (!empty($sql)) {
-	echo 'Zugriff auf die Website ist nicht m&ouml;glich (Datenbankst&ouml;rung).';
 	if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'mail') {
 		$mailtext = false;
 		if (!empty($sql)) $mailtext = "Database error:\n\n".mysql_error()."\n\nSQL: ".$sql;
@@ -39,8 +54,6 @@ Content-Transfer-Encoding: 8bit
 From: '.$zz_conf['error_mail_from']);
 	// TODO: check what happens with utf8 mails
 	}
-} else {
-	echo '<h1>503 Service Unavailable</h1>';
 }
 
 exit;
