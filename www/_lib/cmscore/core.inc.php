@@ -229,71 +229,88 @@ function read_url() {
 }
 
 
-function cms_format($text, $parameter, $seite_id) {
-	// Zeilen auf einheitlichen Umbruch bringen
-	$inhalt = str_replace(array("\r\n", "\r"), "\n", $text); 
-	$inhalte = explode('%%%', $inhalt); 
+/** Format database content from CMS
+ * 
+ * @param $text(string) = text field read from database
+ * @param $parameters(array) = parameters, via URL or via function
+ * @return $page array
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function cms_format($text, $parameters) {
+	// standardize line breaks
+	$content = str_replace(array("\r\n", "\r"), "\n", $text);
+	// cut content and query blocks
+	$content = explode('%%%', $content); 
 
-	// Variablen initialisieren
-	$page['text'] = false;
-	$page['titel'] = false;
-	$page['extra_brotkrumen'] = false;
-	$page['autoren'] = array();
-	$page['medien'] = array();
-	$page['language_link'] = false;
+	// initialize variables
+	$page['text'] = false;				// textbody
+	$page['title'] = false;				// page title and h1 element
+	$page['breadcrumbs_extra'] = false;	// additional breadcrumbs
+	$page['authors'] = array();			// authors of page
+	$page['media'] = array();			// media linked from page
+	$page['language_link'] = false;		// language links to other language(s)
+
+	// positions (if more than one)
 	global $zz_setting;
 	if (empty($zz_setting['default_position'])) 
 		$zz_setting['default_position'] = 'none';
-	
+
+	$forbidden_access = false;			// access is allowed
 	$position = 'none';
 	$page['text'][$position] = false;
-	$cut_next_p = false;
+	$cut_next_paragraph = false;		// to get markdown formatted text inline
 	$replace_db_text[$position] = false;
-	foreach ($inhalte as $index => $text) {
+
+	foreach ($content as $index => $text) {
 		if ($index & 1) {	// gerade index-werte: normaler text, 
 							// ungerade index-werte: bedarf der nachbearbeitung
-			$cut_next_p = false;
+			$cut_next_paragraph = false;
 			
 			$part = trim($text);
-			$variablen = explode("\n", $part); // entweder durch zeilen begrenzt
-			if (count($variablen) == 1)
-				$variablen = explode(" ", $part); // oder durch leerzeichen
-				
-			switch ($variablen[0]) {
-			case 'abfrage':
-				array_shift($variablen); // 'abfrage', wird nicht mehr gebraucht
-				$abfrage = 'cms_'.strtolower($variablen[0]); // Name der aufzurufenden Funktion
-				$funktionsname = $variablen[0];
-				array_shift($variablen); // wird nicht mehr gebraucht
-				$funktionsparameter = false;
-				$varspeicher = false;
-				foreach ($variablen as $var) {
-					if ($var == '*') {
-						$url_parameter = explode('/', $parameter);
-						if ($funktionsparameter)
-							$funktionsparameter = array_merge($funktionsparameter, 
-							$url_parameter); // Parameter aus URL
-						// Achtung: falls mehrere *-Variablen werden Parameter
-						// mehrfach eingefügt
-						else
-							$funktionsparameter = $url_parameter;
-					} else {
-						if (substr($var, 0, 1) == '"' && substr($var, -1) == '"')
-							$funktionsparameter[] = substr($var, 1, -1);
-						elseif (substr($var, 0, 1) == '"')
-							$varspeicher[] = substr($var, 1);
-						elseif ($varspeicher && substr($var, -1) != '"') 
-							$varspeicher[] = $var;
-						elseif ($varspeicher && substr($var, -1) == '"') {
-							$varspeicher[] = substr($var, 0, -1);
-							$funktionsparameter[] = implode(" ", $varspeicher);
-							$varspeicher = false;
-						} else 
-							$funktionsparameter[] = $var; // Parameter wie uebergeben, nur neu indiziert
-					}
+			$variables = explode("\n", $part); // entweder durch zeilen begrenzt
+			if (count($variables) == 1)
+				$variables = explode(" ", $part); // oder durch leerzeichen
+
+			// put variables with spaces, but enclosed in "" back together
+			$paste = false;
+			foreach ($variables as $index => $var) {
+				if ($paste) {
+					$variables[$index] = $paste.' '.$var;
+				} elseif (substr($var, 0, 1) == '"'
+					AND substr($var, -1) == '"') {
+					$var = substr($var, 1, -1);
+					$variables[$index] = $var;
 				}
-				if (function_exists($abfrage)) {
-					$mypage = $abfrage($funktionsparameter);
+				if (substr($var, 0, 1) == '"') {
+					$paste = substr($var, 1);
+					unset($variables[$index]);
+				} elseif (substr($var, -1) == '"') {
+					$paste = false;
+					$variables[$index] = substr($variables[$index], 0, -1);
+				}
+			}
+			// get correct keys in order
+			$new_variables = false;
+			foreach ($variables as $var) {
+				$new_variables[] = $var;
+			}
+			$variables = $new_variables;
+
+			switch ($variables[0]) {
+			case 'request':
+			case 'abfrage':
+				array_shift($variables); // 'abfrage' or 'request', won't be needed anymore
+			case 'image':
+			case 'bild':
+				if ($variables[0] == 'bild' OR $variables[0] == 'image')
+					$variables[] = '*'; // to transport additional variables which are needed
+					// so %%% image 23 %%% may be as small as possible
+				$request = 'cms_'.strtolower($variables[0]); // name of function to be called
+				$funktionsname = $variables[0];
+				array_shift($variables); // won't be needed anymore
+				$parameters_for_function = cms_variables_to_function($variables, $parameters);
+				if (function_exists($request)) {
+					$mypage = $request($parameters_for_function);
 					if (empty($mypage)) return false;
 					// check if there's some </p>text<p>, remove it for inline results of function
 					if (!is_array($mypage['text'])) if (substr($mypage['text'], 0, 1) != '<' 
@@ -301,8 +318,8 @@ function cms_format($text, $parameter, $seite_id) {
 						///echo substr(trim($page['text'][$position]), -4);
 						if (substr(trim($page['text'][$position]), -4) == '</p>') {
 							$page['text'][$position] = substr(trim($page['text'][$position]), 0, -4).' ';
+							$cut_next_paragraph = true;
 						}
-						$cut_next_p = true;
 					}
 					if (!empty($mypage['replace_db_text'])) {
 						$replace_db_text[$position] = true;
@@ -317,14 +334,14 @@ function cms_format($text, $parameter, $seite_id) {
 						}
 					} else
 						$page['text'][$position] .= $mypage['text'];
-					if (!empty($mypage['titel']))
-						$page['titel'] = $mypage['titel'];
-					if (!empty($mypage['autoren']) AND is_array($mypage['autoren']))
-						$page['autoren'] = array_merge($page['autoren'], $mypage['autoren']);
-					if (!empty($mypage['medien']) AND is_array($mypage['medien']))
-						$page['medien'] = array_merge($page['medien'], $mypage['medien']);
+					if (!empty($mypage['title']))
+						$page['title'] = $mypage['title'];
+					if (!empty($mypage['authors']) AND is_array($mypage['authors']))
+						$page['authors'] = array_merge($page['authors'], $mypage['authors']);
+					if (!empty($mypage['media']) AND is_array($mypage['media']))
+						$page['media'] = array_merge($page['media'], $mypage['media']);
 					if (!empty($mypage['breadcrumbs']))
-						$page['extra_brotkrumen'] = $mypage['breadcrumbs'];
+						$page['breadcrumbs_extra'] = $mypage['breadcrumbs'];
 					if (!empty($mypage['dont_show_h1']))
 						$page['dont_show_h1'] = $mypage['dont_show_h1'];
 					if (!empty($mypage['language_link']))
@@ -337,80 +354,189 @@ function cms_format($text, $parameter, $seite_id) {
 						$page['no_page_foot'] = $mypage['no_page_foot'];
 					if (!empty($mypage['last_update']))
 						$page['last_update'] = $mypage['last_update'];
+					if (!empty($mypage['head_addition']))
+						$page['head_addition'] = $mypage['head_addition'];
+					if (!empty($mypage['style']))
+						$page['style'] = $mypage['style'];
 				} else
-					$page['text'][$position] .= '<p><strong class="error">Die Funktion &#187;'
-						.$funktionsname.'&#171; wird vom CMS nicht unterst&uuml;tzt!</strong></p>';
+					$page['text'][$position] .= '<p><strong class="error">The function &#187;'
+						.$funktionsname.'&#171; is not supported by the CMS.</strong></p>';
 				break;
 			case 'position':
-				$position = $variablen[1];
+				$position = $variables[1];
+				if (!empty($variables[2])) $position .= $variables[2]; // in case someone put a space between row and column
 				if (empty($page['text'][$position])) {
 					$page['text'][$position] = false; // initialisieren
 					$replace_db_text[$position] = false;
 				}
 				break;
-			case 'verwaltung':
+			case 'tables':
 			case 'tabellen':
-				if ($variablen[0] == 'verwaltung') $desc_dir = 'verwaltung';
+			case 'verwaltung':
+			case 'forms':
+				if ($variables[0] == 'verwaltung') $desc_dir = 'verwaltung';
+				elseif ($variables[0] == 'forms') $desc_dir = 'forms';
+				elseif ($variables[0] == 'publicforms') $desc_dir = 'publicforms';
 				else $desc_dir = 'db';
-				$position = $zz_setting['default_position'];
-				array_shift($variablen); // 'verwaltung', wird nicht mehr gebraucht
+				if (empty($position))
+					$position = $zz_setting['default_position'];
+				$scriptpath = $parameters;
+				if ($variables[0] == 'forms' OR !$parameters) {
+					$scriptpath = $variables[1];
+				} elseif (substr($parameters, -1) == '*') {
+					$scriptpath = substr($parameters, 0, -1);
+				}
+				array_shift($variables); // 'verwaltung', wird nicht mehr gebraucht
 				global $zz_conf;
 				global $zz_setting;
 				global $zz_access;
-				if (substr($parameter, -1) == '*') {
-					$parameter = substr($parameter, 0, -1);
-				} elseif (!$parameter) {
-					$parameter = $variablen[0];
-				}
-				if (file_exists($tabellen = $zz_setting['scripts'].'/'.$desc_dir.'/'.$parameter.'.php')) {
-					require_once $zz_setting['scripts'].'/inc/auth.inc.php';
-					if (!empty($_SESSION)) $zz_conf['user'] = $_SESSION['username'];
+				if (file_exists($tabellen = $zz_setting['inc'].'/'.$desc_dir.'/'.$scriptpath.'.php')) {
+					// check whether script shall be made accessible from public
+					if (empty($variables[1]) OR $variables[1] != 'public') {
+						require_once $zz_setting['core'].'/auth.inc.php';
+						if (!empty($_SESSION)) $zz_conf['user'] = $_SESSION['username'];
+					}
 					require_once $zz_conf['dir'].'/inc/edit.inc.php';
 					require_once $tabellen;
 					$zz_conf['show_output'] = false;
 					zzform();
 					$page['text'][$position] = $zz['output'];
-					$page['titel'] =  $zz_conf['title'];
-					$page['extra_brotkrumen'][] = $zz_conf['title'];
+					$page['title'] = ((!empty($zz_conf['title'])) ? $zz_conf['title'] : cms_text('Error'));
+					$page['breadcrumbs_extra'][] = $page['title'];
 					$page['dont_show_h1'] = true;
+					if ($zz['mode'] == 'export') {
+						foreach ($zz['headers'] as $index) {
+							foreach ($index as $bool => $header) {
+								header($header, $bool);
+							}
+						}
+						echo $zz['output'];			// Output der Funktion ausgeben
+						exit;
+					}
 				} else {
 					return false;
 				}
 				break;
+			case 'rights':
+			case 'rechte':
+				array_shift($variables); // 'rights', will not be used
+				if (!cms_access_rights($variables)) {
+					$position = 'hidden';
+					$page['text']['hidden'] = false;
+					// ok, something is forbidden, will not be shown
+					// mark it as forbidden, so if nothing will be shown, we can
+					// answer with 403 forbidden
+					$forbidden_access = true; 
+				}
+				break;
+			case 'comment':
 			case 'kommentar':
 				// Kommentare werden nicht angezeigt, nur für interne Zwecke.
 				break;
 			case 'redirect':
-				array_shift($variablen); // 'redirect', wird nicht mehr gebraucht
+				array_shift($variables); // 'redirect', wird nicht mehr gebraucht
 				global $zz_conf;
 				global $zz_setting;
 				require_once $zz_conf['dir'].'/inc/validate.inc.php';
-				if (zz_check_url($variablen[0])) {
-					if (substr($variablen[0], 0, 1) == '/')
-						$variablen[0] = $zz_setting['protocol'].'://'.$zz_setting['hostname'].$variablen[0];
-					header('Location: '.$variablen[0]);
+				if (zz_check_url($variables[0])) {
+					if (substr($variables[0], 0, 1) == '/')
+						$variables[0] = $zz_setting['host_base'].$variables[0];
+					header('Location: '.$variables[0]);
 					exit;
 				}
 			default:
-				$page['text'][$position].= '<p><strong class="error">Fehler 
-					im CMS: '.$variablen[0].' ist kein gültiger Parameter</strong></p>';
+				$page['text'][$position].= '<p><strong class="error">Error 
+					in the CMS: '.$variables[0].' is not a valid parameter.</strong></p>';
 			}
-		} elseif ($text AND !$replace_db_text[$position]) {
-			$text_to_add = markdown($text);
+		} elseif ($text AND empty($replace_db_text[$position])) {
+			// behind %%% -- %%% blocks, an additional newline will appear
+			// remove it, because we do not want it
+			if ($index) $text = trim($text)."\n"; 
+			// format text block (default mode)
+			$text_to_add = cms_textformat($text, 'pieces');
 			// check if there's some </p>text<p>, remove it for inline results of function
-			if ($cut_next_p && substr(trim($text_to_add), 0, 3) == '<p>') {
+			if ($cut_next_paragraph && substr(trim($text_to_add), 0, 3) == '<p>') {
 				$text_to_add = ' '.substr(trim($text_to_add), 3);
-				$cut_next_p = false;
+				$cut_next_paragraph = false;
 			}
 			$page['text'][$position] .= $text_to_add; // if wichtig, 
 				// sonst macht markdown auch aus leerer variable etwas
 		}
 	}
+	if (!empty($page['text']['hidden'])) {
+		unset($page['text']['hidden']);
+		$forbidden_access = true;
+	}
 	if (!$page['text']['none']) unset($page['text']['none']);
 	// if position is not wanted, remove unneccessary complexity in array
-	if (count($page['text']) == 1 AND !empty($page['text']['none']))
-		$page['text'] = $page['text']['none'];
+	if (count($page['text']) == 1 AND !empty($page['text']['none'])) {
+		if ($zz_setting['default_position'] == 'none') {
+			$page['text'] = cms_textformat($page['text']['none'], 'full');
+		} else {
+			$page['text'][$zz_setting['default_position']] = cms_textformat($page['text']['none'], 'full');
+			unset ($page['text']['none']);
+		}
+	} elseif (!count($page['text']) AND $forbidden_access) {
+		quit_cms(403);
+	} else {
+	// new
+		foreach ($page['text'] AS $pos => $text) {
+			$page['text'][$pos] = cms_textformat($text, 'full');
+		}
+	}
 	return $page;
+}
+
+function cms_textformat($string, $type) {
+	global $zz_setting;
+	
+	if (!empty($zz_setting['fulltextformat'])
+		AND function_exists($zz_setting['fulltextformat'])) {
+		if ($type == 'pieces') {
+			return $string;
+		} elseif ($type == 'full') {
+			return $zz_setting['fulltextformat']($string);
+		}
+	} else {
+		// Standard formatting, each piece will be treated seperately, for backwards 
+		// compatibility
+		if ($type == 'pieces') {
+			return markdown($string);
+		} elseif ($type == 'full') {
+			return $string;
+		}
+	}
+}
+
+function cms_variables_to_function($variables, $parameters) {
+	$parameters_for_function = false;
+	$var_safe = false;
+	foreach ($variables as $var) {
+		if ($var == '*') {
+			$url_parameters = explode('/', $parameters);
+			if ($parameters_for_function)
+				$parameters_for_function = array_merge($parameters_for_function, 
+				$url_parameters); // parameters transmitted via URL
+			// Attention: if there are more than one *-variables
+			// parameters will be inserted several times
+			else
+				$parameters_for_function = $url_parameters;
+		} else {
+			if (substr($var, 0, 1) == '"' && substr($var, -1) == '"')
+				$parameters_for_function[] = substr($var, 1, -1);
+			elseif (substr($var, 0, 1) == '"')
+				$var_safe[] = substr($var, 1);
+			elseif ($var_safe && substr($var, -1) != '"') 
+				$var_safe[] = $var;
+			elseif ($var_safe && substr($var, -1) == '"') {
+				$var_safe[] = substr($var, 0, -1);
+				$parameters_for_function[] = implode(" ", $var_safe);
+				$var_safe = false;
+			} else 
+				$parameters_for_function[] = $var; // Parameter wie uebergeben, nur neu indiziert
+		}
+	}
+	return $parameters_for_function;
 }
 
 ?>
