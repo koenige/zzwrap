@@ -22,35 +22,16 @@ global $zz_access;
 // Weitere Dateien einbinden
 // --------------------------------------------------------------------------
 
+if (empty($zz_setting['core']))
+	$zz_setting['core'] = $zz_setting['inc'].'/cmscore';
+require_once $zz_setting['core'].'/defaults.inc.php';	// set default variables
+require_once $zz_setting['core'].'/errorhandling.inc.php';	// CMS errorhandling
+//require_once $zz_setting['core'].'/language.inc.php';	// include language settings
+require_once $zz_setting['core'].'/core.inc.php';	// CMS Kern
+require_once $zz_setting['core'].'/page.inc.php';	// CMS Seitenskripte
+if (!empty($zz_conf['error_503'])) quit_cms(503);	// exit for maintenance reasons
+
 require_once $zz_setting['db_inc']; // Datenbankverbindung herstellen
-
-// Module einbinden
-// TODO: nicht alle Module einbinden, nur die, die nötig sind.
-$dirhandle = opendir($zz_setting['modules']); 			// CMS-Module einbinden
-while ($file = readdir($dirhandle))
-	if (substr($file, -8) == '.inc.php')
-		include_once $zz_setting['modules'].'/'.$file;
-		// TODO: Modul-Liste generieren, z. B. $zz_setting['modules_loaded'][] = '';
-closedir($dirhandle);
-
-// Authentifizierung aktivieren
-if (!empty($zz_setting['auth_urls'])) {
-	$url = parse_url($_SERVER['REQUEST_URI']);
-	foreach($zz_setting['auth_urls'] as $auth_url) {
-		if (substr($url['path'], 0, strlen($auth_url)) == $auth_url
-			&& $url['path'] != $zz_setting['login_url']) {
-			require_once $zz_setting['scripts'].'/inc/auth.inc.php';
-		}
-	}
-}
-
-// Standardfunktionen einbinden (z. B. Markup-Sprachen)
-if (!empty($zz_setting['standard_extensions']))	
-	foreach ($zz_setting['standard_extensions'] as $function)
-		require_once $zz_setting['scripts'].'/zzform/ext/'.$function.'.php';
-require_once $zz_conf['dir'].'/inc/numbers.inc.php';
-if (file_exists($zz_setting['scripts'].'/inc/_functions.inc.php'))
-	require_once $zz_setting['scripts'].'/inc/_functions.inc.php';
 
 // --------------------------------------------------------------------------
 // Abfrage der Seite nach URL in der Datenbank
@@ -64,62 +45,106 @@ if (!empty($zz_setting['secret_key']))
 // Eintrag in Datenbank finden, nach URL
 // wenn nicht gefunden, dann URL abschneiden, Sternchen anfuegen und abgeschnittene
 // Werte in Parameter-Array schreiben
-$db_page = cms_look_for_page($zz_conf, $zz_access);
+$zz_page['db'] = cms_look_for_page($zz_conf, $zz_access, $zz_page);
+
+// --------------------------------------------------------------------------
+// include modules
+// --------------------------------------------------------------------------
+
+// Functions which may be needed for login
+if (file_exists($zz_setting['inc_local'].'/cms-start.inc.php'))
+	require_once $zz_setting['inc_local'].'/cms-start.inc.php';
+if (file_exists($zz_setting['inc_local'].'/_functions.inc.php'))
+	require_once $zz_setting['inc_local'].'/_functions.inc.php';
+if (file_exists($zz_setting['inc_local'].'/_sql-queries.inc.php'))
+	require_once $zz_setting['inc_local'].'/_sql-queries.inc.php';
+
+// modules may change page language ($zz_page['language']), so include language functions here
+require_once $zz_setting['core'].'/language.inc.php';	// CMS language
+if ($zz_setting['authentification_possible'])
+	require_once $zz_setting['core'].'/login.inc.php';	// CMS Login/Logoutskripte, authentification
+
+// Standardfunktionen einbinden (z. B. Markup-Sprachen)
+if (!empty($zz_setting['standard_extensions']))	
+	foreach ($zz_setting['standard_extensions'] as $function)
+		require_once $zz_setting['inc'].'/zzform/ext/'.$function.'.php';
+require_once $zz_conf['dir'].'/inc/numbers.inc.php';
+if (file_exists($zz_setting['inc_local'].'/_settings_post_login.inc.php'))
+	require_once $zz_setting['inc_local'].'/_settings_post_login.inc.php';
+
+// --------------------------------------------------------------------------
+// On Error Exit, after all files are included
+// --------------------------------------------------------------------------
 
 // Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
-if (!$db_page) quit_cms();
+if (!$zz_page['db']) quit_cms();
 
 // --------------------------------------------------------------------------
 // Zusammenbau der Seite
 // --------------------------------------------------------------------------
 
-if (function_exists('cms_lese_medien'))
-	$medien = cms_lese_medien($db_page['seite_id']);
-$page = cms_format($db_page['inhalt'], $db_page['parameter'], $db_page['seite_id']);
+if (function_exists('cms_get_media'))
+	$media = cms_get_media($zz_page['db'][$zz_field_page_id]);
+
+require_once $zz_setting['inc'].'/zzbrick/zzbrick.php';
+$page = brick_format($zz_page['db'][$zz_field_content], $zz_page['db']['parameter'], $zz_setting);
+if ($page['status'] != 200) 
+	quit_cms($page['status']);
 if (empty($page)) quit_cms();
+
 $found = true; // Seiteninhalt vorhanden!
-if (empty($page['titel'])) 
-	$page['titel'] = $db_page['titel']; // Titel ggf. aus CMS-Skript!
 
 // Falls Datenbank anbietet, dass man eine Endung angibt, kanonische URL finden
-// TODO: erlauben über Parameter, dass auch cms_format sowas zurückgibt.
-if (!empty($db_page['endung'])) cms_check_canonical($page, $db_page['endung']);
+// TODO: erlauben über Parameter, dass auch brick_format sowas zurückgibt.
+if (!empty($zz_page['db'][$zz_field_ending])) 
+	cms_check_canonical($page, $zz_page['db'][$zz_field_ending], $zz_page['url']['full']);
 
-if (function_exists('cms_lese_brotkrumen')) {
-	$page['brotkrumen'] = cms_lese_brotkrumen($db_page['seite_id'], 
-	$db_page['kennung'], $page['extra_brotkrumen']);
-}
-$page['seitentitel'] = strip_tags($page['titel']);
-if ($db_page['url'] != '/')
-	$page['seitentitel'] .=' ('.$zz_conf['project'].')';
-if (!empty($page['last_update'])) $page['letzte_aenderung'] = $page['last_update'];
-if (empty($page['letzte_aenderung']))
-	$page['letzte_aenderung'] = $db_page['letzte_aenderung'];
-$page['letzte_aenderung'] = datum_de($page['letzte_aenderung']);
-if (function_exists('cms_lese_autoren'))
-	$page['autor_kuerzel'] = 
-	cms_lese_autoren($page['autoren'], $db_page['autor_person_id']);
-if (function_exists('cms_zeige_menue')) {
-	$nav = cms_hole_menue();
-	$page['nav'] = cms_zeige_menue($nav);
+// $page['title'] == H1 element
+if (empty($page['title'])) $page['title'] = $zz_page['db'][$zz_field_title]; // Titel ggf. aus CMS-Skript!
+
+// $page['pagetitle'] TITLE element
+$page['pagetitle'] = strip_tags($page['title']);
+if ($zz_page['url']['full']['path'] != '/')
+	$page['pagetitle'] .=' ('.(empty($page['project']) ? $zz_conf['project'] : $page['project']).')';
+
+// last update
+if (!empty($page['last_update'])) $page[$zz_field_lastupdate] = $page['last_update'];
+if (empty($page[$zz_field_lastupdate]))
+	$page[$zz_field_lastupdate] = $zz_page['db'][$zz_field_lastupdate];
+$page[$zz_field_lastupdate] = datum_de($page[$zz_field_lastupdate]);
+
+// breadcrumbs (from cmscore/page.inc.php)
+if ($zz_sql['breadcrumbs'])
+	$page['breadcrumbs'] = cms_htmlout_breadcrumbs($zz_page['db'][$zz_field_page_id], $page['breadcrumbs']);
+
+// authors (from cmscore/page.inc.php)
+if (!empty($zz_page['db'][$zz_field_author_id]))
+	$page['authors'] = cms_get_authors($page['authors'], $zz_page['db'][$zz_field_author_id]);
+
+// navigation menu (from cmscore/page.inc.php)
+if ($zz_sql['menu']) {
+	$nav = cms_get_menu();
+	if ($nav) $page['nav'] = cms_htmlout_menu($nav);
 }
 
-$ausgabe = '';
+$output = '';
 if (function_exists('cms_matrix')) {
 	// Matrix for several projects
 	// TODO: solve better, don't hardcode.
-	if (empty($medien)) {
-		if (!empty($page['medien'])) $medien = $page['medien'];
-		else $medien = false;
+	if (empty($media)) {
+		if (!empty($page['media'])) $media = $page['media'];
+		else $media = false;
+	} else {
+		if (!empty($page['media'])) $media = array_merge($media, $page['media']);
 	}
-	$ausgabe = cms_matrix($page, $medien);
+	$output = cms_matrix($page, $media);
 } else {
-	if (empty($page['dont_show_h1']))
-		$ausgabe .= "\n".markdown('# '.$page['titel']."\n")."\n";
-	$ausgabe .= $page['text'];
+	if (empty($page['dont_show_h1']) AND empty($zz_page['dont_show_h1']))
+		$output .= "\n".markdown('# '.$page['title']."\n")."\n";
+	$output .= $page['text'];
 }
 if (function_exists('cms_content_replace')) {
-	$ausgabe = cms_content_replace($ausgabe);
+	$output = cms_content_replace($output);
 }
 
 // Zeichenrepertoire einstellen
@@ -128,7 +153,7 @@ if (!empty($zz_conf['character_set']))
 
 // Ausgabe der Inhalte
 if (empty($page['no_page_head'])) include $zz_page['head'];
-echo $ausgabe;
+echo $output;
 if (empty($page['no_page_foot'])) include $zz_page['foot'];
 
 // --------------------------------------------------------------------------
