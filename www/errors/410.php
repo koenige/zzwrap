@@ -18,12 +18,17 @@ require_once $zz_setting['core'].'/defaults.inc.php'; // default configuration
 // establish database connection
 require_once $zz_setting['db_inc'];
 
+header($_SERVER['SERVER_PROTOCOL'].' 410 Gone');
+if (!empty($zz_conf['character_set']))
+	header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+
 if (function_exists('cms_htmlout_menu')) {
 	$nav = cms_get_menu();
 	$page['nav'] = cms_htmlout_menu($nav);
 }
 $page['pagetitle'] = '410 Objekt nicht mehr verf&uuml;gbar';
 $page['code'] = '410';
+$page['lang'] = 'de';
 $page['letzte_aenderung'] = false;
 $page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'.$zz_conf['project'].'</a></strong> &gt; Nicht verf&uuml;gbar';
 include $zz_page['head'];

@@ -18,7 +18,12 @@ require_once $zz_setting['core'].'/defaults.inc.php'; // default configuration
 // establish database connection
 require_once $zz_setting['db_inc'];
 
+header($_SERVER['SERVER_PROTOCOL'].' 403 Forbidden');
+if (!empty($zz_conf['character_set']))
+	header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+
 $page['code'] = 403;
+$page['lang'] = 'de';
 $page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'.$zz_conf['project'].'</a></strong> &gt; Kein Zugriff';
 $page['pagetitle'] = 'Kein Zugriff';
 include $zz_page['head'];
