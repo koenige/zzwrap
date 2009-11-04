@@ -1,12 +1,12 @@
 <?php 
 
-// Zugzwang CMS
+// zzwrap (Project Zugzwang)
 // (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2008
 // CMS core functions
 
 
 // Local modifications to SQL queries
-require_once $zz_setting['inc_local'].'/cms-sql-core.inc.php';
+require_once $zz_setting['custom_wrap_sql_dir'].'/sql-core.inc.php';
 
 /** Test, whether URL contains a correct secret key to allow page previews
  * 
@@ -14,36 +14,37 @@ require_once $zz_setting['inc_local'].'/cms-sql-core.inc.php';
  * @param $_GET['tle'](string) timestamp, begin of legitimite timeframe
  * @param $_GET['tld'](string) timestamp, end of legitimite timeframe
  * @param $_GET['tlh'](string) hash
- * @return $cms_page_preview true|false i. e. true means show page, false don't
+ * @return $wrap_page_preview true|false i. e. true means show page, false don't
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function cms_test_secret_key($secret_key) {
-	$cms_page_preview = false;
+function wrap_test_secret_key($secret_key) {
+	$wrap_page_preview = false;
 	if (!empty($_GET['tle']) && !empty($_GET['tld']) && !empty($_GET['tlh']))
 		if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
 			$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
 			session_start();
-			$_SESSION['cms_page_preview'] = true;
-			$cms_page_preview = true;
+			$_SESSION['wrap_page_preview'] = true;
+			$wrap_page_preview = true;
 		}
-	return $cms_page_preview;
+	return $wrap_page_preview;
 }
 
-/** Tests whether URL is in database (or a part of it ending with *)
+/** Tests whether URL is in database (or a part of it ending with *), or a part 
+ * of it with placeholders
  * 
  * @param $zz_conf(array) zz configuration variables
  * @param $zz_access(array) zz access rights
  * @return $page
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function cms_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
+function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 	// Variables
 	global $zz_setting;
 	global $zz_sql;
 	$page = false;
 
 	// Prepare URL for database request
-	$url = zz_read_url($zz_page['url']);
+	$url = wrap_read_url($zz_page['url']);
 	$full_url[0] = $url['db'];
 
 	// check for placeholders
@@ -82,9 +83,9 @@ function cms_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 	foreach ($full_url as $i => $my_url) {
 		if (!$page) $parameter = false; // if more than one url will be checked, initialize variable
 		while (!$page) {
-			$sql = sprintf($zz_sql['pages'], '/'.$my_url);
-			if (!$zz_access['cms_page_preview']) $sql.= ' AND '.$zz_sql['is_public'];
-			$page = cms_db_fetch($sql);
+			$sql = sprintf($zz_sql['pages'], '/'.mysql_real_escape_string($my_url));
+			if (!$zz_access['wrap_page_preview']) $sql.= ' AND '.$zz_sql['is_public'];
+			$page = wrap_db_fetch($sql);
 			if (empty($page) && strstr($my_url, '/')) { // if not found, remove path parts from URL
 				if ($parameter) {
 					$parameter = '/'.$parameter; // '/' as a separator for variables
@@ -109,14 +110,14 @@ function cms_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 	return $page;
 }
 
-/** Make canonical URLs (traling slash, .html etc.)
+/** Make canonical URLs (trailing slash, .html etc.)
  * 
  * @param $page(array) page array
  * @param $ending(string) ending of URL (/, .html, .php, none)
  * @return redirect to correct URL if necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function cms_check_canonical($page, $ending, $request_uri) {
+function wrap_check_canonical($page, $ending, $request_uri) {
 	global $zz_setting;
 	$location = "Location: ".$zz_setting['host_base'];
 	// correct ending
@@ -169,7 +170,7 @@ function cms_check_canonical($page, $ending, $request_uri) {
  * @return $url(array) with new keys ['db'] (URL in database), ['suffix_length']
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function zz_read_url($url) {
+function wrap_read_url($url) {
 	// better than mod_rewrite, because '&' won't always be treated correctly
 	$url['db'] = $url['full']['path'];
 	$url['suffix_length'] = (!empty($_GET['lang']) ? strlen($_GET['lang']) + 6 : 5);
@@ -184,7 +185,8 @@ function zz_read_url($url) {
 	return $url;
 }
 
-/** Stops execution of script, check for redirects to other pages
+/** Stops execution of script, check for redirects to other pages,
+ * includes http error pages
  * 
  * The execution of the CMS will be stopped. The script test if there's
  * an entry for the URL in the redirect table to redirect to another page
@@ -195,7 +197,7 @@ function zz_read_url($url) {
  * @return exits function with a redirect or an error document
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
- function quit_cms($errorcode = 404) {
+ function wrap_quit($errorcode = 404) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
@@ -204,14 +206,14 @@ function zz_read_url($url) {
 
 	// check for redirects, if there's a corresponding table.
 	if (!empty($zz_setting['check_redirects'])) {
-		$url = zz_read_url($zz_page['url']);
+		$url = wrap_read_url($zz_page['url']);
 		$url['db'] = mysql_real_escape_string($url['db']);
 		$sql = sprintf($zz_sql['redirects'], '/'.$url['db'], '/'.$url['db'], '/'.$url['db']);
 		if (!empty($_GET['lang'])) {
 			$sql.= ' OR '.$zz_sql['redirects_old_fieldname'].' = "/'
 				.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"';
 		}
-		$redir = cms_db_fetch($sql);
+		$redir = wrap_db_fetch($sql);
 
 		// If no redirect was found until now, check if there's a redirect above
 		// above the current level with a placeholder (*)
@@ -221,7 +223,7 @@ function zz_read_url($url) {
 		if (!$redir) {
 			while (!$found) {
 				$sql = sprintf($zz_sql['redirects_*'], '/'.$url['db']);
-				$redir = cms_db_fetch($sql);
+				$redir = wrap_db_fetch($sql);
 				if ($redir) break; // we have a result, get out of this loop!
 				if (strrpos($url['db'], '/'))
 					$parameter = '/'.substr($url['db'], strrpos($url['db'], '/')+1).$parameter;
@@ -243,8 +245,9 @@ function zz_read_url($url) {
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
 
-	// Check redirection code	
-	switch ($redir['code']) {
+	// Check redirection code
+	$page['code'] = $redir['code']; // we need this in the error script
+	switch ($page['code']) {
 	case 301:
 		header($protocol." 301 Moved Permanently");
 	case 302:
@@ -257,27 +260,48 @@ function zz_read_url($url) {
 		}
 		header("Location: ".$new);
 		break;
-	case 403:
-		header($protocol." 403 Forbidden");
-		include_once $zz_setting['http_errors'].'/403.php';
-		break;
-	case 410:
-		header($protocol." 410 Gone");
-		include_once $zz_setting['http_errors'].'/410.php';
-		break;
-	case 503:
-		header($protocol." 503 Service Unavailable");
-		include_once $zz_setting['http_errors'].'/503.php';
-		break;
-	case 404:
-	default: // nicht definiert, sollte nicht in der Datenbank auftreten
-		header($protocol." 404 Not Found");
-		include_once $zz_setting['http_errors'].'/404.php';
+	default: // 4xx, 5xx
+		include_once $zz_setting['http_error_script'];
 	}
 	exit;
 }
 
-function cms_db_fetch($sql, $id_field_name = false) {
+/** Checks if HTTP request should be HTTPS request instead and vice versa
+ * 
+ * Function will redirect request to the same URL except for the scheme part
+ * Attention: POST variables will get lost
+ * @param $zz_page(array) Array with full URL in $zz_page['url']['full'], 
+ 	this is the result of parse_url()
+ * @param $zz_setting(array) settings, 'ignore_scheme' ignores redirect
+ 	and 'protocol' defines the protocol wanted (http or https)
+ * @return redirect header
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_check_https($zz_page, $zz_setting) {
+	// if it doesn't matter, get out of here
+	if ($zz_setting['ignore_scheme']) return true;
+
+	// change from http to https or vice versa
+	// attention: $_POST will not be preserved
+	if ((!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == 'on' AND $zz_setting['protocol'] == 'http')
+		OR (empty($_SERVER['HTTPS']) AND $zz_setting['protocol'] == 'https')) {
+		header('Location: '.$zz_setting['protocol'].'://'.$zz_page['url']['full']['host']
+			.$zz_page['url']['full']['path']
+			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : ''));
+		exit;
+	}
+}
+
+/** Fetches records from database and returns array
+ * 
+ * TODO: give a more detailed explanation of how function works
+ * @param $sql(string) SQL query string
+ * @param $id_field_name(string) optional, if more than one record will be 
+ 	returned: required; field_name for array keys
+ * @return array with queried database content
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_db_fetch($sql, $id_field_name = false) {
 	$lines = array();
 	$result = mysql_query($sql);
 	if ($result) {
