@@ -119,7 +119,10 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
  */
 function wrap_check_canonical($page, $ending, $request_uri) {
 	global $zz_setting;
-	$location = "Location: ".$zz_setting['host_base'];
+	global $zz_page;
+	$base = (!empty($zz_page['base']) ? $zz_page['base'] : '');
+	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
+	$location = "Location: ".$zz_setting['host_base'].$base;
 	// correct ending
 	switch ($ending) {
 	case '/':

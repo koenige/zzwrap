@@ -355,6 +355,11 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	// set default values
 	if (empty($zz_page['breadcrumbs_separator']))
 		$zz_page['breadcrumbs_separator'] = '&gt;';
+	if (empty($zz_page['base']))
+		$zz_page['base'] = '/';
+	// cut last slash because breadcrumb URLs always start with slash
+	if (substr($zz_page['base'], -1) == '/') 
+		$zz_page['base'] = substr($zz_page['base'], 0, -1);
 
 	// get breadcrumbs from database
 	$breadcrumbs = wrap_get_breadcrumbs($page_id);
@@ -366,7 +371,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$formatted_breadcrumbs = array();
 	foreach ($breadcrumbs as $crumb)
 		$formatted_breadcrumbs[] = 
-			($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$crumb['url_path'].'">')
+			($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
 			.$crumb['title']
 			.($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
 	if (!$formatted_breadcrumbs) return false;
@@ -376,7 +381,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($brick_breadcrumbs as $index => $crumb) {
 			if (is_array($crumb)) {
 				$brick_breadcrumbs[$index] = 
-					($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$crumb['url_path'].'">')
+					($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
 					.$crumb['title']
 					.($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
 			}
