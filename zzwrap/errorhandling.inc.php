@@ -12,7 +12,7 @@
 	$zz_conf['error_handling'] = <email>
 	
 */
-function zz_errorhandling($msg, $errorcode) {
+function wrap_error($msg, $errorcode) {
 	global $zz_setting;
 	global $zz_conf;
 
@@ -50,6 +50,15 @@ function zz_errorhandling($msg, $errorcode) {
 		$zz_conf['error_handling'] = 'screen';
 	if (empty($zz_conf['error_handling']))
 		$zz_conf['error_handling'] = false;
+
+	if (!is_array($zz_conf['error_mail_level'])) {
+		if ($zz_conf['error_mail_level'] == 'error') 
+			$zz_conf['error_mail_level'] = array('error');
+		elseif ($zz_conf['error_mail_level'] == 'warning') 
+			$zz_conf['error_mail_level'] = array('error', 'warning');
+		elseif ($zz_conf['error_mail_level'] == 'notice') 
+			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
+	}
 
 	switch ($zz_conf['error_handling']) {
 	case 'mail':

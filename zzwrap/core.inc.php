@@ -318,7 +318,7 @@ function wrap_db_fetch($sql, $id_field_name = false) {
 	} else {
 		if (substr($_SERVER['SERVER_NAME'], -6) == '.local')
 			echo mysql_error();
-		zz_errorhandling(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
+		wrap_error(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
 	}
 	return $lines;
 }

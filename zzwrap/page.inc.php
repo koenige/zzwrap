@@ -125,7 +125,15 @@ function wrap_get_menu_webpages() {
 	$result = mysql_query($zz_sql['menu']);
 	if ($result AND mysql_num_rows($result)) {
 		while ($line = mysql_fetch_assoc($result)) {
-			$menu[$line['menu']][$line['page_id']] = $line;
+			if (strstr($line['menu'], ',')) {
+				$mymenus = explode(',', $line['menu']);
+				foreach ($mymenus as $mymenu) {
+					$line['menu'] = $mymenu;
+					$menu[$mymenu][$line['page_id']] = $line;
+				}
+			} else {
+				$menu[$line['menu']][$line['page_id']] = $line;
+			}
 		}
 	}
 	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
@@ -443,10 +451,10 @@ function wrap_htmlout_page($page) {
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 	if (empty($page['no_page_head']) AND empty($page['no_page_foot'])) {
-		$output = brick_format($page['output'], $page, $zz_setting);
+		$output = brick_format($page['output'], $page);
 		$page['output'] = $output['text'];
 		$page_part = implode("", file($zz_page['brick_template']));
-		$page_part = brick_format($page_part, $page, $zz_setting);
+		$page_part = brick_format($page_part, $page);
 		return trim($page_part['text']);
 	}
 	return false;	

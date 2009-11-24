@@ -31,7 +31,7 @@ require_once $zz_setting['core'].'/errorhandling.inc.php';	// CMS errorhandling
 //require_once $zz_setting['core'].'/language.inc.php';	// include language settings
 require_once $zz_setting['core'].'/core.inc.php';	// CMS Kern
 require_once $zz_setting['core'].'/page.inc.php';	// CMS Seitenskripte
-if (!empty($zz_conf['error_503'])) zz_errorhandling($zz_conf['error_503'], E_USER_ERROR);	// exit for maintenance reasons
+if (!empty($zz_conf['error_503'])) wrap_error($zz_conf['error_503'], E_USER_ERROR);	// exit for maintenance reasons
 
 require_once $zz_setting['db_inc']; // Datenbankverbindung herstellen
 
@@ -92,7 +92,7 @@ if (function_exists('wrap_get_media'))
 	$media = wrap_get_media($zz_page['db'][$zz_field_page_id]);
 
 require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
-$page = brick_format($zz_page['db'][$zz_field_content], $zz_page['db']['parameter'], $zz_setting);
+$page = brick_format($zz_page['db'][$zz_field_content], $zz_page['db']['parameter']);
 if ($page['status'] != 200) 
 	wrap_quit($page['status']);
 if (empty($page)) wrap_quit();

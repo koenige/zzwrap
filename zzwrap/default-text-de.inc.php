@@ -99,7 +99,7 @@ $text['The proxy server received an invalid response from an upstream server.'] 
 // errors.php 503
 $text['Service Unavailable'] = 'Dienst steht nicht zur Verf&uuml;gung.';
 $text['The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.'] 
-	= 'Der Server kann zur Zeit Ihre Anfrage nicht bearbeiten. Grund kann eine Überlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es sp&auml;ter noch einmal.';
+	= 'Der Server kann zur Zeit Ihre Anfrage nicht bearbeiten. Grund kann eine &Uuml;berlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es sp&auml;ter noch einmal.';
 
 // errors.php 504
 $text['Gateway Timeout'] = 'Zeitlimit am Netzübergang (<code>gateway</code>) überschritten';
