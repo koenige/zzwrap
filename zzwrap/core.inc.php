@@ -297,23 +297,42 @@ function wrap_check_https($zz_page, $zz_setting) {
 
 /** Fetches records from database and returns array
  * 
+ * - without $id_field_name: expects exactly one record and returns
+ * the values of this record as an array
+ * - with $id_field_name: uses this name as unique key for all records
+ * and returns an array of values for each record under this key
+ * - with $id_field_name and $array_format = "key/value": returns key/value-pairs
  * TODO: give a more detailed explanation of how function works
  * @param $sql(string) SQL query string
  * @param $id_field_name(string) optional, if more than one record will be 
- 	returned: required; field_name for array keys
+ *	returned: required; field_name for array keys
+ * @param $format(string) optional, currently "key/value" is implemented 
  * @return array with queried database content
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_db_fetch($sql, $id_field_name = false) {
+function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	$lines = array();
 	$result = mysql_query($sql);
 	if ($result) {
 		if (!$id_field_name) {
-			if (mysql_num_rows($result) == 1)
-				$lines = mysql_fetch_assoc($result);
+			if (mysql_num_rows($result) == 1) {
+	 			if ($format == 'single value') {
+					$lines = mysql_result($result, 0, 0);
+	 			} else {
+					$lines = mysql_fetch_assoc($result);
+				}
+			}
  		} elseif (mysql_num_rows($result)) {
-			while ($line = mysql_fetch_assoc($result))
-				$lines[$line[$id_field_name]] = $line;
+ 			if ($format == 'key/value') {
+ 				// return array in pairs
+				while ($line = mysql_fetch_array($result)) {
+					$lines[$line[0]] = $line[1];
+				}
+ 			} else {
+ 				// default or unknown format
+				while ($line = mysql_fetch_assoc($result))
+					$lines[$line[$id_field_name]] = $line;
+			}
 		}
 	} else {
 		if (substr($_SERVER['SERVER_NAME'], -6) == '.local')
