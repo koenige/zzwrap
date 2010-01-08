@@ -200,7 +200,7 @@ function wrap_read_url($url) {
  * @return exits function with a redirect or an error document
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
- function wrap_quit($errorcode = 404) {
+function wrap_quit($errorcode = 404) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
@@ -211,11 +211,12 @@ function wrap_read_url($url) {
 	if (!empty($zz_setting['check_redirects'])) {
 		$url = wrap_read_url($zz_page['url']);
 		$url['db'] = mysql_real_escape_string($url['db']);
-		$sql = sprintf($zz_sql['redirects'], '/'.$url['db'], '/'.$url['db'], '/'.$url['db']);
-		if (!empty($_GET['lang'])) {
-			$sql.= ' OR '.$zz_sql['redirects_old_fieldname'].' = "/'
-				.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"';
-		}
+		$where_language = (!empty($_GET['lang']) 
+			? ' OR '.$zz_sql['redirects_old_fieldname'].' = "/'
+				.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"'
+			: ''
+		);
+		$sql = sprintf($zz_sql['redirects'], '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
 		$redir = wrap_db_fetch($sql);
 
 		// If no redirect was found until now, check if there's a redirect above
@@ -242,14 +243,14 @@ function wrap_read_url($url) {
 			}
 		}
 	}
-	if (!$redir) $redir['code'] = $errorcode;
+	if (!$redir) $page['code'] = $errorcode; // we need this in the error script
+	else $page['code'] = $redir['code'];
 
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
 
 	// Check redirection code
-	$page['code'] = $redir['code']; // we need this in the error script
 	switch ($page['code']) {
 	case 301:
 		header($protocol." 301 Moved Permanently");
@@ -259,7 +260,7 @@ function wrap_read_url($url) {
 		if (!empty($new['scheme'])) {
 			$new = $redir[$zz_sql['redirects_new_fieldname']];
 		} else {
-			$new = $zz_setting['host_base'].$redir[$zz_sql['redirects_new_fieldname']];
+			$new = $zz_setting['host_base'].$zz_setting['base_url'].$redir[$zz_sql['redirects_new_fieldname']];
 		}
 		header("Location: ".$new);
 		break;
@@ -306,7 +307,13 @@ function wrap_check_https($zz_page, $zz_setting) {
  * @param $sql(string) SQL query string
  * @param $id_field_name(string) optional, if more than one record will be 
  *	returned: required; field_name for array keys
- * @param $format(string) optional, currently "key/value" is implemented 
+ *  if it's an array with two strings, this will be used to construct a 
+ *  hierarchical array for the returned array with both keys
+ * @param $format(string) optional, currently implemented
+ 	"key/value" = returns array($key => $value)
+ 	"single value" = returns $value
+ 	"object" = returns object
+ 	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
  * @return array with queried database content
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -318,16 +325,37 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			if (mysql_num_rows($result) == 1) {
 	 			if ($format == 'single value') {
 					$lines = mysql_result($result, 0, 0);
-	 			} else {
+	 			} elseif ($format == 'object') {
+					$lines = mysql_fetch_object($result);
+				} else {
 					$lines = mysql_fetch_assoc($result);
 				}
 			}
+ 		} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
+			if ($format == 'object') {
+				while ($line = mysql_fetch_object($result))
+					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
+ 			} else {
+ 				// default or unknown format
+				while ($line = mysql_fetch_assoc($result))
+					$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line;
+			}
  		} elseif (mysql_num_rows($result)) {
- 			if ($format == 'key/value') {
+ 			if ($format == 'single value') {
+				while ($line = mysql_fetch_array($result)) {
+					$lines[$line[0]] = $line[0];
+				}
+ 			} elseif ($format == 'key/value') {
  				// return array in pairs
 				while ($line = mysql_fetch_array($result)) {
 					$lines[$line[0]] = $line[1];
 				}
+			} elseif ($format == 'object') {
+				while ($line = mysql_fetch_object($result))
+					$lines[$line->$id_field_name] = $line;
+			} elseif ($format == 'numeric') {
+				while ($line = mysql_fetch_assoc($result))
+					$lines[] = $line;
  			} else {
  				// default or unknown format
 				while ($line = mysql_fetch_assoc($result))

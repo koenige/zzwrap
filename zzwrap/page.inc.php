@@ -341,7 +341,9 @@ function wrap_get_breadcrumbs($page_id) {
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$breadcrumbs[] = array(
 		'title' => $pages[$page_id]['title'],
-		'url_path' => $pages[$page_id]['identifier']);
+		'url_path' => $pages[$page_id]['identifier'],
+		'page_id' => $pages[$page_id]['page_id']
+	);
 	if ($pages[$page_id]['mother_page_id'] 
 		&& !empty($pages[$pages[$page_id]['mother_page_id']]))
 		$breadcrumbs = array_merge($breadcrumbs, 
@@ -407,7 +409,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 
 /** Reads authors from database, adds initials and gives back array
  * 
- * needs global $zz_sql['authors']!
+ * needs global $zz_sql['authors']! person_id = ID, person = name of author
  * @param $brick_authors IDs of authors
  * @param $author_id extra ID of author, may be false
  * @return array authors, person = name, initials = initials, lowercase
@@ -417,7 +419,7 @@ function wrap_get_authors($brick_authors, $author_id = false) {
 	global $zz_sql;
 	if (empty($zz_sql['authors'])) return false;
 
-	// add to extra page author to authos from brick_format()
+	// add to extra page author to authors from brick_format()
 	if ($author_id) $brick_authors[] = $author_id;
 	
 	$authors = wrap_db_fetch(sprintf($zz_sql['authors'], implode(', ', $brick_authors)), 'person_id');
