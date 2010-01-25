@@ -84,7 +84,7 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 		if (!$page) $parameter = false; // if more than one url will be checked, initialize variable
 		while (!$page) {
 			$sql = sprintf($zz_sql['pages'], '/'.mysql_real_escape_string($my_url));
-			if (!$zz_access['wrap_page_preview']) $sql.= ' AND '.$zz_sql['is_public'];
+			if (!$zz_access['wrap_preview']) $sql.= ' AND '.$zz_sql['is_public'];
 			$page = wrap_db_fetch($sql);
 			if (empty($page) && strstr($my_url, '/')) { // if not found, remove path parts from URL
 				if ($parameter) {
@@ -102,7 +102,6 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 			}
 		}
 	}
-
 	if (!$page) return false;
 
 	$page['parameter'] = $parameter;
@@ -243,15 +242,15 @@ function wrap_quit($errorcode = 404) {
 			}
 		}
 	}
-	if (!$redir) $page['code'] = $errorcode; // we need this in the error script
-	else $page['code'] = $redir['code'];
+	if (!$redir) $page['status'] = $errorcode; // we need this in the error script
+	else $page['status'] = $redir['code'];
 
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
 
 	// Check redirection code
-	switch ($page['code']) {
+	switch ($page['status']) {
 	case 301:
 		header($protocol." 301 Moved Permanently");
 	case 302:
@@ -322,6 +321,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	$result = mysql_query($sql);
 	if ($result) {
 		if (!$id_field_name) {
+			// only one record
 			if (mysql_num_rows($result) == 1) {
 	 			if ($format == 'single value') {
 					$lines = mysql_result($result, 0, 0);
@@ -333,12 +333,22 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			}
  		} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
 			if ($format == 'object') {
-				while ($line = mysql_fetch_object($result))
-					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
+				while ($line = mysql_fetch_object($result)) {
+					if (count($id_field_name) == 3) {
+						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
+					} else {
+						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
+					}
+				}
  			} else {
  				// default or unknown format
-				while ($line = mysql_fetch_assoc($result))
-					$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line;
+				while ($line = mysql_fetch_assoc($result)) {
+					if (count($id_field_name) == 3) {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $line;
+					} else {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line;
+					}
+				}
 			}
  		} elseif (mysql_num_rows($result)) {
  			if ($format == 'single value') {
@@ -363,12 +373,143 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			}
 		}
 	} else {
-		if (substr($_SERVER['SERVER_NAME'], -6) == '.local')
+		if (substr($_SERVER['SERVER_NAME'], -6) == '.local') {
 			echo mysql_error();
+			echo '<br>'.$sql;
+		}
 		wrap_error(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
 	}
 	return $lines;
 }
+
+
+// puts parts of SQL query in correct order when they have to be added
+// this function works only for sql queries without UNION:
+// SELECT ... FROM ... JOIN ...
+// WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
+// might get problems with backticks that mark fieldname that is equal with SQL keyword
+// mode = add until now default, mode = replace is only implemented for SELECT
+// identical to zz_edit_sql()!
+function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
+	global $zz_conf; // for debug only
+//	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
+	// remove whitespace
+	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
+	// SQL statements in descending order
+	$statements_desc = array('LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'FROM', 'SELECT DISTINCT', 'SELECT');
+	foreach ($statements_desc as $statement) {
+		$explodes = explode(' '.$statement.' ', $sql);
+		if (count($explodes) > 1) {
+		// = look only for last statement
+		// and put remaining query in [1] and cut off part in [2]
+			$o_parts[$statement][2] = array_pop($explodes);
+			$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; // last blank needed for exploding SELECT from DISTINCT
+		}
+		$search = '/(.+) '.$statement.' (.+?)$/i'; 
+//		preg_match removed because it takes way too long if nothing is found
+//		if (preg_match($search, $sql, $o_parts[$statement])) {
+		if (!empty($o_parts[$statement])) {
+			$found = false;
+			$lastpart = false;
+			while (!$found) {
+				// check if there are () outside '' or "" and count them to check
+				// whether we are inside a subselect
+				$temp_sql = $o_parts[$statement][1]; // look at first part of query
+	
+				// 1. remove everything in '' and "" which are not escaped
+				// replace \" character sequences which escape "
+				$temp_sql = preg_replace('/\\\\"/', '', $temp_sql);
+				// replace "strings" without " inbetween, empty "" as well
+				$temp_sql = preg_replace('/"[^"]*"/', "away", $temp_sql);
+				// replace \" character sequences which escape '
+				$temp_sql = preg_replace("/\\\\'/", '', $temp_sql);
+				// replace "strings" without " inbetween, empty '' as well
+				$temp_sql = preg_replace("/'[^']*'/", "away", $temp_sql);
+	
+				// 2. count opening and closing ()
+				//  if equal ok, if not, it's a statement in a subselect
+				// assumption: there must not be brackets outside " or '
+				if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
+					$sql = $o_parts[$statement][1]; // looks correct, so go on.
+					$found = true;
+				} else {
+					// remove next last statement, and go on until you found 
+					// either something with correct bracket count
+					// or no match anymore at all
+					$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
+					// check first with strstr if $statement (LIMIT, WHERE etc.)
+					// is still part of the remaining sql query, because
+					// preg_match will take 2000 times longer if there is no match
+					// at all (bug in php?)
+					if (strstr($o_parts[$statement][1], $statement) 
+						AND preg_match($search, $o_parts[$statement][1], $o_parts[$statement])) {
+						$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
+					} else {
+						unset($o_parts[$statement]); // ignore all this.
+						$found = true;
+					}
+				}
+			}
+		}
+	}
+	if ($n_part && $values) {
+		$n_part = strtoupper($n_part);
+		switch ($n_part) {
+			case 'LIMIT':
+				// replace complete old LIMIT with new LIMIT
+				$o_parts['LIMIT'][2] = $values;
+			break;
+			case 'ORDER BY':
+				if ($mode == 'add') {
+					// append old ORDER BY to new ORDER BY
+					if (!empty($o_parts['ORDER BY'][2])) 
+						$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
+					else
+						$o_parts['ORDER BY'][2] = $values;
+				} elseif ($mode == 'delete') {
+					unset($o_parts['ORDER BY']);
+				}
+			break;
+			case 'WHERE':
+			case 'GROUP BY':
+			case 'HAVING':
+				if ($mode == 'add') {
+					if (!empty($o_parts[$n_part][2])) 
+						$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
+					else 
+						$o_parts[$n_part][2] = $values;
+				}  elseif ($mode == 'delete') {
+					unset($o_parts[$n_part]);
+				}
+			break;
+			case 'SELECT':
+				if (!empty($o_parts['SELECT DISTINCT'][2])) {
+					if ($mode == 'add')
+						$o_parts['SELECT DISTINCT'][2] .= ','.$values;
+					elseif ($mode == 'replace')
+						$o_parts['SELECT DISTINCT'][2] = $values;
+				} else {
+					if ($mode == 'add')
+						$o_parts['SELECT'][2] = ','.$values;
+					elseif ($mode == 'replace')
+						$o_parts['SELECT'][2] = $values;
+				}
+			break;
+			default:
+				echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
+				exit;
+			break;
+		}
+	}
+	$statements_asc = array_reverse($statements_desc);
+	foreach ($statements_asc as $statement) {
+		if (!empty($o_parts[$statement][2])) 
+			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
+	}
+//	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
+	return $sql;
+}
+
 
 
 ?>

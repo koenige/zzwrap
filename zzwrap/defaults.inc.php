@@ -89,7 +89,7 @@ if (empty($zz_setting['custom']))
 	$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
 
 // customized cms includes
-if (empty($zz_setting['custom_custom_wrap_dir']))	
+if (empty($zz_setting['custom_wrap_dir']))	
 	$zz_setting['custom_wrap_dir'] = $zz_setting['custom'].'/zzwrap';
 
 // customized sql queries, db connection
@@ -144,6 +144,10 @@ if (!isset($zz_setting['lang']))
 		$zz_setting['lang']		= $zz_conf['language'];
 	else
 		$zz_setting['lang']		= false;
+
+// translations
+if (!isset($zz_conf['translations_of_fields']))
+	$zz_conf['translations_of_fields'] = false;
 
 // page base
 if (empty($zz_page['base']))
@@ -229,5 +233,13 @@ if (!isset($zz_setting['authentification_possible']))
 
 if (!isset($zz_setting['logout_inactive_after']))
 	$zz_setting['logout_inactive_after'] = 30; // time in minutes
+
+
+// -------------------------------------------------------------------------
+// Encryption
+// -------------------------------------------------------------------------
+
+if (empty($zz_conf['password_encryption'])) 
+	$zz_conf['password_encryption'] = 'md5';
 
 ?>

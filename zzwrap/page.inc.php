@@ -318,11 +318,20 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
  */
 function wrap_get_breadcrumbs($page_id) {
 	global $zz_sql;
+	global $zz_conf;
+	global $zz_access;
+	global $zz_translation_matrix;
 	if (empty($zz_sql['breadcrumbs'])) return array();
 
 	$breadcrumbs = array();
 	// get all webpages
-	$pages = wrap_db_fetch($zz_sql['breadcrumbs'], 'page_id');
+	$sql = $zz_sql['breadcrumbs'];
+	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', $zz_sql['is_public']);
+	$pages = wrap_db_fetch($sql, 'page_id');
+	if ($zz_conf['translations_of_fields']) {
+		$pages = wrap_translate($pages, $zz_translation_matrix['breadcrumbs'], false);
+	}
+
 	// get all breadcrumbs recursively
 	$breadcrumbs = wrap_get_breadcrumbs_recursive($page_id, $pages);
 	// sort breadcrumbs in descending order
@@ -381,9 +390,9 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$formatted_breadcrumbs = array();
 	foreach ($breadcrumbs as $crumb)
 		$formatted_breadcrumbs[] = 
-			($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
+			($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
 			.$crumb['title']
-			.($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
+			.($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
 	if (!$formatted_breadcrumbs) return false;
 	
 	$html_output = implode(' '.$zz_page['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
@@ -391,9 +400,9 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($brick_breadcrumbs as $index => $crumb) {
 			if (is_array($crumb)) {
 				$brick_breadcrumbs[$index] = 
-					($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
+					($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
 					.$crumb['title']
-					.($crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
+					.($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
 			}
 		}
 		$html_output.= ' '.$zz_page['breadcrumbs_separator']
