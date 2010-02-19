@@ -98,7 +98,7 @@ if (empty($zz_setting['custom_wrap_sql_dir']))
 
 // customized sql queries, db connection
 if (empty($zz_setting['custom_wrap_template_dir']))	
-	$zz_setting['custom_wrap_template_dir'] = $zz_setting['custom'].'/zzwrap_templates';
+	$zz_setting['custom_wrap_template_dir'] = $zz_setting['inc'].'/templates';
 
 // database connection
 if (empty($zz_setting['db_inc']))
