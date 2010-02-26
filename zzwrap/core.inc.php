@@ -216,6 +216,9 @@ function wrap_quit($errorcode = 404) {
 			: ''
 		);
 		$sql = sprintf($zz_sql['redirects'], '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
+		// not needed anymore, but set to false hinders from getting into a loop
+		// (wrap_db_fetch() will call wrap_quit() if table does not exist)
+		$zz_setting['check_redirects'] = false; 
 		$redir = wrap_db_fetch($sql);
 
 		// If no redirect was found until now, check if there's a redirect above
@@ -302,6 +305,8 @@ function wrap_check_https($zz_page, $zz_setting) {
  * - with $id_field_name: uses this name as unique key for all records
  * and returns an array of values for each record under this key
  * - with $id_field_name and $array_format = "key/value": returns key/value-pairs
+ * - with $id_field_name = 'dummy' and $array_format = "single value": returns
+ * just first value as an array e. g. [3] => 3
  * TODO: give a more detailed explanation of how function works
  * @param $sql(string) SQL query string
  * @param $id_field_name(string) optional, if more than one record will be 
@@ -352,6 +357,8 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			}
  		} elseif (mysql_num_rows($result)) {
  			if ($format == 'single value') {
+ 				// you can reach this part here with a dummy id_field_name
+ 				// because no $id_field_name is needed!
 				while ($line = mysql_fetch_array($result)) {
 					$lines[$line[0]] = $line[0];
 				}
@@ -382,6 +389,61 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	return $lines;
 }
 
+/* Recursively gets a tree of records or just IDs from the database
+ * 
+ * to get just IDs of records, the input array needs to be either the output
+ * of wrap_db_fetch($sql, $key_field_name, 'single value') or an array of
+ * IDs (array(3, 4, 5)); to get full records as specified in the SQL query, the
+ * input array must be the output of wrap_db_fetch($sql, $key_field_name) or an
+ * array with the records, e. g. array(3 => array('id' => 3, 'title' => "blubb"),
+ * 4 => array('id' => 4, title => "another title"))
+ * @param $data(array) Array with records from database, indexed on ID
+ * @param $sql(string) SQL query to get child records for each selected record
+ * @param $key_field_name(string) optional: Fieldname of primary key
+ * @param $mode(string) optional: flat = without hierarchy, hierarchical = with.
+ * @return array with queried database content or just the IDs
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') {
+	// get all IDs that were submitted to the function
+	if ($key_field_name)
+		foreach ($data as $record) $ids[] = $record[$key_field_name];
+	else
+		$ids = $data;
+	if ($mode == 'hierarchy') {
+		$old_data = $data;
+		unset($data);
+		$data[0] = $old_data; // 0 is the top hierarchy, means nothing stands above this
+		$data['ids'] = $ids;
+	}
+	// as long as we have IDs in the pool, check if the current ID has child records
+	while ($ids) {
+		// take current ID from $ids
+		$my_id = array_shift($ids);
+		if ($key_field_name) {
+			// get ID and full record as specified in SQL query
+			$my_data = wrap_db_fetch(sprintf($sql, $my_id), $key_field_name);
+		} else {
+			// just get the ID, a dummy key_field_name must be set here
+			$my_data = wrap_db_fetch(sprintf($sql, $my_id), 'dummy', 'single value');
+		}
+		if ($my_data) {
+			// append new records to $data-Array
+			if ($mode == 'flat') $data += $my_data;
+			elseif ($mode == 'hierarchy') {
+				if (empty($data[$my_id])) $data[$my_id] = array();
+				$data[$my_id] += $my_data;
+			}
+			// append new IDs to $ids-Array
+			$ids += array_keys($my_data);
+			if ($mode == 'hierarchy') {
+				$data['ids'] = array_merge($data['ids'], array_keys($my_data));
+			}
+		}
+	}
+	if ($mode == 'hierarchy') sort($data['ids']);
+	return $data;
+}
 
 // puts parts of SQL query in correct order when they have to be added
 // this function works only for sql queries without UNION:
