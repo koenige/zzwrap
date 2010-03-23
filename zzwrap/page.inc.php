@@ -87,6 +87,7 @@ function wrap_get_menu_navigation() {
 			$menu[$item['main_nav_id']][$item['nav_id']] = $item;
 		}
 	}
+	if (empty($menu)) return false;
 	// set current_page, id, subtitle, url with base for _ALL_ menu items
 	foreach (array_keys($menu) as $id) {
 		foreach ($menu[$id] as $nav_id => $item) {

@@ -6,7 +6,8 @@
 
 
 // Local modifications to SQL queries
-require_once $zz_setting['custom_wrap_sql_dir'].'/sql-core.inc.php';
+if (!empty($zz_setting['custom_wrap_sql_dir']))
+	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-core.inc.php';
 
 /** Test, whether URL contains a correct secret key to allow page previews
  * 
@@ -348,10 +349,16 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
  			} else {
  				// default or unknown format
 				while ($line = mysql_fetch_assoc($result)) {
+		 			if ($format == 'single value') {
+						// just get last field, make sure that it's not one of the id_field_names!
+		 				$values = array_pop($line);
+		 			} else {
+		 				$values = $line;
+		 			}
 					if (count($id_field_name) == 3) {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $line;
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
 					} else {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line;
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
 					}
 				}
 			}
@@ -384,7 +391,9 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			echo mysql_error();
 			echo '<br>'.$sql;
 		}
-		wrap_error(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
+		if (function_exists('wrap_error')) {
+			wrap_error(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
+		}
 	}
 	return $lines;
 }
