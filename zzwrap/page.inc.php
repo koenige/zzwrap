@@ -190,8 +190,7 @@ function wrap_get_menu_webpages() {
  * $zz_setting['main_menu']
  * $zz_setting['menu_mark_active_open']
  * $zz_setting['menu_mark_active_close']
- * $zz_setting['never_display_submenues']
- * $zz_setting['show_all_menu_entries']
+ * $zz_setting['menu_display_submenu_items']
  *
  * @param $nav Ausgabe von wrap_get_menu();
  	required keys: 'title', 'url', 'current_page'
@@ -207,13 +206,13 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	if (!$nav) return false;
 
 	global $zz_setting;
-	// display menu entries with all submenues
-	if (!isset($zz_setting['show_all_menu_entries']))
-		$zz_setting['show_all_menu_entries'] = false;
-	// display menu entries - never any submenues
-	if (!isset($zz_setting['never_display_submenues']))
-		$zz_setting['never_display_submenues'] = false;
-	
+	// when to display submenu items
+	// 'all': always display all submenu items
+	// 'current': only display submenu items when item from menu branch is selected
+	// 'none'/false: never display submenu items
+	if (!isset($zz_setting['menu_display_submenu_items'])) 
+		$zz_setting['menu_display_submenu_items'] = 'current';
+		
 	// format active menu entry
 	if (!isset($zz_setting['menu_mark_active_open']))
 		$zz_setting['menu_mark_active_open'] = '<strong>';
@@ -290,8 +289,8 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		} 
 		// get submenu if there is one and if it shall be shown
 		if (!empty($nav[$fn_prefix.$item[$fn_page_id]]) // there is a submenu and at least one of:
-			AND (!$zz_setting['never_display_submenues'])
-			AND ($zz_setting['show_all_menu_entries'] 	// all menus shall be shown
+			AND ($zz_setting['menu_display_submenu_items'] != 'none')
+			AND ($zz_setting['menu_display_submenu_items'] == 'all' 	// all menus shall be shown
 				OR $item['current_page'] 				// it's the submenu of the current page
 				OR $page_below)) {						// it has a url one level below this page
 			$id = $fn_prefix.$item[$fn_page_id];

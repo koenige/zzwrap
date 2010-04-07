@@ -79,34 +79,48 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 			}
 		}
 	}
-
+	
 	// For request, remove ending (.html, /), but not for page root
 	foreach ($full_url as $i => $my_url) {
-		if (!$page) $parameter = false; // if more than one url will be checked, initialize variable
-		while (!$page) {
+		$loops[$i] = 0; // if more than one URL to be tested against: count of rounds
+		$page[$i] = false;
+		if (!$page[$i]) $parameter[$i] = false; // if more than one url will be checked, initialize variable
+		while (!$page[$i]) {
+			$loops[$i]++;
 			$sql = sprintf($zz_sql['pages'], '/'.mysql_real_escape_string($my_url));
 			if (!$zz_access['wrap_preview']) $sql.= ' AND '.$zz_sql['is_public'];
-			$page = wrap_db_fetch($sql);
-			if (empty($page) && strstr($my_url, '/')) { // if not found, remove path parts from URL
-				if ($parameter) {
-					$parameter = '/'.$parameter; // '/' as a separator for variables
+			$page[$i] = wrap_db_fetch($sql);
+			if (empty($page[$i]) && strstr($my_url, '/')) { // if not found, remove path parts from URL
+				if ($parameter[$i]) {
+					$parameter[$i] = '/'.$parameter[$i]; // '/' as a separator for variables
 					$my_url = substr($my_url, 0, -1); // remove '*'
 				}
-				$parameter = substr($my_url, strrpos($my_url, '/') +1).$parameter;
+				$parameter[$i] = substr($my_url, strrpos($my_url, '/') +1).$parameter[$i];
 				$my_url = substr($my_url, 0, strrpos($my_url, '/')).'*';
 			} else {
 				// something was found, get out of here
 				// but get placeholders as parameters as well!
 				if (!empty($leftovers[$i])) 
-					$parameter = implode('/', $leftovers[$i]).($parameter ? '/'.$parameter : '');
+					$parameter[$i] = implode('/', $leftovers[$i]).($parameter[$i] ? '/'.$parameter[$i] : '');
+				$url[$i] = $my_url;
 				break;
 			}
 		}
+		if (!$page[$i]) unset($loops[$i]);
 	}
+	if (empty($loops)) return false;
+	
+	// get best match, sort twice:
+	// 1. get match with least loops
+	// 2. get match with lowest index of loops
+	asort($loops);
+	asort($loops);
+	$i = key($loops);
+	$page = $page[$i];
 	if (!$page) return false;
 
-	$page['parameter'] = $parameter;
-	$page['url'] = $my_url;
+	$page['parameter'] = $parameter[$i];
+	$page['url'] = $url[$i];
 	return $page;
 }
 

@@ -35,7 +35,7 @@ $text['Payment Required'] = 'Bezahlung erforderlich';
 // errors.php 403
 $text['Forbidden'] = 'Kein Zugriff';
 $text["You don't have permission to access the requested object. It is either read-protected or not readable by the server."]
-	= 'Der Zugriff auf den angeforderten Inhalt ist nicht m&ouml;glich. Entweder kann es vom Server nicht gelesen werden oder es ist zugriffsgesch&uuml;tzt.';
+	= 'Der Zugriff auf den angeforderten Inhalt ist nicht m&ouml;glich. Entweder kann er vom Server nicht gelesen werden oder er ist zugriffsgesch&uuml;tzt.';
 
 // errors.php 404
 $text['Not Found'] = 'Inhalt nicht gefunden';

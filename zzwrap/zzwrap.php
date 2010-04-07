@@ -25,11 +25,10 @@ if (empty($zz_setting['core']))
 	$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
 require_once $zz_setting['core'].'/defaults.inc.php';	// set default variables
 require_once $zz_setting['core'].'/errorhandling.inc.php';	// CMS errorhandling
-require_once $zz_setting['core'].'/core.inc.php';	// CMS Kern
-require_once $zz_setting['core'].'/page.inc.php';	// CMS Seitenskripte
+require_once $zz_setting['db_inc']; // Establish database connection
+require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
+require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 if (!empty($zz_conf['error_503'])) wrap_error($zz_conf['error_503'], E_USER_ERROR);	// exit for maintenance reasons
-
-require_once $zz_setting['db_inc']; // Datenbankverbindung herstellen
 
 if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
 	require_once $zz_setting['custom_wrap_dir'].'/_functions.inc.php';
@@ -92,10 +91,11 @@ if (!$zz_page['db']) wrap_quit();
 // translate page (that was not possible in wrap_look_for_page() because we
 // did not have complete language information then.
 if ($zz_conf['translations_of_fields']) {
-	$zz_page['db'] = array_shift(wrap_translate(array(
+	$my_page = wrap_translate(array(
 		$zz_page['db'][$zz_field_page_id] => $zz_page['db']), 
-		$zz_translation_matrix['pages'])
-	);
+		$zz_translation_matrix['pages']);
+	$zz_page['db'] = array_shift($my_page);
+	unset($my_page);
 }
 
 require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
