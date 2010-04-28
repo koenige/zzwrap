@@ -10,7 +10,8 @@ $zz_sql['breadcrumbs'] = '';
 $zz_sql['menu'] = '';
 $zz_sql['menu_level2'] = '';
 // If we like to have menus or breadcrumbs, put an SQL query here:
-if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-page.inc.php'))
+if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-page.inc.php')
+	AND !empty($zz_conf['db_connection']))
 	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-page.inc.php';
 
 /*	List of functions in this file
@@ -93,7 +94,7 @@ function wrap_get_menu_navigation() {
 		foreach ($menu[$id] as $nav_id => $item) {
 			// add base_url for non-http links
 			if (substr($item['url'], 0, 1) == '/') 
-				$menu[$id][$nav_id]['url'] = $zz_setting['base_url'].$item['url'];
+				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
 				($item['url'] == $_SERVER['REQUEST_URI'] ? true : false);
@@ -166,7 +167,7 @@ function wrap_get_menu_webpages() {
 		foreach ($menu[$id] as $nav_id => $item) {
 			// add base_url for non-http links
 			if (substr($item['url'], 0, 1) == '/') 
-				$menu[$id][$nav_id]['url'] = $zz_setting['base_url'].$item['url'];
+				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
 				($item['url'] == $_SERVER['REQUEST_URI'] ? true : false);
@@ -369,16 +370,17 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
  */
  function wrap_htmlout_breadcrumbs($page_id, $brick_breadcrumbs) {
 	global $zz_page;
+	global $zz_setting;
+	
 	$breadcrumbs = array();
 	$html_output = false;
 	// set default values
 	if (empty($zz_page['breadcrumbs_separator']))
 		$zz_page['breadcrumbs_separator'] = '&gt;';
-	if (empty($zz_page['base']))
-		$zz_page['base'] = '/';
+	if (empty($zz_setting['base'])) $zz_setting['base'] = '';
 	// cut last slash because breadcrumb URLs always start with slash
-	if (substr($zz_page['base'], -1) == '/') 
-		$zz_page['base'] = substr($zz_page['base'], 0, -1);
+	if (substr($zz_setting['base'], -1) == '/') 
+		$zz_setting['base'] = substr($zz_setting['base'], 0, -1);
 
 	// get breadcrumbs from database
 	$breadcrumbs = wrap_get_breadcrumbs($page_id);
@@ -390,9 +392,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$formatted_breadcrumbs = array();
 	foreach ($breadcrumbs as $crumb)
 		$formatted_breadcrumbs[] = 
-			($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
+			($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
+				? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
 			.$crumb['title']
-			.($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
+			.($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
 	if (!$formatted_breadcrumbs) return false;
 	
 	$html_output = implode(' '.$zz_page['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
@@ -400,9 +403,11 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($brick_breadcrumbs as $index => $crumb) {
 			if (is_array($crumb)) {
 				$brick_breadcrumbs[$index] = 
-					($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '<strong>' : '<a href="'.$zz_page['base'].$crumb['url_path'].'">')
+					($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
+						? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
 					.$crumb['title']
-					.($zz_page['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
+					.($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
+						? '</strong>' : '</a>');
 			}
 		}
 		$html_output.= ' '.$zz_page['breadcrumbs_separator']

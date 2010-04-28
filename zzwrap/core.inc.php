@@ -6,7 +6,7 @@
 
 
 // Local modifications to SQL queries
-if (!empty($zz_setting['custom_wrap_sql_dir']))
+if (!empty($zz_setting['custom_wrap_sql_dir']) AND !empty($zz_conf['db_connection']))
 	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-core.inc.php';
 
 /** Test, whether URL contains a correct secret key to allow page previews
@@ -134,7 +134,7 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 function wrap_check_canonical($page, $ending, $request_uri) {
 	global $zz_setting;
 	global $zz_page;
-	$base = (!empty($zz_page['base']) ? $zz_page['base'] : '');
+	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
 	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
 	$location = "Location: ".$zz_setting['host_base'].$base;
 	// correct ending
@@ -277,7 +277,7 @@ function wrap_quit($errorcode = 404) {
 		if (!empty($new['scheme'])) {
 			$new = $redir[$zz_sql['redirects_new_fieldname']];
 		} else {
-			$new = $zz_setting['host_base'].$zz_setting['base_url'].$redir[$zz_sql['redirects_new_fieldname']];
+			$new = $zz_setting['host_base'].$zz_setting['base'].$redir[$zz_sql['redirects_new_fieldname']];
 		}
 		header("Location: ".$new);
 		break;
@@ -312,6 +312,26 @@ function wrap_check_https($zz_page, $zz_setting) {
 		exit;
 	}
 }
+
+/** Puts data from request into template and returns full page
+ *
+ * @param $template(string) Name of template that will be filled
+ * @param $data(array) Data which will be used to fill the template
+ * @return array $page
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_template($template, $data) {
+	global $zz_setting;
+
+	// Template einbinden und füllen
+	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template
+		.'.template.txt';
+	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
+	$template = implode("", file($tpl));
+	$page = brick_format($template, $data);
+	return $page;
+}
+
 
 /** Fetches records from database and returns array
  * 

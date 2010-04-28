@@ -58,16 +58,19 @@ function wrap_error($msg, $errorcode) {
 			$zz_conf['error_mail_level'] = array('error', 'warning');
 		elseif ($zz_conf['error_mail_level'] == 'notice') 
 			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
+		else
+			$zz_conf['error_mail_level'] = array();
 	}
 
 	switch ($zz_conf['error_handling']) {
 	case 'mail':
 		if (in_array($level, $zz_conf['error_mail_level'])) {
-			$email_head = 'From: "'.$zz_conf['project'].'" <'.$zz_conf['error_mail_from'].'>
+			$email_head = 'From: "'.html_entity_decode($zz_conf['project']).'" <'.$zz_conf['error_mail_from'].'>
 MIME-Version: 1.0
 Content-Type: text/plain; charset='.$zz_conf['character_set'].'
 Content-Transfer-Encoding: 8bit';
-			mail($zz_conf['error_mail_to'], '['.$zz_conf['project'].'] '.(function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website'), 
+			mail($zz_conf['error_mail_to'], '['.html_entity_decode($zz_conf['project']).'] '
+				.(function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website'), 
 			$msg, $email_head, '-f '.$zz_conf['error_mail_from']);
 		}
 		break;
@@ -80,7 +83,56 @@ Content-Transfer-Encoding: 8bit';
 		break;
 	}
 
-	if ($return == 'exit') wrap_quit(503);
+	if ($return == 'exit') {
+		if (function_exists('wrap_quit')) wrap_quit(503);
+		else {
+//			$page['status'] = 503;
+//			include_once $zz_setting['http_error_script'];
+//			exit;
+			
+			// no error function, so it's a problem with the database connection
+			$codes = wrap_read_errorcodes();
+			$error_messages = $codes[503];
+			header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '.$error_messages['title']);
+			if (!empty($zz_conf['character_set']))
+				header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+			echo '<title>503 - '.$error_messages['title'].'</title>';
+			echo '<h1>'.$error_messages['title'].'</h1>';
+			echo '<p>'.$error_messages['description'].'</p>';
+			exit;
+		}
+
+	}
+}
+
+function wrap_read_errorcodes() {
+	global $zz_setting;
+	
+	// read error codes from file
+	$pos[0] = 'code';
+	$pos[1] = 'title';
+	$pos[2] = 'description';
+	$codes_from_file = file($zz_setting['core'].'/http-errors.txt');
+	foreach ($codes_from_file as $line) {
+		if (substr($line, 0, 1) == '#') continue;	// Lines with # will be ignored
+		elseif (!trim($line)) continue;				// empty lines will be ignored
+		$values = explode("\t", trim($line));
+		$i = 0;
+		$code = '';
+		foreach ($values as $val) {
+			if (trim($val)) {
+				if (!$i) $code = trim($val);
+				$codes[$code][$pos[$i]] = trim($val);
+				$i++;
+			}
+		}
+		if ($i < 3) {
+			for ($i; $i < 3; $i++) {
+				$codes[$code][$pos[$i]] = '';
+			}
+		}
+	}
+	return $codes;
 }
 
 ?>

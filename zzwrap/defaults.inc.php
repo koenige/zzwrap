@@ -14,14 +14,14 @@ if (empty($zz_setting['hostname'])) // SERVER_NAME, htmlentities against XSS
 if (empty($zz_setting['local_access'])) // check if it's a local server
 	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
 
-if (empty($zz_setting['base_url'])) 
-	$zz_setting['base_url'] = '';
+if (empty($zz_setting['base'])) 
+	$zz_setting['base'] = '';
 
 if (empty($zz_setting['https'])) $zz_setting['https'] = false;
 // HTTPS; zzwrap authentification will always be https
 if (!empty($zz_setting['https_urls'])) {
 	foreach ($zz_setting['https_urls'] AS $url) {
-		if ($zz_setting['base_url'].$url == substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['base_url'].$url)))
+		if ($zz_setting['base'].$url == substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['base'].$url)))
 			$zz_setting['https'] = true;
 	}
 }
@@ -149,14 +149,24 @@ if (!isset($zz_setting['lang']))
 if (!isset($zz_conf['translations_of_fields']))
 	$zz_conf['translations_of_fields'] = false;
 
-// page base
-if (empty($zz_page['base']))
-	$zz_page['base']			= '/';
-
 // breadcrumbs
 if (!isset($zz_page['breadcrumbs_separator']))
 	$zz_page['breadcrumbs_separator'] = '&gt;';
 
+// functions that might be used for formatting (zzbrick)
+if (!isset($zz_setting['brick_formatting_functions']))
+	$zz_setting['brick_formatting_functions'] = array();
+	
+// allowed HTML rel attribute values
+if (!isset($zz_setting['html_link_types'])) {
+	$zz_setting['html_link_types'] = array('Alternate', 'Stylesheet', 'Start',
+		'Next', 'Prev', 'Contents', 'Index', 'Glossary', 'Copyright', 'Chapter',
+		'Section', 'Subsection', 'Appendix', 'Help', 'Bookmark');
+}
+
+// XML mode? for closing tags
+if (!isset($zz_setting['xml_close_empty_tags']))
+	$zz_setting['xml_close_empty_tags'] = false;
 
 // -------------------------------------------------------------------------
 // Page paths
