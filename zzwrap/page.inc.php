@@ -120,6 +120,7 @@ function wrap_get_menu_navigation() {
 function wrap_get_menu_webpages() {
 	global $zz_sql;
 	global $zz_setting;
+	global $zz_field_page_id;
 	if (empty($zz_sql['menu'])) return false; // no menu query, so we don't have a menu
 
 	$menu = array();
@@ -131,10 +132,10 @@ function wrap_get_menu_webpages() {
 				$mymenus = explode(',', $line['menu']);
 				foreach ($mymenus as $mymenu) {
 					$line['menu'] = $mymenu;
-					$menu[$mymenu][$line['page_id']] = $line;
+					$menu[$mymenu][$line[$zz_field_page_id]] = $line;
 				}
 			} else {
-				$menu[$line['menu']][$line['page_id']] = $line;
+				$menu[$line['menu']][$line[$zz_field_page_id]] = $line;
 			}
 		}
 	}
@@ -149,7 +150,7 @@ function wrap_get_menu_webpages() {
 			// URLs ending in * or */ or *.html are different
 			if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
 				AND substr($line['url'], -6) != '*.html') {
-				$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']][$line['page_id']] = $line;
+				$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']][$line[$zz_field_page_id]] = $line;
 			} else {
 				// get name of function either from sql query
 				// (for multilingual pages) or from the part until *
@@ -207,6 +208,8 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	if (!$nav) return false;
 
 	global $zz_setting;
+	global $zz_field_page_id;
+	
 	// when to display submenu items
 	// 'all': always display all submenu items
 	// 'current': only display submenu items when item from menu branch is selected
@@ -223,7 +226,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	$output = false;
 	// as default, menu comes from database table 'webpages'
 	// wrap_get_menu_webpages()
-	$fn_page_id = 'page_id';
+	$fn_page_id = $zz_field_page_id;
 	$fn_prefix = 'sub-'.$menu_name.'-';
 	// no menu_name: use default menu name
 	if (!$menu_name AND !empty($zz_setting['main_menu'])) {
@@ -306,6 +309,79 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	return $output;
 }
 
+
+/** gibt zur aktuellen Seite die ID der obersten Menüebene aus
+ * 
+ * @param $menu(array) Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
+ * @return int ID des obersten Menüs
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_get_top_nav_id($menu) {
+	$top_nav = wrap_get_top_nav_recursive($menu);
+	if ($top_nav) return $top_nav;
+	
+	// current page is not in this menu
+	// check next page(s) in breadcrumb trail if it's (they're) in menu
+	global $zz_page;
+	// 404 and other error pages don't correspond to a database entry
+	// so exit, this page is not in navigation
+	if (empty($zz_page['db'])) return false;
+
+	global $zz_field_page_id;
+	$breadcrumbs = wrap_get_breadcrumbs($zz_page['db'][$zz_field_page_id]);
+	array_pop($breadcrumbs); // own page, we do not need this
+	while ($breadcrumbs) {
+		$upper_breadcrumb = array_pop($breadcrumbs);
+		// set current_page for next upper page in hierarchy
+		foreach (array_keys($menu) as $main_nav_id) {
+			foreach ($menu[$main_nav_id] as $nav_id => $element) {
+				if ($element[$zz_field_page_id] ==$upper_breadcrumb['page_id']) {
+					// current_page in $menu may be set to true
+					// without problems since $menu is not used for anything anymore
+					// i. e. there will still be a link to the navigation menu entry
+					$menu[$main_nav_id][$nav_id]['current_page'] = true;
+					break;
+				}
+			}
+		}
+	}
+	$top_nav = wrap_get_top_nav_recursive($menu);
+	return $top_nav;
+}
+	
+
+/** Hilfsfunktion zu wrap_get_top_nav_id()
+ * 
+ * @param $menu(array) Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
+ * @param $nav_id(int) internal value
+ * @return int ID des obersten Menüs
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_get_top_nav_recursive($menu, $nav_id = false) {
+	$main_nav_id = false;
+	foreach (array_keys($menu) as $index) {
+		foreach (array_keys($menu[$index]) AS $subindex) {
+			if (!$nav_id) {
+				// 'main_entry' allows to define in which part of
+				// the page tree this entry finds its main residence if its
+				// part of several subtrees
+				if (!isset($menu[$index][$subindex]['main_entry']))
+					$menu[$index][$subindex]['main_entry'] = true;
+				if ($menu[$index][$subindex]['current_page']
+					AND $menu[$index][$subindex]['main_entry']) {
+					if ($index) $main_nav_id = wrap_get_top_nav_recursive($menu, $index);
+					else $main_nav_id = $subindex;
+				}
+			} elseif ($subindex == $nav_id) {
+				if ($index) $main_nav_id = wrap_get_top_nav_recursive($menu, $index);
+				else $main_nav_id = $subindex;
+			}
+		}
+	}
+	return $main_nav_id;
+}
+
+
 //
 //	breadcrumbs
 //
@@ -322,13 +398,14 @@ function wrap_get_breadcrumbs($page_id) {
 	global $zz_conf;
 	global $zz_access;
 	global $zz_translation_matrix;
+	global $zz_field_page_id;
 	if (empty($zz_sql['breadcrumbs'])) return array();
 
 	$breadcrumbs = array();
 	// get all webpages
 	$sql = $zz_sql['breadcrumbs'];
 	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', $zz_sql['is_public']);
-	$pages = wrap_db_fetch($sql, 'page_id');
+	$pages = wrap_db_fetch($sql, $zz_field_page_id);
 	if ($zz_conf['translations_of_fields']) {
 		$pages = wrap_translate($pages, $zz_translation_matrix['breadcrumbs'], false);
 	}
@@ -349,10 +426,11 @@ function wrap_get_breadcrumbs($page_id) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
+	global $zz_field_page_id;
 	$breadcrumbs[] = array(
 		'title' => $pages[$page_id]['title'],
 		'url_path' => $pages[$page_id]['identifier'],
-		'page_id' => $pages[$page_id]['page_id']
+		'page_id' => $pages[$page_id][$zz_field_page_id]
 	);
 	if ($pages[$page_id]['mother_page_id'] 
 		&& !empty($pages[$pages[$page_id]['mother_page_id']]))

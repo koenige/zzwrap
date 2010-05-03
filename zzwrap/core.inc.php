@@ -326,9 +326,16 @@ function wrap_template($template, $data) {
 	// Template einbinden und füllen
 	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template
 		.'.template.txt';
+	// save old setting regarding text formatting
+	if (!isset($zz_setting['brick_fulltextformat'])) 
+		$zz_setting['brick_fulltextformat'] = '';
+	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
+	// apply new text formatting
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 	$template = implode("", file($tpl));
 	$page = brick_format($template, $data);
+	// restore old setting regarding text formatting
+	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
 	return $page;
 }
 
