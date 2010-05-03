@@ -20,37 +20,15 @@ require_once $zz_setting['core'].'/language.inc.php';	// include language settin
 require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
 require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 
+
 if (!empty($zz_setting['mod_rewrite_error']))
-	if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1)))
+	if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1))) {
 		wrap_error('mod_rewrite does not work as expected: '.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
+		$_GET['code'] = 503;
+	}
 
 // -- 1. check what kind of error page it is
-
-// read error codes from file
-$pos[0] = 'code';
-$pos[1] = 'title';
-$pos[2] = 'description';
-$codes_from_file = file($zz_setting['core'].'/http-errors.txt');
-foreach ($codes_from_file as $line) {
-	if (substr($line, 0, 1) == '#') continue;	// Lines with # will be ignored
-	elseif (!trim($line)) continue;				// empty lines will be ignored
-	$values = explode("\t", trim($line));
-	$i = 0;
-	$code = '';
-	foreach ($values as $val) {
-		if (trim($val)) {
-			if (!$i) $code = trim($val);
-			$codes[$code][$pos[$i]] = trim($val);
-			$i++;
-		}
-	}
-	if ($i < 3) {
-		for ($i; $i < 3; $i++) {
-			$codes[$code][$pos[$i]] = '';
-		}
-	}
-}
-
+$codes = wrap_read_errorcodes();
 if (!empty($_GET['code']) AND in_array($_GET['code'], array_keys($codes)))
 	$page['status'] = $_GET['code'];
 elseif (empty($page['status']) OR !in_array($page['status'], array_keys($codes)))
@@ -65,6 +43,9 @@ $extra_description_codes = array(403, 404, 410);
 
 // -- 2. set page elements
 
+if (!function_exists('wrap_text')) {
+	function wrap_text($text) { return $text; }
+}
 if (empty($page['lang'])) $page['lang'] = $zz_conf['language'];
 $page['last_update'] = false;
 $page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
