@@ -141,9 +141,10 @@ if ($zz_page['url']['full']['path'] != '/')
 
 // last update
 if (!empty($page['last_update'])) $page[$zz_field_lastupdate] = $page['last_update'];
-if (empty($page[$zz_field_lastupdate]))
+if (empty($page[$zz_field_lastupdate])) {
 	$page[$zz_field_lastupdate] = $zz_page['db'][$zz_field_lastupdate];
-$page[$zz_field_lastupdate] = datum_de($page[$zz_field_lastupdate]);
+	$page[$zz_field_lastupdate] = datum_de($page[$zz_field_lastupdate]);
+}
 
 // breadcrumbs (from cmscore/page.inc.php)
 if ($zz_sql['breadcrumbs'])
@@ -159,31 +160,32 @@ if ($zz_sql['menu']) {
 	if ($nav) $page['nav'] = wrap_htmlout_menu($nav);
 }
 
-$output = '';
-if (function_exists('wrap_matrix')) {
-	// Matrix for several projects
-	// TODO: solve better, don't hardcode.
-	$output = wrap_matrix($page, $page['media']);
-} else {
-	if (empty($page['dont_show_h1']) AND empty($zz_page['dont_show_h1']))
-		$output .= "\n".markdown('# '.$page['title']."\n")."\n";
-	$output .= $page['text'];
-}
-if (function_exists('wrap_content_replace')) {
-	$output = wrap_content_replace($output);
-}
-
-// Output page
-// set character set
-if (!empty($zz_conf['character_set']))
-	header('Content-Type: text/html; charset='.$zz_conf['character_set']);
-
 // output of content
 if ($zz_setting['brick_page_templates'] == true) {
-	$page['output'] = &$output;
+	// use wrap templates
 	echo wrap_htmlout_page($page);
 } else {
+	// DEPRECATED!
 	// classic: mix of HTML and PHP
+	$output = '';
+	if (function_exists('wrap_matrix')) {
+		// Matrix for several projects
+		// TODO: solve better, don't hardcode.
+		$output = wrap_matrix($page, $page['media']);
+	} else {
+		if (empty($page['dont_show_h1']) AND empty($zz_page['dont_show_h1']))
+			$output .= "\n".markdown('# '.$page['title']."\n")."\n";
+		$output .= $page['text'];
+	}
+	if (function_exists('wrap_content_replace')) {
+		$output = wrap_content_replace($output);
+	}
+
+	// Output page
+	// set character set
+	if (!empty($zz_conf['character_set']))
+		header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+
 	if (empty($page['no_page_head'])) include $zz_page['head'];
 	echo $output;
 	if (empty($page['no_page_foot'])) include $zz_page['foot'];

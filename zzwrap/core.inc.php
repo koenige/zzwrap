@@ -9,13 +9,14 @@
 if (!empty($zz_setting['custom_wrap_sql_dir']) AND !empty($zz_conf['db_connection']))
 	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-core.inc.php';
 
-/** Test, whether URL contains a correct secret key to allow page previews
+/**
+ * Test, whether URL contains a correct secret key to allow page previews
  * 
- * @param $secret_key(string) shared secret key
- * @param $_GET['tle'](string) timestamp, begin of legitimite timeframe
- * @param $_GET['tld'](string) timestamp, end of legitimite timeframe
- * @param $_GET['tlh'](string) hash
- * @return $wrap_page_preview true|false i. e. true means show page, false don't
+ * @param string $secret_key shared secret key
+ * @param string $_GET['tle'] timestamp, begin of legitimite timeframe
+ * @param string $_GET['tld'] timestamp, end of legitimite timeframe
+ * @param string $_GET['tlh'] hash
+ * @return bool $wrap_page_preview true|false i. e. true means show page, false don't
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_test_secret_key($secret_key) {
@@ -30,12 +31,13 @@ function wrap_test_secret_key($secret_key) {
 	return $wrap_page_preview;
 }
 
-/** Tests whether URL is in database (or a part of it ending with *), or a part 
+/**
+ * Tests whether URL is in database (or a part of it ending with *), or a part 
  * of it with placeholders
  * 
- * @param $zz_conf(array) zz configuration variables
- * @param $zz_access(array) zz access rights
- * @return $page
+ * @param array $zz_conf zz configuration variables
+ * @param array $zz_access zz access rights
+ * @return array $page
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
@@ -124,11 +126,12 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 	return $page;
 }
 
-/** Make canonical URLs (trailing slash, .html etc.)
+/**
+ * Make canonical URLs (trailing slash, .html etc.)
  * 
- * @param $page(array) page array
- * @param $ending(string) ending of URL (/, .html, .php, none)
- * @return redirect to correct URL if necessary
+ * @param array $page page array
+ * @param string $ending ending of URL (/, .html, .php, none)
+ * @return - redirect to correct URL if necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_check_canonical($page, $ending, $request_uri) {
@@ -180,11 +183,11 @@ function wrap_check_canonical($page, $ending, $request_uri) {
 	// todo: allow different endings depending on CMS functions
 }
 
-/** builds URL from REQUEST
+/**
+ * builds URL from REQUEST
  * 
- * 
- * @param $url(array) $url['full'] with result from parse_url
- * @return $url(array) with new keys ['db'] (URL in database), ['suffix_length']
+ * @param array $url $url['full'] with result from parse_url
+ * @return array $url with new keys ['db'] (URL in database), ['suffix_length']
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_read_url($url) {
@@ -202,7 +205,8 @@ function wrap_read_url($url) {
 	return $url;
 }
 
-/** Stops execution of script, check for redirects to other pages,
+/**
+ * Stops execution of script, check for redirects to other pages,
  * includes http error pages
  * 
  * The execution of the CMS will be stopped. The script test if there's
@@ -210,7 +214,7 @@ function wrap_read_url($url) {
  * If that's true, 301 or 302 codes redirect pages, 410 redirect to gone.
  * if no error code is defined, a 404 code and the corresponding error page
  * will be shown
- * @param $errorcode(int) HTTP Error Code, default value is 404
+ * @param int $errorcode HTTP Error Code, default value is 404
  * @return exits function with a redirect or an error document
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -287,14 +291,15 @@ function wrap_quit($errorcode = 404) {
 	exit;
 }
 
-/** Checks if HTTP request should be HTTPS request instead and vice versa
+/**
+ * Checks if HTTP request should be HTTPS request instead and vice versa
  * 
  * Function will redirect request to the same URL except for the scheme part
  * Attention: POST variables will get lost
- * @param $zz_page(array) Array with full URL in $zz_page['url']['full'], 
- 	this is the result of parse_url()
- * @param $zz_setting(array) settings, 'ignore_scheme' ignores redirect
- 	and 'protocol' defines the protocol wanted (http or https)
+ * @param array $zz_page Array with full URL in $zz_page['url']['full'], 
+ *		this is the result of parse_url()
+ * @param array $zz_setting settings, 'ignore_scheme' ignores redirect
+ *		and 'protocol' defines the protocol wanted (http or https)
  * @return redirect header
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -313,10 +318,11 @@ function wrap_check_https($zz_page, $zz_setting) {
 	}
 }
 
-/** Puts data from request into template and returns full page
+/**
+ * Puts data from request into template and returns full page
  *
- * @param $template(string) Name of template that will be filled
- * @param $data(array) Data which will be used to fill the template
+ * @param string $template Name of template that will be filled
+ * @param array $data Data which will be used to fill the template
  * @return array $page
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -339,8 +345,25 @@ function wrap_template($template, $data) {
 	return $page;
 }
 
+/**
+ * Creates valid HTML id value from string
+ *
+ * @param string $id_title string to be formatted
+ * @return string $id_title
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_create_id($id_title) {
+	$not_allowed_in_id = array('(', ')');
+	foreach ($not_allowed_in_id as $char) {
+		$id_title = str_replace($char, '', $id_title);
+	}
+	$id_title = strtolower(forceFilename($id_title));
+	return $id_title;
+}
 
-/** Fetches records from database and returns array
+
+/**
+ * Fetches records from database and returns array
  * 
  * - without $id_field_name: expects exactly one record and returns
  * the values of this record as an array
@@ -349,19 +372,19 @@ function wrap_template($template, $data) {
  * - with $id_field_name and $array_format = "key/value": returns key/value-pairs
  * - with $id_field_name = 'dummy' and $array_format = "single value": returns
  * just first value as an array e. g. [3] => 3
- * TODO: give a more detailed explanation of how function works
- * @param $sql(string) SQL query string
- * @param $id_field_name(string) optional, if more than one record will be 
+ * @param string $sql SQL query string
+ * @param string $id_field_name optional, if more than one record will be 
  *	returned: required; field_name for array keys
  *  if it's an array with two strings, this will be used to construct a 
  *  hierarchical array for the returned array with both keys
- * @param $format(string) optional, currently implemented
- 	"key/value" = returns array($key => $value)
- 	"single value" = returns $value
- 	"object" = returns object
- 	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
+ * @param string $format optional, currently implemented
+ *	"key/value" = returns array($key => $value)
+ *	"single value" = returns $value
+ *	"object" = returns object
+ *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
  * @return array with queried database content
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	$lines = array();
@@ -439,7 +462,8 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	return $lines;
 }
 
-/* Recursively gets a tree of records or just IDs from the database
+/**
+ * Recursively gets a tree of records or just IDs from the database
  * 
  * to get just IDs of records, the input array needs to be either the output
  * of wrap_db_fetch($sql, $key_field_name, 'single value') or an array of
@@ -447,10 +471,10 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
  * input array must be the output of wrap_db_fetch($sql, $key_field_name) or an
  * array with the records, e. g. array(3 => array('id' => 3, 'title' => "blubb"),
  * 4 => array('id' => 4, title => "another title"))
- * @param $data(array) Array with records from database, indexed on ID
- * @param $sql(string) SQL query to get child records for each selected record
- * @param $key_field_name(string) optional: Fieldname of primary key
- * @param $mode(string) optional: flat = without hierarchy, hierarchical = with.
+ * @param array $data Array with records from database, indexed on ID
+ * @param string $sql SQL query to get child records for each selected record
+ * @param string $key_field_name optional: Fieldname of primary key
+ * @param string $mode optional: flat = without hierarchy, hierarchical = with.
  * @return array with queried database content or just the IDs
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -495,16 +519,26 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 	return $data;
 }
 
-// puts parts of SQL query in correct order when they have to be added
-// this function works only for sql queries without UNION:
-// SELECT ... FROM ... JOIN ...
-// WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
-// might get problems with backticks that mark fieldname that is equal with SQL keyword
-// mode = add until now default, mode = replace is only implemented for SELECT
-// identical to zz_edit_sql()!
+/**
+ * puts parts of SQL query in correct order when they have to be added
+ *
+ * this function works only for sql queries without UNION:
+ * might get problems with backticks that mark fieldname that is equal with SQL 
+ * keyword
+ * mode = add until now default, mode = replace is only implemented for SELECT
+ * identical to zz_edit_sql()!
+ * @param string $sql original SQL query
+ * @param string $n_part SQL keyword for part shall be edited or replaced
+ *		SELECT ... FROM ... JOIN ...
+ * 		WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
+ * @param string $values new value for e. g. WHERE ...
+ * @param string $mode Mode, 'add' adds new values while keeping the old ones, 
+ *		'replace' replaces all old values
+ * @return string $sql modified SQL query
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @see zz_edit_sql()
+ */
 function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
-	global $zz_conf; // for debug only
-//	if ($zz_conf['modules']['debug']) $zz_debug_time_this_function = microtime_float();
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
@@ -618,7 +652,6 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		if (!empty($o_parts[$statement][2])) 
 			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
 	}
-//	if ($zz_conf['modules']['debug']) zz_debug(__FUNCTION__, $zz_debug_time_this_function, "end");
 	return $sql;
 }
 

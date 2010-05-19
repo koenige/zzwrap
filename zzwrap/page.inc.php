@@ -32,13 +32,13 @@ if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-page.inc.php')
 //	menu
 //
 
-/** Gets menu entries depending on source
+/**
+ * Gets menu entries depending on source
  * 
  * reads menu settings from webpages- or navigation-table
  * global variables: 
  * $zz_setting['menu']
  *
- * @param none
  * @return array hierarchical menu, output of wrap_get_menu_...()-function
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -53,14 +53,14 @@ function wrap_get_menu() {
 	else return wrap_get_menu_webpages();
 }
 
-/** Liest Daten für Navigationsmenü aus der Datenbank aus, incl. Übersetzung
+/**
+ * Liest Daten für Navigationsmenü aus der Datenbank aus, incl. Übersetzung
  * 
  * Die Funktion liest das Navigationsmenü aus, setzt die aktuelle Seite 
  * ('current_page'), setzt eine menu-ID, übersetzt die Menüeinträge und URLs
  * und gibt ein hierarchisches Array zurück
  * $zz_sql['menu'] expects: nav_id, title, main_nav_id, url
  *	optional parameters: id_title, rest is free
- * @param none
  * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -100,7 +100,7 @@ function wrap_get_menu_navigation() {
 				($item['url'] == $_SERVER['REQUEST_URI'] ? true : false);
 			// create ID for CSS, JavaScript
 			if (function_exists('forceFilename') AND !empty($item['id_title']))
-				$menu[$id][$nav_id]['id'] = 'menu-'.strtolower(forceFilename($item['id_title'], '-'));
+				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
 			// initialize subtitle
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
 			// write everything into $nav array
@@ -109,14 +109,14 @@ function wrap_get_menu_navigation() {
 	return $menu;
 }
 
-/** Liest Daten für Navigationsmenü aus der Datenbank aus
+/**
+ * Liest Daten für Navigationsmenü aus der Datenbank aus
  *
  * $zz_sql['menu'] expects: page_id, title, (id_title), mother_page_id, url, menu
  * $zz_sql['menu_level2'] expects: page_id, title, (id_title), mother_page_id, url (function_url), menu
- * @param none
  * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
-*/
+ */
 function wrap_get_menu_webpages() {
 	global $zz_sql;
 	global $zz_setting;
@@ -125,18 +125,16 @@ function wrap_get_menu_webpages() {
 
 	$menu = array();
 	// get top menus
-	$result = mysql_query($zz_sql['menu']);
-	if ($result AND mysql_num_rows($result)) {
-		while ($line = mysql_fetch_assoc($result)) {
-			if (strstr($line['menu'], ',')) {
-				$mymenus = explode(',', $line['menu']);
-				foreach ($mymenus as $mymenu) {
-					$line['menu'] = $mymenu;
-					$menu[$mymenu][$line[$zz_field_page_id]] = $line;
-				}
-			} else {
-				$menu[$line['menu']][$line[$zz_field_page_id]] = $line;
+	$entries = wrap_db_fetch($zz_sql['menu'], $zz_field_page_id);
+	foreach ($entries as $line) {
+		if (strstr($line['menu'], ',')) {
+			$mymenus = explode(',', $line['menu']);
+			foreach ($mymenus as $mymenu) {
+				$line['menu'] = $mymenu;
+				$menu[$mymenu][$line[$zz_field_page_id]] = $line;
 			}
+		} else {
+			$menu[$line['menu']][$line[$zz_field_page_id]] = $line;
 		}
 	}
 	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
@@ -144,22 +142,20 @@ function wrap_get_menu_webpages() {
 	}
 	// get second hierarchy level
 	$sql = sprintf($zz_sql['menu_level2'], '"'.implode('", "', array_keys($menu)).'"');
-	$result = mysql_query($sql);
-	if ($result AND mysql_num_rows($result)) {
-		while ($line = mysql_fetch_assoc($result)) {
-			// URLs ending in * or */ or *.html are different
-			if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
-				AND substr($line['url'], -6) != '*.html') {
-				$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']][$line[$zz_field_page_id]] = $line;
-			} else {
-				// get name of function either from sql query
-				// (for multilingual pages) or from the part until *
-				$url = (!empty($line['function_url']) ? $line['function_url'] 
-					: substr($line['url'], 0, strrpos($line['url'], '*')+1));
-				$menufunc = 'wrap_menu_'.substr($url, 1, -1);
-				if (function_exists($menufunc)) {
-					$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']] = $menufunc($line);
-				}
+	$entries = wrap_db_fetch($sql, $zz_field_page_id);
+	foreach ($entries as $line) {
+		// URLs ending in * or */ or *.html are different
+		if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
+			AND substr($line['url'], -6) != '*.html') {
+			$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']][$line[$zz_field_page_id]] = $line;
+		} else {
+			// get name of function either from sql query
+			// (for multilingual pages) or from the part until *
+			$url = (!empty($line['function_url']) ? $line['function_url'] 
+				: substr($line['url'], 0, strrpos($line['url'], '*')+1));
+			$menufunc = 'wrap_menu_'.substr($url, 1, -1);
+			if (function_exists($menufunc)) {
+				$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']] = $menufunc($line);
 			}
 		}
 	}
@@ -174,7 +170,7 @@ function wrap_get_menu_webpages() {
 				($item['url'] == $_SERVER['REQUEST_URI'] ? true : false);
 			// create ID for CSS, JavaScript
 			if (function_exists('forceFilename') AND !empty($item['id_title']))
-				$menu[$id][$nav_id]['id'] = 'menu-'.strtolower(forceFilename($item['id_title'], '-'));
+				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
 			// initialize subtitle
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
 		}
@@ -182,7 +178,8 @@ function wrap_get_menu_webpages() {
 	return $menu;
 }
 
-/** Gibt in HTML formatiertes Navigationsmenü von wrap_get_menu() aus
+/**
+ * Gibt in HTML formatiertes Navigationsmenü von wrap_get_menu() aus
  * 
  * HTML-Ausgabe erfolgt als verschachtelte Liste mit id="menu" und role
  * auf oberster Ebene, darunter obj2, obj3, .. je nach Anzahl der Menüeinträge
@@ -194,13 +191,13 @@ function wrap_get_menu_webpages() {
  * $zz_setting['menu_mark_active_close']
  * $zz_setting['menu_display_submenu_items']
  *
- * @param $nav Ausgabe von wrap_get_menu();
- 	required keys: 'title', 'url', 'current_page'
- 	optional keys: 'long_title', 'id', 'class', 'subtitle'
- * @param $menu_name optional; 0 bzw. für Untermenüs $nav_id des jeweiligen Eintrags
- 	oder Name des Menüs
- * @param $page_id optional; show only the one correspondig entry from the menu
- 	and show it with a long title
+ * @param array $nav Ausgabe von wrap_get_menu();
+ *	required keys: 'title', 'url', 'current_page'
+ *	optional keys: 'long_title', 'id', 'class', 'subtitle'
+ * @param string $menu_name optional; 0 bzw. für Untermenüs $nav_id des jeweiligen 
+ *	Eintrags oder Name des Menüs
+ * @param int $page_id optional; show only the one correspondig entry from the menu
+ *	and show it with a long title
  * @return string HTML-Output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -310,9 +307,10 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 }
 
 
-/** gibt zur aktuellen Seite die ID der obersten Menüebene aus
+/**
+ * gibt zur aktuellen Seite die ID der obersten Menüebene aus
  * 
- * @param $menu(array) Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
+ * @param array $menu Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
  * @return int ID des obersten Menüs
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -335,7 +333,7 @@ function wrap_get_top_nav_id($menu) {
 		// set current_page for next upper page in hierarchy
 		foreach (array_keys($menu) as $main_nav_id) {
 			foreach ($menu[$main_nav_id] as $nav_id => $element) {
-				if ($element[$zz_field_page_id] ==$upper_breadcrumb['page_id']) {
+				if ($element[$zz_field_page_id] == $upper_breadcrumb['page_id']) {
 					// current_page in $menu may be set to true
 					// without problems since $menu is not used for anything anymore
 					// i. e. there will still be a link to the navigation menu entry
@@ -350,10 +348,11 @@ function wrap_get_top_nav_id($menu) {
 }
 	
 
-/** Hilfsfunktion zu wrap_get_top_nav_id()
+/**
+ * Hilfsfunktion zu wrap_get_top_nav_id()
  * 
- * @param $menu(array) Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
- * @param $nav_id(int) internal value
+ * @param array $menu Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
+ * @param int $nav_id internal value
  * @return int ID des obersten Menüs
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -386,10 +385,11 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 //	breadcrumbs
 //
 
-/** Reads webpages from database, creates breadcrumbs hierarchy
+/**
+ * Reads webpages from database, creates breadcrumbs hierarchy
  * 
  * needs global $zz_sql['breadcrumbs']!
- * @param $page_id(int) ID of current webpage in database
+ * @param int $page_id ID of current webpage in database
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -418,10 +418,11 @@ function wrap_get_breadcrumbs($page_id) {
 	return $breadcrumbs;
 }
 
-/** Creates breadcrumbs hierarchy, recursively
+/**
+ * Creates breadcrumbs hierarchy, recursively
  * 
- * @param $page_id(int) ID of webpage in hierarchy in database
- * @param $pages(array) Array with all pages from database, indexed page_id
+ * @param int $page_id ID of webpage in hierarchy in database
+ * @param array $pages Array with all pages from database, indexed page_id
  * @return array breadcrumbs ('title' => title of menu, 'url_path' = link)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -439,10 +440,11 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	return $breadcrumbs;
 }
 
-/** Creates html output of breadcrumbs, retrieves breadcrumbs from database
+/**
+ * Creates html output of breadcrumbs, retrieves breadcrumbs from database
  * 
- * @param $page_id(int) ID of webpage in hierarchy in database
- * @param $brick_breadcrumbs(array) Array of additional breadcrumbs from brick_format()
+ * @param int $page_id ID of webpage in hierarchy in database
+ * @param array $brick_breadcrumbs Array of additional breadcrumbs from brick_format()
  * @return string HTML output, plain linear, of breadcrumbs
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -499,11 +501,12 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 //	authors
 //
 
-/** Reads authors from database, adds initials and gives back array
+/**
+ * Reads authors from database, adds initials and gives back array
  * 
  * needs global $zz_sql['authors']! person_id = ID, person = name of author
- * @param $brick_authors IDs of authors
- * @param $author_id extra ID of author, may be false
+ * @param array $brick_authors IDs of authors
+ * @param int $author_id extra ID of author, may be false
  * @return array authors, person = name, initials = initials, lowercase
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -528,30 +531,55 @@ function wrap_get_authors($brick_authors, $author_id = false) {
 	return $authors;
 }
 
-/** Outputs a HTML page from a %%%-template
+/**
+ * Outputs a HTML page from a %%%-template
  * 
  * allow %%% page ... %%%-syntax
- * @param $brick_authors IDs of authors
- * @param $author_id extra ID of author, may be false
+ * @param array $page
  * @return string HTML output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_htmlout_page($page) {
 	global $zz_setting;
 	global $zz_page;
-	
+	global $zz_conf;
+
+	// format page with brick_format()
 	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 
+	// if globally dont_show_h1 is set, don't show it
+	if (!empty($zz_page['dont_show_h1'])) $page['dont_show_h1'] = true;
+
+	if (!isset($page['text'])) $page['text'] = '';
+	// init page
+	if (file_exists($zz_setting['custom'].'/zzbrick_page/_init.inc.php'))
+		require_once $zz_setting['custom'].'/zzbrick_page/_init.inc.php';
+
+	// Use different template if set in function or _init
+	if (!empty($page['template'])) {
+		$template_path = $zz_setting['custom_wrap_template_dir']
+			.'/'.$page['template'].'-page.template.txt';
+		if (file_exists($template_path)) $zz_page['brick_template'] = $template_path;
+	}
+
+	// Add title to page
+	if (empty($page['dont_show_h1']) AND !empty($page['title']))
+		$page['text'] = "\n".markdown('# '.$page['title']."\n")."\n"
+			.$page['text'];
+
+	// Output page
+	// set character set
+	if (!empty($zz_conf['character_set']))
+		header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+	
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
-	if (empty($page['no_page_head']) AND empty($page['no_page_foot'])) {
-		$output = brick_format($page['output'], $page);
-		$page['output'] = $output['text'];
-		$page_part = implode("", file($zz_page['brick_template']));
-		$page_part = brick_format($page_part, $page);
-		return trim($page_part['text']);
-	}
-	return false;	
+
+	$output = brick_format($page['text'], $page);
+	$page['text'] = $output['text'];
+	$page_part = implode("", file($zz_page['brick_template']));
+	$page_part = brick_format($page_part, $page);
+	return trim($page_part['text']);
 }
 
 ?>

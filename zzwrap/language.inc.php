@@ -24,10 +24,11 @@ global $text;
 
 // duplicate function zz_text here
 
-/** Translate text from textfile if possible or write back text string to be translated
+/**
+ * Translate text from textfile if possible or write back text string to be translated
  * 
- * @param $string		Text string to be translated
- * @return $string		Translation of text
+ * @param string $string		Text string to be translated
+ * @return string $string		Translation of text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_text($string) {
@@ -48,20 +49,21 @@ function wrap_text($string) {
 		return $text[$string];
 }
 
-/** Translate text from database
+/**
+ * Translate text from database
  * 
  * Globally required variables:
  * - $zz_sql['translations'] in sql-core.inc.php
  * - $zz_conf['translations_of_fields']
  *
- * @param $data	Array of data, indexed by ID 
+ * @param array $data	Array of data, indexed by ID 
  * 				array(34 => array('field1' = 34, 'field2' = 'text') ...);
- * @param $matrix 	(string) name of database.table, translates all fields
+ * @param mixed $matrix 	(string) name of database.table, translates all fields
  * 					that allow translation, write back to $data[$id][$field_name]
  *					(array) 'wrap_table' => name of database.table
- * @param $mark_incomplete (bool) write back if fields are not translated?
- * @param $lang	(string) different target language than set in $zz_setting['translation_lang']
- * @return $data input array with translations where possible, extra array
+ * @param bool $mark_incomplete	 write back if fields are not translated?
+ * @param string $lang different target language than set in $zz_setting['translation_lang']
+ * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
