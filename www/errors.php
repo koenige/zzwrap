@@ -1,7 +1,7 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2009
+// zzwrap (Zugzwang Project)
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
 // Error pages
 
 
@@ -21,9 +21,10 @@ require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
 require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 
 
-if (!empty($zz_setting['mod_rewrite_error']))
+if (!empty($zz_setting['mod_rewrite_error']) AND $_SERVER['SCRIPT_NAME'] != '/_scripts/main.php')
 	if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1))) {
-		wrap_error('mod_rewrite does not work as expected: '.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
+		wrap_error('mod_rewrite does not work as expected: '
+			.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
 		$_GET['code'] = 503;
 	}
 
@@ -62,7 +63,7 @@ if (in_array($page['status'], $extra_description_codes)) {
 }
 if (!empty($zz_page['error_msg'])) $page['error_explanation'] = $zz_page['error_msg'].' '.$page['error_explanation'];
 
-$page['output'] =  implode("", file($zz_page['http_error_template']));;
+$page['text'] =  implode("", file($zz_page['http_error_template']));;
 if (function_exists('wrap_htmlout_menu')) { // get menus
 	$nav = wrap_get_menu();
 	$page['nav'] = wrap_htmlout_menu($nav);
@@ -70,20 +71,20 @@ if (function_exists('wrap_htmlout_menu')) { // get menus
 
 // -- 3. output HTTP header
 header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '.$error_messages['title']);
-if (!empty($zz_conf['character_set']))
-	header('Content-Type: text/html; charset='.$zz_conf['character_set']);
 
 // -- 4. output page
 
 if ($zz_setting['brick_page_templates'] == true) {
 	echo wrap_htmlout_page($page);
 } else {
-	$page['output'] = str_replace('%%% page h1 %%%', $page['h1'], $page['output']);
-	$page['output'] = str_replace('%%% page code %%%', $page['status'], $page['output']);
-	$page['output'] = str_replace('%%% page error_description %%%', $page['error_description'], $page['output']);
-	$page['output'] = str_replace('%%% page error_explanation %%%', $page['error_explanation'], $page['output']);
+	if (!empty($zz_conf['character_set']))
+		header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+	$page['text'] = str_replace('%%% page h1 %%%', $page['h1'], $page['text']);
+	$page['text'] = str_replace('%%% page code %%%', $page['status'], $page['text']);
+	$page['text'] = str_replace('%%% page error_description %%%', $page['error_description'], $page['text']);
+	$page['text'] = str_replace('%%% page error_explanation %%%', $page['error_explanation'], $page['text']);
 	include $zz_page['head'];
-	echo $page['output'];
+	echo $page['text'];
 	include $zz_page['foot'];
 }
 
