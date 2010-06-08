@@ -509,7 +509,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 				$data[$my_id] += $my_data;
 			}
 			// append new IDs to $ids-Array
-			$ids += array_keys($my_data);
+			$ids = array_merge($ids, $my_data);
 			if ($mode == 'hierarchy') {
 				$data['ids'] = array_merge($data['ids'], array_keys($my_data));
 			}

@@ -22,14 +22,16 @@ if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
 
 global $text;
 
-// duplicate function zz_text here
-
 /**
  * Translate text from textfile if possible or write back text string to be translated
  * 
- * @param string $string		Text string to be translated
- * @return string $string		Translation of text
+ * @param string $string	Text string to be translated
+ * @global array $text		Translations for current language
+ * @global array $zz_conf	Configuration variables, here:
+ *			'log_missing_text', 'language' must both be set to log missing text
+ * @return string $string	Translation of text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @see zz_text()
  */
 function wrap_text($string) {
 	global $text;
@@ -52,17 +54,18 @@ function wrap_text($string) {
 /**
  * Translate text from database
  * 
- * Globally required variables:
- * - $zz_sql['translations'] in sql-core.inc.php
- * - $zz_conf['translations_of_fields']
- *
  * @param array $data	Array of data, indexed by ID 
- * 				array(34 => array('field1' = 34, 'field2' = 'text') ...);
- * @param mixed $matrix 	(string) name of database.table, translates all fields
- * 					that allow translation, write back to $data[$id][$field_name]
- *					(array) 'wrap_table' => name of database.table
+ * 			array(34 => array('field1' = 34, 'field2' = 'text') ...);
+ * @param mixed $matrix (string) name of database.table, translates all fields
+ * 			that allow translation, write back to $data[$id][$field_name]
+ *			(array) 'wrap_table' => name of database.table
  * @param bool $mark_incomplete	 write back if fields are not translated?
  * @param string $lang different target language than set in $zz_setting['translation_lang']
+ * @global array $zz_conf
+ * 		- $zz_conf['translations_of_fields']
+ * @global array $zz_setting
+ * @global array $zz_sql
+ * 		- $zz_sql['translations'] in sql-core.inc.php
  * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
  * @author Gustaf Mossakowski <gustaf@koenige.org>

@@ -388,8 +388,13 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 /**
  * Reads webpages from database, creates breadcrumbs hierarchy
  * 
- * needs global $zz_sql['breadcrumbs']!
  * @param int $page_id ID of current webpage in database
+ * @global array $zz_sql
+ *		'breadcrumbs' (required)
+ * @global array $zz_conf
+ * @global array $zz_access
+ * @global array $zz_translation_matrix
+ * @global string $zz_field_page_id
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
