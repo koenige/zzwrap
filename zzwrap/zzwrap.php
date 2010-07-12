@@ -43,7 +43,7 @@ if (!empty($zz_setting['secret_key']) AND empty($zz_access['wrap_preview']))
 	$zz_access['wrap_preview'] = wrap_test_secret_key($zz_setting['secret_key']);
 
 // Sprachcode etc. steht evtl. in URL
-if (function_exists('wrap_prepare_url')) {
+if ($zz_conf['translations_of_fields']) {
 	$zz_page['url']['full'] = wrap_prepare_url($zz_page['url']['full']);
 }
 // Eintrag in Datenbank finden, nach URL
@@ -66,8 +66,10 @@ if (file_exists($zz_setting['custom_wrap_sql_dir'].'/_sql-queries.inc.php'))
 
 // modules may change page language ($page['lang']), so include language functions here
 require_once $zz_setting['core'].'/language.inc.php';	// CMS language
-if ($zz_setting['authentification_possible'])
-	require_once $zz_setting['core'].'/login.inc.php';	// CMS Login/Logoutskripte, authentification
+if ($zz_setting['authentification_possible']) {
+	require_once $zz_setting['core'].'/auth.inc.php';	// CMS authentification
+	wrap_auth();
+}
 
 // Standardfunktionen einbinden (z. B. Markup-Sprachen)
 if (!empty($zz_setting['standard_extensions']))	
@@ -101,8 +103,19 @@ if ($zz_conf['translations_of_fields']) {
 require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 $page = brick_format($zz_page['db'][$zz_field_content], $zz_page['db']['parameter']);
 if (empty($page)) wrap_quit();
-if ($page['status'] != 200) 
+if (!empty($page['error']['level'])) {
+	if (!empty($page['error']['msg_text']) AND !empty($page['error']['msg_vars'])) {
+		$msg = vsprintf(wrap_text($page['error']['msg_text']), $page['error']['msg_vars']);
+	} elseif (!empty($page['error']['msg_text'])) {
+		$msg = wrap_text($page['error']['msg_text']);
+	} else {
+		$msg = wrap_text('zzbrick returned with an error. Sorry, that\'s all we know.');
+	}
+	wrap_error($msg, $page['error']['level']);
+}
+if ($page['status'] != 200) {
 	wrap_quit($page['status']);
+}
 if (!empty($page['no_output'])) exit;
 
 $page['status'] = 200; // Seiteninhalt vorhanden!

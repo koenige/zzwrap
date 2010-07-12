@@ -5,7 +5,7 @@
 // Default translations to german language
 
 
-// login.inc.php
+// auth.inc.php
 $text['You have been logged out.'] = 'Sie haben sich abgemeldet.';
 $text['Please allow us to set a cookie!'] = 'Bitte erlauben Sie uns, einen Cookie zu setzen!';
 $text['Sign in'] = 'Anmelden';
@@ -16,7 +16,7 @@ $text['Password:'] = 'Passwort:';
 $text['To access the internal area, a registration is required. Please enter below your username and password.']
 	= 'F&uuml;r den Zugang zum internen Bereich ist eine Anmeldung erforderlich. Bitte geben Sie unten den von uns erhaltenen Benutzernamen mit Pa&szlig;wort ein.';
 $text['Please allow cookies after sending your login credentials. For security reasons, after %d minutes of inactivity you will be logged out automatically.'] 
-	= 'Damit der Login funktioniert, müssen Sie nach &Uuml;bermittlung der Anmeldedaten einen Cookie akzeptieren. Nach %d Minuten Inaktivit&auml;t werden Sie aus Sicherheitsgr&uuml;nden automatisch wieder abgemeldet!';
+	= 'Damit der Login funktioniert, m&uuml;ssen Sie nach &Uuml;bermittlung der Anmeldedaten einen Cookie akzeptieren. Nach %d Minuten Inaktivit&auml;t werden Sie aus Sicherheitsgr&uuml;nden automatisch wieder abgemeldet!';
 $text['Password or username are empty. Please try again.'] = 'Pa%szlig;wort oder Benutzername leer. Bitte versuchen Sie es erneut.';
 
 // errors.php 400
@@ -79,7 +79,7 @@ $text['Unsupported Media Type']	= 'Nicht unterst&uuml;tztes Format';
 $text['The server does not support the media type transmitted in the request.'] = 'Das bei der Anfrage &uuml;bermittelte Format (Media Type) wird vom Server nicht unterst&uuml;tzt.';
 
 // errors.php 416
-$text['Requested Range Not Satisfiable'] = 'Abgefragtes Intervall (<code>range</code>) nicht erfüllbar';
+$text['Requested Range Not Satisfiable'] = 'Abgefragtes Intervall (<code>range</code>) nicht erf&uuml;llbar';
 
 // errors.php 417
 $text['Expectation Failed'] = 'Erwartung (<code>Expect</code>) fehlgeschlagen';
@@ -89,7 +89,7 @@ $text['Internal Server Error'] = 'Serverfehler';
 $text['The server encountered an internal error and was unable to complete your request.'] = 'Die Anfrage kann nicht beantwortet werden, da im Server ein interner Fehler aufgetreten ist.';
 
 // errors.php 501
-$text['Not Implemented'] = 'Abfrage nicht unterstützt';
+$text['Not Implemented'] = 'Abfrage nicht unterst&uuml;tzt';
 $text['The server does not support the action requested by the browser.'] = 'Die vom Browser angeforderte Aktion wird vom Server nicht unterst&uuml;tzt.';
 
 // errors.php 502
@@ -102,10 +102,10 @@ $text['The server is temporarily unable to service your request due to maintenan
 	= 'Der Server kann zur Zeit Ihre Anfrage nicht bearbeiten. Grund kann eine &Uuml;berlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es sp&auml;ter noch einmal.';
 
 // errors.php 504
-$text['Gateway Timeout'] = 'Zeitlimit am Netzübergang (<code>gateway</code>) überschritten';
+$text['Gateway Timeout'] = 'Zeitlimit am Netz&uuml;bergang (<code>gateway</code>) &uuml;berschritten';
 
 // errors.php 505
-$text['HTTP Version Not Supported'] = 'HTTP-Version nicht unterstützt';
+$text['HTTP Version Not Supported'] = 'HTTP-Version nicht unterst&uuml;tzt';
 
 $text['Please try to find the content you were looking for from our <a href="%s">main page</a>.'] = 'Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, &uuml;ber <a href="%s">unsere Hauptseite</a> zu finden.';
 

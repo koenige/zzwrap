@@ -56,6 +56,8 @@ function wrap_text($string) {
  * 
  * @param array $data	Array of data, indexed by ID 
  * 			array(34 => array('field1' = 34, 'field2' = 'text') ...);
+ *			if it's just a single record not indexed by ID, the first field_name
+ *			is assumed to carry the ID!
  * @param mixed $matrix (string) name of database.table, translates all fields
  * 			that allow translation, write back to $data[$id][$field_name]
  *			(array) 'wrap_table' => name of database.table
@@ -132,6 +134,18 @@ function wrap_translate($data, $matrix, $mark_incomplete = true, $target_languag
 		}
 	}
 
+	// check if $data is an array indexed by IDs
+	$simple_data = false;
+	foreach ($data as $id => $record) {
+		if (!is_numeric($id)) {
+			$simple_data = $data[$id];	// save ID for later
+			$old_data = $data;			// save old data in array
+			unset($data);				// remove all keys
+			$data[$old_data[$id]] = $old_data;
+			break;
+		}
+	}
+
 	$all_fields_to_translate = 0;
 	$translated_fields = 0;
 	foreach ($matrix as $field_type => $fields) {
@@ -162,6 +176,10 @@ function wrap_translate($data, $matrix, $mark_incomplete = true, $target_languag
 	// check if something is untranslated!
 	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete)
 		$zz_setting['translation_incomplete'] = true;
+	// reset if array was simple
+	if ($simple_data) {
+		$data = $data[$simple_data];
+	}
 	return ($data);
 	
 	// output: TODO, mark text in different languages than page language

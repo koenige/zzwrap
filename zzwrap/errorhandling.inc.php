@@ -1,26 +1,33 @@
 <?php 
 
 // zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2009
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
 // Error handling
 
 
-/*
-	possible parameters
-	$zz_conf['error_mail_to'] = <email>
-	$zz_conf['error_mail_from'] = <email>
-	$zz_conf['error_handling'] = <email>
-	
-*/
-function wrap_error($msg, $errorcode) {
-	global $zz_setting;
+/**
+ * error handling: log errors, mail errors, exits script if critical error
+ *
+ * @param string $msg error message
+ * @param int $error_code E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
+ * @param array $settings (optional internal settings)
+ * @global array $zz_conf cofiguration settings
+ *		'error_mail_to', 'error_mail_from', 'error_handling', 'error_log',
+ *		'log_errors', 'log_errors_max_len', 'debug', 'error_mail_level',
+ *		'project', 'character_set'
+ * @global array $zz_page
+ */
+function wrap_error($msg, $errorcode, $settings = array()) {
 	global $zz_conf;
 
 	$return = false;
 	switch ($errorcode) {
 	case E_USER_ERROR: // critical error: stop!
+		if (!empty($zz_conf['exit_503'])) $settings['no_return'] = true;
 		$level = 'error';
-		$return = 'exit'; // get out of this function immediately
+		if (empty($settings['no_return'])) 
+			$return = 'exit'; // get out of this function immediately
+		$zz_conf['exit_503'] = true;
 		break;
 	default:
 	case E_USER_WARNING: // acceptable error, go on
@@ -38,11 +45,14 @@ function wrap_error($msg, $errorcode) {
 	$log_output = strip_tags($log_output);
 
 	$user = (!empty($_SESSION['username']) ? $_SESSION['username'] : '');
+	if (!$user AND !empty($zz_conf['user'])) $user = $zz_conf['user'];
 
 	// reformat log output
 	if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
-		$error_line = '['.date('d-M-Y H:i:s').'] zzwrap '.ucfirst($level).': '.preg_replace("/\s+/", " ", $log_output);
-		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] -(strlen($user)+2)).' '.$user."\n";
+		$error_line = '['.date('d-M-Y H:i:s').'] zzwrap '.ucfirst($level).': '
+			.preg_replace("/\s+/", " ", $log_output);
+		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
+			- (strlen($user)+2)).' '.$user."\n";
 		error_log($error_line, 3, $zz_conf['error_log'][$level]);
 	}
 		
@@ -64,15 +74,31 @@ function wrap_error($msg, $errorcode) {
 
 	switch ($zz_conf['error_handling']) {
 	case 'mail':
-		if (in_array($level, $zz_conf['error_mail_level'])) {
-			$email_head = 'From: "'.html_entity_decode($zz_conf['project']).'" <'.$zz_conf['error_mail_from'].'>
+		if (!in_array($level, $zz_conf['error_mail_level'])) break;
+		// add some technical information to mail
+		$foot = false;
+		if (empty($settings['mail_no_request_uri']))
+			$foot .= "\nURL: http://".$_SERVER['SERVER_NAME']
+				.$_SERVER['REQUEST_URI'];
+		if (empty($settings['mail_no_ip']))
+			$foot .= "\nIP: ".$_SERVER['REMOTE_ADDR'];
+		if (empty($settings['mail_no_user_agent']))
+			$foot .= "\nBrowser: ".(!empty($_SERVER['HTTP_USER_AGENT']) 
+				? $_SERVER['HTTP_USER_AGENT'] : wrap_text('unknown'));	
+		// add user name to mail message if there is one
+		if ($user) $foot .= "\n".wrap_text('User').': '.$user;
+		if ($foot) $msg .= "\n\n-- ".$foot;
+
+		// TODO: check what happens with utf8 mails
+		$email_head = 'From: "'.html_entity_decode($zz_conf['project'])
+			.'" <'.$zz_conf['error_mail_from'].'>
 MIME-Version: 1.0
 Content-Type: text/plain; charset='.$zz_conf['character_set'].'
 Content-Transfer-Encoding: 8bit';
-			mail($zz_conf['error_mail_to'], '['.html_entity_decode($zz_conf['project']).'] '
-				.(function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website'), 
-			$msg, $email_head, '-f '.$zz_conf['error_mail_from']);
-		}
+		mail($zz_conf['error_mail_to'], '['.html_entity_decode($zz_conf['project']).'] '
+			.(function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
+			.(!empty($settings['subject']) ? ' '.$settings['subject'] : ''), 
+		$msg, $email_head, '-f '.$zz_conf['error_mail_from']);
 		break;
 	case 'screen':
 		echo '<pre>';
@@ -84,27 +110,197 @@ Content-Transfer-Encoding: 8bit';
 	}
 
 	if ($return == 'exit') {
-		if (function_exists('wrap_quit')) wrap_quit(503);
-		else {
-//			$page['status'] = 503;
-//			include_once $zz_setting['http_error_script'];
-//			exit;
-			
-			// no error function, so it's a problem with the database connection
-			$codes = wrap_read_errorcodes();
-			$error_messages = $codes[503];
-			header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '.$error_messages['title']);
-			if (!empty($zz_conf['character_set']))
-				header('Content-Type: text/html; charset='.$zz_conf['character_set']);
-			echo '<title>503 - '.$error_messages['title'].'</title>';
-			echo '<h1>'.$error_messages['title'].'</h1>';
-			echo '<p>'.$error_messages['description'].'</p>';
-			exit;
-		}
-
+		global $zz_page;
+		$page['status'] = 503;
+		wrap_errorpage($page, $zz_page, false);
+		exit;
 	}
 }
 
+/**
+ * outputs an error page
+ * checks which error it is, set page elements, output HTTP header, HTML, log
+ *
+ * @param array $page
+ * @param array $zz_page
+ * @param bool $log_errors whether errors shall be logged or not
+ * @global array $zz_setting
+ * @global array $zz_conf
+ * @global array $text
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */ 
+function wrap_errorpage($page, $zz_page, $log_errors = true) {
+	global $zz_setting;	
+	global $zz_conf;
+	global $text;
+
+	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
+	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
+	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
+
+	// -- 1. check what kind of error page it is
+	$codes = wrap_read_errorcodes();
+	
+	// if wanted, check if mod_rewrite works
+	if (!empty($zz_setting['mod_rewrite_error']) 
+		AND $_SERVER['SCRIPT_NAME'] != '/_scripts/main.php') {
+		if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1))) {
+			wrap_error('mod_rewrite does not work as expected: '
+				.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
+			$_GET['code'] = 503;
+		}
+	}
+	
+	if (!empty($_GET['code']) AND in_array($_GET['code'], array_keys($codes)))
+		// get 'code' if errors.php is directly accessed as an error page
+		$page['status'] = $_GET['code'];
+	elseif (empty($page['status']) OR !in_array($page['status'], array_keys($codes)))
+		// default error code
+		$page['status'] = 404;
+	if ($page['status'] == 404 AND substr($_SERVER['REQUEST_URI'], 0, 7) == 'http://') {
+		// probably badly designed robot, away with it
+		$page['status'] = 400;
+	}
+	
+	$error_messages = $codes[$page['status']];
+	// some codes get a link to the homepage
+	$extra_description_codes = array(403, 404, 410);
+	
+	// -- 2. set page elements
+	
+	if (empty($page['lang'])) $page['lang'] = $zz_conf['language'];
+	$page['last_update'] = false;
+	$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
+		.$zz_conf['project'].'</a></strong> '.$zz_page['breadcrumbs_separator'].' '
+		.wrap_text($error_messages['title']); 
+	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($error_messages['title'])
+		.' ('.$zz_conf['project'].')'); 
+	$page['h1'] = wrap_text($error_messages['title']);
+	$page['error_description'] = sprintf(wrap_text($error_messages['description']), 
+		$_SERVER['REQUEST_METHOD']);
+	if (in_array($page['status'], $extra_description_codes)) {
+		$page['error_explanation'] = sprintf(wrap_text('Please try to find the '
+			.'content you were looking for from our <a href="%s">main page</a>.'),
+			$zz_setting['homepage_url']);
+	} else {
+		$page['error_explanation'] = '';
+	}
+	if (!empty($zz_page['error_msg'])) 
+		$page['error_explanation'] = $zz_page['error_msg'].' '.$page['error_explanation'];
+	
+	$page['text'] =  implode("", file($zz_page['http_error_template']));;
+	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
+		// get menus, if function and database connection exist
+		$nav = wrap_get_menu();
+		$page['nav'] = wrap_htmlout_menu($nav);
+	} else $page['nav'] = false;
+	
+	// -- 3. output HTTP header
+	header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '
+		.$error_messages['title']);
+	
+	// -- 4. output page
+	
+	if ($zz_setting['brick_page_templates'] == true) {
+		echo wrap_htmlout_page($page);
+	} else {
+		if (!empty($zz_conf['character_set']))
+			header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+		$page['text'] = str_replace('%%% page h1 %%%', $page['h1'], $page['text']);
+		$page['text'] = str_replace('%%% page code %%%', $page['status'], $page['text']);
+		$page['text'] = str_replace('%%% page error_description %%%', $page['error_description'], $page['text']);
+		$page['text'] = str_replace('%%% page error_explanation %%%', $page['error_explanation'], $page['text']);
+		include $zz_page['head'];
+		echo $page['text'];
+		include $zz_page['foot'];
+	}
+	
+	// -- 5. error logging
+
+	if (!$log_errors) exit;
+	wrap_errorpage_log($page['status'], $page);
+
+	exit;
+}
+
+/**
+ * Logs errors if an error page is shown
+ *
+ * @param int $status Errorcode
+ * @param array $page
+ *		'h1', 'error_description', 'error_explanation'
+ * @return bool true if something was logged, false if not
+ */
+function wrap_errorpage_log($status, $page) {
+	global $zz_setting;
+
+	$msg = html_entity_decode(strip_tags($page['h1'])."\n\n"
+		.strip_tags($page['error_description'])."\n"
+		.strip_tags($page['error_explanation'])."\n\n");
+	$settings = array();
+	$settings['subject'] = ' ('.$status.')';
+	switch ($status) {
+	case 503:
+		$settings['no_return'] = true; // don't exit function again
+		wrap_error($msg, E_USER_ERROR, $settings);
+		break;
+	case 404:
+		// access without REFERER will be ignored (may be typo, ...)
+		if (!isset($_SERVER['HTTP_REFERER'])) return false;
+		if (!trim($_SERVER['HTTP_REFERER'])) return false;
+		// access without USER_AGENT will be ignored, badly programmed script
+		if (empty($_SERVER['HTTP_USER_AGENT'])) return false;
+		// access from the same existing page to this page nonexisting
+		// is impossible (there are some special circumstances, e. g. a 
+		// script behaves differently the next time it was uploaded, but we
+		// ignore these), bad programmed script
+		global $zz_page;
+		$requested = $zz_page['url']['full']['scheme'].'://'
+			.$zz_page['url']['full']['host'].$zz_page['url']['full']['path'];
+		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
+		// ignore some URLs ending in the following strings
+		if (empty($zz_setting['error_404_ignore_strings'])) {
+			$zz_setting['error_404_ignore_strings'] = array(
+				'&', // encoded mail addresses, some bots are too stupid for them
+				'%26', // encoded mail addresses, some bots are too stupid for them
+				'/./', // will normally be resolved by browser (bad script)
+				'/../', // will normally be resolved by browser (bad script)
+				'data:image/gif;base64,AAAA' // this is a data-URL misinterpreted
+			);
+		}
+		foreach ($zz_setting['error_404_ignore_strings'] as $string) {
+			if (substr($_SERVER['REQUEST_URI'], -(strlen($string))) == $string) return false;
+		}
+		// own error message!
+		$msg = sprintf(wrap_text("The URL\n\n%s was requested from\n\n%s\n\n"
+			." with the IP address %s\n (Browser %s)\n\n"
+			." but could not be found on the server"), $requested, 
+			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
+		$settings['mail_no_request_uri'] = true;		// we already have these
+		$settings['mail_no_ip'] = true;
+		$settings['mail_no_user_agent'] = true;
+		wrap_error($msg, E_USER_WARNING, $settings);
+		break;
+	case 400:
+	case 410:
+	case 403:
+		wrap_error($msg, E_USER_NOTICE, $settings);
+		break;
+	default:
+		wrap_error($msg, E_USER_WARNING, $settings);
+		break;
+	}
+	return true;
+}
+	
+
+/**
+ * reads HTTP error codes from http-errors.txt
+ *
+ * @global array $zz_setting
+ *		'core'
+ * @return array $codes
+ */
 function wrap_read_errorcodes() {
 	global $zz_setting;
 	
@@ -134,5 +330,6 @@ function wrap_read_errorcodes() {
 	}
 	return $codes;
 }
+
 
 ?>

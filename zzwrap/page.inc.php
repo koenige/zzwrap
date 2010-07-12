@@ -6,6 +6,7 @@
 
 
 // intialize SQL-queries
+global $zz_sql;
 $zz_sql['breadcrumbs'] = '';
 $zz_sql['menu'] = '';
 $zz_sql['menu_level2'] = '';
@@ -126,6 +127,8 @@ function wrap_get_menu_webpages() {
 	$menu = array();
 	// get top menus
 	$entries = wrap_db_fetch($zz_sql['menu'], $zz_field_page_id);
+	if (!empty($zz_sql['menu_table']))
+		$entries = wrap_translate($entries, $zz_sql['menu_table']);
 	foreach ($entries as $line) {
 		if (strstr($line['menu'], ',')) {
 			$mymenus = explode(',', $line['menu']);
@@ -167,7 +170,7 @@ function wrap_get_menu_webpages() {
 				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
-				($item['url'] == $_SERVER['REQUEST_URI'] ? true : false);
+				($menu[$id][$nav_id]['url'] == $_SERVER['REQUEST_URI'] ? true : false);
 			// create ID for CSS, JavaScript
 			if (function_exists('forceFilename') AND !empty($item['id_title']))
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
@@ -185,12 +188,6 @@ function wrap_get_menu_webpages() {
  * auf oberster Ebene, darunter obj2, obj3, .. je nach Anzahl der Menüeinträge
  * aktuelle Seite wird mit '<strong>' ausgezeichnet. Gibt komplettes Menü
  * zurück
- * global variables: 
- * $zz_setting['main_menu']
- * $zz_setting['menu_mark_active_open']
- * $zz_setting['menu_mark_active_close']
- * $zz_setting['menu_display_submenu_items']
- *
  * @param array $nav Ausgabe von wrap_get_menu();
  *	required keys: 'title', 'url', 'current_page'
  *	optional keys: 'long_title', 'id', 'class', 'subtitle'
@@ -198,6 +195,10 @@ function wrap_get_menu_webpages() {
  *	Eintrags oder Name des Menüs
  * @param int $page_id optional; show only the one correspondig entry from the menu
  *	and show it with a long title
+ * @global array $zz_setting
+ *		'main_menu', 'menu_mark_active_open', 'menu_mark_active_close',
+ *		'menu_display_submenu_items'
+ * @global string $zz_field_page_id Name of ID field in webpages-table
  * @return string HTML-Output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */

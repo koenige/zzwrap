@@ -509,7 +509,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 				$data[$my_id] += $my_data;
 			}
 			// append new IDs to $ids-Array
-			$ids = array_merge($ids, $my_data);
+			$ids = array_merge($ids, array_keys($my_data));
 			if ($mode == 'hierarchy') {
 				$data['ids'] = array_merge($data['ids'], array_keys($my_data));
 			}
@@ -655,6 +655,136 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	return $sql;
 }
 
+/**
+ * sends a file to the browser from a directory below document root
+ *
+ * @param array $file
+ *		'name' => string full filename; 'etag' string (optional) ETag-value for 
+ *		header; 'cleanup' => bool if file shall be deleted after sending it;
+ *		'cleanup_folder' => string name of folder if it shall be deleted as well
+ * @global array $zz_conf
+ * @global array $zz_sql
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo send pragma public header only if browser that is affected by this bug
+ */
+function wrap_file_send($file) {
+	global $zz_conf;
+	global $zz_sql;
+	if (!file_exists($file['name'])) return false;
 
+	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
+	$filesize = filesize($file['name']);
+	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
+	$cache_time = gmdate("D, d M Y H:i:s", filemtime($file['name'])); 
 
+	// Canonicalize suffices
+	$suffix_map = array(
+		'jpg' => 'jpeg',
+		'tif' => 'tiff'
+	);
+	if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
+
+	// Read mime type from database
+	if (!empty($zz_sql['filetypes'])) 
+		$sql = sprintf($zz_sql['filetypes'], $suffix);
+	else {
+		$sql = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
+			FROM '.$zz_conf['prefix'].'filetypes
+			WHERE extension = "'.$suffix.'"';
+	}
+	$mimetype = wrap_db_fetch($sql, '', 'single value');
+	if (!$mimetype) $mimetype = 'application/octet-stream';
+
+	// Send HTTP headers
+ 	header("Accept-Ranges: bytes");
+ 	header("Last-Modified: " . $cache_time . " GMT");
+	header("Content-Length: " . $filesize);
+	header("Content-Type: ".$mimetype);
+	if (!empty($file['etag']))
+		header("ETag: ".$file['etag']);
+	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
+
+	// Download files if generic mimetype
+	$download_filetypes = array('application/octet-stream', 'application/zip');
+	if (in_array($mimetype, $download_filetypes)) {
+		header("Content-Disposition: attachment; filename=".basename($file['name']));
+			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
+		header('Pragma: public');
+			// dieser Header widerspricht im Grunde dem mit SESSION ausgesendeten
+			// Cache-Control-Header
+			// Wird aber für IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
+			// erlauben, wenn Cache-Control gesetzt ist.
+			// http://support.microsoft.com/kb/323308/de
+	}
+
+	// Respond to If Modified Since with 304 header if appropriate
+	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
+		&& $cache_time.' GMT' == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+		header("HTTP/1.1 304 Not Modified");
+		exit;
+	}
+
+	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
+		// we do not need to resend file
+		exit;
+	}
+
+	readfile($file['name']);
+
+	if (!empty($file['cleanup'])) {
+		// clean up
+		unlink($file['name']);
+		if (!empty($file['cleanup_dir'])) rmdir($file['cleanup_dir']);
+	}
+
+	exit;
+}
+
+/**
+ * Reads the language from the URL and returns without it
+ * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
+ * 
+ * @param array $url
+ * @param bool $setlang write lanugage in 'lang'/ Sprache in 'lang' schreiben?
+ * @global array $zz_setting
+ *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
+ * @global array $zz_sql
+ * 		'language' SQL query to check whether language exists
+ * @return array $url
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_prepare_url($url, $setlang = true) {
+	global $zz_setting;
+	global $zz_sql;
+
+	// looking for /en/ or similar
+	if (empty($url['path'])) return $url;
+	if (!$pos = strpos(substr($url['path'], 1), '/')) return $url;
+	$lang = mysql_real_escape_string(substr($url['path'], 1, $pos));
+	// check if it's a language
+	if (!empty($zz_sql['language'])) {
+		// read from sql query
+		$sql = sprintf($zz_sql['language'], $lang);
+		$lang = wrap_db_fetch($sql, '', 'single value');
+	} elseif (!empty($zz_setting['languages_allowed'])) {
+		// read from array
+		if (!in_array($lang, $zz_setting['languages_allowed'])) 
+			$lang = false;
+	} else {
+		// impossible to check, so there's no language
+		$lang = false;
+	}
+	
+	// if no language can be extracted from URL, return URL without changes
+	if (!$lang) return $url;
+		
+	if ($setlang) {
+		// save language in settings
+		$zz_setting['lang'] = $lang;
+		// add language to base URL
+		$zz_setting['base'] .= '/'.$lang;
+	}
+	$url['path'] = substr($url['path'], $pos+1);
+	return $url;
+}
 ?>
