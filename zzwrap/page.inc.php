@@ -413,7 +413,7 @@ function wrap_get_breadcrumbs($page_id) {
 	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', $zz_sql['is_public']);
 	$pages = wrap_db_fetch($sql, $zz_field_page_id);
 	if ($zz_conf['translations_of_fields']) {
-		$pages = wrap_translate($pages, $zz_translation_matrix['breadcrumbs'], false);
+		$pages = wrap_translate($pages, $zz_translation_matrix['breadcrumbs'], '', false);
 	}
 
 	// get all breadcrumbs recursively

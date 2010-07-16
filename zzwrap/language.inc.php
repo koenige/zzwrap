@@ -61,8 +61,11 @@ function wrap_text($string) {
  * @param mixed $matrix (string) name of database.table, translates all fields
  * 			that allow translation, write back to $data[$id][$field_name]
  *			(array) 'wrap_table' => name of database.table
- * @param bool $mark_incomplete	 write back if fields are not translated?
- * @param string $lang different target language than set in $zz_setting['translation_lang']
+ * @param string $foreign_key_field_name (optional) if it's not the main record but
+ *			a detail record indexed by $foreign_key_field_name
+ * @param bool $mark_incomplete	(optional) write back if fields are not translated?
+ * @param string $lang different (optional) target language than set in 
+ *			$zz_setting['translation_lang']
  * @global array $zz_conf
  * 		- $zz_conf['translations_of_fields']
  * @global array $zz_setting
@@ -72,11 +75,12 @@ function wrap_text($string) {
  *		ID => wrap_source_language => field_name => en [iso_lang]
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_translate($data, $matrix, $mark_incomplete = true, $target_language = false) {
+function wrap_translate($data, $matrix, $foreign_key_field_name = '',
+	$mark_incomplete = true, $target_language = false) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_sql;
-	if (empty($zz_conf['translations_of_fields'])) return false;
+	if (empty($zz_conf['translations_of_fields'])) return $data;
 
 	// get page language: $zz_setting['lang']
 	if (!$target_language) $target_language = $zz_setting['lang'];
@@ -148,27 +152,55 @@ function wrap_translate($data, $matrix, $mark_incomplete = true, $target_languag
 
 	$all_fields_to_translate = 0;
 	$translated_fields = 0;
+	// record IDs that are going to be translated
+	if (!$foreign_key_field_name) {
+		// main table: take main IDs
+		$data_ids = array_keys($data);
+	} else {
+		// joined table: get IDs from foreign_key and save main table ID for later
+		$data_ids = array();
+		foreach ($data as $id => $record) {
+			if (!empty($record[$foreign_key_field_name])) {
+				$data_ids[$id] = $record[$foreign_key_field_name];
+			} else {
+				// there is no detail record
+				continue;
+			}
+		}
+		// there are no detail records at all?
+		if (empty($data_ids)) $matrix = array(); // get out of here
+	}
 	foreach ($matrix as $field_type => $fields) {
-		$all_fields_to_translate += count($fields)*count($data);
+		$all_fields_to_translate += count($fields)*count($data_ids);
 		// get translations corresponding to matrix from database
 		$sql = sprintf($zz_sql['translations'], $field_type, implode(',', array_keys($fields)), 
-			implode(',', array_keys($data)), $target_language);
+			implode(',', $data_ids), $target_language);
 		$translations = wrap_db_fetch($sql, 'translation_id');
 		// merge $translations into $data
 		foreach ($translations as $tl) {
 			$field_key = $fields[$tl['translationfield_id']]['field_key'];
-			if (!empty($data[$tl['field_id']][$field_key])) {
-				// only save fields that already existed beforehands
-				$data[$tl['field_id']][$field_key] = $tl['translation'];
-				$translated_fields++;
-				if (!empty($tl['source_language'])) {
-					// language information if inside query, otherwise existing information
-					// in $data will be left as is
-					$data[$tl['field_id']]['wrap_source_language'][$field_key] = $tl['source_language'];
-				}
+			$tl_ids = array();
+			if (!$foreign_key_field_name) {
+				// one translation = one field
+				$tl_ids[] = $tl['field_id'];
 			} else {
-				// ok, we do not care about this field, so don't count on it
-				$all_fields_to_translate--;
+				// it's not the ID of the joined table we need but the main table
+				$tl_ids = array_keys($data_ids, $tl['field_id']);
+			}
+			foreach ($tl_ids as $tl_id) {
+				if (!empty($data[$tl_id][$field_key])) {
+					// only save fields that already existed beforehands
+					$data[$tl_id][$field_key] = $tl['translation'];
+					$translated_fields++;
+					if (!empty($tl['source_language'])) {
+						// language information if inside query, otherwise existing information
+						// in $data will be left as is
+						$data[$tl_id]['wrap_source_language'][$field_key] = $tl['source_language'];
+					}
+				} else {
+					// ok, we do not care about this field, so don't count on it
+					$all_fields_to_translate--;
+				}
 			}
 		}
 	}
