@@ -222,13 +222,13 @@ if (!isset($zz_conf['error_mail_level']))
 // Database structure
 // -------------------------------------------------------------------------
 
-$zz_field_page_id		= 'page_id';
-$zz_field_content		= 'content';
-$zz_field_title			= 'title';
-$zz_field_ending		= 'ending';
-$zz_field_identifier	= 'identifier';
-$zz_field_lastupdate	= 'last_update';
-$zz_field_author_id		= 'author_person_id';
+if (empty($zz_sql['page_id']))		$zz_sql['page_id']		= 'page_id';
+if (empty($zz_sql['content']))		$zz_sql['content']		= 'content';
+if (empty($zz_sql['title']))		$zz_sql['title']		= 'title';
+if (empty($zz_sql['ending']))		$zz_sql['ending']		= 'ending';
+if (empty($zz_sql['identifier']))	$zz_sql['identifier']	= 'identifier';
+if (empty($zz_sql['lastupdate']))	$zz_sql['lastupdate']	= 'last_update';
+if (empty($zz_sql['author_id']))	$zz_sql['author_id']	= 'author_person_id';
 
 if (!isset($zz_conf['prefix']))
 	$zz_conf['prefix'] = ''; // prefix for all database tables

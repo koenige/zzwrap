@@ -11,6 +11,9 @@
  * @param string $msg error message
  * @param int $error_code E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
  * @param array $settings (optional internal settings)
+ *		'logfile': extra text for logfile only, 'no_return': does not return but
+ *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
+ *		'subject'
  * @global array $zz_conf cofiguration settings
  *		'error_mail_to', 'error_mail_from', 'error_handling', 'error_log',
  *		'log_errors', 'log_errors_max_len', 'debug', 'error_mail_level',
@@ -50,6 +53,7 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 	// reformat log output
 	if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
 		$error_line = '['.date('d-M-Y H:i:s').'] zzwrap '.ucfirst($level).': '
+			.(!empty($settings['logfile']) ? $settings['logfile'].' ' : '')
 			.preg_replace("/\s+/", " ", $log_output);
 		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 			- (strlen($user)+2)).' '.$user."\n";
@@ -126,12 +130,14 @@ Content-Transfer-Encoding: 8bit';
  * @param bool $log_errors whether errors shall be logged or not
  * @global array $zz_setting
  * @global array $zz_conf
+ * @global array $zz_sql
  * @global array $text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
 	global $zz_conf;
+	global $zz_sql;
 	global $text;
 
 	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
@@ -238,7 +244,8 @@ function wrap_errorpage_log($status, $page) {
 		.strip_tags($page['error_description'])."\n"
 		.strip_tags($page['error_explanation'])."\n\n");
 	$settings = array();
-	$settings['subject'] = ' ('.$status.')';
+	$settings['subject'] = '('.$status.')';
+	$settings['logfile'] = '['.$status.' '.$_SERVER['REQUEST_URI'].']';
 	switch ($status) {
 	case 503:
 		$settings['no_return'] = true; // don't exit function again
@@ -255,7 +262,7 @@ function wrap_errorpage_log($status, $page) {
 		// script behaves differently the next time it was uploaded, but we
 		// ignore these), bad programmed script
 		global $zz_page;
-		$requested = $zz_page['url']['full']['scheme'].'://'
+		$requested = $zz_page['url']['full']['scheme'].'://'.$zz_setting['base']
 			.$zz_page['url']['full']['host'].$zz_page['url']['full']['path'];
 		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
 		// ignore some URLs ending in the following strings
@@ -265,7 +272,11 @@ function wrap_errorpage_log($status, $page) {
 				'%26', // encoded mail addresses, some bots are too stupid for them
 				'/./', // will normally be resolved by browser (bad script)
 				'/../', // will normally be resolved by browser (bad script)
-				'data:image/gif;base64,AAAA' // this is a data-URL misinterpreted
+				'data:image/gif;base64,AAAA', // this is a data-URL misinterpreted
+				'webcal://', // browsers know how to handle unkown protocols (bad script)
+				'webcal:/' // pseudo-clever script, excluding this string is not 100% correct
+				// but should do no harm ('webcal:' as a part of a string is valid,
+				// so if you use it, errors on pages with this URI part won't get logged)
 			);
 		}
 		foreach ($zz_setting['error_404_ignore_strings'] as $string) {
@@ -279,6 +290,7 @@ function wrap_errorpage_log($status, $page) {
 		$settings['mail_no_request_uri'] = true;		// we already have these
 		$settings['mail_no_ip'] = true;
 		$settings['mail_no_user_agent'] = true;
+		$settings['logfile'] = '['.$status.']';
 		wrap_error($msg, E_USER_WARNING, $settings);
 		break;
 	case 400:

@@ -170,40 +170,65 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// there are no detail records at all?
 		if (empty($data_ids)) $matrix = array(); // get out of here
 	}
+	
+	$old_empty_fields = array();
 	foreach ($matrix as $field_type => $fields) {
+		// check if some of the existing fields are empty, to get the correct
+		// number of fields to translate (empty = nothing to translate!)
+		foreach ($fields as $field) {
+			foreach ($data as $id => $rec) {
+				if (empty($rec[$field['field_key']])) 
+					$old_empty_fields[$field['field_key'].'['.$id.']'] = true;
+			}
+		}
+
 		$all_fields_to_translate += count($fields)*count($data_ids);
+
 		// get translations corresponding to matrix from database
 		$sql = sprintf($zz_sql['translations'], $field_type, implode(',', array_keys($fields)), 
 			implode(',', $data_ids), $target_language);
 		$translations = wrap_db_fetch($sql, 'translation_id');
+
 		// merge $translations into $data
 		foreach ($translations as $tl) {
-			$field_key = $fields[$tl['translationfield_id']]['field_key'];
+			$field_name = $fields[$tl['translationfield_id']]['field_key'];
 			$tl_ids = array();
 			if (!$foreign_key_field_name) {
 				// one translation = one field
 				$tl_ids[] = $tl['field_id'];
 			} else {
 				// it's not the ID of the joined table we need but the main table
+				// e. g. $data_ids = Array([1103] => 40, [1113] => 24, [1115] => 24)
+				// $tl['field_id'] = 24, returns Array(1113, 1115)
+				// $tl['field_id'] = 40, returns Array(1103)
 				$tl_ids = array_keys($data_ids, $tl['field_id']);
 			}
 			foreach ($tl_ids as $tl_id) {
-				if (!empty($data[$tl_id][$field_key])) {
+				if (isset($data[$tl_id][$field_name])) {
 					// only save fields that already existed beforehands
-					$data[$tl_id][$field_key] = $tl['translation'];
+					$data[$tl_id][$field_name] = $tl['translation'];
 					$translated_fields++;
 					if (!empty($tl['source_language'])) {
 						// language information if inside query, otherwise existing information
 						// in $data will be left as is
-						$data[$tl_id]['wrap_source_language'][$field_key] = $tl['source_language'];
+						$data[$tl_id]['wrap_source_language'][$field_name] = $tl['source_language'];
 					}
 				} else {
 					// ok, we do not care about this field, so don't count on it
 					$all_fields_to_translate--;
 				}
+				// check if there is a translation for an empty field, for
+				// whatever reason. this must be unset to get the correct
+				// count for fields
+				if (isset($old_empty_fields[$field_name.'['.$tl_id.']']))
+					unset($old_empty_fields[$field_name.'['.$tl_id.']']);
 			}
 		}
 	}
+
+	// if fields where = '' beforehands and = '' afterwards, they count as
+	// translated
+	$translated_fields += count($old_empty_fields);
 
 	// check if something is untranslated!
 	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete)

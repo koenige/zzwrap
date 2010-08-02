@@ -14,6 +14,7 @@ global $zz_setting;
 global $zz_conf;
 global $zz_page;
 global $zz_access;
+global $zz_sql;
 
 // --------------------------------------------------------------------------
 // Weitere Dateien einbinden
@@ -94,14 +95,14 @@ if (!$zz_page['db']) wrap_quit();
 // did not have complete language information then.
 if ($zz_conf['translations_of_fields']) {
 	$my_page = wrap_translate(array(
-		$zz_page['db'][$zz_field_page_id] => $zz_page['db']), 
+		$zz_page['db'][$zz_sql['page_id']] => $zz_page['db']), 
 		$zz_translation_matrix['pages']);
 	$zz_page['db'] = array_shift($my_page);
 	unset($my_page);
 }
 
 require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
-$page = brick_format($zz_page['db'][$zz_field_content], $zz_page['db']['parameter']);
+$page = brick_format($zz_page['db'][$zz_sql['content']], $zz_page['db']['parameter']);
 if (empty($page)) wrap_quit();
 if (!empty($page['error']['level'])) {
 	if (!empty($page['error']['msg_text']) AND !empty($page['error']['msg_vars'])) {
@@ -121,8 +122,8 @@ if (!empty($page['no_output'])) exit;
 $page['status'] = 200; // Seiteninhalt vorhanden!
 
 // if database allows field 'ending', check if the URL is canonical
-if (!empty($zz_page['db'][$zz_field_ending])) {
-	$ending = $zz_page['db'][$zz_field_ending];
+if (!empty($zz_page['db'][$zz_sql['ending']])) {
+	$ending = $zz_page['db'][$zz_sql['ending']];
 	// if brick_format() returns a page ending, use this
 	if (isset($page['url_ending'])) $ending = $page['url_ending'];
 	wrap_check_canonical($page, $ending, $zz_page['url']['full']);
@@ -130,7 +131,7 @@ if (!empty($zz_page['db'][$zz_field_ending])) {
 
 // get media
 if (function_exists('wrap_get_media'))
-	$media = wrap_get_media($zz_page['db'][$zz_field_page_id]);
+	$media = wrap_get_media($zz_page['db'][$zz_sql['page_id']]);
 if (empty($page['media']) AND !empty($media))
 	$page['media'] = $media;
 elseif (!empty($page['media']) AND !empty($media))
@@ -143,7 +144,7 @@ if (!isset($page['lang'])) $page['lang'] = $zz_setting['lang'];
 
 // $page['title'] == H1 element
 // default: from brick script, 2nd choice: database
-if (empty($page['title'])) $page['title'] = $zz_page['db'][$zz_field_title];
+if (empty($page['title'])) $page['title'] = $zz_page['db'][$zz_sql['title']];
 
 // $page['pagetitle'] TITLE element
 $page['pagetitle'] = strip_tags($page['title']);
@@ -153,19 +154,19 @@ if ($zz_page['url']['full']['path'] != '/')
 	$page['pagetitle'] .=' ('.(empty($page['project']) ? $zz_conf['project'] : $page['project']).')';
 
 // last update
-if (!empty($page['last_update'])) $page[$zz_field_lastupdate] = $page['last_update'];
-if (empty($page[$zz_field_lastupdate])) {
-	$page[$zz_field_lastupdate] = $zz_page['db'][$zz_field_lastupdate];
-	$page[$zz_field_lastupdate] = datum_de($page[$zz_field_lastupdate]);
+if (!empty($page['last_update'])) $page[$zz_sql['lastupdate']] = $page['last_update'];
+if (empty($page[$zz_sql['lastupdate']])) {
+	$page[$zz_sql['lastupdate']] = $zz_page['db'][$zz_sql['lastupdate']];
+	$page[$zz_sql['lastupdate']] = datum_de($page[$zz_sql['lastupdate']]);
 }
 
 // breadcrumbs (from cmscore/page.inc.php)
 if ($zz_sql['breadcrumbs'])
-	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][$zz_field_page_id], $page['breadcrumbs']);
+	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][$zz_sql['page_id']], $page['breadcrumbs']);
 
 // authors (from cmscore/page.inc.php)
-if (!empty($zz_page['db'][$zz_field_author_id]))
-	$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][$zz_field_author_id]);
+if (!empty($zz_page['db'][$zz_sql['author_id']]))
+	$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][$zz_sql['author_id']]);
 
 // navigation menu (from cmscore/page.inc.php)
 if ($zz_sql['menu']) {
