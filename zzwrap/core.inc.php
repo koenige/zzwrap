@@ -520,6 +520,25 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 }
 
 /**
+ * Recursively gets a tree of IDs from the database (here: parent IDs)
+ * 
+ * @param int $id ID of child
+ * @param string $sql SQL query with placeholder %s for ID
+ * @return array set of IDs
+ */
+function wrap_db_parents($id, $sql) {
+	$ids = array();
+	$result = true;
+	while ($result) {
+		$id = wrap_db_fetch(sprintf($sql, $id), '', 'single value');
+		if ($id) $ids[] = $id;
+		else $result = false;
+	}
+	$ids = array_reverse($ids); // top-down
+	return $ids;
+}
+
+/**
  * puts parts of SQL query in correct order when they have to be added
  *
  * this function works only for sql queries without UNION:
@@ -662,6 +681,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
  *		'name' => string full filename; 'etag' string (optional) ETag-value for 
  *		header; 'cleanup' => bool if file shall be deleted after sending it;
  *		'cleanup_folder' => string name of folder if it shall be deleted as well
+ *		'send_as' => send filename under a different name (default: basename)
  * @global array $zz_conf
  * @global array $zz_sql
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -672,6 +692,7 @@ function wrap_file_send($file) {
 	global $zz_sql;
 	if (!file_exists($file['name'])) return false;
 
+	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
 	$filesize = filesize($file['name']);
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
@@ -707,7 +728,7 @@ function wrap_file_send($file) {
 	// Download files if generic mimetype
 	$download_filetypes = array('application/octet-stream', 'application/zip');
 	if (in_array($mimetype, $download_filetypes)) {
-		header("Content-Disposition: attachment; filename=".basename($file['name']));
+		header('Content-Disposition: attachment; filename="'.$file['send_as'].'"');
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
 		header('Pragma: public');
 			// dieser Header widerspricht im Grunde dem mit SESSION ausgesendeten

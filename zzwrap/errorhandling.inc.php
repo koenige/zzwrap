@@ -262,8 +262,9 @@ function wrap_errorpage_log($status, $page) {
 		// script behaves differently the next time it was uploaded, but we
 		// ignore these), bad programmed script
 		global $zz_page;
-		$requested = $zz_page['url']['full']['scheme'].'://'.$zz_setting['base']
-			.$zz_page['url']['full']['host'].$zz_page['url']['full']['path'];
+		$requested = $zz_page['url']['full']['scheme'].'://'
+			.$zz_page['url']['full']['host'].$zz_setting['base']
+			.$zz_page['url']['full']['path'];
 		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
 		// ignore some URLs ending in the following strings
 		if (empty($zz_setting['error_404_ignore_strings'])) {
@@ -272,15 +273,22 @@ function wrap_errorpage_log($status, $page) {
 				'%26', // encoded mail addresses, some bots are too stupid for them
 				'/./', // will normally be resolved by browser (bad script)
 				'/../', // will normally be resolved by browser (bad script)
-				'data:image/gif;base64,AAAA', // this is a data-URL misinterpreted
-				'webcal://', // browsers know how to handle unkown protocols (bad script)
-				'webcal:/' // pseudo-clever script, excluding this string is not 100% correct
-				// but should do no harm ('webcal:' as a part of a string is valid,
-				// so if you use it, errors on pages with this URI part won't get logged)
+				'data:image/gif;base64,AAAA' // this is a data-URL misinterpreted
 			);
 		}
 		foreach ($zz_setting['error_404_ignore_strings'] as $string) {
 			if (substr($_SERVER['REQUEST_URI'], -(strlen($string))) == $string) return false;
+		}
+		if (empty($zz_setting['error_404_ignore_begin'])) {
+			$zz_setting['error_404_ignore_begin'] = array(
+				'/webcal://', // browsers know how to handle unkown protocols (bad script)
+				'/webcal:/' // pseudo-clever script, excluding this string is not 100% correct
+				// but should do no harm ('webcal:' as a part of a string is valid,
+				// so if you use it, errors on pages with this URI part won't get logged)
+			);
+		}
+		foreach ($zz_setting['error_404_ignore_begin'] as $string) {
+			if (substr($_SERVER['REQUEST_URI'], 0, (strlen($string))) == $string) return false;
 		}
 		// own error message!
 		$msg = sprintf(wrap_text("The URL\n\n%s was requested from\n\n%s\n\n"
