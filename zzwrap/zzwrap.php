@@ -35,6 +35,18 @@ if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
 	require_once $zz_setting['custom_wrap_dir'].'/_functions.inc.php';
 
 // --------------------------------------------------------------------------
+// Test HTTP REQUEST method
+// --------------------------------------------------------------------------
+
+if (!in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
+	if (!in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
+		wrap_quit(405);	// 405 Not Allowed
+	} else {
+		wrap_quit(501); // 501 Not Implemented
+	}
+}
+
+// --------------------------------------------------------------------------
 // Abfrage der Seite nach URL in der Datenbank
 // --------------------------------------------------------------------------
 

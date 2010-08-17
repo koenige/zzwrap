@@ -474,7 +474,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
  * @param array $data Array with records from database, indexed on ID
  * @param string $sql SQL query to get child records for each selected record
  * @param string $key_field_name optional: Fieldname of primary key
- * @param string $mode optional: flat = without hierarchy, hierarchical = with.
+ * @param string $mode optional: flat = without hierarchy, hierarchy = with.
  * @return array with queried database content or just the IDs
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -491,9 +491,15 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 		$data['ids'] = $ids;
 	}
 	// as long as we have IDs in the pool, check if the current ID has child records
+	$used_ids = array();
 	while ($ids) {
 		// take current ID from $ids
 		$my_id = array_shift($ids);
+		if (in_array($my_id, $used_ids)) {
+			continue; // avoid infinite recursion
+		} else {
+			$used_ids[] = $my_id;
+		}
 		if ($key_field_name) {
 			// get ID and full record as specified in SQL query
 			$my_data = wrap_db_fetch(sprintf($sql, $my_id), $key_field_name);

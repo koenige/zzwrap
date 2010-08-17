@@ -6,6 +6,23 @@
 
 
 // -------------------------------------------------------------------------
+// Request method
+// -------------------------------------------------------------------------
+
+if (empty($zz_setting['http']['allowed'])) {
+	$zz_setting['http']['allowed'] = array('GET', 'HEAD', 'POST');
+} else {
+	// The following REQUEST methods must always be allowed in general:
+	if (!in_array('GET', $zz_setting['http']['allowed']))
+		$zz_setting['http']['allowed'][] = 'GET';
+	if (!in_array('HEAD', $zz_setting['http']['allowed']))
+		$zz_setting['http']['allowed'][] = 'HEAD';
+}
+if (empty($zz_setting['http']['not_allowed'])) {
+	$zz_setting['http']['not_allowed'] = array('OPTIONS', 'PUT', 'DELETE', 'TRACE', 'CONNECT');
+}
+
+// -------------------------------------------------------------------------
 // Hostname, Access via HTTPS or not
 // -------------------------------------------------------------------------
 
