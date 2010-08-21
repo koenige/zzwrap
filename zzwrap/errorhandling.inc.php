@@ -204,6 +204,9 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// -- 3. output HTTP header
 	header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '
 		.$error_messages['title']);
+	if ($page['status'] == 405) {
+		header('Allow: '.implode(', ', $zz_setting['http']['allowed']));
+	}
 	
 	// -- 4. output page
 	
