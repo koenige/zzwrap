@@ -79,6 +79,7 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 	switch ($zz_conf['error_handling']) {
 	case 'mail':
 		if (!in_array($level, $zz_conf['error_mail_level'])) break;
+		$msg = html_entity_decode($msg, ENT_QUOTES, $zz_conf['character_set']);
 		// add some technical information to mail
 		$foot = false;
 		if (empty($settings['mail_no_request_uri']))
@@ -105,7 +106,7 @@ Content-Transfer-Encoding: 8bit';
 		$msg, $email_head, '-f '.$zz_conf['error_mail_from']);
 		break;
 	case 'screen':
-		echo '<pre>';
+		echo '<pre class="error">';
 		echo htmlentities($msg); //str_replace("\n", "<br>", $msg);
 		echo '</pre>';
 		break;
