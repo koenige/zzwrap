@@ -17,7 +17,7 @@
 416	Requested Range Not Satisfiable	
 417	Expectation Failed				
 500	Internal Server Error			The server encountered an internal error and was unable to complete your request.
-501	Not Implemented					The server does not support the action requested by the browser.
+501	Not Implemented					The server does not support the action requested by the browser (%s).
 502	Bad Gateway						The proxy server received an invalid response from an upstream server.
 503	Service Unavailable				The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.
 504	Gateway Timeout					

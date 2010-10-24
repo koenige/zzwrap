@@ -234,6 +234,13 @@ if (!isset($zz_conf['log_errors_max_len']))
 if (!isset($zz_conf['error_mail_level']))
 	$zz_conf['error_mail_level']	= array('warning', 'error');
 
+if (!isset($zz_conf['translate_log_encodings']))
+	$zz_conf['translate_log_encodings'] = array(
+		'iso-8859-2' => 'iso-8859-1'
+	);
+if (!isset($zz_conf['error_log_post']))
+	$zz_conf['error_log_post']	= false;
+
 
 // -------------------------------------------------------------------------
 // Database structure

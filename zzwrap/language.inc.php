@@ -36,6 +36,10 @@ global $text;
 function wrap_text($string) {
 	global $text;
 	global $zz_conf;
+
+	// if string came from preg_replace_callback, it might be an array
+	if (is_array($string) AND !empty($string[1])) $string = $string[1];
+	
 	if (empty($text[$string])) {
 		// write missing translation to somewhere.
 		// TODO: check logfile for duplicates

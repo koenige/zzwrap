@@ -90,7 +90,7 @@ $text['The server encountered an internal error and was unable to complete your 
 
 // errors.php 501
 $text['Not Implemented'] = 'Abfrage nicht unterst&uuml;tzt';
-$text['The server does not support the action requested by the browser.'] = 'Die vom Browser angeforderte Aktion wird vom Server nicht unterst&uuml;tzt.';
+$text['The server does not support the action requested by the browser (%s).'] = 'Die vom Browser angeforderte Aktion wird vom Server nicht unterst&uuml;tzt (%s).';
 
 // errors.php 502
 $text['Bad Gateway'] = 'Fehlerhaftes Gateway';

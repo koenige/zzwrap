@@ -40,9 +40,14 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 		$level = 'notice';
 		break;
 	}
+
+	$log_encoding = $zz_conf['character_set'];
+	// PHP does not support all encodings
+	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
+		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
 	
 	// Log output
-	$log_output = trim(html_entity_decode($msg));
+	$log_output = trim(html_entity_decode($msg, ENT_QUOTES, $log_encoding));
 	$log_output = str_replace('<br>', "\n\n", $log_output);
 	$log_output = str_replace('<br class="nonewline_in_mail">', "; ", $log_output);
 	$log_output = strip_tags($log_output);
@@ -58,6 +63,8 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 			- (strlen($user)+2)).' '.$user."\n";
 		error_log($error_line, 3, $zz_conf['error_log'][$level]);
+		if (!empty($_POST) AND $zz_conf['error_log_post'])
+			error_log(serialize($_POST)."\n", 3, $zz_conf['error_log'][$level]);
 	}
 		
 	if (!empty($zz_conf['debug']))
@@ -79,7 +86,7 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 	switch ($zz_conf['error_handling']) {
 	case 'mail':
 		if (!in_array($level, $zz_conf['error_mail_level'])) break;
-		$msg = html_entity_decode($msg, ENT_QUOTES, $zz_conf['character_set']);
+		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
 		$foot = false;
 		if (empty($settings['mail_no_request_uri']))
@@ -95,12 +102,12 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 		if ($foot) $msg .= "\n\n-- ".$foot;
 
 		// TODO: check what happens with utf8 mails
-		$email_head = 'From: "'.html_entity_decode($zz_conf['project'])
+		$email_head = 'From: "'.html_entity_decode($zz_conf['project'], ENT_QUOTES, $log_encoding)
 			.'" <'.$zz_conf['error_mail_from'].'>
 MIME-Version: 1.0
 Content-Type: text/plain; charset='.$zz_conf['character_set'].'
 Content-Transfer-Encoding: 8bit';
-		mail($zz_conf['error_mail_to'], '['.html_entity_decode($zz_conf['project']).'] '
+		mail($zz_conf['error_mail_to'], '['.html_entity_decode($zz_conf['project'], ENT_QUOTES, $log_encoding).'] '
 			.(function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : ''), 
 		$msg, $email_head, '-f '.$zz_conf['error_mail_from']);
@@ -171,7 +178,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	$error_messages = $codes[$page['status']];
 	// some codes get a link to the homepage
-	$extra_description_codes = array(403, 404, 410);
+	$extra_description_codes = array(404, 410);
 	
 	// -- 2. set page elements
 	
@@ -238,15 +245,21 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
  *
  * @param int $status Errorcode
  * @param array $page
- *		'h1', 'error_description', 'error_explanation'
+ *		'title', 'error_description', 'error_explanation'
  * @return bool true if something was logged, false if not
  */
 function wrap_errorpage_log($status, $page) {
 	global $zz_setting;
+	global $zz_conf;
+
+	$log_encoding = $zz_conf['character_set'];
+	// PHP does not support all encodings
+	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
+		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
 
 	$msg = html_entity_decode(strip_tags($page['h1'])."\n\n"
 		.strip_tags($page['error_description'])."\n"
-		.strip_tags($page['error_explanation'])."\n\n");
+		.strip_tags($page['error_explanation'])."\n\n", ENT_QUOTES, $log_encoding);
 	$settings = array();
 	$settings['subject'] = '('.$status.')';
 	$settings['logfile'] = '['.$status.' '.$_SERVER['REQUEST_URI'].']';
@@ -286,9 +299,10 @@ function wrap_errorpage_log($status, $page) {
 		if (empty($zz_setting['error_404_ignore_begin'])) {
 			$zz_setting['error_404_ignore_begin'] = array(
 				'/webcal://', // browsers know how to handle unkown protocols (bad script)
-				'/webcal:/' // pseudo-clever script, excluding this string is not 100% correct
+				'/webcal:/', // pseudo-clever script, excluding this string is not 100% correct
 				// but should do no harm ('webcal:' as a part of a string is valid,
 				// so if you use it, errors on pages with this URI part won't get logged)
+				'/plugins/editors/tinymce/' // wrong CMS, don't send enerving errors
 			);
 		}
 		foreach ($zz_setting['error_404_ignore_begin'] as $string) {

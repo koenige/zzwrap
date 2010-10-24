@@ -387,6 +387,7 @@ function wrap_create_id($id_title) {
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
+	global $zz_conf;
 	$lines = array();
 	$result = mysql_query($sql);
 	if ($result) {
@@ -459,6 +460,8 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			wrap_error(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
 		}
 	}
+	if (!empty($zz_conf['modules']['debug'])) zz_debug('wrap_db_fetch(): '.$sql);
+
 	return $lines;
 }
 
@@ -688,6 +691,8 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
  *		header; 'cleanup' => bool if file shall be deleted after sending it;
  *		'cleanup_folder' => string name of folder if it shall be deleted as well
  *		'send_as' => send filename under a different name (default: basename)
+ *		'error_code' => HTTP error code to send in case of file not found error
+ *		'error_msg' => additional error message that appears on error page
  * @global array $zz_conf
  * @global array $zz_sql
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -696,8 +701,17 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 function wrap_file_send($file) {
 	global $zz_conf;
 	global $zz_sql;
-	if (!file_exists($file['name'])) return false;
-
+	if (!file_exists($file['name'])) {
+		if (!empty($file['error_code'])) {
+			if (!empty($file['error_msg'])) {
+				global $zz_page;
+				$zz_page['error_msg'] = $file['error_msg'];
+			}
+			wrap_quit($file['error_code']);
+		}
+		wrap_file_cleanup($file);
+		return false;
+	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
 	$filesize = filesize($file['name']);
@@ -732,7 +746,9 @@ function wrap_file_send($file) {
 	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
 
 	// Download files if generic mimetype
-	$download_filetypes = array('application/octet-stream', 'application/zip');
+	// or HTML, since this might be of unknown content with javascript or so
+	$download_filetypes = array('application/octet-stream', 'application/zip', 
+		'text/html', 'application/xhtml+xml');
 	if (in_array($mimetype, $download_filetypes)) {
 		header('Content-Disposition: attachment; filename="'.$file['send_as'].'"');
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
@@ -747,24 +763,33 @@ function wrap_file_send($file) {
 	// Respond to If Modified Since with 304 header if appropriate
 	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
 		&& $cache_time.' GMT' == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+		wrap_file_cleanup($file);
 		header("HTTP/1.1 304 Not Modified");
 		exit;
 	}
 
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
+		wrap_file_cleanup($file);
 		// we do not need to resend file
 		exit;
 	}
 
 	readfile($file['name']);
+	wrap_file_cleanup($file);
+	exit;
+}
 
+/**
+ * does cleanup after a file was sent
+ *
+ * @param array $file
+ */
+function wrap_file_cleanup($file) {
 	if (!empty($file['cleanup'])) {
 		// clean up
 		unlink($file['name']);
 		if (!empty($file['cleanup_dir'])) rmdir($file['cleanup_dir']);
 	}
-
-	exit;
 }
 
 /**

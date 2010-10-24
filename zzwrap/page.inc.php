@@ -131,36 +131,31 @@ function wrap_get_menu_webpages() {
 	foreach ($entries as $line) {
 		if (strstr($line['menu'], ',')) {
 			$mymenus = explode(',', $line['menu']);
-			foreach ($mymenus as $mymenu) {
-				$line['menu'] = $mymenu;
-				$menu[$mymenu][$line[$zz_sql['page_id']]] = $line;
+			foreach ($mymenus as $menu_key) {
+				$line['menu'] = $menu_key;
+				if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
+					$menu[$menu_key] = $my_item;
 			}
 		} else {
-			$menu[$line['menu']][$line[$zz_sql['page_id']]] = $line;
+			if ($my_item = wrap_menu_asterisk_check($line, $menu, $line['menu']))
+				$menu[$line['menu']] = $my_item;
 		}
 	}
 	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
 		wrap_menu_session($menu);
 	}
 	// get second hierarchy level
-	$sql = sprintf($zz_sql['menu_level2'], '"'.implode('", "', array_keys($menu)).'"');
-	$entries = wrap_db_fetch($sql, $zz_sql['page_id']);
-	foreach ($entries as $line) {
-		// URLs ending in * or */ or *.html are different
-		if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
-			AND substr($line['url'], -6) != '*.html') {
-			$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']][$line[$zz_sql['page_id']]] = $line;
-		} else {
-			// get name of function either from sql query
-			// (for multilingual pages) or from the part until *
-			$url = (!empty($line['function_url']) ? $line['function_url'] 
-				: substr($line['url'], 0, strrpos($line['url'], '*')+1));
-			$menufunc = 'wrap_menu_'.substr($url, 1, -1);
-			if (function_exists($menufunc)) {
-				$menu['sub-'.$line['menu'].'-'.$line['mother_page_id']] = $menufunc($line);
-			}
+	if ($zz_sql['menu_level2']) {
+		$sql = sprintf($zz_sql['menu_level2'], '"'.implode('", "', array_keys($menu)).'"');
+		$entries = wrap_db_fetch($sql, $zz_sql['page_id']);
+		foreach ($entries as $line) {
+			$menu_key = 'sub-'.$line['menu'].'-'.$line['mother_page_id'];
+			// URLs ending in * or */ or *.html are different
+			if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
+				$menu[$menu_key] = $my_item;
 		}
 	}
+	
 	// set current_page, id, subtitle, url with base for _ALL_ menu items
 	foreach (array_keys($menu) as $id) {
 		foreach ($menu[$id] as $nav_id => $item) {
@@ -178,6 +173,38 @@ function wrap_get_menu_webpages() {
 		}
 	}
 	return $menu;
+}
+
+/**
+ * checks if URL ends in * and if yes, returns function output or nothing
+ *
+ * @param array $line
+ * @param array $menu
+ * @param string $menu_key
+ * @global array $zz_sql 'page_id'
+ * @return array $menu[$menu_key]
+ */
+function wrap_menu_asterisk_check($line, $menu, $menu_key) {
+	global $zz_sql;
+	if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
+		AND substr($line['url'], -6) != '*.html') {
+		$menu[$menu_key][$line[$zz_sql['page_id']]] = $line;
+	}
+	// get name of function either from sql query
+	// (for multilingual pages) or from the part until *
+	$url = (!empty($line['function_url']) ? $line['function_url'] 
+		: substr($line['url'], 0, strrpos($line['url'], '*')+1));
+	$menufunc = 'wrap_menu_'.substr($url, 1, -1);
+	if (function_exists($menufunc)) {
+		$menu_entries = $menufunc($line);
+		if (!empty($menu[$menu_key])) {
+			$menu[$menu_key] += $menu_entries;
+		} else {
+			$menu[$menu_key] = $menu_entries;
+		}
+	}
+	if (!empty($menu[$menu_key])) return $menu[$menu_key];
+	return false;
 }
 
 /**
@@ -474,12 +501,15 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 
 	// format breadcrumbs
 	$formatted_breadcrumbs = array();
-	foreach ($breadcrumbs as $crumb)
+	foreach ($breadcrumbs as $crumb) {
+		// don't show placeholder paths
+		if (substr($crumb['url_path'], 0, 2) == '/%' AND substr($crumb['url_path'], -2) == '%/') continue;
 		$formatted_breadcrumbs[] = 
 			($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
 				? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
 			.$crumb['title']
 			.($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
+	}
 	if (!$formatted_breadcrumbs) return false;
 	
 	$html_output = implode(' '.$zz_page['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
