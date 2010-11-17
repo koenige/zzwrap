@@ -90,8 +90,10 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	global $zz_setting;
 	global $zz_sql;
 	if (empty($zz_conf['translations_of_fields'])) return $data;
-	if (empty($zz_sql['translations'])) {
+	if (!isset($zz_sql['translations'])) {
 		wrap_error('Please set `$zz_sql["translations"]`!', E_USER_ERROR);
+		return $data;
+	} elseif (!$zz_sql['translations']) {
 		return $data;
 	}
 
