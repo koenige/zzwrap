@@ -153,7 +153,7 @@ function wrap_check_canonical($page, $ending, $request_uri) {
 			header($location.$request_uri['path'].'/');
 			exit;
 		}
-	break;
+		break;
 	case '.html':
 		if (substr($request_uri['path'], -1) == '/') {
 			header($location.substr($request_uri['path'], 0, -1).'.html');
@@ -165,7 +165,7 @@ function wrap_check_canonical($page, $ending, $request_uri) {
 			header($location.$request_uri['path'].'.html');
 			exit;
 		}
-	break;
+		break;
 	case 'none':
 	case 'keine':
 		if (substr($request_uri['path'], -5) == '.html') {
@@ -178,9 +178,8 @@ function wrap_check_canonical($page, $ending, $request_uri) {
 			header($location.substr($request_uri['path'], 0, -4));
 			exit;
 		}
-	break;
+		break;
 	}
-	// todo: allow different endings depending on CMS functions
 }
 
 /**
@@ -323,10 +322,10 @@ function wrap_check_https($zz_page, $zz_setting) {
  *
  * @param string $template Name of template that will be filled
  * @param array $data Data which will be used to fill the template
- * @return array $page
+ * @return string $text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_template($template, $data) {
+function wrap_template($template, $data = array()) {
 	global $zz_setting;
 
 	// Template einbinden und füllen
@@ -338,11 +337,18 @@ function wrap_template($template, $data) {
 	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
 	// apply new text formatting
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
-	$template = implode("", file($tpl));
+	$template = file($tpl);
+	// remove comments and next empty line from the start
+	foreach ($template as $index => $line) {
+		if (substr($line, 0, 1) == '#') unset($template[$index]); // comments
+		elseif (!trim($line)) unset($template[$index]); // empty lines
+		else break;
+	}
+	$template = implode("", $template);
 	$page = brick_format($template, $data);
 	// restore old setting regarding text formatting
 	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
-	return $page;
+	return $page['text'];
 }
 
 /**
@@ -428,7 +434,9 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 				}
 			}
  		} elseif (mysql_num_rows($result)) {
- 			if ($format == 'single value') {
+ 			if ($format == 'count') {
+ 				$lines = mysql_num_rows($result);
+ 			} elseif ($format == 'single value') {
  				// you can reach this part here with a dummy id_field_name
  				// because no $id_field_name is needed!
 				while ($line = mysql_fetch_array($result)) {
@@ -737,8 +745,8 @@ function wrap_file_send($file) {
 	if (!$mimetype) $mimetype = 'application/octet-stream';
 
 	// Send HTTP headers
- 	header("Accept-Ranges: bytes");
  	header("Last-Modified: " . $cache_time . " GMT");
+ 	header("Accept-Ranges: bytes");
 	header("Content-Length: " . $filesize);
 	header("Content-Type: ".$mimetype);
 	if (!empty($file['etag']))

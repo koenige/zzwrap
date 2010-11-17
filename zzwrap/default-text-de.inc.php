@@ -17,7 +17,7 @@ $text['To access the internal area, a registration is required. Please enter bel
 	= 'F&uuml;r den Zugang zum internen Bereich ist eine Anmeldung erforderlich. Bitte geben Sie unten den von uns erhaltenen Benutzernamen mit Pa&szlig;wort ein.';
 $text['Please allow cookies after sending your login credentials. For security reasons, after %d minutes of inactivity you will be logged out automatically.'] 
 	= 'Damit der Login funktioniert, m&uuml;ssen Sie nach &Uuml;bermittlung der Anmeldedaten einen Cookie akzeptieren. Nach %d Minuten Inaktivit&auml;t werden Sie aus Sicherheitsgr&uuml;nden automatisch wieder abgemeldet!';
-$text['Password or username are empty. Please try again.'] = 'Pa%szlig;wort oder Benutzername leer. Bitte versuchen Sie es erneut.';
+$text['Password or username are empty. Please try again.'] = 'Pa&szlig;wort oder Benutzername leer. Bitte versuchen Sie es erneut.';
 
 // errors.php 400
 $text['Bad Request'] = 'Fehlerhafte Anfrage';

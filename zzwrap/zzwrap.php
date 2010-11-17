@@ -162,8 +162,12 @@ if (empty($page['title'])) $page['title'] = $zz_page['db'][$zz_sql['title']];
 $page['pagetitle'] = strip_tags($page['title']);
 if (!empty($zz_setting['translate_page_title']))
 	$page['title'] = wrap_text($page['title']);
-if ($zz_page['url']['full']['path'] != '/')
-	$page['pagetitle'] .=' ('.(empty($page['project']) ? $zz_conf['project'] : $page['project']).')';
+if (empty($page['project'])) $page['project'] = $zz_conf['project'];
+
+if ($zz_page['url']['full']['path'] == '/')
+	$page['pagetitle'] = sprintf($zz_page['template_pagetitle_home'], $page['pagetitle'], $page['project']);
+else
+	$page['pagetitle'] = sprintf($zz_page['template_pagetitle'], $page['pagetitle'], $page['project']);
 
 // last update
 if (!empty($page['last_update'])) $page[$zz_sql['lastupdate']] = $page['last_update'];

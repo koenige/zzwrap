@@ -148,6 +148,8 @@ function wrap_get_menu_webpages() {
 	if ($zz_sql['menu_level2']) {
 		$sql = sprintf($zz_sql['menu_level2'], '"'.implode('", "', array_keys($menu)).'"');
 		$entries = wrap_db_fetch($sql, $zz_sql['page_id']);
+		if (!empty($zz_sql['menu_table']))
+			$entries = wrap_translate($entries, $zz_sql['menu_table']);
 		foreach ($entries as $line) {
 			$menu_key = 'sub-'.$line['menu'].'-'.$line['mother_page_id'];
 			// URLs ending in * or */ or *.html are different
@@ -436,6 +438,8 @@ function wrap_get_breadcrumbs($page_id) {
 	$sql = $zz_sql['breadcrumbs'];
 	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', $zz_sql['is_public']);
 	$pages = wrap_db_fetch($sql, $zz_sql['page_id']);
+	if (!isset($zz_translation_matrix['breadcrumbs']))
+		$zz_translation_matrix['breadcrumbs'] = array();
 	if ($zz_conf['translations_of_fields']) {
 		$pages = wrap_translate($pages, $zz_translation_matrix['breadcrumbs'], '', false);
 	}
@@ -505,10 +509,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		// don't show placeholder paths
 		if (substr($crumb['url_path'], 0, 2) == '/%' AND substr($crumb['url_path'], -2) == '%/') continue;
 		$formatted_breadcrumbs[] = 
-			($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
+			(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path'])
 				? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
 			.$crumb['title']
-			.($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? '</strong>' : '</a>');
+			.(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
 	if (!$formatted_breadcrumbs) return false;
 	
@@ -517,10 +521,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($brick_breadcrumbs as $index => $crumb) {
 			if (is_array($crumb)) {
 				$brick_breadcrumbs[$index] = 
-					($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
+					(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path'])
 						? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
 					.$crumb['title']
-					.($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] 
+					.(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path'])
 						? '</strong>' : '</a>');
 			}
 		}
@@ -591,9 +595,11 @@ function wrap_htmlout_page($page) {
 
 	// Use different template if set in function or _init
 	if (!empty($page['template'])) {
+		if (substr($page['template'], -5) != '-page')
+			$page['template'] .= '-page';
 		$template_path = $zz_setting['custom_wrap_template_dir']
-			.'/'.$page['template'].'-page.template.txt';
-		if (file_exists($template_path)) $zz_page['brick_template'] = $template_path;
+			.'/'.$page['template'].'.template.txt';
+		if (file_exists($template_path)) $zz_page['template'] = $page['template'];
 	}
 
 	// Add title to page
@@ -611,9 +617,8 @@ function wrap_htmlout_page($page) {
 
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
-	$page_part = implode("", file($zz_page['brick_template']));
-	$page_part = brick_format($page_part, $page);
-	return trim($page_part['text']);
+	$text = wrap_template($zz_page['template'], $page);
+	return trim($text);
 }
 
 ?>

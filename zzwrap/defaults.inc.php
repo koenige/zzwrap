@@ -170,6 +170,12 @@ if (!isset($zz_conf['translations_of_fields']))
 if (!isset($zz_page['breadcrumbs_separator']))
 	$zz_page['breadcrumbs_separator'] = '&gt;';
 
+// page title and project title
+if (!isset($zz_page['template_pagetitle']))
+	$zz_page['template_pagetitle'] = '%1$s (%2$s)';
+if (!isset($zz_page['template_pagetitle_home']))
+	$zz_page['template_pagetitle_home'] = '%1$s';
+
 // functions that might be used for formatting (zzbrick)
 if (!isset($zz_setting['brick_formatting_functions']))
 	$zz_setting['brick_formatting_functions'] = array();
@@ -185,12 +191,14 @@ if (!isset($zz_setting['html_link_types'])) {
 if (!isset($zz_setting['xml_close_empty_tags']))
 	$zz_setting['xml_close_empty_tags'] = false;
 
+// Page template
+if ($zz_setting['brick_page_templates']) {
+	$zz_page['template'] = 'page';
+}
+
 // -------------------------------------------------------------------------
 // Page paths
 // -------------------------------------------------------------------------
-
-if (empty($zz_page['http_error_template']))
-	$zz_page['http_error_template']	= $zz_setting['core'].'/default-http-error.template.txt';
 
 if (!$zz_setting['brick_page_templates']) {
 	// page head
@@ -199,10 +207,6 @@ if (!$zz_setting['brick_page_templates']) {
 	// page foot
 	if (empty($zz_page['foot']))			
 		$zz_page['foot']		= $zz_setting['custom_wrap_dir'].'/html-foot.inc.php';
-} else {
-	// page
-	if (empty($zz_page['brick_template']))
-		$zz_page['brick_template']	= $zz_setting['custom_wrap_template_dir'].'/page.template.txt';
 }
 
 // -------------------------------------------------------------------------

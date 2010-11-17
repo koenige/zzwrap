@@ -20,6 +20,11 @@ if (file_exists($zz_setting['core'].'/default-text-'.$language.'.inc.php'))
 if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
 	include $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
 
+// get translations from database
+//if () {
+//
+//}
+
 global $text;
 
 /**
@@ -85,6 +90,10 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	global $zz_setting;
 	global $zz_sql;
 	if (empty($zz_conf['translations_of_fields'])) return $data;
+	if (empty($zz_sql['translations'])) {
+		wrap_error('Please set `$zz_sql["translations"]`!', E_USER_ERROR);
+		return $data;
+	}
 
 	// get page language: $zz_setting['lang']
 	if (!$target_language) $target_language = $zz_setting['lang'];

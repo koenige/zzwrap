@@ -22,6 +22,9 @@
  */
 function wrap_error($msg, $errorcode, $settings = array()) {
 	global $zz_conf;
+	global $zz_setting;
+
+	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
 
 	$return = false;
 	switch ($errorcode) {
@@ -61,10 +64,14 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 			.(!empty($settings['logfile']) ? $settings['logfile'].' ' : '')
 			.preg_replace("/\s+/", " ", $log_output);
 		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
-			- (strlen($user)+2)).' '.$user."\n";
+			- (strlen($user)+4)).' ['.$user."]\n";
 		error_log($error_line, 3, $zz_conf['error_log'][$level]);
-		if (!empty($_POST) AND $zz_conf['error_log_post'])
-			error_log(serialize($_POST)."\n", 3, $zz_conf['error_log'][$level]);
+		if (!empty($_POST) AND $zz_conf['error_log_post']) {
+			$error_line = '['.date('d-M-Y H:i:s').'] zzwrap Notice: POST '.serialize($_POST);
+			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
+				- (strlen($user)+4)).' ['.$user."]\n";
+			error_log($error_line, 3, $zz_conf['error_log'][$level]);
+		}
 	}
 		
 	if (!empty($zz_conf['debug']))
@@ -139,14 +146,13 @@ Content-Transfer-Encoding: 8bit';
  * @global array $zz_setting
  * @global array $zz_conf
  * @global array $zz_sql
- * @global array $text
+ * @global array $text (in language.inc.php)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
 	global $zz_conf;
 	global $zz_sql;
-	global $text;
 
 	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
@@ -201,8 +207,14 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	if (!empty($zz_page['error_msg'])) 
 		$page['error_explanation'] = $zz_page['error_msg'].' '.$page['error_explanation'];
-	
-	$page['text'] =  implode("", file($zz_page['http_error_template']));;
+
+	// get own or default http-error template
+	if (file_exists($file = $zz_setting['custom_wrap_template_dir'].'/http-error.template.txt'))
+		$http_error_template = $file;
+	else
+		$http_error_template = $zz_setting['core'].'/default-http-error.template.txt';
+	$page['text'] =  implode("", file($http_error_template));
+
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
 		// get menus, if function and database connection exist
 		$nav = wrap_get_menu();
@@ -322,6 +334,8 @@ function wrap_errorpage_log($status, $page) {
 	case 400:
 	case 410:
 	case 403:
+	case 405:
+	case 501:
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	default:
