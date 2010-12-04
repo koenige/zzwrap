@@ -192,7 +192,7 @@ if (!isset($zz_setting['xml_close_empty_tags']))
 	$zz_setting['xml_close_empty_tags'] = false;
 
 // Page template
-if ($zz_setting['brick_page_templates']) {
+if ($zz_setting['brick_page_templates'] AND empty($zz_page['template'])) {
 	$zz_page['template'] = 'page';
 }
 

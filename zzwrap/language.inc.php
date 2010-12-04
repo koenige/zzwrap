@@ -21,11 +21,39 @@ if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
 	include $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
 
 // get translations from database
-//if () {
-//
-//}
+if (!empty($zz_conf['text_table']))
+	if (!empty($text))
+		$text = array_merge($text, wrap_language_get_text($language));
+	else
+		$text = wrap_language_get_text($language);
 
 global $text;
+
+/**
+ * Gets text from a database table
+ * 
+ * @param string $language (ISO 639-1 two letter code)
+ * @global array $zz_conf
+ * @return array $text
+ */
+function wrap_language_get_text($language) {
+	global $zz_conf;
+	$sql = 'SELECT text_id, text, more_text
+		FROM '.$zz_conf['text_table'];
+	$sourcetext = wrap_db_fetch($sql, 'text_id');
+	$translations = wrap_translate($sourcetext, $zz_conf['text_table'], false, true, $language);
+
+	$text = array();
+	foreach ($sourcetext as $id => $values) {
+		if (!empty($translations[$id]['text']))
+			$text[$values['text']] = $translations[$id]['text']
+				.($translations[$id]['more_text'] ? ' '.$translations[$id]['more_text'] : '');
+		else
+			$text[$values['text']] = $values['text']
+				.($values['more_text'] ? ' '.$values['more_text'] : '');
+	}
+	return $text;
+}
 
 /**
  * Translate text from textfile if possible or write back text string to be translated

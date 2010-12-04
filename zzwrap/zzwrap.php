@@ -74,8 +74,6 @@ wrap_check_https($zz_page, $zz_setting);
 // Functions which may be needed for login
 if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
 	require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
-if (file_exists($zz_setting['custom_wrap_sql_dir'].'/_sql-queries.inc.php'))
-	require_once $zz_setting['custom_wrap_sql_dir'].'/_sql-queries.inc.php';
 
 // modules may change page language ($page['lang']), so include language functions here
 require_once $zz_setting['core'].'/language.inc.php';	// CMS language
