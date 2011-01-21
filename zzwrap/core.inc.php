@@ -55,7 +55,7 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 		// 1. cut url in parts
 		$url_parts[0] = explode('/', $full_url[0]);
 		$i = 1;
-		// 2. replace parts that match with placeholders, if neccessary multiple times
+		// 2. replace parts that match with placeholders, if necessary multiple times
 		// note: twice the same fragment will only be replaced once, not both fragments
 		// at the same time (e. g. /eng/eng/ is /%language%/eng/ and /eng/%language%/
 		// but not /%language%/%language%/ because this would not make sense) 
@@ -193,7 +193,7 @@ function wrap_read_url($url) {
 	// better than mod_rewrite, because '&' won't always be treated correctly
 	$url['db'] = $url['full']['path'];
 	$url['suffix_length'] = (!empty($_GET['lang']) ? strlen($_GET['lang']) + 6 : 5);
-	// cut '/' at the beginning and - if neccessary - at the end
+	// cut '/' at the beginning and - if necessary - at the end
 	if (substr($url['db'], 0, 1) == '/') $url['db'] = substr($url['db'], 1);
 	if (substr($url['db'], -1) == '/') $url['db'] = substr($url['db'], 0, -1);
 	if (substr($url['db'], -5) == '.html') $url['db'] = substr($url['db'], 0, -5);
@@ -465,10 +465,10 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			echo '<br>'.$sql;
 		}
 		if (function_exists('wrap_error')) {
-			wrap_error(sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
+			wrap_error('['.$_SERVER['REQUEST_URI'].']'
+				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
 		}
 	}
-	if (!empty($zz_conf['modules']['debug'])) zz_debug('wrap_db_fetch(): '.$sql);
 
 	return $lines;
 }
@@ -722,7 +722,12 @@ function wrap_file_send($file) {
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
-	$filesize = filesize($file['name']);
+
+	$filesize = sprintf("%u", filesize($file['name']));
+	// Maybe the problem is we are running into PHPs own memory limit, so:
+	if ($filesize + 1 > return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { //Not higher than 1GB
+		ini_set('memory_limit', intval($filesize * 1.5));
+	}
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
 	$cache_time = gmdate("D, d M Y H:i:s", filemtime($file['name'])); 
 
@@ -744,13 +749,33 @@ function wrap_file_send($file) {
 	$mimetype = wrap_db_fetch($sql, '', 'single value');
 	if (!$mimetype) $mimetype = 'application/octet-stream';
 
-	// Send HTTP headers
+	// Remove some HTTP headers PHP might send because of SESSION
+	// do some tests if this is okay
+	header('Expires: ');
+	header('Cache-Control: ');
+	header('Pragma: ');
+
  	header("Last-Modified: " . $cache_time . " GMT");
+	if (!empty($file['etag']))
+		header("ETag: ".$file['etag']);
+
+	// Respond to If Modified Since with 304 header if appropriate
+    if (!empty($file['etag']) 
+    	AND isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $file['etag']) {
+		wrap_file_cleanup($file);
+		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		exit;
+	} elseif (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
+		&& $cache_time.' GMT' == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+		wrap_file_cleanup($file);
+		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		exit;
+	}
+
+	// Send HTTP headers
  	header("Accept-Ranges: bytes");
 	header("Content-Length: " . $filesize);
 	header("Content-Type: ".$mimetype);
-	if (!empty($file['etag']))
-		header("ETag: ".$file['etag']);
 	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
 
 	// Download files if generic mimetype
@@ -766,14 +791,8 @@ function wrap_file_send($file) {
 			// Wird aber für IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
 			// erlauben, wenn Cache-Control gesetzt ist.
 			// http://support.microsoft.com/kb/323308/de
-	}
-
-	// Respond to If Modified Since with 304 header if appropriate
-	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
-		&& $cache_time.' GMT' == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
-		wrap_file_cleanup($file);
-		header("HTTP/1.1 304 Not Modified");
-		exit;
+	} else {
+		header('Content-Disposition: inline; filename="'.$file['send_as'].'"');
 	}
 
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
@@ -782,22 +801,56 @@ function wrap_file_send($file) {
 		exit;
 	}
 
-	readfile($file['name']);
+	// If it's a large file we don't want the script to timeout, so:
+	set_time_limit(300);
+	// If it's a large file, readfile might not be able to do it in one go, so:
+	$chunksize = 1 * (1024 * 1024); // how many bytes per chunk
+	if ($filesize > $chunksize) {
+		$handle = fopen($file['name'], 'rb');
+		$buffer = '';
+		while (!feof($handle)) {
+			$buffer = fread($handle, $chunksize);
+			echo $buffer;
+			ob_flush();
+			flush();
+		}
+		fclose($handle);
+	} else {
+		readfile($file['name']);
+	}
+
 	wrap_file_cleanup($file);
 	exit;
+}
+
+function return_bytes($val) {
+    $val = trim($val);
+    $last = strtolower($val[strlen($val)-1]);
+    switch($last) {
+        // The 'G' modifier is available since PHP 5.1.0
+        case 'g':
+            $val *= 1024;
+        case 'm':
+            $val *= 1024;
+        case 'k':
+            $val *= 1024;
+    }
+
+    return $val;
 }
 
 /**
  * does cleanup after a file was sent
  *
  * @param array $file
+ * @return bool
  */
 function wrap_file_cleanup($file) {
-	if (!empty($file['cleanup'])) {
-		// clean up
-		unlink($file['name']);
-		if (!empty($file['cleanup_dir'])) rmdir($file['cleanup_dir']);
-	}
+	if (empty($file['cleanup'])) return false;
+	// clean up
+	unlink($file['name']);
+	if (!empty($file['cleanup_dir'])) rmdir($file['cleanup_dir']);
+	return true;
 }
 
 /**

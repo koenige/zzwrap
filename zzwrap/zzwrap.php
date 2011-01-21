@@ -64,7 +64,7 @@ if ($zz_conf['translations_of_fields']) {
 // Werte in Parameter-Array schreiben
 $zz_page['db'] = wrap_look_for_page($zz_conf, $zz_access, $zz_page);
 
-// Check whether we need HTTPS or not, redirect if neccessary
+// Check whether we need HTTPS or not, redirect if necessary
 wrap_check_https($zz_page, $zz_setting);
 
 // --------------------------------------------------------------------------
@@ -113,6 +113,7 @@ if ($zz_conf['translations_of_fields']) {
 
 require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 $page = brick_format($zz_page['db'][$zz_sql['content']], $zz_page['db']['parameter']);
+
 if (empty($page)) wrap_quit();
 if (!empty($page['error']['level'])) {
 	if (!empty($page['error']['msg_text']) AND !empty($page['error']['msg_vars'])) {
@@ -127,6 +128,7 @@ if (!empty($page['error']['level'])) {
 if ($page['status'] != 200) {
 	wrap_quit($page['status']);
 }
+if (empty($page['text'])) wrap_quit();
 if (!empty($page['no_output'])) exit;
 
 $page['status'] = 200; // Seiteninhalt vorhanden!
@@ -198,7 +200,6 @@ if ($zz_setting['brick_page_templates'] == true) {
 	$output = '';
 	if (function_exists('wrap_matrix')) {
 		// Matrix for several projects
-		// TODO: solve better, don't hardcode.
 		$output = wrap_matrix($page, $page['media']);
 	} else {
 		if (empty($page['dont_show_h1']) AND empty($zz_page['dont_show_h1']))

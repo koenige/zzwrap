@@ -184,7 +184,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	$error_messages = $codes[$page['status']];
 	// some codes get a link to the homepage
-	$extra_description_codes = array(404, 410);
+	$extra_description_codes = array(404);
 	
 	// -- 2. set page elements
 	
@@ -331,9 +331,12 @@ function wrap_errorpage_log($status, $page) {
 		$settings['logfile'] = '['.$status.']';
 		wrap_error($msg, E_USER_WARNING, $settings);
 		break;
+	case 403:
+		$settings['logfile'] .= ' (User agent: '.$_SERVER['HTTP_USER_AGENT'].')';
+		wrap_error($msg, E_USER_NOTICE, $settings);
+		break;
 	case 400:
 	case 410:
-	case 403:
 	case 405:
 	case 501:
 		wrap_error($msg, E_USER_NOTICE, $settings);
