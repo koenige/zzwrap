@@ -2,22 +2,21 @@
 
 // zzwrap (Project Zugzwang)
 // (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007
-// Hauptskript zur Auswahl der Seiteninhalte
+// Main script
 
 
 // --------------------------------------------------------------------------
-// Parameter initalisieren, globale Variablen setzen
+// Initalize parameters, set global variables
 // --------------------------------------------------------------------------
 
-// Globale CMS-Variablen setzen
-global $zz_setting;
-global $zz_conf;
-global $zz_page;
-global $zz_access;
-global $zz_sql;
+global $zz_setting;		// settings for zzwrap and zzbrick
+global $zz_conf;		// settings for zzform
+global $zz_page;		// page variables
+global $zz_access;		// access variables
+global $zz_sql;			// SQL queries
 
 // --------------------------------------------------------------------------
-// Weitere Dateien einbinden
+// Include required files
 // --------------------------------------------------------------------------
 
 if (empty($zz_setting['lib']))
@@ -45,6 +44,16 @@ if (!in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
 		wrap_quit(501); // 501 Not Implemented
 	}
 }
+
+// --------------------------------------------------------------------------
+// Get rid of unwanted query strings
+// --------------------------------------------------------------------------
+
+// since we do not use session-IDs in the URL, get rid of these since sometimes
+// they might be used for session_start()
+// e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
+if (!empty($_GET['PHPSESSID'])) unset($_GET['PHPSESSID']);
+if (!empty($_REQUEST['PHPSESSID'])) unset($_REQUEST['PHPSESSID']);
 
 // --------------------------------------------------------------------------
 // Abfrage der Seite nach URL in der Datenbank

@@ -465,7 +465,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 			echo '<br>'.$sql;
 		}
 		if (function_exists('wrap_error')) {
-			wrap_error('['.$_SERVER['REQUEST_URI'].']'
+			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
 		}
 	}
@@ -808,6 +808,7 @@ function wrap_file_send($file) {
 	if ($filesize > $chunksize) {
 		$handle = fopen($file['name'], 'rb');
 		$buffer = '';
+		ob_start();
 		while (!feof($handle)) {
 			$buffer = fread($handle, $chunksize);
 			echo $buffer;
@@ -900,4 +901,82 @@ function wrap_prepare_url($url, $setlang = true) {
 	$url['path'] = substr($url['path'], $pos+1);
 	return $url;
 }
+
+/**
+ * Sends an e-mail
+ *
+ * @param array $mail
+ *		mixed 'to' (string: To:-Line; array: 'name', 'e_mail'),
+ *		string 'subject' (subject of message)
+ *		string 'message' (body of message)
+ *		array 'headers' (optional)
+ * @global $zz_conf
+ *		'error_mail_from', 'project', 'character_set', 'mail_subject_prefix'
+ * @global $zz_setting
+ *		'local_access'
+ * @return bool true: message was sent; false: message was not sent
+ */
+function wrap_mail($mail) {
+	global $zz_conf;
+	global $zz_setting;
+
+	mb_internal_encoding(strtoupper($zz_conf['character_set']));
+
+	// To
+	$mail['to'] = wrap_mail_name($mail['to']);
+
+	// Subject
+	if (!empty($zz_conf['mail_subject_prefix']))
+		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
+	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
+
+	// From
+	if (!isset($mail['headers']['From'])) {
+		$mail['headers']['From']['name'] = $zz_conf['project'];
+		$mail['headers']['From']['e_mail'] = $zz_conf['error_mail_from'];
+	}
+	$mail['headers']['From'] = wrap_mail_name($mail['headers']['From']);
+	
+	// Reply-To
+	if (!empty($mail['headers']['Reply-To'])) {
+		$mail['headers']['Reply-To'] = wrap_mail_name($mail['headers']['Reply-To']);
+	}
+	
+	// Additional headers
+	if (!isset($mail['headers']['MIME-Version']))
+		$mail['headers']['MIME-Version'] = '1.0';
+	if (!isset($mail['headers']['Content-Type']))
+		$mail['headers']['Content-Type'] = 'text/plain; charset='.$zz_conf['character_set'];
+	if (!isset($mail['headers']['Content-Transfer-Encoding']))
+		$mail['headers']['Content-Transfer-Encoding'] = '8bit';
+
+	$additional_headers = '';
+	foreach ($mail['headers'] as $key => $header) {
+		if (!$header) continue; // set but empty headers will be ignored
+		$additional_headers .= $key.': '.$header."\r\n";
+	}
+
+	// Additional parameters
+	if (!isset($mail['parameters'])) $mail['parameters'] = '';
+
+	// if local server, show e-mail, don't send it
+	if ($zz_setting['local_access']) {
+		echo "<pre>".htmlspecialchars('To: '.$mail['to']."\n"
+			.'Subject: '.$mail['subject']."\n".
+			$additional_headers."\n".$mail['message'])."</pre>\n";
+		exit;
+	}
+	
+	// if real server, send mail
+	mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+	return true;
+}
+
+function wrap_mail_name($name) {
+	if (!is_array($name)) return $name;
+	$mail = (!empty($name['name']) ? mb_encode_mimeheader($name['name']).' ' : '');
+	$mail .=  '<'.$name['e_mail'].'>';
+	return $mail;
+}
+
 ?>

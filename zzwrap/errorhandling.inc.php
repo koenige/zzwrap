@@ -108,16 +108,15 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 		if ($user) $foot .= "\n".wrap_text('User').': '.$user;
 		if ($foot) $msg .= "\n\n-- ".$foot;
 
-		// TODO: check what happens with utf8 mails
-		$email_head = 'From: "'.html_entity_decode($zz_conf['project'], ENT_QUOTES, $log_encoding)
-			.'" <'.$zz_conf['error_mail_from'].'>
-MIME-Version: 1.0
-Content-Type: text/plain; charset='.$zz_conf['character_set'].'
-Content-Transfer-Encoding: 8bit';
-		mail($zz_conf['error_mail_to'], '['.html_entity_decode($zz_conf['project'], ENT_QUOTES, $log_encoding).'] '
-			.(function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
-			.(!empty($settings['subject']) ? ' '.$settings['subject'] : ''), 
-		$msg, $email_head, '-f '.$zz_conf['error_mail_from']);
+		$mail['to'] = $zz_conf['error_mail_to'];
+		$mail['message'] = $msg;
+		$mail['parameters'] = '-f '.$zz_conf['error_mail_from'];
+		$mail['subject'] = '';
+		if (empty($zz_conf['mail_subject_prefix']))
+			$mail['subject'] = '['.$zz_conf['project'].'] ';
+		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
+			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
+		wrap_mail($mail);
 		break;
 	case 'screen':
 		echo '<pre class="error">';
