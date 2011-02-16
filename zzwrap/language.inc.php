@@ -5,30 +5,6 @@
 // Language functions
 
 
-// get filename for translated texts
-$language = (!empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language']);
-
-// standard text english
-if (file_exists($zz_setting['custom_wrap_dir'].'/text-en.inc.php')) 
-	include $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
-
-// default translated text
-if (file_exists($zz_setting['core'].'/default-text-'.$language.'.inc.php'))
-	include $zz_setting['core'].'/default-text-'.$language.'.inc.php';
-
-// standard translated text
-if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
-	include $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
-
-// get translations from database
-if (!empty($zz_conf['text_table']))
-	if (!empty($text))
-		$text = array_merge($text, wrap_language_get_text($language));
-	else
-		$text = wrap_language_get_text($language);
-
-global $text;
-
 /**
  * Gets text from a database table
  * 
@@ -59,7 +35,6 @@ function wrap_language_get_text($language) {
  * Translate text from textfile if possible or write back text string to be translated
  * 
  * @param string $string	Text string to be translated
- * @global array $text		Translations for current language
  * @global array $zz_conf	Configuration variables, here:
  *			'log_missing_text', 'language' must both be set to log missing text
  * @return string $string	Translation of text
@@ -67,8 +42,34 @@ function wrap_language_get_text($language) {
  * @see zz_text()
  */
 function wrap_text($string) {
-	global $text;
 	global $zz_conf;
+	global $zz_setting;
+	static $text;
+
+	if (empty($zz_setting['text_included'])) {
+		// get filename for translated texts
+		$language = (!empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language']);
+		
+		// standard text english
+		if (file_exists($zz_setting['custom_wrap_dir'].'/text-en.inc.php')) 
+			include $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
+		
+		// default translated text
+		if (file_exists($zz_setting['core'].'/default-text-'.$language.'.inc.php'))
+			include $zz_setting['core'].'/default-text-'.$language.'.inc.php';
+		
+		// standard translated text
+		if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
+			include $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
+		
+		// get translations from database
+		if (!empty($zz_conf['text_table']))
+			if (!empty($text))
+				$text = array_merge($text, wrap_language_get_text($language));
+			else
+				$text = wrap_language_get_text($language);
+		$zz_setting['text_included'] = true;
+	}
 
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];

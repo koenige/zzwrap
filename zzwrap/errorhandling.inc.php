@@ -145,7 +145,6 @@ function wrap_error($msg, $errorcode, $settings = array()) {
  * @global array $zz_setting
  * @global array $zz_conf
  * @global array $zz_sql
- * @global array $text (in language.inc.php)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {

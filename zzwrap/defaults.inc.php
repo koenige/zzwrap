@@ -38,7 +38,7 @@ if (empty($zz_setting['https'])) $zz_setting['https'] = false;
 // HTTPS; zzwrap authentification will always be https
 if (!empty($zz_setting['https_urls'])) {
 	foreach ($zz_setting['https_urls'] AS $url) {
-		if ($zz_setting['base'].$url == substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['base'].$url)))
+		if ($zz_setting['base'].strtolower($url) == substr(strtolower($_SERVER['REQUEST_URI']), 0, strlen($zz_setting['base'].$url)))
 			$zz_setting['https'] = true;
 	}
 }

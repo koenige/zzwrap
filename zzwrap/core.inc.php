@@ -131,12 +131,13 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
  * 
  * @param array $page page array
  * @param string $ending ending of URL (/, .html, .php, none)
+ * @global array $zz_setting
  * @return - redirect to correct URL if necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_check_canonical($page, $ending, $request_uri) {
 	global $zz_setting;
-	global $zz_page;
+	
 	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
 	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
 	$location = "Location: ".$zz_setting['host_base'].$base;
@@ -801,6 +802,9 @@ function wrap_file_send($file) {
 		exit;
 	}
 
+	// following block and server lighttpd: replace with
+	// header('X-Sendfile: '.$file['name']);
+
 	// If it's a large file we don't want the script to timeout, so:
 	set_time_limit(300);
 	// If it's a large file, readfile might not be able to do it in one go, so:
@@ -966,7 +970,7 @@ function wrap_mail($mail) {
 			$additional_headers."\n".$mail['message'])."</pre>\n";
 		exit;
 	}
-	
+
 	// if real server, send mail
 	mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 	return true;
