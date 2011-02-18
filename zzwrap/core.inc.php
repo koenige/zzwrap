@@ -427,10 +427,22 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 		 			} else {
 		 				$values = $line;
 		 			}
-					if (count($id_field_name) == 3) {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
+					if (count($id_field_name) == 4) {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
+					} elseif (count($id_field_name) == 3) {
+						if ($format == 'key/value') {
+							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line[$id_field_name[2]];
+						} else {
+							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
+						}
 					} else {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
+						if ($format == 'key/value') {
+							$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
+						} elseif ($format == 'numeric') {
+							$lines[$line[$id_field_name[0]]][] = $values;
+						} else {
+							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
+						}
 					}
 				}
 			}

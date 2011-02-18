@@ -25,6 +25,7 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 	global $zz_setting;
 
 	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
+	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
 
 	$return = false;
 	switch ($errorcode) {
