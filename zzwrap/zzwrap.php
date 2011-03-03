@@ -137,7 +137,6 @@ if (!empty($page['error']['level'])) {
 if ($page['status'] != 200) {
 	wrap_quit($page['status']);
 }
-if (empty($page['text'])) wrap_quit();
 if (!empty($page['no_output'])) exit;
 
 $page['status'] = 200; // Seiteninhalt vorhanden!

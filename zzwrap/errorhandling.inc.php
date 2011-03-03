@@ -90,7 +90,6 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 		else
 			$zz_conf['error_mail_level'] = array();
 	}
-
 	switch ($zz_conf['error_handling']) {
 	case 'mail':
 		if (!in_array($level, $zz_conf['error_mail_level'])) break;
@@ -111,7 +110,8 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 
 		$mail['to'] = $zz_conf['error_mail_to'];
 		$mail['message'] = $msg;
-		$mail['parameters'] = '-f '.$zz_conf['error_mail_from'];
+		if (!empty($zz_conf['error_mail_parameters']))
+			$mail['parameters'] = $zz_conf['error_mail_parameters']; 
 		$mail['subject'] = '';
 		if (empty($zz_conf['mail_subject_prefix']))
 			$mail['subject'] = '['.$zz_conf['project'].'] ';

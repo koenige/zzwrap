@@ -984,7 +984,17 @@ function wrap_mail($mail) {
 	}
 
 	// if real server, send mail
-	mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+	$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+	if (!$success) {
+		$old_error_handling = $zz_conf['error_handling'];
+		if ($zz_conf['error_handling'] == 'mail') {
+			$zz_conf['error_handling'] = false; // don't send mail, does not work!
+		}
+		wrap_error('Mail could not be sent. (To: '.$mail['to'].', From: '
+			.$mail['headers']['From'].', Subject: '.$mail['subject']
+			.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
+		$zz_conf['error_handling'] = $old_error_handling;
+	}
 	return true;
 }
 

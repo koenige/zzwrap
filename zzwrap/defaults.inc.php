@@ -245,6 +245,9 @@ if (!isset($zz_conf['translate_log_encodings']))
 if (!isset($zz_conf['error_log_post']))
 	$zz_conf['error_log_post']	= false;
 
+if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_from']))
+	$zz_conf['error_mail_parameters'] = '-f '.$zz_conf['error_mail_from'];
+
 
 // -------------------------------------------------------------------------
 // Database structure
