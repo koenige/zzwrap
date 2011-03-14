@@ -23,6 +23,7 @@
 function wrap_error($msg, $errorcode, $settings = array()) {
 	global $zz_conf;
 	global $zz_setting;
+	global $zz_page;
 
 	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
@@ -76,7 +77,7 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 	}
 		
 	if (!empty($zz_conf['debug']))
-		$zz_conf['error_handling'] = 'screen';
+		$zz_conf['error_handling'] = 'output';
 	if (empty($zz_conf['error_handling']))
 		$zz_conf['error_handling'] = false;
 
@@ -119,17 +120,16 @@ function wrap_error($msg, $errorcode, $settings = array()) {
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
 		wrap_mail($mail);
 		break;
-	case 'screen':
-		echo '<pre class="error">';
-		echo htmlentities($msg); //str_replace("\n", "<br>", $msg);
-		echo '</pre>';
+	case 'output':
+		if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
+		$zz_page['error_msg'] .= '<p class="error">'
+			.str_replace("\n", "<br>", htmlentities($msg)).'</p>';
 		break;
 	default:
 		break;
 	}
 
 	if ($return == 'exit') {
-		global $zz_page;
 		$page['status'] = 503;
 		wrap_errorpage($page, $zz_page, false);
 		exit;
@@ -204,8 +204,10 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	} else {
 		$page['error_explanation'] = '';
 	}
-	if (!empty($zz_page['error_msg'])) 
+	if (!empty($zz_page['error_msg'])) {
 		$page['error_explanation'] = $zz_page['error_msg'].' '.$page['error_explanation'];
+		$zz_page['error_msg'] = '';
+	}
 
 	// get own or default http-error template
 	if (file_exists($file = $zz_setting['custom_wrap_template_dir'].'/http-error.template.txt'))
@@ -216,8 +218,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
 		// get menus, if function and database connection exist
-		$nav = wrap_get_menu();
-		$page['nav'] = wrap_htmlout_menu($nav);
+		$page['nav_db'] = wrap_get_menu();
+		$page['nav'] = wrap_htmlout_menu($page['nav_db']);
 	} else $page['nav'] = false;
 	
 	// -- 3. output HTTP header
@@ -230,7 +232,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// -- 4. output page
 	
 	if ($zz_setting['brick_page_templates'] == true) {
-		echo wrap_htmlout_page($page);
+		wrap_htmlout_page($page);
 	} else {
 		if (!empty($zz_conf['character_set']))
 			header('Content-Type: text/html; charset='.$zz_conf['character_set']);

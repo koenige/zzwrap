@@ -282,5 +282,7 @@ if (!isset($zz_setting['logout_inactive_after']))
 
 if (empty($zz_conf['password_encryption'])) 
 	$zz_conf['password_encryption'] = 'md5';
+if (!isset($zz_conf['password_salt'])) 
+	$zz_conf['password_salt'] = '';
 
 ?>

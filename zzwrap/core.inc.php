@@ -44,6 +44,7 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 	// Variables
 	global $zz_setting;
 	global $zz_sql;
+	if (empty($zz_sql['pages'])) wrap_quit(503); // no database connection or settings are missing
 	$page = false;
 
 	// Prepare URL for database request
@@ -129,13 +130,13 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 /**
  * Make canonical URLs (trailing slash, .html etc.)
  * 
- * @param array $page page array
  * @param string $ending ending of URL (/, .html, .php, none)
+ * @param string $request_uri
  * @global array $zz_setting
  * @return - redirect to correct URL if necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_check_canonical($page, $ending, $request_uri) {
+function wrap_check_canonical($ending, $request_uri) {
 	global $zz_setting;
 	
 	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
@@ -397,89 +398,92 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	global $zz_conf;
 	$lines = array();
 	$result = mysql_query($sql);
-	if ($result) {
-		if (!$id_field_name) {
-			// only one record
-			if (mysql_num_rows($result) == 1) {
-	 			if ($format == 'single value') {
-					$lines = mysql_result($result, 0, 0);
-	 			} elseif ($format == 'object') {
-					$lines = mysql_fetch_object($result);
-				} else {
-					$lines = mysql_fetch_assoc($result);
-				}
-			}
- 		} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
-			if ($format == 'object') {
-				while ($line = mysql_fetch_object($result)) {
-					if (count($id_field_name) == 3) {
-						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
-					} else {
-						$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
-					}
-				}
- 			} else {
- 				// default or unknown format
-				while ($line = mysql_fetch_assoc($result)) {
-		 			if ($format == 'single value') {
-						// just get last field, make sure that it's not one of the id_field_names!
-		 				$values = array_pop($line);
-		 			} else {
-		 				$values = $line;
-		 			}
-					if (count($id_field_name) == 4) {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
-					} elseif (count($id_field_name) == 3) {
-						if ($format == 'key/value') {
-							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line[$id_field_name[2]];
-						} else {
-							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
-						}
-					} else {
-						if ($format == 'key/value') {
-							$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-						} elseif ($format == 'numeric') {
-							$lines[$line[$id_field_name[0]]][] = $values;
-						} else {
-							$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
-						}
-					}
-				}
-			}
- 		} elseif (mysql_num_rows($result)) {
- 			if ($format == 'count') {
- 				$lines = mysql_num_rows($result);
- 			} elseif ($format == 'single value') {
- 				// you can reach this part here with a dummy id_field_name
- 				// because no $id_field_name is needed!
-				while ($line = mysql_fetch_array($result)) {
-					$lines[$line[0]] = $line[0];
-				}
- 			} elseif ($format == 'key/value') {
- 				// return array in pairs
-				while ($line = mysql_fetch_array($result)) {
-					$lines[$line[0]] = $line[1];
-				}
-			} elseif ($format == 'object') {
-				while ($line = mysql_fetch_object($result))
-					$lines[$line->$id_field_name] = $line;
-			} elseif ($format == 'numeric') {
-				while ($line = mysql_fetch_assoc($result))
-					$lines[] = $line;
- 			} else {
- 				// default or unknown format
-				while ($line = mysql_fetch_assoc($result))
-					$lines[$line[$id_field_name]] = $line;
-			}
-		}
-	} else {
-		if (substr($_SERVER['SERVER_NAME'], -6) == '.local') {
-			echo mysql_error();
-			echo '<br>'.$sql;
-		}
+	if (!$result) {
+		// error
 		if (function_exists('wrap_error')) {
 			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
+		} else {
+			if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'output') {
+				global $zz_page;
+				$zz_page['error_msg'] = '<p class="error">'.mysql_error().'<br>'.$sql.'</p>';
+			}
+		}
+		return $lines;	
+	}
+
+	if (!$id_field_name) {
+		// only one record
+		if (mysql_num_rows($result) == 1) {
+			if ($format == 'single value') {
+				$lines = mysql_result($result, 0, 0);
+			} elseif ($format == 'object') {
+				$lines = mysql_fetch_object($result);
+			} else {
+				$lines = mysql_fetch_assoc($result);
+			}
+		}
+	} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
+		if ($format == 'object') {
+			while ($line = mysql_fetch_object($result)) {
+				if (count($id_field_name) == 3) {
+					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
+				} else {
+					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
+				}
+			}
+		} else {
+			// default or unknown format
+			while ($line = mysql_fetch_assoc($result)) {
+				if ($format == 'single value') {
+					// just get last field, make sure that it's not one of the id_field_names!
+					$values = array_pop($line);
+				} else {
+					$values = $line;
+				}
+				if (count($id_field_name) == 4) {
+					$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
+				} elseif (count($id_field_name) == 3) {
+					if ($format == 'key/value') {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line[$id_field_name[2]];
+					} else {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
+					}
+				} else {
+					if ($format == 'key/value') {
+						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
+					} elseif ($format == 'numeric') {
+						$lines[$line[$id_field_name[0]]][] = $values;
+					} else {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
+					}
+				}
+			}
+		}
+	} elseif (mysql_num_rows($result)) {
+		if ($format == 'count') {
+			$lines = mysql_num_rows($result);
+		} elseif ($format == 'single value') {
+			// you can reach this part here with a dummy id_field_name
+			// because no $id_field_name is needed!
+			while ($line = mysql_fetch_array($result)) {
+				$lines[$line[0]] = $line[0];
+			}
+		} elseif ($format == 'key/value') {
+			// return array in pairs
+			while ($line = mysql_fetch_array($result)) {
+				$lines[$line[0]] = $line[1];
+			}
+		} elseif ($format == 'object') {
+			while ($line = mysql_fetch_object($result))
+				$lines[$line->$id_field_name] = $line;
+		} elseif ($format == 'numeric') {
+			while ($line = mysql_fetch_assoc($result))
+				$lines[] = $line;
+		} else {
+			// default or unknown format
+			while ($line = mysql_fetch_assoc($result))
+				$lines[$line[$id_field_name]] = $line;
 		}
 	}
 
@@ -1005,4 +1009,86 @@ function wrap_mail_name($name) {
 	return $mail;
 }
 
+/**
+ * sends a ressource via HTTP regarding some headers
+ *
+ * @param string $text content to be sent
+ * @param string $type content_type, defaults to html
+ * @param int $status HTTP status code
+ * @global array $zz_conf
+ * @global array $zz_setting
+ * @return void
+ */
+function wrap_send_ressource($text, $type = 'html', $status = 200) {
+	global $zz_conf;
+	global $zz_setting;
+
+	// Send ETag-Header and check whether content is identical to
+	// previously sent content
+	$etag = md5($text);
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
+		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		exit;
+	}
+
+	// headers
+	// set character set
+	switch ($type) {
+	case 'html':
+		if (!empty($zz_conf['character_set']))
+			header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+		break;
+	case 'json':
+		header('Content-Type: application/json; charset=utf-8');
+		break;
+	}
+	header("ETag: ".$etag);
+
+	// Caching?
+	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
+		AND empty($_POST) AND $status == 200) {
+		// save document
+		$doc = $zz_setting['cache'].'/'.urlencode($_SERVER['REQUEST_URI']);
+		file_put_contents($doc, trim($text));
+		// save headers
+		$head = $zz_setting['cache'].'/'.urlencode($_SERVER['REQUEST_URI']).'.headers';
+		file_put_contents($head, json_encode(headers_list()));
+	}
+
+	// gzip?
+	if (!empty($zz_setting['gzip_encode'])) ob_start("ob_gzhandler");
+	
+	// output content
+	echo trim($text);
+	exit;
+}
+
+/**
+ * send cached data instead of data from database
+ * (e. g. if connection is broken)
+ *
+ * @param int $age maximum acceptable cache age in seconds
+ * @global array $zz_setting
+ * @return void
+ */
+function wrap_send_cache($age = 0) {
+	global $zz_setting;
+
+	$file = $zz_setting['cache'].'/'.urlencode($_SERVER['REQUEST_URI']);
+	$files = array($file, $file.'.headers');
+	if (!file_exists($files[0]) OR !file_exists($files[1])) return false;
+
+	if ($age) {
+		// return cached files if they're still fresh enough
+		foreach ($files as $file) {
+			if ((filemtime($file) + $age) < time()) return false;
+		}
+	}
+	$headers = json_decode(file_get_contents($files[1]));
+	foreach ($headers as $header) header($header);
+	header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($files[0])));
+	$text = file_get_contents($files[0]);
+	echo $text;
+	exit;
+}
 ?>

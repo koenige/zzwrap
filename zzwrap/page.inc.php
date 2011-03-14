@@ -607,18 +607,20 @@ function wrap_htmlout_page($page) {
 		$page['text'] = "\n".markdown('# '.$page['title']."\n")."\n"
 			.$page['text'];
 
-	// Output page
-	// set character set
-	if (!empty($zz_conf['character_set']))
-		header('Content-Type: text/html; charset='.$zz_conf['character_set']);
-	
+	// bring together page output
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
+	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
+		// show error message in case there is one and it's not already shown
+		// by wrap_errorpage() (status != 200)
+		$page['text'] .= $zz_page['error_msg']."\n";
+	}
+
 	$text = wrap_template($zz_page['template'], $page);
-	return trim($text);
+	wrap_send_ressource($text, 'html', $page['status']);
 }
 
 ?>

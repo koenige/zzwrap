@@ -56,8 +56,15 @@ if (!empty($_GET['PHPSESSID'])) unset($_GET['PHPSESSID']);
 if (!empty($_REQUEST['PHPSESSID'])) unset($_REQUEST['PHPSESSID']);
 
 // --------------------------------------------------------------------------
+// Request page from database via URL
 // Abfrage der Seite nach URL in der Datenbank
 // --------------------------------------------------------------------------
+
+// Do we have a database connection?
+if (!$zz_conf['db_connection']) {
+	if (!empty($zz_setting['cache'])) wrap_send_cache();
+	wrap_error(sprintf('No connection to SQL server.'), E_USER_ERROR);
+}
 
 // Secret Key für Vorschaufunktion, damit auch noch nicht zur
 // Veröffentlichung freigegebene Seiten angeschaut werden können.
@@ -91,6 +98,13 @@ if ($zz_setting['authentification_possible']) {
 	wrap_auth();
 }
 
+// Caching?
+if (!empty($zz_setting['cache']) AND !empty($zz_setting['cache_age'])
+	AND empty($_SESSION) AND empty($_POST)) { // TODO: check if we can start this earlier
+	wrap_send_cache($zz_setting['cache_age']);
+}
+
+// include standard functions (e. g. markup languages)
 // Standardfunktionen einbinden (z. B. Markup-Sprachen)
 if (!empty($zz_setting['standard_extensions']))	
 	foreach ($zz_setting['standard_extensions'] as $function)
@@ -100,7 +114,7 @@ if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
 	require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
 
 // --------------------------------------------------------------------------
-// On Error Exit, after all files are included
+// on error exit, after all files are included
 // --------------------------------------------------------------------------
 
 // Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
@@ -137,6 +151,9 @@ if (!empty($page['error']['level'])) {
 if ($page['status'] != 200) {
 	wrap_quit($page['status']);
 }
+if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
+	wrap_send_ressource($page['text'], $page['content_type'], $page['status']);
+}
 if (!empty($page['no_output'])) exit;
 
 $page['status'] = 200; // Seiteninhalt vorhanden!
@@ -146,7 +163,7 @@ if (!empty($zz_page['db'][$zz_sql['ending']])) {
 	$ending = $zz_page['db'][$zz_sql['ending']];
 	// if brick_format() returns a page ending, use this
 	if (isset($page['url_ending'])) $ending = $page['url_ending'];
-	wrap_check_canonical($page, $ending, $zz_page['url']['full']);
+	wrap_check_canonical($ending, $zz_page['url']['full']);
 }
 
 // get media
@@ -194,14 +211,14 @@ if (!empty($zz_page['db'][$zz_sql['author_id']]))
 
 // navigation menu (from cmscore/page.inc.php)
 if ($zz_sql['menu']) {
-	$nav = wrap_get_menu();
-	if ($nav) $page['nav'] = wrap_htmlout_menu($nav);
+	$page['nav_db'] = wrap_get_menu();
+	if ($page['nav_db']) $page['nav'] = wrap_htmlout_menu($page['nav_db']);
 }
 
 // output of content
 if ($zz_setting['brick_page_templates'] == true) {
 	// use wrap templates
-	echo wrap_htmlout_page($page);
+	wrap_htmlout_page($page);
 } else {
 	// DEPRECATED!
 	// classic: mix of HTML and PHP
@@ -225,7 +242,13 @@ if ($zz_setting['brick_page_templates'] == true) {
 
 	if (empty($page['no_page_head'])) include $zz_page['head'];
 	echo $output;
+	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
+		// show error message in case there is one and it's not already shown
+		// by wrap_errorpage() (status != 200)
+		echo '<div class="error">'.$zz_page['error_msg'].'</div>'."\n";
+	}
 	if (empty($page['no_page_foot'])) include $zz_page['foot'];
 }
+exit;
 
 ?>
