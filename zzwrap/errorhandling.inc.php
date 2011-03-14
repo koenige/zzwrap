@@ -236,6 +236,11 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	} else {
 		if (!empty($zz_conf['character_set']))
 			header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+		$lines = explode("\n", $page['text']);
+		foreach ($lines as $index => $line) {
+			if (substr($line, 0, 1) == '#') unset($lines[$index]);
+		}
+		$page['text'] = implode("\n", $lines);
 		$page['text'] = str_replace('%%% page h1 %%%', $page['h1'], $page['text']);
 		$page['text'] = str_replace('%%% page code %%%', $page['status'], $page['text']);
 		$page['text'] = str_replace('%%% page error_description %%%', $page['error_description'], $page['text']);
