@@ -1,7 +1,7 @@
 <?php 
 
 // Zugzwang CMS
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2008
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007
 // Configuration: paths to files
 
 
