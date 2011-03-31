@@ -1,76 +1,561 @@
-<?php
+<?php 
 
-// Zugzwang CMS
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007
-// Authentification
+// zzwrap (Project Zugzwang)
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
+// CMS Authentification functions
 
 
-// Local modifications to SQL queries
-require $zz_setting['inc_local'].'/cms-sql-auth.inc.php';
+/*
+	Functions in this file
 
-// Set variables
-global $zz_setting;
-global $zz_page;
-$now = time();
+	- wrap_auth()
+		- wrap_authenticate_url()
+		- wrap_session_stop()
+	- cms_logout()
+		- wrap_session_stop()
+	- cms_login()
+		- wrap_register()
+		- wrap_login_format()
+		- cms_login_redirect()
+*/
 
-// start PHP session
-if (empty($_SESSION)) session_start();
+/**
+ * Checks if current URL needs authentification (will be called from zzwrap)
+ *
+ * - if current URL needs authentification: check if user is logged in, if not:
+ * redirect to login page, else save last_click in database
+ * - if current URL needs no authentification, but user is logged in: show that 
+ * she or he is logged in, do not prolong login time, set person as logged out
+ * if login time has passed
+ * @global array $zz_setting
+ * @global array $zz_page
+ * @global array $zz_sql
+ * @return bool true if login is necessary, false if no login is required
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_auth() {
+	global $zz_setting;
+	global $zz_page;
+	global $zz_sql;
 
-// if it's not local access (e. g. on development server), all access should go via secure connection
-$zz_setting['protocol'] = 'http'.((!empty($zz_setting['no_https']) OR $zz_setting['local_access']) ? '' : 's');
-// calculate maximum login time
-// you'll stay logged in for x minutes
-$keep_alive = $zz_setting['logout_inactive_after'] * 60;
+	if (!empty($zz_page['auth'])) return true; // don't run this function twice
+	$zz_page['auth'] = true;
 
-// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
-$qs['request'] = false; // initialize request, should be in front of nocookie
-if (empty($_SESSION['logged_in']) OR 
-	$now > ($_SESSION['last_click_at'] + $keep_alive)) {
-	if (!empty($zz_page['url']['full']['query'])) {
-		// parse URL for no-cookie to hand it over to login.inc
-		// in case cookies are not allowed
-		parse_str($zz_page['url']['full']['query'], $query_string);
-		if (isset($query_string['no-cookie'])) {
-			$qs['nocookie'] = 'no-cookie'; // add no-cookie to query string so login knows that there's no cookie (in case SESSIONs don't work here)
-			unset($query_string['no-cookie']);
+	// check if there are URLs that need authentification
+	if (empty($zz_setting['auth_urls'])) return false;
+
+	// send header for IE for P3P (Platform for Privacy Preferences Project)
+	// if cookie is needed
+	header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
+
+	// Local modifications to SQL queries
+	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+
+	// check if current URL needs authentification
+	$authentification = false;
+	if (!isset($zz_setting['no_auth_urls'])) 
+		$zz_setting['no_auth_urls'] = array();
+	foreach($zz_setting['auth_urls'] as $auth_url) {
+		if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) != strtolower($auth_url))
+			continue;
+		if ($zz_page['url']['full']['path'] == $zz_setting['login_url'])
+			continue;
+		if (wrap_authenticate_url($zz_page['url']['full']['path'], $zz_setting['no_auth_urls']))
+			$authentification = true;
+	}
+
+	if (!$authentification) {
+		// Keep session if logged in and clicking on the public part of the page
+		// but do not prolong time until automatically logging out someone
+		if (isset($_SESSION)) return false;
+		if (empty($_COOKIE[session_name()])) return false;
+		if (!session_id()) session_start();
+		// calculate maximum login time
+		// you'll stay logged in for x minutes
+		$keep_alive = $zz_setting['logout_inactive_after'] * 60;
+		if (empty($_SESSION['last_click_at']) OR
+			$_SESSION['last_click_at']+$keep_alive < time()) {
+			// automatically logout
+			wrap_session_stop();
 		}
-		$full_query_string = '';
-		// glue query string back together
-		if ($query_string)
-			foreach($query_string as $key => $value) {
-				if (is_array($value)) {
-					foreach ($value as $subkey => $subvalue)
-						$full_query_string[] = $key.'['.$subkey.']='.urlencode($subvalue);
-				} else {
-					$full_query_string[] = $key.'='.urlencode($value);
-				}
+		return false;
+	}
+
+	$now = time();
+
+	// start PHP session
+	if (!session_id()) session_start();
+
+	// if it's not local access (e. g. on development server), all access 
+	// should go via secure connection
+	$zz_setting['protocol'] = 'http'.((!empty($zz_setting['no_https']) OR $zz_setting['local_access']) ? '' : 's');
+	// calculate maximum login time
+	// you'll stay logged in for x minutes
+	$keep_alive = $zz_setting['logout_inactive_after'] * 60;
+	
+	// set domain
+	if (empty($zz_sql['domain'])) $zz_sql['domain'] = array($zz_setting['hostname']);
+	elseif (!is_array($zz_sql['domain'])) $zz_sql['domain'] = array($zz_sql['domain']);
+	
+	// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
+	// initialize request, should be in front of nocookie
+	$qs['request'] = false; 
+	if (empty($_SESSION['logged_in']) 
+		OR $now > ($_SESSION['last_click_at'] + $keep_alive)
+		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], $zz_sql['domain']))) {
+		// get rid of domain, since user is not logged in anymore
+		wrap_session_stop();
+		if (!empty($zz_page['url']['full']['query'])) {
+			// parse URL for no-cookie to hand it over to cms_login()
+			// in case cookies are not allowed
+			parse_str($zz_page['url']['full']['query'], $query_string);
+			if (isset($query_string['no-cookie'])) {
+				// add no-cookie to query string so login knows that there's no
+				// cookie (in case SESSIONs don't work here)
+				$qs['nocookie'] = 'no-cookie';
+				unset($query_string['no-cookie']);
 			}
-		if ($full_query_string) {
-			$query_string = '?'.implode('&', $full_query_string);
-		} else
-			$query_string = '';
-	} else $query_string = '';
-	$request = $zz_page['url']['full']['path'].$query_string;
-	// do not unneccessarily expose URL structure
-	if ($request == $zz_setting['login_entryurl']) unset($qs['request']); 
-	else $qs['request'] = 'url='.urlencode($request);
+			$full_query_string = array();
+			// glue query string back together
+			if ($query_string)
+				foreach($query_string as $key => $value) {
+					if (is_array($value)) {
+						foreach ($value as $subkey => $subvalue)
+							$full_query_string[] = $key.'['.$subkey.']='.urlencode($subvalue);
+					} else {
+						$full_query_string[] = $key.'='.urlencode($value);
+					}
+				}
+			if ($full_query_string) {
+				$query_string = '?'.implode('&', $full_query_string);
+			} else
+				$query_string = '';
+		} else $query_string = '';
+		$request = $zz_page['url']['full']['path'].$query_string;
+		// do not unnecessarily expose URL structure
+		if ($request == $zz_setting['login_entryurl']
+			OR (is_array($zz_setting['login_entryurl']) 
+				AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
+		else $qs['request'] = 'url='.urlencode($request);
+		header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
+			.$zz_setting['login_url']
+			.(count($qs) ? '?'.implode('&', $qs) : ''));
+		exit;
+	}
+	
+	// start database connection
+	require_once $zz_setting['db_inc'];
+	
+	// save successful request in database to prolong login time
+	$_SESSION['last_click_at'] = $now;
+	if (!empty($_SESSION['login_id'])) {
+		$sql = sprintf($zz_sql['last_click'], $now, $_SESSION['login_id']);
+		$result = mysql_query($sql);
+		// it's not important if an error occurs here
+		if (!$result)
+			wrap_error(sprintf(wrap_text('Could not save "last_click" in database.')
+				."\n\n%s\n%s", mysql_error(), $sql), E_USER_NOTICE);
+	}
+	if (!empty($_SESSION['mask_id']) AND !empty($zz_sql['last_masquerade'])) {
+		$logout = (time() + $zz_setting['logout_inactive_after'] * 60);
+		$keep_alive = date('Y-m-d H:i:s', $logout);
+		$sql_mask = sprintf($zz_sql['last_masquerade'], '"'.$keep_alive.'"', $_SESSION['mask_id']);
+		$result = mysql_query($sql_mask);
+		// it's not important if an error occurs here
+		if (!$result)
+			wrap_error(sprintf(wrap_text('Could not save "last_click" for masquerade in database.')
+				."\n\n%s\n%s", mysql_error(), $sql_mask), E_USER_NOTICE);
+	}
+	return true;
+}
+
+/**
+ * Checks current URL against no auth URLs
+ *
+ * @param string $url URL from database
+ * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
+ * @return bool true if authentification is required, false if not
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_authenticate_url($url, $no_auth_urls) {
+	foreach ($no_auth_urls AS $test_url) {
+		if (substr($url, 0, strlen($test_url)) == $test_url) {
+			return false; // no authentification required
+		}
+	}
+	return true; // no matches: authentification required
+}
+
+/**
+ * Stops SESSION if cookie exists but time is up
+ *
+ * @global array $zz_sql local SQL queries related to authentification
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_session_stop() {
+	global $zz_sql;
+
+	$sql = false;
+	$sql_mask = false;
+
+	// start session
+	if (!session_id()) session_start();
+
+	// update login db if logged in, set to logged out
+	if (!empty($_SESSION['login_id']) AND !empty($zz_sql['logout']))
+		$sql = sprintf($zz_sql['logout'], $_SESSION['login_id']);
+	if (!empty($_SESSION['mask_id']) AND !empty($zz_sql['last_masquerade']))
+		$sql_mask = sprintf($zz_sql['last_masquerade'], 'NOW()', $_SESSION['mask_id']);
+	// Unset all of the session variables.
+	$_SESSION = array();
+	// If it's desired to kill the session, also delete the session cookie.
+	// Note: This will destroy the session, and not just the session data!
+	if (ini_get("session.use_cookies")) {
+		$params = session_get_cookie_params();
+		setcookie(session_name(), '', time() - 42000, $params["path"],
+	        $params["domain"], $params["secure"], $params["httponly"]
+  		);
+	}
+	session_destroy();
+	if ($sql) $result = mysql_query($sql);
+	if ($sql_mask) $result = mysql_query($sql_mask);
+}
+
+
+/**
+ * Logout from restricted area
+ *
+ * should be used via %%% request logout %%%
+ * @param array $params -
+ * @return - (redirect to main page)
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function cms_logout($params) {
+	global $zz_setting;
+	global $zz_conf;
+	global $zz_sql;
+
+	// Local modifications to SQL queries
+	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+	
+	// Stop the session, delete all session data
+	wrap_session_stop();
+
 	header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
-		.$zz_setting['login_url']
-		.(count($qs) ? '?'.implode('&', $qs) : ''));
+		.$zz_setting['login_url'].'?logout');
 	exit;
 }
 
-// start database connection
-require_once $zz_setting['db_inc'];
+/**
+ * Login to restricted area
+ *
+ * should be used via %%% request login %%%
+ * @param array $params
+ *		[0]: (optional) 'Single Sign On' for single sign on, then we must use
+ *			[1]: {single sign on secret}
+ *			[2]: {username}
+ *			[3]: optional: {context}
+ * @global array $zz_setting
+ * @global array $zz_conf
+ * @global array $zz_sql
+ * @global array $zz_page
+ * @return mixed bool false: login failed; array $page: login form; or redirect
+ *		to (wanted) landing page
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function cms_login($params) {
+	global $zz_setting;
+	global $zz_conf;
+	global $zz_sql;
+	global $zz_page;
 
-// save successful request in database to prolong login time
-$_SESSION['last_click_at'] = $now;
-if (!empty($_SESSION['login_id'])) {
-	$sql = sprintf($zz_sql['last_click'], $now, $_SESSION['login_id']);
-	$result = mysql_query($sql);
-	// it's not important if an error occurs here
-	if (!$result)
-		zz_errorhandling(sprintf(cms_text('Could not save "last_click" in database.')."\n\n%s\n%s", mysql_error(), $sql), E_USER_NOTICE);
+	// Local modifications to SQL queries
+	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+
+	// Set try_login to true if login credentials shall be checked
+	// if set to false, first show login form
+	$try_login = false;
+
+	$login['username'] = '';
+	$login['password'] = '';
+	$login['single_sign_on'] = false;
+
+	// Check if there are parameters for single sign on
+	if (!empty($params[0]) AND $params[0] == 'Single Sign On') {
+		if (empty($params[1]) OR $params[1] != $zz_setting['single_sign_on_secret']) return false;
+		if (empty($params[2])) return false;
+		if (!empty($params[4])) return false;
+		$login['username'] = $params[2];
+		if (!empty($params[3])) $login['context'] = $params[3];
+		$login['single_sign_on'] = true;
+	} elseif (!empty($params[0])) {
+		return false; // other parameters are not allowed
+	}
+
+	// default settings
+	if (empty($zz_setting['login_fields'])) {
+		$zz_setting['login_fields'][] = 'Username';
+	}
+
+	$msg = false;
+	// someone tried to login via POST
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' OR $login['single_sign_on']) {
+	// send header for IE for P3P (Platform for Privacy Preferences Project)
+	// if cookie is needed
+		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
+
+		$try_login = true;
+		// Session will be saved in Cookie so check whether we got a cookie or not
+		if (!session_id()) session_start();
+		
+		// get password and username
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			if (empty($_POST['username']) OR empty($_POST['password']))
+				$msg = wrap_text('Password or username are empty. Please try again.');
+			$full_login = array();
+			foreach ($zz_setting['login_fields'] AS $login_field) {
+				$login_field = strtolower($login_field);
+				if (!empty($_POST[$login_field])) {
+					$login[$login_field] = wrap_login_format($_POST[$login_field], $login_field);
+					$full_login[] = $login[$login_field];
+				} else {
+					$full_login[] = '%empty%';
+				}
+			}
+			if (!empty($_POST['password'])) {
+				$login['password'] = $_POST['password'];
+				unset($_POST['password']); // so we don't log it accidentally --> error_log_post
+			}
+		} else {
+			$full_login[] = $login['username'];
+			if (!empty($login['context'])) $full_login[] = $login['context'];
+		}
+
+		// check username and password
+		$sql = sprintf($zz_sql['login'], mysql_real_escape_string($login['username']));
+		unset($_SESSION['logged_in']);
+		$data = wrap_db_fetch($sql);
+		if ($data) {
+			if ($login['single_sign_on']) {
+				array_shift($data); // get rid of password
+				$_SESSION['logged_in'] = true;
+			} elseif (array_shift($data) == $zz_conf['password_encryption']($login['password'].$zz_conf['password_salt'])) {
+				$_SESSION['logged_in'] = true;
+			}
+		}
+		// if MySQL-Login does not work, try different sources
+		// ... LDAP ...
+		// ... different MySQL-server ...
+		if (!empty($zz_setting['ldap_login']) AND empty($_SESSION['logged_in'])) {
+			require_once $zz_setting['custom_wrap_dir'].'/ldap-login.inc.php';
+			$data = cms_login_ldap($login);
+			if ($data) $_SESSION['logged_in'] = true;
+		}
+	}
+
+	// get URL where redirect is done to after logging in
+	$url = false;
+	if (!empty($zz_page['url']['full']['query'])) {
+		parse_str($zz_page['url']['full']['query'], $querystring);
+		if (!empty($querystring['url']))
+			$url = $querystring['url'];
+	}
+
+	// everything was tried, so check if $_SESSION['logged_in'] is true
+	// and in that case, register and redirect to wanted URL in media database
+	if ($try_login) {
+		if (empty($_SESSION['logged_in'])) { // Login not successful
+			if (!$msg) $msg = wrap_text('Password or username incorrect. Please try again.');
+			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s\n%s", 
+				implode('.', $full_login), $zz_conf['password_encryption']($login['password'].$zz_conf['password_salt'])), E_USER_WARNING);
+		} else {
+			// Hooray! User has been logged in
+			wrap_register(false, $data);
+			if (!empty($_SESSION['change_password']) AND !empty($zz_setting['change_password_url'])) {
+			// if password has to be changed, redirect to password change page
+				if ($url) $url = '?url='.urlencode($url);
+				if (is_array($zz_setting['change_password_url'])) {
+					$url = $zz_setting['change_password_url'][$_SESSION['domain']].$url;
+				} else {
+					$url = $zz_setting['change_password_url'].$url;
+				}
+			} elseif (!$url) {
+			// if there is no url= in query string, use default value
+				if (is_array($zz_setting['login_entryurl'])) {
+					$url = $zz_setting['login_entryurl'][$_SESSION['domain']];
+				} else {
+					$url = $zz_setting['login_entryurl'];
+				}
+			}
+			// Redirect to protected landing page
+			return cms_login_redirect($url);
+		}
+	}
+
+	$page['text'] = '<div id="login"><div class="logintext">';
+	if (isset($zz_page['url']['full']['query']) 
+		AND substr($zz_page['url']['full']['query'], 0, 6) == 'logout') {
+		// Stop the session, delete all session data
+		wrap_session_stop();
+		$page['text'] .= '<p><strong class="error">'.wrap_text('You have been logged out.').'</strong></p>';
+	}
+	if (isset($_GET['no-cookie'])) 
+		$page['text'] .= '<p><strong class="error">'
+			.wrap_text('Please allow us to set a cookie!').'</strong></p>'; 
+	$page['text'] .='
+<p>'.wrap_text('To access the internal area, a registration is required. Please '
+	.'enter below your username and password.').'</p>
+<p>'.sprintf(wrap_text('Please allow cookies after sending your login '
+	.'credentials. For security reasons, after %d minutes of inactivity you '
+	.'will be logged out automatically.'), $zz_setting['logout_inactive_after']).'</p>
+
+</div>
+<form action="./';
+	$params = array();
+	if (!empty($url)) $params[] = 'url='.urlencode($url); 
+	if (isset($querystring['no-cookie'])) $params[] = 'no-cookie';
+	if ($params) $page['text'] .= '?'.implode('&amp;', $params);
+	$page['text'].= '" method="POST" class="login">
+<fieldset><legend>'.wrap_text('Login').'</legend>'."\n";
+	foreach ($zz_setting['login_fields'] AS $login_field) {
+		$fieldname = strtolower($login_field);
+		$page['text'] .= '<p><label for="'.$fieldname.'"><strong>'
+			.wrap_text($login_field.':').'</strong></label>';
+		if (!empty($zz_setting['login_fields_output'][$login_field]))
+			// separate input, e. g. dropdown etc.
+			$page['text'] .= $zz_setting['login_fields_output'][$login_field];
+		else
+			// text input
+			$page['text'] .= '<input type="text" name="'.$fieldname.'" id="'
+				.$fieldname.'" value="'.(!empty($_POST[$fieldname]) 
+				? htmlspecialchars($_POST[$fieldname]) : '').'">';
+		$page['text'] .= '</p>'."\n";
+	}
+
+	$page['text'] .= '<p><label for="password"><strong>'.wrap_text('Password:')
+		.'</strong></label> <input type="password" name="password" id="password"></p>
+<p class="submit"><input type="submit" value="'.wrap_text('Sign in').'"></p>';
+	if ($msg) $page['text'].= '<p class="error submit">'.$msg.'</p>';
+	$page['text'] .= '</fieldset>';
+	$page['text'] .= '</form></div>';
+	$page['meta'][] = array('name' => 'robots',
+		'content' => 'noindex, follow, noarchive'
+	);
+	return $page;
+}
+
+/**
+ * Redirects to landing page after successful login
+ *
+ * @param string $url URL of landing page
+ * @param array (optional) $querystring query string of current URL
+ * @global array $zz_setting
+ * @return - (redirect to different page)
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function cms_login_redirect($url, $querystring = array()) {
+	global $zz_setting;
+	
+	// get correct protocol/hostname
+	$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
+	$zz_setting['myhost'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
+	if ($_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1')
+		if (php_sapi_name() == 'cgi')
+			header('Status: 303 See Other');
+		else
+			header('HTTP/1.1 303 See Other');
+	// test whether COOKIEs for session management are allowed
+	// if not, add no-cookie to URL so that wrap_auth() can hand that
+	// back over to cms_login() if login was unsuccessful because of
+	// lack of acceptance of cookies
+	if (empty($_COOKIE) OR isset($querystring['no-cookie'])) {
+		$redir_query_string = parse_url($zz_setting['myhost'].$url);
+		if (!empty($redir_query_string['query']))
+			$url .= '&no-cookie';
+		else
+			$url .= '?no-cookie';
+	}
+	header('Location: '.$zz_setting['myhost'].$url);
+	exit;
+}
+
+/**
+ * Writes SESSION-variables specific to different user ID
+ *
+ * @param int $user_id
+ * @param array (optional) $data result of $zz_sql['login'] or custom LDAP function
+ * @global array $zz_sql
+ * @global array $zz_setting
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_register($user_id = false, $data = array()) {
+	global $zz_sql;
+	global $zz_setting;
+
+	// Local modifications to SQL queries
+	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+
+	if (!$data) {
+		// keep login ID
+		$login_id = $_SESSION['login_id'];
+		$_SESSION = array();
+		$_SESSION['logged_in'] = true;
+		$_SESSION['login_id'] = $login_id;
+		$_SESSION['user_id'] = $user_id;
+		// masquerade login
+		if (!empty($zz_sql['login_masquerade'])) {
+			$sql = sprintf($zz_sql['login_masquerade'], $user_id);
+			$data = wrap_db_fetch($sql);
+			$_SESSION['masquerade'] = true;
+		}
+		// data from cms_login_ldap() has to be dealt with in masquerade script
+	}
+	
+	foreach ($data as $key => $value) {
+		$_SESSION[$key] = $value; 
+	}
+	if (empty($_SESSION['domain'])) {
+		$_SESSION['domain'] = $zz_setting['hostname'];
+	}
+
+	// Login: no user_id set so far, get it from SESSION
+	if (!$user_id) $user_id = $_SESSION['user_id'];
+
+	if (!empty($zz_sql['login_settings']) AND !empty($user_id)) {
+		$sql = sprintf($zz_sql['login_settings'], $user_id);
+		$_SESSION['settings'] = wrap_db_fetch($sql, 'dummy_id', 'key/value');
+	}
+	// get user groups, if module present
+	if (file_exists($zz_setting['custom_wrap_dir'].'/usergroups.inc.php')) {
+		include $zz_setting['custom_wrap_dir'].'/usergroups.inc.php';
+		wrap_register_usergroups($user_id);
+	}
+	$_SESSION['last_click_at'] = time();
+	// writes values and regenerates IDs, against some weird bug if you entered
+	// a wrong password before, php will lose the SESSION
+	// see: http://www.php.net/manual/en/function.session-write-close.php
+	session_regenerate_id(true); 
+}
+
+/**
+ * reformats login field values with custom function
+ *
+ * @param string $field_value
+ * @param string $field_name
+ * @global array $zz_setting
+ * @return string $field_value, reformatted
+ */
+function wrap_login_format($field_value, $field_name) {
+	global $zz_setting;
+	
+	if (get_magic_quotes_gpc())
+		$field_value = stripslashes($field_value);
+	$field_value = mysql_real_escape_string($field_value);
+	
+	if (!empty($zz_setting['login_fields_format']))
+		$field_value = $zz_setting['login_fields_format']($field_value, $field_name);
+
+	return $field_value;
 }
 
 ?>
