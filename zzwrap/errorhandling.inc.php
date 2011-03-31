@@ -20,7 +20,7 @@
  *		'project', 'character_set'
  * @global array $zz_page
  */
-function wrap_error($msg, $errorcode, $settings = array()) {
+function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
