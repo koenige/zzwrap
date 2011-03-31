@@ -742,7 +742,7 @@ function wrap_file_send($file) {
 
 	$filesize = sprintf("%u", filesize($file['name']));
 	// Maybe the problem is we are running into PHPs own memory limit, so:
-	if ($filesize + 1 > return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { //Not higher than 1GB
+	if ($filesize + 1 > wrap_return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { //Not higher than 1GB
 		ini_set('memory_limit', intval($filesize * 1.5));
 	}
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
@@ -844,7 +844,14 @@ function wrap_file_send($file) {
 	exit;
 }
 
-function return_bytes($val) {
+/**
+ * returns integer byte value from PHP shorthand byte notation
+ *
+ * @param string $val
+ * @return int
+ * @see zz_return_bytes(), identical
+ */
+function wrap_return_bytes($val) {
     $val = trim($val);
     $last = strtolower($val[strlen($val)-1]);
     switch($last) {
@@ -1091,4 +1098,21 @@ function wrap_send_cache($age = 0) {
 	echo $text;
 	exit;
 }
+
+/**
+ * debug: print_r included in text so we do not get problems with headers, zip
+ * etc.
+ *
+ * @param array $array
+ * @return string
+ */
+function wrap_print($array, $color = 'FFF') {
+	ob_start();
+	echo '<pre style="text-align: left; background-color: #'.$color
+		.'; position: relative; z-index: 10;">';
+	print_R($array);
+	echo '</pre>';
+	return ob_get_clean();
+}
+
 ?>
