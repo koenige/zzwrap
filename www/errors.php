@@ -1,7 +1,7 @@
 <?php 
 
 // zzwrap (Zugzwang Project)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2011
 // Error pages
 
 
