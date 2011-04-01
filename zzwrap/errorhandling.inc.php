@@ -229,7 +229,11 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		header('Allow: '.implode(', ', $zz_setting['http']['allowed']));
 	}
 	
-	// -- 4. output page
+	// -- 4. error logging
+
+	if ($log_errors) wrap_errorpage_log($page['status'], $page);
+
+	// -- 5. output page
 	
 	if ($zz_setting['brick_page_templates'] == true) {
 		wrap_htmlout_page($page);
@@ -250,11 +254,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		include $zz_page['foot'];
 	}
 	
-	// -- 5. error logging
-
-	if (!$log_errors) exit;
-	wrap_errorpage_log($page['status'], $page);
-
 	exit;
 }
 
