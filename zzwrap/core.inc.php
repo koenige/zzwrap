@@ -313,7 +313,7 @@ function wrap_check_https($zz_page, $zz_setting) {
 	if ((!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == 'on' AND $zz_setting['protocol'] == 'http')
 		OR (empty($_SERVER['HTTPS']) AND $zz_setting['protocol'] == 'https')) {
 		header('Location: '.$zz_setting['protocol'].'://'.$zz_page['url']['full']['host']
-			.$zz_page['url']['full']['path']
+			.$zz_setting['base'].$zz_page['url']['full']['path']
 			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : ''));
 		exit;
 	}
