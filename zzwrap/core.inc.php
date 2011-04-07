@@ -287,7 +287,7 @@ function wrap_quit($errorcode = 404) {
 		header("Location: ".$new);
 		break;
 	default: // 4xx, 5xx
-		include_once $zz_setting['http_error_script'];
+		wrap_errorpage($page, $zz_page);
 	}
 	exit;
 }

@@ -134,10 +134,6 @@ if (empty($zz_setting['db_inc']))
 if (empty($zz_setting['core']))
 	$zz_setting['core']			= $zz_setting['lib'].'/zzwrap';
 
-// http errors
-if (empty($zz_setting['http_error_script']))
-	$zz_setting['http_error_script']	= $zz_conf['root'].'/_scripts/errors.php';
-
 // zzform path
 if (empty($zz_conf['dir']))
 	$zz_conf['dir']				= $zz_setting['lib'].'/zzform';
