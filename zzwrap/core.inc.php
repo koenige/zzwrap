@@ -900,7 +900,8 @@ function wrap_prepare_url($url, $setlang = true) {
 
 	// looking for /en/ or similar
 	if (empty($url['path'])) return $url;
-	if (!$pos = strpos(substr($url['path'], 1), '/')) return $url;
+	// if /en/ is not there, /en still may be, so check full URL
+	if (!$pos = strpos(substr($url['path'], 1), '/')) $pos = strlen($url['path']);
 	$lang = mysql_real_escape_string(substr($url['path'], 1, $pos));
 	// check if it's a language
 	if (!empty($zz_sql['language'])) {
