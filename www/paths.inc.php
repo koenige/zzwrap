@@ -1,6 +1,6 @@
 <?php 
 
-// Zugzwang CMS
+// zzwrap (Zugzwang Project)
 // (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007
 // Configuration: paths to files
 
