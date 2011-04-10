@@ -367,7 +367,7 @@ function cms_login($params) {
 		if (empty($_SESSION['logged_in'])) { // Login not successful
 			if (!$msg) $msg = wrap_text('Password or username incorrect. Please try again.');
 			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s\n%s", 
-				implode('.', $full_login), $zz_conf['password_encryption']($login['password'].$zz_conf['password_salt'])), E_USER_WARNING);
+				implode('.', $full_login), $zz_conf['password_encryption']($login['password'].$zz_conf['password_salt'])), E_USER_NOTICE);
 		} else {
 			// Hooray! User has been logged in
 			wrap_register(false, $data);
