@@ -350,6 +350,14 @@ function wrap_template($template, $data = array()) {
 	$page = brick_format($template, $data);
 	// restore old setting regarding text formatting
 	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
+	// get rid of if / else text that will be put to hidden
+	if (count($page['text']) == 2 
+		AND is_array($page['text'])
+		AND in_array('_hidden_', array_keys($page['text']))
+		AND in_array($zz_setting['brick_default_position'], array_keys($page['text']))) {
+		unset($page['text']['_hidden_']);
+		$page['text'] = end($page['text']);
+	}
 	return $page['text'];
 }
 
