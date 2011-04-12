@@ -587,8 +587,8 @@ function wrap_htmlout_page($page) {
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 
-	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
-	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
+//	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
+//	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
