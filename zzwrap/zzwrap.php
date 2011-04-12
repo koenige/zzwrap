@@ -41,7 +41,7 @@ function zzwrap() {
 		$zz_page['url']['full'] = wrap_prepare_url($zz_page['url']['full']);
 	}
 
-	$zz_page['db'] = wrap_look_for_page($zz_conf, $zz_access, $zz_page);
+	$zz_page['db'] = wrap_look_for_page($zz_page);
 	wrap_check_https($zz_page, $zz_setting);
 
 	// Functions which may be needed for login

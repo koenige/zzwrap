@@ -35,15 +35,19 @@ function wrap_test_secret_key($secret_key) {
  * Tests whether URL is in database (or a part of it ending with *), or a part 
  * of it with placeholders
  * 
- * @param array $zz_conf zz configuration variables
- * @param array $zz_access zz access rights
+ * @param array $zz_page
+ * @global array $zz_conf zz configuration variables
+ * @global array $zz_access zz access rights
  * @return array $page
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
-	// Variables
+function wrap_look_for_page($zz_page) {
+	// no database connection or settings are missing
+	if (!wrap_sql('pages')) wrap_quit(503); 
+
 	global $zz_setting;
-	if (!wrap_sql('pages')) wrap_quit(503); // no database connection or settings are missing
+	global $zz_conf;
+	global $zz_access;
 	$page = false;
 
 	// Prepare URL for database request
