@@ -128,7 +128,7 @@ if (!$zz_page['db']) wrap_quit();
 if ($zz_conf['translations_of_fields']) {
 	$my_page = wrap_translate(array(
 		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']), 
-		wrap_sql('translation_matrix_pages');
+		wrap_sql('translation_matrix_pages'));
 	$zz_page['db'] = array_shift($my_page);
 	unset($my_page);
 }
