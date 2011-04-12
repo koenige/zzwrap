@@ -36,34 +36,20 @@ if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
 // Test HTTP REQUEST method
 // --------------------------------------------------------------------------
 
-if (!in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
-	if (!in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
-		wrap_quit(405);	// 405 Not Allowed
-	} else {
-		wrap_quit(501); // 501 Not Implemented
-	}
-}
+wrap_check_http_request_method();
 
 // --------------------------------------------------------------------------
 // Get rid of unwanted query strings
 // --------------------------------------------------------------------------
 
-// since we do not use session-IDs in the URL, get rid of these since sometimes
-// they might be used for session_start()
-// e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
-if (!empty($_GET['PHPSESSID'])) unset($_GET['PHPSESSID']);
-if (!empty($_REQUEST['PHPSESSID'])) unset($_REQUEST['PHPSESSID']);
+wrap_remove_query_strings();
 
 // --------------------------------------------------------------------------
 // Request page from database via URL
 // Abfrage der Seite nach URL in der Datenbank
 // --------------------------------------------------------------------------
 
-// Do we have a database connection?
-if (!$zz_conf['db_connection']) {
-	if (!empty($zz_setting['cache'])) wrap_send_cache();
-	wrap_error(sprintf('No connection to SQL server.'), E_USER_ERROR);
-}
+wrap_check_db_connection();
 
 // Secret Key für Vorschaufunktion, damit auch noch nicht zur
 // Veröffentlichung freigegebene Seiten angeschaut werden können.

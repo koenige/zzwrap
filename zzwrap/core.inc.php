@@ -1194,8 +1194,50 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	default:
 		return false;	
 	}
+}
 
+/**
+ * Test HTTP REQUEST method
+ * 
+ * @global array $zz_setting
+ * @return void
+ */
+function wrap_check_http_request_method() {
+	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed']))
+		return true;
+	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
+		wrap_quit(405);	// 405 Not Allowed
+	}
+	wrap_quit(501); // 501 Not Implemented
+}
 
+/**
+ * Get rid of unwanted query strings
+ * 
+ * since we do not use session-IDs in the URL, get rid of these since sometimes
+ * they might be used for session_start()
+ * e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
+ */
+function wrap_remove_query_strings() {
+	if (!empty($_GET['PHPSESSID'])) unset($_GET['PHPSESSID']);
+	if (!empty($_REQUEST['PHPSESSID'])) unset($_REQUEST['PHPSESSID']);
+}
+
+/**
+ * Do we have a database connection?
+ * if not: send cache or exit
+ * 
+ * @global array $zz_conf
+ * @global array $zz_setting
+ * @return bool true: everything is okay
+ */
+function wrap_check_db_connection() {
+	global $zz_conf;
+	global $zz_setting;
+	if ($zz_conf['db_connection']) return true;
+	if (!empty($zz_setting['cache'])) wrap_send_cache();
+	wrap_error(sprintf('No connection to SQL server.'), E_USER_ERROR);
+	exit;
 }
 
 ?>
