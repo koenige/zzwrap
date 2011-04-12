@@ -1203,6 +1203,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
  * @return void
  */
 function wrap_check_http_request_method() {
+	global $zz_setting;
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed']))
 		return true;
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
