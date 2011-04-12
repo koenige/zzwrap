@@ -217,8 +217,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
 		// get menus, if function and database connection exist
 		$page['nav_db'] = wrap_get_menu();
-		$page['nav'] = wrap_htmlout_menu($page['nav_db']);
-	} else $page['nav'] = false;
+	}
 	
 	// -- 3. output HTTP header
 	header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '

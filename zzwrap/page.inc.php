@@ -683,6 +683,8 @@ function wrap_get_page() {
 	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
 	if (!empty($zz_page['db'][wrap_sql('author_id')]))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
+
+	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 	
 	return $page;
 }
@@ -700,7 +702,6 @@ function wrap_htmlout_page_without_templates($page) {
 	global $zz_page;
 	global $zz_conf;
 	
-	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
 
 	$output = '';
@@ -774,7 +775,6 @@ function wrap_htmlout_page($page) {
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 
-	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
