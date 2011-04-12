@@ -546,6 +546,78 @@ function wrap_get_authors($brick_authors, $author_id = false) {
 }
 
 /**
+ * get last update date
+ *
+ * @param array $page
+ * @global array $zz_page
+ * @return string
+ */
+function wrap_page_last_update($page) {
+	global $zz_page;
+	$last_update = '';
+	if (!empty($page['last_update'])) {
+		$last_update = $page['last_update'];
+	}
+	if (!$last_update) {
+		$last_update = $zz_page['db'][wrap_sql('lastupdate')];
+		$last_update = datum_de($last_update);
+	}
+	return $last_update;
+}
+
+/**
+ * get page media
+ * 
+ * @param array $page
+ * @global array $zz_page
+ * @return array
+ */
+function wrap_page_media($page) {
+	global $zz_page;
+	$media = !empty($page['media']) ? $page['media'] : array();
+	if (function_exists('wrap_get_media')) {
+		$page_id = $zz_page['db'][wrap_sql('page_id')];
+		$media = array_merge(wrap_get_media($page_id), $media);
+	}
+	return $media;
+}
+
+/**
+ * get page main H1 element; default: from brick script, 2nd choice: database
+ * 
+ * @param array $page
+ * @global array $zz_page
+ * @return array
+ */
+function wrap_page_h1($page) {
+	global $zz_page;
+	if (!empty($page['title']))
+		$title = $page['title'];
+	else
+		$title = $zz_page['db'][wrap_sql('title')];
+	if (!empty($zz_setting['translate_page_title']))
+		$title = wrap_text($title);
+	return $title;
+}
+
+/**
+ * get value for HTML title element
+ *
+ * @param array $page
+ * @global array $zz_page
+ * @return string HTML code for title
+ */
+function wrap_page_title($page) {
+	global $zz_page;
+	$pagetitle = strip_tags($page['title']);
+	if ($zz_page['url']['full']['path'] == '/')
+		$pagetitle = sprintf($zz_page['template_pagetitle_home'], $pagetitle, $page['project']);
+	else
+		$pagetitle = sprintf($zz_page['template_pagetitle'], $pagetitle, $page['project']);
+	return $pagetitle;
+}
+
+/**
  * HTML output of page without brick templates
  * deprecated class mix of HTML and PHP, not recommended for new projects
  *

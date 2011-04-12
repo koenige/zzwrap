@@ -151,41 +151,13 @@ if (!empty($zz_page['db'][wrap_sql('ending')])) {
 	wrap_check_canonical($ending, $zz_page['url']['full']);
 }
 
-// get media
-if (function_exists('wrap_get_media'))
-	$media = wrap_get_media($zz_page['db'][wrap_sql('page_id')]);
-if (empty($page['media']) AND !empty($media))
-	$page['media'] = $media;
-elseif (!empty($page['media']) AND !empty($media))
-	$page['media'] = array_merge($media, $page['media']);
-elseif (empty($page['media']) AND empty($media))
-	$page['media'] = false;
-
+$page['media'] = wrap_page_media($page);
 // set HTML language code if not set so far
 if (!isset($page['lang'])) $page['lang'] = $zz_setting['lang'];
-
-// $page['title'] == H1 element
-// default: from brick script, 2nd choice: database
-if (empty($page['title'])) $page['title'] = $zz_page['db'][wrap_sql('title')];
-
-// $page['pagetitle'] TITLE element
-$page['pagetitle'] = strip_tags($page['title']);
-if (!empty($zz_setting['translate_page_title']))
-	$page['title'] = wrap_text($page['title']);
+$page['title'] = wrap_page_h1($page);
 if (empty($page['project'])) $page['project'] = $zz_conf['project'];
-
-if ($zz_page['url']['full']['path'] == '/')
-	$page['pagetitle'] = sprintf($zz_page['template_pagetitle_home'], $page['pagetitle'], $page['project']);
-else
-	$page['pagetitle'] = sprintf($zz_page['template_pagetitle'], $page['pagetitle'], $page['project']);
-
-// last update
-if (!empty($page['last_update'])) $page[wrap_sql('lastupdate')] = $page['last_update'];
-if (empty($page[wrap_sql('lastupdate')])) {
-	$page[wrap_sql('lastupdate')] = $zz_page['db'][wrap_sql('lastupdate')];
-	$page[wrap_sql('lastupdate')] = datum_de($page[wrap_sql('lastupdate')]);
-}
-
+$page['pagetitle'] = wrap_page_title($page);
+$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
 
 // authors (from cmscore/page.inc.php)
 if (!empty($zz_page['db'][wrap_sql('author_id')]))
