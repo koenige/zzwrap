@@ -651,6 +651,9 @@ function wrap_page_check_if_error($page) {
  * @global array $zz_page
  */
 function wrap_get_page() {
+	global $zz_setting;
+	global $zz_conf;
+	global $zz_page;
 	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 	
 	$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
