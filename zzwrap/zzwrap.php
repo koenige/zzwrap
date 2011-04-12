@@ -200,9 +200,6 @@ if (empty($page[wrap_sql('lastupdate')])) {
 	$page[wrap_sql('lastupdate')] = datum_de($page[wrap_sql('lastupdate')]);
 }
 
-// breadcrumbs (from cmscore/page.inc.php)
-if (wrap_sql('breadcrumbs'))
-	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 
 // authors (from cmscore/page.inc.php)
 if (!empty($zz_page['db'][wrap_sql('author_id')]))
@@ -211,7 +208,6 @@ if (!empty($zz_page['db'][wrap_sql('author_id')]))
 // navigation menu (from cmscore/page.inc.php)
 if (wrap_sql('menu')) {
 	$page['nav_db'] = wrap_get_menu();
-	if ($page['nav_db']) $page['nav'] = wrap_htmlout_menu($page['nav_db']);
 }
 
 // output of content
@@ -222,47 +218,5 @@ if ($zz_setting['brick_page_templates'] == true) {
 	wrap_htmlout_page_without_templates($page);
 }
 exit;
-
-/**
- * HTML output of page without brick templates
- * deprecated class mix of HTML and PHP, not recommended for new projects
- *
- * @param array $page
- * @global array $zz_page
- * @global array $zz_conf
- * @return void
- */
-function wrap_htmlout_page_without_templates($page) {
-	global $zz_page;
-	global $zz_conf;
-	
-	$output = '';
-	if (function_exists('wrap_matrix')) {
-		// Matrix for several projects
-		$output = wrap_matrix($page, $page['media']);
-	} else {
-		if (empty($page['dont_show_h1']) AND empty($zz_page['dont_show_h1']))
-			$output .= "\n".markdown('# '.$page['title']."\n")."\n";
-		$output .= $page['text'];
-	}
-	if (function_exists('wrap_content_replace')) {
-		$output = wrap_content_replace($output);
-	}
-
-	// Output page
-	// set character set
-	if (!empty($zz_conf['character_set']))
-		header('Content-Type: text/html; charset='.$zz_conf['character_set']);
-
-	if (empty($page['no_page_head'])) include $zz_page['head'];
-	echo $output;
-	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
-		// show error message in case there is one and it's not already shown
-		// by wrap_errorpage() (status != 200)
-		echo '<div class="error">'.$zz_page['error_msg'].'</div>'."\n";
-	}
-	if (empty($page['no_page_foot'])) include $zz_page['foot'];
-	exit;
-}
 
 ?>
