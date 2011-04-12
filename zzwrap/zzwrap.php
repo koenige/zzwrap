@@ -219,8 +219,23 @@ if ($zz_setting['brick_page_templates'] == true) {
 	// use wrap templates
 	wrap_htmlout_page($page);
 } else {
-	// DEPRECATED!
-	// classic: mix of HTML and PHP
+	wrap_htmlout_page_without_templates($page);
+}
+exit;
+
+/**
+ * HTML output of page without brick templates
+ * deprecated class mix of HTML and PHP, not recommended for new projects
+ *
+ * @param array $page
+ * @global array $zz_page
+ * @global array $zz_conf
+ * @return void
+ */
+function wrap_htmlout_page_without_templates($page) {
+	global $zz_page;
+	global $zz_conf;
+	
 	$output = '';
 	if (function_exists('wrap_matrix')) {
 		// Matrix for several projects
@@ -247,7 +262,7 @@ if ($zz_setting['brick_page_templates'] == true) {
 		echo '<div class="error">'.$zz_page['error_msg'].'</div>'."\n";
 	}
 	if (empty($page['no_page_foot'])) include $zz_page['foot'];
+	exit;
 }
-exit;
 
 ?>
