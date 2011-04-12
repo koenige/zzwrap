@@ -32,23 +32,8 @@ if (!empty($zz_conf['error_503'])) wrap_error($zz_conf['error_503'], E_USER_ERRO
 if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
 	require_once $zz_setting['custom_wrap_dir'].'/_functions.inc.php';
 
-// --------------------------------------------------------------------------
-// Test HTTP REQUEST method
-// --------------------------------------------------------------------------
-
 wrap_check_http_request_method();
-
-// --------------------------------------------------------------------------
-// Get rid of unwanted query strings
-// --------------------------------------------------------------------------
-
 wrap_remove_query_strings();
-
-// --------------------------------------------------------------------------
-// Request page from database via URL
-// Abfrage der Seite nach URL in der Datenbank
-// --------------------------------------------------------------------------
-
 wrap_check_db_connection();
 
 // Secret Key für Vorschaufunktion, damit auch noch nicht zur
@@ -110,43 +95,7 @@ if (!$zz_page['db']) wrap_quit();
 // --------------------------------------------------------------------------
 
 wrap_translate_page();
-
-require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
-$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
-
-wrap_page_check_if_error($page);
-
-if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
-	wrap_send_ressource($page['text'], $page['content_type'], $page['status']);
-}
-if (!empty($page['no_output'])) exit;
-
-$page['status'] = 200; // Seiteninhalt vorhanden!
-
-// if database allows field 'ending', check if the URL is canonical
-if (!empty($zz_page['db'][wrap_sql('ending')])) {
-	$ending = $zz_page['db'][wrap_sql('ending')];
-	// if brick_format() returns a page ending, use this
-	if (isset($page['url_ending'])) $ending = $page['url_ending'];
-	wrap_check_canonical($ending, $zz_page['url']['full']);
-}
-
-$page['media'] = wrap_page_media($page);
-// set HTML language code if not set so far
-if (!isset($page['lang'])) $page['lang'] = $zz_setting['lang'];
-$page['title'] = wrap_page_h1($page);
-if (empty($page['project'])) $page['project'] = $zz_conf['project'];
-$page['pagetitle'] = wrap_page_title($page);
-$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
-
-// authors (from cmscore/page.inc.php)
-if (!empty($zz_page['db'][wrap_sql('author_id')]))
-	$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
-
-// navigation menu (from cmscore/page.inc.php)
-if (wrap_sql('menu')) {
-	$page['nav_db'] = wrap_get_menu();
-}
+$page = wrap_get_page();
 
 // output of content
 if ($zz_setting['brick_page_templates'] == true) {

@@ -644,6 +644,47 @@ function wrap_page_check_if_error($page) {
 }
 
 /**
+ * puzzle page elements together
+ *
+ * @global array $zz_setting
+ * @global array $zz_conf
+ * @global array $zz_page
+ */
+function wrap_get_page() {
+	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
+	
+	$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
+	wrap_page_check_if_error($page);
+
+	if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
+		wrap_send_ressource($page['text'], $page['content_type'], $page['status']);
+	}
+
+	if (!empty($page['no_output'])) exit;
+
+	// if database allows field 'ending', check if the URL is canonical
+	if (!empty($zz_page['db'][wrap_sql('ending')])) {
+		$ending = $zz_page['db'][wrap_sql('ending')];
+		// if brick_format() returns a page ending, use this
+		if (isset($page['url_ending'])) $ending = $page['url_ending'];
+		wrap_check_canonical($ending, $zz_page['url']['full']);
+	}
+
+	$page['status']		= 200; // Seiteninhalt vorhanden!
+	$page['lang']		= !empty($page['lang']) ? $page['lang'] : $zz_setting['lang'];
+	$page['media']		= wrap_page_media($page);
+	$page['title']		= wrap_page_h1($page);
+	$page['project']	= !empty($page['project']) ? $page['project'] : $zz_conf['project'];
+	$page['pagetitle']	= wrap_page_title($page);
+	$page['nav_db']		= wrap_get_menu();
+	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
+	if (!empty($zz_page['db'][wrap_sql('author_id')]))
+		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
+	
+	return $page;
+}
+
+/**
  * HTML output of page without brick templates
  * deprecated class mix of HTML and PHP, not recommended for new projects
  *
