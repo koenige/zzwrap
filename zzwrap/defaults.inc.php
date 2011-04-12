@@ -258,14 +258,6 @@ if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_fro
 // Database structure
 // -------------------------------------------------------------------------
 
-if (empty($zz_sql['page_id']))		$zz_sql['page_id']		= 'page_id';
-if (empty($zz_sql['content']))		$zz_sql['content']		= 'content';
-if (empty($zz_sql['title']))		$zz_sql['title']		= 'title';
-if (empty($zz_sql['ending']))		$zz_sql['ending']		= 'ending';
-if (empty($zz_sql['identifier']))	$zz_sql['identifier']	= 'identifier';
-if (empty($zz_sql['lastupdate']))	$zz_sql['lastupdate']	= 'last_update';
-if (empty($zz_sql['author_id']))	$zz_sql['author_id']	= 'author_person_id';
-
 if (!isset($zz_conf['prefix']))
 	$zz_conf['prefix'] = ''; // prefix for all database tables
 

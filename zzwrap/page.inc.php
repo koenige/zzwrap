@@ -5,15 +5,9 @@
 // standard functions for page (menu, breadcrumbs, authors, page)
 
 
-// intialize SQL-queries
-global $zz_sql;
-$zz_sql['breadcrumbs'] = '';
-$zz_sql['menu'] = '';
-$zz_sql['menu_level2'] = '';
-// If we like to have menus or breadcrumbs, put an SQL query here:
-if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-page.inc.php')
-	AND !empty($zz_conf['db_connection']))
-	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-page.inc.php';
+// Local modifications to SQL queries
+wrap_sql('page', 'set');
+
 
 /*	List of functions in this file
 
@@ -48,10 +42,13 @@ function wrap_get_menu() {
 	if (empty($zz_setting['menu'])) 
 		$zz_setting['menu'] = 'webpages';
 	
-	// Menu from separate navigation table
-	if ($zz_setting['menu'] == 'navigation') return wrap_get_menu_navigation();
-	// Menu settings included in webpages table
-	else return wrap_get_menu_webpages();
+	if ($zz_setting['menu'] == 'navigation') {
+		// Menu from separate navigation table
+		return wrap_get_menu_navigation();
+	} else {
+		// Menu settings included in webpages table
+		return wrap_get_menu_webpages();
+	}
 }
 
 /**
@@ -60,18 +57,16 @@ function wrap_get_menu() {
  * Die Funktion liest das Navigationsmenü aus, setzt die aktuelle Seite 
  * ('current_page'), setzt eine menu-ID, übersetzt die Menüeinträge und URLs
  * und gibt ein hierarchisches Array zurück
- * $zz_sql['menu'] expects: nav_id, title, main_nav_id, url
- *	optional parameters: id_title, rest is free
  * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu_navigation() {
-	global $zz_conf;
-	global $zz_sql;
 	global $zz_setting;
+	global $zz_conf;
+	if (!wrap_sql('menu')) return array();
 
 	// get data from database
-	$unsorted_menu = wrap_db_fetch($zz_sql['menu'], 'nav_id');
+	$unsorted_menu = wrap_db_fetch(wrap_sql('menu'), 'nav_id');
 	// translation if there's a function for it
 	if (function_exists('wrap_translate_menu'))
 		$unsorted_menu = wrap_translate_menu($unsorted_menu);
@@ -113,21 +108,18 @@ function wrap_get_menu_navigation() {
 /**
  * Liest Daten für Navigationsmenü aus der Datenbank aus
  *
- * $zz_sql['menu'] expects: page_id, title, (id_title), mother_page_id, url, menu
- * $zz_sql['menu_level2'] expects: page_id, title, (id_title), mother_page_id, url (function_url), menu
  * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu_webpages() {
-	global $zz_sql;
 	global $zz_setting;
-	if (empty($zz_sql['menu'])) return false; // no menu query, so we don't have a menu
+	if (!$sql = wrap_sql('menu')) return array(); // no menu query, so we don't have a menu
 
 	$menu = array();
 	// get top menus
-	$entries = wrap_db_fetch($zz_sql['menu'], $zz_sql['page_id']);
-	if (!empty($zz_sql['menu_table']))
-		$entries = wrap_translate($entries, $zz_sql['menu_table']);
+	$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
+	if ($menu_table = wrap_sql('menu_table'))
+		$entries = wrap_translate($entries, $menu_table);
 	foreach ($entries as $line) {
 		if (strstr($line['menu'], ',')) {
 			$mymenus = explode(',', $line['menu']);
@@ -145,11 +137,11 @@ function wrap_get_menu_webpages() {
 		wrap_menu_session($menu);
 	}
 	// get second hierarchy level
-	if ($zz_sql['menu_level2']) {
-		$sql = sprintf($zz_sql['menu_level2'], '"'.implode('", "', array_keys($menu)).'"');
-		$entries = wrap_db_fetch($sql, $zz_sql['page_id']);
-		if (!empty($zz_sql['menu_table']))
-			$entries = wrap_translate($entries, $zz_sql['menu_table']);
+	if ($sql = wrap_sql('menu_level2')) {
+		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
+		$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
+		if ($menu_table = wrap_sql('menu_table'))
+			$entries = wrap_translate($entries, $menu_table);
 		foreach ($entries as $line) {
 			$menu_key = 'sub-'.$line['menu'].'-'.$line['mother_page_id'];
 			// URLs ending in * or */ or *.html are different
@@ -183,14 +175,12 @@ function wrap_get_menu_webpages() {
  * @param array $line
  * @param array $menu
  * @param string $menu_key
- * @global array $zz_sql 'page_id'
  * @return array $menu[$menu_key]
  */
 function wrap_menu_asterisk_check($line, $menu, $menu_key) {
-	global $zz_sql;
 	if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
 		AND substr($line['url'], -6) != '*.html') {
-		$menu[$menu_key][$line[$zz_sql['page_id']]] = $line;
+		$menu[$menu_key][$line[wrap_sql('page_id')]] = $line;
 	}
 	// get name of function either from sql query
 	// (for multilingual pages) or from the part until *
@@ -226,7 +216,6 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key) {
  * @global array $zz_setting
  *		'main_menu', 'menu_mark_active_open', 'menu_mark_active_close',
  *		'menu_display_submenu_items'
- * @global string $zz_sql['page_id'] Name of ID field in webpages-table
  * @return string HTML-Output
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -234,7 +223,6 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	if (!$nav) return false;
 
 	global $zz_setting;
-	global $zz_sql;
 	
 	// when to display submenu items
 	// 'all': always display all submenu items
@@ -252,7 +240,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	$output = false;
 	// as default, menu comes from database table 'webpages'
 	// wrap_get_menu_webpages()
-	$fn_page_id = $zz_sql['page_id'];
+	$fn_page_id = wrap_sql('page_id');
 	$fn_prefix = 'sub-'.$menu_name.'-';
 	// no menu_name: use default menu name
 	if (!$menu_name AND !empty($zz_setting['main_menu'])) {
@@ -354,15 +342,14 @@ function wrap_get_top_nav_id($menu) {
 	// so exit, this page is not in navigation
 	if (empty($zz_page['db'])) return false;
 
-	global $zz_sql;
-	$breadcrumbs = wrap_get_breadcrumbs($zz_page['db'][$zz_sql['page_id']]);
+	$breadcrumbs = wrap_get_breadcrumbs($zz_page['db'][wrap_sql('page_id')]);
 	array_pop($breadcrumbs); // own page, we do not need this
 	while ($breadcrumbs) {
 		$upper_breadcrumb = array_pop($breadcrumbs);
 		// set current_page for next upper page in hierarchy
 		foreach (array_keys($menu) as $main_nav_id) {
 			foreach ($menu[$main_nav_id] as $nav_id => $element) {
-				if ($element[$zz_sql['page_id']] == $upper_breadcrumb['page_id']) {
+				if ($element[wrap_sql('page_id')] == $upper_breadcrumb['page_id']) {
 					// current_page in $menu may be set to true
 					// without problems since $menu is not used for anything anymore
 					// i. e. there will still be a link to the navigation menu entry
@@ -418,30 +405,22 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
  * Reads webpages from database, creates breadcrumbs hierarchy
  * 
  * @param int $page_id ID of current webpage in database
- * @global array $zz_sql
- *		'breadcrumbs' (required), 'page_id'
  * @global array $zz_conf
  * @global array $zz_access
- * @global array $zz_translation_matrix
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_breadcrumbs($page_id) {
-	global $zz_sql;
+	if (!($sql = wrap_sql('breadcrumbs'))) return array();
 	global $zz_conf;
 	global $zz_access;
-	global $zz_translation_matrix;
-	if (empty($zz_sql['breadcrumbs'])) return array();
 
 	$breadcrumbs = array();
 	// get all webpages
-	$sql = $zz_sql['breadcrumbs'];
-	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', $zz_sql['is_public']);
-	$pages = wrap_db_fetch($sql, $zz_sql['page_id']);
-	if (!isset($zz_translation_matrix['breadcrumbs']))
-		$zz_translation_matrix['breadcrumbs'] = array();
+	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
+	$pages = wrap_db_fetch($sql, wrap_sql('page_id'));
 	if ($zz_conf['translations_of_fields']) {
-		$pages = wrap_translate($pages, $zz_translation_matrix['breadcrumbs'], '', false);
+		$pages = wrap_translate($pages, wrap_sql('translation_matrix_breadcrumbs'), '', false);
 	}
 
 	// get all breadcrumbs recursively
@@ -457,16 +436,14 @@ function wrap_get_breadcrumbs($page_id) {
  * 
  * @param int $page_id ID of webpage in hierarchy in database
  * @param array $pages Array with all pages from database, indexed page_id
- * @global array $zz_sql
  * @return array breadcrumbs ('title' => title of menu, 'url_path' = link)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
-	global $zz_sql;
 	$breadcrumbs[] = array(
 		'title' => $pages[$page_id]['title'],
 		'url_path' => $pages[$page_id]['identifier'],
-		'page_id' => $pages[$page_id][$zz_sql['page_id']]
+		'page_id' => $pages[$page_id][wrap_sql('page_id')]
 	);
 	if ($pages[$page_id]['mother_page_id'] 
 		&& !empty($pages[$pages[$page_id]['mother_page_id']]))
@@ -487,7 +464,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	global $zz_page;
 	global $zz_setting;
 	
-	$breadcrumbs = array();
+	// get breadcrumbs from database
+	$breadcrumbs = wrap_get_breadcrumbs($page_id);
+	if (!$breadcrumbs) return false;
+
 	$html_output = false;
 	// set default values
 	if (empty($zz_page['breadcrumbs_separator']))
@@ -497,8 +477,6 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	if (substr($zz_setting['base'], -1) == '/') 
 		$zz_setting['base'] = substr($zz_setting['base'], 0, -1);
 
-	// get breadcrumbs from database
-	$breadcrumbs = wrap_get_breadcrumbs($page_id);
 	// if there are breadcrumbs returned from brick_format, remove the last
 	// and append later these breadcrumbs instead
 	if (!empty($brick_breadcrumbs)) array_pop($breadcrumbs);
@@ -542,20 +520,18 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 /**
  * Reads authors from database, adds initials and gives back array
  * 
- * needs global $zz_sql['authors']! person_id = ID, person = name of author
  * @param array $brick_authors IDs of authors
  * @param int $author_id extra ID of author, may be false
  * @return array authors, person = name, initials = initials, lowercase
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_authors($brick_authors, $author_id = false) {
-	global $zz_sql;
-	if (empty($zz_sql['authors'])) return false;
+	if (!($sql = wrap_sql('authors'))) return false;
 
 	// add to extra page author to authors from brick_format()
 	if ($author_id) $brick_authors[] = $author_id;
 	
-	$authors = wrap_db_fetch(sprintf($zz_sql['authors'], implode(', ', $brick_authors)), 'person_id');
+	$authors = wrap_db_fetch(sprintf($sql, implode(', ', $brick_authors)), 'person_id');
 
 	if ($authors) {
 		foreach ($authors as $index => $author) {
@@ -611,6 +587,8 @@ function wrap_htmlout_page($page) {
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 
+	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
+	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {

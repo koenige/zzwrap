@@ -107,8 +107,6 @@ function wrap_text($string) {
  * @global array $zz_conf
  * 		- $zz_conf['translations_of_fields']
  * @global array $zz_setting
- * @global array $zz_sql
- * 		- $zz_sql['translations'] in sql-core.inc.php
  * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -117,12 +115,12 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
 	global $zz_conf;
 	global $zz_setting;
-	global $zz_sql;
 	if (empty($zz_conf['translations_of_fields'])) return $data;
-	if (!isset($zz_sql['translations'])) {
+	$translation_sql = wrap_sql('translations');
+	if ($translation_sql === NULL) {
 		wrap_error('Please set `$zz_sql["translations"]`!', E_USER_ERROR);
 		return $data;
-	} elseif (!$zz_sql['translations']) {
+	} elseif (!$translation_sql) {
 		return $data;
 	}
 
@@ -229,7 +227,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		$all_fields_to_translate += count($fields)*count($data_ids);
 
 		// get translations corresponding to matrix from database
-		$sql = sprintf($zz_sql['translations'], $field_type, implode(',', array_keys($fields)), 
+		$sql = sprintf($translation_sql, $field_type, implode(',', array_keys($fields)), 
 			implode(',', $data_ids), $target_language);
 		$translations = wrap_db_fetch($sql, 'translation_id');
 

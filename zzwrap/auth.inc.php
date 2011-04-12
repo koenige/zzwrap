@@ -29,14 +29,12 @@
  * if login time has passed
  * @global array $zz_setting
  * @global array $zz_page
- * @global array $zz_sql
  * @return bool true if login is necessary, false if no login is required
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_auth() {
 	global $zz_setting;
 	global $zz_page;
-	global $zz_sql;
 
 	if (!empty($zz_page['auth'])) return true; // don't run this function twice
 	$zz_page['auth'] = true;
@@ -49,7 +47,7 @@ function wrap_auth() {
 	header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
 
 	// Local modifications to SQL queries
-	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+	wrap_sql('auth', 'set');
 
 	// check if current URL needs authentification
 	$authentification = false;
@@ -93,16 +91,12 @@ function wrap_auth() {
 	// you'll stay logged in for x minutes
 	$keep_alive = $zz_setting['logout_inactive_after'] * 60;
 	
-	// set domain
-	if (empty($zz_sql['domain'])) $zz_sql['domain'] = array($zz_setting['hostname']);
-	elseif (!is_array($zz_sql['domain'])) $zz_sql['domain'] = array($zz_sql['domain']);
-	
 	// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
 	// initialize request, should be in front of nocookie
 	$qs['request'] = false; 
 	if (empty($_SESSION['logged_in']) 
 		OR $now > ($_SESSION['last_click_at'] + $keep_alive)
-		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], $zz_sql['domain']))) {
+		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], wrap_sql('domain')))) {
 		// get rid of domain, since user is not logged in anymore
 		wrap_session_stop();
 		if (!empty($zz_page['url']['full']['query'])) {
@@ -149,17 +143,17 @@ function wrap_auth() {
 	// save successful request in database to prolong login time
 	$_SESSION['last_click_at'] = $now;
 	if (!empty($_SESSION['login_id'])) {
-		$sql = sprintf($zz_sql['last_click'], $now, $_SESSION['login_id']);
+		$sql = sprintf(wrap_sql('last_click'), $now, $_SESSION['login_id']);
 		$result = mysql_query($sql);
 		// it's not important if an error occurs here
 		if (!$result)
 			wrap_error(sprintf(wrap_text('Could not save "last_click" in database.')
 				."\n\n%s\n%s", mysql_error(), $sql), E_USER_NOTICE);
 	}
-	if (!empty($_SESSION['mask_id']) AND !empty($zz_sql['last_masquerade'])) {
+	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade')) {
 		$logout = (time() + $zz_setting['logout_inactive_after'] * 60);
 		$keep_alive = date('Y-m-d H:i:s', $logout);
-		$sql_mask = sprintf($zz_sql['last_masquerade'], '"'.$keep_alive.'"', $_SESSION['mask_id']);
+		$sql_mask = sprintf($sql_mask, '"'.$keep_alive.'"', $_SESSION['mask_id']);
 		$result = mysql_query($sql_mask);
 		// it's not important if an error occurs here
 		if (!$result)
@@ -189,12 +183,9 @@ function wrap_authenticate_url($url, $no_auth_urls) {
 /**
  * Stops SESSION if cookie exists but time is up
  *
- * @global array $zz_sql local SQL queries related to authentification
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_session_stop() {
-	global $zz_sql;
-
 	$sql = false;
 	$sql_mask = false;
 
@@ -202,10 +193,10 @@ function wrap_session_stop() {
 	if (!session_id()) session_start();
 
 	// update login db if logged in, set to logged out
-	if (!empty($_SESSION['login_id']) AND !empty($zz_sql['logout']))
-		$sql = sprintf($zz_sql['logout'], $_SESSION['login_id']);
-	if (!empty($_SESSION['mask_id']) AND !empty($zz_sql['last_masquerade']))
-		$sql_mask = sprintf($zz_sql['last_masquerade'], 'NOW()', $_SESSION['mask_id']);
+	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql('logout'))
+		$sql = sprintf($sql, $_SESSION['login_id']);
+	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade'))
+		$sql_mask = sprintf($sql_mask, 'NOW()', $_SESSION['mask_id']);
 	// Unset all of the session variables.
 	$_SESSION = array();
 	// If it's desired to kill the session, also delete the session cookie.
@@ -233,10 +224,9 @@ function wrap_session_stop() {
 function cms_logout($params) {
 	global $zz_setting;
 	global $zz_conf;
-	global $zz_sql;
 
 	// Local modifications to SQL queries
-	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+	wrap_sql('auth', 'set');
 	
 	// Stop the session, delete all session data
 	wrap_session_stop();
@@ -257,7 +247,6 @@ function cms_logout($params) {
  *			[3]: optional: {context}
  * @global array $zz_setting
  * @global array $zz_conf
- * @global array $zz_sql
  * @global array $zz_page
  * @return mixed bool false: login failed; array $page: login form; or redirect
  *		to (wanted) landing page
@@ -266,11 +255,10 @@ function cms_logout($params) {
 function cms_login($params) {
 	global $zz_setting;
 	global $zz_conf;
-	global $zz_sql;
 	global $zz_page;
 
 	// Local modifications to SQL queries
-	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+	wrap_sql('auth', 'set');
 
 	// Set try_login to true if login credentials shall be checked
 	// if set to false, first show login form
@@ -332,7 +320,7 @@ function cms_login($params) {
 		}
 
 		// check username and password
-		$sql = sprintf($zz_sql['login'], mysql_real_escape_string($login['username']));
+		$sql = sprintf(wrap_sql('login'), mysql_real_escape_string($login['username']));
 		unset($_SESSION['logged_in']);
 		$data = wrap_db_fetch($sql);
 		if ($data) {
@@ -483,17 +471,15 @@ function cms_login_redirect($url, $querystring = array()) {
  * Writes SESSION-variables specific to different user ID
  *
  * @param int $user_id
- * @param array (optional) $data result of $zz_sql['login'] or custom LDAP function
- * @global array $zz_sql
+ * @param array (optional) $data result of wrap_sql('login') or custom LDAP function
  * @global array $zz_setting
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_register($user_id = false, $data = array()) {
-	global $zz_sql;
 	global $zz_setting;
 
 	// Local modifications to SQL queries
-	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-auth.inc.php';
+	wrap_sql('auth', 'set');
 
 	if (!$data) {
 		// keep login ID
@@ -503,8 +489,8 @@ function wrap_register($user_id = false, $data = array()) {
 		$_SESSION['login_id'] = $login_id;
 		$_SESSION['user_id'] = $user_id;
 		// masquerade login
-		if (!empty($zz_sql['login_masquerade'])) {
-			$sql = sprintf($zz_sql['login_masquerade'], $user_id);
+		if ($sql = wrap_sql('login_masquerade')) {
+			$sql = sprintf($sql, $user_id);
 			$data = wrap_db_fetch($sql);
 			$_SESSION['masquerade'] = true;
 		}
@@ -521,8 +507,8 @@ function wrap_register($user_id = false, $data = array()) {
 	// Login: no user_id set so far, get it from SESSION
 	if (!$user_id) $user_id = $_SESSION['user_id'];
 
-	if (!empty($zz_sql['login_settings']) AND !empty($user_id)) {
-		$sql = sprintf($zz_sql['login_settings'], $user_id);
+	if ($sql = wrap_sql('login_settings') AND !empty($user_id)) {
+		$sql = sprintf($sql, $user_id);
 		$_SESSION['settings'] = wrap_db_fetch($sql, 'dummy_id', 'key/value');
 	}
 	// get user groups, if module present

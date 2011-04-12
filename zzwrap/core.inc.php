@@ -6,8 +6,8 @@
 
 
 // Local modifications to SQL queries
-if (!empty($zz_setting['custom_wrap_sql_dir']) AND !empty($zz_conf['db_connection']))
-	require_once $zz_setting['custom_wrap_sql_dir'].'/sql-core.inc.php';
+wrap_sql('core', 'set');
+
 
 /**
  * Test, whether URL contains a correct secret key to allow page previews
@@ -43,8 +43,7 @@ function wrap_test_secret_key($secret_key) {
 function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 	// Variables
 	global $zz_setting;
-	global $zz_sql;
-	if (empty($zz_sql['pages'])) wrap_quit(503); // no database connection or settings are missing
+	if (!wrap_sql('pages')) wrap_quit(503); // no database connection or settings are missing
 	$page = false;
 
 	// Prepare URL for database request
@@ -90,8 +89,8 @@ function wrap_look_for_page(&$zz_conf, &$zz_access, $zz_page) {
 		if (!$page[$i]) $parameter[$i] = false; // if more than one url will be checked, initialize variable
 		while (!$page[$i]) {
 			$loops[$i]++;
-			$sql = sprintf($zz_sql['pages'], '/'.mysql_real_escape_string($my_url));
-			if (!$zz_access['wrap_preview']) $sql.= ' AND '.$zz_sql['is_public'];
+			$sql = sprintf(wrap_sql('pages'), '/'.mysql_real_escape_string($my_url));
+			if (!$zz_access['wrap_preview']) $sql.= ' AND '.wrap_sql('is_public');
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i]) && strstr($my_url, '/')) { // if not found, remove path parts from URL
 				if ($parameter[$i]) {
@@ -223,7 +222,6 @@ function wrap_quit($errorcode = 404) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
-	global $zz_sql;
 	$redir = false;
 
 	// check for redirects, if there's a corresponding table.
@@ -231,11 +229,11 @@ function wrap_quit($errorcode = 404) {
 		$url = wrap_read_url($zz_page['url']);
 		$url['db'] = mysql_real_escape_string($url['db']);
 		$where_language = (!empty($_GET['lang']) 
-			? ' OR '.$zz_sql['redirects_old_fieldname'].' = "/'
+			? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
 				.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"'
 			: ''
 		);
-		$sql = sprintf($zz_sql['redirects'], '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
+		$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
 		// not needed anymore, but set to false hinders from getting into a loop
 		// (wrap_db_fetch() will call wrap_quit() if table does not exist)
 		$zz_setting['check_redirects'] = false; 
@@ -248,7 +246,7 @@ function wrap_quit($errorcode = 404) {
 		$break_next = false;
 		if (!$redir) {
 			while (!$found) {
-				$sql = sprintf($zz_sql['redirects_*'], '/'.$url['db']);
+				$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
 				$redir = wrap_db_fetch($sql);
 				if ($redir) break; // we have a result, get out of this loop!
 				if (strrpos($url['db'], '/'))
@@ -260,8 +258,8 @@ function wrap_quit($errorcode = 404) {
 			if ($redir) {
 				// If there's an asterisk (*) at the end of the redirect
 				// the cut part will be pasted to the end of the string
-				if (substr($redir[$zz_sql['redirects_new_fieldname']], -1) == '*')
-					$redir[$zz_sql['redirects_new_fieldname']] = substr($redir[$zz_sql['redirects_new_fieldname']], 0, -1).$parameter;
+				if (substr($redir[wrap_sql('redirects_new_fieldname')], -1) == '*')
+					$redir[wrap_sql('redirects_new_fieldname')] = substr($redir[wrap_sql('redirects_new_fieldname')], 0, -1).$parameter;
 			}
 		}
 	}
@@ -278,11 +276,12 @@ function wrap_quit($errorcode = 404) {
 		header($protocol." 301 Moved Permanently");
 	case 302:
 		// header 302 is sent automatically if using Location
-		$new = parse_url($redir[$zz_sql['redirects_new_fieldname']]);
+		$field_name = wrap_sql('redirects_new_fieldname');
+		$new = parse_url($redir[$field_name]);
 		if (!empty($new['scheme'])) {
-			$new = $redir[$zz_sql['redirects_new_fieldname']];
+			$new = $redir[$field_name];
 		} else {
-			$new = $zz_setting['host_base'].$zz_setting['base'].$redir[$zz_sql['redirects_new_fieldname']];
+			$new = $zz_setting['host_base'].$zz_setting['base'].$redir[$field_name];
 		}
 		header("Location: ".$new);
 		break;
@@ -727,13 +726,11 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
  *		'error_code' => HTTP error code to send in case of file not found error
  *		'error_msg' => additional error message that appears on error page
  * @global array $zz_conf
- * @global array $zz_sql
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo send pragma public header only if browser that is affected by this bug
  */
 function wrap_file_send($file) {
 	global $zz_conf;
-	global $zz_sql;
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
@@ -764,8 +761,8 @@ function wrap_file_send($file) {
 	if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
 
 	// Read mime type from database
-	if (!empty($zz_sql['filetypes'])) 
-		$sql = sprintf($zz_sql['filetypes'], $suffix);
+	if ($sql_filetypes = wrap_sql('filetypes')) 
+		$sql = sprintf($sql_filetypes, $suffix);
 	else {
 		$sql = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
 			FROM '.$zz_conf['prefix'].'filetypes
@@ -897,14 +894,11 @@ function wrap_file_cleanup($file) {
  * @param bool $setlang write lanugage in 'lang'/ Sprache in 'lang' schreiben?
  * @global array $zz_setting
  *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
- * @global array $zz_sql
- * 		'language' SQL query to check whether language exists
  * @return array $url
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_prepare_url($url, $setlang = true) {
 	global $zz_setting;
-	global $zz_sql;
 
 	// looking for /en/ or similar
 	if (empty($url['path'])) return $url;
@@ -912,9 +906,9 @@ function wrap_prepare_url($url, $setlang = true) {
 	if (!$pos = strpos(substr($url['path'], 1), '/')) $pos = strlen($url['path']);
 	$lang = mysql_real_escape_string(substr($url['path'], 1, $pos));
 	// check if it's a language
-	if (!empty($zz_sql['language'])) {
+	if ($sql = wrap_sql('language')) {
 		// read from sql query
-		$sql = sprintf($zz_sql['language'], $lang);
+		$sql = sprintf($sql, $lang);
 		$lang = wrap_db_fetch($sql, '', 'single value');
 	} elseif (!empty($zz_setting['languages_allowed'])) {
 		// read from array
@@ -1122,6 +1116,85 @@ function wrap_print($array, $color = 'FFF') {
 	print_R($array);
 	echo '</pre>';
 	return ob_get_clean();
+}
+
+/**
+ * Local database structure, modifications to SQL queries and field_names
+ *
+ * wrap_get_menu_navigation():
+ * $zz_sql['menu'] expects: nav_id, title, main_nav_id, url
+ *		optional parameters: id_title, rest is free
+ * wrap_get_menu_wepages():
+ * $zz_sql['menu'] expects: page_id, title, mother_page_id, url, menu
+ * $zz_sql['menu_level2'] expects: page_id, title, (id_title), mother_page_id, 
+ *		url (function_url), menu
+ * $zz_sql['page_id'] Name of ID field in webpages-table
+ * $zz_sql['authors'] person_id = ID, person = name of author
+ * @param string $key
+ * @param string $mode (optional: get(default), set, add)
+ * @return mixed true: set was succesful; string: SQL query or field name 
+ *		corresponding to $key
+ */
+function wrap_sql($key, $mode = 'get', $value = false) {
+	global $zz_conf;
+	global $zz_setting;
+	static $zz_sql;
+
+	// set variables
+	switch ($mode) {
+	case 'get':
+		// return variables
+		if (isset($zz_sql[$key])) return $zz_sql[$key];
+		else return NULL;
+	case 'set':
+		switch ($key) {
+		case 'core':
+			$zz_sql['page_id']		= 'page_id';
+			$zz_sql['content']		= 'content';
+			$zz_sql['title']		= 'title';
+			$zz_sql['ending']		= 'ending';
+			$zz_sql['identifier']	= 'identifier';
+			$zz_sql['lastupdate']	= 'last_update';
+			$zz_sql['author_id']	= 'author_person_id';
+			break;
+		case 'page':
+			$zz_sql['breadcrumbs']	= '';
+			$zz_sql['menu']			= '';
+			$zz_sql['menu_level2']	= '';
+			break;
+		case 'auth':
+			$zz_sql['domain'] = array($zz_setting['hostname']);
+			break;
+		case 'translation':
+			$zz_sql['translation_matrix_pages'] = array();
+			$zz_sql['translation_matrix_breadcrumbs'] = array();
+			$zz_sql['language'] = false;
+			break;
+		default:
+			break;
+		}
+		if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php')
+			AND !empty($zz_conf['db_connection']))
+			require_once $zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php';
+
+		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
+			$zz_sql['domain'] = array($zz_sql['domain']);
+
+		return true;
+	case 'add':
+		if (empty($zz_sql[$key])) {
+			$zz_sql[$key] = array($value);
+			return true;
+		}
+		if (is_array($zz_sql[$key])) {
+			$zz_sql[$key][] = $value;
+			return true;
+		}
+	default:
+		return false;	
+	}
+
+
 }
 
 ?>

@@ -145,13 +145,11 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
  * @param bool $log_errors whether errors shall be logged or not
  * @global array $zz_setting
  * @global array $zz_conf
- * @global array $zz_sql
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
 	global $zz_conf;
-	global $zz_sql;
 
 	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
