@@ -1163,7 +1163,8 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['menu_level2']	= '';
 			break;
 		case 'auth':
-			$zz_sql['domain'] = array($zz_setting['hostname']);
+			if (empty($zz_sql['domain']))
+				$zz_sql['domain'] = array($zz_setting['hostname']);
 			break;
 		case 'translation':
 			$zz_sql['translation_matrix_pages'] = array();
