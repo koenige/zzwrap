@@ -63,9 +63,18 @@ function zzwrap() {
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
-	if (!empty($zz_setting['standard_extensions']))	
-		foreach ($zz_setting['standard_extensions'] as $function)
-			require_once $zz_setting['lib'].'/'.$function.'.php';
+
+
+	if (!empty($zz_setting['standard_extensions']))	{
+		foreach ($zz_setting['standard_extensions'] as $function) {
+			if (file_exists($zz_setting['lib'].'/'.$function.'.php')) 
+				require_once $zz_setting['lib'].'/'.$function.'.php';
+			elseif (file_exists($zz_setting['lib'].'/'.$function.'/'.$function.'.php'))
+				require_once $zz_setting['lib'].'/'.$function.'/'.$function.'.php';
+			else
+				wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
+		}
+	}
 	require_once $zz_conf['dir_inc'].'/numbers.inc.php';
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
