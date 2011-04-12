@@ -299,4 +299,24 @@ function wrap_translate_get_table_db($table_db_name) {
 	return array($database, $table);
 }
 
+/** 
+ * translate page (that was not possible in wrap_look_for_page() because we
+ * did not have complete language information then.
+ *
+ * @global array $zz_conf
+ * @global array $zz_page (array 'db' will be changed)
+ * @return bool true: translation was run, false: not run
+ */
+function wrap_translate_page() {
+	global $zz_conf;
+	global $zz_page;
+	if (!$zz_conf['translations_of_fields']) return false;
+	$my_page = wrap_translate(array(
+		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']),
+		wrap_sql('translation_matrix_pages')
+	);
+	$zz_page['db'] = array_shift($my_page);
+	return true;
+}
+
 ?>

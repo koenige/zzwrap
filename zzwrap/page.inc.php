@@ -618,6 +618,32 @@ function wrap_page_title($page) {
 }
 
 /**
+ * checks whether there's a reason to send an error back to the visitor
+ * 
+ * @param array $page
+ * @return bool true if everything is okay
+ */
+function wrap_page_check_if_error($page) {
+	if (empty($page)) wrap_quit();
+
+	if (!empty($page['error']['level'])) {
+		if (!empty($page['error']['msg_text']) AND !empty($page['error']['msg_vars'])) {
+			$msg = vsprintf(wrap_text($page['error']['msg_text']), $page['error']['msg_vars']);
+		} elseif (!empty($page['error']['msg_text'])) {
+			$msg = wrap_text($page['error']['msg_text']);
+		} else {
+			$msg = wrap_text('zzbrick returned with an error. Sorry, that\'s all we know.');
+		}
+		wrap_error($msg, $page['error']['level']);
+	}
+	if ($page['status'] != 200) {
+		wrap_quit($page['status']);
+		exit;
+	}
+	return true;
+}
+
+/**
  * HTML output of page without brick templates
  * deprecated class mix of HTML and PHP, not recommended for new projects
  *

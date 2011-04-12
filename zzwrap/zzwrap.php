@@ -109,33 +109,13 @@ if (!$zz_page['db']) wrap_quit();
 // puzzle page elements together
 // --------------------------------------------------------------------------
 
-// translate page (that was not possible in wrap_look_for_page() because we
-// did not have complete language information then.
-if ($zz_conf['translations_of_fields']) {
-	$my_page = wrap_translate(array(
-		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']), 
-		wrap_sql('translation_matrix_pages'));
-	$zz_page['db'] = array_shift($my_page);
-	unset($my_page);
-}
+wrap_translate_page();
 
 require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 $page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
 
-if (empty($page)) wrap_quit();
-if (!empty($page['error']['level'])) {
-	if (!empty($page['error']['msg_text']) AND !empty($page['error']['msg_vars'])) {
-		$msg = vsprintf(wrap_text($page['error']['msg_text']), $page['error']['msg_vars']);
-	} elseif (!empty($page['error']['msg_text'])) {
-		$msg = wrap_text($page['error']['msg_text']);
-	} else {
-		$msg = wrap_text('zzbrick returned with an error. Sorry, that\'s all we know.');
-	}
-	wrap_error($msg, $page['error']['level']);
-}
-if ($page['status'] != 200) {
-	wrap_quit($page['status']);
-}
+wrap_page_check_if_error($page);
+
 if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
 	wrap_send_ressource($page['text'], $page['content_type'], $page['status']);
 }
