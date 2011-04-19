@@ -1283,4 +1283,38 @@ function wrap_check_db_connection() {
 	exit;
 }
 
+/**
+ * checks tables for last update and returns the newest last update timestamp
+ *
+ * @param array $tables tables which will be checked for changes
+ * @return string datetime: date of last update in tables
+ * @author Gustaf Mossakowski, <gustaf@koenige.org>
+ */
+function wrap_db_last_update($tables) {
+	if (!is_array($tables)) $tables = array($tables);
+	foreach ($tables as $table) {
+		$db_table = explode('.', $table);
+		if (count($db_table) == 2)
+			$my_tables[$db_table[0]][] = $db_table[1];
+		elseif (count($db_table) == 1)
+			$my_tables['NULL'][] = $db_table[0];
+		else {
+			echo 'Error: '.$table.' has too many dots.';
+			exit;
+		}
+	}
+	$last_update = '';	
+	foreach ($my_tables AS $db => $these_tables) {
+		$sql = 'SHOW TABLE STATUS '
+			.($db == 'NULL' ? '' : 'FROM `'.$db.'`')
+			.' WHERE Name IN ("'.implode('","', $these_tables).'")';
+		$status = wrap_db_fetch($sql, 'Name');
+		foreach ($status as $table) {
+			if ($table['Update_time'] > $last_update) $last_update = $table['Update_time'];
+		}
+	}
+	
+	return $last_update;
+}
+
 ?>
