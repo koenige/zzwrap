@@ -1083,7 +1083,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 					$send_last_modified = false;
 				}
 				if ($send_last_modified) {
-					header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($doc)));
+					header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($doc)). ' GMT');
 				}
 			}
 		}
@@ -1127,7 +1127,7 @@ function wrap_send_cache($age = 0) {
 	}
 	$headers = json_decode(file_get_contents($files[1]));
 	foreach ($headers as $header) header($header);
-	header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($files[0])));
+	header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($files[0])).' GMT');
 	$text = file_get_contents($files[0]);
 	echo $text;
 	exit;
