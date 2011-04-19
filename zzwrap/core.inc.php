@@ -1062,10 +1062,12 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
 		// save document
-		$doc = $zz_setting['cache'].'/'.urlencode($_SERVER['REQUEST_URI']);
+		$host = $zz_setting['cache'].'/'.urlencode($_SERVER['SERVER_NAME']);
+		if (!file_exists($host)) mkdir($host);
+		$doc = $host.'/'.urlencode($_SERVER['REQUEST_URI']);
 		file_put_contents($doc, trim($text));
 		// save headers
-		$head = $zz_setting['cache'].'/'.urlencode($_SERVER['REQUEST_URI']).'.headers';
+		$head = $doc.'.headers';
 		file_put_contents($head, json_encode(headers_list()));
 	}
 
@@ -1088,7 +1090,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 function wrap_send_cache($age = 0) {
 	global $zz_setting;
 
-	$file = $zz_setting['cache'].'/'.urlencode($_SERVER['REQUEST_URI']);
+	$url = urlencode($_SERVER['SERVER_NAME']).'/'.urlencode($_SERVER['REQUEST_URI']);
+	$file = $zz_setting['cache'].'/'.$url;
 	$files = array($file, $file.'.headers');
 	if (!file_exists($files[0]) OR !file_exists($files[1])) return false;
 
