@@ -1099,7 +1099,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	$send_last_modified = true;
 	$prepared_headers = headers_list();
 	foreach ($prepared_headers as $prepared_header) {
-		if (substr($header, 0, 15) != 'Last-Modified: ') continue;
+		if (substr($prepared_header, 0, 15) != 'Last-Modified: ') continue;
 		$send_last_modified = false;
 	}
 	if ($send_last_modified) {
