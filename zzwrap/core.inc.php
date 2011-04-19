@@ -1061,14 +1061,38 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
-		// save document
 		$host = $zz_setting['cache'].'/'.urlencode($_SERVER['SERVER_NAME']);
 		if (!file_exists($host)) mkdir($host);
 		$doc = $host.'/'.urlencode($_SERVER['REQUEST_URI']);
-		file_put_contents($doc, trim($text));
-		// save headers
 		$head = $doc.'.headers';
-		file_put_contents($head, json_encode(headers_list()));
+		$equal = false;
+		if (file_exists($head)) {
+			// check if something with the same ETag has already been cached
+			// no need to rewrite cache, it's possible to send a Last-Modified
+			// header along
+			$headers = json_decode(file_get_contents($head));
+			foreach ($headers as $header) {
+				if (substr($header, 0, 6) != 'ETag: ') continue;
+				if (substr($header, 6) != $etag) continue;
+				$equal = true;
+				$prepared_headers = headers_list();
+				// send Last-Modified header if not yet sent
+				$send_last_modified = true;
+				foreach ($prepared_headers as $prepared_header) {
+					if (substr($header, 0, 15) != 'Last-Modified: ') continue;
+					$send_last_modified = false;
+				}
+				if ($send_last_modified) {
+					header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($doc)));
+				}
+			}
+		}
+		if (!$equal) {
+			// save document
+			file_put_contents($doc, trim($text));
+			// save headers
+			file_put_contents($head, json_encode(headers_list()));
+		}
 	}
 
 	// gzip?
