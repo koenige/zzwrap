@@ -1058,6 +1058,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	}
 	header("ETag: ".$etag);
 
+	$last_modified = gmdate("D, d M Y H:i:s", time()). ' GMT';
+
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
@@ -1075,16 +1077,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 				if (substr($header, 0, 6) != 'ETag: ') continue;
 				if (substr($header, 6) != $etag) continue;
 				$equal = true;
-				$prepared_headers = headers_list();
-				// send Last-Modified header if not yet sent
-				$send_last_modified = true;
-				foreach ($prepared_headers as $prepared_header) {
-					if (substr($header, 0, 15) != 'Last-Modified: ') continue;
-					$send_last_modified = false;
-				}
-				if ($send_last_modified) {
-					header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($doc)). ' GMT');
-				}
+				// set older value for Last-Modified header
+				$last_modified = gmdate("D, d M Y H:i:s", filemtime($doc)). ' GMT';
 			}
 		}
 		if (!$equal) {
@@ -1093,6 +1087,23 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 			// save headers
 			file_put_contents($head, json_encode(headers_list()));
 		}
+	}
+
+	// Last Modified?
+	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
+		&& $last_modified === $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
+		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		exit;
+	}
+	// send Last-Modified header if not yet sent
+	$send_last_modified = true;
+	$prepared_headers = headers_list();
+	foreach ($prepared_headers as $prepared_header) {
+		if (substr($header, 0, 15) != 'Last-Modified: ') continue;
+		$send_last_modified = false;
+	}
+	if ($send_last_modified) {
+		header('Last-Modified: '.$last_modified);
 	}
 
 	// gzip?
