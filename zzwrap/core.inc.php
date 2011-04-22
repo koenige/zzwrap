@@ -1317,4 +1317,24 @@ function wrap_db_last_update($tables) {
 	return $last_update;
 }
 
+/**
+ * checks if a substring from beginning or end of string matches given string
+ *
+ * @param string $string = check against this string
+ * @param string $substring = this must be beginning of string
+ * @param string $mode: begin: check from begin; end: check from end
+ * @param bool true: first letters of $string match $substring
+ */
+function wrap_substr($string, $substring, $mode = 'begin') {
+	switch ($mode) {
+	case 'begin':
+		if (substr($string, 0, strlen($substring)) === $substring) return true;
+		break;
+	case 'end':
+		if (substr($string, -strlen($substring)) === $substring) return true;
+		break;
+	}
+	return false;
+}
+
 ?>
