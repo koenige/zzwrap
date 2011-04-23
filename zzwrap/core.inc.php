@@ -1078,7 +1078,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 				if (substr($header, 6) != $etag) continue;
 				$equal = true;
 				// set older value for Last-Modified header
-				$last_modified = gmdate("D, d M Y H:i:s", filemtime($doc)). ' GMT';
+				if ($time = filemtime($doc)) // if it exists
+					$last_modified = gmdate("D, d M Y H:i:s", $time). ' GMT';
 			}
 		}
 		if (!$equal) {
