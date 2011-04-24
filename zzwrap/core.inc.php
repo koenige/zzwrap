@@ -1064,8 +1064,10 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
 		$host = $zz_setting['cache'].'/'.urlencode($_SERVER['SERVER_NAME']);
-		if (!file_exists($host)) $success = mkdir($host);
-		if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
+		if (!file_exists($host)) {
+			$success = mkdir($host);
+			if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
+		}
 		$doc = $host.'/'.urlencode($_SERVER['REQUEST_URI']);
 		$head = $doc.'.headers';
 		$equal = false;
