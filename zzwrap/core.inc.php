@@ -1386,12 +1386,15 @@ function wrap_check_hash($string, $hash, $error_msg = '', $key = 'secret_key') {
  * which the key is valid. Example: = 60, current time is 14:23: timestamp set
  * to 14:00, valid from 13:00-15:59; i. e. min. 60 minutes, max. 120 min.
  * depending on actual time
+ * hashes will be made in UTF 8, if it's not UTF 8 here, we assume it's Latin1
+ * if you use some other encoding, make sure, your secret key is encoded in ASCII
  * @param string $string
  * @param string $key name of key (optional, defaults to 'secret_key')
  * @param string $period (optional) 0: current, -1: previous, 1: next
  *		this parameter is internal, it should be used only from wrap_check_hash
  * @return string hash
  * @see wrap_check_hash()
+ * @todo support other character encodings as utf-8 and iso-8859-1
  */
 function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
 	$secret_key = wrap_get_setting($key);
@@ -1402,7 +1405,10 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
 		$timeframe_start = floor($now/$seconds)*$seconds + $period*$seconds;
 		$secret_key .= $timeframe_start;
 	}
-	$hash = sha1($string.$secret_key);
+	$secret = $string.$secret_key;
+	global $zz_conf;
+	if ($zz_conf['character_set'] != 'utf-8') $secret = utf8_encode($secret);
+	$hash = sha1($secret);
 	return $hash;
 }
 
