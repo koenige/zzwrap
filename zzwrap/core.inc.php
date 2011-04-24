@@ -1339,4 +1339,95 @@ function wrap_substr($string, $substring, $mode = 'begin') {
 	return false;
 }
 
+/**
+ * gets setting from configuration (default: zz_setting
+ *
+ * @param string $key
+ * @return mixed $setting (if not found, returns NULL)
+ */
+function wrap_get_setting($key) {
+	if (function_exists('custom_get_setting')) {
+		return custom_get_setting($key);
+	} else {
+		global $zz_setting;
+		if (!isset($zz_setting[$key])) return NULL;
+		return $zz_setting[$key];
+	}
+}
+
+/**
+ * checks hash against string
+ *
+ * @param string $string
+ * @param string $hash hash to check against
+ * @param string $error_msg (optional, defaults to 'Incorrect credentials')
+ * @param string $key name of key (optional, defaults to 'secret_key')
+ * @return bool
+ */
+function wrap_check_hash($string, $hash, $error_msg = '', $key = 'secret_key') {
+	// check timeframe: current, previous, next
+	if (wrap_set_hash($string, $key) == $hash) return true;
+	if (wrap_set_hash($string, $key, -1) == $hash) return true;
+	if (wrap_set_hash($string, $key, +1) == $hash) return true;
+
+	if (!$error_msg) $error_msg = wrap_text('Incorrect credentials');
+	wrap_error($error_msg, E_USER_NOTICE);
+	wrap_quit(403);
+}
+
+/**
+ * creates hash with secret key
+ *
+ * - needs a setting 'secret_key', i. e. a key that is shared with the foreign
+ * server; 
+ * - optional setting 'secret_key_validity_in_minutes' for a timeframe during
+ * which the key is valid. Example: = 60, current time is 14:23: timestamp set
+ * to 14:00, valid from 13:00-15:59; i. e. min. 60 minutes, max. 120 min.
+ * depending on actual time
+ * @param string $string
+ * @param string $key name of key (optional, defaults to 'secret_key')
+ * @param string $period (optional) 0: current, -1: previous, 1: next
+ *		this parameter is internal, it should be used only from wrap_check_hash
+ * @return string hash
+ * @see wrap_check_hash()
+ */
+function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
+	$secret_key = wrap_get_setting($key);
+	$minutes_valid = wrap_get_setting($key.'_validity_in_minutes');
+	if ($minutes_valid) {
+		$now = time();
+		$seconds = $minutes_valid*60;
+		$timeframe_start = floor($now/$seconds)*$seconds + $period*$seconds;
+		$secret_key .= $timeframe_start;
+	}
+	$hash = sha1($string.$secret_key);
+	return $hash;
+}
+
+/**
+ * erlaubt Zugriff nur von berechtigten IP-Adressen, bricht andernfalls mit 403
+ * Fehlercode ab
+ *
+ * @param string $ip_list Schlüssel in $zz_setting, der Array mit den erlaubten
+ *		IP-Adressen enthält
+ * @return bool true: access granted; exit function: access forbidden
+ * @todo make compatible to IPv6
+ * @todo combine with ipfilter from zzbrick
+ */
+function wrap_restrict_ip_access($ip_list) {
+	$ip_list = wrap_get_setting($ip_list);
+	if ($ip_list === NULL)) {
+		wrap_error(sprintf(wrap_text('List of allowed IPs not found in configuration (%s).'),
+			$ip_list), E_USER_NOTICE);
+		wrap_quit(403);
+	}
+	if (!is_array($ip_list)) $ip_list = array($ip_list);
+	if (!in_array($_SERVER['REMOTE_ADDR'], $ip_list)) {
+		wrap_error(sprintf(wrap_text('Your IP address %s is not in the allowed range.'),
+			htmlspecialchars($_SERVER['REMOTE_ADDR'])), E_USER_NOTICE);
+		wrap_quit(403);
+	}
+	return true;
+}
+
 ?>
