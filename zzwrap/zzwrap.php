@@ -63,8 +63,6 @@ function zzwrap() {
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
-
-
 	if (!empty($zz_setting['standard_extensions']))	{
 		foreach ($zz_setting['standard_extensions'] as $function) {
 			if (file_exists($zz_setting['lib'].'/'.$function.'.php')) 
@@ -76,6 +74,7 @@ function zzwrap() {
 		}
 	}
 	require_once $zz_conf['dir_inc'].'/numbers.inc.php';
+
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
 
@@ -86,15 +85,13 @@ function zzwrap() {
 	wrap_translate_page();
 	$page = wrap_get_page();
 	
-	// output of content
+	// output of content if not already sent by wrap_get_page()
 	if ($zz_setting['brick_page_templates'] == true) {
-		// use wrap templates
 		wrap_htmlout_page($page);
-		exit;
 	} else {
 		wrap_htmlout_page_without_templates($page);
-		exit;
 	}
+	exit;
 }
 
 ?>
