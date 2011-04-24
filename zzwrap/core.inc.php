@@ -1416,7 +1416,7 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
  */
 function wrap_restrict_ip_access($ip_list) {
 	$ip_list = wrap_get_setting($ip_list);
-	if ($ip_list === NULL)) {
+	if ($ip_list === NULL) {
 		wrap_error(sprintf(wrap_text('List of allowed IPs not found in configuration (%s).'),
 			$ip_list), E_USER_NOTICE);
 		wrap_quit(403);
