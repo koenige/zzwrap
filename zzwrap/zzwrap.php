@@ -9,7 +9,6 @@ function zzwrap() {
 	global $zz_setting;		// settings for zzwrap and zzbrick
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
-	global $zz_access;		// access variables
 	
 	// include required files
 	if (empty($zz_setting['lib']))
@@ -33,8 +32,8 @@ function zzwrap() {
 
 	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
 	// Veröffentlichung freigegebene Seiten angeschaut werden können.
-	if (!empty($zz_setting['secret_key']) AND empty($zz_access['wrap_preview']))
-		$zz_access['wrap_preview'] = wrap_test_secret_key($zz_setting['secret_key']);
+	if (!empty($zz_setting['secret_key']) AND !wrap_rights('preview'))
+		wrap_rights('preview', 'set', wrap_test_secret_key($zz_setting['secret_key']));
 
 	// Sprachcode etc. steht evtl. in URL
 	if ($zz_conf['translations_of_fields']) {

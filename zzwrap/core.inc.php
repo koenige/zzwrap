@@ -37,7 +37,7 @@ function wrap_test_secret_key($secret_key) {
  * 
  * @param array $zz_page
  * @global array $zz_conf zz configuration variables
- * @global array $zz_access zz access rights
+ * @global array $zz_setting
  * @return array $page
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -47,7 +47,6 @@ function wrap_look_for_page($zz_page) {
 
 	global $zz_setting;
 	global $zz_conf;
-	global $zz_access;
 	$page = false;
 
 	// Prepare URL for database request
@@ -94,7 +93,7 @@ function wrap_look_for_page($zz_page) {
 		while (!$page[$i]) {
 			$loops[$i]++;
 			$sql = sprintf(wrap_sql('pages'), '/'.mysql_real_escape_string($my_url));
-			if (!$zz_access['wrap_preview']) $sql.= ' AND '.wrap_sql('is_public');
+			if (!wrap_rights('preview')) $sql.= ' AND '.wrap_sql('is_public');
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i]) && strstr($my_url, '/')) { // if not found, remove path parts from URL
 				if ($parameter[$i]) {
@@ -1436,6 +1435,31 @@ function wrap_restrict_ip_access($ip_list) {
 		wrap_quit(403);
 	}
 	return true;
+}
+
+/**
+ * checks or sets rights
+ *
+ * @param string $right key:
+ *		'preview' for preview of not yet published content
+ *		'access' for access rights
+ * @param string $mode (optional): get, set
+ * @param string $value (optional): in combination with set, sets value to right
+ */
+function wrap_rights($right, $mode = 'get', $value = NULL) {
+	global $zz_conf;
+	global $zz_setting;
+	static $rights;
+	switch ($action) {
+	case 'get':
+		if (isset($rights[$right])) return $rights[$right];
+		else return NULL;
+	case 'set':
+		if ($value === NULL) return false;
+		$rights[$right] = $value;
+		return $value;
+	}
+	return false;
 }
 
 ?>

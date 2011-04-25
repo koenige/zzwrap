@@ -406,18 +406,16 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
  * 
  * @param int $page_id ID of current webpage in database
  * @global array $zz_conf
- * @global array $zz_access
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_breadcrumbs($page_id) {
 	if (!($sql = wrap_sql('breadcrumbs'))) return array();
 	global $zz_conf;
-	global $zz_access;
 
 	$breadcrumbs = array();
 	// get all webpages
-	if (!$zz_access['wrap_preview']) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
+	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
 	$pages = wrap_db_fetch($sql, wrap_sql('page_id'));
 	if ($zz_conf['translations_of_fields']) {
 		$pages = wrap_translate($pages, wrap_sql('translation_matrix_breadcrumbs'), '', false);
