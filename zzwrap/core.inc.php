@@ -1450,7 +1450,7 @@ function wrap_rights($right, $mode = 'get', $value = NULL) {
 	global $zz_conf;
 	global $zz_setting;
 	static $rights;
-	switch ($action) {
+	switch ($mode) {
 	case 'get':
 		if (isset($rights[$right])) return $rights[$right];
 		else return NULL;
