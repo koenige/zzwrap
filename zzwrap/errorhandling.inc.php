@@ -52,10 +52,11 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
 	
 	// Log output
-	$log_output = trim(html_entity_decode($msg, ENT_QUOTES, $log_encoding));
+	$log_output = $msg;
 	$log_output = str_replace('<br>', "\n\n", $log_output);
 	$log_output = str_replace('<br class="nonewline_in_mail">', "; ", $log_output);
 	$log_output = strip_tags($log_output);
+	$log_output = trim(html_entity_decode($log_output, ENT_QUOTES, $log_encoding));
 
 	$user = (!empty($_SESSION['username']) ? $_SESSION['username'] : '');
 	if (!$user AND !empty($zz_conf['user'])) $user = $zz_conf['user'];
