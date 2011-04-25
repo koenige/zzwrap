@@ -326,10 +326,12 @@ function wrap_check_https($zz_page, $zz_setting) {
  *
  * @param string $template Name of template that will be filled
  * @param array $data Data which will be used to fill the template
- * @return string $text
+ * @param string $mode
+ *		'ignore position': ignores position, returns a string instead of an array
+ * @return mixed $text (string or array indexed by positions)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_template($template, $data = array()) {
+function wrap_template($template, $data = array(), $mode = false) {
 	global $zz_setting;
 
 	// Template einbinden und füllen
@@ -359,6 +361,9 @@ function wrap_template($template, $data = array()) {
 		AND in_array($zz_setting['brick_default_position'], array_keys($page['text']))) {
 		unset($page['text']['_hidden_']);
 		$page['text'] = end($page['text']);
+	}
+	if ($mode === 'ignore positions' AND is_array($page['text']) AND count($page['text']) == 1) {
+		$page['text'] = current($page['text']);
 	}
 	return $page['text'];
 }
@@ -961,7 +966,7 @@ function wrap_mail($mail) {
 	// Subject
 	if (!empty($zz_conf['mail_subject_prefix']))
 		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
-	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
+	$mail['subject'] = str_replace("\n", " ", mb_encode_mimeheader($mail['subject']));
 
 	// From
 	if (!isset($mail['headers']['From'])) {
@@ -1007,8 +1012,8 @@ function wrap_mail($mail) {
 		if ($zz_conf['error_handling'] == 'mail') {
 			$zz_conf['error_handling'] = false; // don't send mail, does not work!
 		}
-		wrap_error('Mail could not be sent. (To: '.$mail['to'].', From: '
-			.$mail['headers']['From'].', Subject: '.$mail['subject']
+		wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
+			.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
 			.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
 		$zz_conf['error_handling'] = $old_error_handling;
 	}
