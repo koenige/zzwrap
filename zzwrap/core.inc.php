@@ -274,10 +274,14 @@ function wrap_quit($errorcode = 404) {
  * check for redirects, if there's a corresponding table.
  *
  * @param array $page_url = $zz_page['url']
+ * @global array $zz_setting
+ * @global array $zz_page
  * @return mixed (bool false: no redirect; array: fields needed for redirect)
  */
 function wrap_check_redirects($page_url) {
 	global $zz_setting;
+	global $zz_page;
+
 	if (empty($zz_setting['check_redirects'])) return false;
 	$url = wrap_read_url($zz_page['url']);
 	$url['db'] = mysql_real_escape_string($url['db']);
