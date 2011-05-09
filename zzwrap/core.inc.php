@@ -13,21 +13,24 @@ wrap_sql('core', 'set');
  * Test, whether URL contains a correct secret key to allow page previews
  * 
  * @param string $secret_key shared secret key
- * @param string $_GET['tle'] timestamp, begin of legitimite timeframe
- * @param string $_GET['tld'] timestamp, end of legitimite timeframe
+ * @param string $_GET['tle'] timestamp, begin of legitimate timeframe
+ * @param string $_GET['tld'] timestamp, end of legitimate timeframe
  * @param string $_GET['tlh'] hash
  * @return bool $wrap_page_preview true|false i. e. true means show page, false don't
  * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo replace with wrap_check_hash()
  */
 function wrap_test_secret_key($secret_key) {
 	$wrap_page_preview = false;
-	if (!empty($_GET['tle']) && !empty($_GET['tld']) && !empty($_GET['tlh']))
-		if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
-			$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
-			session_start();
-			$_SESSION['wrap_page_preview'] = true;
-			$wrap_page_preview = true;
-		}
+	if (empty($_GET['tle'])) return false;
+	if (empty($_GET['tld'])) return false;
+	if (empty($_GET['tlh'])) return false;
+	if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
+		$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
+		session_start();
+		$_SESSION['wrap_page_preview'] = true;
+		$wrap_page_preview = true;
+	}
 	return $wrap_page_preview;
 }
 
@@ -53,49 +56,21 @@ function wrap_look_for_page($zz_page) {
 	$url = wrap_read_url($zz_page['url']);
 	$full_url[0] = $url['db'];
 
-	// check for placeholders
-	if (!empty($zz_page['url_placeholders'])) {
-		// 1. cut url in parts
-		$url_parts[0] = explode('/', $full_url[0]);
-		$i = 1;
-		// 2. replace parts that match with placeholders, if necessary multiple times
-		// note: twice the same fragment will only be replaced once, not both fragments
-		// at the same time (e. g. /eng/eng/ is /%language%/eng/ and /eng/%language%/
-		// but not /%language%/%language%/ because this would not make sense) 
-		foreach ($zz_page['url_placeholders'] as $wildcard => $values) {
-			foreach (array_keys($values) as $key) {
-				foreach ($url_parts as $url_index => $parts) {
-					foreach ($parts as $partkey => $part) {
-						if ($part == $key) {
-							// new URL parts, take the one that we match on as basis
-							$url_parts[$i] = $url_parts[$url_index];
-							// leftovers, get the ones as a basis we already have							
-							if (!empty($leftovers[$url_index]))
-								$leftovers[$i] = $leftovers[$url_index];
-							// take current part and put it into leftovers
-							$leftovers[$i][$partkey] = $url_parts[$i][$partkey];
-							// overwrite current part with placeholder
-							$url_parts[$i][$partkey] = '%'.$wildcard.'%';
-							$full_url[$i] = implode('/', $url_parts[$i]); 
-							$i++;
-						}
-					}
-				}
-			}
-		}
-	}
+	list($full_url, $leftovers) = wrap_look_for_placeholders($zz_page, $full_url);
 	
 	// For request, remove ending (.html, /), but not for page root
 	foreach ($full_url as $i => $my_url) {
-		$loops[$i] = 0; // if more than one URL to be tested against: count of rounds
+		// if more than one URL to be tested against: count of rounds
+		$loops[$i] = 0;
 		$page[$i] = false;
-		if (!$page[$i]) $parameter[$i] = false; // if more than one url will be checked, initialize variable
+		$parameter[$i] = false;
 		while (!$page[$i]) {
 			$loops[$i]++;
 			$sql = sprintf(wrap_sql('pages'), '/'.mysql_real_escape_string($my_url));
 			if (!wrap_rights('preview')) $sql.= ' AND '.wrap_sql('is_public');
 			$page[$i] = wrap_db_fetch($sql);
-			if (empty($page[$i]) && strstr($my_url, '/')) { // if not found, remove path parts from URL
+			if (empty($page[$i]) && strstr($my_url, '/')) {
+				// if not found, remove path parts from URL
 				if ($parameter[$i]) {
 					$parameter[$i] = '/'.$parameter[$i]; // '/' as a separator for variables
 					$my_url = substr($my_url, 0, -1); // remove '*'
@@ -127,6 +102,46 @@ function wrap_look_for_page($zz_page) {
 	$page['parameter'] = $parameter[$i];
 	$page['url'] = $url[$i];
 	return $page;
+}
+
+/**
+ * check for placeholders in URL
+ *
+ * replaces parts that match with placeholders, if necessary multiple times
+ * note: twice the same fragment will only be replaced once, not both fragments
+ * at the same time (e. g. /eng/eng/ is /%language%/eng/ and /eng/%language%/
+ * but not /%language%/%language%/ because this would not make sense) 
+ * @param array $zz_page
+ * @param array $full_url
+ * @return array (array $full_url, array $leftovers)
+ */
+function wrap_look_for_placeholders($zz_page, $full_url) {
+	if (empty($zz_page['url_placeholders'])) return array($full_url, array());
+	// cut url in parts
+	$url_parts[0] = explode('/', $full_url[0]);
+	$i = 1;
+	$leftovers = array();
+	foreach ($zz_page['url_placeholders'] as $wildcard => $values) {
+		foreach (array_keys($values) as $key) {
+			foreach ($url_parts as $url_index => $parts) {
+				foreach ($parts as $partkey => $part) {
+					if ($part != $key) continue;
+					// new URL parts, take the one that we match on as basis
+					$url_parts[$i] = $url_parts[$url_index];
+					// leftovers, get the ones as a basis we already have							
+					if (!empty($leftovers[$url_index]))
+						$leftovers[$i] = $leftovers[$url_index];
+					// take current part and put it into leftovers
+					$leftovers[$i][$partkey] = $url_parts[$i][$partkey];
+					// overwrite current part with placeholder
+					$url_parts[$i][$partkey] = '%'.$wildcard.'%';
+					$full_url[$i] = implode('/', $url_parts[$i]); 
+					$i++;
+				}
+			}
+		}
+	}
+	return array($full_url, $leftovers);
 }
 
 /**
@@ -225,47 +240,8 @@ function wrap_quit($errorcode = 404) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
-	$redir = false;
 
-	// check for redirects, if there's a corresponding table.
-	if (!empty($zz_setting['check_redirects'])) {
-		$url = wrap_read_url($zz_page['url']);
-		$url['db'] = mysql_real_escape_string($url['db']);
-		$where_language = (!empty($_GET['lang']) 
-			? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
-				.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"'
-			: ''
-		);
-		$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
-		// not needed anymore, but set to false hinders from getting into a loop
-		// (wrap_db_fetch() will call wrap_quit() if table does not exist)
-		$zz_setting['check_redirects'] = false; 
-		$redir = wrap_db_fetch($sql);
-
-		// If no redirect was found until now, check if there's a redirect above
-		// above the current level with a placeholder (*)
-		$parameter = false;
-		$found = false;
-		$break_next = false;
-		if (!$redir) {
-			while (!$found) {
-				$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
-				$redir = wrap_db_fetch($sql);
-				if ($redir) break; // we have a result, get out of this loop!
-				if (strrpos($url['db'], '/'))
-					$parameter = '/'.substr($url['db'], strrpos($url['db'], '/')+1).$parameter;
-				$url['db'] = substr($url['db'], 0, strrpos($url['db'], '/'));
-				if ($break_next) break; // last round
-				if (!strstr($url['db'], '/')) $break_next = true;
-			}
-			if ($redir) {
-				// If there's an asterisk (*) at the end of the redirect
-				// the cut part will be pasted to the end of the string
-				if (substr($redir[wrap_sql('redirects_new_fieldname')], -1) == '*')
-					$redir[wrap_sql('redirects_new_fieldname')] = substr($redir[wrap_sql('redirects_new_fieldname')], 0, -1).$parameter;
-			}
-		}
-	}
+	$redir = wrap_check_redirects($zz_page['url']);
 	if (!$redir) $page['status'] = $errorcode; // we need this in the error script
 	else $page['status'] = $redir['code'];
 
@@ -295,6 +271,53 @@ function wrap_quit($errorcode = 404) {
 }
 
 /**
+ * check for redirects, if there's a corresponding table.
+ *
+ * @param array $page_url = $zz_page['url']
+ * @return mixed (bool false: no redirect; array: fields needed for redirect)
+ */
+function wrap_check_redirects($page_url) {
+	global $zz_setting;
+	if (empty($zz_setting['check_redirects'])) return false;
+	$url = wrap_read_url($zz_page['url']);
+	$url['db'] = mysql_real_escape_string($url['db']);
+	$where_language = (!empty($_GET['lang']) 
+		? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
+			.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"'
+		: ''
+	);
+	$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
+	// not needed anymore, but set to false hinders from getting into a loop
+	// (wrap_db_fetch() will call wrap_quit() if table does not exist)
+	$zz_setting['check_redirects'] = false; 
+	$redir = wrap_db_fetch($sql);
+	if ($redir) return $redir;
+
+	// If no redirect was found until now, check if there's a redirect above
+	// the current level with a placeholder (*)
+	$parameter = false;
+	$found = false;
+	$break_next = false;
+	while (!$found) {
+		$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
+		$redir = wrap_db_fetch($sql);
+		if ($redir) break; // we have a result, get out of this loop!
+		if (strrpos($url['db'], '/'))
+			$parameter = '/'.substr($url['db'], strrpos($url['db'], '/')+1).$parameter;
+		$url['db'] = substr($url['db'], 0, strrpos($url['db'], '/'));
+		if ($break_next) break; // last round
+		if (!strstr($url['db'], '/')) $break_next = true;
+	}
+	if (!$redir) return false;
+	// If there's an asterisk (*) at the end of the redirect
+	// the cut part will be pasted to the end of the string
+	$field_name = wrap_sql('redirects_new_fieldname');
+	if (substr($redir[$field_name], -1) == '*')
+		$redir[$field_name] = substr($redir[$field_name], 0, -1).$parameter;
+	return $redir;
+}
+
+/**
  * Checks if HTTP request should be HTTPS request instead and vice versa
  * 
  * Function will redirect request to the same URL except for the scheme part
@@ -312,13 +335,15 @@ function wrap_check_https($zz_page, $zz_setting) {
 
 	// change from http to https or vice versa
 	// attention: $_POST will not be preserved
-	if ((!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] == 'on' AND $zz_setting['protocol'] == 'http')
-		OR (empty($_SERVER['HTTPS']) AND $zz_setting['protocol'] == 'https')) {
-		header('Location: '.$zz_setting['protocol'].'://'.$zz_page['url']['full']['host']
-			.$zz_setting['base'].$zz_page['url']['full']['path']
-			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : ''));
-		exit;
+	if (!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') {
+		if ($zz_setting['protocol'] === 'https') return true;
+	} else {
+		if ($zz_setting['protocol'] === 'http') return true;
 	}
+	header('Location: '.$zz_setting['protocol'].'://'.$zz_page['url']['full']['host']
+		.$zz_setting['base'].$zz_page['url']['full']['path']
+		.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : ''));
+	exit;
 }
 
 /**
@@ -622,46 +647,45 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		$search = '/(.+) '.$statement.' (.+?)$/i'; 
 //		preg_match removed because it takes way too long if nothing is found
 //		if (preg_match($search, $sql, $o_parts[$statement])) {
-		if (!empty($o_parts[$statement])) {
-			$found = false;
-			$lastpart = false;
-			while (!$found) {
-				// check if there are () outside '' or "" and count them to check
-				// whether we are inside a subselect
-				$temp_sql = $o_parts[$statement][1]; // look at first part of query
-	
-				// 1. remove everything in '' and "" which are not escaped
-				// replace \" character sequences which escape "
-				$temp_sql = preg_replace('/\\\\"/', '', $temp_sql);
-				// replace "strings" without " inbetween, empty "" as well
-				$temp_sql = preg_replace('/"[^"]*"/', "away", $temp_sql);
-				// replace \" character sequences which escape '
-				$temp_sql = preg_replace("/\\\\'/", '', $temp_sql);
-				// replace "strings" without " inbetween, empty '' as well
-				$temp_sql = preg_replace("/'[^']*'/", "away", $temp_sql);
-	
-				// 2. count opening and closing ()
-				//  if equal ok, if not, it's a statement in a subselect
-				// assumption: there must not be brackets outside " or '
-				if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
-					$sql = $o_parts[$statement][1]; // looks correct, so go on.
-					$found = true;
+		if (empty($o_parts[$statement])) continue;
+		$found = false;
+		$lastpart = false;
+		while (!$found) {
+			// check if there are () outside '' or "" and count them to check
+			// whether we are inside a subselect
+			$temp_sql = $o_parts[$statement][1]; // look at first part of query
+
+			// 1. remove everything in '' and "" which are not escaped
+			// replace \" character sequences which escape "
+			$temp_sql = preg_replace('/\\\\"/', '', $temp_sql);
+			// replace "strings" without " inbetween, empty "" as well
+			$temp_sql = preg_replace('/"[^"]*"/', "away", $temp_sql);
+			// replace \" character sequences which escape '
+			$temp_sql = preg_replace("/\\\\'/", '', $temp_sql);
+			// replace "strings" without " inbetween, empty '' as well
+			$temp_sql = preg_replace("/'[^']*'/", "away", $temp_sql);
+
+			// 2. count opening and closing ()
+			//  if equal ok, if not, it's a statement in a subselect
+			// assumption: there must not be brackets outside " or '
+			if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
+				$sql = $o_parts[$statement][1]; // looks correct, so go on.
+				$found = true;
+			} else {
+				// remove next last statement, and go on until you found 
+				// either something with correct bracket count
+				// or no match anymore at all
+				$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
+				// check first with strstr if $statement (LIMIT, WHERE etc.)
+				// is still part of the remaining sql query, because
+				// preg_match will take 2000 times longer if there is no match
+				// at all (bug in php?)
+				if (strstr($o_parts[$statement][1], $statement) 
+					AND preg_match($search, $o_parts[$statement][1], $o_parts[$statement])) {
+					$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
 				} else {
-					// remove next last statement, and go on until you found 
-					// either something with correct bracket count
-					// or no match anymore at all
-					$lastpart = ' '.$statement.' '.$o_parts[$statement][2];
-					// check first with strstr if $statement (LIMIT, WHERE etc.)
-					// is still part of the remaining sql query, because
-					// preg_match will take 2000 times longer if there is no match
-					// at all (bug in php?)
-					if (strstr($o_parts[$statement][1], $statement) 
-						AND preg_match($search, $o_parts[$statement][1], $o_parts[$statement])) {
-						$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
-					} else {
-						unset($o_parts[$statement]); // ignore all this.
-						$found = true;
-					}
+					unset($o_parts[$statement]); // ignore all this.
+					$found = true;
 				}
 			}
 		}
@@ -1132,8 +1156,17 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
  */
 function wrap_send_cache($age = 0) {
 	global $zz_setting;
+	global $zz_page;
+	
+	// Some cases in which we do not cache
+	if (empty($zz_setting['cache'])) return false;
+	if (!empty($_SESSION)) return false;
+	if (!empty($_POST)) return false;
 
-	$url = urlencode($_SERVER['SERVER_NAME']).'/'.urlencode($_SERVER['REQUEST_URI']);
+	$my = $zz_page['url']['full'];
+	if (!empty($my['query'])) $my['path'] .= '?'.$my['query'];
+	$url = urlencode($my['host']).'/'.urlencode($my['path']);
+
 	$file = $zz_setting['cache'].'/'.$url;
 	$files = array($file, $file.'.headers');
 	if (!file_exists($files[0]) OR !file_exists($files[1])) return false;
@@ -1268,10 +1301,24 @@ function wrap_check_http_request_method() {
  * since we do not use session-IDs in the URL, get rid of these since sometimes
  * they might be used for session_start()
  * e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
+ * @param array $url ($zz_page['url'])
+ * @todo get objectionable querystrings from setting
+ * @todo do redirect if 'redirect' = true
  */
-function wrap_remove_query_strings() {
-	if (!empty($_GET['PHPSESSID'])) unset($_GET['PHPSESSID']);
-	if (!empty($_REQUEST['PHPSESSID'])) unset($_REQUEST['PHPSESSID']);
+function wrap_remove_query_strings($url) {
+	if (empty($url['full']['query'])) return $url;
+	parse_str($url['full']['query'], $query);
+	$objectionable_qs = array('PHPSESSID');
+	if ($remove = array_intersect(array_keys($query), $objectionable_qs)) {
+		foreach ($remove as $key) {
+			unset($query[$key]);
+			unset($_GET[$key]);
+			unset($_REQUEST[$key]);
+		}
+		$url['full']['query'] = http_build_query($query);
+		$url['redirect'] = true;
+	}
+	return $url;
 }
 
 /**
@@ -1286,7 +1333,7 @@ function wrap_check_db_connection() {
 	global $zz_conf;
 	global $zz_setting;
 	if ($zz_conf['db_connection']) return true;
-	if (!empty($zz_setting['cache'])) wrap_send_cache();
+	wrap_send_cache();
 	wrap_error(sprintf('No connection to SQL server.'), E_USER_ERROR);
 	exit;
 }

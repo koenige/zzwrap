@@ -27,7 +27,7 @@ function zzwrap() {
 
 	// do some checks
 	wrap_check_http_request_method();
-	wrap_remove_query_strings();
+	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
 	wrap_check_db_connection();
 
 	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
@@ -54,9 +54,8 @@ function zzwrap() {
 		wrap_auth();
 	}
 
-	if (!empty($zz_setting['cache']) AND !empty($zz_setting['cache_age'])
-		AND empty($_SESSION) AND empty($_POST)) {
-		// TODO: check if we can start this earlier
+	// TODO: check if we can start this earlier
+	if (!empty($zz_setting['cache_age'])) {
 		wrap_send_cache($zz_setting['cache_age']);
 	}
 
