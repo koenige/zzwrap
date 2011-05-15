@@ -1095,13 +1095,13 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
-		$host = $zz_setting['cache'].'/'.urlencode($_SERVER['SERVER_NAME']);
+		$host = wrap_cache_filename('domain');
 		if (!file_exists($host)) {
 			$success = mkdir($host);
 			if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
 		}
-		$doc = $host.'/'.urlencode($_SERVER['REQUEST_URI']);
-		$head = $doc.'.headers';
+		$doc = wrap_cache_filename();
+		$head = wrap_cache_filename('headers');
 		$equal = false;
 		if (file_exists($head)) {
 			// check if something with the same ETag has already been cached
@@ -1160,19 +1160,13 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
  */
 function wrap_send_cache($age = 0) {
 	global $zz_setting;
-	global $zz_page;
 	
 	// Some cases in which we do not cache
 	if (empty($zz_setting['cache'])) return false;
 	if (!empty($_SESSION)) return false;
 	if (!empty($_POST)) return false;
 
-	$my = $zz_page['url']['full'];
-	if (!empty($my['query'])) $my['path'] .= '?'.$my['query'];
-	$url = urlencode($my['host']).'/'.urlencode($my['path']);
-
-	$file = $zz_setting['cache'].'/'.$url;
-	$files = array($file, $file.'.headers');
+	$files = array(wrap_cache_filename(), wrap_cache_filename('headers'));
 	if (!file_exists($files[0]) OR !file_exists($files[1])) return false;
 
 	if ($age) {
@@ -1187,6 +1181,32 @@ function wrap_send_cache($age = 0) {
 	$text = file_get_contents($files[0]);
 	echo $text;
 	exit;
+}
+
+/**
+ * returns filename for URL for caching
+ *
+ * @param string $type optional; default: 'url'; 'headers', 'domain'
+ * @global array $zz_page ($zz_page['url']['full'])
+ * @global array $zz_setting 'cache'
+ * @return string filename
+ */
+function wrap_cache_filename($type = 'url') {
+	global $zz_page;
+	global $zz_setting;
+
+	$my = $zz_page['url']['full'];
+	$file = $zz_setting['cache'].'/'.urlencode($my['host']);
+	if ($type === 'domain') return $file;
+
+	if (!empty($my['query'])) $my['path'] .= '?'.$my['query'];
+	$file .= '/'.urlencode($my['path']);
+	if ($type === 'url') return $file;
+
+	$file .= '.headers';
+	if ($type === 'headers') return $file;
+
+	return false;
 }
 
 /**
