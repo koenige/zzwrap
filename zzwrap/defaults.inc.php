@@ -26,8 +26,10 @@ if (empty($zz_setting['http']['not_allowed'])) {
 // Hostname, Access via HTTPS or not
 // -------------------------------------------------------------------------
 
-if (empty($zz_setting['hostname'])) // SERVER_NAME, htmlentities against XSS
-	$zz_setting['hostname']		= htmlentities($_SERVER['SERVER_NAME']);
+if (empty($zz_setting['hostname'])) { // HTTP_HOST, htmlspecialchars against XSS
+	$zz_setting['hostname']		= htmlspecialchars($_SERVER['HTTP_HOST']);
+	if (!$zz_setting['hostname']) $zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
+}
 if (empty($zz_setting['local_access'])) // check if it's a local server
 	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
 

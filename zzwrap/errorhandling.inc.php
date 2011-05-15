@@ -99,7 +99,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		// add some technical information to mail
 		$foot = false;
 		if (empty($settings['mail_no_request_uri']))
-			$foot .= "\nURL: http://".$_SERVER['SERVER_NAME']
+			$foot .= "\nURL: http://".$zz_setting['hostname']
 				.$_SERVER['REQUEST_URI'];
 		if (empty($settings['mail_no_ip']))
 			$foot .= "\nIP: ".$_SERVER['REMOTE_ADDR'];
