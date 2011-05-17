@@ -124,7 +124,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	case 'output':
 		if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
 		$zz_page['error_msg'] .= '<p class="error">'
-			.str_replace("\n", "<br>", htmlentities($msg)).'</p>';
+			.str_replace("\n", "<br>", htmlspecialchars($msg)).'</p>';
 		break;
 	default:
 		break;
