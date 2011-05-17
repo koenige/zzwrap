@@ -131,6 +131,7 @@ function wrap_auth() {
 			OR (is_array($zz_setting['login_entryurl']) 
 				AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
 		else $qs['request'] = 'url='.urlencode($request);
+		wrap_http_status_header(307);
 		header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
 			.$zz_setting['login_url']
 			.(count($qs) ? '?'.implode('&', $qs) : ''));
@@ -231,6 +232,7 @@ function cms_logout($params) {
 	// Stop the session, delete all session data
 	wrap_session_stop();
 
+	wrap_http_status_header(307);
 	header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
 		.$zz_setting['login_url'].'?logout');
 	exit;
@@ -447,11 +449,7 @@ function cms_login_redirect($url, $querystring = array()) {
 	// get correct protocol/hostname
 	$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
 	$zz_setting['myhost'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-	if ($_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1')
-		if (php_sapi_name() == 'cgi')
-			header('Status: 303 See Other');
-		else
-			header('HTTP/1.1 303 See Other');
+
 	// test whether COOKIEs for session management are allowed
 	// if not, add no-cookie to URL so that wrap_auth() can hand that
 	// back over to cms_login() if login was unsuccessful because of
@@ -463,6 +461,7 @@ function cms_login_redirect($url, $querystring = array()) {
 		else
 			$url .= '?no-cookie';
 	}
+	wrap_http_status_header(303);
 	header('Location: '.$zz_setting['myhost'].$url);
 	exit;
 }
