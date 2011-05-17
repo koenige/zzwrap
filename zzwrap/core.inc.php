@@ -156,49 +156,47 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
 function wrap_check_canonical($ending, $request_uri) {
 	global $zz_setting;
 	
-	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
-	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
-	$location = "Location: ".$zz_setting['host_base'].$base;
 	// correct ending
+	$new = false;
 	switch ($ending) {
 	case '/':
 		if (substr($request_uri['path'], -5) == '.html') {
-			header($location.substr($request_uri['path'], 0, -5).'/');
-			exit;
+			$new = substr($request_uri['path'], 0, -5);
 		} elseif (substr($request_uri['path'], -4) == '.php') {
-			header($location.substr($request_uri['path'], 0, -4).'/');
-			exit;
+			$new = substr($request_uri['path'], 0, -4);
 		} elseif (substr($request_uri['path'], -1) != '/') {
-			header($location.$request_uri['path'].'/');
-			exit;
+			$new = $request_uri['path'];
 		}
+		if ($new) $new .= '/';
 		break;
 	case '.html':
 		if (substr($request_uri['path'], -1) == '/') {
-			header($location.substr($request_uri['path'], 0, -1).'.html');
-			exit;
+			$new = substr($request_uri['path'], 0, -1);
 		} elseif (substr($request_uri['path'], -4) == '.php') {
-			header($location.substr($request_uri['path'], 0, -4).'.html');
-			exit;
+			$new = substr($request_uri['path'], 0, -4);
 		} elseif (substr($request_uri['path'], -5) != '.html') {
-			header($location.$request_uri['path'].'.html');
-			exit;
+			$new = $request_uri['path'];
 		}
+		if ($new) $new .= '.html';
 		break;
 	case 'none':
 	case 'keine':
 		if (substr($request_uri['path'], -5) == '.html') {
-			header($location.substr($request_uri['path'], 0, -5));
-			exit;
+			$new = substr($request_uri['path'], 0, -5);
 		} elseif (substr($request_uri['path'], -1) == '/' AND strlen($request_uri['path']) > 1) {
-			header($location.substr($request_uri['path'], 0, -1));
-			exit;
+			$new = substr($request_uri['path'], 0, -1);
 		} elseif (substr($request_uri['path'], -4) == '.php') {
-			header($location.substr($request_uri['path'], 0, -4));
-			exit;
+			$new = substr($request_uri['path'], 0, -4);
 		}
 		break;
 	}
+	if (!$new) return false;
+
+	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
+	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
+	wrap_http_status_header(301);
+	header("Location: ".$zz_setting['host_base'].$base.$new);
+	exit;
 }
 
 /**
@@ -233,10 +231,11 @@ function wrap_read_url($url) {
  * if no error code is defined, a 404 code and the corresponding error page
  * will be shown
  * @param int $errorcode HTTP Error Code, default value is 404
+ * @param string $error_msg (optional, error message for user)
  * @return exits function with a redirect or an error document
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_quit($errorcode = 404) {
+function wrap_quit($errorcode = 404, $error_msg = '') {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
@@ -245,16 +244,14 @@ function wrap_quit($errorcode = 404) {
 	if (!$redir) $page['status'] = $errorcode; // we need this in the error script
 	else $page['status'] = $redir['code'];
 
-	// Set protocol
-	$protocol = $_SERVER['SERVER_PROTOCOL'];
-	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
-
 	// Check redirection code
 	switch ($page['status']) {
 	case 301:
-		header($protocol." 301 Moved Permanently");
 	case 302:
-		// header 302 is sent automatically if using Location
+	case 303:
+	case 307:
+		// (header 302 is sent automatically if using Location)
+		wrap_http_status_header($page['status']);
 		$field_name = wrap_sql('redirects_new_fieldname');
 		$new = parse_url($redir[$field_name]);
 		if (!empty($new['scheme'])) {
@@ -265,9 +262,57 @@ function wrap_quit($errorcode = 404) {
 		header("Location: ".$new);
 		break;
 	default: // 4xx, 5xx
+		if ($error_msg) {
+			if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
+			if (empty($zz_page['error_html']))
+				$zz_page['error_html'] = '<p class="error">%s</p>';
+			$zz_page['error_msg'] .= sprintf($zz_page['error_html'], $error_msg);
+		}
 		wrap_errorpage($page, $zz_page);
 	}
 	exit;
+}
+
+/**
+ * sends a HTTP status header corresponding to server settings and HTTP version
+ *
+ * @param int $code
+ * @return bool true if header was sent, false if not
+ * @see zz_http_status_header() (duplicate function)
+ */
+function wrap_http_status_header($code) {
+	// Set protocol
+	$protocol = $_SERVER['SERVER_PROTOCOL'];
+	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
+	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
+	
+	switch ($code) {
+	case '301':
+		header($protocol." 301 Moved Permanently");
+		return true;
+	case '302':
+		if ($protocol == 'HTTP/1.0')
+			header($protocol." 302 Moved Temporarily");
+		else
+			header($protocol." 302 Found");
+		return true;
+	case '303':
+		if ($protocol == 'HTTP/1.0')
+			header($protocol." 302 Moved Temporarily");
+		else
+			header($protocol." 303 See Other");
+		return true;
+	case '304':
+		header($protocol." 304 Not Modified");
+		return true;
+	case '307':
+		if ($protocol == 'HTTP/1.0')
+			header($protocol." 302 Moved Temporarily");
+		else
+			header($protocol." 307 Temporary Redirect");
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -821,12 +866,12 @@ function wrap_file_send($file) {
     if (!empty($file['etag']) 
     	AND isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $file['etag']) {
 		wrap_file_cleanup($file);
-		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		wrap_http_status_header(304);
 		exit;
 	} elseif (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
 		&& $cache_time.' GMT' == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
 		wrap_file_cleanup($file);
-		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		wrap_http_status_header(304);
 		exit;
 	}
 
@@ -1073,7 +1118,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	// previously sent content
 	$etag = md5($text);
     if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
-		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		wrap_http_status_header(304);
 		exit;
 	}
 
@@ -1128,7 +1173,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	// Last Modified?
 	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
 		&& $last_modified === $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
-		header($_SERVER['SERVER_PROTOCOL']." 304 Not Modified");
+		wrap_http_status_header(304);
 		exit;
 	}
 	// send Last-Modified header if not yet sent
