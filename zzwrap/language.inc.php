@@ -319,4 +319,70 @@ function wrap_translate_page() {
 	return true;
 }
 
+/**
+ * gets the user defined language from the browser
+ *
+ * HTT Protocol:
+ * Accept-Language = "Accept-Language" ":"
+ *		1#( language-range [ ";" "q" "=" qvalue ] )
+ * language-range  = ( ( 1*8ALPHA *( "-" 1*8ALPHA ) ) | "*" )
+ * 
+ * Example: Accept-Language: da, en-gb;q=0.8, en;q=0.7
+ * Reference: <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4>
+ *
+ * @param array $allowed_languages allowed language codes, lowercase
+ * @param string $default_language default language if no language match
+ * @param string $accept (optional, if not set, use HTTP_ACCEPT_LANGUAGE)
+ * @param bool $strict_mode (optional) follow HTTP specification or not
+ * @return array
+ */
+function wrap_negotiate_language($allowed_languages, $default_language, $accept = null, $strict_mode = true) {
+	// check accepted languages
+	if ($accept === null) $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	// if no language information was sent, HTTP 1.1 says, every language is fine
+	// for HTTP 1.0 you could send an 406 instead, but user may be confused by these
+	if (empty($accept)) return $default_language;
+	// all tags are case-insensitive
+	$accept = mb_strtolower($accept);
+	$languages = preg_split('/,\s*/', $accept);
+	
+	$current_lang = $default_language;
+	$current_q = 0;
+
+	foreach ($languages as $language) {
+		$res = preg_match('/^([a-z]{1,8}(?:-[a-z]{1,8})*)'.
+			'(?:\s*;\s*q=(0(?:\.[0-9]{1,3})?|1(?:\.0{1,3})?))?$/i', $language, $matches);
+		// ignore unparseable syntax
+		if (!$res) continue;
+		
+		// separate language code in primary-tag and subtags
+		$lang_code = explode('-', $matches[1]);
+
+		// check quality
+		if (isset($matches[2])) {
+			$lang_quality = (float)$matches[2];
+		} else {
+			// no explicit quality given: defaults to 1
+			$lang_quality = 1.0;
+		}
+
+		while(count($lang_code)) {
+			if (in_array(join('-', $lang_code), $allowed_languages)) {
+				// ok, we allow this language, now check if user prefers it
+				if ($lang_quality > $current_q) {
+					// yes!
+					$current_lang = join('-', $lang_code);
+					$current_q = $lang_quality;
+					break;
+				}
+			}
+			// HTTP strict says, don't try to get e. g. 'de' from 'de-at'
+			if ($strict_mode) break;
+			// try it ;-)
+			array_pop($lang_code);
+		}
+	}
+	return $current_lang;
+}
+
 ?>
