@@ -156,33 +156,33 @@ function wrap_check_canonical($ending, $url) {
 	$new = false;
 	switch ($ending) {
 	case '/':
-		if (substr($url['path'], -5) == '.html') {
-			$new = substr($url['path'], 0, -5);
-		} elseif (substr($url['path'], -4) == '.php') {
-			$new = substr($url['path'], 0, -4);
-		} elseif (substr($url['path'], -1) != '/') {
-			$new = $url['path'];
+		if (substr($url['full']['path'], -5) == '.html') {
+			$new = substr($url['full']['path'], 0, -5);
+		} elseif (substr($url['full']['path'], -4) == '.php') {
+			$new = substr($url['full']['path'], 0, -4);
+		} elseif (substr($url['full']['path'], -1) != '/') {
+			$new = $url['full']['path'];
 		}
 		if ($new) $new .= '/';
 		break;
 	case '.html':
-		if (substr($url['path'], -1) == '/') {
-			$new = substr($url['path'], 0, -1);
-		} elseif (substr($url['path'], -4) == '.php') {
-			$new = substr($url['path'], 0, -4);
-		} elseif (substr($url['path'], -5) != '.html') {
-			$new = $url['path'];
+		if (substr($url['full']['path'], -1) == '/') {
+			$new = substr($url['full']['path'], 0, -1);
+		} elseif (substr($url['full']['path'], -4) == '.php') {
+			$new = substr($url['full']['path'], 0, -4);
+		} elseif (substr($url['full']['path'], -5) != '.html') {
+			$new = $url['full']['path'];
 		}
 		if ($new) $new .= '.html';
 		break;
 	case 'none':
 	case 'keine':
-		if (substr($url['path'], -5) == '.html') {
-			$new = substr($url['path'], 0, -5);
-		} elseif (substr($url['path'], -1) == '/' AND strlen($url['path']) > 1) {
-			$new = substr($url['path'], 0, -1);
-		} elseif (substr($url['path'], -4) == '.php') {
-			$new = substr($url['path'], 0, -4);
+		if (substr($url['full']['path'], -5) == '.html') {
+			$new = substr($url['full']['path'], 0, -5);
+		} elseif (substr($url['full']['path'], -1) == '/' AND strlen($url['full']['path']) > 1) {
+			$new = substr($url['full']['path'], 0, -1);
+		} elseif (substr($url['full']['path'], -4) == '.php') {
+			$new = substr($url['full']['path'], 0, -4);
 		}
 		break;
 	}
