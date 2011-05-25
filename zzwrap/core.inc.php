@@ -1231,8 +1231,10 @@ function wrap_cache_filename($type = 'url') {
 	$file = $zz_setting['cache'].'/'.urlencode($my['host']);
 	if ($type === 'domain') return $file;
 
+	$base = $zz_setting['base'];
+	if (substr($base, -1) != '/') $base .= '/';
 	if (!empty($my['query'])) $my['path'] .= '?'.$my['query'];
-	$file .= '/'.urlencode($my['path']);
+	$file .= $base.urlencode($my['path']);
 	if ($type === 'url') return $file;
 
 	$file .= '.headers';
