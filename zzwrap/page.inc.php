@@ -689,11 +689,12 @@ function wrap_get_page() {
 }
 
 /**
- *
+ * Redirects to a canonical URL or a URL with language information etc.
  * 
  * @param array $url $zz_page['url']
  */
 function wrap_redirect($url) {
+	if (empty($url['redirect'])) return false;
 	global $zz_setting;
 	
 	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
