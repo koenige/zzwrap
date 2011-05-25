@@ -5,6 +5,12 @@
 // Error pages
 
 
+require_once 'paths.inc.php';
+require_once $zz_setting['inc'].'/library/zzwrap/zzwrap.php';
+
+zzwrap();
+
+/*
 // in case config has already been included
 global $zz_page;
 global $zz_setting;	
@@ -21,5 +27,6 @@ require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
 if (!isset($page)) $page = array();
 wrap_errorpage($page, $zz_page);
 exit;
+*/
 
 ?>

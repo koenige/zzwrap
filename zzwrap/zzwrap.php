@@ -9,8 +9,10 @@ function zzwrap() {
 	global $zz_setting;		// settings for zzwrap and zzbrick
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
-	
+
 	// include required files
+	if (file_exists($zz_setting['inc'].'/config.inc.php'))
+		require_once $zz_setting['inc'].'/config.inc.php'; 		// configuration
 	if (empty($zz_setting['lib']))
 		$zz_setting['lib']			= $zz_setting['inc'].'/library';
 	if (empty($zz_setting['core']))
@@ -19,6 +21,12 @@ function zzwrap() {
 	require_once $zz_setting['core'].'/errorhandling.inc.php';	// CMS errorhandling
 	require_once $zz_setting['db_inc']; // Establish database connection
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
+	
+	// Errorpages
+	if (!empty($_GET['code'])) {
+		wrap_errorpage(array(), $zz_page);
+		exit;
+	}
 	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 	if (!empty($zz_conf['error_503'])) wrap_error($zz_conf['error_503'], E_USER_ERROR);	// exit for maintenance reasons
 	
