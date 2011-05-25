@@ -38,7 +38,7 @@ function wrap_set_language() {
 	// check for language code in URL
 	if ($zz_conf['translations_of_fields']) {
 		// might change $zz_setting['lang'], 'base', 'language_in_url'
-		$zz_page['url']['full'] = wrap_prepare_url($zz_page['url']['full']);
+		$zz_page['url'] = wrap_prepare_url($zz_page['url']);
 		$zz_conf['language'] = $zz_setting['lang'];
 	}
 
@@ -68,7 +68,7 @@ function wrap_set_language() {
  * Reads the language from the URL and returns without it
  * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
  * 
- * @param array $url
+ * @param array $url ($zz_page['url'])
  * @global array $zz_setting
  *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
  * @return array $url
@@ -78,10 +78,12 @@ function wrap_prepare_url($url) {
 	global $zz_setting;
 
 	// looking for /en/ or similar
-	if (empty($url['path'])) return $url;
+	if (empty($url['full']['path'])) return $url;
 	// if /en/ is not there, /en still may be, so check full URL
-	if (!$pos = strpos(substr($url['path'], 1), '/')) $pos = strlen($url['path']);
-	$lang = mysql_real_escape_string(substr($url['path'], 1, $pos));
+	if (!$pos = strpos(substr($url['full']['path'], 1), '/')) {
+		$pos = strlen($url['full']['path']);
+	}
+	$lang = mysql_real_escape_string(substr($url['full']['path'], 1, $pos));
 	// check if it's a language
 	if ($sql = wrap_sql('language')) {
 		// read from sql query
@@ -105,7 +107,11 @@ function wrap_prepare_url($url) {
 	$zz_setting['base'] .= '/'.$lang;
 	// modify internal URL
 	$zz_setting['language_in_url'] = true;
-	$url['path'] = substr($url['path'], $pos+1);
+	$url['full']['path'] = substr($url['full']['path'], $pos+1);
+	if (!$url['full']['path']) {
+		$url['full']['path'] = '/';
+		$url['redirect'] = true;
+	}
 	return $url;
 }
 
