@@ -194,7 +194,7 @@ function wrap_session_stop() {
 	if (!session_id()) session_start();
 	
 	// check if SESSION should be kept
-	if (!empty($_SESSION['keep_session']) {
+	if (!empty($_SESSION['keep_session'])) {
 		unset($_SESSION['login_id']);
 		unset($_SESSION['mask_id']);
 		unset($_SESSION['last_click_at']);
