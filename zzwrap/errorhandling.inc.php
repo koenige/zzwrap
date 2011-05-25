@@ -170,7 +170,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	
 	if (!empty($_GET['code']) AND in_array($_GET['code'], array_keys($codes)))
-		// get 'code' if errors.php is directly accessed as an error page
+		// get 'code' if main.php is directly accessed as an error page
 		$page['status'] = $_GET['code'];
 	elseif (empty($page['status']) OR !in_array($page['status'], array_keys($codes)))
 		// default error code
