@@ -668,8 +668,9 @@ function wrap_get_page() {
 		$ending = $zz_page['db'][wrap_sql('ending')];
 		// if brick_format() returns a page ending, use this
 		if (isset($page['url_ending'])) $ending = $page['url_ending'];
-		wrap_check_canonical($ending, $zz_page['url']['full']);
+		$zz_page['url'] = wrap_check_canonical($ending, $zz_page['url']);
 	}
+	wrap_redirect($zz_page['url']);
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
 	$page['lang']		= !empty($page['lang']) ? $page['lang'] : $zz_setting['lang'];
@@ -685,6 +686,23 @@ function wrap_get_page() {
 	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 	
 	return $page;
+}
+
+/**
+ *
+ * 
+ * @param array $url $zz_page['url']
+ */
+function wrap_redirect($url) {
+	global $zz_setting;
+	
+	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
+	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
+	wrap_http_status_header(301);
+	$location = $zz_setting['host_base'].$base.$url['full']['path'];
+	if ($url['full']['query']) $location .= '?'.$url['full']['query'];
+	header("Location: ".$location);
+	exit;
 }
 
 /**

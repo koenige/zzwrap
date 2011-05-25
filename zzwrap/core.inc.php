@@ -148,55 +148,49 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  * Make canonical URLs (trailing slash, .html etc.)
  * 
  * @param string $ending ending of URL (/, .html, .php, none)
- * @param string $request_uri
- * @global array $zz_setting
- * @return - redirect to correct URL if necessary
+ * @param array $url ($zz_page['url'])
+ * @return array $url, with new 'path' and 'redirect' set to 1 if necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_check_canonical($ending, $request_uri) {
-	global $zz_setting;
-	
-	// correct ending
+function wrap_check_canonical($ending, $url) {
 	$new = false;
 	switch ($ending) {
 	case '/':
-		if (substr($request_uri['path'], -5) == '.html') {
-			$new = substr($request_uri['path'], 0, -5);
-		} elseif (substr($request_uri['path'], -4) == '.php') {
-			$new = substr($request_uri['path'], 0, -4);
-		} elseif (substr($request_uri['path'], -1) != '/') {
-			$new = $request_uri['path'];
+		if (substr($url['path'], -5) == '.html') {
+			$new = substr($url['path'], 0, -5);
+		} elseif (substr($url['path'], -4) == '.php') {
+			$new = substr($url['path'], 0, -4);
+		} elseif (substr($url['path'], -1) != '/') {
+			$new = $url['path'];
 		}
 		if ($new) $new .= '/';
 		break;
 	case '.html':
-		if (substr($request_uri['path'], -1) == '/') {
-			$new = substr($request_uri['path'], 0, -1);
-		} elseif (substr($request_uri['path'], -4) == '.php') {
-			$new = substr($request_uri['path'], 0, -4);
-		} elseif (substr($request_uri['path'], -5) != '.html') {
-			$new = $request_uri['path'];
+		if (substr($url['path'], -1) == '/') {
+			$new = substr($url['path'], 0, -1);
+		} elseif (substr($url['path'], -4) == '.php') {
+			$new = substr($url['path'], 0, -4);
+		} elseif (substr($url['path'], -5) != '.html') {
+			$new = $url['path'];
 		}
 		if ($new) $new .= '.html';
 		break;
 	case 'none':
 	case 'keine':
-		if (substr($request_uri['path'], -5) == '.html') {
-			$new = substr($request_uri['path'], 0, -5);
-		} elseif (substr($request_uri['path'], -1) == '/' AND strlen($request_uri['path']) > 1) {
-			$new = substr($request_uri['path'], 0, -1);
-		} elseif (substr($request_uri['path'], -4) == '.php') {
-			$new = substr($request_uri['path'], 0, -4);
+		if (substr($url['path'], -5) == '.html') {
+			$new = substr($url['path'], 0, -5);
+		} elseif (substr($url['path'], -1) == '/' AND strlen($url['path']) > 1) {
+			$new = substr($url['path'], 0, -1);
+		} elseif (substr($url['path'], -4) == '.php') {
+			$new = substr($url['path'], 0, -4);
 		}
 		break;
 	}
-	if (!$new) return false;
+	if (!$new) return $url;
 
-	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
-	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
-	wrap_http_status_header(301);
-	header("Location: ".$zz_setting['host_base'].$base.$new);
-	exit;
+	$url['redirect'] = true;
+	$url['full']['path'] = $new;
+	return $url;
 }
 
 /**
@@ -968,49 +962,42 @@ function wrap_file_cleanup($file) {
 }
 
 /**
- * Reads the language from the URL and returns without it
- * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
- * 
- * @param array $url
- * @param bool $setlang write lanugage in 'lang'/ Sprache in 'lang' schreiben?
+ * checks the HTTP request made, builds URL
+ * sets language according to URL and request
+ *
+ * @global array $zz_conf
  * @global array $zz_setting
- *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
- * @return array $url
- * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @global array $zz_page
  */
-function wrap_prepare_url($url, $setlang = true) {
+function wrap_check_request() {
+	global $zz_conf;
 	global $zz_setting;
+	global $zz_page;
 
-	// looking for /en/ or similar
-	if (empty($url['path'])) return $url;
-	// if /en/ is not there, /en still may be, so check full URL
-	if (!$pos = strpos(substr($url['path'], 1), '/')) $pos = strlen($url['path']);
-	$lang = mysql_real_escape_string(substr($url['path'], 1, $pos));
-	// check if it's a language
-	if ($sql = wrap_sql('language')) {
-		// read from sql query
-		$sql = sprintf($sql, $lang);
-		$lang = wrap_db_fetch($sql, '', 'single value');
-	} elseif (!empty($zz_setting['languages_allowed'])) {
-		// read from array
-		if (!in_array($lang, $zz_setting['languages_allowed'])) 
-			$lang = false;
-	} else {
-		// impossible to check, so there's no language
-		$lang = false;
+	// check REQUEST_URI
+	// Base URL, allow it to be set manually (handle with care!)
+	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
+	if (empty($zz_page['url']['full'])) {
+		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$_SERVER['REQUEST_URI']);
 	}
-	
-	// if no language can be extracted from URL, return URL without changes
-	if (!$lang) return $url;
-		
-	if ($setlang) {
-		// save language in settings
-		$zz_setting['lang'] = $lang;
-		// add language to base URL
-		$zz_setting['base'] .= '/'.$lang;
+
+	// check REQUEST_METHOD, quit if inappropriate
+	// $zz_page['url'] needed for wrap_quit()
+	wrap_check_http_request_method();
+
+	// get rid of unwanted query strings, set redirect if necessary
+	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
+
+	// check language
+	wrap_set_language();
+
+	// Relative linking
+	if (empty($zz_page['deep'])) {
+		if (!empty($zz_page['url']['full']['path']))
+			$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
+		else
+			$zz_page['deep'] = '/';
 	}
-	$url['path'] = substr($url['path'], $pos+1);
-	return $url;
 }
 
 /**

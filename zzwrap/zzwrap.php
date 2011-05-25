@@ -14,39 +14,38 @@ function zzwrap() {
 	if (file_exists($zz_setting['inc'].'/config.inc.php'))
 		require_once $zz_setting['inc'].'/config.inc.php'; 		// configuration
 	if (empty($zz_setting['lib']))
-		$zz_setting['lib']			= $zz_setting['inc'].'/library';
+		$zz_setting['lib']	= $zz_setting['inc'].'/library';
 	if (empty($zz_setting['core']))
 		$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
 	require_once $zz_setting['core'].'/defaults.inc.php';	// set default variables
 	require_once $zz_setting['core'].'/errorhandling.inc.php';	// CMS errorhandling
 	require_once $zz_setting['db_inc']; // Establish database connection
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
-	
+	require_once $zz_setting['core'].'/language.inc.php';	// CMS language
+	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
+
+	// check HTTP request, build URL, set language according to URL and request
+	wrap_check_request(); // affects $zz_page, $zz_setting
+
 	// Errorpages
 	if (!empty($_GET['code'])) {
 		wrap_errorpage(array(), $zz_page);
 		exit;
 	}
-	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
-	if (!empty($zz_conf['error_503'])) wrap_error($zz_conf['error_503'], E_USER_ERROR);	// exit for maintenance reasons
+	if (!empty($zz_conf['error_503'])) {
+		// exit for maintenance reasons
+		wrap_error($zz_conf['error_503'], E_USER_ERROR);
+	}
 	
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_functions.inc.php';
 
-	// do some checks
-	wrap_check_http_request_method();
-	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
 	wrap_check_db_connection();
 
 	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
 	// Veröffentlichung freigegebene Seiten angeschaut werden können.
 	if (!empty($zz_setting['secret_key']) AND !wrap_rights('preview'))
 		wrap_rights('preview', 'set', wrap_test_secret_key($zz_setting['secret_key']));
-
-	// Sprachcode etc. steht evtl. in URL
-	if ($zz_conf['translations_of_fields']) {
-		$zz_page['url']['full'] = wrap_prepare_url($zz_page['url']['full']);
-	}
 
 	$zz_page['db'] = wrap_look_for_page($zz_page);
 	wrap_check_https($zz_page, $zz_setting);
@@ -55,8 +54,6 @@ function zzwrap() {
 	if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
 	
-	// modules may change page language ($page['lang']), so include language functions here
-	require_once $zz_setting['core'].'/language.inc.php';	// CMS language
 	if ($zz_setting['authentification_possible']) {
 		require_once $zz_setting['core'].'/auth.inc.php';
 		wrap_auth();

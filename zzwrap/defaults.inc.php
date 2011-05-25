@@ -76,22 +76,9 @@ if (empty($zz_setting['host_base']))
 // URLs
 // -------------------------------------------------------------------------
 
-// Base URL, allow it to be set manually (handle with care!)
-// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
-if (empty($zz_page['url']['full'])) {
-	$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$_SERVER['REQUEST_URI']);
-}
-
 // More URLs
 if (empty($zz_setting['homepage_url']))
 	$zz_setting['homepage_url']	= '/';
-
-// Relative linking
-if (empty($zz_page['deep']))
-	if (!empty($zz_page['url']['full']['path']))
-		$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
-	else
-		$zz_page['deep'] = '/';
 		
 if (empty($zz_setting['login_entryurl']))
 	$zz_setting['login_entryurl'] = '/';
@@ -161,13 +148,6 @@ if (empty($zz_setting['local_pwd']))
 // allow %%% page ... %%%-syntax
 if (empty($zz_setting['brick_page_templates']))
 	$zz_setting['brick_page_templates'] = false;
-
-// page language, html lang attribute
-if (!isset($zz_setting['lang']))
-	if (!empty($zz_conf['language']))
-		$zz_setting['lang']		= $zz_conf['language'];
-	else
-		$zz_setting['lang']		= false;
 
 // translations
 if (!isset($zz_conf['translations_of_fields']))

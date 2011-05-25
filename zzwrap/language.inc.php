@@ -6,6 +6,110 @@
 
 
 /**
+ * Sets language for HTML document; checks language information from
+ * URL and HTTP header
+ *
+ * @global array $zz_setting
+ *		'lang', 'lanugage_in_url', 'language_redirect' will be set
+ *		'base' might be changed
+ *		'languages_allowed', 'negotiate_language', default_source_language'
+ * @global array $zz_page
+ *		'url', 'redirect'
+ * @global array $zz_conf
+ *		'language', 'translations_of_fields'
+ * @return bool true: ok.
+ */
+function wrap_set_language() {
+	global $zz_setting;
+	global $zz_conf;
+	global $zz_page;
+
+	$zz_setting['language_in_url'] = false;
+	$zz_setting['language_redirect'] = false;
+
+	// page language, html lang attribute
+	if (!isset($zz_setting['lang'])) {
+		if (!empty($zz_conf['language']))
+			$zz_setting['lang']		= $zz_conf['language'];
+		else
+			$zz_setting['lang']		= false;
+	}
+
+	// check for language code in URL
+	if ($zz_conf['translations_of_fields']) {
+		// might change $zz_setting['lang'], 'base', 'language_in_url'
+		$zz_page['url']['full'] = wrap_prepare_url($zz_page['url']['full']);
+		$zz_conf['language'] = $zz_setting['lang'];
+	}
+
+	// single language website?
+	if (empty($zz_setting['languages_allowed'])) return true;
+
+	// Content Negotiation for language?
+	if (empty($zz_setting['negotiate_language'])) return true;
+	// language is already in URL?
+	if ($zz_setting['language_in_url']) return true;
+
+	// Check if redirect is necessary
+	if (empty($zz_setting['default_source_language']))
+		$zz_setting['default_source_language'] = $zz_setting['lang'];
+	$language = wrap_negotiate_language($zz_setting['languages_allowed'], 
+		$zz_setting['default_source_language'], null, false);
+	if (!$language) return false;
+	// in case there is content, redirect to the language specific content later
+	$zz_setting['base'] .= '/'.$language;
+	$zz_setting['lang'] = $language;
+	$zz_page['url']['redirect'] = true;
+
+	return true;
+}
+
+/**
+ * Reads the language from the URL and returns without it
+ * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
+ * 
+ * @param array $url
+ * @global array $zz_setting
+ *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
+ * @return array $url
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_prepare_url($url) {
+	global $zz_setting;
+
+	// looking for /en/ or similar
+	if (empty($url['path'])) return $url;
+	// if /en/ is not there, /en still may be, so check full URL
+	if (!$pos = strpos(substr($url['path'], 1), '/')) $pos = strlen($url['path']);
+	$lang = mysql_real_escape_string(substr($url['path'], 1, $pos));
+	// check if it's a language
+	if ($sql = wrap_sql('language')) {
+		// read from sql query
+		$sql = sprintf($sql, $lang);
+		$lang = wrap_db_fetch($sql, '', 'single value');
+	} elseif (!empty($zz_setting['languages_allowed'])) {
+		// read from array
+		if (!in_array($lang, $zz_setting['languages_allowed'])) 
+			$lang = false;
+	} else {
+		// impossible to check, so there's no language
+		$lang = false;
+	}
+	
+	// if no language can be extracted from URL, return URL without changes
+	if (!$lang) return $url;
+		
+	// save language in settings
+	$zz_setting['lang'] = $lang;
+	// add language to base URL
+	$zz_setting['base'] .= '/'.$lang;
+	// modify internal URL
+	$zz_setting['language_in_url'] = true;
+	$url['path'] = substr($url['path'], $pos+1);
+	return $url;
+}
+
+/**
  * Gets text from a database table
  * 
  * @param string $language (ISO 639-1 two letter code)
@@ -46,9 +150,11 @@ function wrap_text($string) {
 	global $zz_setting;
 	static $text;
 
-	if (empty($zz_setting['text_included'])) {
-		// get filename for translated texts
-		$language = (!empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language']);
+	// get filename for translated texts
+	$language = (!empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language']);
+
+	if (empty($zz_setting['text_included'])
+		OR $zz_setting['text_included'] != $language) {
 		
 		// standard text english
 		if (file_exists($zz_setting['custom_wrap_dir'].'/text-en.inc.php')) 
@@ -68,7 +174,7 @@ function wrap_text($string) {
 				$text = array_merge($text, wrap_language_get_text($language));
 			else
 				$text = wrap_language_get_text($language);
-		$zz_setting['text_included'] = true;
+		$zz_setting['text_included'] = $language;
 	}
 
 	// if string came from preg_replace_callback, it might be an array
