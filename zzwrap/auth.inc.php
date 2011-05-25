@@ -194,7 +194,17 @@ function wrap_session_stop() {
 	if (!session_id()) session_start();
 	
 	// check if SESSION should be kept
-	if (!empty($_SESSION['keep_session']) return false;
+	if (!empty($_SESSION['keep_session']) {
+		unset($_SESSION['login_id']);
+		unset($_SESSION['mask_id']);
+		unset($_SESSION['last_click_at']);
+		unset($_SESSION['domain']);
+		unset($_SESSION['logged_in']);
+		unset($_SESSION['user_id']);
+		unset($_SESSION['masquerade']);
+		unset($_SESSION['change_password']);
+		return false;
+	}
 
 	// update login db if logged in, set to logged out
 	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql('logout'))
