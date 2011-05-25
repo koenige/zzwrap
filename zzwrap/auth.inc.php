@@ -192,6 +192,9 @@ function wrap_session_stop() {
 
 	// start session
 	if (!session_id()) session_start();
+	
+	// check if SESSION should be kept
+	if (!empty($_SESSION['keep_session']) return false;
 
 	// update login db if logged in, set to logged out
 	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql('logout'))
