@@ -814,7 +814,7 @@ function wrap_htmlout_page($page) {
  * @param string $attributes (optional attributes for the anchor)
  * @return string HTML anchor with mailto-Link
  */
-function wrap_mailto($person, $mail, $attributes = false;) {
+function wrap_mailto($person, $mail, $attributes = false) {
 	$mail = str_replace('@', '&#64;', $mail);
 	$output = '<a href="mailto:'.str_replace(' ', '%20', $person)
 		.'%20'.urlencode('<'.$mail.'>').'"'.$attributes
