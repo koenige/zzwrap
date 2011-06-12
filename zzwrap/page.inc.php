@@ -805,4 +805,21 @@ function wrap_htmlout_page($page) {
 	wrap_send_ressource($text, 'html', $page['status']);
 }
 
+/**
+ * HTML output of an E-Mail-Link, nice way with Name encoded
+ * small protection against spammers
+ *
+ * @param string $person name of the person
+ * @param string $mail e-mail address
+ * @param string $attributes (optional attributes for the anchor)
+ * @return string HTML anchor with mailto-Link
+ */
+function wrap_mailto($person, $mail, $attributes = false;) {
+	$mail = str_replace('@', '&#64;', $mail);
+	$output = '<a href="mailto:'.str_replace(' ', '%20', $person)
+		.'%20'.urlencode('<'.$mail.'>').'"'.$attributes
+		.'>'.$mail.'</a>';
+	return $output;
+}
+
 ?>
