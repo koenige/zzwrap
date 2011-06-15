@@ -127,6 +127,7 @@ function wrap_language_get_text($language) {
 	$sql = 'SELECT text_id, text, more_text
 		FROM '.$zz_conf['text_table'];
 	$sourcetext = wrap_db_fetch($sql, 'text_id');
+	if (!$sourcetext) return array();
 	$translations = wrap_translate($sourcetext, $zz_conf['text_table'], false, true, $language);
 
 	$text = array();
