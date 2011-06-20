@@ -1360,13 +1360,18 @@ function wrap_check_http_request_method() {
  * they might be used for session_start()
  * e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
  * @param array $url ($zz_page['url'])
+ * @param array $objectionable_qs key names of query strings
  * @todo get objectionable querystrings from setting
- * @todo do redirect if 'redirect' = true
  */
-function wrap_remove_query_strings($url) {
+function wrap_remove_query_strings($url, $objectionable_qs = array()) {
 	if (empty($url['full']['query'])) return $url;
+	if (empty($objectionable_qs)) {
+		$objectionable_qs = array('PHPSESSID');
+	}
+	if (!is_array($objectionable_qs)) {
+		$objectionable_qs = array($objectionable_qs);
+	}
 	parse_str($url['full']['query'], $query);
-	$objectionable_qs = array('PHPSESSID');
 	if ($remove = array_intersect(array_keys($query), $objectionable_qs)) {
 		foreach ($remove as $key) {
 			unset($query[$key]);

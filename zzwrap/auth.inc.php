@@ -137,6 +137,9 @@ function wrap_auth() {
 			.(count($qs) ? '?'.implode('&', $qs) : ''));
 		exit;
 	}
+
+	// remove no-cookie from URL
+	$zz_page['url'] = wrap_remove_query_strings($zz_page['url'], 'no-cookie');
 	
 	// start database connection
 	require_once $zz_setting['db_inc'];
