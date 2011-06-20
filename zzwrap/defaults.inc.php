@@ -183,6 +183,11 @@ if ($zz_setting['brick_page_templates'] AND empty($zz_page['template'])) {
 	$zz_page['template'] = 'page';
 }
 
+// zzbrick tables is always alias for forms
+if (empty($zz_setting['brick_types_translated']['tables'])) {
+	$zz_setting['brick_types_translated']['tables'] = 'forms';
+}
+
 // -------------------------------------------------------------------------
 // Page paths
 // -------------------------------------------------------------------------
