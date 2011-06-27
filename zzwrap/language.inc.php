@@ -71,11 +71,14 @@ function wrap_set_language() {
  * @param array $url ($zz_page['url'])
  * @global array $zz_setting
  *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
+ * @global array $zz_conf
+ *		'db_connection'
  * @return array $url
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_prepare_url($url) {
 	global $zz_setting;
+	global $zz_conf;
 
 	// looking for /en/ or similar
 	if (empty($url['full']['path'])) return $url;
@@ -83,11 +86,11 @@ function wrap_prepare_url($url) {
 	if (!$pos = strpos(substr($url['full']['path'], 1), '/')) {
 		$pos = strlen($url['full']['path']);
 	}
-	$lang = mysql_real_escape_string(substr($url['full']['path'], 1, $pos));
+	$lang = substr($url['full']['path'], 1, $pos);
 	// check if it's a language
-	if ($sql = wrap_sql('language')) {
+	if ($sql = wrap_sql('language') AND $zz_conf['db_connection']) {
 		// read from sql query
-		$sql = sprintf($sql, $lang);
+		$sql = sprintf($sql, mysql_real_escape_string($lang));
 		$lang = wrap_db_fetch($sql, '', 'single value');
 	} elseif (!empty($zz_setting['languages_allowed'])) {
 		// read from array
