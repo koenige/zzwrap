@@ -99,8 +99,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		// add some technical information to mail
 		$foot = false;
 		if (empty($settings['mail_no_request_uri']))
-			$foot .= "\nURL: http://".$zz_setting['hostname']
-				.$_SERVER['REQUEST_URI'];
+			$foot .= "\nURL: ".$zz_setting['host_base'].$_SERVER['REQUEST_URI'];
 		if (empty($settings['mail_no_ip']))
 			$foot .= "\nIP: ".$_SERVER['REMOTE_ADDR'];
 		if (empty($settings['mail_no_user_agent']))
@@ -119,6 +118,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 			$mail['subject'] = '['.$zz_conf['project'].'] ';
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
+		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$_SERVER['REQUEST_URI'];
 		wrap_mail($mail);
 		break;
 	case 'output':

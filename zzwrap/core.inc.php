@@ -1050,7 +1050,11 @@ function wrap_mail($mail) {
 
 	$additional_headers = '';
 	foreach ($mail['headers'] as $key => $header) {
-		if (!$header) continue; // set but empty headers will be ignored
+		// set but empty headers will be ignored
+		if (!$header) continue;
+		// newlines and carriage returns: probably some injection, ignore
+		if (strstr($header, "\n")) continue;
+		if (strstr($header, "\r")) continue;
 		$additional_headers .= $key.': '.$header."\r\n";
 	}
 
