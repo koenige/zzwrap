@@ -119,6 +119,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
 		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$_SERVER['REQUEST_URI'];
+		$mail['headers']['X-Originating-Datetime'] = date('Y-m-d H:i:s');
 		wrap_mail($mail);
 		break;
 	case 'output':
