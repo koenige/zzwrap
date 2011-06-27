@@ -1372,6 +1372,11 @@ function wrap_remove_query_strings($url, $objectionable_qs = array()) {
 		$objectionable_qs = array($objectionable_qs);
 	}
 	parse_str($url['full']['query'], $query);
+	// furthermore, keys with % signs are not allowed (propably errors in
+	// some parsing script)
+	foreach (array_keys($query) AS $key) {
+		if (strstr($key, '%')) $objectionable_qs[] = $key;
+	}
 	if ($remove = array_intersect(array_keys($query), $objectionable_qs)) {
 		foreach ($remove as $key) {
 			unset($query[$key]);
