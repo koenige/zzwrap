@@ -67,7 +67,7 @@ function wrap_auth() {
 		// but do not prolong time until automatically logging out someone
 		if (isset($_SESSION)) return false;
 		if (empty($_COOKIE[session_name()])) return false;
-		if (!session_id()) session_start();
+		wrap_session_start();
 		// calculate maximum login time
 		// you'll stay logged in for x minutes
 		$keep_alive = $zz_setting['logout_inactive_after'] * 60;
@@ -82,7 +82,7 @@ function wrap_auth() {
 	$now = time();
 
 	// start PHP session
-	if (!session_id()) session_start();
+	wrap_session_start();
 
 	// if it's not local access (e. g. on development server), all access 
 	// should go via secure connection
@@ -194,7 +194,7 @@ function wrap_session_stop() {
 	$sql_mask = false;
 
 	// start session
-	if (!session_id()) session_start();
+	wrap_session_start();
 	
 	// check if SESSION should be kept
 	if (!empty($_SESSION['keep_session'])) {
@@ -312,7 +312,7 @@ function cms_login($params) {
 
 		$try_login = true;
 		// Session will be saved in Cookie so check whether we got a cookie or not
-		if (!session_id()) session_start();
+		wrap_session_start();
 		
 		// get password and username
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {

@@ -27,11 +27,27 @@ function wrap_test_secret_key($secret_key) {
 	if (empty($_GET['tlh'])) return false;
 	if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
 		$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
-		session_start();
+		wrap_session();
 		$_SESSION['wrap_page_preview'] = true;
 		$wrap_page_preview = true;
 	}
 	return $wrap_page_preview;
+}
+
+/**
+ * will start a session with some parameters set before
+ *
+ * @return bool
+ */
+function wrap_session_start() {
+	// is already a session active?
+	if (session_id()) return false;
+	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
+	if (version_compare(PHP_VERSION, '5.1.0', '>=')) {
+		session_set_cookie_params(0, NULL, NULL, NULL, true);
+	}
+	session_start();
+	return true;
 }
 
 /**
