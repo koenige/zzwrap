@@ -43,7 +43,7 @@ function wrap_session_start() {
 	// is already a session active?
 	if (session_id()) return false;
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
-	if (version_compare(PHP_VERSION, '5.1.0', '>=')) {
+	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		session_set_cookie_params(0, NULL, NULL, NULL, true);
 	}
 	session_start();
