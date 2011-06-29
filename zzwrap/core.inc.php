@@ -45,7 +45,7 @@ function wrap_session_start() {
 	if (session_id()) return false;
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-		session_set_cookie_params(0, '/', $zz_setting['host_name'], false, true);
+		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
 	}
 	session_start();
 	return true;
