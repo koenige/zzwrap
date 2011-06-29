@@ -1268,7 +1268,11 @@ function wrap_cache_filename($type = 'url') {
 	$file .= '/'.urlencode($base.$my['path']);
 	if ($type === 'url') return $file;
 
-	$file .= '.headers';
+	if (!empty($zz_setting['gzip_encode'])) {
+		$file .= '.gz.headers';
+	} else {
+		$file .= '.headers';
+	}
 	if ($type === 'headers') return $file;
 
 	return false;
