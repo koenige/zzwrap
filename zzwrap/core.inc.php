@@ -869,8 +869,10 @@ function wrap_file_send($file) {
 	header('Pragma: ');
 
  	header("Last-Modified: " . $cache_time . " GMT");
-	if (!empty($file['etag']))
+	if (!empty($file['etag'])) {
+		$file['etag'] = sprintf('"%s"', $file['etag']);
 		header("ETag: ".$file['etag']);
+	}
 
 	// Respond to If Modified Since with 304 header if appropriate
     if (!empty($file['etag']) 
@@ -1123,7 +1125,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 
 	// Send ETag-Header and check whether content is identical to
 	// previously sent content
-	$etag = md5($text);
+	$etag = sprintf('"%s"', md5($text));
     if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
 		wrap_http_status_header(304);
 		exit;
