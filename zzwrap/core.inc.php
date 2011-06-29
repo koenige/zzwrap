@@ -1125,7 +1125,9 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 
 	// Send ETag-Header and check whether content is identical to
 	// previously sent content
-	$etag = sprintf('"%s"', md5($text));
+	$etag = md5($text);
+	if (!empty($zz_setting['gzip_encode'])) $etag .= '-gz';
+	$etag = sprintf('"%s"', $etag);
     if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
 		wrap_http_status_header(304);
 		exit;
