@@ -1204,13 +1204,16 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 
 	if (!empty($zz_setting['gzip_encode'])) {
 		// gzip?
-		// overwrite ETag with -gz ending
-		header("ETag: ".$etag_header_gz);
 		// start output
 		ob_start();
 		ob_start('ob_gzhandler');
 		echo trim($text);
 		ob_end_flush();  // The ob_gzhandler one
+		foreach (headers_list() AS $header) {
+			if (!wrap_substr($header, "Content-Encoding: ")) continue;
+			// overwrite ETag with -gz ending
+			header("ETag: ".$etag_header_gz);
+		}
 		header('Content-Length: '.ob_get_length());
 		ob_end_flush();  // The main one
 	} else {
