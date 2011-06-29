@@ -54,7 +54,7 @@ function zzwrap() {
 	if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
 	
-	if ($zz_setting['authentification_possible']) {
+	if ($zz_setting['authentication_possible']) {
 		require_once $zz_setting['core'].'/auth.inc.php';
 		wrap_auth();
 	}

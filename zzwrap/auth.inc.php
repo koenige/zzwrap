@@ -2,7 +2,7 @@
 
 // zzwrap (Project Zugzwang)
 // (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
-// CMS Authentification functions
+// CMS Authentication functions
 
 
 /*
@@ -20,11 +20,11 @@
 */
 
 /**
- * Checks if current URL needs authentification (will be called from zzwrap)
+ * Checks if current URL needs authentication (will be called from zzwrap)
  *
- * - if current URL needs authentification: check if user is logged in, if not:
+ * - if current URL needs authentication: check if user is logged in, if not:
  * redirect to login page, else save last_click in database
- * - if current URL needs no authentification, but user is logged in: show that 
+ * - if current URL needs no authentication, but user is logged in: show that 
  * she or he is logged in, do not prolong login time, set person as logged out
  * if login time has passed
  * @global array $zz_setting
@@ -39,7 +39,7 @@ function wrap_auth() {
 	if (!empty($zz_page['auth'])) return true; // don't run this function twice
 	$zz_page['auth'] = true;
 
-	// check if there are URLs that need authentification
+	// check if there are URLs that need authentication
 	if (empty($zz_setting['auth_urls'])) return false;
 
 	// send header for IE for P3P (Platform for Privacy Preferences Project)
@@ -49,8 +49,8 @@ function wrap_auth() {
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
 
-	// check if current URL needs authentification
-	$authentification = false;
+	// check if current URL needs authentication
+	$authentication = false;
 	if (!isset($zz_setting['no_auth_urls'])) 
 		$zz_setting['no_auth_urls'] = array();
 	foreach($zz_setting['auth_urls'] as $auth_url) {
@@ -59,10 +59,10 @@ function wrap_auth() {
 		if ($zz_page['url']['full']['path'] == $zz_setting['login_url'])
 			continue;
 		if (wrap_authenticate_url($zz_page['url']['full']['path'], $zz_setting['no_auth_urls']))
-			$authentification = true;
+			$authentication = true;
 	}
 
-	if (!$authentification) {
+	if (!$authentication) {
 		// Keep session if logged in and clicking on the public part of the page
 		// but do not prolong time until automatically logging out someone
 		if (isset($_SESSION)) return false;
@@ -172,16 +172,16 @@ function wrap_auth() {
  *
  * @param string $url URL from database
  * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
- * @return bool true if authentification is required, false if not
+ * @return bool true if authentication is required, false if not
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_authenticate_url($url, $no_auth_urls) {
 	foreach ($no_auth_urls AS $test_url) {
 		if (substr($url, 0, strlen($test_url)) == $test_url) {
-			return false; // no authentification required
+			return false; // no authentication required
 		}
 	}
-	return true; // no matches: authentification required
+	return true; // no matches: authentication required
 }
 
 /**

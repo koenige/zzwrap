@@ -37,7 +37,7 @@ if (empty($zz_setting['base']))
 	$zz_setting['base'] = '';
 
 if (empty($zz_setting['https'])) $zz_setting['https'] = false;
-// HTTPS; zzwrap authentification will always be https
+// HTTPS; zzwrap authentication will always be https
 if (!empty($zz_setting['https_urls'])) {
 	foreach ($zz_setting['https_urls'] AS $url) {
 		// check language strings
@@ -58,7 +58,7 @@ if (!empty($zz_setting['local_access'])) {
 	$zz_setting['https'] = false;
 	$zz_setting['no_https'] = true;
 }
-// explicitly do not want https even for authentification (not recommended)
+// explicitly do not want https even for authentication (not recommended)
 if (!empty($zz_setting['no_https'])) $zz_setting['https'] = false;
 else $zz_setting['no_https'] = false;
 
@@ -250,11 +250,11 @@ if (!isset($zz_conf['prefix']))
 
 
 // -------------------------------------------------------------------------
-// Authentification
+// Authentication
 // -------------------------------------------------------------------------
 
-if (!isset($zz_setting['authentification_possible']))
-	$zz_setting['authentification_possible'] = true;
+if (!isset($zz_setting['authentication_possible']))
+	$zz_setting['authentication_possible'] = true;
 
 if (!isset($zz_setting['logout_inactive_after']))
 	$zz_setting['logout_inactive_after'] = 30; // time in minutes
