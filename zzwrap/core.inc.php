@@ -1126,11 +1126,14 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	// Send ETag-Header and check whether content is identical to
 	// previously sent content
 	$etag = md5($text);
-	if (!empty($zz_setting['gzip_encode'])) $etag .= '-gz';
-	$etag = sprintf('"%s"', $etag);
-    if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $etag) {
-		wrap_http_status_header(304);
-		exit;
+	$etag_header = sprintf('"%s"', $etag);
+	$etag_header_gz = sprintf('"%s"', $etag.'-gz');
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+    	if ($_SERVER['HTTP_IF_NONE_MATCH'] == $etag_header
+    		OR $_SERVER['HTTP_IF_NONE_MATCH'] == $etag_header_gz) {
+			wrap_http_status_header(304);
+			exit;
+		}
 	}
 
 	// headers
@@ -1144,7 +1147,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 		header('Content-Type: application/json; charset=utf-8');
 		break;
 	}
-	header("ETag: ".$etag);
+	header("ETag: ".$etag_header);
 
 	$last_modified = gmdate("D, d M Y H:i:s", time()). ' GMT';
 
@@ -1166,7 +1169,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 			$headers = json_decode(file_get_contents($head));
 			foreach ($headers as $header) {
 				if (substr($header, 0, 6) != 'ETag: ') continue;
-				if (substr($header, 6) != $etag) continue;
+				if (substr($header, 6) != $etag_header) continue;
 				$equal = true;
 				// set older value for Last-Modified header
 				if ($time = filemtime($doc)) // if it exists
@@ -1177,6 +1180,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 			// save document
 			file_put_contents($doc, trim($text));
 			// save headers
+			// without '-gz'
 			file_put_contents($head, json_encode(headers_list()));
 		}
 	}
@@ -1200,6 +1204,9 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 
 	if (!empty($zz_setting['gzip_encode'])) {
 		// gzip?
+		// overwrite ETag with -gz ending
+		header("ETag: ".$etag_header_gz);
+		// start output
 		ob_start();
 		ob_start('ob_gzhandler');
 		echo trim($text);
@@ -1268,11 +1275,7 @@ function wrap_cache_filename($type = 'url') {
 	$file .= '/'.urlencode($base.$my['path']);
 	if ($type === 'url') return $file;
 
-	if (!empty($zz_setting['gzip_encode'])) {
-		$file .= '.gz.headers';
-	} else {
-		$file .= '.headers';
-	}
+	$file .= '.headers';
 	if ($type === 'headers') return $file;
 
 	return false;
