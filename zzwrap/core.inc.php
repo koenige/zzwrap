@@ -27,7 +27,7 @@ function wrap_test_secret_key($secret_key) {
 	if (empty($_GET['tlh'])) return false;
 	if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
 		$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
-		wrap_session();
+		wrap_session_start();
 		$_SESSION['wrap_page_preview'] = true;
 		$wrap_page_preview = true;
 	}
@@ -40,11 +40,12 @@ function wrap_test_secret_key($secret_key) {
  * @return bool
  */
 function wrap_session_start() {
+	global $zz_setting;
 	// is already a session active?
 	if (session_id()) return false;
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-		session_set_cookie_params(0, NULL, NULL, NULL, true);
+		session_set_cookie_params(0, '/', $zz_setting['host_name'], false, true);
 	}
 	session_start();
 	return true;
