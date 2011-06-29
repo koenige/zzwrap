@@ -217,6 +217,10 @@ if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_fro
 if (!isset($zz_setting['authentication_possible']))
 	$zz_setting['authentication_possible'] = true;
 
+if ($zz_setting['local_access']) {
+	$zz_setting['logout_inactive_after'] *= 20;
+}
+
 
 // -------------------------------------------------------------------------
 // Encryption

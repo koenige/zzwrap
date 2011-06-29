@@ -220,9 +220,6 @@ function wrap_set_defaults() {
 	$zz_setting['login_url']	= '/login/';
 	// minutes until you will be logged out automatically while inactive
 	$zz_setting['logout_inactive_after'] = 30;
-	if ($zz_setting['local_access']) {
-		$zz_setting['logout_inactive_after'] = 24*60;
-	}
 }
 
 ?>
