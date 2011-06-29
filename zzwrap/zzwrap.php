@@ -212,7 +212,6 @@ function wrap_set_defaults() {
 	if ($zz_setting['local_access']) {
 		$zz_conf['error_handling']	= 'output';
 	}
-}
 
 // -------------------------------------------------------------------------
 // Authentication
@@ -224,5 +223,6 @@ function wrap_set_defaults() {
 	if ($zz_setting['local_access']) {
 		$zz_setting['logout_inactive_after'] = 24*60;
 	}
+}
 
 ?>
