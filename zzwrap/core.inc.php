@@ -1203,6 +1203,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	}
 
 	if (!empty($zz_setting['gzip_encode'])) {
+		header("Vary: Accept-Encoding");
 		// gzip?
 		// start output
 		ob_start();
