@@ -1185,6 +1185,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 		header('Last-Modified: '.$last_modified);
 	}
 
+	header("Content-Length: ".strlen($text));
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
 	
 	// output content
@@ -1302,6 +1303,7 @@ function wrap_send_cache($age = 0) {
 	if (!$etag) $etag = md5($text);
 	$etag_header = wrap_if_none_match($etag);
 
+	header("Content-Length: ".strlen($text));
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
 	
 	if (!empty($zz_setting['gzip_encode'])) {
