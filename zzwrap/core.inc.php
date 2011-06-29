@@ -1198,11 +1198,18 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 		header('Last-Modified: '.$last_modified);
 	}
 
-	// gzip?
-	if (!empty($zz_setting['gzip_encode'])) ob_start("ob_gzhandler");
-	
-	// output content
-	echo trim($text);
+	if (!empty($zz_setting['gzip_encode'])) {
+		// gzip?
+		ob_start();
+		ob_start('ob_gzhandler');
+		echo trim($text);
+		ob_end_flush();  // The ob_gzhandler one
+		header('Content-Length: '.ob_get_length());
+		ob_end_flush();  // The main one
+	} else {
+		// output content
+		echo trim($text);
+	}
 	exit;
 }
 
