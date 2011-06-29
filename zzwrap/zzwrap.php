@@ -10,6 +10,8 @@ function zzwrap() {
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
 
+	wrap_set_defaults();
+
 	// include required files
 	if (file_exists($zz_setting['inc'].'/config.inc.php'))
 		require_once $zz_setting['inc'].'/config.inc.php'; 		// configuration
@@ -96,5 +98,131 @@ function zzwrap() {
 	}
 	exit;
 }
+
+/**
+ * Default variables, pre config
+ *
+ * @global array $zz_setting
+ * @global array $zz_conf
+ */
+function wrap_set_defaults() {
+	global $zz_setting;
+	global $zz_conf;
+
+// -------------------------------------------------------------------------
+// Main paths, should be set in paths.inc.php
+// -------------------------------------------------------------------------
+	
+	// http root directory
+	if (!isset($zz_conf['root']))
+		$zz_conf['root'] = $_SERVER['DOCUMENT_ROOT'];
+	// includes
+	if (!isset($zz_setting['inc']))
+		$zz_setting['inc'] = $zz_conf['root'].'/../_inc';
+
+// -------------------------------------------------------------------------
+// Hostname
+// -------------------------------------------------------------------------
+
+	// HTTP_HOST, htmlspecialchars against XSS
+	$zz_setting['hostname']		= htmlspecialchars($_SERVER['HTTP_HOST']);
+	if (!$zz_setting['hostname']) $zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
+
+	// check if it's a local development server
+	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
+
+	// base URL, e. g. for languages
+	$zz_setting['base'] = '';
+
+// -------------------------------------------------------------------------
+// URLs
+// -------------------------------------------------------------------------
+
+	$zz_setting['homepage_url']	= '/';
+	$zz_setting['login_entryurl'] = '/';
+
+// -------------------------------------------------------------------------
+// Paths
+// -------------------------------------------------------------------------
+
+	// Caching	
+	$zz_setting['cache']		= $zz_conf['root'].'/../_cache';
+	$zz_setting['cache_age']	= 10;
+	if ($zz_setting['local_access']) {
+		$zz_setting['cache_age']	= 1;
+	}
+
+	// Media
+	$zz_setting['media_folder']	= $zz_conf['root'].'/../files';
+
+	// Forms: zzform upload module
+	$zz_conf['tmp_dir']			= $zz_conf['root'].'/../_temp';
+	$zz_conf['backup']			= true;
+	$zz_conf['backup_dir']		= $zz_conf['root'].'/../_backup';
+
+// -------------------------------------------------------------------------
+// Modules
+// -------------------------------------------------------------------------
+
+	// modules
+	$zz_setting['standard_extensions'][] = 'markdown-extra';
+
+	// Forms
+	$zz_conf['ext_modules']		= array('markdown-extra');
+
+	// Forms: zzform upload module
+	$zz_conf['graphics_library'] = 'imagemagick';
+
+// -------------------------------------------------------------------------
+// Page
+// -------------------------------------------------------------------------
+
+	// Use redirects table / Umleitungs-Tabelle benutzen
+	$zz_setting['check_redirects'] = true;
+
+	// zzbrick: brick types
+	$zz_setting['brick_types_translated']['tables'] = 'forms';
+
+	// zzbrick: use brick page templates
+	// allow %%% page ... %%%-syntax
+	$zz_setting['brick_page_templates'] = true;
+	$zz_setting['brick_fulltextformat'] = 'markdown';
+	// functions that might be used for formatting (zzbrick)
+	$zz_setting['brick_formatting_functions'] = array('markdown', 'datum_de', 
+		'rawurlencode', 'wordwrap', 'nl2br');
+
+	if (!$zz_setting['local_access']) {
+		$zz_setting['gzip_encode'] = true;
+	}
+
+// -------------------------------------------------------------------------
+// Database structure
+// -------------------------------------------------------------------------
+
+	$zz_conf['prefix']			= ''; // prefix for all database tables
+	$zz_conf['logging']			= true;
+	$zz_conf['logging_id']		= true;
+
+// -------------------------------------------------------------------------
+// Error Logging
+// -------------------------------------------------------------------------
+
+	$zz_conf['error_mail_level'] = array('error', 'warning');
+	$zz_conf['error_handling']	= 'mail';
+	if ($zz_setting['local_access']) {
+		$zz_conf['error_handling']	= 'output';
+	}
+}
+
+// -------------------------------------------------------------------------
+// Authentication
+// -------------------------------------------------------------------------
+
+	$zz_setting['login_url']	= '/login/';
+	// minutes until you will be logged out automatically while inactive
+	$zz_setting['logout_inactive_after'] = 30;
+	if ($zz_setting['local_access']) {
+		$zz_setting['logout_inactive_after'] = 24*60;
+	}
 
 ?>

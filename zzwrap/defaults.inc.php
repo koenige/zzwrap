@@ -2,7 +2,7 @@
 
 // zzwrap (Project Zugzwang)
 // (c) Gustaf Mossakowski, <gustaf@koenige.org> 2008
-// Default variables
+// Default variables, post config
 
 
 // -------------------------------------------------------------------------
@@ -25,16 +25,6 @@ if (empty($zz_setting['http']['not_allowed'])) {
 // -------------------------------------------------------------------------
 // Hostname, Access via HTTPS or not
 // -------------------------------------------------------------------------
-
-if (empty($zz_setting['hostname'])) { // HTTP_HOST, htmlspecialchars against XSS
-	$zz_setting['hostname']		= htmlspecialchars($_SERVER['HTTP_HOST']);
-	if (!$zz_setting['hostname']) $zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
-}
-if (empty($zz_setting['local_access'])) // check if it's a local server
-	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
-
-if (empty($zz_setting['base'])) 
-	$zz_setting['base'] = '';
 
 if (empty($zz_setting['https'])) $zz_setting['https'] = false;
 // HTTPS; zzwrap authentication will always be https
@@ -73,27 +63,8 @@ if (empty($zz_setting['host_base']))
 	$zz_setting['host_base'] 	= $zz_setting['protocol'].'://'.$zz_setting['hostname'];
 
 // -------------------------------------------------------------------------
-// URLs
-// -------------------------------------------------------------------------
-
-// More URLs
-if (empty($zz_setting['homepage_url']))
-	$zz_setting['homepage_url']	= '/';
-		
-if (empty($zz_setting['login_entryurl']))
-	$zz_setting['login_entryurl'] = '/';
-
-// -------------------------------------------------------------------------
 // Paths
 // -------------------------------------------------------------------------
-
-// server root
-if (empty($zz_conf['root']))
-	$zz_conf['root']			= $_SERVER['DOCUMENT_ROOT'];
-
-// scripts
-if (empty($zz_setting['inc']))
-	$zz_setting['inc']			= $zz_conf['root'].'/_inc';
 
 // library
 if (empty($zz_setting['lib']))
@@ -145,10 +116,6 @@ if (empty($zz_setting['local_pwd']))
 // Page
 // -------------------------------------------------------------------------
 
-// allow %%% page ... %%%-syntax
-if (empty($zz_setting['brick_page_templates']))
-	$zz_setting['brick_page_templates'] = false;
-
 // translations
 if (!isset($zz_conf['translations_of_fields']))
 	$zz_conf['translations_of_fields'] = false;
@@ -163,10 +130,6 @@ if (!isset($zz_page['template_pagetitle']))
 if (!isset($zz_page['template_pagetitle_home']))
 	$zz_page['template_pagetitle_home'] = '%1$s';
 
-// functions that might be used for formatting (zzbrick)
-if (!isset($zz_setting['brick_formatting_functions']))
-	$zz_setting['brick_formatting_functions'] = array();
-	
 // allowed HTML rel attribute values
 if (!isset($zz_setting['html_link_types'])) {
 	$zz_setting['html_link_types'] = array('Alternate', 'Stylesheet', 'Start',
@@ -181,11 +144,6 @@ if (!isset($zz_setting['xml_close_empty_tags']))
 // Page template
 if ($zz_setting['brick_page_templates'] AND empty($zz_page['template'])) {
 	$zz_page['template'] = 'page';
-}
-
-// zzbrick tables is always alias for forms
-if (empty($zz_setting['brick_types_translated']['tables'])) {
-	$zz_setting['brick_types_translated']['tables'] = 'forms';
 }
 
 // -------------------------------------------------------------------------
@@ -209,6 +167,20 @@ if (!isset($zz_conf['debug']))
 	$zz_conf['debug']			= false;
 
 // -------------------------------------------------------------------------
+// Database structure
+// -------------------------------------------------------------------------
+
+if (!isset($zz_conf['relations_table']))
+	$zz_conf['relations_table']	= $zz_conf['prefix'].'_relations';
+
+if (!empty($zz_conf['logging']) AND !isset($zz_conf['logging_table']))
+	$zz_conf['logging_table']	= $zz_conf['prefix'].'_logging';
+
+if (!empty($zz_conf['translations_of_fields']) AND empty($zz_conf['translations_table']))
+	$zz_conf['translations_table']  = $zz_conf['prefix'].'_translationfields';
+
+
+// -------------------------------------------------------------------------
 // Error Logging
 // -------------------------------------------------------------------------
 
@@ -227,9 +199,6 @@ if (!isset($zz_conf['log_errors']))
 if (!isset($zz_conf['log_errors_max_len']))
 	$zz_conf['log_errors_max_len'] 	= ini_get('log_errors_max_len');
 
-if (!isset($zz_conf['error_mail_level']))
-	$zz_conf['error_mail_level']	= array('warning', 'error');
-
 if (!isset($zz_conf['translate_log_encodings']))
 	$zz_conf['translate_log_encodings'] = array(
 		'iso-8859-2' => 'iso-8859-1'
@@ -242,22 +211,11 @@ if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_fro
 
 
 // -------------------------------------------------------------------------
-// Database structure
-// -------------------------------------------------------------------------
-
-if (!isset($zz_conf['prefix']))
-	$zz_conf['prefix'] = ''; // prefix for all database tables
-
-
-// -------------------------------------------------------------------------
 // Authentication
 // -------------------------------------------------------------------------
 
 if (!isset($zz_setting['authentication_possible']))
 	$zz_setting['authentication_possible'] = true;
-
-if (!isset($zz_setting['logout_inactive_after']))
-	$zz_setting['logout_inactive_after'] = 30; // time in minutes
 
 
 // -------------------------------------------------------------------------
