@@ -841,8 +841,6 @@ function wrap_file_send($file) {
 	if ($filesize + 1 > wrap_return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { //Not higher than 1GB
 		ini_set('memory_limit', intval($filesize * 1.5));
 	}
-	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
-	$cache_time = gmdate("D, d M Y H:i:s", filemtime($file['name'])); 
 
 	// Canonicalize suffices
 	$suffix_map = array(
@@ -868,24 +866,15 @@ function wrap_file_send($file) {
 	header('Cache-Control: ');
 	header('Pragma: ');
 
- 	header("Last-Modified: " . $cache_time . " GMT");
+	// Check for 304 or send ETag header
 	if (!empty($file['etag'])) {
-		$file['etag'] = sprintf('"%s"', $file['etag']);
+		$file['etag'] = wrap_if_none_match($file['etag'], $file);
 		header("ETag: ".$file['etag']);
 	}
 
-	// Respond to If Modified Since with 304 header if appropriate
-    if (!empty($file['etag']) 
-    	AND isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $file['etag']) {
-		wrap_file_cleanup($file);
-		wrap_http_status_header(304);
-		exit;
-	} elseif (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
-		&& $cache_time.' GMT' == $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
-		wrap_file_cleanup($file);
-		wrap_http_status_header(304);
-		exit;
-	}
+	// Check for 304 and send Last-Modified header
+	$last_modified = wrap_if_modified_since(filemtime($file['name']), $file);
+ 	header("Last-Modified: ".$last_modified);
 
 	// Send HTTP headers
  	header("Accept-Ranges: bytes");
@@ -1123,17 +1112,15 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	global $zz_conf;
 	global $zz_setting;
 
+	$text = trim($text);
+
 	// Send ETag-Header and check whether content is identical to
 	// previously sent content
-	$etag = md5($text);
-	$etag_header = sprintf('"%s"', $etag);
-	$etag_header_gz = sprintf('"%s"', $etag.'-gz');
-    if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
-    	if ($_SERVER['HTTP_IF_NONE_MATCH'] == $etag_header
-    		OR $_SERVER['HTTP_IF_NONE_MATCH'] == $etag_header_gz) {
-			wrap_http_status_header(304);
-			exit;
-		}
+	$etag_header = array();
+	if ($status == 200) {
+		$etag = md5($text);
+		$etag_header = wrap_if_none_match($etag);
+		header("ETag: ".$etag_header['std']);
 	}
 
 	// headers
@@ -1147,9 +1134,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 		header('Content-Type: application/json; charset=utf-8');
 		break;
 	}
-	header("ETag: ".$etag_header);
 
-	$last_modified = gmdate("D, d M Y H:i:s", time()). ' GMT';
+	$last_modified_time = time();
 
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
@@ -1169,16 +1155,16 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 			$headers = json_decode(file_get_contents($head));
 			foreach ($headers as $header) {
 				if (substr($header, 0, 6) != 'ETag: ') continue;
-				if (substr($header, 6) != $etag_header) continue;
+				if (substr($header, 6) != $etag_header['std']) continue;
 				$equal = true;
 				// set older value for Last-Modified header
 				if ($time = filemtime($doc)) // if it exists
-					$last_modified = gmdate("D, d M Y H:i:s", $time). ' GMT';
+					$last_modified_time = $time;
 			}
 		}
 		if (!$equal) {
 			// save document
-			file_put_contents($doc, trim($text));
+			file_put_contents($doc, $text);
 			// save headers
 			// without '-gz'
 			file_put_contents($head, json_encode(headers_list()));
@@ -1186,41 +1172,90 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 	}
 
 	// Last Modified?
-	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) 
-		&& $last_modified === $_SERVER['HTTP_IF_MODIFIED_SINCE']) {
-		wrap_http_status_header(304);
-		exit;
-	}
+	$last_modified = wrap_if_modified_since($last_modified_time);
+
 	// send Last-Modified header if not yet sent
 	$send_last_modified = true;
 	$prepared_headers = headers_list();
 	foreach ($prepared_headers as $prepared_header) {
-		if (substr($prepared_header, 0, 15) != 'Last-Modified: ') continue;
+		if (!wrap_substr($prepared_header, 'Last-Modified: ')) continue;
 		$send_last_modified = false;
 	}
 	if ($send_last_modified) {
 		header('Last-Modified: '.$last_modified);
 	}
 
+	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
+	
+	// output content
 	if (!empty($zz_setting['gzip_encode'])) {
-		header("Vary: Accept-Encoding");
-		// gzip?
-		// start output
-		ob_start();
-		ob_start('ob_gzhandler');
-		echo trim($text);
-		ob_end_flush();  // The ob_gzhandler one
+		wrap_send_gzip($text, $etag_header);
+	} else {
+		echo $text;
+	}
+	exit;
+}
+
+function wrap_send_gzip($text, $etag_header) {
+	// gzip?
+	header("Vary: Accept-Encoding");
+	// start output
+	ob_start();
+	ob_start('ob_gzhandler');
+	echo $text;
+	ob_end_flush();  // The ob_gzhandler one
+	if ($etag_header) {
+		// only if HTTP status = 200
 		foreach (headers_list() AS $header) {
 			if (!wrap_substr($header, "Content-Encoding: ")) continue;
 			// overwrite ETag with -gz ending
-			header("ETag: ".$etag_header_gz);
+			header("ETag: ".$etag_header['gz']);
 		}
-		header('Content-Length: '.ob_get_length());
-		ob_end_flush();  // The main one
-	} else {
-		// output content
-		echo trim($text);
 	}
+	header('Content-Length: '.ob_get_length());
+	ob_end_flush();  // The main one
+}
+
+/**
+ * creates ETag-Headers, checks against HTTP_IF_NONE_MATCH
+ *
+ * @param string $etag
+ * @param array $file (optional)
+ * @return mixed $etag_header (only if none match)
+ *		!$file: array 'std' = standard header, 'gz' = header with gzip
+ *		$file: string standard header
+ */
+function wrap_if_none_match($etag, $file = array()) {
+	$etag_header['std'] = sprintf('"%s"', $etag);
+	$etag_header['gz'] = sprintf('"%s"', $etag.'-gz');
+    if (!isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+    	if ($file) return $etag_header['std'];
+    	else return $etag_header;
+    }
+    if ($_SERVER['HTTP_IF_NONE_MATCH'] != $etag_header['std']
+    	AND $_SERVER['HTTP_IF_NONE_MATCH'] != $etag_header['gz']) {
+		return $etag_header;
+    }
+    if ($file) wrap_file_cleanup($file);
+	wrap_http_status_header(304);
+	exit;
+}
+
+/**
+ * creates Last-Modified-Header, checks against HTTP_IF_MODIFIED_SINCE
+ * respond to If Modified Since with 304 header if appropriate
+ *
+ * @param int $time (timestamp)
+ * @param array $file (optional)
+ * @return string time formatted for Last-Modified
+ */
+function wrap_if_modified_since($time, $file = array()) {
+	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
+	$last_modified = gmdate("D, d M Y H:i:s", $time). ' GMT';
+	if (!isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) return $last_modified;
+	if ($last_modified !== $_SERVER['HTTP_IF_MODIFIED_SINCE']) return $last_modified;
+    if ($file) wrap_file_cleanup($file);
+	wrap_http_status_header(304);
 	exit;
 }
 
@@ -1250,10 +1285,30 @@ function wrap_send_cache($age = 0) {
 		}
 	}
 	$headers = json_decode(file_get_contents($files[1]));
-	foreach ($headers as $header) header($header);
-	header('Last-Modified: '.gmdate("D, d M Y H:i:s", filemtime($files[0])).' GMT');
+	$etag = false;
+	foreach ($headers as $header) {
+		if (wrap_substr($header, 'ETag: ')) {
+			// check if respond with 304
+			$etag = substr($header, 7, -1); // without ""
+		}
+		header($header);
+	}
+	// check if respond with 304; Last-Modified
+	$last_modified = wrap_if_modified_since(filemtime($files[0]));
+	header('Last-Modified: '.$last_modified);
 	$text = file_get_contents($files[0]);
-	echo $text;
+
+	// check if respond with 304; ETag
+	if (!$etag) $etag = md5($text);
+	$etag_header = wrap_if_none_match($etag);
+
+	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
+	
+	if (!empty($zz_setting['gzip_encode'])) {
+		wrap_send_gzip($text, $etag_header);
+	} else {
+		echo $text;
+	}
 	exit;
 }
 
