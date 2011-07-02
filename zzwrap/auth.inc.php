@@ -565,12 +565,27 @@ function wrap_login_format($field_value, $field_name) {
  *
  * @param string $pass password as entered by user
  * @param string $hash hash as stored in database
+ * @global array $zz_conf
+ *		'hash_password', 'hash_script'
  * @return bool true: given credentials are correct, false: no access!
  * @see zz_passsword_check()
  */
 function wrap_password_check($pass, $hash) {
-	if ($hash === wrap_password_hash($pass)) return true;
-	return false;
+	global $zz_conf;
+	if (!empty($zz_conf['hash_script']))
+		require_once $zz_conf['hash_script'];
+	// password must not be longer than 72 characters
+	if (strlen($pass) > 72) return false;
+	
+	switch ($zz_conf['hash_password']) {
+	case 'phpass':
+		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		if ($hasher->CheckPassword($pass, $hash)) return true;
+		else return false;
+	default:
+		if ($hash === wrap_password_hash($pass)) return true;
+		return false;
+	}
 }
 
 /**
@@ -578,18 +593,31 @@ function wrap_password_check($pass, $hash) {
  *
  * @param string $pass password as entered by user
  * @global array $zz_conf
- *		'password_encryption', 'password_salt'
+ *		'hash_password', 'password_salt',
+ *		'hash_script', 'hash_cost_log2', 'hash_portable'
  * @return string hash
  * @see zz_passsword_hash()
  */
 function wrap_password_hash($pass) {
 	global $zz_conf;
-	if (empty($zz_conf['password_encryption'])) 
-		$zz_conf['password_encryption'] = 'md5';
-	if (!isset($zz_conf['password_salt'])) 
-		$zz_conf['password_salt'] = '';
+	if (!empty($zz_conf['hash_script']))
+		require_once $zz_conf['hash_script'];
+	// password must not be longer than 72 characters
+	if (strlen($pass) > 72) return false;
 
-	return $zz_conf['password_encryption']($pass.$zz_conf['password_salt']);
+	switch ($zz_conf['hash_password']) {
+	case 'phpass':
+		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		$hash = $hasher->HashPassword($pass);
+		if (strlen($hash) < 20) return false;
+		return $hash;
+	default:
+		if (!isset($zz_conf['password_salt'])) 
+			$zz_conf['password_salt'] = '';
+		return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
+	}
+
+	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
 }
 
 ?>

@@ -221,4 +221,26 @@ if ($zz_setting['local_access']) {
 	$zz_setting['logout_inactive_after'] *= 20;
 }
 
+
+// -------------------------------------------------------------------------
+// Encryption
+// -------------------------------------------------------------------------
+
+if (empty($zz_conf['hash_password'])) 
+	$zz_conf['hash_password'] = 'md5';
+
+if ($zz_conf['hash_password'] === 'phpass') {
+	// Base-2 logarithm of the iteration count used for password stretching
+	if (!isset($zz_conf['hash_cost_log2']))
+		$zz_conf['hash_cost_log2'] = 8;
+
+	// Do we require the hashes to be portable to older systems (less secure)?
+	if (!isset($zz_conf['hash_portable']))
+		$zz_conf['hash_portable'] = FALSE;
+	
+	// path to script
+	if (!isset($zz_conf['hash_script']))
+		$zz_conf['hash_script'] = $zz_setting['lib'].'/phpass/PasswordHash.php';
+}
+
 ?>
