@@ -234,7 +234,7 @@ CREATE TABLE `logins` (
   `login_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `login_rights` enum('admin','read and write','read') COLLATE latin1_german2_ci NOT NULL DEFAULT 'read',
-  `password` varchar(32) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `password` varchar(60) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `password_change` enum('yes','no') COLLATE latin1_german2_ci NOT NULL DEFAULT 'no',
   `logged_in` enum('yes','no') COLLATE latin1_german2_ci NOT NULL DEFAULT 'no',
   `last_click` int(10) unsigned DEFAULT NULL,
