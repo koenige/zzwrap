@@ -342,12 +342,13 @@ function cms_login($params) {
 		unset($_SESSION['logged_in']);
 		$data = wrap_db_fetch($sql);
 		if ($data) {
+			$hash = array_shift($data);
 			if ($login['single_sign_on']) {
-				array_shift($data); // get rid of password
 				$_SESSION['logged_in'] = true;
-			} elseif (array_shift($data) == $zz_conf['password_encryption']($login['password'].$zz_conf['password_salt'])) {
+			} elseif (wrap_password_check($login['password'], $hash)) {
 				$_SESSION['logged_in'] = true;
 			}
+			unset($hash);
 		}
 		// if MySQL-Login does not work, try different sources
 		// ... LDAP ...
@@ -373,7 +374,7 @@ function cms_login($params) {
 		if (empty($_SESSION['logged_in'])) { // Login not successful
 			if (!$msg) $msg = wrap_text('Password or username incorrect. Please try again.');
 			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s\n%s", 
-				implode('.', $full_login), $zz_conf['password_encryption']($login['password'].$zz_conf['password_salt'])), E_USER_NOTICE);
+				implode('.', $full_login), wrap_password_hash($login['password']), E_USER_NOTICE);
 		} else {
 			// Hooray! User has been logged in
 			wrap_register(false, $data);
@@ -557,6 +558,38 @@ function wrap_login_format($field_value, $field_name) {
 		$field_value = $zz_setting['login_fields_format']($field_value, $field_name);
 
 	return $field_value;
+}
+
+/**
+ * check given password against database password hash
+ *
+ * @param string $pass password as entered by user
+ * @param string $hash hash as stored in database
+ * @return bool true: given credentials are correct, false: no access!
+ * @see zz_passsword_check()
+ */
+function wrap_password_check($pass, $hash) {
+	if ($hash === wrap_password_hash($pass)) return true;
+	return false;
+}
+
+/**
+ * hash password
+ *
+ * @param string $pass password as entered by user
+ * @global array $zz_conf
+ *		'password_encryption', 'password_salt'
+ * @return string hash
+ * @see zz_passsword_hash()
+ */
+function wrap_password_hash($pass) {
+	global $zz_conf;
+	if (empty($zz_conf['password_encryption'])) 
+		$zz_conf['password_encryption'] = 'md5';
+	if (!isset($zz_conf['password_salt'])) 
+		$zz_conf['password_salt'] = '';
+
+	return $zz_conf['password_encryption']($pass.$zz_conf['password_salt']);
 }
 
 ?>
