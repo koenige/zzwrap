@@ -18,7 +18,7 @@ $text['To access the internal area, a registration is required. Please enter bel
 $text['Please allow cookies after sending your login credentials. For security reasons, after %d minutes of inactivity you will be logged out automatically.'] 
 	= 'Damit der Login funktioniert, m&uuml;ssen Sie nach &Uuml;bermittlung der Anmeldedaten einen Cookie akzeptieren. Nach %d Minuten Inaktivit&auml;t werden Sie aus Sicherheitsgr&uuml;nden automatisch wieder abgemeldet!';
 $text['Password or username are empty. Please try again.'] = 'Pa&szlig;wort oder Benutzername leer. Bitte versuchen Sie es erneut.';
-$text['Temporarily, a login is not possible.'] = 'Vor&uuml;bergehend ist keine Anmeldung m&ouml;glich';
+$text['Temporarily, a login is not possible.'] = 'Vor&uuml;bergehend ist keine Anmeldung m&ouml;glich.';
 
 // HTTP Error 400
 $text['Bad Request'] = 'Fehlerhafte Anfrage';

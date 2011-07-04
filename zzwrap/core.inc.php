@@ -41,15 +41,47 @@ function wrap_test_secret_key($secret_key) {
  */
 function wrap_session_start() {
 	global $zz_setting;
+	global $zz_page;
+	
 	// is already a session active?
 	if (session_id()) return false;
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
+	$last_error = false;
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
+		$last_error = error_get_last();
 	}
 	$success = session_start();
+	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
+		// only throw 503 error if authentication is a MUST HAVE
+		// otherwise, page might still be accessible without authentication
+		if (wrap_authenticate_url($zz_page['url']['full']['path'], $zz_setting['no_auth_urls'])) {
+			$session_error = error_get_last();
+			if ($last_error != $session_error
+				AND wrap_substr($session_error['message'], 'session_start()')) {
+				wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
+			}
+		}
+	}
 	if (!$success) wrap_quit(503, 'Temporarily, a login is not possible.');
 	return true;
+}
+
+/**
+ * Checks current URL against no auth URLs
+ *
+ * @param string $url URL from database
+ * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
+ * @return bool true if authentication is required, false if not
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_authenticate_url($url, $no_auth_urls) {
+	foreach ($no_auth_urls AS $test_url) {
+		if (substr($url, 0, strlen($test_url)) == $test_url) {
+			return false; // no authentication required
+		}
+	}
+	return true; // no matches: authentication required
 }
 
 /**

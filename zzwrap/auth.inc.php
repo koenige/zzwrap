@@ -168,23 +168,6 @@ function wrap_auth() {
 }
 
 /**
- * Checks current URL against no auth URLs
- *
- * @param string $url URL from database
- * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
- * @return bool true if authentication is required, false if not
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function wrap_authenticate_url($url, $no_auth_urls) {
-	foreach ($no_auth_urls AS $test_url) {
-		if (substr($url, 0, strlen($test_url)) == $test_url) {
-			return false; // no authentication required
-		}
-	}
-	return true; // no matches: authentication required
-}
-
-/**
  * Stops SESSION if cookie exists but time is up
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
