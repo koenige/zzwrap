@@ -47,7 +47,8 @@ function wrap_session_start() {
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
 	}
-	session_start();
+	$success = session_start();
+	if (!$success) wrap_quit(503, 'Temporarily, a login is not possible.');
 	return true;
 }
 
