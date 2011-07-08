@@ -150,6 +150,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
  * @global array $zz_setting
  *		array 'mail_summary' contains all error messages, indexed by level and
  *		numerical; will be unset after content is sent
+ *		string 'start_process' (optional, time that process was started)
  * @return bool = mail was sent (true), not sent (false)
  * @see wrap_error()
  */
@@ -158,6 +159,11 @@ function wrap_error_summary() {
 	global $zz_setting;
 	$zz_conf['error_handling'] = 'mail';
 	if (empty($zz_setting['mail_summary'])) return false;
+	
+	if (!empty($zz_setting['start_process'])) {
+		wrap_error('Start process: '.$zz_setting['start_process'], E_USER_NOTICE);
+		unset($zz_setting['start_process']);
+	}
 	
 	foreach ($zz_setting['mail_summary'] AS $error_level => $errors) {
 		wrap_error(implode("\n\n", $errors), $error_level);
