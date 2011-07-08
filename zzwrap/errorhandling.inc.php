@@ -157,8 +157,13 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 function wrap_error_summary() {
 	global $zz_conf;
 	global $zz_setting;
+	if ($zz_conf['error_handling'] !== 'mail_summary') return false;
 	$zz_conf['error_handling'] = 'mail';
 	if (empty($zz_setting['mail_summary'])) return false;
+	
+	// no need to log these errors again
+	$log_errors = $zz_conf['log_errors'];
+	$zz_conf['log_errors'] = false;
 	
 	if (!empty($zz_setting['start_process'])) {
 		wrap_error('Start process: '.$zz_setting['start_process'], E_USER_NOTICE);
@@ -169,6 +174,7 @@ function wrap_error_summary() {
 		wrap_error(implode("\n\n", $errors), $error_level);
 	}
 	unset($zz_setting['mail_summary']);
+	$zz_conf['log_errors'] = $log_errors;
 	return true;
 }
 
