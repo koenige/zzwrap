@@ -165,13 +165,13 @@ function wrap_error_summary() {
 	$log_errors = $zz_conf['log_errors'];
 	$zz_conf['log_errors'] = false;
 	
-	if (!empty($zz_setting['start_process'])) {
-		wrap_error('Start process: '.$zz_setting['start_process'], E_USER_WARNING);
-		unset($zz_setting['start_process']);
-	}
-	
 	foreach ($zz_setting['mail_summary'] AS $error_level => $errors) {
-		wrap_error(implode("\n\n", $errors), $error_level);
+		$msg = implode("\n\n", $errors);
+		if (!empty($zz_setting['start_process']) AND $error_level === 'warning') {
+			$msg = $zz_setting['start_process'].' '.$msg;
+			unset($zz_setting['start_process']);
+		}
+		wrap_error($msg, $error_level);
 	}
 	unset($zz_setting['mail_summary']);
 	$zz_conf['log_errors'] = $log_errors;
