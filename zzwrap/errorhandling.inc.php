@@ -166,7 +166,7 @@ function wrap_error_summary() {
 	$zz_conf['log_errors'] = false;
 	
 	if (!empty($zz_setting['start_process'])) {
-		wrap_error('Start process: '.$zz_setting['start_process'], E_USER_NOTICE);
+		wrap_error('Start process: '.$zz_setting['start_process'], E_USER_WARNING);
 		unset($zz_setting['start_process']);
 	}
 	
