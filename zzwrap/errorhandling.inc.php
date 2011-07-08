@@ -93,6 +93,10 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 			$zz_conf['error_mail_level'] = array();
 	}
 	switch ($zz_conf['error_handling']) {
+	case 'mail_summary':
+		if (!in_array($level, $zz_conf['error_mail_level'])) break;
+		$zz_setting['mail_summary'][$level][] = $msg;
+		break;
 	case 'mail':
 		if (!in_array($level, $zz_conf['error_mail_level'])) break;
 		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
@@ -136,6 +140,30 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		wrap_errorpage($page, $zz_page, false);
 		exit;
 	}
+}
+
+/**
+ * sends a large mail instead of several one liners if errors occured
+ *
+ * @global array $zz_conf
+ *		string 'error_handling' will be reset to 'mail'
+ * @global array $zz_setting
+ *		array 'mail_summary' contains all error messages, indexed by level and
+ *		numerical; will be unset after content is sent
+ * @return bool = mail was sent (true), not sent (false)
+ * @see wrap_error()
+ */
+function wrap_error_summary() {
+	global $zz_conf;
+	global $zz_setting;
+	$zz_conf['error_handling'] = 'mail';
+	if (empty($zz_setting['mail_summary'])) return false;
+	
+	foreach ($zz_setting['mail_summary'] AS $error_level => $errors) {
+		wrap_error(implode("\n\n", $errors), $error_level);
+	}
+	unset($zz_setting['mail_summary']);
+	return true;
 }
 
 /**
