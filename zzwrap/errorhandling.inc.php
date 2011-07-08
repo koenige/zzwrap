@@ -168,7 +168,7 @@ function wrap_error_summary() {
 	foreach ($zz_setting['mail_summary'] AS $error_level => $errors) {
 		$msg = implode("\n\n", $errors);
 		if (!empty($zz_setting['start_process']) AND $error_level === 'warning') {
-			$msg = $zz_setting['start_process'].' '.$msg;
+			$msg = $zz_setting['start_process']."\n\n".$msg;
 			unset($zz_setting['start_process']);
 		}
 		wrap_error($msg, $error_level);
