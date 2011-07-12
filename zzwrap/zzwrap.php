@@ -212,6 +212,10 @@ function wrap_set_defaults() {
 	if ($zz_setting['local_access']) {
 		$zz_conf['error_handling']	= 'output';
 	}
+	if (!$zz_setting['local_access']) {
+		// just in case it's a bad ISP and php.ini must not be changed
+		@ini_set('display_errors', 0);
+	}
 
 // -------------------------------------------------------------------------
 // Authentication
