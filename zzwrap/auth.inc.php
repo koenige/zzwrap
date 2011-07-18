@@ -286,7 +286,8 @@ function cms_login($params) {
 		$zz_setting['login_fields'][] = 'Username';
 	}
 
-	$msg = false;
+	$loginform = array();
+	$loginform['msg'] = false;
 	// someone tried to login via POST
 	if ($_SERVER['REQUEST_METHOD'] == 'POST' OR $login['single_sign_on']) {
 	// send header for IE for P3P (Platform for Privacy Preferences Project)
@@ -300,7 +301,7 @@ function cms_login($params) {
 		// get password and username
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			if (empty($_POST['username']) OR empty($_POST['password']))
-				$msg = wrap_text('Password or username are empty. Please try again.');
+				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
 			$full_login = array();
 			foreach ($zz_setting['login_fields'] AS $login_field) {
 				$login_field = strtolower($login_field);
@@ -355,7 +356,9 @@ function cms_login($params) {
 	// and in that case, register and redirect to wanted URL in media database
 	if ($try_login) {
 		if (empty($_SESSION['logged_in'])) { // Login not successful
-			if (!$msg) $msg = wrap_text('Password or username incorrect. Please try again.');
+			if (!$loginform['msg']) {
+				$loginform['msg'] = wrap_text('Password or username incorrect. Please try again.');
+			}
 			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s\n%s", 
 				implode('.', $full_login), wrap_password_hash($login['password'])), E_USER_NOTICE);
 		} else {
@@ -381,53 +384,42 @@ function cms_login($params) {
 			return cms_login_redirect($url);
 		}
 	}
-
-	$page['text'] = '<div id="login"><div class="logintext">';
+	
 	if (isset($zz_page['url']['full']['query']) 
 		AND substr($zz_page['url']['full']['query'], 0, 6) == 'logout') {
 		// Stop the session, delete all session data
 		wrap_session_stop();
-		$page['text'] .= '<p><strong class="error">'.wrap_text('You have been logged out.').'</strong></p>';
+		$loginform['logout'] = true;
 	}
-	if (isset($_GET['no-cookie'])) 
-		$page['text'] .= '<p><strong class="error">'
-			.wrap_text('Please allow us to set a cookie!').'</strong></p>'; 
-	$page['text'] .='
-<p>'.wrap_text('To access the internal area, a registration is required. Please '
-	.'enter below your username and password.').'</p>
-<p>'.sprintf(wrap_text('Please allow cookies after sending your login '
-	.'credentials. For security reasons, after %d minutes of inactivity you '
-	.'will be logged out automatically.'), $zz_setting['logout_inactive_after']).'</p>
+	if (isset($_GET['no-cookie']))
+		$loginform['no-cookie'] = true;
+	$loginform['logout_inactive_after'] = $zz_setting['logout_inactive_after'];
 
-</div>
-<form action="./';
 	$params = array();
-	if (!empty($url)) $params[] = 'url='.urlencode($url); 
-	if (isset($querystring['no-cookie'])) $params[] = 'no-cookie';
-	if ($params) $page['text'] .= '?'.implode('&amp;', $params);
-	$page['text'].= '" method="POST" class="login">
-<fieldset><legend>'.wrap_text('Login').'</legend>'."\n";
-	foreach ($zz_setting['login_fields'] AS $login_field) {
-		$fieldname = strtolower($login_field);
-		$page['text'] .= '<p><label for="'.$fieldname.'"><strong>'
-			.wrap_text($login_field.':').'</strong></label>';
-		if (!empty($zz_setting['login_fields_output'][$login_field]))
-			// separate input, e. g. dropdown etc.
-			$page['text'] .= $zz_setting['login_fields_output'][$login_field];
-		else
-			// text input
-			$page['text'] .= '<input type="text" name="'.$fieldname.'" id="'
-				.$fieldname.'" value="'.(!empty($_POST[$fieldname]) 
-				? htmlspecialchars($_POST[$fieldname]) : '').'">';
-		$page['text'] .= '</p>'."\n";
+	if (!empty($url)) {
+		$params[] = 'url='.urlencode($url);
+		$zz_setting['cache'] = false;
 	}
+	if (isset($querystring['no-cookie'])) {
+		$params[] = 'no-cookie';
+		$zz_setting['cache'] = false;
+	}
+	$loginform['params'] = $params ? '?'.implode('&amp;', $params) : '';
 
-	$page['text'] .= '<p><label for="password"><strong>'.wrap_text('Password:')
-		.'</strong></label> <input type="password" name="password" id="password"></p>
-<p class="submit"><input type="submit" value="'.wrap_text('Sign in').'"></p>';
-	if ($msg) $page['text'].= '<p class="error submit">'.$msg.'</p>';
-	$page['text'] .= '</fieldset>';
-	$page['text'] .= '</form></div>';
+	$loginform['fields'] = array();
+	foreach ($zz_setting['login_fields'] AS $login_field) {
+		$loginform['fields'][] = array(
+			'title' => $login_field.':',
+			'fieldname' => strtolower($login_field),
+			// separate input, e. g. dropdown etc.
+			'output' => !empty($zz_setting['login_fields_output'][$login_field])
+				? $zz_setting['login_fields_output'][$login_field] : '',
+			// text input
+			'value' => !empty($_POST[$fieldname])
+				? htmlspecialchars($_POST[$fieldname]) : ''
+		);
+	}
+	$page['text'] = wrap_template('login', $loginform);
 	$page['meta'][] = array('name' => 'robots',
 		'content' => 'noindex, follow, noarchive'
 	);
