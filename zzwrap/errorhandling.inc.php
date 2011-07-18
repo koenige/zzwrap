@@ -197,9 +197,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
 	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 
-	// format page with brick_format()
-	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
-
 	// -- 1. check what kind of error page it is
 	$codes = wrap_read_errorcodes();
 	
@@ -253,7 +250,11 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 
 	// get own or default http-error template
-	$page['text'] = wrap_template('http-error');
+	if (file_exists($file = $zz_setting['custom_wrap_template_dir'].'/http-error.template.txt'))
+		$http_error_template = $file;
+	else
+		$http_error_template = $zz_setting['wrap_template_dir'].'/http-error.template.txt';
+	$page['text'] =  implode("", file($http_error_template));
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
 		// get menus, if function and database connection exist
