@@ -453,8 +453,14 @@ function wrap_template($template, $data = array(), $mode = false) {
 	global $zz_setting;
 
 	// Template einbinden und füllen
-	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template
-		.'.template.txt';
+	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
+	if (!file_exists($tpl)) {
+		// check if there's a default template
+		$tpl = $zz_setting['wrap_template_dir'].'/'.$template.'.template.txt';
+		if (!file_exists($tpl)) {
+			wrap_quit(503, sprintf(wrap_text('Template %s does not exist.'), htmlspecialchars($template)));
+		}
+	}
 	// save old setting regarding text formatting
 	if (!isset($zz_setting['brick_fulltextformat'])) 
 		$zz_setting['brick_fulltextformat'] = '';

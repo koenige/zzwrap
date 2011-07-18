@@ -93,6 +93,8 @@ if (empty($zz_setting['db_inc']))
 // cms core
 if (empty($zz_setting['core']))
 	$zz_setting['core']			= $zz_setting['lib'].'/zzwrap';
+if (empty($zz_setting['wrap_template_dir']))
+	$zz_setting['wrap_template_dir'] = $zz_setting['core'].'/default_templates';
 
 // zzform path
 if (empty($zz_conf['dir']))

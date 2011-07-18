@@ -250,11 +250,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 
 	// get own or default http-error template
-	if (file_exists($file = $zz_setting['custom_wrap_template_dir'].'/http-error.template.txt'))
-		$http_error_template = $file;
-	else
-		$http_error_template = $zz_setting['core'].'/default-http-error.template.txt';
-	$page['text'] =  implode("", file($http_error_template));
+	$page['text'] = wrap_template('http-error');
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
 		// get menus, if function and database connection exist
