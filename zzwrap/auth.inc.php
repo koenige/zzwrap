@@ -390,9 +390,10 @@ function cms_login($params) {
 		// Stop the session, delete all session data
 		wrap_session_stop();
 		$loginform['logout'] = true;
+	} else {
+		$loginform['logout'] = false;
 	}
-	if (isset($_GET['no-cookie']))
-		$loginform['no-cookie'] = true;
+	$loginform['no_cookie'] = isset($_GET['no-cookie']) ? true : false;
 	$loginform['logout_inactive_after'] = $zz_setting['logout_inactive_after'];
 
 	$params = array();

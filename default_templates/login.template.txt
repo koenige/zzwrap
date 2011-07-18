@@ -2,7 +2,7 @@
 %%% condition if logout %%%
 <p><strong class="error">%%% text "You have been logged out." %%%</strong></p>
 %%% condition endif %%%
-%%% condition if no-cookie %%%
+%%% condition if no_cookie %%%
 <p><strong class="error">%%% item text "Please allow us to set a cookie!" %%%</strong></p>
 %%% condition endif %%%
 <p>%%% text "To access the internal area, a registration is required. Please enter below your username and password." %%%</p>
