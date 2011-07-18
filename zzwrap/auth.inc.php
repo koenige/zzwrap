@@ -409,7 +409,7 @@ function cms_login($params) {
 	$loginform['fields'] = array();
 	foreach ($zz_setting['login_fields'] AS $login_field) {
 		$loginform['fields'][] = array(
-			'title' => $login_field.':',
+			'title' => wrap_text($login_field.':'),
 			'fieldname' => strtolower($login_field),
 			// separate input, e. g. dropdown etc.
 			'output' => !empty($zz_setting['login_fields_output'][$login_field])

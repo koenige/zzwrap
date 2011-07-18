@@ -11,7 +11,7 @@
 <form action="./%%% item params %%%" method="POST" class="login">
 <fieldset><legend>%%% text "Login" %%%</legend>
 %%% loop fields %%%
-<p><label for="%%% item fieldname %%%"><strong>%%% text title %%%</strong></label>
+<p><label for="%%% item fieldname %%%"><strong>%%% item title %%%</strong></label>
 %%% condition if output %%%
 %%% item output %%%
 %%% condition else %%%
