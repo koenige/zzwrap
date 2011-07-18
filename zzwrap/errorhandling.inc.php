@@ -197,6 +197,9 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
 	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 
+	// format page with brick_format()
+	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
+
 	// -- 1. check what kind of error page it is
 	$codes = wrap_read_errorcodes();
 	
