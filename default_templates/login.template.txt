@@ -3,7 +3,7 @@
 <p><strong class="error">%%% text "You have been logged out." %%%</strong></p>
 %%% condition endif %%%
 %%% condition if no_cookie %%%
-<p><strong class="error">%%% item text "Please allow us to set a cookie!" %%%</strong></p>
+<p><strong class="error">%%% text "Please allow us to set a cookie!" %%%</strong></p>
 %%% condition endif %%%
 <p>%%% text "To access the internal area, a registration is required. Please enter below your username and password." %%%</p>
 <p>%%% item logout_inactive_after "%{'Please allow cookies after sending your login credentials. For security reasons, after %d minutes of inactivity you will be logged out automatically.'}%" %%%</p>
