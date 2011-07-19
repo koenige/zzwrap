@@ -1,0 +1,47 @@
+# Zugzwang Project
+# (c) Gustaf Mossakowski, <gustaf@koenige.org> 2011
+# Template for KML export of coordinates
+#
+# fields:
+# title, description, styles (id, href), placemarks (title, filename, 
+# description, host, place, style, longitude, latitude, altitude)
+#
+#
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+	<Document>
+		<name>%%% item title %%%</name>
+		<description>%%% item description "<![CDATA[%s]]>" %%%</description>
+%%% loop styles %%%
+		<Style id="%%% item id %%%">
+			<IconStyle>
+				<scale>1</scale>
+				<hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction" />
+				<Icon>
+					<href>%%% item href %%%</href>
+				</Icon>
+			</IconStyle>
+		</Style>
+%%% loop end %%%
+%%% loop placemarks %%%
+	<Placemark>
+		<name>%%% item title %%%</name>
+		<description><![CDATA[
+		<div class="kmldesc">
+		%%% condition if filename %%%
+		<img src="%%% item host %%%/files/%%% item filename %%%">
+		%%% condition endif %%%
+		%%% item description %%%
+		%%% condition if place %%%
+		<p><a href="%%% item host %%%/deu/-/%%% item place %%%/">%%% item place %%%</a></p>
+		%%% condition endif %%%
+		</div>
+		]]></description>
+		<styleUrl>#%%% item style %%%</styleUrl>
+		<Point>
+			<coordinates>%%% item longitude %%%,%%% item latitude %%%,%%% item altitude %%%</coordinates>
+		</Point>
+	</Placemark>
+%%% loop end %%%
+	</Document>
+</kml>
