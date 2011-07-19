@@ -1600,7 +1600,7 @@ function wrap_substr($string, $substring, $mode = 'begin') {
 }
 
 /**
- * gets setting from configuration (default: zz_setting
+ * gets setting from configuration (default: zz_setting)
  *
  * @param string $key
  * @return mixed $setting (if not found, returns NULL)
