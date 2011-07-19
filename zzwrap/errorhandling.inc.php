@@ -376,7 +376,8 @@ function wrap_errorpage_log($status, $page) {
 		wrap_error($msg, E_USER_WARNING, $settings);
 		break;
 	case 403:
-		$settings['logfile'] .= ' (User agent: '.$_SERVER['HTTP_USER_AGENT'].')';
+		$settings['logfile'] .= ' (User agent: '
+			.(!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown').')';
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 400:
