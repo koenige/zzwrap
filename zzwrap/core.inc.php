@@ -643,6 +643,8 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
  * @param string $key_field_name optional: Fieldname of primary key
  * @param string $mode optional: flat = without hierarchy, hierarchy = with.
  * @return array with queried database content or just the IDs
+ *		if mode is set to hierarchy, you'll get a hierarchical list in 'level'
+ *		with ID as key and the level (0, 1, 2, ..., n) as value
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') {
@@ -656,6 +658,8 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 		unset($data);
 		$data[0] = $old_data; // 0 is the top hierarchy, means nothing stands above this
 		$data['ids'] = $ids;
+		$top_id = key($ids);
+		$data['level'][$top_id] = 0;
 	}
 	// as long as we have IDs in the pool, check if the current ID has child records
 	$used_ids = array();
@@ -675,6 +679,16 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 			$my_data = wrap_db_fetch(sprintf($sql, $my_id), 'dummy', 'single value');
 		}
 		if ($my_data) {
+			if ($mode == 'hierarchy') {
+				$my_level = $data['level'][$my_id] + 1;
+				$level = array();
+				foreach (array_keys($my_data) AS $id) {
+					$level[$id] = $my_level;
+				}
+				$pos = array_search($my_id, array_keys($data['level']))+1;
+				$data['level'] = array_slice($data['level'], 0, $pos, true)
+					+ $level + array_slice($data['level'], $pos, NULL, true);
+			}
 			// append new records to $data-Array
 			if ($mode == 'flat') $data += $my_data;
 			elseif ($mode == 'hierarchy') {
