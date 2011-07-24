@@ -508,6 +508,10 @@ function wrap_create_id($id_title) {
 	return $id_title;
 }
 
+function wrap_microtime_float() {
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
+}
 
 /**
  * Fetches records from database and returns array
@@ -535,6 +539,9 @@ function wrap_create_id($id_title) {
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	global $zz_conf;
+	if (!empty($zz_conf['debug'])) {
+		$time = wrap_microtime_float();
+	}
 	$lines = array();
 	$result = mysql_query($sql);
 	if (!$result) {
@@ -625,7 +632,10 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 				$lines[$line[$id_field_name]] = $line;
 		}
 	}
-
+	if (!empty($zz_conf['debug'])) {
+		$time = wrap_microtime_float() - $time;
+		wrap_error($time.' - '.$sql, E_USER_NOTICE);
+	}
 	return $lines;
 }
 
@@ -664,13 +674,32 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 	// as long as we have IDs in the pool, check if the current ID has child records
 	$used_ids = array();
 	while ($ids) {
-		// take current ID from $ids
-		$my_id = array_shift($ids);
-		if (in_array($my_id, $used_ids)) {
-			continue; // avoid infinite recursion
-		} else {
-			$used_ids[] = $my_id;
+		switch ($mode) {
+		case 'hierarchy':
+			$my_id = array_shift($ids);
+			if (!trim($my_id)) continue 2;
+			if (in_array($my_id, $used_ids)) {
+				continue 2; // avoid infinite recursion
+			} else {
+				$used_ids[] = $my_id;
+			}
+			break;
+		case 'flat':
+			// take current ID from $ids
+			foreach ($ids as $id) {
+				// avoid infinite recursion
+				if (in_array($id, $used_ids)) {
+					$key = array_search($id, $ids);
+					unset($ids[$key]);
+				} else {
+					$used_ids[] = $id;
+				}
+			}
+			if (!$ids) continue 2;
+			$my_id = implode(',', $ids);
+			break;
 		}
+
 		if ($key_field_name) {
 			// get ID and full record as specified in SQL query
 			$my_data = wrap_db_fetch(sprintf($sql, $my_id), $key_field_name);
@@ -678,28 +707,35 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 			// just get the ID, a dummy key_field_name must be set here
 			$my_data = wrap_db_fetch(sprintf($sql, $my_id), 'dummy', 'single value');
 		}
-		if ($my_data) {
-			if ($mode == 'hierarchy') {
+		if (!$my_data) continue;
+		
+		switch ($mode) {
+		case 'hierarchy':
+			if (isset($data['level'][$my_id]))
 				$my_level = $data['level'][$my_id] + 1;
-				$level = array();
-				foreach (array_keys($my_data) AS $id) {
-					$level[$id] = $my_level;
-				}
-				$pos = array_search($my_id, array_keys($data['level']))+1;
-				$data['level'] = array_slice($data['level'], 0, $pos, true)
-					+ $level + array_slice($data['level'], $pos, NULL, true);
+			else
+				$my_level = 1;
+			$level = array();
+			foreach (array_keys($my_data) AS $id) {
+				$level[$id] = $my_level;
 			}
+			$pos = array_search($my_id, array_keys($data['level']))+1;
+			$data['level'] = array_slice($data['level'], 0, $pos, true)
+				+ $level + array_slice($data['level'], $pos, NULL, true);
+
 			// append new records to $data-Array
-			if ($mode == 'flat') $data += $my_data;
-			elseif ($mode == 'hierarchy') {
-				if (empty($data[$my_id])) $data[$my_id] = array();
-				$data[$my_id] += $my_data;
-			}
+			if (empty($data[$my_id])) $data[$my_id] = array();
+			$data[$my_id] += $my_data;
 			// append new IDs to $ids-Array
 			$ids = array_merge($ids, array_keys($my_data));
-			if ($mode == 'hierarchy') {
-				$data['ids'] = array_merge($data['ids'], array_keys($my_data));
-			}
+			$data['ids'] = array_merge($data['ids'], array_keys($my_data));
+			break;
+		case 'flat':
+			// append new records to $data-Array
+			$data += $my_data;
+			// put new IDs into $ids-Array
+			$ids = array_keys($my_data);
+			break;
 		}
 	}
 	if ($mode == 'hierarchy') sort($data['ids']);
