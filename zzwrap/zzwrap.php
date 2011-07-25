@@ -125,8 +125,13 @@ function wrap_set_defaults() {
 // -------------------------------------------------------------------------
 
 	// HTTP_HOST, htmlspecialchars against XSS
-	$zz_setting['hostname']		= htmlspecialchars($_SERVER['HTTP_HOST']);
-	if (!$zz_setting['hostname']) $zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
+	if (!empty($_SERVER['HTTP_HOST']))
+		$zz_setting['hostname']	= htmlspecialchars($_SERVER['HTTP_HOST']);
+	else
+		$zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
+	// in case, somebody's doing a CONNECT or something similar, use some default
+	if (empty($zz_setting['hostname'])) 
+		$zz_setting['hostname'] == 'www.example.org';
 
 	// check if it's a local development server
 	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
