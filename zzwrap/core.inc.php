@@ -909,6 +909,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
  * @global array $zz_conf
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo send pragma public header only if browser that is affected by this bug
+ * @todo implement Ranges for bytes
  */
 function wrap_file_send($file) {
 	global $zz_conf;
@@ -967,7 +968,6 @@ function wrap_file_send($file) {
  	header("Last-Modified: ".$last_modified);
 
 	// Send HTTP headers
- 	header("Accept-Ranges: bytes");
 	header("Content-Length: " . $filesize);
 	header("Content-Type: ".$mimetype);
 	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
