@@ -635,7 +635,7 @@ function wrap_page_check_if_error($page) {
 		wrap_error($msg, $page['error']['level']);
 	}
 	if ($page['status'] != 200) {
-		wrap_quit($page['status']);
+		wrap_quit($page['status'], '', $page);
 		exit;
 	}
 	return true;

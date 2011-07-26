@@ -276,10 +276,11 @@ function wrap_read_url($url) {
  * will be shown
  * @param int $errorcode HTTP Error Code, default value is 404
  * @param string $error_msg (optional, error message for user)
+ * @param array $page (optional, if normal output shall be shown, not error msg)
  * @return exits function with a redirect or an error document
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_quit($errorcode = 404, $error_msg = '') {
+function wrap_quit($errorcode = 404, $error_msg = '', $page = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
