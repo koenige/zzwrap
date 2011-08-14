@@ -186,7 +186,11 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key) {
 	// (for multilingual pages) or from the part until *
 	$url = (!empty($line['function_url']) ? $line['function_url'] 
 		: substr($line['url'], 0, strrpos($line['url'], '*')+1));
-	$menufunc = 'wrap_menu_'.substr($url, 1, -1);
+	$url = substr($url, 1, -1);
+	if (strstr($url, '/')) {
+		$url = str_replace('/', '_', $url);
+	}
+	$menufunc = 'wrap_menu_'.$url;
 	if (function_exists($menufunc)) {
 		$menu_entries = $menufunc($line);
 		if (!empty($menu[$menu_key])) {
@@ -208,7 +212,7 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key) {
  * zurück
  * @param array $nav Ausgabe von wrap_get_menu();
  *	required keys: 'title', 'url', 'current_page'
- *	optional keys: 'long_title', 'id', 'class', 'subtitle'
+ *	optional keys: 'long_title', 'id', 'class', 'subtitle', 'ignore'
  * @param string $menu_name optional; 0 bzw. für Untermenüs $nav_id des jeweiligen 
  *	Eintrags oder Name des Menüs
  * @param int $page_id optional; show only the one correspondig entry from the menu
@@ -283,6 +287,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	foreach ($nav[$menu_name] as $item) {
 		if (empty($item['subtitle'])) $item['subtitle'] = '';
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
+		if (isset($item['ignore'])) continue;
 		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) == $item['url'] ? true : false);
 
 		$class = array();
