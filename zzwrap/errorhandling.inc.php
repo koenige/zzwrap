@@ -255,7 +255,13 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 			$http_error_template = $file;
 		else
 			$http_error_template = $zz_setting['wrap_template_dir'].'/http-error.template.txt';
-		$page['text'] =  implode("", file($http_error_template));
+		$template = file($http_error_template);
+		// Allow first lines starting with #
+		foreach ($template as $line_no => $content) {
+			if (substr($content, 0, 1) == '#') unset($template[$line_no]);
+			else break;
+		}
+		$page['text'] = implode("", $template);
 	}
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
