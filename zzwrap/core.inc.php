@@ -763,6 +763,46 @@ function wrap_db_parents($id, $sql) {
 }
 
 /**
+ * checks tables for last update and returns the newest last update timestamp
+ * if sync_date is set, checks against sync date and returns false if no sync
+ * is neccessary
+ *
+ * @param array $tables tables which will be checked for changes
+ * @param string $last_sync (optional) datetime when last update was made
+ * @return mixed false: no sync neccessary, datetime: date of last update in tables
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_db_tables_last_update($tables, $last_sync = false) {
+	foreach ($tables as $table) {
+		$db_table = explode('.', $table);
+		if (count($db_table) == 2)
+			$my_tables[$db_table[0]][] = $db_table[1];
+		elseif (count($db_table) == 1)
+			$my_tables['NULL'][] = $db_table[0];
+		else {
+			wrap_error('Checking table updates. Error: Table name '.$table.' has too many dots.', E_USER_WARNING);
+			wrap_quit(503);
+		}
+	}
+	$last_update = '';	
+	foreach ($my_tables AS $db => $these_tables) {
+		$sql = 'SHOW TABLE STATUS '
+			.($db == 'NULL' ? '' : 'FROM `'.$db.'`')
+			.' WHERE Name IN ("'.implode('","', $these_tables).'")';
+		$status = wrap_db_fetch($sql, 'Name');
+		foreach ($status as $table) {
+			if ($table['Update_time'] > $last_update) $last_update = $table['Update_time'];
+		}
+	}
+	
+	if ($last_sync AND strtotime($last_update) <= strtotime($last_sync))
+		// database on the other end is already up to date
+		return false;
+	else
+		return $last_update;
+}
+
+/**
  * puts parts of SQL query in correct order when they have to be added
  *
  * this function works only for sql queries without UNION:
