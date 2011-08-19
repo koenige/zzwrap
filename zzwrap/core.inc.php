@@ -1149,7 +1149,7 @@ function wrap_check_request() {
  * @global $zz_conf
  *		'error_mail_from', 'project', 'character_set', 'mail_subject_prefix'
  * @global $zz_setting
- *		'local_access'
+ *		'local_access', bool 'show_local_mail' log mail or show mail
  * @return bool true: message was sent; false: message was not sent
  */
 function wrap_mail($mail) {
@@ -1206,9 +1206,15 @@ function wrap_mail($mail) {
 
 	// if local server, show e-mail, don't send it
 	if ($zz_setting['local_access']) {
-		wrap_error('Mail '.htmlspecialchars('To: '.$mail['to']."\n"
+		$mail = 'Mail '.htmlspecialchars('To: '.$mail['to']."\n"
 			.'Subject: '.$mail['subject']."\n".
-			$additional_headers."\n".$mail['message'], E_USER_NOTICE);
+			$additional_headers."\n".$mail['message']);
+		if (!empty($zz_setting['show_local_mail'])) {
+			echo '<pre>', $mail, '</pre>';
+			exit;
+		} else {
+			wrap_error($mail, E_USER_NOTICE);
+		}
 	} else {
 		// if real server, send mail
 		$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
