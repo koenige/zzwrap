@@ -1199,26 +1199,26 @@ function wrap_mail($mail) {
 	// Additional parameters
 	if (!isset($mail['parameters'])) $mail['parameters'] = '';
 
-	// if local server, show e-mail, don't send it
-	if ($zz_setting['local_access']) {
-		echo "<pre>".htmlspecialchars('To: '.$mail['to']."\n"
-			.'Subject: '.$mail['subject']."\n".
-			$additional_headers."\n".$mail['message'])."</pre>\n";
-		exit;
+	$old_error_handling = $zz_conf['error_handling'];
+	if ($zz_conf['error_handling'] == 'mail') {
+		$zz_conf['error_handling'] = false; // don't send mail, does not work!
 	}
 
-	// if real server, send mail
-	$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
-	if (!$success) {
-		$old_error_handling = $zz_conf['error_handling'];
-		if ($zz_conf['error_handling'] == 'mail') {
-			$zz_conf['error_handling'] = false; // don't send mail, does not work!
+	// if local server, show e-mail, don't send it
+	if ($zz_setting['local_access']) {
+		wrap_error('Mail '.htmlspecialchars('To: '.$mail['to']."\n"
+			.'Subject: '.$mail['subject']."\n".
+			$additional_headers."\n".$mail['message'], E_USER_NOTICE);
+	} else {
+		// if real server, send mail
+		$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+		if (!$success) {
+			wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
+				.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
+				.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
 		}
-		wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
-			.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
-			.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
-		$zz_conf['error_handling'] = $old_error_handling;
 	}
+	$zz_conf['error_handling'] = $old_error_handling;
 	return true;
 }
 
