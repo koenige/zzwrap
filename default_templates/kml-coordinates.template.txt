@@ -38,9 +38,11 @@
 		</div>
 		]]></description>
 		<styleUrl>#%%% item style %%%</styleUrl>
+%%% condition if longitude %%%
 		<Point>
 			<coordinates>%%% item longitude %%%,%%% item latitude %%%,%%% item altitude %%%</coordinates>
 		</Point>
+%%% condition endif %%%
 	</Placemark>
 %%% loop end %%%
 	</Document>
