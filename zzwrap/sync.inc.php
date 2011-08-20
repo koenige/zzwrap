@@ -79,6 +79,9 @@ function wrap_sync_csv($import) {
 		} else {
 			$key = $line[$import['key']];
 		}
+		$key = trim($key);
+		foreach (array_keys($line) AS $id)
+			$line[$id] = trim($line[$id]);
 		$raw[$key] = $line;
 		if ($i === ($end -1)) break;
 	}
