@@ -149,6 +149,15 @@ function wrap_sync_zzform($raw, $import) {
 
 	foreach ($raw as $identifier => $line) {
 		$values = array();
+		if (count($line) != count($import['fields'])) {
+			$error_line = array();
+			foreach ($import['fields'] as $pos => $field_name) {
+				if (!isset($line[$pos])) $error_line[$field_name] = '<strong>=>||| '.wrap_text('not set').' |||<=</strong>';
+				else $error_line[$field_name] = $line[$pos];
+			}
+			$errors = array_merge($errors, array('not enough values: <div>'.wrap_print($error_line).'</div>'));
+			continue;
+		}
 		foreach ($import['fields'] as $pos => $field_name) {
 			$values['POST'][$field_name] = trim($line[$pos]);
 		}
