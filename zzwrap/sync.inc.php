@@ -44,6 +44,8 @@ function wrap_sync_csv($import) {
 		$import['first_line_headers'] = true;
 	if (!isset($import['values']))
 		$import['values'] = array();
+	if (!isset($import['key_concat']))
+		$import['key_concat'] = false;
 	
 	if (empty($_GET['limit'])) $limit = 0;
 	else $limit = intval($_GET['limit']);
@@ -77,6 +79,7 @@ function wrap_sync_csv($import) {
 		if (is_array($import['key'])) {
 			$key = '';
 			foreach ($import['key'] AS $no) {
+				if ($key) $key .= $import['key_concat'];
 				$key .= $line[$no];
 			}
 		} else {
