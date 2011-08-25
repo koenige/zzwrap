@@ -42,6 +42,8 @@ function wrap_sync_csv($import) {
 		$import['delimiter'] = ',';
 	if (!isset($import['first_line_headers']))
 		$import['first_line_headers'] = true;
+	if (!isset($import['values']))
+		$import['values'] = array();
 	
 	if (empty($_GET['limit'])) $limit = 0;
 	else $limit = intval($_GET['limit']);
@@ -127,6 +129,7 @@ function wrap_sync_csv($import) {
  * @param array $import import settings
  *		string	'existing_sql' = SQL query to get pairs of identifier/IDs
  *		array 	'fields' = list of fields, indexed by position
+ *		array 	'values' = values for fields, indexed by field name
  *		string	'id_field_name' = field name of PRIMARY KEY of database table
  *		string	'form_script' = table script for sync
  * @global array $zz_conf string 'dir'
@@ -160,6 +163,9 @@ function wrap_sync_zzform($raw, $import) {
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
 			$values['POST'][$field_name] = trim($line[$pos]);
+		}
+		foreach ($import['values'] as $field_name => $value) {
+			$values['POST'][$field_name] = $value;
 		}
 		if (!empty($ids[$identifier])) {
 			$values['POST']['zz_action'] = 'update';
