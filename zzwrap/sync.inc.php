@@ -66,7 +66,7 @@ function wrap_sync_csv($import) {
 		// ignore lines that were already processed
 		if ($i < $limit) continue;
 		// ignore empty lines
-		if (!trim($line[0]) AND count($line) == 1) continue;
+		if (!trim(implode('', $line))) continue;
 		// ignore comments
 		if ($import['comments']) {
 			if (substr($line[0], 0, 1) == $import['comments']) continue;
