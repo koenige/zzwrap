@@ -66,6 +66,7 @@ function wrap_sync_csv($import) {
 		// ignore lines that were already processed
 		if ($i < $limit) continue;
 		// ignore empty lines
+		if (!$line) continue;
 		if (!trim(implode('', $line))) continue;
 		// ignore comments
 		if ($import['comments']) {
@@ -105,7 +106,8 @@ function wrap_sync_csv($import) {
 		else $lines[] = sprintf(wrap_text('%s records were left as is.'), $nothing);
 	if ($errors) 
 		if (count($errors) == 1) $lines[] = sprintf(wrap_text('1 record had errors. (%s)'), implode(', ', $errors));
-		else $lines[] = sprintf(wrap_text('%s records had errors. (%s)'), count($errors), implode(', ', $errors));
+		else $lines[] = sprintf(wrap_text('%s records had errors.'), count($errors))
+			."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
 
 	if (!$lines) {
 		$page['text'] = wrap_text('No updates/inserts were made.');
@@ -152,13 +154,24 @@ function wrap_sync_zzform($raw, $import) {
 
 	foreach ($raw as $identifier => $line) {
 		$values = array();
+		if (count($line) > count($import['fields'])) {
+			// remove whitespace only fields at the end of the line
+			do {
+				$last = array_pop($line);
+			} while (!$last AND count($line) >= count($import['fields']));
+			$line[] = $last;
+		}
 		if (count($line) != count($import['fields'])) {
 			$error_line = array();
 			foreach ($import['fields'] as $pos => $field_name) {
 				if (!isset($line[$pos])) $error_line[$field_name] = '<strong>=>||| '.wrap_text('not set').' |||<=</strong>';
 				else $error_line[$field_name] = $line[$pos];
 			}
-			$errors = array_merge($errors, array('not enough values: <div>'.wrap_print($error_line).'</div>'));
+			if (count($line) > count($import['fields'])) {
+				$errors = array_merge($errors, array('too many values: '.wrap_print($error_line).wrap_print($line)));
+			} else {
+				$errors = array_merge($errors, array('not enough values: '.wrap_print($error_line).wrap_print($line)));
+			}
 			continue;
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
