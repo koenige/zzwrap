@@ -2,6 +2,6 @@
 <h1>%%% page h1 %%%</h1>
 <div id="text">
 <p>%%% page error_description %%%</p>
-<p>%%% page error_explanation %%%</p>
+%%% page error_explanation "<p>%s</p>" %%%
 </div>
 </div>
