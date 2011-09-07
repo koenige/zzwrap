@@ -20,7 +20,7 @@
 </p>
 %%% loop end %%%
 <p><label for="password"><strong>%%% text "Password:" %%%</strong></label> 
-<input type="password" name="password" id="password"></p>
+<input type="password" name="password" id="password" required="required"></p>
 <p class="submit"><input type="submit" value="%%% text "Sign in" %%%"></p>
 %%% condition if msg %%%
 <p class="error submit">%%% item msg %%%</p>
