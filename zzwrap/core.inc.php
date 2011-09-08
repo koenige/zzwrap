@@ -982,13 +982,7 @@ function wrap_file_send($file) {
 	if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
 
 	// Read mime type from database
-	if ($sql_filetypes = wrap_sql('filetypes')) 
-		$sql = sprintf($sql_filetypes, $suffix);
-	else {
-		$sql = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
-			FROM '.$zz_conf['prefix'].'filetypes
-			WHERE extension = "'.$suffix.'"';
-	}
+	$sql = sprintf(wrap_sql('filetypes'), $suffix);
 	$mimetype = wrap_db_fetch($sql, '', 'single value');
 	if (!$mimetype) $mimetype = 'application/octet-stream';
 
@@ -1526,6 +1520,27 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	case 'set':
 		switch ($key) {
 		case 'core':
+			$zz_sql['pages'] = 'SELECT webpages.*
+				FROM '.$zz_conf['prefix'].'webpages webpages
+				WHERE webpages.identifier = "%s"';
+			
+			$zz_sql['is_public'] = 'live = "yes"';
+
+			$zz_sql['redirects_new_fieldname'] = 'new_url';
+			$zz_sql['redirects_old_fieldname'] = 'old_url';
+
+			$zz_sql['redirects'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
+				WHERE old_url = "%s/"
+				OR old_url = "%s.html"
+				OR old_url = "%s"';
+
+			$zz_sql['redirects_*'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
+				WHERE old_url = "%s*"';
+				
+			$zz_sql['filetypes'] = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
+				FROM '.$zz_conf['prefix'].'filetypes
+				WHERE extension = "%s"';
+
 			$zz_sql['page_id']		= 'page_id';
 			$zz_sql['content']		= 'content';
 			$zz_sql['title']		= 'title';
@@ -1534,23 +1549,24 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['lastupdate']	= 'last_update';
 			$zz_sql['author_id']	= 'author_person_id';
 
-			$zz_sql['pages'] = 'SELECT webpages.*
-				FROM '.$zz_conf['prefix'].'webpages webpages
-				WHERE webpages.identifier = "%s"';
-			
-			$zz_sql['is_public'] = 'live = "yes"';
+			$zz_sql['language'] = false;
 
-			$zz_sql['redirects'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
-				WHERE old_url = "%s/"
-				OR old_url = "%s.html"
-				OR old_url = "%s"';
-			
-			$zz_sql['redirects_old_fieldname'] = 'old_url';
-			$zz_sql['redirects_new_fieldname'] = 'new_url';
-			
-			$zz_sql['redirects_*'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
-				WHERE old_url = "%s*"';
+			if (!empty($zz_conf['translations_of_fields'])) {
+				$zz_sql['translations'] = '';
+				$zz_sql['translation_matrix_pages'] = array($zz_conf['prefix'].'webpages');
+				$zz_sql['translation_matrix_breadcrumbs'] = array();
 
+				if (!empty($zz_setting['default_source_language'])) {
+					$zz_sql['translations'] = 'SELECT translation_id, translationfield_id, translation, field_id,
+					"'.$zz_setting['default_source_language'].'" AS source_language
+					FROM '.$zz_conf['prefix'].'_translations_%s translations
+					LEFT JOIN '.$zz_conf['prefix'].'languages languages USING (language_id)
+					WHERE translationfield_id IN (%s) 
+						AND field_id IN (%s)
+						AND languages.iso_639_1 = "%s"';
+				}
+			}
+			
 			break;
 		case 'page':
 			$zz_sql['breadcrumbs']	= '';
@@ -1574,12 +1590,10 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 				FROM '.$zz_conf['prefix'].'logins logins
 				WHERE active = "yes"
 				AND username = "%s"';
+			$zz_sql['last_masquerade'] = false;
+			$zz_sql['login_masquerade'] = false;
+			$zz_sql['login_settings'] = false;
 
-			break;
-		case 'translation':
-			$zz_sql['translation_matrix_pages'] = array($zz_conf['prefix'].'webpages');
-			$zz_sql['translation_matrix_breadcrumbs'] = array();
-			$zz_sql['language'] = false;
 			break;
 		default:
 			break;
