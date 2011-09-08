@@ -1534,6 +1534,12 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['lastupdate']	= 'last_update';
 			$zz_sql['author_id']	= 'author_person_id';
 
+			$zz_sql['pages'] = 'SELECT webpages.*
+				FROM '.$zz_conf['prefix'].'webpages webpages
+				WHERE webpages.identifier = "%s"';
+			
+			$zz_sql['is_public'] = 'live = "yes"';
+
 			$zz_sql['redirects'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
 				WHERE old_url = "%s/"
 				OR old_url = "%s.html"
@@ -1554,9 +1560,24 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		case 'auth':
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = array($zz_setting['hostname']);
+
+			$zz_sql['logout'] = 'UPDATE '.$zz_conf['prefix'].'logins 
+				SET logged_in = "no"
+				WHERE login_id = %s';	// $_SESSION['login_id']
+			$zz_sql['last_click'] = 'UPDATE '.$zz_conf['prefix'].'logins 
+				SET logged_in = "yes", last_click = %s 
+				WHERE login_id = %s';
+			$zz_sql['login'] = 'SELECT password 
+				, username
+				, logins.login_id AS user_id
+				, logins.login_id
+				FROM '.$zz_conf['prefix'].'logins logins
+				WHERE active = "yes"
+				AND username = "%s"'
+
 			break;
 		case 'translation':
-			$zz_sql['translation_matrix_pages'] = array();
+			$zz_sql['translation_matrix_pages'] = array($zz_conf['prefix'].'webpages');
 			$zz_sql['translation_matrix_breadcrumbs'] = array();
 			$zz_sql['language'] = false;
 			break;
