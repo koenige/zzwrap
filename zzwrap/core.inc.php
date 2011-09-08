@@ -1553,7 +1553,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 			if (!empty($zz_conf['translations_of_fields'])) {
 				$zz_sql['translations'] = '';
-				$zz_sql['translation_matrix_pages'] = array($zz_conf['prefix'].'webpages');
+				$zz_sql['translation_matrix_pages'] = $zz_conf['prefix'].'webpages';
 				$zz_sql['translation_matrix_breadcrumbs'] = array();
 
 				if (!empty($zz_setting['default_source_language'])) {
