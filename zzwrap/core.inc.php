@@ -1533,6 +1533,18 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['identifier']	= 'identifier';
 			$zz_sql['lastupdate']	= 'last_update';
 			$zz_sql['author_id']	= 'author_person_id';
+
+			$zz_sql['redirects'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
+				WHERE old_url = "%s/"
+				OR old_url = "%s.html"
+				OR old_url = "%s"';
+			
+			$zz_sql['redirects_old_fieldname'] = 'old_url';
+			$zz_sql['redirects_new_fieldname'] = 'new_url';
+			
+			$zz_sql['redirects_*'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
+				WHERE old_url = "%s*"';
+
 			break;
 		case 'page':
 			$zz_sql['breadcrumbs']	= '';
