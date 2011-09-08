@@ -1573,7 +1573,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 				, logins.login_id
 				FROM '.$zz_conf['prefix'].'logins logins
 				WHERE active = "yes"
-				AND username = "%s"'
+				AND username = "%s"';
 
 			break;
 		case 'translation':
