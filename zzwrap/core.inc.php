@@ -1510,6 +1510,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	global $zz_conf;
 	global $zz_setting;
 	static $zz_sql;
+	static $set;
 
 	// set variables
 	switch ($mode) {
@@ -1520,6 +1521,8 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	case 'set':
 		switch ($key) {
 		case 'core':
+			if (!empty($set['core'])) return true;
+			$set['core'] = true;
 			$zz_sql['pages'] = 'SELECT webpages.*
 				FROM '.$zz_conf['prefix'].'webpages webpages
 				WHERE webpages.identifier = "%s"';
@@ -1569,11 +1572,15 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			
 			break;
 		case 'page':
+			if (!empty($set['page'])) return true;
+			$set['page'] = true;
 			$zz_sql['breadcrumbs']	= '';
 			$zz_sql['menu']			= '';
 			$zz_sql['menu_level2']	= '';
 			break;
 		case 'auth':
+			if (!empty($set['auth'])) return true;
+			$set['auth'] = true;
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = array($zz_setting['hostname']);
 
