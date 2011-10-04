@@ -663,7 +663,8 @@ function wrap_get_page() {
 	wrap_page_check_if_error($page);
 
 	if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
-		wrap_send_ressource($page['text'], $page['content_type'], $page['status']);
+		if (empty($page['headers'])) $page['headers'] = array();
+		wrap_send_ressource($page['text'], $page['content_type'], $page['status'], $page['headers']);
 	}
 
 	if (!empty($page['no_output'])) exit;

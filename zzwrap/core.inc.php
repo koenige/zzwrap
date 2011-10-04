@@ -1233,13 +1233,14 @@ function wrap_mail_name($name) {
  * sends a ressource via HTTP regarding some headers
  *
  * @param string $text content to be sent
- * @param string $type content_type, defaults to html
- * @param int $status HTTP status code
+ * @param string $type (optional, default html) HTTP content type
+ * @param int $status (optional, default 200) HTTP status code
+ * @param array $headers (optional) further HTTP headers
  * @global array $zz_conf
  * @global array $zz_setting
  * @return void
  */
-function wrap_send_ressource($text, $type = 'html', $status = 200) {
+function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = array()) {
 	global $zz_conf;
 	global $zz_setting;
 
@@ -1263,6 +1264,11 @@ function wrap_send_ressource($text, $type = 'html', $status = 200) {
 		break;
 	case 'json':
 		header('Content-Type: application/json; charset=utf-8');
+		break;
+	case 'kml':
+		header('Content-Type: application/vnd.google-earth.kml+xml; charset=utf-8');
+		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.kml';
+		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
 	}
 
