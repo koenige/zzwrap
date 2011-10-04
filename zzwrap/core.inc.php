@@ -1270,6 +1270,9 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.kml';
 		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
+	case 'mediarss':
+		header('Content-Type: application/xhtml+xml; charset=utf-8');
+		break;
 	}
 
 	$last_modified_time = time();
