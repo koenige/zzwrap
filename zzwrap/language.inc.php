@@ -454,7 +454,9 @@ function wrap_translate_page() {
  */
 function wrap_negotiate_language($allowed_languages, $default_language, $accept = null, $strict_mode = true) {
 	// check accepted languages
-	if ($accept === null) $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	if ($accept === null AND isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+		$accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	}
 	// if no language information was sent, HTTP 1.1 says, every language is fine
 	// for HTTP 1.0 you could send an 406 instead, but user may be confused by these
 	if (empty($accept)) return $default_language;
