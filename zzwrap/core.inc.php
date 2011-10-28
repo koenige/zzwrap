@@ -946,7 +946,8 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
  *		'cleanup_folder' => string name of folder if it shall be deleted as well
  *		'send_as' => send filename under a different name (default: basename)
  *		'error_code' => HTTP error code to send in case of file not found error
- *		'error_msg' => additional error message that appears on error page
+ *		'error_msg' => additional error message that appears on error page,
+ *		'etag_generate_md5' => creates 'etag' if not send with MD5
  * @global array $zz_conf
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo send pragma public header only if browser that is affected by this bug
@@ -992,6 +993,10 @@ function wrap_file_send($file) {
 	header('Cache-Control: ');
 	header('Pragma: ');
 
+	// generate etag
+	if (!empty($file['etag_generate_md5']) AND empty($file['etag'])) {
+		$file['etag'] = md5_file($file['name']);
+	}
 	// Check for 304 or send ETag header
 	if (!empty($file['etag'])) {
 		$file['etag'] = wrap_if_none_match($file['etag'], $file);
