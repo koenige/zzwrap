@@ -60,6 +60,8 @@ function wrap_set_language() {
 	$zz_setting['base'] .= '/'.$language;
 	$zz_setting['lang'] = $language;
 	$zz_page['url']['redirect'] = true;
+	// vary header for caching
+	header('Vary: Accept-Language');
 
 	return true;
 }
