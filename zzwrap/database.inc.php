@@ -7,6 +7,7 @@
 
 /*
 	Database functions
+	- wrap_db_connect()
 	- wrap_db_fetch()
 	- wrap_db_children()
 	- wrap_db_parents()
@@ -21,6 +22,73 @@
 	Miscellaneous functions
 	- wrap_microtime_float()
 */
+
+/**
+ * Establishes a database connection (if not already established)
+ * selects database, sets NAMES to character encoding
+ *
+ * @global array $zz_conf
+ *		'db_connection', 'db_name', 'db_name_local', 'character_set'
+ * @global array $zz_setting
+ *		'local_access', 'local_pwd', 'custom_wrap_sql_dir', 'db_password_files',
+ *		'encoding_to_mysql_encoding'
+ * @return bool true: database connection established, false: no connection
+ */
+function wrap_db_connect() {
+	global $zz_setting;
+	global $zz_conf;
+	
+	// do we already have a connection?
+	if (!empty($zz_conf['db_connection'])) return true;
+	
+	// get connection details, files need to define
+	// $db_host, $db_user, $db_pwd
+	if (!isset($zz_setting['db_password_files']))
+		$zz_setting['db_password_files'] = array('');
+	elseif (!is_array($zz_setting['db_password_files']))
+		$zz_setting['db_password_files'] = array($zz_setting['db_password_files']);
+	
+	if ($zz_setting['local_access']) {
+		if (!empty($zz_conf['db_name_local'])) {
+			$zz_conf['db_name'] = $zz_conf['db_name_local'];
+		}
+		array_unshift($zz_setting['db_password_files'], $zz_setting['local_pwd']);
+	}
+	$found = false;
+	foreach ($zz_setting['db_password_files'] as $file) {
+		if (substr($file, 0, 1) !== '/') {
+			$file = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.inc.php';
+		}
+		if (!file_exists($file)) continue;
+		include $file;
+		$found = true;
+		break;
+	}
+	if (!$found) wrap_error('No password file for database found.', E_USER_ERROR);
+	
+	// connect to database
+	$zz_conf['db_connection'] = @mysql_connect($db_host, $db_user, $db_pwd);
+	if (!$zz_conf['db_connection']) return false;
+
+	mysql_select_db($zz_conf['db_name']);
+	// mySQL uses different identifiers for character encoding than HTML
+	// mySQL verwendet andere Kennungen für die Zeichencodierung als HTML
+	$charset = '';
+	if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']])) {
+		switch ($zz_conf['character_set']) {
+			case 'iso-8859-1': $charset = 'latin1'; break;
+			case 'iso-8859-2': $charset = 'latin2'; break;
+			case 'utf-8': $charset = 'utf8'; break;
+			default: 
+				wrap_error(sprintf('No character set for %s found.', $zz_conf['character_set']), E_USER_NOTICE);
+				break;
+		}
+	} else {
+		$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
+	}
+	if ($charset) mysql_query('SET NAMES '.$charset);
+	return true;
+}
 
 /**
  * Fetches records from database and returns array

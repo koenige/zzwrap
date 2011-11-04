@@ -29,8 +29,7 @@ function zzwrap() {
 	require_once $zz_setting['core'].'/page.inc.php';
 
 	// establish database connection
-	require_once $zz_setting['db_inc'];
-//	wrap_db_connect();
+	wrap_db_connect();
 
 	// local modifications to SQL queries
 	// may need db connection
