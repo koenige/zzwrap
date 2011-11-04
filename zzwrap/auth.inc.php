@@ -141,9 +141,6 @@ function wrap_auth() {
 	// remove no-cookie from URL
 	$zz_page['url'] = wrap_remove_query_strings($zz_page['url'], 'no-cookie');
 	
-	// start database connection
-	require_once $zz_setting['db_inc'];
-	
 	// save successful request in database to prolong login time
 	$_SESSION['last_click_at'] = $now;
 	if (!empty($_SESSION['login_id'])) {
