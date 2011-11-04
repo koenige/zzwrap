@@ -1,12 +1,8 @@
 <?php 
 
 // zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2008
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2011
 // standard functions for page (menu, breadcrumbs, authors, page)
-
-
-// Local modifications to SQL queries
-wrap_sql('page', 'set');
 
 
 /*	List of functions in this file

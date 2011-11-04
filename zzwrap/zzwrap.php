@@ -12,24 +12,39 @@ function zzwrap() {
 
 	wrap_set_defaults();
 
-	// include required files
+	// configuration settings, defaults
 	if (file_exists($zz_setting['inc'].'/config.inc.php'))
-		require_once $zz_setting['inc'].'/config.inc.php'; 		// configuration
+		require_once $zz_setting['inc'].'/config.inc.php';
 	if (empty($zz_setting['lib']))
 		$zz_setting['lib']	= $zz_setting['inc'].'/library';
 	if (empty($zz_setting['core']))
 		$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
-	require_once $zz_setting['core'].'/defaults.inc.php';	// set default variables
-	require_once $zz_setting['core'].'/errorhandling.inc.php';	// CMS errorhandling
-	require_once $zz_setting['db_inc']; // Establish database connection
-	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
-	require_once $zz_setting['core'].'/language.inc.php';	// CMS language
-	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
+	require_once $zz_setting['core'].'/defaults.inc.php';
+
+	// function libraries
+	require_once $zz_setting['core'].'/errorhandling.inc.php';
+	require_once $zz_setting['core'].'/database.inc.php';
+	require_once $zz_setting['core'].'/core.inc.php';
+	require_once $zz_setting['core'].'/language.inc.php';
+	require_once $zz_setting['core'].'/page.inc.php';
+
+	// establish database connection
+	require_once $zz_setting['db_inc'];
+//	wrap_db_connect();
+
+	// local modifications to SQL queries
+	// may need db connection
+	wrap_sql('core', 'set');
+	wrap_sql('page', 'set');
+	
+	if (!$zz_conf['db_connection']) {
+		wrap_error('No connection to SQL server.', E_USER_ERROR);
+	}
 
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_check_request(); // affects $zz_page, $zz_setting
 
-	// Errorpages
+	// errorpages
 	if (!empty($_GET['code'])) {
 		wrap_errorpage(array(), $zz_page);
 		exit;

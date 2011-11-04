@@ -25,9 +25,6 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	global $zz_setting;
 	global $zz_page;
 
-	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
-	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
-
 	$return = false;
 	switch ($errorcode) {
 	case E_USER_ERROR: // critical error: stop!
@@ -192,10 +189,6 @@ function wrap_error_summary() {
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
 	global $zz_conf;
-
-	require_once $zz_setting['core'].'/language.inc.php';	// include language settings
-	require_once $zz_setting['core'].'/core.inc.php';	// CMS core scripts
-	require_once $zz_setting['core'].'/page.inc.php';	// CMS page scripts
 
 	// -- 1. check what kind of error page it is
 	$codes = wrap_read_errorcodes();
