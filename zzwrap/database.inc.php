@@ -42,7 +42,7 @@ function wrap_db_connect() {
 	if (!empty($zz_conf['db_connection'])) return true;
 	
 	// get connection details, files need to define
-	// $db_host, $db_user, $db_pwd
+	// $db_host, $db_user, $db_pwd, $zz_conf['db_name']
 	if (!isset($zz_setting['db_password_files']))
 		$zz_setting['db_password_files'] = array('');
 	elseif (!is_array($zz_setting['db_password_files']))
