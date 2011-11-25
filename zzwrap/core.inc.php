@@ -1265,4 +1265,40 @@ function wrap_rights($right, $mode = 'get', $value = NULL) {
 	return false;
 }
 
+/**
+ * get list of ids and levels to show a hierarchical output
+ *
+ * @param array $data (indexed by ID = $values)
+ * @param string $main_field_name field name of main ID (must be in $values)
+ * @param mixed $top_id (optional; 'NULL' = default, int = subtree)
+ * @return array $id => $level, sorted as $data is sorted
+ */
+function wrap_hierarchy($data, $main_field_name, $top_id = 'NULL') {
+	foreach ($data as $id => $values) {
+		if (!$values[$main_field_name]) $values[$main_field_name] = 'NULL';
+		$indexed_by_main[$values[$main_field_name]][$id] = $values;
+	}
+	return wrap_hierarchy_recursive($indexed_by_main, $top_id);
+}
+
+/**
+ * read hierarchy recursively
+ *
+ * @param array $indexed_by_main list of main_id => $id => $values
+ * @param mixed $top_id (optional; 'NULL' = default, int = subtree)
+ * @param int $level
+ * @return array $id => $level, sorted as $data is sorted (parts of it)
+ */
+function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
+	$keys = array_keys($indexed_by_main[$top_id]);
+	foreach ($keys as $id) {
+		$hierarchy[$id] = $level;
+		if (!empty($indexed_by_main[$id])) {
+			// += preserves keys opposed to array_merge()
+			$hierarchy += wrap_hierarchy_recursive($indexed_by_main, $id, $level + 1);
+		}
+	}
+	return $hierarchy;
+}
+
 ?>
