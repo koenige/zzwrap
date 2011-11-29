@@ -100,6 +100,9 @@ function wrap_db_connect() {
  */
 function wrap_db_query($sql, $error = E_USER_ERROR) {
 	global $zz_conf;
+	if (!empty($zz_conf['debug'])) {
+		$time = wrap_microtime_float();
+	}
 
 	$result = mysql_query($sql);
 	if ($result) return $result;
@@ -114,7 +117,17 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 			$zz_page['error_msg'] = '<p class="error">'.mysql_error().'<br>'.$sql.'</p>';
 		}
 	}
+
+	if (!empty($zz_conf['debug'])) {
+		$time = wrap_microtime_float() - $time;
+		wrap_error($time.' - '.$sql, E_USER_NOTICE);
+	}
 	return false;	
+}
+
+function wrap_microtime_float() {
+    list($usec, $sec) = explode(" ", microtime());
+    return ((float)$usec + (float)$sec);
 }
 
 /**
@@ -142,10 +155,6 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
-	global $zz_conf;
-	if (!empty($zz_conf['debug'])) {
-		$time = wrap_microtime_float();
-	}
 	$result = wrap_db_query($sql);
 	if (!$result) return array();
 
@@ -225,16 +234,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 				$lines[$line[$id_field_name]] = $line;
 		}
 	}
-	if (!empty($zz_conf['debug'])) {
-		$time = wrap_microtime_float() - $time;
-		wrap_error($time.' - '.$sql, E_USER_NOTICE);
-	}
 	return $lines;
-}
-
-function wrap_microtime_float() {
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
 }
 
 /**
