@@ -145,21 +145,15 @@ function wrap_auth() {
 	$_SESSION['last_click_at'] = $now;
 	if (!empty($_SESSION['login_id'])) {
 		$sql = sprintf(wrap_sql('last_click'), $now, $_SESSION['login_id']);
-		$result = mysql_query($sql);
 		// it's not important if an error occurs here
-		if (!$result)
-			wrap_error(sprintf(wrap_text('Could not save "last_click" in database.')
-				."\n\n%s\n%s", mysql_error(), $sql), E_USER_NOTICE);
+		$result = wrap_db_query($sql, E_USER_NOTICE);
 	}
 	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade')) {
 		$logout = (time() + $zz_setting['logout_inactive_after'] * 60);
 		$keep_alive = date('Y-m-d H:i:s', $logout);
 		$sql_mask = sprintf($sql_mask, '"'.$keep_alive.'"', $_SESSION['mask_id']);
-		$result = mysql_query($sql_mask);
 		// it's not important if an error occurs here
-		if (!$result)
-			wrap_error(sprintf(wrap_text('Could not save "last_click" for masquerade in database.')
-				."\n\n%s\n%s", mysql_error(), $sql_mask), E_USER_NOTICE);
+		$result = wrap_db_query($sql_mask, E_USER_NOTICE);
 	}
 	return true;
 }
@@ -205,8 +199,8 @@ function wrap_session_stop() {
   		);
 	}
 	session_destroy();
-	if ($sql) $result = mysql_query($sql);
-	if ($sql_mask) $result = mysql_query($sql_mask);
+	if ($sql) wrap_db_query($sql, E_USER_NOTICE);
+	if ($sql_mask) wrap_db_query($sql_mask, E_USER_NOTICE);
 }
 
 

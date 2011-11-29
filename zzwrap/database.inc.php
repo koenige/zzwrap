@@ -8,6 +8,7 @@
 /*
 	Database functions
 	- wrap_db_connect()
+	- wrap_db_query()
 	- wrap_db_fetch()
 	- wrap_db_children()
 	- wrap_db_parents()
@@ -86,8 +87,34 @@ function wrap_db_connect() {
 	} else {
 		$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
 	}
-	if ($charset) mysql_query('SET NAMES '.$charset);
+	if ($charset) wrap_db_query('SET NAMES '.$charset);
 	return true;
+}
+
+/**
+ * queries database and does the error handling in case an error occurs
+ *
+ * $param string $sql
+ * @global array $zz_conf
+ * @return ressource $result
+ */
+function wrap_db_query($sql, $error = E_USER_ERROR) {
+	global $zz_conf;
+
+	$result = mysql_query($sql);
+	if ($result) return $result;
+
+	// error
+	if (function_exists('wrap_error')) {
+		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
+			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), $error);
+	} else {
+		if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] === 'output') {
+			global $zz_page;
+			$zz_page['error_msg'] = '<p class="error">'.mysql_error().'<br>'.$sql.'</p>';
+		}
+	}
+	return false;	
 }
 
 /**
@@ -119,21 +146,10 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
 	if (!empty($zz_conf['debug'])) {
 		$time = wrap_microtime_float();
 	}
+	$result = wrap_db_query($sql);
+	if (!$result) return array();
+
 	$lines = array();
-	$result = mysql_query($sql);
-	if (!$result) {
-		// error
-		if (function_exists('wrap_error')) {
-			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
-				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), E_USER_ERROR);
-		} else {
-			if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] == 'output') {
-				global $zz_page;
-				$zz_page['error_msg'] = '<p class="error">'.mysql_error().'<br>'.$sql.'</p>';
-			}
-		}
-		return $lines;	
-	}
 
 	if (!$id_field_name) {
 		// only one record
