@@ -1274,10 +1274,12 @@ function wrap_rights($right, $mode = 'get', $value = NULL) {
  * @return array $id => $level, sorted as $data is sorted
  */
 function wrap_hierarchy($data, $main_field_name, $top_id = 'NULL') {
+	$indexed_by_main = array();
 	foreach ($data as $id => $values) {
 		if (!$values[$main_field_name]) $values[$main_field_name] = 'NULL';
 		$indexed_by_main[$values[$main_field_name]][$id] = $values;
 	}
+	if (!$indexed_by_main) return $indexed_by_main;
 	return wrap_hierarchy_recursive($indexed_by_main, $top_id);
 }
 
