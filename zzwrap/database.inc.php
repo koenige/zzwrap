@@ -105,6 +105,10 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	}
 
 	$result = mysql_query($sql);
+	if (!empty($zz_conf['debug'])) {
+		$time = wrap_microtime_float() - $time;
+		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
+	}
 	if ($result) return $result;
 
 	// error
@@ -116,11 +120,6 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 			global $zz_page;
 			$zz_page['error_msg'] = '<p class="error">'.mysql_error().'<br>'.$sql.'</p>';
 		}
-	}
-
-	if (!empty($zz_conf['debug'])) {
-		$time = wrap_microtime_float() - $time;
-		wrap_error($time.' - '.$sql, E_USER_NOTICE);
 	}
 	return false;	
 }
