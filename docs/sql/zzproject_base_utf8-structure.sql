@@ -313,7 +313,7 @@ CREATE TABLE `webpages` (
   `sequence` tinyint(4) NOT NULL DEFAULT '0',
   `mother_page_id` int(10) unsigned DEFAULT NULL,
   `live` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
-  `menu` enum('none','top','bottom') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `menu` enum('top','bottom','internal') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`page_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
