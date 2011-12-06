@@ -803,6 +803,9 @@ function wrap_htmlout_page($page) {
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 
 	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
+	foreach (array_keys($page['nav_db']) AS $menu) {
+		$page['nav_'.$menu] = wrap_htmlout_menu($page['nav_db'], $menu);
+	}
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
