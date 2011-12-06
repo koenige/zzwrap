@@ -276,6 +276,14 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		if (!$new_page_id) return false;
 		else $page_id = $new_page_id;
 	}
+	
+	// check if there's a menu defined for SESSION
+	// and add these entries to the main menu
+	if (!empty($zz_setting['session_menu']) AND !empty($_SESSION['logged_in'])
+		AND !empty($nav[$zz_setting['session_menu']])
+		AND $menu_name === $zz_setting['main_menu']) {
+		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[$zz_setting['session_menu']]);
+	}
 
 	// OK, finally, we just get the menu together
 	// $i to know which is the first-child, some old browsers don't support :first-child in CSS
