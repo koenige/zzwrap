@@ -199,6 +199,7 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_check_canonical($zz_page, $page) {
+	global $zz_setting;
 	// if database allows field 'ending', check if the URL is canonical
 	if (!empty($zz_page['db'][wrap_sql('ending')])) {
 		$ending = $zz_page['db'][wrap_sql('ending')];
@@ -214,6 +215,9 @@ function wrap_check_canonical($zz_page, $page) {
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
 		array('no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url'));
+	if (!empty($zz_setting['query_strings'])) {
+		$page['query_strings'] = array_merge($page['query_strings'], $zz_setting['query_strings']);
+	}
 	if (!empty($zz_page['url']['full']['query'])) {
 		parse_str($zz_page['url']['full']['query'], $params);
 		foreach (array_keys($params) as $param) {
