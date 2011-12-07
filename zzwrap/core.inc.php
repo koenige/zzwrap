@@ -214,7 +214,7 @@ function wrap_check_canonical($zz_page, $page) {
 	if (empty($page['query_strings'])) $page['query_strings'] = array();
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
-		array('no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url'));
+		array('no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url', 'logout'));
 	if (!empty($zz_setting['query_strings'])) {
 		$page['query_strings'] = array_merge($page['query_strings'], $zz_setting['query_strings']);
 	}
