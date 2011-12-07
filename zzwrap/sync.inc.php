@@ -47,6 +47,8 @@ function wrap_sync_csv($import) {
 	if (!isset($import['key_concat']))
 		$import['key_concat'] = false;
 	
+	$page['query_strings'] = array('limit');
+	
 	if (empty($_GET['limit'])) $limit = 0;
 	else $limit = intval($_GET['limit']);
 	$end = $limit + $zz_setting['sync_records_per_run'];
