@@ -218,7 +218,7 @@ function wrap_check_canonical($zz_page, $page) {
 		parse_str($zz_page['url']['full']['query'], $params);
 		foreach (array_keys($params) as $param) {
 			if (!in_array($param, $page['query_strings'])) {
-				wrap_error(sprintf('Wrong URL: query string %s=%s (<%s>)', $param, $params[$param], $_SERVER['REQUEST_URI']), E_USER_NOTICE);
+				wrap_error(sprintf('Wrong URL: query string %s=%s [%s]', $param, $params[$param], $_SERVER['REQUEST_URI']), E_USER_NOTICE);
 				unset($params[$param]);
 				$zz_page['url']['redirect'] = true;
 			}
