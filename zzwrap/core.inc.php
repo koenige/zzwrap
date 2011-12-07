@@ -191,14 +191,51 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
 }
 
 /**
- * Make canonical URLs (trailing slash, .html etc.)
+ * Make canonical URLs
+ * 
+ * @param array $zz_page
+ * @param array $page
+ * @return array $url
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_check_canonical($zz_page, $page) {
+	// if database allows field 'ending', check if the URL is canonical
+	if (!empty($zz_page['db'][wrap_sql('ending')])) {
+		$ending = $zz_page['db'][wrap_sql('ending')];
+		// if brick_format() returns a page ending, use this
+		if (isset($page['url_ending'])) $ending = $page['url_ending'];
+		$zz_page['url'] = wrap_check_canonical_ending($ending, $zz_page['url']);
+	}
+	if ($zz_page['url']['full']['path'] === '//') {
+		$zz_page['url']['full']['path'] = '/';
+		$zz_page['url']['redirect'] = true;
+	}
+	if (empty($page['query_strings'])) $page['query_strings'] = array();
+	// set some query strings which are used by zzwrap
+	$page['query_strings'] = array_merge($page['query_strings'],
+		array('no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code'));
+	if (!empty($zz_page['url']['full']['query'])) {
+		parse_str($zz_page['url']['full']['query'], $params);
+		foreach (array_keys($params) as $param) {
+			if (!in_array($param, $page['query_strings'])) {
+				unset($params[$param]);
+				$zz_page['url']['redirect'] = true;
+			}
+		}
+		$zz_page['url']['full']['query'] = http_build_query($params);
+	}
+	return $zz_page['url'];
+}
+
+/**
+ * Make canonical URLs, here: endings (trailing slash, .html etc.)
  * 
  * @param string $ending ending of URL (/, .html, .php, none)
  * @param array $url ($zz_page['url'])
  * @return array $url, with new 'path' and 'redirect' set to 1 if necessary
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_check_canonical($ending, $url) {
+function wrap_check_canonical_ending($ending, $url) {
 	$new = false;
 	switch ($ending) {
 	case '/':

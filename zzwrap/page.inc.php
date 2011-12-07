@@ -673,13 +673,7 @@ function wrap_get_page() {
 
 	if (!empty($page['no_output'])) exit;
 
-	// if database allows field 'ending', check if the URL is canonical
-	if (!empty($zz_page['db'][wrap_sql('ending')])) {
-		$ending = $zz_page['db'][wrap_sql('ending')];
-		// if brick_format() returns a page ending, use this
-		if (isset($page['url_ending'])) $ending = $page['url_ending'];
-		$zz_page['url'] = wrap_check_canonical($ending, $zz_page['url']);
-	}
+	$zz_page['url'] = wrap_check_canonical($zz_page, $page);
 	wrap_redirect($zz_page['url']);
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
