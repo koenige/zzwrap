@@ -103,6 +103,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	if (!empty($zz_conf['debug'])) {
 		$time = wrap_microtime_float();
 	}
+	if (!$zz_conf['db_connection']) return array();
 
 	$result = mysql_query($sql);
 	if (!empty($zz_conf['debug'])) {
@@ -154,6 +155,9 @@ function wrap_microtime_float() {
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
+	global $zz_conf;
+	if (!$zz_conf['db_connection']) return array();
+	
 	$result = wrap_db_query($sql);
 	if (!$result) return array();
 
