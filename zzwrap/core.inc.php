@@ -726,6 +726,11 @@ function wrap_check_request() {
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
 	if (empty($zz_page['url']['full'])) {
 		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$_SERVER['REQUEST_URI']);
+		// in case, some script requests GET ? HTTP/1.1 or so:
+		if (empty($zz_page['url']['full']['path'])) {
+			$zz_page['url']['full']['path'] = '/';
+			$zz_page['url']['redirect'] = true;
+		}
 	}
 
 	// check REQUEST_METHOD, quit if inappropriate
@@ -908,13 +913,17 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 			// no need to rewrite cache, it's possible to send a Last-Modified
 			// header along
 			$headers = json_decode(file_get_contents($head));
-			foreach ($headers as $header) {
-				if (substr($header, 0, 6) != 'ETag: ') continue;
-				if (substr($header, 6) != $etag_header['std']) continue;
-				$equal = true;
-				// set older value for Last-Modified header
-				if ($time = filemtime($doc)) // if it exists
-					$last_modified_time = $time;
+			if (!$headers) {
+				wrap_error(sprintf('Cache file for headers has no content (%s)', $head), E_USER_NOTICE);
+			} else {
+				foreach ($headers as $header) {
+					if (substr($header, 0, 6) != 'ETag: ') continue;
+					if (substr($header, 6) != $etag_header['std']) continue;
+					$equal = true;
+					// set older value for Last-Modified header
+					if ($time = filemtime($doc)) // if it exists
+						$last_modified_time = $time;
+				}
 			}
 		}
 		if (!$equal) {
