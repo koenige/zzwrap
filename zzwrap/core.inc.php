@@ -211,21 +211,27 @@ function wrap_check_canonical($zz_page, $page) {
 		$zz_page['url']['full']['path'] = '/';
 		$zz_page['url']['redirect'] = true;
 	}
-	if (empty($page['query_strings'])) $page['query_strings'] = array();
+	$types = array('query_strings', 'query_strings_redirect');
+	foreach ($types as $type) {
+		// initialize
+		if (empty($page[$type])) $page[$type] = array();
+		// merge from settings
+		if (!empty($zz_setting[$type])) {
+			$page[$type] = array_merge($page[$type], $zz_setting[$type]);
+		}
+	}
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
 		array('no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url', 'logout'));
-	if (!empty($zz_setting['query_strings'])) {
-		$page['query_strings'] = array_merge($page['query_strings'], $zz_setting['query_strings']);
-	}
 	if (!empty($zz_page['url']['full']['query'])) {
 		parse_str($zz_page['url']['full']['query'], $params);
 		foreach (array_keys($params) as $param) {
-			if (!in_array($param, $page['query_strings'])) {
-				wrap_error(sprintf('Wrong URL: query string %s=%s [%s]', $param, $params[$param], $_SERVER['REQUEST_URI']), E_USER_NOTICE);
-				unset($params[$param]);
-				$zz_page['url']['redirect'] = true;
-			}
+			if (in_array($param, $page['query_strings'])) continue;
+			unset($params[$param]);
+			$zz_page['url']['redirect'] = true;
+			// no error logging for query strings which shall be redirected
+			if (in_array($param, $page['query_strings_redirect'])) continue;
+			wrap_error(sprintf('Wrong URL: query string %s=%s [%s]', $param, $params[$param], $_SERVER['REQUEST_URI']), E_USER_NOTICE);
 		}
 		$zz_page['url']['full']['query'] = http_build_query($params);
 	}
