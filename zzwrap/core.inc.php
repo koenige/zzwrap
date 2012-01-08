@@ -507,6 +507,7 @@ function wrap_template($template, $data = array(), $mode = false) {
 			wrap_quit(503, sprintf(wrap_text('Template %s does not exist.'), htmlspecialchars($template)));
 		}
 	}
+	$zz_setting['current_template'] = $template;
 	// save old setting regarding text formatting
 	if (!isset($zz_setting['brick_fulltextformat'])) 
 		$zz_setting['brick_fulltextformat'] = '';
@@ -535,6 +536,8 @@ function wrap_template($template, $data = array(), $mode = false) {
 	if ($mode === 'ignore positions' AND is_array($page['text']) AND count($page['text']) == 1) {
 		$page['text'] = current($page['text']);
 	}
+	// check if errors occured while filling in the template
+	wrap_page_check_if_error($page);
 	return $page['text'];
 }
 
