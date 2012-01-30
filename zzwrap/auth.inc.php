@@ -1,7 +1,7 @@
 <?php 
 
 // zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2010
+// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2012
 // CMS Authentication functions
 
 
@@ -350,8 +350,16 @@ function cms_login($params) {
 			if (!$loginform['msg']) {
 				$loginform['msg'] = wrap_text('Password or username incorrect. Please try again.');
 			}
+			$user = implode('.', $full_login);
+			if (empty($zz_conf['user'])) {
+				// Log failed login name in user name column, once.
+				$zz_conf['user'] = $user;
+				$user = '';
+			} else {
+				$user .= "\n";
+			}
 			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s\n%s", 
-				implode('.', $full_login), wrap_password_hash($login['password'])), E_USER_NOTICE);
+				$user, wrap_password_hash($login['password'])), E_USER_NOTICE);
 		} else {
 			// Hooray! User has been logged in
 			wrap_register(false, $data);
