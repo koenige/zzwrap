@@ -358,7 +358,7 @@ function cms_login($params) {
 			} else {
 				$user .= "\n";
 			}
-			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s\n%s", 
+			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
 				$user, wrap_password_hash($login['password'])), E_USER_NOTICE);
 		} else {
 			// Hooray! User has been logged in
