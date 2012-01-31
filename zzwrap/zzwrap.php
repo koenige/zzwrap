@@ -146,6 +146,8 @@ function wrap_set_defaults() {
 	// in case, somebody's doing a CONNECT or something similar, use some default
 	if (empty($zz_setting['hostname'])) 
 		$zz_setting['hostname'] == 'www.example.org';
+	// make hostname lowercase to avoid duplicating caches
+	$zz_setting['hostname'] = strtolower($zz_setting['hostname']);
 
 	// check if it's a local development server
 	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
