@@ -325,9 +325,9 @@ function cms_login($params) {
 			}
 			unset($hash);
 		}
-		// if MySQL-Login does not work, try different sources
+		// if database login does not work, try different sources
 		// ... LDAP ...
-		// ... different MySQL-server ...
+		// ... different database server ...
 		if (!empty($zz_setting['ldap_login']) AND empty($_SESSION['logged_in'])) {
 			require_once $zz_setting['custom_wrap_dir'].'/ldap-login.inc.php';
 			$data = cms_login_ldap($login);
