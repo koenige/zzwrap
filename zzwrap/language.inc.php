@@ -92,7 +92,7 @@ function wrap_prepare_url($url) {
 	// check if it's a language
 	if ($sql = wrap_sql('language') AND $zz_conf['db_connection']) {
 		// read from sql query
-		$sql = sprintf($sql, mysql_real_escape_string($lang));
+		$sql = sprintf($sql, wrap_db_escape($lang));
 		$lang = wrap_db_fetch($sql, '', 'single value');
 	} elseif (!empty($zz_setting['languages_allowed'])) {
 		// read from array

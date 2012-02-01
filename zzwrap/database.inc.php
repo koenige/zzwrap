@@ -726,4 +726,25 @@ function wrap_db_last_update($tables) {
 	return $last_update;
 }
 
+/**
+ * Escapes values for database input
+ *
+ * @param string $value
+ * @return string escaped $value
+ * @see zz_db_escape(), equivalent function in zzform
+ */
+function wrap_db_escape($value) {
+	// should never happen, just during development
+	if (!$value) return '';
+	if (is_array($value) OR is_object($value)) {
+		wrap_error('zz_db_escape() - value is not a string: '.json_encode($value));
+		return '';
+	}
+	if (function_exists('mysql_real_escape_string')) { 
+		// just from PHP 4.3.0 on
+		return mysql_real_escape_string($value);
+	} else {
+		return addslashes($value);
+	}
+}
 ?>

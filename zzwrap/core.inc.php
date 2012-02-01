@@ -112,7 +112,7 @@ function wrap_look_for_page($zz_page) {
 		$parameter[$i] = false;
 		while (!$page[$i]) {
 			$loops[$i]++;
-			$sql = sprintf(wrap_sql('pages'), '/'.mysql_real_escape_string($my_url));
+			$sql = sprintf(wrap_sql('pages'), '/'.wrap_db_escape($my_url));
 			if (!wrap_rights('preview')) $sql.= ' AND '.wrap_sql('is_public');
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i]) && strstr($my_url, '/')) {
@@ -419,10 +419,10 @@ function wrap_check_redirects($page_url) {
 
 	if (empty($zz_setting['check_redirects'])) return false;
 	$url = wrap_read_url($zz_page['url']);
-	$url['db'] = mysql_real_escape_string($url['db']);
+	$url['db'] = wrap_db_escape($url['db']);
 	$where_language = (!empty($_GET['lang']) 
 		? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
-			.$url['db'].'.html.'.mysql_real_escape_string($_GET['lang']).'"'
+			.$url['db'].'.html.'.wrap_db_escape($_GET['lang']).'"'
 		: ''
 	);
 	$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);

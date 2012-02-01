@@ -313,7 +313,7 @@ function cms_login($params) {
 		}
 
 		// check username and password
-		$sql = sprintf(wrap_sql('login'), mysql_real_escape_string($login['username']));
+		$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
 		unset($_SESSION['logged_in']);
 		$data = wrap_db_fetch($sql);
 		if ($data) {
@@ -527,7 +527,7 @@ function wrap_login_format($field_value, $field_name) {
 	
 	if (get_magic_quotes_gpc())
 		$field_value = stripslashes($field_value);
-	$field_value = mysql_real_escape_string($field_value);
+	$field_value = wrap_db_escape($field_value);
 	
 	if (!empty($zz_setting['login_fields_format']))
 		$field_value = $zz_setting['login_fields_format']($field_value, $field_name);
