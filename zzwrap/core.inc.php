@@ -852,11 +852,35 @@ function wrap_mail($mail) {
 	return true;
 }
 
+/**
+ * Combine Name and e-mail address for mail header
+ *
+ * @param array $name
+ * @return string
+ */
 function wrap_mail_name($name) {
 	if (!is_array($name)) return $name;
 	$mail = (!empty($name['name']) ? mb_encode_mimeheader($name['name']).' ' : '');
 	$mail .=  '<'.$name['e_mail'].'>';
 	return $mail;
+}
+
+/**
+ * check a single e-mail address if it's valid
+ *
+ * @param string $e_mail
+ * @return string $e_mail if it's correct, empty string if address is invalid
+ * @see zz_check_mail_single
+ */
+function wrap_mail_valid($e_mail) {
+	// remove <>-brackets around address
+	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
+		$e_mail = substr($e_mail, 1, -1); 
+	// check address
+	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
+	if (preg_match($e_mail_pm, $e_mail, $check))
+		return $e_mail;
+	return '';
 }
 
 /**
