@@ -298,7 +298,7 @@ function wrap_check_canonical_ending($ending, $url) {
 function wrap_read_url($url) {
 	// better than mod_rewrite, because '&' won't always be treated correctly
 	$url['db'] = $url['full']['path'];
-	$url['suffix_length'] = (!empty($_GET['lang']) ? strlen($_GET['lang']) + 6 : 5);
+	$url['suffix_length'] = !empty($_GET['lang']) ? strlen($_GET['lang']) + 6 : 5;
 	// cut '/' at the beginning and - if necessary - at the end
 	if (substr($url['db'], 0, 1) == '/') $url['db'] = substr($url['db'], 1);
 	if (substr($url['db'], -1) == '/') $url['db'] = substr($url['db'], 0, -1);
@@ -860,7 +860,7 @@ function wrap_mail($mail) {
  */
 function wrap_mail_name($name) {
 	if (!is_array($name)) return $name;
-	$mail = (!empty($name['name']) ? mb_encode_mimeheader($name['name']).' ' : '');
+	$mail = !empty($name['name']) ? mb_encode_mimeheader($name['name']).' ' : '';
 	$mail .=  '<'.$name['e_mail'].'>';
 	return $mail;
 }

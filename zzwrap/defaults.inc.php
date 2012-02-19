@@ -32,7 +32,7 @@ if (!empty($zz_setting['https_urls'])) {
 	foreach ($zz_setting['https_urls'] AS $url) {
 		// check language strings
 		// TODO: add support for language strings at some other position of the URL
-		$languages = (!empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : array());
+		$languages = !empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : array();
 		$languages[] = ''; // without language string should be checked always
 		foreach ($languages as $lang) {
 			if ($lang) $lang = '/'.$lang;
@@ -55,7 +55,7 @@ else $zz_setting['no_https'] = false;
 // allow to choose manually whether one uses https or not
 if (!isset($zz_setting['ignore_scheme'])) $zz_setting['ignore_scheme'] = false;
 if ($zz_setting['ignore_scheme']) 
-	$zz_setting['https'] = (empty($_SERVER['HTTPS']) ? false : true);
+	$zz_setting['https'] = empty($_SERVER['HTTPS']) ? false : true;
 
 if (empty($zz_setting['protocol']))
 	$zz_setting['protocol'] 	= 'http'.($zz_setting['https'] ? 's' : '');

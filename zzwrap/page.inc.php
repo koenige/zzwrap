@@ -89,7 +89,7 @@ function wrap_get_menu_navigation() {
 				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
-				($item['url'] == $_SERVER['REQUEST_URI'] ? true : false);
+				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
 			// create ID for CSS, JavaScript
 			if (function_exists('forceFilename') AND !empty($item['id_title']))
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
@@ -155,7 +155,7 @@ function wrap_get_menu_webpages() {
 				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
-				($menu[$id][$nav_id]['url'] == $_SERVER['REQUEST_URI'] ? true : false);
+				($menu[$id][$nav_id]['url'] == $_SERVER['REQUEST_URI']) ? true : false;
 			// create ID for CSS, JavaScript
 			if (function_exists('forceFilename') AND !empty($item['id_title']))
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
@@ -293,7 +293,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		if (empty($item['subtitle'])) $item['subtitle'] = '';
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
-		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) == $item['url'] ? true : false);
+		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) == $item['url']) ? true : false;
 
 		$class = array();
 		if (!$i) $class[] = 'first-child';
@@ -313,7 +313,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		$title = str_replace('-', '-&shy;', $title);
 		$output .= $title;
 		if ($item['url']) {
-			$output .= (!$item['current_page'] ? '</a>' : $zz_setting['menu_mark_active_close']);
+			$output .= !$item['current_page'] ? '</a>' : $zz_setting['menu_mark_active_close'];
 		} 
 		// get submenu if there is one and if it shall be shown
 		if (!empty($nav[$fn_prefix.$item[$fn_page_id]]) // there is a submenu and at least one of:
@@ -515,7 +515,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			}
 		}
 		$html_output.= ' '.$zz_page['breadcrumbs_separator']
-		.' '.implode(' '.$zz_page['breadcrumbs_separator'].' ', $brick_breadcrumbs);
+			.' '.implode(' '.$zz_page['breadcrumbs_separator'].' ', $brick_breadcrumbs);
 	}
 	return $html_output;
 }
@@ -702,7 +702,7 @@ function wrap_redirect($url) {
 	if (empty($url['redirect'])) return false;
 	global $zz_setting;
 	
-	$base = (!empty($zz_setting['base']) ? $zz_setting['base'] : '');
+	$base = !empty($zz_setting['base']) ? $zz_setting['base'] : '';
 	if (substr($base, -1) == '/') $base = substr($base, 0, -1);
 	wrap_http_status_header(301);
 	$location = $zz_setting['host_base'].$base.$url['full']['path'];

@@ -150,7 +150,7 @@ function wrap_set_defaults() {
 	$zz_setting['hostname'] = strtolower($zz_setting['hostname']);
 
 	// check if it's a local development server
-	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local' ? true : false);
+	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local') ? true : false;
 
 	// base URL, e. g. for languages
 	$zz_setting['base'] = '';

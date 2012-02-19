@@ -55,7 +55,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	$log_output = strip_tags($log_output);
 	$log_output = trim(html_entity_decode($log_output, ENT_QUOTES, $log_encoding));
 
-	$user = (!empty($_SESSION['username']) ? $_SESSION['username'] : '');
+	$user = !empty($_SESSION['username']) ? $_SESSION['username'] : '';
 	if (!$user AND !empty($zz_conf['user'])) $user = $zz_conf['user'];
 
 	// reformat log output

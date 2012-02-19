@@ -163,7 +163,7 @@ function wrap_text($string) {
 	static $text;
 
 	// get filename for translated texts
-	$language = (!empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language']);
+	$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
 
 	if (empty($zz_setting['text_included'])
 		OR $zz_setting['text_included'] != $language) {
