@@ -492,6 +492,7 @@ function wrap_check_https($zz_page, $zz_setting) {
  * @param array $data Data which will be used to fill the template
  * @param string $mode
  *		'ignore position': ignores position, returns a string instead of an array
+ *		'error': returns simple template, with placeholders
  * @return mixed $text (string or array indexed by positions)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
@@ -508,12 +509,6 @@ function wrap_template($template, $data = array(), $mode = false) {
 		}
 	}
 	$zz_setting['current_template'] = $template;
-	// save old setting regarding text formatting
-	if (!isset($zz_setting['brick_fulltextformat'])) 
-		$zz_setting['brick_fulltextformat'] = '';
-	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
-	// apply new text formatting
-	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 	$template = file($tpl);
 	// remove comments and next empty line from the start
 	foreach ($template as $index => $line) {
@@ -522,9 +517,20 @@ function wrap_template($template, $data = array(), $mode = false) {
 		else break;
 	}
 	$template = implode("", $template);
+	// now we have the template as string, in case of error, return
+	if ($mode === 'error') return $template;
+
+	// replace placeholders in template
+	// save old setting regarding text formatting
+	if (!isset($zz_setting['brick_fulltextformat'])) 
+		$zz_setting['brick_fulltextformat'] = '';
+	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
+	// apply new text formatting
+	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 	$page = brick_format($template, $data);
 	// restore old setting regarding text formatting
 	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
+
 	// get rid of if / else text that will be put to hidden
 	if (count($page['text']) == 2 
 		AND is_array($page['text'])

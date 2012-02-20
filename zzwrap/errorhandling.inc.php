@@ -214,7 +214,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	elseif (empty($page['status']) OR !in_array($page['status'], array_keys($codes)))
 		// default error code
 		$page['status'] = 404;
-	if ($page['status'] == 404 AND substr($_SERVER['REQUEST_URI'], 0, 7) == 'http://') {
+	if ($page['status'] == 404 AND wrap_substr($_SERVER['REQUEST_URI'], 'http://')) {
 		// probably badly designed robot, away with it
 		$page['status'] = 400;
 	}
@@ -249,17 +249,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 
 	// get own or default http-error template
 	if (empty($page['text'])) {
-		if (file_exists($file = $zz_setting['custom_wrap_template_dir'].'/http-error.template.txt'))
-			$http_error_template = $file;
-		else
-			$http_error_template = $zz_setting['wrap_template_dir'].'/http-error.template.txt';
-		$template = file($http_error_template);
-		// Allow first lines starting with #
-		foreach ($template as $line_no => $content) {
-			if (substr($content, 0, 1) == '#') unset($template[$line_no]);
-			else break;
-		}
-		$page['text'] = implode("", $template);
+		$page['text'] = wrap_template('http-error', array(), 'error');
 	}
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
