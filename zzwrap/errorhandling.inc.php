@@ -335,6 +335,9 @@ function wrap_errorpage_log($status, $page) {
 			.$zz_page['url']['full']['host'].$zz_setting['base']
 			.$zz_page['url']['full']['path'];
 		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
+		// http:// is so uncool ...
+		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
+		if ('https://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
 		// ignore some URLs ending in the following strings
 		if (empty($zz_setting['error_404_ignore_strings'])) {
 			$zz_setting['error_404_ignore_strings'] = array(
