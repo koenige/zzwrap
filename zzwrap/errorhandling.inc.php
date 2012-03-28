@@ -334,8 +334,7 @@ function wrap_errorpage_log($status, $page) {
 		$requested = $zz_page['url']['full']['scheme'].'://'
 			.$zz_page['url']['full']['host'].$zz_setting['base']
 			.$zz_page['url']['full']['path']
-			.($zz_page['url']['full']['query'] ? '?' : '')
-			.$zz_page['url']['full']['query'];
+			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : '');
 		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
 		// http:// is so uncool ...
 		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
