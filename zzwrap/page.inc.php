@@ -9,7 +9,7 @@
 
 		wrap_get_menu()					-- gets menu from database
 			wrap_get_menu_navigation()	-- gets menu from separate navigation table
-			wrap_get_menu_webpages()		-- gets menu from webpages table
+			wrap_get_menu_webpages()	-- gets menu from webpages table
 		wrap_htmlout_menu()				-- outputs menu in HTML
 		wrap_get_breadcrumbs()			-- gets breadcrumbs from database
 			wrap_get_breadcrumbs_recursive()	-- recursively gets breadcrumbs
@@ -26,11 +26,12 @@
 /**
  * Gets menu entries depending on source
  * 
- * reads menu settings from webpages- or navigation-table
+ * reads menu settings from webpages- or navigation-table, sets current page to
+ * 'current_page', adds base URL if neccessary
  * global variables: 
  * $zz_setting['menu']
  *
- * @return array hierarchical menu, output of wrap_get_menu_...()-function
+ * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu() {
@@ -40,25 +41,43 @@ function wrap_get_menu() {
 	
 	if ($zz_setting['menu'] == 'navigation') {
 		// Menu from separate navigation table
-		return wrap_get_menu_navigation();
+		$menu = wrap_get_menu_navigation();
 	} else {
 		// Menu settings included in webpages table
-		return wrap_get_menu_webpages();
+		$menu = wrap_get_menu_webpages();
 	}
+	if (empty($menu)) return array();
+
+	// set current_page, id, subtitle, url with base for _ALL_ menu items
+	foreach (array_keys($menu) as $id) {
+		foreach ($menu[$id] as $nav_id => $item) {
+			// add base_url for non-http links
+			if (substr($item['url'], 0, 1) == '/') 
+				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
+			// mark current page in menus
+			$menu[$id][$nav_id]['current_page'] = 
+				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
+			// create ID for CSS, JavaScript
+			if (function_exists('forceFilename') AND !empty($item['id_title']))
+				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
+			// initialize subtitle
+			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
+		}
+	}
+	return $menu;
 }
 
 /**
- * Liest Daten für Navigationsmenü aus der Datenbank aus, incl. Übersetzung
+ * Read data for menu from db table 'navigation', translate if required
+ * Liest Daten für Menü aus der DB-Tabelle 'navigation' aus, übersetzt ggf. Menü
  * 
- * Die Funktion liest das Navigationsmenü aus, setzt die aktuelle Seite 
- * ('current_page'), setzt eine menu-ID, übersetzt die Menüeinträge und URLs
- * und gibt ein hierarchisches Array zurück
- * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
+ * @return array $menu: 'title', 'url', 'subtitle' (optional), 'id_title' (optional)
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu_navigation() {
 	global $zz_setting;
 	global $zz_conf;
+	// no menu query, so we don't have a menu
 	if (!wrap_sql('menu')) return array();
 
 	// get data from database
@@ -80,36 +99,20 @@ function wrap_get_menu_navigation() {
 			$menu[$item['main_nav_id']][$item['nav_id']] = $item;
 		}
 	}
-	if (empty($menu)) return array();
-	// set current_page, id, subtitle, url with base for _ALL_ menu items
-	foreach (array_keys($menu) as $id) {
-		foreach ($menu[$id] as $nav_id => $item) {
-			// add base_url for non-http links
-			if (substr($item['url'], 0, 1) == '/') 
-				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
-			// mark current page in menus
-			$menu[$id][$nav_id]['current_page'] = 
-				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
-			// create ID for CSS, JavaScript
-			if (function_exists('forceFilename') AND !empty($item['id_title']))
-				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
-			// initialize subtitle
-			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
-			// write everything into $nav array
-		}
-	}
 	return $menu;
 }
 
 /**
- * Liest Daten für Navigationsmenü aus der Datenbank aus
+ * Read data for menu from db table 'webpages/, translate if required
+ * Liest Daten für Menü aus der DB-Tabelle 'webpages' aus, übersetzt ggf. Menü
  *
- * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
+ * @return array $menu: 'title', 'url', 'subtitle'
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu_webpages() {
 	global $zz_setting;
-	if (!$sql = wrap_sql('menu')) return array(); // no menu query, so we don't have a menu
+	// no menu query, so we don't have a menu
+	if (!$sql = wrap_sql('menu')) return array(); 
 
 	$menu = array();
 	// get top menus
@@ -143,24 +146,6 @@ function wrap_get_menu_webpages() {
 			// URLs ending in * or */ or *.html are different
 			if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
 				$menu[$menu_key] = $my_item;
-		}
-	}
-	if (empty($menu)) return array();
-	
-	// set current_page, id, subtitle, url with base for _ALL_ menu items
-	foreach (array_keys($menu) as $id) {
-		foreach ($menu[$id] as $nav_id => $item) {
-			// add base_url for non-http links
-			if (substr($item['url'], 0, 1) == '/') 
-				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
-			// mark current page in menus
-			$menu[$id][$nav_id]['current_page'] = 
-				($menu[$id][$nav_id]['url'] == $_SERVER['REQUEST_URI']) ? true : false;
-			// create ID for CSS, JavaScript
-			if (function_exists('forceFilename') AND !empty($item['id_title']))
-				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
-			// initialize subtitle
-			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
 		}
 	}
 	return $menu;
