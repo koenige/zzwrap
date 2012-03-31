@@ -24,6 +24,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
+	static $post_errors_logged;
 
 	$return = false;
 	switch ($errorcode) {
@@ -66,7 +67,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 			- (strlen($user)+4)).' ['.$user."]\n";
 		error_log($error_line, 3, $zz_conf['error_log'][$level]);
-		if (!empty($_POST) AND $zz_conf['error_log_post']) {
+		if (!empty($_POST) AND $zz_conf['error_log_post'] AND !$post_errors_logged) {
 			$error_line = '['.date('d-M-Y H:i:s').'] zzwrap Notice: POST';
 			if (function_exists('json_encode')) {
 				$error_line .= '[json] '.json_encode($_POST);
@@ -76,6 +77,8 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 				- (strlen($user)+4)).' ['.$user."]\n";
 			error_log($error_line, 3, $zz_conf['error_log'][$level]);
+			// Log POST output only once per request
+			$post_errors_logged = true;
 		}
 	}
 		
