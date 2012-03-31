@@ -1136,7 +1136,12 @@ function wrap_cache_filename($type = 'url') {
 
 	$base = $zz_setting['base'];
 	if ($base == '/') $base = '';
-	if (!empty($my['query'])) $my['path'] .= '?'.$my['query'];
+	if (!empty($my['query'])) {
+		// [ and ] are equal to %5B and %5D, so replace them
+		$my['query'] = str_replace('%5B', '[', $my['query']);
+		$my['query'] = str_replace('%5D', ']', $my['query']);
+		$my['path'] .= '?'.$my['query'];
+	}
 	$file .= '/'.urlencode($base.$my['path']);
 	if ($type === 'url') return $file;
 
