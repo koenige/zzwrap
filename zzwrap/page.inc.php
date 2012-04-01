@@ -818,4 +818,52 @@ function wrap_mailto($person, $mail, $attributes = false) {
 	return $output;
 }
 
+/**
+ * Format a date
+ *
+ * @param string $begin date in ISO format, e. g. "2004-03-12"
+ * @param string $end date in ISO format, e. g. "2004-03-12"
+ * @param string $format format which should be used:
+ *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
+ *			31.12.2004-06.01.2005
+ * @return string
+ */
+function wrap_dates($begin, $end, $format) {
+	global $zz_conf;
+	if (!function_exists('datum_de')) 
+		include_once $zz_conf['dir'].'/inc/numbers.inc.php';
+
+	if ($begin === $end) $end = '';
+
+	switch ($format) {
+	case 'dates-de':
+		if (!$end) {
+			// 12.03.2004 or 03.2004 or 2004
+			$output = datum_de($begin);
+		} elseif (substr($begin, 7) == substr($end, 7)
+			AND substr($begin, 7) === '-00'
+			AND substr($begin, 4) !== '-00-00') {
+			// 2004-03-00 2004-04-00 = 03-04.2004
+			$output = substr($begin, 5, 2).'&#8211;'.datum_de($end);
+		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
+			AND substr($begin, 7) !== '-00') {
+			// 12.-14.03.2004
+			$output = substr($begin, 8).'&#8211;'.datum_de($end);
+		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
+			AND substr($begin, 7) !== '-00') {
+			// 12.04.-13.05.2004
+			$output = substr(datum_de($begin), 0, 6).'&#8211;'.datum_de($end);
+		} else {
+			// 2004-03-00 2005-04-00 = 03.2004-04.2005
+			// 2004-00-00 2005-00-00 = 2004-2005
+			// 31.12.2004-06.01.2005
+			$output = datum_de($begin).'&#8211;'.datum_de($end);
+		}
+		break;
+	default:
+		$output = '';
+	}
+	return $output;
+}
+
 ?>
