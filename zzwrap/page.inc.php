@@ -856,12 +856,12 @@ function wrap_dates($begin, $end, $format = false) {
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
-			$output = substr(datum_de($begin), 0, 6).'&#8211;'.datum_de($end);
+			$output = substr(datum_de($begin), 0, 6).'&#8203;&#8211;'.datum_de($end);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
 			// 2004-00-00 2005-00-00 = 2004-2005
 			// 31.12.2004-06.01.2005
-			$output = datum_de($begin).'&#8211;'.datum_de($end);
+			$output = datum_de($begin).'&#8203;&#8211;'.datum_de($end);
 		}
 		break;
 	default:
