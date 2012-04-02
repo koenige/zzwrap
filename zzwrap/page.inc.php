@@ -827,13 +827,17 @@ function wrap_mailto($person, $mail, $attributes = false) {
  *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
  *			31.12.2004-06.01.2005
  * @return string
+ * @todo rewrite function so it is possible to use only one parameter
  */
-function wrap_dates($begin, $end, $format) {
+function wrap_dates($begin, $end, $format = false) {
 	global $zz_conf;
 	if (!function_exists('datum_de')) 
 		include_once $zz_conf['dir'].'/inc/numbers.inc.php';
 
 	if ($begin === $end) $end = '';
+
+	if (!$format AND isset($zz_setting['date_format']))
+		$format = $zz_setting['date_format'];
 
 	switch ($format) {
 	case 'dates-de':
