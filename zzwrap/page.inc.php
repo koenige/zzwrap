@@ -852,7 +852,7 @@ function wrap_dates($begin, $end, $format = false) {
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
 			// 12.-14.03.2004
-			$output = substr($begin, 8).'&#8211;'.datum_de($end);
+			$output = substr($begin, 8).'.&#8211;'.datum_de($end);
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
