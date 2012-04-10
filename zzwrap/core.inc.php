@@ -1131,6 +1131,12 @@ function wrap_cache_filename($type = 'url') {
 	global $zz_setting;
 
 	$my = $zz_page['url']['full'];
+	if (substr($my['host'], -1) === '.') {
+		// fully-qualified (unambiguous) DNS domain names have a dot at the end
+		// we better not redirect these to a domain name without a dot to avoid
+		// ambiguity, but we do not need to do double caching
+		$my['host'] = substr($my['host'], 0, -1);
+	}
 	$file = $zz_setting['cache'].'/'.urlencode($my['host']);
 	if ($type === 'domain') return $file;
 
