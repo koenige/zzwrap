@@ -143,6 +143,11 @@ function wrap_set_defaults() {
 		$zz_setting['hostname']	= htmlspecialchars($_SERVER['HTTP_HOST']);
 	else
 		$zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
+	// fully-qualified (unambiguous) DNS domain names have a dot at the end
+	// we better not redirect these to a domain name without a dot to avoid
+	// ambiguity, but we do not need to do double caching etc.
+	if (substr($zz_setting['hostname'], -1) === '.')
+		$zz_setting['hostname'] = substr($zz_setting['hostname'], 0, -1);
 	// in case, somebody's doing a CONNECT or something similar, use some default
 	if (empty($zz_setting['hostname'])) 
 		$zz_setting['hostname'] == 'www.example.org';
