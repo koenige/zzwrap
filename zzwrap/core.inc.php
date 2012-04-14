@@ -329,6 +329,11 @@ function wrap_quit($errorcode = 404, $error_msg = '', $page = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
+	
+	// save error code for later access to avoid infinite recursion
+	if (empty($zz_page['error_code'])) {
+		$zz_page['error_code'] = $errorcode;
+	}
 
 	$redir = wrap_check_redirects($zz_page['url']);
 	if (!$redir) $page['status'] = $errorcode; // we need this in the error script
@@ -505,7 +510,14 @@ function wrap_template($template, $data = array(), $mode = false) {
 		// check if there's a default template
 		$tpl = $zz_setting['wrap_template_dir'].'/'.$template.'.template.txt';
 		if (!file_exists($tpl)) {
-			wrap_quit(503, sprintf(wrap_text('Template %s does not exist.'), htmlspecialchars($template)));
+			global $zz_page;
+			$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), htmlspecialchars($template));
+			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
+				echo $error_msg;
+				return false;
+			} else {
+				wrap_quit(503, $error_msg);
+			}
 		}
 	}
 	$zz_setting['current_template'] = $template;
