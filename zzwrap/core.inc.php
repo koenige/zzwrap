@@ -232,6 +232,7 @@ function wrap_check_canonical($zz_page, $page) {
 			$zz_page['url']['redirect'] = true;
 			// no error logging for query strings which shall be redirected
 			if (in_array($param, $page['query_strings_redirect'])) continue;
+			if (is_array($param_value)) $param_value = http_build_query($param_value);
 			wrap_error(sprintf('Wrong URL: query string %s=%s [%s]', $param, $param_value, $_SERVER['REQUEST_URI']), E_USER_NOTICE);
 		}
 		$zz_page['url']['full']['query'] = http_build_query($params);
@@ -829,13 +830,17 @@ function wrap_mail($mail) {
 		$mail['headers']['Content-Transfer-Encoding'] = '8bit';
 
 	$additional_headers = '';
-	foreach ($mail['headers'] as $key => $header) {
+	foreach ($mail['headers'] as $field_name => $field_body) {
 		// set but empty headers will be ignored
-		if (!$header) continue;
+		if (!$field_body) continue;
 		// newlines and carriage returns: probably some injection, ignore
-		if (strstr($header, "\n")) continue;
-		if (strstr($header, "\r")) continue;
-		$additional_headers .= $key.': '.$header."\r\n";
+		if (strstr($field_body, "\n")) continue;
+		if (strstr($field_body, "\r")) continue;
+		// @todo field name ASCII characters 33-126 except colon
+		// @todo field body any ASCII characters except CR LF
+		// @todo field body longer than 78 characters SHOULD / 998 
+		// characters MUST be folded with CR LF WSP
+		$additional_headers .= $field_name.': '.$field_body."\r\n";
 	}
 
 	// Additional parameters
@@ -878,7 +883,23 @@ function wrap_mail($mail) {
  */
 function wrap_mail_name($name) {
 	if (!is_array($name)) return $name;
-	$mail = !empty($name['name']) ? mb_encode_mimeheader($name['name']).' ' : '';
+	$mail = '';
+	if (!empty($name['name'])) {
+		// remove line feeds
+		$name['name'] = str_replace("\n", "", $name['name']);
+		$name['name'] = str_replace("\r", "", $name['name']);
+		// patterns that are allowed for atom
+		$pattern_unquoted = "/^[a-z0-9 \t!#$%&'*+\-^?=~{|}_`\/]*$/i";
+		$name['name'] = mb_encode_mimeheader($name['name']);
+		if (!preg_match($pattern_unquoted, $name['name'])) {
+			// alternatively use quoted-string
+			// @todo: allow quoted-pair
+			$name['name'] = str_replace('"', '', $name['name']);
+			$name['name'] = str_replace('\\', '', $name['name']);
+			$name['name'] = '"'.$name['name'].'"';
+		}
+		$mail .= $name['name'].' ';
+	}
 	$mail .=  '<'.$name['e_mail'].'>';
 	return $mail;
 }
