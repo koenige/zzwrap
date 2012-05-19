@@ -1,7 +1,7 @@
 <?php 
 
 // zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2011
+// Copyright (c) 2007-2012 Gustaf Mossakowski, <gustaf@koenige.org>
 // CMS core functions
 
 
@@ -355,7 +355,7 @@ function wrap_quit($errorcode = 404, $error_msg = '', $page = array()) {
 		} else {
 			$new = $zz_setting['host_base'].$zz_setting['base'].$redir[$field_name];
 		}
-		header("Location: ".$new);
+		header('Location: '.$new);
 		break;
 	default: // 4xx, 5xx
 		if ($error_msg) {
@@ -639,16 +639,16 @@ function wrap_file_send($file) {
 	// Check for 304 or send ETag header
 	if (!empty($file['etag'])) {
 		$file['etag'] = wrap_if_none_match($file['etag'], $file);
-		header("ETag: ".$file['etag']);
+		header('ETag: '.$file['etag']);
 	}
 
 	// Check for 304 and send Last-Modified header
 	$last_modified = wrap_if_modified_since(filemtime($file['name']), $file);
- 	header("Last-Modified: ".$last_modified);
+ 	header('Last-Modified: '.$last_modified);
 
 	// Send HTTP headers
-	header("Content-Length: " . $filesize);
-	header("Content-Type: ".$mimetype);
+	header('Content-Length: ' . $filesize);
+	header('Content-Type: '.$mimetype);
 	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
 
 	// Download files if generic mimetype
@@ -945,7 +945,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	if ($status == 200) {
 		$etag = md5($text);
 		$etag_header = wrap_if_none_match($etag);
-		header("ETag: ".$etag_header['std']);
+		header('ETag: '.$etag_header['std']);
 	}
 
 	// headers
@@ -957,6 +957,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		break;
 	case 'json':
 		header('Content-Type: application/json; charset=utf-8');
+		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.json';
+		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
 	case 'kml':
 		header('Content-Type: application/vnd.google-earth.kml+xml; charset=utf-8');
@@ -966,6 +968,9 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	case 'mediarss':
 		header('Content-Type: application/xhtml+xml; charset=utf-8');
 		break;
+	case 'xml':
+		header('Content-Type: application/xml; charset='.$zz_conf['character_set']);
+		break;		
 	}
 
 	$last_modified_time = time();
@@ -1022,7 +1027,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		header('Last-Modified: '.$last_modified);
 	}
 
-	header("Content-Length: ".strlen($text));
+	header('Content-Length: '.strlen($text));
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
 	
 	// output content
@@ -1036,7 +1041,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 
 function wrap_send_gzip($text, $etag_header) {
 	// gzip?
-	header("Vary: Accept-Encoding");
+	header('Vary: Accept-Encoding');
 	// start output
 	ob_start();
 	ob_start('ob_gzhandler');
@@ -1045,9 +1050,9 @@ function wrap_send_gzip($text, $etag_header) {
 	if ($etag_header) {
 		// only if HTTP status = 200
 		foreach (headers_list() AS $header) {
-			if (!wrap_substr($header, "Content-Encoding: ")) continue;
+			if (!wrap_substr($header, 'Content-Encoding: ')) continue;
 			// overwrite ETag with -gz ending
-			header("ETag: ".$etag_header['gz']);
+			header('ETag: '.$etag_header['gz']);
 		}
 	}
 	header('Content-Length: '.ob_get_length());
@@ -1140,7 +1145,7 @@ function wrap_send_cache($age = 0) {
 	if (!$etag) $etag = md5($text);
 	$etag_header = wrap_if_none_match($etag);
 
-	header("Content-Length: ".strlen($text));
+	header('Content-Length: '.strlen($text));
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
 	
 	if (!empty($zz_setting['gzip_encode'])) {

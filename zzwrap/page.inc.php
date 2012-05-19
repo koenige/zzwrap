@@ -692,7 +692,7 @@ function wrap_redirect($url) {
 	wrap_http_status_header(301);
 	$location = $zz_setting['host_base'].$base.$url['full']['path'];
 	if (!empty($url['full']['query'])) $location .= '?'.$url['full']['query'];
-	header("Location: ".$location);
+	header('Location: '.$location);
 	exit;
 }
 
