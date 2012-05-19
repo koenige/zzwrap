@@ -1123,9 +1123,8 @@ function wrap_send_cache($age = 0) {
 
 	if ($age) {
 		// return cached files if they're still fresh enough
-		foreach ($files as $file) {
-			if ((filemtime($file) + $age) < time()) return false;
-		}
+		$fresh = wrap_cache_freshness($files, $age);
+		if (!$fresh) return false;
 	}
 	$headers = json_decode(file_get_contents($files[1]));
 	$etag = false;
@@ -1154,6 +1153,21 @@ function wrap_send_cache($age = 0) {
 		echo $text;
 	}
 	exit;
+}
+
+/**
+ * @param array $files list of files
+ * @param int $age (negative -1: don't care about freshness; other values: check)
+ * @return bool false: not fresh, true: cache is fresh
+ */
+function wrap_cache_freshness($files, $age) {
+	// -1: cache will always considered to be fresh
+	if ($age === -1) return true;
+	// 0 or positive values: cache files will be checked
+	foreach ($files as $file) {
+		if ((filemtime($file) + $age) < time()) return false;
+	}
+	return true;
 }
 
 /**
