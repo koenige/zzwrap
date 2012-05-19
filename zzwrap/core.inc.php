@@ -978,38 +978,13 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
-		$host = wrap_cache_filename('domain');
-		if (!file_exists($host)) {
-			$success = mkdir($host);
-			if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
-		}
-		$doc = wrap_cache_filename();
-		$head = wrap_cache_filename('headers');
-		$equal = false;
-		if (file_exists($head)) {
-			// check if something with the same ETag has already been cached
-			// no need to rewrite cache, it's possible to send a Last-Modified
-			// header along
-			$headers = json_decode(file_get_contents($head));
-			if (!$headers) {
-				wrap_error(sprintf('Cache file for headers has no content (%s)', $head), E_USER_NOTICE);
-			} else {
-				foreach ($headers as $header) {
-					if (substr($header, 0, 6) != 'ETag: ') continue;
-					if (substr($header, 6) != $etag_header['std']) continue;
-					$equal = true;
-					// set older value for Last-Modified header
-					if ($time = filemtime($doc)) // if it exists
-						$last_modified_time = $time;
-				}
-			}
-		}
-		if (!$equal) {
-			// save document
-			file_put_contents($doc, $text);
-			// save headers
-			// without '-gz'
-			file_put_contents($head, json_encode(headers_list()));
+		$cache_saved = wrap_cache_ressource($text, $etag_header['std']);
+		if (!$cache_saved) {
+			// identical cache file exists
+			// set older value for Last-Modified header
+			$doc = wrap_cache_filename();
+			if ($time = filemtime($doc)) // if it exists
+				$last_modified_time = $time;
 		}
 	}
 
@@ -1057,6 +1032,41 @@ function wrap_send_gzip($text, $etag_header) {
 	}
 	header('Content-Length: '.ob_get_length());
 	ob_end_flush();  // The main one
+}
+
+/**
+ * cache a ressource if it not exists or a stale cache exists
+ *
+ * @param string $text ressource to be cached
+ * @param string $existing_etag
+ * @param string $url (optional) URL to be cached, if not set, use internal URL
+ * @param array $headers (optional), if not set use sent headers
+ * @return bool false: no new cache file was written, true: new cache file created
+ */
+function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = array()) {
+	$host = wrap_cache_filename('domain', $url);
+	if (!file_exists($host)) {
+		$success = mkdir($host);
+		if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
+	}
+	$doc = wrap_cache_filename('url', $url);
+	$head = wrap_cache_filename('headers', $url);
+	if (file_exists($head)) {
+		// check if something with the same ETag has already been cached
+		// no need to rewrite cache, it's possible to send a Last-Modified
+		// header along
+		$etag = wrap_cache_get_header($head, 'ETag');
+		if ('"'.$etag.'"' === $existing_etag) {
+			return false;
+		}
+	}
+	// save document
+	file_put_contents($doc, $text);
+	// save headers
+	// without '-gz'
+	if (!$headers) $headers = headers_list();
+	file_put_contents($head, json_encode($headers));
+	return true;
 }
 
 /**
@@ -1126,15 +1136,9 @@ function wrap_send_cache($age = 0) {
 		$fresh = wrap_cache_freshness($files, $age);
 		if (!$fresh) return false;
 	}
-	$headers = json_decode(file_get_contents($files[1]));
-	$etag = false;
-	foreach ($headers as $header) {
-		if (wrap_substr($header, 'ETag: ')) {
-			// check if respond with 304
-			$etag = substr($header, 7, -1); // without ""
-		}
-		header($header);
-	}
+	$etag = wrap_cache_get_header($files[1], 'ETag');
+	if ($etag) header('ETag: "'.$etag.'"');
+
 	// check if respond with 304; Last-Modified
 	$last_modified = wrap_if_modified_since(filemtime($files[0]));
 	header('Last-Modified: '.$last_modified);
@@ -1171,30 +1175,58 @@ function wrap_cache_freshness($files, $age) {
 }
 
 /**
+ * get header value from cache file
+ *
+ * @param string $file filename
+ * @param string $type name of header
+ * @return string $value
+ */
+function wrap_cache_get_header($file, $type) {
+	$headers = json_decode(file_get_contents($file));
+	if (!$headers) {
+		wrap_error(sprintf('Cache file for headers has no content (%s)', $file), E_USER_NOTICE);
+		return '';
+	}
+	$value = '';
+	foreach ($headers as $header) {
+		if (wrap_substr($header, $type.': ')) {
+			// check if respond with 304
+			$value = substr($header, strlen($type + 3), -1); // without ""
+		}
+	}
+	return $value;
+}
+
+/**
  * returns filename for URL for caching
  *
- * @param string $type optional; default: 'url'; 'headers', 'domain'
+ * @param string $type (optional) default: 'url'; 'headers', 'domain'
+ * @param string $url (optional) URL to cache, if not set, internal URL will be used
  * @global array $zz_page ($zz_page['url']['full'])
  * @global array $zz_setting 'cache'
  * @return string filename
  */
-function wrap_cache_filename($type = 'url') {
+function wrap_cache_filename($type = 'url', $url = '') {
 	global $zz_page;
 	global $zz_setting;
 
-	$my = $zz_page['url']['full'];
-	$file = $zz_setting['cache'].'/'.urlencode($my['host']);
+	if (!$url) {
+		$url = $zz_page['url']['full'];
+		$base = $zz_setting['base'];
+		if ($base == '/') $base = '';
+	} else {
+		$base = '';
+	}
+	$file = $zz_setting['cache'].'/'.urlencode($url['host']);
 	if ($type === 'domain') return $file;
 
-	$base = $zz_setting['base'];
-	if ($base == '/') $base = '';
-	if (!empty($my['query'])) {
+	if (!empty($url['query'])) {
 		// [ and ] are equal to %5B and %5D, so replace them
-		$my['query'] = str_replace('%5B', '[', $my['query']);
-		$my['query'] = str_replace('%5D', ']', $my['query']);
-		$my['path'] .= '?'.$my['query'];
+		$url['query'] = str_replace('%5B', '[', $url['query']);
+		$url['query'] = str_replace('%5D', ']', $url['query']);
+		$url['path'] .= '?'.$url['query'];
 	}
-	$file .= '/'.urlencode($base.$my['path']);
+	$file .= '/'.urlencode($base.$url['path']);
 	if ($type === 'url') return $file;
 
 	$file .= '.headers';
