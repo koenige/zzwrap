@@ -124,7 +124,7 @@ function wrap_set_defaults() {
 	global $zz_conf;
 
 // -------------------------------------------------------------------------
-// Main paths, should be set in paths.inc.php
+// Main paths, should be set in main.php
 // -------------------------------------------------------------------------
 	
 	// http root directory
