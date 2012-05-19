@@ -978,7 +978,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
-		$cache_saved = wrap_cache_ressource($text, $etag_header['std']);
+		$cache_saved = wrap_cache_ressource($text, $etag);
 		if (!$cache_saved) {
 			// identical cache file exists
 			// set older value for Last-Modified header
@@ -1056,7 +1056,7 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 		// no need to rewrite cache, it's possible to send a Last-Modified
 		// header along
 		$etag = wrap_cache_get_header($head, 'ETag');
-		if ('"'.$etag.'"' === $existing_etag) {
+		if ($etag === $existing_etag) {
 			return false;
 		}
 	}
@@ -1191,7 +1191,10 @@ function wrap_cache_get_header($file, $type) {
 	foreach ($headers as $header) {
 		if (wrap_substr($header, $type.': ')) {
 			// check if respond with 304
-			$value = substr($header, strlen($type + 3), -1); // without ""
+			$value = substr($header, strlen($type) + 2);
+			if (substr($value, 0, 1) === '"' AND substr($value, -1) === '"') {
+				$value = substr($value, 1, -1);
+			}
 		}
 	}
 	return $value;
