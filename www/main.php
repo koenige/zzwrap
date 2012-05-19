@@ -13,7 +13,7 @@ $zz_conf['root'] = $_SERVER['DOCUMENT_ROOT'];
 // scripts library
 // if your provider does not support putting the include scripts below
 // document root, change accordingly
-$zz_setting['inc'] = $zz_conf['root'].'/../_inc';
+$zz_setting['inc'] = $zz_conf['root'].'/../siteregister_inc';
 
 // CMS will be started
 require_once $zz_setting['inc'].'/library/zzwrap/zzwrap.php';
