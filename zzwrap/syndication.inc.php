@@ -24,7 +24,7 @@ function wrap_syndication_get($url, $type = 'json') {
 		$zz_setting['cache_age_syndication'] = 0;
 	}
 	if (!empty($zz_setting['cache'])) {
-		$files = array(wrap_cache_filename(), wrap_cache_filename('headers'));
+		$files = array(wrap_cache_filename('url', $url), wrap_cache_filename('headers', $url));
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
@@ -32,7 +32,7 @@ function wrap_syndication_get($url, $type = 'json') {
 				$data = file_get_contents($files[0]);
 			} else {
 				// get ETag and Last-Modified from cache file
-				$etag = wrap_cache_get_header($files[1]);
+				$etag = wrap_cache_get_header($files[1], 'ETag');
 				$last_modified = filemtime($files[1]);
 			}
 		}
@@ -46,7 +46,8 @@ function wrap_syndication_get($url, $type = 'json') {
 			$data = file_get_contents($url);
 			restore_error_handler();
 			if ($data and !empty($zz_setting['cache'])) {
-				wrap_cache_ressource($data, $url, array('ETag: '.md5($data)));
+				$my_etag = md5($data);
+				wrap_cache_ressource($data, $my_etag, $url, array('ETag: "'.$my_etag.'"'));
 			}
 		} else {
 			$ch = curl_init();
@@ -67,9 +68,15 @@ function wrap_syndication_get($url, $type = 'json') {
 			switch ($status) {
 			case 200:
 				$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
+				$headers = explode("\r\n", $headers);
+				$my_etag = '';
+				foreach ($headers as $header) {
+					if (substr($header, 0, 6) != 'ETag: ') continue;
+					$my_etag = substr($header, 7, -1);
+				}
 				$data = substr($data, strpos($data, "\r\n\r\n") + 4);
 				if ($data and !empty($zz_setting['cache'])) {
-					wrap_cache_ressource($data, $url, $headers);
+					wrap_cache_ressource($data, $my_etag, $url, $headers);
 				}
 				break;
 			case 304:
