@@ -970,7 +970,10 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		break;
 	case 'xml':
 		header('Content-Type: application/xml; charset='.$zz_conf['character_set']);
-		break;		
+		break;
+	case 'txt':
+		header('Content-Type: text/plain; charset='.$zz_conf['character_set']);
+		break;	
 	}
 
 	$last_modified_time = time();
