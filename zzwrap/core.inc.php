@@ -1218,6 +1218,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$base = $zz_setting['base'];
 		if ($base == '/') $base = '';
 	} else {
+		$url = parse_url($url);
 		$base = '';
 	}
 	$file = $zz_setting['cache'].'/'.urlencode($url['host']);
