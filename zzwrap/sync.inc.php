@@ -1,19 +1,17 @@
 <?php
 
 // zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2011
+// Copyright (c) 2011, 2012 Gustaf Mossakowski, <gustaf@koenige.org>
 // CMS synchronization functions
 
 
 /**
- * Sync data from CSV file with database content
+ * Sync some data with other database content
  *
  * @param array $import
- *		string	'filename' = local filename of import file
- *		string	'delimiter' = delimiter of fields
- *		string	'enclosure' = enclosure of field value
- *		int		'key' = row with unique key (0...n)
- *		string	'comments' = character that marks commenting lines
+ *		int		'limit'
+ *		int		'end'
+ *		string	'type' (csv, sql)
  * @global array $zz_setting
  *		int		'sync_records_per_run'
  *		int		'sync_page_refresh'
@@ -21,9 +19,11 @@
  * @global array $zz_page		'url'['full']['path']
  * @return array $page
  */
-function wrap_sync_csv($import) {
+function wrap_sync($import) {
 	global $zz_setting;
 	global $zz_page;
+	
+	$refresh = false;
 	
 	// set defaults global
 	if (!isset($zz_setting['sync_records_per_run']))
@@ -33,42 +33,120 @@ function wrap_sync_csv($import) {
 	if (!isset($zz_setting['sync_lists_dir']))
 		$zz_setting['sync_lists_dir'] = $zz_setting['media_folder'];
 
-	// set defaults per file
-	if (!isset($import['comments']))
-		$import['comments'] = '#';
-	if (!isset($import['enclosure']))
-		$import['enclosure'] = '"';
-	if (!isset($import['delimiter']))
-		$import['delimiter'] = ',';
-	if (!isset($import['first_line_headers']))
-		$import['first_line_headers'] = true;
-	if (!isset($import['values']))
-		$import['values'] = array();
-	if (!isset($import['key_concat']))
-		$import['key_concat'] = false;
-	
-	$page['query_strings'] = array('limit');
-	
-	if (empty($_GET['limit'])) $limit = 0;
-	else $limit = intval($_GET['limit']);
-	$end = $limit + $zz_setting['sync_records_per_run'];
+	// limits
+	if (empty($_GET['limit'])) $import['limit'] = 0;
+	else $import['limit'] = intval($_GET['limit']);
+	$import['end'] = $import['limit'] + $zz_setting['sync_records_per_run'];
 
-	$source = $zz_setting['sync_lists_dir'].$import['filename'];
-	if (!file_exists($source)) {
-		$page['text'] = sprintf(wrap_text('Import: File %s does not exist. Please set a different filename'), $source);
+	switch ($import['type']) {
+	case 'csv':
+		// get source file
+		$import['source'] = $zz_setting['sync_lists_dir'].$import['filename'];
+		if (!file_exists($import['source'])) {
+			$page['text'] = sprintf(wrap_text('Import: File %s does not exist. '
+				.'Please set a different filename'), $import['source']);
+			return $page;
+		}
+		// set defaults per file
+		if (!isset($import['comments']))
+			$import['comments'] = '#';
+		if (!isset($import['enclosure']))
+			$import['enclosure'] = '"';
+		if (!isset($import['delimiter']))
+			$import['delimiter'] = ',';
+		if (!isset($import['first_line_headers']))
+			$import['first_line_headers'] = true;
+		if (!isset($import['values']))
+			$import['values'] = array();
+		if (!isset($import['key_concat']))
+			$import['key_concat'] = false;
+		$raw = wrap_sync_csv($import);
+		if (count($raw) === ($import['end'] -1)) {
+			$refresh = true;
+		}
+		break;
+	case 'sql':
+		$raw = wrap_db_fetch($import['import_sql'], $import['import_id_field_name']);
+		foreach ($raw as $id => $line) {
+			// we need fields as numeric values
+			unset($raw[$id]);
+			foreach ($line as $value) {
+				$raw[$id][] = $value;
+			}
+		}
+		break;
+	default:
+		$raw = array();
+		break;
+	}
+
+	// sync data
+	list($updated, $inserted, $nothing, $errors) = wrap_sync_zzform($raw, $import);
+
+	// output results
+	$lines = array();
+	if ($updated) {
+		if ($updated === 1) {
+			$lines[] = wrap_text('1 update was made.');
+		} else {
+			$lines[] = sprintf(wrap_text('%s updates were made.'), $updated);
+		}
+	}
+	if ($inserted) {
+		if ($inserted === 1) {
+			$lines[] = wrap_text('1 insert was made.');
+		} else {
+			$lines[] = sprintf(wrap_text('%s inserts were made.'), $inserted);
+		}
+	}
+	if ($nothing) {
+		if ($nothing === 1) {
+			$lines[] = wrap_text('1 record was left as is.');
+		} else {
+			$lines[] = sprintf(wrap_text('%s records were left as is.'), $nothing);
+		}
+	}
+	if ($errors) {
+		if (count($errors) == 1) {
+			$lines[] = sprintf(wrap_text('1 record had errors. (%s)'), implode(', ', $errors));
+		} else {
+			$lines[] = sprintf(wrap_text('%s records had errors.'), count($errors))
+				."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
+		}
+	}
+
+	if (!$lines) {
+		$page['text'] = wrap_text('No updates/inserts were made.');
 		return $page;
 	}
 
+	$page['query_strings'] = array('limit');
+	$page['text'] = implode('<br>', $lines);
+	if ($refresh) {
+		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
+			$zz_setting['sync_page_refresh'], 
+			$zz_setting['host_base'].$zz_page['url']['full']['path'], $import['end']);
+	}
+	return $page;
+}
+
+/**
+ * Sync data from CSV file with database content
+ *
+ * @param array $import
+ *		string	'source' = local filename of import file
+ *		string	'delimiter' = delimiter of fields
+ *		string	'enclosure' = enclosure of field value
+ *		int		'key' = row with unique key (0...n)
+ *		string	'comments' = character that marks commenting lines
+ * @return array $raw
+ */
+function wrap_sync_csv($import) {
 	// open CSV file
 	$i = 0;
-	$handle = fopen($source, "r");
+	$handle = fopen($import['source'], "r");
 	while (!feof($handle)) {
 		$line = fgetcsv($handle, 8192, $import['delimiter'], $import['enclosure']);
-		$i++;
-		// ignore first line = field names
-		if ($import['first_line_headers'] AND $i === 1) continue;		
-		// ignore lines that were already processed
-		if ($i < $limit) continue;
 		// ignore empty lines
 		if (!$line) continue;
 		if (!trim(implode('', $line))) continue;
@@ -76,55 +154,33 @@ function wrap_sync_csv($import) {
 		if ($import['comments']) {
 			if (substr($line[0], 0, 1) == $import['comments']) continue;
 		}
-
+		$i++;
+		// ignore first line = field names
+		if ($import['first_line_headers'] AND $i === 1) continue;		
+		// ignore lines that were already processed
+		if ($i < $import['limit']) continue;
+		// do not import some fields which should be ignored
+		if (!empty($import['ignore_fields'])) {
+			foreach ($import['ignore_fields'] as $no) unset($line[$no]);
+		}
 		// save lines in $raw
 		if (is_array($import['key'])) {
 			$key = '';
 			foreach ($import['key'] AS $no) {
 				if ($key) $key .= $import['key_concat'];
-				$key .= $line[$no];
+				$key .= wrap_db_escape($line[$no]);
 			}
 		} else {
-			$key = $line[$import['key']];
+			$key = wrap_db_escape($line[$import['key']]);
 		}
 		$key = trim($key);
 		foreach (array_keys($line) AS $id)
 			$line[$id] = trim($line[$id]);
 		$raw[$key] = $line;
-		if ($i === ($end -1)) break;
+		if ($i === ($import['end'] - 1)) break;
 	}
 	fclose($handle);
-
-	// sync data
-	list($updated, $inserted, $nothing, $errors) = wrap_sync_zzform($raw, $import);
-
-	// output results
-	$lines = array();
-	if ($updated) 
-		if ($updated === 1) $lines[] = wrap_text('1 update was made.');
-		else $lines[] = sprintf(wrap_text('%s updates were made.'), $updated);
-	if ($inserted) 
-		if ($inserted === 1) $lines[] = wrap_text('1 insert was made.');
-		else $lines[] = sprintf(wrap_text('%s inserts were made.'), $inserted);
-	if ($nothing) 
-		if ($nothing === 1) $lines[] = wrap_text('1 record was left as is.');
-		else $lines[] = sprintf(wrap_text('%s records were left as is.'), $nothing);
-	if ($errors) 
-		if (count($errors) == 1) $lines[] = sprintf(wrap_text('1 record had errors. (%s)'), implode(', ', $errors));
-		else $lines[] = sprintf(wrap_text('%s records had errors.'), count($errors))
-			."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
-
-	if (!$lines) {
-		$page['text'] = wrap_text('No updates/inserts were made.');
-		return $page;
-	}
-
-	$page['text'] = implode('<br>', $lines);
-	if ($i === ($end -1)) {
-		$page['head'] = sprintf("\t".'<meta http-equiv="refresh" content="%s; URL=%s?limit=%s">'."\n",
-			$zz_setting['sync_page_refresh'], $zz_setting['host_base'].$zz_page['url']['full']['path'], $end);
-	}
-	return $page;
+	return $raw;
 }
 
 
