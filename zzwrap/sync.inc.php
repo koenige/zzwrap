@@ -81,7 +81,7 @@ function wrap_sync($import) {
 	}
 
 	// sync data
-	list($updated, $inserted, $nothing, $errors) = wrap_sync_zzform($raw, $import);
+	list($updated, $inserted, $nothing, $errors, $testing) = wrap_sync_zzform($raw, $import);
 
 	// output results
 	$lines = array();
@@ -113,6 +113,9 @@ function wrap_sync($import) {
 			$lines[] = sprintf(wrap_text('%s records had errors.'), count($errors))
 				."<ul><li>\n".implode("</li>\n<li>", $errors)."</li>\n</ul>\n";
 		}
+	}
+	if ($testing) {
+		$lines[] = wrap_print($testing);
 	}
 
 	if (!$lines) {
@@ -196,7 +199,8 @@ function wrap_sync_csv($import) {
  *		string	'id_field_name' = field name of PRIMARY KEY of database table
  *		string	'form_script' = table script for sync
  * @global array $zz_conf string 'dir'
- * @return array $updated, $inserted, $nothing = count of records, $errors
+ * @return array $updated, $inserted, $nothing = count of records, $errors,
+ *		$testing
  */
 function wrap_sync_zzform($raw, $import) {
 	global $zz_conf;
@@ -207,6 +211,7 @@ function wrap_sync_zzform($raw, $import) {
 	$inserted = 0;
 	$nothing = 0;
 	$errors = array();
+	$testing = array();
 
 	// get existing keys from database
 	$keys = '"'.implode('", "', array_keys($raw)).'"';
@@ -225,19 +230,25 @@ function wrap_sync_zzform($raw, $import) {
 		if (count($line) != count($import['fields'])) {
 			$error_line = array();
 			foreach ($import['fields'] as $pos => $field_name) {
-				if (!isset($line[$pos])) $error_line[$field_name] = '<strong>=>||| '.wrap_text('not set').' |||<=</strong>';
-				else $error_line[$field_name] = $line[$pos];
+				if (!isset($line[$pos])) {
+					$error_line[$field_name] = '<strong>=>||| '.wrap_text('not set').' |||<=</strong>';
+				} else {
+					$error_line[$field_name] = $line[$pos];
+				}
 			}
 			if (count($line) > count($import['fields'])) {
-				$errors = array_merge($errors, array('too many values: '.wrap_print($error_line).wrap_print($line)));
+				$errors = array_merge($errors, array('too many values: '
+					.wrap_print($error_line).wrap_print($line)));
 			} else {
-				$errors = array_merge($errors, array('not enough values: '.wrap_print($error_line).wrap_print($line)));
+				$errors = array_merge($errors, array('not enough values: '
+					.wrap_print($error_line).wrap_print($line)));
 			}
 			continue;
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
 			$values['POST'][$field_name] = trim($line[$pos]);
 		}
+		// static values which will be imported
 		foreach ($import['values'] as $field_name => $value) {
 			$values['POST'][$field_name] = $value;
 		}
@@ -246,6 +257,11 @@ function wrap_sync_zzform($raw, $import) {
 			$values['GET']['where'][$import['id_field_name']] = $ids[$identifier];
 		} else {
 			$values['POST']['zz_action'] = 'insert';
+		}
+		if (!empty($import['testing'])) {
+			$nothing++;
+			$testing[] = $values;
+			continue;
 		}
 		$ops = zzform_multi($import['form_script'], $values, 'record');
 		if (!empty($ops['record_new'][0][$import['id_field_name']])) {
@@ -262,7 +278,7 @@ function wrap_sync_zzform($raw, $import) {
 			$nothing++;
 		}
 	}
-	return array($updated, $inserted, $nothing, $errors);
+	return array($updated, $inserted, $nothing, $errors, $testing);
 }
 
 ?>
