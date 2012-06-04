@@ -56,8 +56,8 @@ function wrap_sync($import) {
 			$import['delimiter'] = ',';
 		if (!isset($import['first_line_headers']))
 			$import['first_line_headers'] = true;
-		if (!isset($import['values']))
-			$import['values'] = array();
+		if (!isset($import['static']))
+			$import['static'] = array();
 		if (!isset($import['key_concat']))
 			$import['key_concat'] = false;
 		$raw = wrap_sync_csv($import);
@@ -195,7 +195,7 @@ function wrap_sync_csv($import) {
  * @param array $import import settings
  *		string	'existing_sql' = SQL query to get pairs of identifier/IDs
  *		array 	'fields' = list of fields, indexed by position
- *		array 	'values' = values for fields, indexed by field name
+ *		array 	'static' = values for fields, indexed by field name
  *		string	'id_field_name' = field name of PRIMARY KEY of database table
  *		string	'form_script' = table script for sync
  * @global array $zz_conf string 'dir'
@@ -249,7 +249,7 @@ function wrap_sync_zzform($raw, $import) {
 			$values['POST'][$field_name] = trim($line[$pos]);
 		}
 		// static values which will be imported
-		foreach ($import['values'] as $field_name => $value) {
+		foreach ($import['static'] as $field_name => $value) {
 			$values['POST'][$field_name] = $value;
 		}
 		if (!empty($ids[$identifier])) {
