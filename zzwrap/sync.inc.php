@@ -150,6 +150,7 @@ function wrap_sync_csv($import) {
 	$handle = fopen($import['source'], "r");
 	while (!feof($handle)) {
 		$line = fgetcsv($handle, 8192, $import['delimiter'], $import['enclosure']);
+		$line_complete = $line;
 		// ignore empty lines
 		if (!$line) continue;
 		if (!trim(implode('', $line))) continue;
@@ -167,18 +168,22 @@ function wrap_sync_csv($import) {
 			foreach ($import['ignore_fields'] as $no) unset($line[$no]);
 		}
 		// save lines in $raw
-		if (is_array($import['key'])) {
-			$key = '';
-			foreach ($import['key'] AS $no) {
-				if ($key) $key .= $import['key_concat'];
-				$key .= wrap_db_escape($line[$no]);
+		foreach (array_keys($line) AS $id) {
+			$line[$id] = trim($line[$id]);
+			if (empty($line[$id]) AND isset($import['empty_fields_use_instead'][$id])) {
+				$line[$id] = trim($line_complete[$import['empty_fields_use_instead'][$id]]);
 			}
+		}
+		if (is_array($import['key'])) {
+			$key = array();
+			foreach ($import['key'] AS $no) {
+				$key[] = $line[$no];
+			}
+			$key = implode($import['key_concat'], $key);
 		} else {
-			$key = wrap_db_escape($line[$import['key']]);
+			$key = $line[$import['key']];
 		}
 		$key = trim($key);
-		foreach (array_keys($line) AS $id)
-			$line[$id] = trim($line[$id]);
 		$raw[$key] = $line;
 		if ($i === ($import['end'] - 1)) break;
 	}
@@ -214,7 +219,9 @@ function wrap_sync_zzform($raw, $import) {
 	$testing = array();
 
 	// get existing keys from database
-	$keys = '"'.implode('", "', array_keys($raw)).'"';
+	$keys = array_keys($raw);
+	foreach ($keys as $id => $key) $keys[$id] = wrap_db_escape($key);
+	$keys = '"'.implode('", "', $keys).'"';
 	$sql = sprintf($import['existing_sql'], $keys);
 	$ids = wrap_db_fetch($sql, '_dummy_', 'key/value');
 
@@ -246,7 +253,18 @@ function wrap_sync_zzform($raw, $import) {
 			continue;
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
-			$values['POST'][$field_name] = trim($line[$pos]);
+			if (strstr($field_name, '[')) {
+				$fields = explode('[', $field_name);
+				foreach ($fields as $index => $field) {
+					if (!$index) continue;
+					$fields[$index] = substr($field, 0, -1);
+				}
+				if (count($fields === 3)) {
+					$values['POST'][$fields[0]][$fields[1]][$fields[2]] = trim($line[$pos]);
+				}
+			} else {
+				$values['POST'][$field_name] = trim($line[$pos]);
+			}
 		}
 		// static values which will be imported
 		foreach ($import['static'] as $field_name => $value) {
@@ -273,7 +291,9 @@ function wrap_sync_zzform($raw, $import) {
 		} elseif ($ops['result'] == 'successful_update') {
 			$updated++;
 		} elseif ($ops['error']) {
-			$errors = array_merge($errors, $ops['error']);
+			foreach ($ops['error'] as $error) {
+				$errors[] = sprintf('Record "%s": ', $identifier).$error;
+			}
 		} else {
 			$nothing++;
 		}
