@@ -989,6 +989,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 			if ($time = filemtime($doc)) // if it exists
 				$last_modified_time = $time;
 		}
+	} elseif (!empty($zz_setting['cache'])) {
+		wrap_cache_delete($status);
 	}
 
 	// Last Modified?
@@ -1017,6 +1019,13 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	exit;
 }
 
+/**
+ * Send a ressource with gzip compression
+ *
+ * @param string $text content of ressource, not compressed
+ * @param array $etag_header
+ * @return void
+ */
 function wrap_send_gzip($text, $etag_header) {
 	// gzip?
 	header('Vary: Accept-Encoding');
@@ -1069,6 +1078,23 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 	// without '-gz'
 	if (!$headers) $headers = headers_list();
 	file_put_contents($head, json_encode($headers));
+	return true;
+}
+
+/**
+ * Delete cached files which now return a 4xx-error code
+ *
+ * @param int $status HTTP Status Code
+ * @return bool true: cache was deleted; false: cache remains intact
+ */
+function wrap_cache_delete($status) {
+	$delete_cache = array(401, 402, 403, 404, 410);
+	if (!in_array($status, $delete_cache)) return false;
+
+	$doc = wrap_cache_filename('url');
+	$head = wrap_cache_filename('headers');
+	if (file_exists($head)) unlink($head);
+	if (file_exists($doc)) unlink($doc);
 	return true;
 }
 
