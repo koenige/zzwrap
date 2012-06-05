@@ -88,9 +88,16 @@ function wrap_syndication_get($url, $type = 'json') {
 				$data = array();
 				break;
 			default:
-				$data = NULL;
-				wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
-					$url, $status), E_USER_ERROR);
+				if (file_exists($files[0])) {
+					// connection error, use (possibly stale) cache file
+					$data = file_get_contents($files[0]);
+					wrap_error(sprintf('Syndication from URL %s failed with status code %s. Using cached file instead.',
+						$url, $status), E_USER_WARNING);
+				} else {
+					$data = NULL;
+					wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
+						$url, $status), E_USER_ERROR);
+				}
 				break;
 			}
 		}
