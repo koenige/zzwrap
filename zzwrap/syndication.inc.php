@@ -84,10 +84,14 @@ function wrap_syndication_get($url, $type = 'json') {
 				// so use it
 				$data = file_get_contents($files[0]);
 				break;
+			case 404:
+				$data = array();
+				break;
 			default:
-				$data = -1;
+				$data = NULL;
 				wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
-					$url, $status), E_USER_WARNING);
+					$url, $status), E_USER_ERROR);
+				break;
 			}
 		}
 	}
