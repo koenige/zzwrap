@@ -13,7 +13,7 @@
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
- *		'subject'
+ *		'subject', bool 'log_post_data'
  * @global array $zz_conf cofiguration settings
  *		'error_mail_to', 'error_mail_from', 'error_handling', 'error_log',
  *		'log_errors', 'log_errors_max_len', 'debug', 'error_mail_level',
@@ -59,6 +59,11 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	$user = !empty($_SESSION['username']) ? $_SESSION['username'] : '';
 	if (!$user AND !empty($zz_conf['user'])) $user = $zz_conf['user'];
 
+	if (!isset($settings['log_post_data'])) $settings['log_post_data'] = true;
+	if (empty($_POST)) $settings['log_post_data'] = false;
+	elseif (!$zz_conf['error_log_post']) $settings['log_post_data'] = false;
+	elseif ($post_errors_logged) $settings['log_post_data'] = false;
+
 	// reformat log output
 	if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
 		$error_line = '['.date('d-M-Y H:i:s').'] zzwrap '.ucfirst($level).': '
@@ -67,7 +72,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
 			- (strlen($user)+4)).' ['.$user."]\n";
 		error_log($error_line, 3, $zz_conf['error_log'][$level]);
-		if (!empty($_POST) AND $zz_conf['error_log_post'] AND !$post_errors_logged) {
+		if ($settings['log_post_data']) {
 			$error_line = '['.date('d-M-Y H:i:s').'] zzwrap Notice: POST';
 			if (function_exists('json_encode')) {
 				$error_line .= '[json] '.json_encode($_POST);

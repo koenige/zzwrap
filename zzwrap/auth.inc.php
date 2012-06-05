@@ -358,8 +358,11 @@ function cms_login($params) {
 			} else {
 				$user .= "\n";
 			}
+			$error_settings = array(
+				'log_post_data' => false
+			);
 			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
-				$user, wrap_password_hash($login['password'])), E_USER_NOTICE);
+				$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
 		} else {
 			// Hooray! User has been logged in
 			wrap_register(false, $data);
