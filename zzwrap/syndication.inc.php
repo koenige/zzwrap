@@ -54,6 +54,7 @@ function wrap_syndication_get($url, $type = 'json') {
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, 1);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
 			if ($etag) {
 				$headers_to_send = array(
 					'If-None-Match: "'.$etag.'"'
