@@ -1085,14 +1085,15 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
  * Delete cached files which now return a 4xx-error code
  *
  * @param int $status HTTP Status Code
+ * @param string $url (optional)
  * @return bool true: cache was deleted; false: cache remains intact
  */
-function wrap_cache_delete($status) {
+function wrap_cache_delete($status, $url = false) {
 	$delete_cache = array(401, 402, 403, 404, 410);
 	if (!in_array($status, $delete_cache)) return false;
 
-	$doc = wrap_cache_filename('url');
-	$head = wrap_cache_filename('headers');
+	$doc = wrap_cache_filename('url', $url);
+	$head = wrap_cache_filename('headers', $url);
 	if (file_exists($head)) unlink($head);
 	if (file_exists($doc)) unlink($doc);
 	return true;
