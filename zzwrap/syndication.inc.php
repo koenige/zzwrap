@@ -19,6 +19,7 @@ function wrap_syndication_get($url, $type = 'json') {
 	$data = array();
 	$etag = '';
 	$last_modified = '';
+	if (!$url) return false;
 
 	if (!isset($zz_setting['cache_age_syndication'])) {
 		$zz_setting['cache_age_syndication'] = 0;
@@ -63,10 +64,13 @@ function wrap_syndication_get($url, $type = 'json') {
 			}
 			$data = curl_exec($ch);
 			$ssl_verify = curl_getinfo($ch, CURLINFO_SSL_VERIFYRESULT);
-			if (!$ssl_verify AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-				$data = curl_exec($ch);
+			if (!$ssl_verify) {
 				wrap_error(sprintf('Syndication from URL %s: SSL certificate could not be validated.', $url), E_USER_NOTICE);
+				if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+					// try again without SSL verification
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+					$data = curl_exec($ch);
+				}
 			}
 			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
@@ -110,6 +114,7 @@ function wrap_syndication_get($url, $type = 'json') {
 		}
 	}
 
+	if (!$data) return $data;
 	switch ($type) {
 	case 'json':
 		$object = json_decode($data, true);	// Array
