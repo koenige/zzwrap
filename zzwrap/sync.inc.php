@@ -61,7 +61,7 @@ function wrap_sync($import) {
 		if (!isset($import['key_concat']))
 			$import['key_concat'] = false;
 		$raw = wrap_sync_csv($import);
-		if (count($raw) === ($import['end'] -1)) {
+		if (count($raw) === $zz_setting['sync_records_per_run']) {
 			$refresh = true;
 		}
 		break;
@@ -85,6 +85,7 @@ function wrap_sync($import) {
 
 	// output results
 	$lines = array();
+	$lines[] = sprintf(wrap_text('Processing entries %s&#8211;%s &hellip;'), $import['limit'] + 1, $import['end']);
 	if ($updated) {
 		if ($updated === 1) {
 			$lines[] = wrap_text('1 update was made.');
@@ -117,6 +118,10 @@ function wrap_sync($import) {
 	if ($testing) {
 		$lines[] = wrap_print($testing);
 	}
+	if ($refresh)
+		$lines[] = wrap_text('Please wait for reload &hellip;');
+	else
+		$lines[] = wrap_text('Finished!');
 
 	if (!$lines) {
 		$page['text'] = wrap_text('No updates/inserts were made.');
@@ -147,6 +152,7 @@ function wrap_sync($import) {
 function wrap_sync_csv($import) {
 	// open CSV file
 	$i = 0;
+	$first = false;
 	$handle = fopen($import['source'], "r");
 	while (!feof($handle)) {
 		$line = fgetcsv($handle, 8192, $import['delimiter'], $import['enclosure']);
@@ -158,11 +164,15 @@ function wrap_sync_csv($import) {
 		if ($import['comments']) {
 			if (substr($line[0], 0, 1) == $import['comments']) continue;
 		}
-		$i++;
 		// ignore first line = field names
-		if ($import['first_line_headers'] AND $i === 1) continue;		
+		if ($import['first_line_headers'] AND !$i AND !$first) {
+			$first = true;
+			continue;
+		}
+		// start counting lines
+		$i++;
 		// ignore lines that were already processed
-		if ($i < $import['limit']) continue;
+		if ($i <= $import['limit']) continue;
 		// do not import some fields which should be ignored
 		if (!empty($import['ignore_fields'])) {
 			foreach ($import['ignore_fields'] as $no) unset($line[$no]);
@@ -185,7 +195,7 @@ function wrap_sync_csv($import) {
 		}
 		$key = trim($key);
 		$raw[$key] = $line;
-		if ($i === ($import['end'] - 1)) break;
+		if (count($raw) === ($import['end']-$import['limit'])) break;
 	}
 	fclose($handle);
 	return $raw;
@@ -286,9 +296,9 @@ function wrap_sync_zzform($raw, $import) {
 			$ids[$identifier][$import['id_field_name']] 
 				= $ops['record_new'][0][$import['id_field_name']];
 		}
-		if ($ops['result'] == 'successful_insert') {
+		if ($ops['result'] === 'successful_insert') {
 			$inserted++;
-		} elseif ($ops['result'] == 'successful_update') {
+		} elseif ($ops['result'] === 'successful_update') {
 			$updated++;
 		} elseif ($ops['error']) {
 			foreach ($ops['error'] as $error) {
