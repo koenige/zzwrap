@@ -807,7 +807,7 @@ function wrap_mail($mail) {
 	// Subject
 	if (!empty($zz_conf['mail_subject_prefix']))
 		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
-	$mail['subject'] = str_replace("\n", " ", mb_encode_mimeheader($mail['subject']));
+	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
 
 	// From
 	if (!isset($mail['headers']['From'])) {
