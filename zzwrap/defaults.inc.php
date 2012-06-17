@@ -14,6 +14,7 @@
 function wrap_set_defaults_post_conf() {
 	global $zz_conf;
 	global $zz_setting;
+	global $zz_page;
 
 	// -------------------------------------------------------------------------
 	// Request method
