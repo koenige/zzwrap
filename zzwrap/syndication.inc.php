@@ -16,6 +16,10 @@
  */
 function wrap_syndication_get($url, $type = 'json') {
 	global $zz_setting;
+	// you may change the error code if e. g. only pictures will be fetched
+	// via JSON to E_USER_WARNING or E_USER_NOTICE
+	if (empty($zz_setting['syndication_error_code']))
+		$zz_setting['syndication_error_code'] = E_USER_ERROR;
 	$data = array();
 	$etag = '';
 	$last_modified = '';
@@ -39,16 +43,33 @@ function wrap_syndication_get($url, $type = 'json') {
 		}
 	}
 	if (!$data) {
-		if (!function_exists('curl_init')) {
+		$headers_to_send = array();
+		if ($etag) {
+			$headers_to_send = array(
+				'If-None-Match: "'.$etag.'"'
+			);
+		}
+
+		if (function_exists('curl_init')) {
 			// file_get_contents does not allow to send additional headers
 			// e. g. IF_NONE_MATCH, so we'll always try to get the data
 			// do not log error here
+			$opts = array(
+				'http' => array(
+					'method' => 'GET',
+					'header' => implode("\r\n", $headers_to_send)
+				)
+			);
+			$context = stream_context_create($opts);
 			set_error_handler('wrap_syndication_errors');
-			$data = file_get_contents($url);
+			$data = file_get_contents($url, false, $context);
 			restore_error_handler();
-			if ($data and !empty($zz_setting['cache'])) {
-				$my_etag = md5($data);
-				wrap_cache_ressource($data, $my_etag, $url, array('ETag: "'.$my_etag.'"'));
+			$headers = $http_response_header;
+			foreach ($headers as $header) {
+				if (substr($header, 0, 5) === 'HTTP/') {
+					$status = explode(' ', $header);
+					$status = $status[1];
+				}
 			}
 		} else {
 			$ch = curl_init();
@@ -57,9 +78,6 @@ function wrap_syndication_get($url, $type = 'json') {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
 			if ($etag) {
-				$headers_to_send = array(
-					'If-None-Match: "'.$etag.'"'
-				);
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
 			}
 			$data = curl_exec($ch);
@@ -73,44 +91,47 @@ function wrap_syndication_get($url, $type = 'json') {
 				}
 			}
 			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-			$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+			//$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 			curl_close($ch);
-
-			switch ($status) {
-			case 200:
+			// separate headers from data
+			if ($status === 200) {
 				$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
 				$headers = explode("\r\n", $headers);
-				$my_etag = '';
-				foreach ($headers as $header) {
-					if (substr($header, 0, 6) != 'ETag: ') continue;
-					$my_etag = substr($header, 7, -1);
-				}
 				$data = substr($data, strpos($data, "\r\n\r\n") + 4);
-				if ($data and !empty($zz_setting['cache'])) {
-					wrap_cache_ressource($data, $my_etag, $url, $headers);
-				}
-				break;
-			case 304:
-				// cache file must exist, we would not have an etag header
-				// so use it
-				$data = file_get_contents($files[0]);
-				break;
-			case 404:
-				$data = array();
-				break;
-			default:
-				if (file_exists($files[0])) {
-					// connection error, use (possibly stale) cache file
-					$data = file_get_contents($files[0]);
-					wrap_error(sprintf('Syndication from URL %s failed with status code %s. Using cached file instead.',
-						$url, $status), E_USER_WARNING);
-				} else {
-					$data = NULL;
-					wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
-						$url, $status), E_USER_ERROR);
-				}
-				break;
 			}
+		}
+
+		switch ($status) {
+		case 200:
+			$my_etag = '';
+			foreach ($headers as $header) {
+				if (substr($header, 0, 6) != 'ETag: ') continue;
+				$my_etag = substr($header, 7, -1);
+			}
+			if ($data and !empty($zz_setting['cache'])) {
+				wrap_cache_ressource($data, $my_etag, $url, $headers);
+			}
+			break;
+		case 304:
+			// cache file must exist, we would not have an etag header
+			// so use it
+			$data = file_get_contents($files[0]);
+			break;
+		case 404:
+			$data = array();
+			break;
+		default:
+			if (file_exists($files[0])) {
+				// connection error, use (possibly stale) cache file
+				$data = file_get_contents($files[0]);
+				wrap_error(sprintf('Syndication from URL %s failed with status code %s. Using cached file instead.',
+					$url, $status), E_USER_NOTICE);
+			} else {
+				$data = NULL;
+				wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
+					$url, $status), $zz_setting['syndication_error_code']);
+			}
+			break;
 		}
 	}
 
@@ -133,15 +154,8 @@ function wrap_syndication_get($url, $type = 'json') {
 }
 
 function wrap_syndication_errors($errno, $errstr, $errfile, $errline, $errcontext) {
-	// we do not care about 404 errors, they will be logged otherwise
-	if (trim($errstr) AND substr(trim($errstr), -13) != '404 Not Found') {
-		// you may change the error code if e. g. only pictures will be fetched
-		// via JSON to E_USER_WARNING or E_USER_NOTICE
-		if (empty($errcontext['setting']['brick_import_error_code']))
-			$errcontext['setting']['brick_import_error_code'] = E_USER_ERROR;
-		wrap_error('JSON ['.$_SERVER['SERVER_ADDR'].']: '.$errstr,
-			$errcontext['setting']['brick_import_error_code']);
-	}
+	// just catch the error, don't do anything
+	return;
 }
 
 ?>
