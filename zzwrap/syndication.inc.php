@@ -50,7 +50,7 @@ function wrap_syndication_get($url, $type = 'json') {
 			);
 		}
 
-		if (function_exists('curl_init')) {
+		if (!function_exists('curl_init')) {
 			// file_get_contents does not allow to send additional headers
 			// e. g. IF_NONE_MATCH, so we'll always try to get the data
 			// do not log error here
