@@ -1,7 +1,7 @@
 <?php 
 
 // zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2011
+// Copyright (c) 2007-2012 Gustaf Mossakowski, <gustaf@koenige.org>
 // Main script
 
 
@@ -10,7 +10,7 @@ function zzwrap() {
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
 
-	wrap_set_defaults();
+	wrap_set_defaults_pre_conf();
 
 	// configuration settings, defaults
 	if (file_exists($zz_setting['inc'].'/config.inc.php'))
@@ -20,6 +20,7 @@ function zzwrap() {
 	if (empty($zz_setting['core']))
 		$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
 	require_once $zz_setting['core'].'/defaults.inc.php';
+	wrap_set_defaults_post_conf();
 
 	// function libraries
 	require_once $zz_setting['core'].'/errorhandling.inc.php';
@@ -119,7 +120,7 @@ function zzwrap() {
  * @global array $zz_setting
  * @global array $zz_conf
  */
-function wrap_set_defaults() {
+function wrap_set_defaults_pre_conf() {
 	global $zz_setting;
 	global $zz_conf;
 
