@@ -251,6 +251,13 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['login_url']	= '/login/';
 	// minutes until you will be logged out automatically while inactive
 	$zz_setting['logout_inactive_after'] = 30;
+
+// -------------------------------------------------------------------------
+// Language, character set
+// -------------------------------------------------------------------------
+
+	$zz_conf['character_set'] = 'utf-8';
+
 }
 
 ?>
