@@ -29,6 +29,9 @@ function zzwrap() {
 	require_once $zz_setting['core'].'/language.inc.php';
 	require_once $zz_setting['core'].'/page.inc.php';
 
+	// do some tests if everything is there
+	wrap_tests();
+
 	// establish database connection
 	wrap_db_connect();
 
