@@ -375,7 +375,7 @@ function wrap_errorpage_log($status, $page) {
 		// own error message!
 		$msg = sprintf(wrap_text("The URL\n\n%s was requested from\n\n%s\n\n"
 			." with the IP address %s\n (Browser %s)\n\n"
-			." but could not be found on the server"), $requested, 
+			." but could not be found on the server"), $_SERVER['REQUEST_URI'], 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
 		$settings['mail_no_request_uri'] = true;		// we already have these
 		$settings['mail_no_ip'] = true;
