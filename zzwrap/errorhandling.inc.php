@@ -343,6 +343,8 @@ function wrap_errorpage_log($status, $page) {
 			.$zz_page['url']['full']['host'].$zz_setting['base']
 			.$zz_page['url']['full']['path']
 			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : '');
+		$requested_server = $zz_page['url']['full']['scheme'].'://'
+			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
 		// http:// is so uncool ...
 		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
@@ -375,7 +377,7 @@ function wrap_errorpage_log($status, $page) {
 		// own error message!
 		$msg = sprintf(wrap_text("The URL\n\n%s was requested from\n\n%s\n\n"
 			." with the IP address %s\n (Browser %s)\n\n"
-			." but could not be found on the server"), $_SERVER['REQUEST_URI'], 
+			." but could not be found on the server"), $requested_server, 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
 		$settings['mail_no_request_uri'] = true;		// we already have these
 		$settings['mail_no_ip'] = true;
