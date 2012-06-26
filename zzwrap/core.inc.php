@@ -610,7 +610,8 @@ function wrap_file_send($file) {
 
 	$filesize = sprintf("%u", filesize($file['name']));
 	// Maybe the problem is we are running into PHPs own memory limit, so:
-	if ($filesize + 1 > wrap_return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { //Not higher than 1GB
+	if ($filesize + 1 > wrap_return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { 
+		// Not higher than 1GB
 		ini_set('memory_limit', intval($filesize * 1.5));
 	}
 
