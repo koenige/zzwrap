@@ -192,13 +192,13 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	
 	if (!isset($zz_conf['relations_table']))
-		$zz_conf['relations_table']	= $zz_conf['prefix'].'_relations';
+		$zz_conf['relations_table']	= '/*_PREFIX_*/_relations';
 	
 	if (!empty($zz_conf['logging']) AND !isset($zz_conf['logging_table']))
-		$zz_conf['logging_table']	= $zz_conf['prefix'].'_logging';
+		$zz_conf['logging_table']	= '/*_PREFIX_*/_logging';
 	
 	if (!empty($zz_conf['translations_of_fields']) AND empty($zz_conf['translations_table']))
-		$zz_conf['translations_table']  = $zz_conf['prefix'].'_translationfields';
+		$zz_conf['translations_table']  = '/*_PREFIX_*/_translationfields';
 	
 	
 	// -------------------------------------------------------------------------
