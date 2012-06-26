@@ -1,8 +1,16 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2008-2009
-// Default translations to german language
+/**
+ * zzwrap
+ * Default translations to german language
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2008-2009 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // auth.inc.php

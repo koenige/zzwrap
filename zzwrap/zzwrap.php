@@ -1,10 +1,26 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// Copyright (c) 2007-2012 Gustaf Mossakowski, <gustaf@koenige.org>
-// Main script
+/**
+ * zzwrap
+ * Main function
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
+/**
+ * Main function of zzwrap scripts, includes all required files, gets data
+ * for web ressource from different sources, caches ressource and sends it
+ * to the browser
+ *
+ * @param void
+ * @return void
+ */
 function zzwrap() {
 	global $zz_setting;		// settings for zzwrap and zzbrick
 	global $zz_conf;		// settings for zzform

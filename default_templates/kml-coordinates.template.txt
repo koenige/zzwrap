@@ -1,6 +1,12 @@
-# Zugzwang Project
-# (c) Gustaf Mossakowski, <gustaf@koenige.org> 2011
+# zzwrap
 # Template for KML export of coordinates
+#
+# Part of »Zugzwang Project«
+# http://www.zugzwang.org/projects/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2011 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 # fields:
 # title, description, styles (id, href), placemarks (title, filename, 

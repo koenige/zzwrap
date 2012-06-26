@@ -1,23 +1,28 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2011
-// standard functions for page (menu, breadcrumbs, authors, page)
-
-
-/*	List of functions in this file
-
-		wrap_get_menu()					-- gets menu from database
-			wrap_get_menu_navigation()	-- gets menu from separate navigation table
-			wrap_get_menu_webpages()	-- gets menu from webpages table
-		wrap_htmlout_menu()				-- outputs menu in HTML
-		wrap_get_breadcrumbs()			-- gets breadcrumbs from database
-			wrap_get_breadcrumbs_recursive()	-- recursively gets breadcrumbs
-		wrap_htmlout_breadcrumbs()		-- outputs breadcrumbs in HTML
-		wrap_get_authors()				-- gets authors from database
-		wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
-
-*/
+/**
+ * zzwrap
+ * Standard page functions (menu, breadcrumbs, authors, page)
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ *		wrap_get_menu()					-- gets menu from database
+ *			wrap_get_menu_navigation()	-- gets menu from separate navigation table
+ *			wrap_get_menu_webpages()	-- gets menu from webpages table
+ *		wrap_htmlout_menu()				-- outputs menu in HTML
+ *		wrap_get_breadcrumbs()			-- gets breadcrumbs from database
+ *			wrap_get_breadcrumbs_recursive()	-- recursively gets breadcrumbs
+ *		wrap_htmlout_breadcrumbs()		-- outputs breadcrumbs in HTML
+ *		wrap_get_authors()				-- gets authors from database
+ *		wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
+ *		wrap_mailto()
+ *		wrap_dates()
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2011 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 //
 //	menu

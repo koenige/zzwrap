@@ -1,3 +1,14 @@
+# zzwrap
+# Template for Login form
+#
+# Part of »Zugzwang Project«
+# http://www.zugzwang.org/projects/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2008-2011 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+#
 <div id="login"><div class="logintext">
 %%% condition if logout %%%
 <p><strong class="error">%%% text "You have been logged out." %%%</strong></p>

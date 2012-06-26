@@ -1,8 +1,16 @@
 <?php 
 
-// zzwrap (Zugzwang Project)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2012
-// Main script
+/**
+ * zzwrap
+ * Main script sending the requests to the Content Management System
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 // root directory

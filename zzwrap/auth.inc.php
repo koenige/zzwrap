@@ -1,23 +1,27 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2012
-// CMS Authentication functions
+/**
+ * zzwrap
+ * Authentication functions
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ *	- wrap_auth()
+ *		- wrap_authenticate_url()
+ *		- wrap_session_stop()
+ *	- cms_logout()
+ *		- wrap_session_stop()
+ *	- cms_login()
+ *		- wrap_register()
+ *		- wrap_login_format()
+ *		- cms_login_redirect()
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*
-	Functions in this file
-
-	- wrap_auth()
-		- wrap_authenticate_url()
-		- wrap_session_stop()
-	- cms_logout()
-		- wrap_session_stop()
-	- cms_login()
-		- wrap_register()
-		- wrap_login_format()
-		- cms_login_redirect()
-*/
 
 /**
  * Checks if current URL needs authentication (will be called from zzwrap)
