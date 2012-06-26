@@ -1,8 +1,16 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2009
-// Language functions
+/**
+ * zzwrap
+ * Language functions
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2011 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
 
 /**
@@ -256,6 +264,8 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	// check the matrix and fill in the blanks
 	// cross check against database
 	if (!is_array($matrix)) {
+		// replace existing prefixes
+		$matrix = wrap_db_prefix($matrix);
 		// used without other field definitions, one can write done the
 		// sole db_name.table_name as well without .*
 		if (substr_count($matrix, '.') < 2) {
@@ -273,6 +283,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	$old_matrix = $matrix;
 	$matrix = array();
 	foreach ($old_matrix as $key => $field) {
+		$field = wrap_db_prefix($field);
 		// database name is optional, so add it here for all cases
 		if (substr_count($field, '.') == 1) $field = $zz_conf['db_name'].'.'.$field;
 		if (is_numeric($key)) {
@@ -405,7 +416,8 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 
 function wrap_translate_get_table_db($table_db_name) {
 	global $zz_conf;
-
+	
+	$table_db_name = wrap_db_prefix($table_db_name);
 	if (strstr($table_db_name, '.')) {
 		$table_db_name = explode('.', $table_db_name);
 		$database = $table_db_name[0];

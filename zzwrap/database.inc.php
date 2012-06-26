@@ -1,27 +1,33 @@
 <?php 
 
-// zzwrap (Project Zugzwang)
-// (c) Gustaf Mossakowski, <gustaf@koenige.org> 2007-2011
-// CMS database functions
+/**
+ * zzwrap
+ * Database functions
+ *
+ * Part of »Zugzwang Project«
+ * http://www.zugzwang.org/projects/zzwrap
+ *
+ *	Database functions
+ *	- wrap_db_connect()
+ *	- wrap_db_query()
+ *	- wrap_db_fetch()
+ *	- wrap_db_children()
+ *	- wrap_db_parents()
+ *	- wrap_db_tables_last_update()
+ *	- wrap_check_db_connection()
+ *
+ *	SQL functions
+ *	- wrap_edit_sql()
+ *	- wrap_sql()
+ *
+ *	Miscellaneous functions
+ *	- wrap_microtime_float()
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
 
-
-/*
-	Database functions
-	- wrap_db_connect()
-	- wrap_db_query()
-	- wrap_db_fetch()
-	- wrap_db_children()
-	- wrap_db_parents()
-	- wrap_db_tables_last_update()
-	- wrap_check_db_connection()
-
-	SQL functions
-	- wrap_edit_sql()
-	- wrap_sql()
-
-	Miscellaneous functions
-	- wrap_microtime_float()
-*/
 
 /**
  * Establishes a database connection (if not already established)
@@ -91,6 +97,24 @@ function wrap_db_connect() {
 }
 
 /**
+ * replace table prefix with configuration variable
+ *
+ * @param string $sql some SQL query or part of it
+ * @return string
+ * @todo: parse SQL to check whether it's not a comment but something
+ * from inside a query. Until then the value of $prefix must not appear
+ * legally inside queries
+ */
+function wrap_db_prefix($sql) {
+	global $zz_conf;
+	$prefix = '/*_PREFIX_*/';
+	if (strstr($sql, $prefix)) {
+		$sql = str_replace($prefix, $zz_conf['prefix'], $sql);
+	}
+	return $sql;
+}
+
+/**
  * queries database and does the error handling in case an error occurs
  *
  * $param string $sql
@@ -104,6 +128,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	}
 	if (!$zz_conf['db_connection']) return array();
 
+	$sql = wrap_db_prefix($sql);
 	$result = mysql_query($sql);
 	if (!empty($zz_conf['debug'])) {
 		$time = wrap_microtime_float() - $time;
@@ -374,6 +399,7 @@ function wrap_db_parents($id, $sql) {
 function wrap_db_tables_last_update($tables, $last_sync = false) {
 	if (!is_array($tables)) $tables = array($tables);
 	foreach ($tables as $table) {
+		$table = wrap_db_prefix($table);
 		$db_table = explode('.', $table);
 		if (count($db_table) == 2)
 			$my_tables[$db_table[0]][] = $db_table[1];
@@ -572,7 +598,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($set['core'])) return true;
 			$set['core'] = true;
 			$zz_sql['pages'] = 'SELECT webpages.*
-				FROM '.$zz_conf['prefix'].'webpages webpages
+				FROM /*_PREFIX_*/webpages webpages
 				WHERE webpages.identifier = "%s"';
 			
 			$zz_sql['is_public'] = 'live = "yes"';
@@ -580,16 +606,16 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['redirects_new_fieldname'] = 'new_url';
 			$zz_sql['redirects_old_fieldname'] = 'old_url';
 
-			$zz_sql['redirects'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
+			$zz_sql['redirects'] = 'SELECT * FROM /*_PREFIX_*/redirects
 				WHERE old_url = "%s/"
 				OR old_url = "%s.html"
 				OR old_url = "%s"';
 
-			$zz_sql['redirects_*'] = 'SELECT * FROM '.$zz_conf['prefix'].'redirects
+			$zz_sql['redirects_*'] = 'SELECT * FROM /*_PREFIX_*/redirects
 				WHERE old_url = "%s*"';
 				
 			$zz_sql['filetypes'] = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
-				FROM '.$zz_conf['prefix'].'filetypes
+				FROM /*_PREFIX_*/filetypes
 				WHERE extension = "%s"';
 
 			$zz_sql['page_id']		= 'page_id';
@@ -604,14 +630,14 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 			if (!empty($zz_conf['translations_of_fields'])) {
 				$zz_sql['translations'] = '';
-				$zz_sql['translation_matrix_pages'] = $zz_conf['prefix'].'webpages';
+				$zz_sql['translation_matrix_pages'] = '/*_PREFIX_*/webpages';
 				$zz_sql['translation_matrix_breadcrumbs'] = array();
 
 				if (!empty($zz_setting['default_source_language'])) {
 					$zz_sql['translations'] = 'SELECT translation_id, translationfield_id, translation, field_id,
 					"'.$zz_setting['default_source_language'].'" AS source_language
-					FROM '.$zz_conf['prefix'].'_translations_%s translations
-					LEFT JOIN '.$zz_conf['prefix'].'languages languages USING (language_id)
+					FROM /*_PREFIX_*/_translations_%s translations
+					LEFT JOIN /*_PREFIX_*/languages languages USING (language_id)
 					WHERE translationfield_id IN (%s) 
 						AND field_id IN (%s)
 						AND languages.iso_639_1 = "%s"';
@@ -632,17 +658,17 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = array($zz_setting['hostname']);
 
-			$zz_sql['logout'] = 'UPDATE '.$zz_conf['prefix'].'logins 
+			$zz_sql['logout'] = 'UPDATE /*_PREFIX_*/logins 
 				SET logged_in = "no"
 				WHERE login_id = %s';	// $_SESSION['login_id']
-			$zz_sql['last_click'] = 'UPDATE '.$zz_conf['prefix'].'logins 
+			$zz_sql['last_click'] = 'UPDATE /*_PREFIX_*/logins 
 				SET logged_in = "yes", last_click = %s 
 				WHERE login_id = %s';
 			$zz_sql['login'] = 'SELECT password 
 				, username
 				, logins.login_id AS user_id
 				, logins.login_id
-				FROM '.$zz_conf['prefix'].'logins logins
+				FROM /*_PREFIX_*/logins logins
 				WHERE active = "yes"
 				AND username = "%s"';
 			$zz_sql['last_masquerade'] = false;
