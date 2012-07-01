@@ -402,7 +402,7 @@ function wrap_errorpage_ignore($status) {
 	global $zz_setting;
 	
 	$files = array();
-	if (empty($zz_setting['errors_ignored_no_defaults'])) {
+	if (empty($zz_setting['errors_not_logged_no_defaults'])) {
 		$files[] = $zz_setting['core'].'/errors-not-logged.txt';
 	}
 	$files[] = $zz_setting['custom_wrap_dir'].'/errors-not-logged.txt';
