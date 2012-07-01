@@ -320,6 +320,11 @@ function wrap_errorpage_log($status, $page) {
 	global $zz_setting;
 	global $zz_conf;
 
+	if (in_array($status, array(401, 403, 404))) {
+		$ignore = wrap_errorpage_ignore($status);
+		if ($ignore) return false;
+	}
+	
 	$log_encoding = $zz_conf['character_set'];
 	// PHP does not support all encodings
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
@@ -357,31 +362,6 @@ function wrap_errorpage_log($status, $page) {
 		// http:// is so uncool ...
 		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
 		if ('https://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
-		// ignore some URLs ending in the following strings
-		if (empty($zz_setting['error_404_ignore_strings'])) {
-			$zz_setting['error_404_ignore_strings'] = array(
-				'&', // encoded mail addresses, some bots are too stupid for them
-				'%26', // encoded mail addresses, some bots are too stupid for them
-				'/./', // will normally be resolved by browser (bad script)
-				'/../', // will normally be resolved by browser (bad script)
-				'data:image/gif;base64,AAAA' // this is a data-URL misinterpreted
-			);
-		}
-		foreach ($zz_setting['error_404_ignore_strings'] as $string) {
-			if (substr($_SERVER['REQUEST_URI'], -(strlen($string))) == $string) return false;
-		}
-		if (empty($zz_setting['error_404_ignore_begin'])) {
-			$zz_setting['error_404_ignore_begin'] = array(
-				'/webcal://', // browsers know how to handle unkown protocols (bad script)
-				'/webcal:/', // pseudo-clever script, excluding this string is not 100% correct
-				// but should do no harm ('webcal:' as a part of a string is valid,
-				// so if you use it, errors on pages with this URI part won't get logged)
-				'/plugins/editors/tinymce/' // wrong CMS, don't send enerving errors
-			);
-		}
-		foreach ($zz_setting['error_404_ignore_begin'] as $string) {
-			if (substr($_SERVER['REQUEST_URI'], 0, (strlen($string))) == $string) return false;
-		}
 		// own error message!
 		$msg = sprintf(wrap_text("The URL\n\n%s was requested from\n\n%s\n\n"
 			." with the IP address %s\n (Browser %s)\n\n"
@@ -410,6 +390,54 @@ function wrap_errorpage_log($status, $page) {
 		break;
 	}
 	return true;
+}
+
+/**
+ * Checks errorlog-ignores whether to ignore this error for log or not
+ *
+ * @param int $status
+ * @return bool true: ignore for logging, false: log error
+ */
+function wrap_errorpage_ignore($status) {
+	global $zz_setting;
+	
+	$files = array();
+	if (empty($zz_setting['errors_ignored_no_defaults'])) {
+		$files[] = $zz_setting['core'].'/errors-ignored.txt';
+	}
+	$files[] = $zz_setting['custom_wrap_dir'].'/errors-ignored.txt';
+	foreach ($files as $file) {
+		if (!file_exists($file)) continue;
+		$handle = fopen($file, 'r');
+		$i = 0;
+		while (!feof($handle)) {
+			$i++;
+			$line = fgetcsv($handle, 8192, "\t");
+			if ($line[0] != $status) continue;
+			if (count($line) !== 3) {
+				wrap_error(sprintf('File errors-ignored has wrong entries in line %s.', $i),
+					E_USER_NOTICE);
+			}
+			switch ($line[1]) {
+			case 'all':
+				if ($_SERVER['REQUEST_URI'] == $line[2]) {
+					return true;
+				}
+				break;
+			case 'end':
+				if (substr($_SERVER['REQUEST_URI'], -(strlen($line[2]))) == $line[2]) {
+					return true;
+				}
+				break;
+			case 'begin':
+				if (substr($_SERVER['REQUEST_URI'], 0, (strlen($line[2]))) == $line[2]) {
+					return true;
+				}
+				break;
+			}
+		}
+	}
+	return false;
 }
 	
 
