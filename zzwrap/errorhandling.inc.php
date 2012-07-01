@@ -403,9 +403,9 @@ function wrap_errorpage_ignore($status) {
 	
 	$files = array();
 	if (empty($zz_setting['errors_ignored_no_defaults'])) {
-		$files[] = $zz_setting['core'].'/errors-ignored.txt';
+		$files[] = $zz_setting['core'].'/errors-not-logged.txt';
 	}
-	$files[] = $zz_setting['custom_wrap_dir'].'/errors-ignored.txt';
+	$files[] = $zz_setting['custom_wrap_dir'].'/errors-not-logged.txt';
 	foreach ($files as $file) {
 		if (!file_exists($file)) continue;
 		$handle = fopen($file, 'r');
@@ -415,8 +415,7 @@ function wrap_errorpage_ignore($status) {
 			$line = fgetcsv($handle, 8192, "\t");
 			if ($line[0] != $status) continue;
 			if (count($line) !== 3) {
-				wrap_error(sprintf('File errors-ignored has wrong entries in line %s.', $i),
-					E_USER_NOTICE);
+				wrap_error(sprintf('File %s is wrong in line %s.', $file, $i), E_USER_NOTICE);
 			}
 			switch ($line[1]) {
 			case 'all':
