@@ -433,6 +433,13 @@ function wrap_errorpage_ignore($status) {
 					return true;
 				}
 				break;
+			case 'regex':
+				if (preg_match($line[2], $_SERVER['REQUEST_URI'])) {
+					return true;
+				}
+				break;
+			default:
+				wrap_error(sprintf('Case %s in file %s in line %s not supported.', $line[1], $file, $i), E_USER_NOTICE);
 			}
 		}
 	}
