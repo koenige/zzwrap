@@ -837,7 +837,7 @@ function wrap_mailto($person, $mail, $attributes = false) {
 function wrap_dates($begin, $end, $format = false) {
 	global $zz_conf;
 	if (!function_exists('datum_de')) 
-		include_once $zz_conf['dir'].'/inc/numbers.inc.php';
+		include_once $zz_conf['dir'].'/numbers.inc.php';
 
 	if ($begin === $end) $end = '';
 
