@@ -174,16 +174,17 @@ function wrap_microtime_float() {
  *	"single value" = returns $value
  *	"object" = returns object
  *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
- * @return array with queried database content
+ * @param int $errorcode let's you set error level, default = E_USER_ERROR
+ * @return array with queried database content, NULL if query failed
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo give a more detailed explanation of how function works
  */
-function wrap_db_fetch($sql, $id_field_name = false, $format = false) {
+function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode = E_USER_ERROR) {
 	global $zz_conf;
 	if (!$zz_conf['db_connection']) return array();
 	
-	$result = wrap_db_query($sql);
-	if (!$result) return array();
+	$result = wrap_db_query($sql, $errorcode);
+	if (!$result) return NULL;
 
 	$lines = array();
 
