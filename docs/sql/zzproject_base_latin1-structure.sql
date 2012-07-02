@@ -124,23 +124,31 @@ CREATE TABLE `_translations_varchar` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `_uri_hashes`
+-- Table structure for table `_uris`
 --
 
-DROP TABLE IF EXISTS `_uri_hashes`;
+DROP TABLE IF EXISTS `_uris`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `_uri_hashes` (
-  `uri_hash_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `uri_domain` varchar(32) COLLATE latin1_german2_ci NOT NULL,
+CREATE TABLE `_uris` (
+  `uri_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uri_scheme` varchar(15) COLLATE latin1_german2_ci NOT NULL,
+  `uri_host` varchar(32) COLLATE latin1_german2_ci NOT NULL,
   `uri_path` varchar(128) COLLATE latin1_german2_ci NOT NULL,
+  `uri_query` varchar(255) COLLATE latin1_german2_ci DEFAULT NULL,
+  `content_type` varchar(127) COLLATE latin1_german2_ci NOT NULL,
+  `character_encoding` varchar(31) COLLATE latin1_german2_ci DEFAULT NULL,
+  `content_length` mediumint(8) unsigned NOT NULL,
   `user` varchar(64) COLLATE latin1_german2_ci NOT NULL DEFAULT 'none',
-  `hash_etag` varchar(32) COLLATE latin1_german2_ci NOT NULL,
-  `last_modified` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `status_code` smallint(6) NOT NULL,
+  `etag_md5` varchar(32) COLLATE latin1_german2_ci DEFAULT NULL,
+  `last_modified` datetime DEFAULT NULL,
   `hits` int(10) unsigned NOT NULL,
-  `last_access` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`uri_hash_id`),
-  UNIQUE KEY `uri` (`uri_path`,`user`)
+  `first_access` datetime NOT NULL,
+  `last_access` datetime NOT NULL,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`uri_id`),
+  UNIQUE KEY `uri` (`uri_path`,`user`,`uri_scheme`,`uri_query`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

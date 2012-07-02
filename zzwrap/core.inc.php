@@ -602,6 +602,7 @@ function wrap_create_id($id_title) {
  */
 function wrap_file_send($file) {
 	global $zz_conf;
+	global $zz_page;
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
@@ -616,11 +617,12 @@ function wrap_file_send($file) {
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
 
-	$filesize = sprintf("%u", filesize($file['name']));
+	$zz_page['content_length'] = sprintf("%u", filesize($file['name']));
 	// Maybe the problem is we are running into PHPs own memory limit, so:
-	if ($filesize + 1 > wrap_return_bytes(ini_get('memory_limit')) && intval($filesize * 1.5) <= 1073741824) { 
+	if ($zz_page['content_length'] + 1 > wrap_return_bytes(ini_get('memory_limit'))
+		&& intval($zz_page['content_length'] * 1.5) <= 1073741824) { 
 		// Not higher than 1GB
-		ini_set('memory_limit', intval($filesize * 1.5));
+		ini_set('memory_limit', intval($zz_page['content_length'] * 1.5));
 	}
 
 	// Canonicalize suffices
@@ -632,8 +634,8 @@ function wrap_file_send($file) {
 
 	// Read mime type from database
 	$sql = sprintf(wrap_sql('filetypes'), $suffix);
-	$mimetype = wrap_db_fetch($sql, '', 'single value');
-	if (!$mimetype) $mimetype = 'application/octet-stream';
+	$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
+	if (!$zz_page['content_type']) $zz_page['content_type'] = 'application/octet-stream';
 
 	// Remove some HTTP headers PHP might send because of SESSION
 	// do some tests if this is okay
@@ -643,28 +645,28 @@ function wrap_file_send($file) {
 
 	// generate etag
 	if (!empty($file['etag_generate_md5']) AND empty($file['etag'])) {
-		$file['etag'] = md5_file($file['name']);
+		$file['etag'] = $zz_page['etag'] = md5_file($file['name']);
 	}
 	// Check for 304 or send ETag header
 	if (!empty($file['etag'])) {
-		$file['etag'] = wrap_if_none_match($file['etag'], $file);
+		$file['etag'] = $zz_page['etag'] = wrap_if_none_match($file['etag'], $file);
 		header('ETag: '.$file['etag']);
 	}
 
 	// Check for 304 and send Last-Modified header
-	$last_modified = wrap_if_modified_since(filemtime($file['name']), $file);
- 	header('Last-Modified: '.$last_modified);
+	$zz_page['last_modified'] = wrap_if_modified_since(filemtime($file['name']), $file);
+ 	header('Last-Modified: '.$zz_page['last_modified']);
 
 	// Send HTTP headers
-	header('Content-Length: ' . $filesize);
-	header('Content-Type: '.$mimetype);
+	header('Content-Length: ' . $zz_page['content_length']);
+	header('Content-Type: '.$zz_page['content_type']);
 	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
 	$download_filetypes = array('application/octet-stream', 'application/zip', 
 		'text/html', 'application/xhtml+xml');
-	if (in_array($mimetype, $download_filetypes)) {
+	if (in_array($zz_page['content_type'], $download_filetypes)) {
 		header('Content-Disposition: attachment; filename="'.$file['send_as'].'"');
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
 		header('Pragma: public');
@@ -677,6 +679,7 @@ function wrap_file_send($file) {
 		header('Content-Disposition: inline; filename="'.$file['send_as'].'"');
 	}
 
+	wrap_log_uri();
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
 		wrap_file_cleanup($file);
 		// we do not need to resend file
@@ -690,7 +693,7 @@ function wrap_file_send($file) {
 	set_time_limit(300);
 	// If it's a large file, readfile might not be able to do it in one go, so:
 	$chunksize = 1 * (1024 * 1024); // how many bytes per chunk
-	if ($filesize > $chunksize) {
+	if ($zz_page['content_length'] > $chunksize) {
 		$handle = fopen($file['name'], 'rb');
 		$buffer = '';
 		ob_start();
@@ -945,6 +948,7 @@ function wrap_mail_valid($e_mail) {
 function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = array()) {
 	global $zz_conf;
 	global $zz_setting;
+	global $zz_page;
 
 	$text = trim($text);
 
@@ -952,8 +956,8 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	// previously sent content
 	$etag_header = array();
 	if ($status == 200) {
-		$etag = md5($text);
-		$etag_header = wrap_if_none_match($etag);
+		$zz_page['etag'] = md5($text);
+		$etag_header = wrap_if_none_match($zz_page['etag']);
 		header('ETag: '.$etag_header['std']);
 	}
 
@@ -961,28 +965,44 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	// set character set
 	switch ($type) {
 	case 'html':
+		$zz_page['content_type'] = 'text/html';
 		if (!empty($zz_conf['character_set']))
-			header('Content-Type: text/html; charset='.$zz_conf['character_set']);
+			$zz_page['character_set'] = $zz_conf['character_set'];
 		break;
 	case 'json':
-		header('Content-Type: application/json; charset=utf-8');
+		$zz_page['content_type'] = 'application/json';
+		$zz_page['character_set'] = 'utf-8';
 		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.json';
 		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
 	case 'kml':
-		header('Content-Type: application/vnd.google-earth.kml+xml; charset=utf-8');
+		$zz_page['content_type'] = 'application/vnd.google-earth.kml+xml';
+		$zz_page['character_set'] = 'utf-8';
 		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.kml';
 		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
 	case 'mediarss':
-		header('Content-Type: application/xhtml+xml; charset=utf-8');
+		$zz_page['content_type'] = 'application/xhtml+xml';
+		$zz_page['character_set'] = 'utf-8';
 		break;
 	case 'xml':
-		header('Content-Type: application/xml; charset='.$zz_conf['character_set']);
+		$zz_page['content_type'] = 'application/xml';
+		$zz_page['character_set'] = $zz_conf['character_set'];
 		break;
 	case 'txt':
-		header('Content-Type: text/plain; charset='.$zz_conf['character_set']);
-		break;	
+		$zz_page['content_type'] = 'text/plain';
+		$zz_page['character_set'] = $zz_conf['character_set'];
+		break;
+	default:
+		break;
+	}
+	if (!empty($zz_page['content_type'])) {
+		if (!empty($zz_page['character_set'])) {
+			header(sprintf('Content-Type: %s; charset=%s', $zz_page['content_type'], 
+				$zz_page['character_set']));
+		} else {
+			header(sprintf('Content-Type: %s', $zz_page['content_type']));
+		}
 	}
 
 	$last_modified_time = time();
@@ -990,7 +1010,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status == 200) {
-		$cache_saved = wrap_cache_ressource($text, $etag);
+		$cache_saved = wrap_cache_ressource($text, $zz_page['etag']);
 		if (!$cache_saved) {
 			// identical cache file exists
 			// set older value for Last-Modified header
@@ -1003,7 +1023,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	}
 
 	// Last Modified?
-	$last_modified = wrap_if_modified_since($last_modified_time);
+	$zz_page['last_modified'] = wrap_if_modified_since($last_modified_time);
 
 	// send Last-Modified header if not yet sent
 	$send_last_modified = true;
@@ -1013,10 +1033,12 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		$send_last_modified = false;
 	}
 	if ($send_last_modified) {
-		header('Last-Modified: '.$last_modified);
+		header('Last-Modified: '.$zz_page['last_modified']);
 	}
-
-	header('Content-Length: '.strlen($text));
+	
+	$zz_page['content_length'] = strlen($text);
+	header('Content-Length: '.$zz_page['content_length']);
+	wrap_log_uri();
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
 	
 	// output content
@@ -1026,6 +1048,89 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		echo $text;
 	}
 	exit;
+}
+
+/**
+ * Logs URL in URI table for statistics and further reference
+ * sends only notices if some update does not work because it's just for the
+ * statistics
+ *
+ * @return bool
+ */
+function wrap_log_uri() {
+	global $zz_conf;
+	global $zz_page;
+	if (empty($zz_conf['uris_table'])) return false;
+
+	$scheme = $zz_page['url']['full']['scheme'];
+	$host = $zz_page['url']['full']['host'];
+	$path = $zz_page['url']['full']['path'];
+	$query = !empty($zz_page['url']['full']['query'])
+		? '"'.$zz_page['url']['full']['query'].'"'
+		: 'NULL';
+	$etag = !empty($zz_page['etag'])
+		? $zz_page['etag']
+		: 'NULL';
+	if (substr($etag, 0, 1) !== '"' AND $etag !== 'NULL')
+		$etag = '"'.$etag.'"';
+	$last_modified = !empty($zz_page['last_modified'])
+		? '"'.wrap_dates($zz_page['last_modified'], '', 'rfc1123->datetime').'"'
+		: 'NULL';
+	$status = !empty($zz_page['error_code'])
+		? $zz_page['error_code']
+		: 200;
+	$content_type = !empty($zz_page['content_type'])
+		? $zz_page['content_type']
+		: 'unknown';
+	$encoding = !empty($zz_page['character_set'])
+		? '"'.$zz_page['character_set'].'"'
+		: 'NULL';
+	if (strstr($content_type, '; charset=')) {
+		$content_type = explode('; charset=', $content_type);
+		$encoding = '"'.$content_type[1].'"';
+		$content_type = $content_type[0];
+	}
+	
+	$sql = 'SELECT uri_id
+		FROM /*_PREFIX_*/_uris
+		WHERE uri_scheme = "'.$scheme.'"
+		AND uri_host = "'.$host.'"
+		AND uri_path = "'.$path.'"';
+	if ($query === 'NULL') {
+		$sql .= ' AND ISNULL(uri_query)';
+	} else {
+		$sql .= ' AND uri_query = '.$query;
+	}
+	$uri_id = wrap_db_fetch($sql, '', 'single value', E_USER_NOTICE);
+	
+	if (is_null($uri_id)) {
+		return false;
+	} elseif ($uri_id) {
+		$sql = 'UPDATE /*_PREFIX_*/_uris
+			SET hits = hits +1
+				, status_code = '.$status.'
+				, etag_md5 = '.$etag.'
+				, last_modified = '.$last_modified.'
+				, last_access = NOW(), last_update = NOW()
+				, character_encoding = '.$encoding.'
+		';
+		if ($content_type)
+			$sql .= ' , content_type = "'.$content_type.'"';
+		if ($zz_page['content_length']) 
+			$sql .= ' , content_length = '.$zz_page['content_length'];
+		$sql .= ' WHERE uri_id = '.$uri_id;
+		$result = wrap_db_query($sql, E_USER_NOTICE);
+	} else {
+		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
+			uri_query, content_type, character_encoding, content_length,
+			status_code, etag_md5, last_modified, hits, first_access,
+			last_access, last_update) VALUES ("'.$scheme.'", "'.$host.'", 
+			"'.$path.'", '.$query.', "'.$content_type.'",
+			'.$encoding.', '.$zz_page['content_length'].', '.$status.',
+			'.$etag.', '.$last_modified.', 1, NOW(), NOW(), NOW())';
+		$result = wrap_db_query($sql, E_USER_NOTICE);
+	}
+	return true;
 }
 
 /**
@@ -1086,7 +1191,7 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 	// save headers
 	// without '-gz'
 	if (!$headers) $headers = headers_list();
-	file_put_contents($head, json_encode($headers));
+	file_put_contents($head, implode("\r\n", $headers));
 	return true;
 }
 
@@ -1130,6 +1235,7 @@ function wrap_if_none_match($etag, $file = array()) {
     }
     if ($file) wrap_file_cleanup($file);
 	wrap_http_status_header(304);
+	wrap_log_uri();
 	exit;
 }
 
@@ -1142,12 +1248,16 @@ function wrap_if_none_match($etag, $file = array()) {
  * @return string time formatted for Last-Modified
  */
 function wrap_if_modified_since($time, $file = array()) {
+	global $zz_page;
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
-	$last_modified = gmdate("D, d M Y H:i:s", $time). ' GMT';
-	if (!isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) return $last_modified;
-	if ($last_modified !== $_SERVER['HTTP_IF_MODIFIED_SINCE']) return $last_modified;
+	$zz_page['last_modified'] = wrap_dates($time, '', 'timestamp->rfc1123');
+	if (!isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
+		return $zz_page['last_modified'];
+	if ($zz_page['last_modified'] !== $_SERVER['HTTP_IF_MODIFIED_SINCE'])
+		return $zz_page['last_modified'];
     if ($file) wrap_file_cleanup($file);
 	wrap_http_status_header(304);
+	wrap_log_uri();
 	exit;
 }
 
@@ -1161,6 +1271,7 @@ function wrap_if_modified_since($time, $file = array()) {
  */
 function wrap_send_cache($age = 0) {
 	global $zz_setting;
+	global $zz_page;
 	
 	// Some cases in which we do not cache
 	if (empty($zz_setting['cache'])) return false;
@@ -1175,19 +1286,21 @@ function wrap_send_cache($age = 0) {
 		$fresh = wrap_cache_freshness($files, $age);
 		if (!$fresh) return false;
 	}
-	$etag = wrap_cache_get_header($files[1], 'ETag');
-	if ($etag) header('ETag: "'.$etag.'"');
+	$zz_page['etag'] = wrap_cache_get_header($files[1], 'ETag');
+	if ($zz_page['etag']) header('ETag: "'.$zz_page['etag'].'"');
 
 	// check if respond with 304; Last-Modified
-	$last_modified = wrap_if_modified_since(filemtime($files[0]));
-	header('Last-Modified: '.$last_modified);
+	$zz_page['last_modified'] = wrap_if_modified_since(filemtime($files[0]));
+	header('Last-Modified: '.$zz_page['last_modified']);
 	$text = file_get_contents($files[0]);
 
 	// check if respond with 304; ETag
-	if (!$etag) $etag = md5($text);
-	$etag_header = wrap_if_none_match($etag);
+	if (!$zz_page['etag']) $zz_page['etag'] = md5($text);
+	$etag_header = wrap_if_none_match($zz_page['etag']);
 
-	header('Content-Length: '.strlen($text));
+	$zz_page['content_length'] = strlen($text);
+	header('Content-Length: '.$zz_page['content_length']);
+	wrap_log_uri();
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
 	
 	if (!empty($zz_setting['gzip_encode'])) {
@@ -1221,14 +1334,29 @@ function wrap_cache_freshness($files, $age) {
  * @return string $value
  */
 function wrap_cache_get_header($file, $type) {
-	$headers = json_decode(file_get_contents($file));
+	static $sent;
+	global $zz_page;
+	$headers = file_get_contents($file);
+	if (substr($headers, 0, 2) == '["') {
+		// @deprecated: used JSON format instead of plain text for headers
+		$headers = json_decode($headers);
+		file_put_contents($file, implode("\r\n", $headers));
+	} else {
+		$headers = explode("\r\n", $headers);
+	}
 	if (!$headers) {
 		wrap_error(sprintf('Cache file for headers has no content (%s)', $file), E_USER_NOTICE);
 		return '';
 	}
 	$value = '';
 	foreach ($headers as $header) {
-		if (wrap_substr($header, $type.': ')) {
+		$req_header = substr($header, 0, strpos($header, ': '));
+		$req_value = trim(substr($header, strpos($header, ': ')+1));
+		if (!$sent) {
+			header($header);
+			$zz_page[str_replace('-', '_', strtolower($req_header))] = $req_value;
+		}
+		if ($req_header == $type) {
 			// check if respond with 304
 			$value = substr($header, strlen($type) + 2);
 			if (substr($value, 0, 1) === '"' AND substr($value, -1) === '"') {
@@ -1236,6 +1364,7 @@ function wrap_cache_get_header($file, $type) {
 			}
 		}
 	}
+	$sent = true;
 	return $value;
 }
 
