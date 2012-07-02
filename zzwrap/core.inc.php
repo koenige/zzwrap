@@ -1286,7 +1286,7 @@ function wrap_send_cache($age = 0) {
 		$fresh = wrap_cache_freshness($files, $age);
 		if (!$fresh) return false;
 	}
-	$zz_page['etag'] = wrap_cache_get_header($files[1], 'ETag');
+	$zz_page['etag'] = wrap_cache_get_header($files[1], 'ETag', true);
 	if ($zz_page['etag']) header('ETag: "'.$zz_page['etag'].'"');
 
 	// check if respond with 304; Last-Modified
@@ -1331,9 +1331,10 @@ function wrap_cache_freshness($files, $age) {
  *
  * @param string $file filename
  * @param string $type name of header
+ * @param bool $send send headers or not
  * @return string $value
  */
-function wrap_cache_get_header($file, $type) {
+function wrap_cache_get_header($file, $type, $send = false) {
 	static $sent;
 	global $zz_page;
 	$headers = file_get_contents($file);
@@ -1352,7 +1353,7 @@ function wrap_cache_get_header($file, $type) {
 	foreach ($headers as $header) {
 		$req_header = substr($header, 0, strpos($header, ': '));
 		$req_value = trim(substr($header, strpos($header, ': ')+1));
-		if (!$sent) {
+		if (!$sent AND $send) {
 			header($header);
 			$zz_page[str_replace('-', '_', strtolower($req_header))] = $req_value;
 		}
