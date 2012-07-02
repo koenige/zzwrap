@@ -20,7 +20,7 @@
  *		wrap_dates()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -868,6 +868,19 @@ function wrap_dates($begin, $end, $format = false) {
 			// 31.12.2004-06.01.2005
 			$output = datum_de($begin).'&#8203;&#8211;'.datum_de($end);
 		}
+		break;
+	case 'rfc1123->datetime':
+		// input Sun, 06 Nov 1994 08:49:37 GMT
+		// output 1994-11-06 08:49:37
+		$date = substr($begin, 0, -4); // remove GMT
+		$timezone = new DateTimeZone('UTC');
+		$mydate = date_create_from_format('D, d M Y H:i:s', $date, $timezone);
+		$output = $mydate->format('Y-m-d H:i:s');
+		break;
+	case 'timestamp->rfc1123':
+		// input 67523322 (just as an example)
+		// output Sun, 06 Nov 1994 08:49:37 GMT
+		$output = gmdate('D, d M Y H:i:s', $begin). ' GMT';
 		break;
 	default:
 		$output = '';
