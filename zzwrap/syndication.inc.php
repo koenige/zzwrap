@@ -72,7 +72,12 @@ function wrap_syndication_get($url, $type = 'json') {
 			set_error_handler('wrap_syndication_errors');
 			$data = file_get_contents($url, false, $context);
 			restore_error_handler();
-			$headers = $http_response_header;
+			if (!empty($http_response_header)) {
+				$headers = $http_response_header;
+			} else {
+				$headers = array();
+				$status = 503;
+			}
 			foreach ($headers as $header) {
 				if (substr($header, 0, 5) === 'HTTP/') {
 					$status = explode(' ', $header);
