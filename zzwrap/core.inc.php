@@ -1116,7 +1116,7 @@ function wrap_log_uri() {
 		';
 		if ($content_type)
 			$sql .= ' , content_type = "'.$content_type.'"';
-		if ($zz_page['content_length']) 
+		if (!empty($zz_page['content_length'])) 
 			$sql .= ' , content_length = '.$zz_page['content_length'];
 		$sql .= ' WHERE uri_id = '.$uri_id;
 		$result = wrap_db_query($sql, E_USER_NOTICE);
