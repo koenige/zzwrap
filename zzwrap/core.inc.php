@@ -955,6 +955,7 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 	// Send ETag-Header and check whether content is identical to
 	// previously sent content
 	$etag_header = array();
+	$zz_page['content_length'] = strlen($text);
 	if ($status == 200) {
 		$zz_page['etag'] = md5($text);
 		$etag_header = wrap_if_none_match($zz_page['etag']);
@@ -1036,7 +1037,6 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		header('Last-Modified: '.$zz_page['last_modified']);
 	}
 	
-	$zz_page['content_length'] = strlen($text);
 	header('Content-Length: '.$zz_page['content_length']);
 	wrap_log_uri();
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
