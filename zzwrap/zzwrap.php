@@ -56,10 +56,6 @@ function zzwrap() {
 	wrap_sql('core', 'set');
 	wrap_sql('page', 'set');
 	
-	if (!$zz_conf['db_connection']) {
-		wrap_error('No connection to SQL server.', E_USER_ERROR);
-	}
-
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_check_request(); // affects $zz_page, $zz_setting
 

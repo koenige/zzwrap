@@ -1272,6 +1272,7 @@ function wrap_if_modified_since($time, $file = array()) {
 function wrap_send_cache($age = 0) {
 	global $zz_setting;
 	global $zz_page;
+	global $zz_conf;
 	
 	// Some cases in which we do not cache
 	if (empty($zz_setting['cache'])) return false;
@@ -1302,6 +1303,10 @@ function wrap_send_cache($age = 0) {
 	header('Content-Length: '.$zz_page['content_length']);
 	wrap_log_uri();
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
+
+	if (empty($zz_conf['db_connection'])) {
+		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
+	}
 	
 	if (!empty($zz_setting['gzip_encode'])) {
 		wrap_send_gzip($text, $etag_header);
