@@ -715,7 +715,7 @@ function wrap_check_db_connection() {
 	global $zz_setting;
 	if ($zz_conf['db_connection']) return true;
 	wrap_send_cache();
-	wrap_error(sprintf('No connection to SQL server.'), E_USER_ERROR);
+	wrap_error('No connection to SQL server.', E_USER_ERROR);
 	exit;
 }
 
