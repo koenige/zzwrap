@@ -328,25 +328,23 @@ function wrap_read_url($url) {
  * If that's true, 301 or 302 codes redirect pages, 410 redirect to gone.
  * if no error code is defined, a 404 code and the corresponding error page
  * will be shown
- * @param int $errorcode HTTP Error Code, default value is 404
+ * @param int $statuscode HTTP Status Code, default value is 404
  * @param string $error_msg (optional, error message for user)
  * @param array $page (optional, if normal output shall be shown, not error msg)
  * @return exits function with a redirect or an error document
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_quit($errorcode = 404, $error_msg = '', $page = array()) {
+function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
-	
-	// save error code for later access to avoid infinite recursion
-	if (empty($zz_page['error_code'])) {
-		$zz_page['error_code'] = $errorcode;
-	}
 
-	$redir = wrap_check_redirects($zz_page['url']);
-	if (!$redir) $page['status'] = $errorcode; // we need this in the error script
-	else $page['status'] = $redir['code'];
+	$page['status'] = $statuscode;
+	$no_redirection = array(304, 412, 416);
+	if (!in_array($statuscode, $no_redirection)) {
+		$redir = wrap_check_redirects($zz_page['url']);
+		if ($redir) $page['status'] = $redir['code'];
+	}
 
 	// Check redirection code
 	switch ($page['status']) {
@@ -364,8 +362,18 @@ function wrap_quit($errorcode = 404, $error_msg = '', $page = array()) {
 			$new = $zz_setting['host_base'].$zz_setting['base'].$redir[$field_name];
 		}
 		header('Location: '.$new);
-		break;
+		exit;
+	case 304:
+	case 412:
+	case 416:
+		wrap_http_status_header($page['status']);
+		header('Content-Length: 0');
+		exit;
 	default: // 4xx, 5xx
+		// save error code for later access to avoid infinite recursion
+		if (empty($zz_page['error_code'])) {
+			$zz_page['error_code'] = $statuscode;
+		}
 		if ($error_msg) {
 			if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
 			if (empty($zz_page['error_html']))
@@ -373,8 +381,8 @@ function wrap_quit($errorcode = 404, $error_msg = '', $page = array()) {
 			$zz_page['error_msg'] .= sprintf($zz_page['error_html'], $error_msg);
 		}
 		wrap_errorpage($page, $zz_page);
+		exit;
 	}
-	exit;
 }
 
 /**
@@ -391,25 +399,28 @@ function wrap_http_status_header($code) {
 	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
 	
 	switch ($code) {
-	case '301':
+	case 206:
+		header($protocol.' 206 Partial Content');
+		return true;
+	case 301:
 		header($protocol." 301 Moved Permanently");
 		return true;
-	case '302':
+	case 302:
 		if ($protocol == 'HTTP/1.0')
 			header($protocol." 302 Moved Temporarily");
 		else
 			header($protocol." 302 Found");
 		return true;
-	case '303':
+	case 303:
 		if ($protocol == 'HTTP/1.0')
 			header($protocol." 302 Moved Temporarily");
 		else
 			header($protocol." 303 See Other");
 		return true;
-	case '304':
+	case 304:
 		header($protocol." 304 Not Modified");
 		return true;
-	case '307':
+	case 307:
 		if ($protocol == 'HTTP/1.0')
 			header($protocol." 302 Moved Temporarily");
 		else
@@ -617,7 +628,12 @@ function wrap_file_send($file) {
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
 
+	// Accept-Ranges HTTP header
+	header('Accept-Ranges: bytes');
+
+	// Content-Length HTTP header
 	$zz_page['content_length'] = sprintf("%u", filesize($file['name']));
+	header('Content-Length: '.$zz_page['content_length']);
 	// Maybe the problem is we are running into PHPs own memory limit, so:
 	if ($zz_page['content_length'] + 1 > wrap_return_bytes(ini_get('memory_limit'))
 		&& intval($zz_page['content_length'] * 1.5) <= 1073741824) { 
@@ -625,42 +641,38 @@ function wrap_file_send($file) {
 		ini_set('memory_limit', intval($zz_page['content_length'] * 1.5));
 	}
 
+	// Content-Type HTTP header
 	// Canonicalize suffices
 	$suffix_map = array(
 		'jpg' => 'jpeg',
 		'tif' => 'tiff'
 	);
 	if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
-
 	// Read mime type from database
 	$sql = sprintf(wrap_sql('filetypes'), $suffix);
 	$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 	if (!$zz_page['content_type']) $zz_page['content_type'] = 'application/octet-stream';
+	header('Content-Type: '.$zz_page['content_type']);
+
+	// ETag HTTP header
+	if (!empty($file['etag_generate_md5']) AND empty($file['etag'])) {
+		$file['etag'] = md5_file($file['name']);
+	}
+	if (!empty($file['etag'])) {
+		wrap_if_none_match($file['etag']);
+	}
+	
+	// Last-Modified HTTP header
+	wrap_if_modified_since(filemtime($file['name']), $file);
 
 	// Remove some HTTP headers PHP might send because of SESSION
-	// do some tests if this is okay
-	header('Expires: ');
-	header('Cache-Control: ');
-	header('Pragma: ');
-
-	// generate etag
-	if (!empty($file['etag_generate_md5']) AND empty($file['etag'])) {
-		$file['etag'] = $zz_page['etag'] = md5_file($file['name']);
+	// @todo: do some tests if this is okay
+	// @todo: set sensible Expires header, according to age of file
+	if (function_exists('header_remove')) {
+		header_remove('Expires');
+		header_remove('Cache-Control');
+		header_remove('Pragma');
 	}
-	// Check for 304 or send ETag header
-	if (!empty($file['etag'])) {
-		$file['etag'] = $zz_page['etag'] = wrap_if_none_match($file['etag'], $file);
-		header('ETag: '.$file['etag']);
-	}
-
-	// Check for 304 and send Last-Modified header
-	$zz_page['last_modified'] = wrap_if_modified_since(filemtime($file['name']), $file);
- 	header('Last-Modified: '.$zz_page['last_modified']);
-
-	// Send HTTP headers
-	header('Content-Length: ' . $zz_page['content_length']);
-	header('Content-Type: '.$zz_page['content_type']);
-	// TODO: ordentlichen Expires-Header setzen, je nach Dateialter
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
@@ -678,38 +690,8 @@ function wrap_file_send($file) {
 	} else {
 		header('Content-Disposition: inline; filename="'.$file['send_as'].'"');
 	}
-
-	wrap_log_uri();
-	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
-		wrap_file_cleanup($file);
-		// we do not need to resend file
-		exit;
-	}
-
-	// following block and server lighttpd: replace with
-	// header('X-Sendfile: '.$file['name']);
-
-	// If it's a large file we don't want the script to timeout, so:
-	set_time_limit(300);
-	// If it's a large file, readfile might not be able to do it in one go, so:
-	$chunksize = 1 * (1024 * 1024); // how many bytes per chunk
-	if ($zz_page['content_length'] > $chunksize) {
-		$handle = fopen($file['name'], 'rb');
-		$buffer = '';
-		ob_start();
-		while (!feof($handle)) {
-			$buffer = fread($handle, $chunksize);
-			echo $buffer;
-			ob_flush();
-			flush();
-		}
-		fclose($handle);
-	} else {
-		readfile($file['name']);
-	}
-
-	wrap_file_cleanup($file);
-	exit;
+	
+	wrap_send_ressource('file', $file, $etag_header);
 }
 
 /**
@@ -945,25 +927,27 @@ function wrap_mail_valid($e_mail) {
  * @global array $zz_setting
  * @return void
  */
-function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = array()) {
+function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
 
 	$text = trim($text);
 
-	// Send ETag-Header and check whether content is identical to
-	// previously sent content
-	$etag_header = array();
-	$zz_page['content_length'] = strlen($text);
-	if ($status == 200) {
-		$zz_page['etag'] = md5($text);
-		$etag_header = wrap_if_none_match($zz_page['etag']);
-		header('ETag: '.$etag_header['std']);
+	if (!empty($zz_setting['gzip_encode'])) {
+		header('Vary: Accept-Encoding');
+	}
+	if (function_exists('header_remove')) {
+		header_remove('Accept-Ranges');
 	}
 
-	// headers
-	// set character set
+	// Content-Length HTTP header
+	// might be overwritten later
+	$zz_page['content_length'] = strlen($text);
+	header('Content-Length: '.$zz_page['content_length']);
+
+	// Content-Type HTTP header
+	// Content-Disposition HTTP header
 	switch ($type) {
 	case 'html':
 		$zz_page['content_type'] = 'text/html';
@@ -1006,6 +990,16 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		}
 	}
 
+	// ETag HTTP header
+	// check whether content is identical to previously sent content
+	// @todo: do not send 304 immediately but with a Last-Modified header
+	$etag_header = array();
+	if ($status == 200) {
+		// only compare ETag in case of status 2xx
+		$zz_page['etag'] = md5($text);
+		$etag_header = wrap_if_none_match($zz_page['etag']);
+	}
+
 	$last_modified_time = time();
 
 	// Caching?
@@ -1023,31 +1017,194 @@ function wrap_send_ressource($text, $type = 'html', $status = 200, $headers = ar
 		wrap_cache_delete($status);
 	}
 
-	// Last Modified?
-	$zz_page['last_modified'] = wrap_if_modified_since($last_modified_time);
+	// Last Modified HTTP header
+	wrap_if_modified_since($last_modified_time);
 
-	// send Last-Modified header if not yet sent
-	$send_last_modified = true;
-	$prepared_headers = headers_list();
-	foreach ($prepared_headers as $prepared_header) {
-		if (!wrap_substr($prepared_header, 'Last-Modified: ')) continue;
-		$send_last_modified = false;
+	wrap_send_ressource('memory', $text, $etag_header);
+}
+
+/**
+ * Sends the ressource to the browser after all headers have been sent
+ *
+ * @param string $type 'memory' = content is in memory, 'file' => is in file
+ * @param mixed $content full content or array $file, depending on $type
+ * @param array $etag_header
+ */
+function wrap_send_ressource($type, $content, $etag_header) {
+	global $zz_setting;
+	global $zz_page;
+
+	// HEAD HTTP request
+	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
+		if ($type === 'file') wrap_file_cleanup($content);
+		wrap_log_uri();
+		exit;
 	}
-	if ($send_last_modified) {
-		header('Last-Modified: '.$zz_page['last_modified']);
+
+	// Since we do gzip compression on the fly, we cannot guarantee
+	// that ranges work with gzip compression (bytes will be different).
+	// Using gzip won't give you any advantage for most binary files, so
+	// we do not use gzip for these. On the other hand, we won't allow ranges
+	// for text content. So we do not have gzip and ranges at the same time.
+
+	// Text output, with gzip, without ranges
+	if ($type === 'memory' OR !empty($content['gzip'])) {
+		wrap_log_uri();
+		if ($type === 'file') {
+			$content = file_get_contents($content['name']);
+		}
+		// output content
+		if (!empty($zz_setting['gzip_encode'])) {
+			wrap_send_gzip($content, $etag_header);
+		} else {
+			echo $content;
+		}
+		exit;
 	}
 	
-	header('Content-Length: '.$zz_page['content_length']);
-	wrap_log_uri();
-	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
+	// Binary output, without gzip, with ranges
+	// Ranges HTTP header field
+	$chunksize = 1 * (1024 * 16); // how many bytes per chunk
+	$ranges = wrap_ranges_check($zz_page);
+	if (!$ranges) {
+		wrap_log_uri();
+		// no ranges: resume to normal
+
+		// following block and server lighttpd: replace with
+		// header('X-Sendfile: '.$content['name']);
 	
-	// output content
-	if (!empty($zz_setting['gzip_encode'])) {
-		wrap_send_gzip($text, $etag_header);
+		// If it's a large file we don't want the script to timeout, so:
+		set_time_limit(300);
+		// If it's a large file, readfile might not be able to do it in one go, so:
+		if ($zz_page['content_length'] > $chunksize) {
+			$handle = fopen($content['name'], 'rb');
+			$buffer = '';
+			ob_start();
+			while (!feof($handle) AND !connection_aborted()) {
+				$buffer = fread($handle, $chunksize);
+				print $buffer;
+				ob_flush();
+				flush();
+			}
+			fclose($handle);
+		} else {
+			readfile($content['name']);
+		}
 	} else {
-		echo $text;
+		if (count($ranges) !== 1) {
+			$boundary = 'THIS_STRING_SEPARATES_'.md5(time());
+			header(sprintf('Content-Type: multipart/byteranges; boundary=%s', $boundary));
+			$bottom = "--".$boundary."--\r\n";
+			$content_length_total = strlen($bottom);
+			$separator = "\r\n\r\n";
+			$content_length_total += strlen($separator) * count($ranges);
+		}
+		$handle = fopen($content['name'], 'rb');
+		$top = array();
+		foreach ($ranges as $range) {
+			$length = $range['end'] - $range['start'] + 1;
+			$content_range = sprintf('Content-Range: bytes %u-%u/%u', $range['start'],
+				$range['end'], $zz_page['content_length']);
+			$content_length = sprintf('Content-Length: %u', $length);
+			if (count($ranges) !== 1) {
+				$content_length_total += $length;
+				$top_text = "--".$boundary."\r\n"
+					.'Content-Type: '.$zz_page['content_type']."\r\n"
+					.$content_range."\r\n"
+					.$content_length."\r\n"
+					."\r\n";
+				$content_length_total += strlen($top_text);
+				$top[] = $top_text;
+			} else {
+				header($content_range);
+				header($content_length);
+			}
+		}
+		if (count($ranges) !== 1) {
+			header('Content-Length: '.$content_length_total);
+		}
+		foreach ($ranges as $index => $range) {
+			if (count($ranges) !== 1) {
+				echo $top[$index];
+			}
+			$current = $range['start'];
+			fseek($handle, $current, SEEK_SET);
+			while (!feof($handle) AND $current < $range['end'] AND !connection_aborted()) {
+				print fread($handle, min($chunksize, $range['end'] - $current + 1));
+				$current += $chunksize;
+				flush();
+			}
+			if (count($ranges) !== 1) {
+				echo $separator;
+			}
+		}
+		if (count($ranges) !== 1) echo $bottom;
+		fclose($handle);
 	}
+	wrap_file_cleanup($content);
 	exit;
+}
+
+/**
+ * Checks whether ressource should be sent in ranges of bytes
+ *
+ * @param array $zz_page
+ * @return array
+ */
+function wrap_ranges_check($zz_page) {
+	if (empty($_SERVER['HTTP_RANGE'])) return array();
+
+	// check if Range is syntactically valid
+	// if invalid, return 200 + full content
+	// Range: bytes=10000-49999,500000-999999,-250000
+	if (!preg_match('~^bytes=\d*-\d*(,\d*-\d*)*$~', $_SERVER['HTTP_RANGE'])) {
+		header('Content-Range: bytes */'.$zz_page['content_length']);
+		wrap_quit(416);
+	}
+
+	if (!empty($_SERVER['HTTP_IF_UNMODIFIED_SINCE']) OR !empty($_SERVER['HTTP_IF_MATCH'])) {
+		// Range + (If-Unmodified-Since OR If-Match), have already been checked
+		// go on
+	} elseif (!empty($_SERVER['HTTP_IF_RANGE'])) {
+		// Range + If-Range (ETag or Date)
+		$etag_header = wrap_etag_header($zz_page['etag']);
+		$time = wrap_dates($_SERVER['HTTP_IF_RANGE'], '', 'rfc1123->timestamp');
+		if ($_SERVER['HTTP_IF_RANGE'] === $etag_header['std']
+			OR $_SERVER['HTTP_IF_RANGE'] === $etag_header['gz']) {
+			// go on
+		} elseif ($time AND $time >= $zz_page['last_modified']) {
+			// go on
+		} else {
+			// - no match: 200 + full content
+			return array();
+		}
+	}
+	
+	// - if Range not valid	416 (Requested range not satisfiable), Content-Range: *
+	// - else 206 + partial content
+	$raw_ranges = explode(',', substr($_SERVER['HTTP_RANGE'], 6));
+	$ranges = array();
+	foreach ($raw_ranges as $range) {
+		$parts = explode('-', $range);
+		$start = $parts[0];
+		if (!$start) $start = 0;
+		$end = $parts[1];
+		if (!$end) {
+			$end = $zz_page['content_length'] - 1;
+		} elseif ($end > $zz_page['content_length']) {
+			$end = $zz_page['content_length'] - 1;
+		}
+        if ($start > $end) {
+            header('Content-Range: bytes */'.$zz_page['content_length']);
+			wrap_quit(416);
+        }
+        $ranges[] = array(
+        	'start' => $start,
+        	'end' => $end
+        );
+    }
+	wrap_http_status_header(206);
+	return $ranges;
 }
 
 /**
@@ -1141,8 +1298,6 @@ function wrap_log_uri() {
  * @return void
  */
 function wrap_send_gzip($text, $etag_header) {
-	// gzip?
-	header('Vary: Accept-Encoding');
 	// start output
 	ob_start();
 	ob_start('ob_gzhandler');
@@ -1214,33 +1369,87 @@ function wrap_cache_delete($status, $url = false) {
 }
 
 /**
- * creates ETag-Headers, checks against HTTP_IF_NONE_MATCH
+ * creates ETag-Headers, checks against If-None-Match, If-Match
  *
  * @param string $etag
- * @param array $file (optional)
  * @return mixed $etag_header (only if none match)
  *		!$file: array 'std' = standard header, 'gz' = header with gzip
  *		$file: string standard header
+ * @see RFC 2616 14.24
  */
-function wrap_if_none_match($etag, $file = array()) {
-	$etag_header['std'] = sprintf('"%s"', $etag);
-	$etag_header['gz'] = sprintf('"%s"', $etag.'-gz');
-    if (!isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
-    	if ($file) return $etag_header['std'];
-    	else return $etag_header;
-    }
-    if ($_SERVER['HTTP_IF_NONE_MATCH'] != $etag_header['std']
-    	AND $_SERVER['HTTP_IF_NONE_MATCH'] != $etag_header['gz']) {
-		return $etag_header;
-    }
-    if ($file) wrap_file_cleanup($file);
-	wrap_http_status_header(304);
-	wrap_log_uri();
-	exit;
+function wrap_if_none_match($etag) {
+	$etag_header = wrap_etag_header($etag);
+	// Check If-Match header field
+	if (isset($_SERVER['HTTP_IF_MATCH'])) {
+		if (!wrap_etag_check($etag_header, $_SERVER['HTTP_IF_MATCH'])) {
+			wrap_quit(412);
+		}
+	}
+	if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+		if (wrap_etag_check($etag_header, $_SERVER['HTTP_IF_NONE_MATCH'])) {
+			// HTTP requires to check Last-Modified date here as well
+			// but we ignore it because if the Entity is identical, it does
+			// not really matter if the modification date is different
+			if (in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD'))) {
+				if ($file) wrap_file_cleanup($file);
+				wrap_log_uri();
+				header('ETag: '.$etag_header['std']);
+				wrap_quit(304);
+			} else {
+				wrap_quit(412);
+			}
+		}
+	}
+	// Neither header field affects request
+	// ETag std header might be overwritten by gzip-ETag later on
+	header('ETag: '.$etag_header['std']);
+	if ($file) return $etag_header['std'];
+    else return $etag_header;
+ }
+
+/**
+ * compares an ETag of a ressource to a HTTP request
+ *
+ * @param array $etag_header
+ * @string $http_request, e. g. If-None-Match or If-Match
+ * @return bool
+ */
+function wrap_etag_check($etag_header, $http_request) {
+	if ($http_request === '*') {
+		// If-Match: * / If-None-Match: *
+		if ($etag_header) return true;
+		else return false;
+	}
+	$entity_tags = explode(',', $http_request);
+	// If-Match: "xyzzy"
+	// If-Match: "xyzzy", "r2d2xxxx", "c3piozzzz"
+	foreach ($entity_tags as $entity_tag) {
+		$entity_tag = trim($entity_tag);
+		if ($entity_tag === $etag_header['std']) return true;
+		elseif ($entity_tag === $etag_header['gz']) return true;
+	}
+	return false;
 }
 
 /**
- * creates Last-Modified-Header, checks against HTTP_IF_MODIFIED_SINCE
+ * creates ETag header value from given ETag for uncompressed and gzip
+ * ressources
+ * W/ ETags are not supported
+ *
+ * @param string $etag
+ * @return array
+ */
+function wrap_etag_header($etag) {
+	$etag_header = array(
+		'std' => sprintf('"%s"', $etag),
+		'gz' => sprintf('"%s"', $etag.'-gz')
+	);
+	return $etag_header;
+}
+
+/**
+ * creates Last-Modified-Header, checks against If-Modified-Since
+ * and If-Unmodified-Since
  * respond to If Modified Since with 304 header if appropriate
  *
  * @param int $time (timestamp)
@@ -1251,14 +1460,29 @@ function wrap_if_modified_since($time, $file = array()) {
 	global $zz_page;
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
 	$zz_page['last_modified'] = wrap_dates($time, '', 'timestamp->rfc1123');
-	if (!isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
-		return $zz_page['last_modified'];
-	if ($zz_page['last_modified'] !== $_SERVER['HTTP_IF_MODIFIED_SINCE'])
-		return $zz_page['last_modified'];
-    if ($file) wrap_file_cleanup($file);
-	wrap_http_status_header(304);
-	wrap_log_uri();
-	exit;
+	// Check If-Unmodified-Since
+	if (isset($_SERVER['HTTP_IF_UNMODIFIED_SINCE'])) {
+		$requested_time = wrap_dates(
+			$_SERVER['HTTP_IF_UNMODIFIED_SINCE'], '', 'rfc1123->timestamp'
+		);
+		if ($requested_time AND $time > $requested_time) {
+			wrap_quit(412);
+		}
+	}
+	// Check If-Modified-Since
+	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+		$requested_time = wrap_dates(
+			$_SERVER['HTTP_IF_MODIFIED_SINCE'], '', 'rfc1123->timestamp'
+		);
+		if ($time > $requested_time) {
+			header('Last-Modified: '.$zz_page['last_modified']);
+			if ($file) wrap_file_cleanup($file);
+			wrap_log_uri();
+			wrap_quit(304);
+		}
+	}
+	header('Last-Modified: '.$zz_page['last_modified']);
+	return $zz_page['last_modified'];
 }
 
 /**
@@ -1287,33 +1511,47 @@ function wrap_send_cache($age = 0) {
 		$fresh = wrap_cache_freshness($files, $age);
 		if (!$fresh) return false;
 	}
-	$zz_page['etag'] = wrap_cache_get_header($files[1], 'ETag', true);
-	if ($zz_page['etag']) header('ETag: "'.$zz_page['etag'].'"');
 
-	// check if respond with 304; Last-Modified
-	$zz_page['last_modified'] = wrap_if_modified_since(filemtime($files[0]));
-	header('Last-Modified: '.$zz_page['last_modified']);
-	$text = file_get_contents($files[0]);
+	// get cached headers, send them as headers and write them to $zz_page
+	// Content-Type HTTP header etc.
+	wrap_cache_get_header($files[1], '', true);
 
-	// check if respond with 304; ETag
-	if (!$zz_page['etag']) $zz_page['etag'] = md5($text);
+	if (!empty($zz_setting['gzip_encode'])) {
+		header('Vary: Accept-Encoding');
+	}
+
+	// Content-Length HTTP header
+	if (empty($zz_page['content_length'])) {
+		$zz_page['content_length'] = sprintf("%u", filesize($files[0]));
+		header('Content-Length: '.$zz_page['content_length']);
+	}
+
+	// ETag HTTP header
+	if (empty($zz_page['etag'])) {
+		$zz_page['etag'] = md5_file($files[0]);
+	}
 	$etag_header = wrap_if_none_match($zz_page['etag']);
 
-	$zz_page['content_length'] = strlen($text);
-	header('Content-Length: '.$zz_page['content_length']);
-	wrap_log_uri();
-	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) exit;
+	// Last-Modified HTTP header
+	if (!$zz_page['last_modified']) {
+		$last_modified_time = filemtime($files[0]);
+	} else {
+		$last_modified_time = wrap_dates(
+			$zz_page['last_modified'], '', 'rfc1123->timestamp'
+		);
+	}
+	wrap_if_modified_since($last_modified_time);
 
+	// Log if cached version is used because there's no connection to database
 	if (empty($zz_conf['db_connection'])) {
 		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
 	}
-	
-	if (!empty($zz_setting['gzip_encode'])) {
-		wrap_send_gzip($text, $etag_header);
-	} else {
-		echo $text;
-	}
-	exit;
+
+	$file = array(
+		'name' => $files[0],
+		'gzip' => true
+	);
+	wrap_send_ressource('file', $file, $etag_header);
 }
 
 /**
@@ -1609,7 +1847,6 @@ function wrap_restrict_ip_access($ip_list) {
  */
 function wrap_rights($right, $mode = 'get', $value = NULL) {
 	global $zz_conf;
-	global $zz_setting;
 	static $rights;
 	switch ($mode) {
 	case 'get':

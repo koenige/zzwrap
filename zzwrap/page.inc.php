@@ -659,7 +659,7 @@ function wrap_get_page() {
 
 	if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
 		if (empty($page['headers'])) $page['headers'] = array();
-		wrap_send_ressource($page['text'], $page['content_type'], $page['status'], $page['headers']);
+		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers']);
 	}
 
 	if (!empty($page['no_output'])) exit;
@@ -802,7 +802,7 @@ function wrap_htmlout_page($page) {
 	}
 
 	$text = wrap_template($zz_page['template'], $page);
-	wrap_send_ressource($text, 'html', $page['status']);
+	wrap_send_text($text, 'html', $page['status']);
 }
 
 /**
