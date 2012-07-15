@@ -715,7 +715,7 @@ function wrap_file_send($file) {
 		header('Content-Disposition: inline; filename="'.$file['send_as'].'"');
 	}
 	
-	wrap_send_ressource('file', $file, $etag_header);
+	wrap_send_ressource('file', $file);
 }
 
 /**
@@ -1054,7 +1054,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
  * @param mixed $content full content or array $file, depending on $type
  * @param array $etag_header
  */
-function wrap_send_ressource($type, $content, $etag_header) {
+function wrap_send_ressource($type, $content, $etag_header = array()) {
 	global $zz_setting;
 	global $zz_page;
 
