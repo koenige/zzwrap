@@ -398,36 +398,60 @@ function wrap_http_status_header($code) {
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
 	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
 	
-	switch ($code) {
-	case 206:
-		header($protocol.' 206 Partial Content');
-		return true;
-	case 301:
-		header($protocol." 301 Moved Permanently");
-		return true;
-	case 302:
-		if ($protocol == 'HTTP/1.0')
-			header($protocol." 302 Moved Temporarily");
-		else
-			header($protocol." 302 Found");
-		return true;
-	case 303:
-		if ($protocol == 'HTTP/1.0')
-			header($protocol." 302 Moved Temporarily");
-		else
-			header($protocol." 303 See Other");
-		return true;
-	case 304:
-		header($protocol." 304 Not Modified");
-		return true;
-	case 307:
-		if ($protocol == 'HTTP/1.0')
-			header($protocol." 302 Moved Temporarily");
-		else
-			header($protocol." 307 Temporary Redirect");
-		return true;
+	if ($protocol === 'HTTP/1.0') {
+		switch ($code) {
+		case 302:
+		case 303:
+		case 307:
+			header($protocol.' 302 Moved Temporarily');
+			return true;
+		}
+	} else {
+		$status = wrap_http_status_list($code);
+		if ($status) {
+			header($protocol.' '.$status['code'].' '.$status['text']);
+		}
 	}
 	return false;
+}
+
+/**
+ * reads HTTP status codes from http-statuscodes.txt
+ *
+ * @global array $zz_setting
+ *		'core'
+ * @return array $codes
+ */
+function wrap_http_status_list($code) {
+	global $zz_setting;
+	$status = array();
+	
+	// read error codes from file
+	$pos[0] = 'code';
+	$pos[1] = 'text';
+	$pos[2] = 'description';
+	$codes_from_file = file($zz_setting['core'].'/http-statuscodes.txt');
+	foreach ($codes_from_file as $line) {
+		if (substr($line, 0, 1) == '#') continue;	// Lines with # will be ignored
+		elseif (!trim($line)) continue;				// empty lines will be ignored
+		if (substr($line, 0, 3) != $code) continue;
+		$values = explode("\t", trim($line));
+		$i = 0;
+		$code = '';
+		foreach ($values as $val) {
+			if (trim($val)) {
+				if (!$i) $code = trim($val);
+				$status[$pos[$i]] = trim($val);
+				$i++;
+			}
+		}
+		if ($i < 3) {
+			for ($i; $i < 3; $i++) {
+				$status[$pos[$i]] = '';
+			}
+		}
+	}
+	return $status;
 }
 
 /**
@@ -659,7 +683,7 @@ function wrap_file_send($file) {
 		$file['etag'] = md5_file($file['name']);
 	}
 	if (!empty($file['etag'])) {
-		wrap_if_none_match($file['etag']);
+		wrap_if_none_match($file['etag'], $file);
 	}
 	
 	// Last-Modified HTTP header
@@ -1372,12 +1396,13 @@ function wrap_cache_delete($status, $url = false) {
  * creates ETag-Headers, checks against If-None-Match, If-Match
  *
  * @param string $etag
+ * @param array $file (optional, for cleanup only)
  * @return mixed $etag_header (only if none match)
  *		!$file: array 'std' = standard header, 'gz' = header with gzip
  *		$file: string standard header
  * @see RFC 2616 14.24
  */
-function wrap_if_none_match($etag) {
+function wrap_if_none_match($etag, $file = array()) {
 	$etag_header = wrap_etag_header($etag);
 	// Check If-Match header field
 	if (isset($_SERVER['HTTP_IF_MATCH'])) {
@@ -1403,8 +1428,7 @@ function wrap_if_none_match($etag) {
 	// Neither header field affects request
 	// ETag std header might be overwritten by gzip-ETag later on
 	header('ETag: '.$etag_header['std']);
-	if ($file) return $etag_header['std'];
-    else return $etag_header;
+	return $etag_header;
  }
 
 /**

@@ -212,8 +212,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_conf;
 
 	// -- 1. check what kind of error page it is
-	$codes = wrap_read_errorcodes();
-	
 	// if wanted, check if mod_rewrite works
 	if (!empty($zz_setting['mod_rewrite_error']) 
 		AND $_SERVER['SCRIPT_NAME'] != '/_scripts/main.php') {
@@ -224,18 +222,24 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		}
 	}
 	
-	if (!empty($_GET['code']) AND in_array($_GET['code'], array_keys($codes)))
+	if (!empty($_GET['code'])) {
 		// get 'code' if main.php is directly accessed as an error page
 		$page['status'] = $_GET['code'];
-	elseif (empty($page['status']) OR !in_array($page['status'], array_keys($codes)))
+	} elseif (empty($page['status'])) {
 		// default error code
 		$page['status'] = 404;
+	}
 	if ($page['status'] == 404 AND wrap_substr($_SERVER['REQUEST_URI'], 'http://')) {
 		// probably badly designed robot, away with it
 		$page['status'] = 400;
 	}
+	$status = wrap_http_status_list($page['status']);
+	if (!$status) {
+		wrap_error(sprintf('Status %s is not a valid HTTP status code.', $status), E_USER_NOTICE);
+		$page['status'] = 404;
+		$status = wrap_http_status_list($page['status']);
+	}
 	
-	$error_messages = $codes[$page['status']];
 	// some codes get a link to the homepage
 	$extra_description_codes = array(404);
 	
@@ -245,11 +249,11 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	$page['last_update'] = false;
 	$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
 		.$zz_conf['project'].'</a></strong> '.$zz_page['breadcrumbs_separator'].' '
-		.wrap_text($error_messages['title']); 
-	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($error_messages['title'])
+		.wrap_text($status['text']); 
+	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($status['text'])
 		.' ('.$zz_conf['project'].')'); 
-	$page['h1'] = wrap_text($error_messages['title']);
-	$page['error_description'] = sprintf(wrap_text($error_messages['description']), 
+	$page['h1'] = wrap_text($status['text']);
+	$page['error_description'] = sprintf(wrap_text($status['description']), 
 		$_SERVER['REQUEST_METHOD']);
 	if (in_array($page['status'], $extra_description_codes)) {
 		$page['error_explanation'] = sprintf(wrap_text('Please try to find the '
@@ -274,8 +278,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	
 	// -- 3. output HTTP header
-	header($_SERVER['SERVER_PROTOCOL'].' '.$error_messages['code'].' '
-		.$error_messages['title']);
+	header($_SERVER['SERVER_PROTOCOL'].' '.$status['code'].' '.$status['text']);
 	if ($page['status'] == 405) {
 		header('Allow: '.implode(', ', $zz_setting['http']['allowed']));
 	}
@@ -446,43 +449,4 @@ function wrap_errorpage_ignore($status) {
 	return false;
 }
 	
-
-/**
- * reads HTTP error codes from http-errors.txt
- *
- * @global array $zz_setting
- *		'core'
- * @return array $codes
- */
-function wrap_read_errorcodes() {
-	global $zz_setting;
-	
-	// read error codes from file
-	$pos[0] = 'code';
-	$pos[1] = 'title';
-	$pos[2] = 'description';
-	$codes_from_file = file($zz_setting['core'].'/http-errors.txt');
-	foreach ($codes_from_file as $line) {
-		if (substr($line, 0, 1) == '#') continue;	// Lines with # will be ignored
-		elseif (!trim($line)) continue;				// empty lines will be ignored
-		$values = explode("\t", trim($line));
-		$i = 0;
-		$code = '';
-		foreach ($values as $val) {
-			if (trim($val)) {
-				if (!$i) $code = trim($val);
-				$codes[$code][$pos[$i]] = trim($val);
-				$i++;
-			}
-		}
-		if ($i < 3) {
-			for ($i; $i < 3; $i++) {
-				$codes[$code][$pos[$i]] = '';
-			}
-		}
-	}
-	return $codes;
-}
-
-
 ?>

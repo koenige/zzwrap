@@ -1,3 +1,29 @@
+# Status Code Definitions of HTTP/1.1
+# Source: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.6
+
+# Informational 1xx
+100	Continue
+101	Switching Protocols
+
+# Successful 2xx
+200	OK
+201	Created
+202	Accepted
+203	Non-Authoritative Information
+204	No Content
+205	Reset Content
+206	Partial Content
+
+# Redirection 3xx
+300	Multiple Choices
+301	Moved Permanently
+302	Found
+303	See Other
+304	Not Modified
+305	Use Proxy
+307	Temporary Redirect
+
+# Client Error 4xx
 400	Bad Request						Your browser (or proxy) sent a request that this server could not understand.
 401	Unauthorized					This server could not verify that you are authorized to access this URL. You either supplied the wrong credentials (e.g., bad password), or your browser doesn't understand how to supply the credentials required.
 402	Payment Required				
@@ -16,6 +42,8 @@
 415	Unsupported Media Type			The server does not support the media type transmitted in the request.
 416	Requested Range Not Satisfiable	
 417	Expectation Failed				
+
+# Server Error 5xx
 500	Internal Server Error			The server encountered an internal error and was unable to complete your request.
 501	Not Implemented					The server does not support the action requested by the browser (%s).
 502	Bad Gateway						The proxy server received an invalid response from an upstream server.
