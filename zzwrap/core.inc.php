@@ -55,11 +55,6 @@ function wrap_session_start() {
 		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
 		$last_error = error_get_last();
 	}
-	// Let PHP send just a
-	// Cache-Control: private, max-age=(session.cache_expire in the future), 
-	// pre-check=(session.cache_expire in the future)
-	// and no Expires and Pragma headers
-	session_cache_limiter('private_no_expire');
 	$success = session_start();
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		// only throw 503 error if authentication is a MUST HAVE
@@ -697,11 +692,9 @@ function wrap_file_send($file) {
 	// Remove some HTTP headers PHP might send because of SESSION
 	// @todo: do some tests if this is okay
 	// @todo: set sensible Expires header, according to age of file
-	if (function_exists('header_remove')) {
-		header_remove('Expires');
-		header_remove('Cache-Control');
-		header_remove('Pragma');
-	}
+	header_remove('Expires');
+	header_remove('Cache-Control');
+	header_remove('Pragma');
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
@@ -966,9 +959,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	if (!empty($zz_setting['gzip_encode'])) {
 		header('Vary: Accept-Encoding');
 	}
-	if (function_exists('header_remove')) {
-		header_remove('Accept-Ranges');
-	}
+	header_remove('Accept-Ranges');
 
 	// Content-Length HTTP header
 	// might be overwritten later
@@ -1062,6 +1053,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 function wrap_send_ressource($type, $content, $etag_header = array()) {
 	global $zz_setting;
 	global $zz_page;
+
+	header_remove('X-Powered-By');
 
 	// HEAD HTTP request
 	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
@@ -1374,7 +1367,10 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 	file_put_contents($doc, $text);
 	// save headers
 	// without '-gz'
-	if (!$headers) $headers = headers_list();
+	if (!$headers) {
+		header_remove('X-Powered-By');
+		$headers = headers_list();
+	}
 	file_put_contents($head, implode("\r\n", $headers));
 	return true;
 }
@@ -1925,6 +1921,17 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
 		}
 	}
 	return $hierarchy;
+}
+
+/**
+ * header_remove for old PHP 5.2
+ *
+ * @param string $header
+ */
+if (!function_exists('header_remove')) {
+	function header_remove($header) {
+		header($header.':');
+	}
 }
 
 ?>
