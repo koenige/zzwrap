@@ -692,9 +692,13 @@ function wrap_file_send($file) {
 	// Remove some HTTP headers PHP might send because of SESSION
 	// @todo: do some tests if this is okay
 	// @todo: set sensible Expires header, according to age of file
-	header_remove('Expires');
-	header_remove('Cache-Control');
-	header_remove('Pragma');
+	if (!empty($_SESSION)) {
+		header_remove('Expires');
+		header_remove('Pragma');
+		// Cache-Control header private as in session_cache_limiter()
+		header(sprintf('Cache-Control: private, max-age=%s, pre-check=%s',
+			session_cache_expire() * 60, session_cache_expire() * 60));
+	}
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
