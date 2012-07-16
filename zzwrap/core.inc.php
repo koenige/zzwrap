@@ -1557,7 +1557,7 @@ function wrap_send_cache($age = 0) {
 	$etag_header = wrap_if_none_match($zz_page['etag']);
 
 	// Last-Modified HTTP header
-	if (!$zz_page['last_modified']) {
+	if (empty($zz_page['last_modified'])) {
 		$last_modified_time = filemtime($files[0]);
 	} else {
 		$last_modified_time = wrap_dates(
