@@ -55,6 +55,11 @@ function wrap_session_start() {
 		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
 		$last_error = error_get_last();
 	}
+	// Let PHP send just a
+	// Cache-Control: private, max-age=(session.cache_expire in the future), 
+	// pre-check=(session.cache_expire in the future)
+	// and no Expires and Pragma headers
+	session_cache_limiter('private_no_expire');
 	$success = session_start();
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		// only throw 503 error if authentication is a MUST HAVE
