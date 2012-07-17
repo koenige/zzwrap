@@ -831,6 +831,10 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @param string $format format which should be used:
  *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
  *			31.12.2004-06.01.2005
+ *		rfc1123->datetime,
+ *		rfc1123->timestamp,
+ *		timestamp->rfc1123
+ *		timestamp->datetime
  * @return string
  * @todo rewrite function so it is possible to use only one parameter
  */
@@ -843,6 +847,26 @@ function wrap_dates($begin, $end, $format = false) {
 
 	if (!$format AND isset($zz_setting['date_format']))
 		$format = $zz_setting['date_format'];
+	
+	if (strstr($format, '->')) {
+		// reformat all inputs to timestamps
+		$format = explode('->', $format);
+		switch ($format[0]) {
+		case 'rfc1123':
+			// input = Sun, 06 Nov 1994 08:49:37 GMT
+			// remove GMT, so we are not affected by time zones and get UTC
+			$time = strtotime(substr($begin, 0, -4));
+			break;
+		case 'timestamp':
+			// input = 784108177
+			$time = $begin;
+			break;
+		default:
+			wrap_error(sprintf('Unknown input format %s', $format[0]));
+			break;
+		}
+		$format = $format[1];
+	}
 
 	switch ($format) {
 	case 'dates-de':
@@ -868,24 +892,19 @@ function wrap_dates($begin, $end, $format = false) {
 			// 31.12.2004-06.01.2005
 			$output = datum_de($begin).'&#8203;&#8211;'.datum_de($end);
 		}
-		break;
-	case 'rfc1123->datetime':
-		// input Sun, 06 Nov 1994 08:49:37 GMT
+		return $output;
+	case 'datetime':
 		// output 1994-11-06 08:49:37
-		$date = substr($begin, 0, -4); // remove GMT
-		$timezone = new DateTimeZone('UTC');
-		$mydate = date_create_from_format('D, d M Y H:i:s', $date, $timezone);
-		$output = $mydate->format('Y-m-d H:i:s');
-		break;
-	case 'timestamp->rfc1123':
-		// input 67523322 (just as an example)
+		return date('Y-m-d H:i:s', $time);
+	case 'timestamp':
+		// output = 784108177
+		return $time;
+	case 'rfc1123':
 		// output Sun, 06 Nov 1994 08:49:37 GMT
-		$output = gmdate('D, d M Y H:i:s', $begin). ' GMT';
-		break;
-	default:
-		$output = '';
+		return gmdate('D, d M Y H:i:s', $time). ' GMT';
 	}
-	return $output;
+	wrap_error(sprintf('Unknown output format %s', $format));
+	return '';
 }
 
 ?>
