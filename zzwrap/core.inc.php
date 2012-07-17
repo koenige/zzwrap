@@ -1498,7 +1498,7 @@ function wrap_if_modified_since($time, $file = array()) {
 		$requested_time = wrap_dates(
 			$_SERVER['HTTP_IF_MODIFIED_SINCE'], '', 'rfc1123->timestamp'
 		);
-		if ($time > $requested_time) {
+		if ($time <= $requested_time) {
 			header('Last-Modified: '.$zz_page['last_modified']);
 			if ($file) wrap_file_cleanup($file);
 			wrap_log_uri();
