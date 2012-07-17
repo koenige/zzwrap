@@ -398,19 +398,14 @@ function wrap_http_status_header($code) {
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
 	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
 	
-	if ($protocol === 'HTTP/1.0') {
-		switch ($code) {
-		case 302:
-		case 303:
-		case 307:
-			header($protocol.' 302 Moved Temporarily');
-			return true;
-		}
-	} else {
-		$status = wrap_http_status_list($code);
-		if ($status) {
-			header($protocol.' '.$status['code'].' '.$status['text']);
-		}
+	if ($protocol === 'HTTP/1.0' AND in_array($code, array(302, 303, 307))) {
+		header($protocol.' 302 Moved Temporarily');
+		return true;
+	}
+	$status = wrap_http_status_list($code);
+	if ($status) {
+		header($protocol.' '.$status['code'].' '.$status['text']);
+		return true;
 	}
 	return false;
 }
