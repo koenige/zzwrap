@@ -119,6 +119,7 @@ function zzwrap() {
 	if (!$zz_page['db']) wrap_quit();
 	
 	wrap_translate_page();
+	wrap_set_units();
 	$page = wrap_get_page();
 	
 	// output of content if not already sent by wrap_get_page()
