@@ -162,6 +162,31 @@ function wrap_auth() {
 }
 
 /**
+ * Checks current URL against no auth URLs
+ *
+ * @param string $url URL from database
+ * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
+ * @return bool true if authentication is required, false if not
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
+	global $zz_page;
+	global $zz_setting;
+	if (!$url) {
+		$url = $zz_page['url']['full']['path'];
+	}
+	if (!$no_auth_urls AND !empty($zz_setting['no_auth_urls'])) {
+		$no_auth_urls = $zz_setting['no_auth_urls'];
+	}
+	foreach ($no_auth_urls AS $test_url) {
+		if (substr($url, 0, strlen($test_url)) == $test_url) {
+			return false; // no authentication required
+		}
+	}
+	return true; // no matches: authentication required
+}
+
+/**
  * Stops SESSION if cookie exists but time is up
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
