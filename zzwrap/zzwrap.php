@@ -84,7 +84,7 @@ function zzwrap() {
 	$zz_page['db'] = wrap_look_for_page($zz_page);
 	wrap_check_https($zz_page, $zz_setting);
 
-	// Functions which may be needed for login
+	// Functions which might be executed always, before possible login
 	if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
 	
@@ -114,7 +114,7 @@ function zzwrap() {
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
 
-	// on error exit, after all files are included
+	// on error exit, after all files are included, check redirects
 	// Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
 	if (!$zz_page['db']) wrap_quit();
 	
