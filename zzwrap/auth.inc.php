@@ -290,9 +290,9 @@ function cms_login($params) {
 
 	// Check if there are parameters for single sign on
 	if (!empty($params[0]) AND $params[0] == 'Single Sign On') {
-		if (empty($params[1]) OR $params[1] != $zz_setting['single_sign_on_secret']) return false;
-		if (empty($params[2])) return false;
-		if (!empty($params[4])) return false;
+		if (count($params) > 4) return false;
+		if (count($params) < 3) return false;
+		if ($params[1] != $zz_setting['single_sign_on_secret']) return false;
 		$login['username'] = $params[2];
 		if (!empty($params[3])) $login['context'] = $params[3];
 		$login['single_sign_on'] = true;
@@ -333,7 +333,8 @@ function cms_login($params) {
 			}
 			if (!empty($_POST['password'])) {
 				$login['password'] = $_POST['password'];
-				unset($_POST['password']); // so we don't log it accidentally --> error_log_post
+				// remove pwd so we don't log it accidentally --> error_log_post
+				unset($_POST['password']);
 			}
 		} else {
 			$full_login[] = $login['username'];
