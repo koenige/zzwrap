@@ -45,6 +45,9 @@ function zzwrap() {
 	require_once $zz_setting['core'].'/access.inc.php';
 	require_once $zz_setting['core'].'/language.inc.php';
 	require_once $zz_setting['core'].'/page.inc.php';
+	if ($zz_setting['authentication_possible']) {
+		require_once $zz_setting['core'].'/auth.inc.php';
+	}
 
 	// do some tests if everything is there
 	wrap_tests();
@@ -86,7 +89,6 @@ function zzwrap() {
 		require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
 	
 	if ($zz_setting['authentication_possible']) {
-		require_once $zz_setting['core'].'/auth.inc.php';
 		wrap_auth();
 	}
 
