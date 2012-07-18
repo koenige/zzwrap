@@ -20,7 +20,6 @@
  */
 function wrap_session_start() {
 	global $zz_setting;
-	global $zz_page;
 	
 	// is already a session active?
 	if (session_id()) return false;
@@ -34,7 +33,7 @@ function wrap_session_start() {
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		// only throw 503 error if authentication is a MUST HAVE
 		// otherwise, page might still be accessible without authentication
-		if (wrap_authenticate_url($zz_page['url']['full']['path'], $zz_setting['no_auth_urls'])) {
+		if ($zz_setting['authentication_possible'] AND wrap_authenticate_url()) {
 			$session_error = error_get_last();
 			if ($last_error != $session_error
 				AND wrap_substr($session_error['message'], 'session_start()')) {
@@ -55,7 +54,15 @@ function wrap_session_start() {
  * @return bool true if authentication is required, false if not
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_authenticate_url($url, $no_auth_urls) {
+function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
+	global $zz_page;
+	global $zz_setting;
+	if (!$url) {
+		$url = $zz_page['url']['full']['path'];
+	}
+	if (!$no_auth_urls AND !empty($zz_setting['no_auth_urls'])) {
+		$no_auth_urls = $zz_setting['no_auth_urls'];
+	}
 	foreach ($no_auth_urls AS $test_url) {
 		if (substr($url, 0, strlen($test_url)) == $test_url) {
 			return false; // no authentication required

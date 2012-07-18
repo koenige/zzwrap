@@ -56,14 +56,12 @@ function wrap_auth() {
 
 	// check if current URL needs authentication
 	$authentication = false;
-	if (!isset($zz_setting['no_auth_urls'])) 
-		$zz_setting['no_auth_urls'] = array();
 	foreach($zz_setting['auth_urls'] as $auth_url) {
 		if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) != strtolower($auth_url))
 			continue;
 		if ($zz_page['url']['full']['path'] == $zz_setting['login_url'])
 			continue;
-		if (wrap_authenticate_url($zz_page['url']['full']['path'], $zz_setting['no_auth_urls']))
+		if (wrap_authenticate_url())
 			$authentication = true;
 	}
 
