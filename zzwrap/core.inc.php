@@ -14,31 +14,6 @@
 
 
 /**
- * Test, whether URL contains a correct secret key to allow page previews
- * 
- * @param string $secret_key shared secret key
- * @param string $_GET['tle'] timestamp, begin of legitimate timeframe
- * @param string $_GET['tld'] timestamp, end of legitimate timeframe
- * @param string $_GET['tlh'] hash
- * @return bool $wrap_page_preview true|false i. e. true means show page, false don't
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @todo replace with wrap_check_hash()
- */
-function wrap_test_secret_key($secret_key) {
-	$wrap_page_preview = false;
-	if (empty($_GET['tle'])) return false;
-	if (empty($_GET['tld'])) return false;
-	if (empty($_GET['tlh'])) return false;
-	if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
-		$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
-		wrap_session_start();
-		$_SESSION['wrap_page_preview'] = true;
-		$wrap_page_preview = true;
-	}
-	return $wrap_page_preview;
-}
-
-/**
  * will start a session with some parameters set before
  *
  * @return bool
@@ -121,7 +96,9 @@ function wrap_look_for_page($zz_page) {
 		while (!$page[$i]) {
 			$loops[$i]++;
 			$sql = sprintf(wrap_sql('pages'), '/'.wrap_db_escape($my_url));
-			if (!wrap_rights('preview')) $sql.= ' AND '.wrap_sql('is_public');
+			if (!wrap_rights('preview')) {
+				$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
+			}
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i]) && strstr($my_url, '/')) {
 				// if not found, remove path parts from URL
@@ -530,91 +507,6 @@ function wrap_check_https($zz_page, $zz_setting) {
 }
 
 /**
- * Puts data from request into template and returns full page
- *
- * @param string $template Name of template that will be filled
- * @param array $data Data which will be used to fill the template
- * @param string $mode
- *		'ignore position': ignores position, returns a string instead of an array
- *		'error': returns simple template, with placeholders
- * @return mixed $text (string or array indexed by positions)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function wrap_template($template, $data = array(), $mode = false) {
-	global $zz_setting;
-
-	// Template einbinden und füllen
-	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
-	if (!file_exists($tpl)) {
-		// check if there's a default template
-		$tpl = $zz_setting['wrap_template_dir'].'/'.$template.'.template.txt';
-		if (!file_exists($tpl)) {
-			global $zz_page;
-			$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), htmlspecialchars($template));
-			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
-				echo $error_msg;
-				return false;
-			} else {
-				wrap_quit(503, $error_msg);
-			}
-		}
-	}
-	$zz_setting['current_template'] = $template;
-	$template = file($tpl);
-	// remove comments and next empty line from the start
-	foreach ($template as $index => $line) {
-		if (substr($line, 0, 1) == '#') unset($template[$index]); // comments
-		elseif (!trim($line)) unset($template[$index]); // empty lines
-		else break;
-	}
-	$template = implode("", $template);
-	// now we have the template as string, in case of error, return
-	if ($mode === 'error') return $template;
-
-	// replace placeholders in template
-	// save old setting regarding text formatting
-	if (!isset($zz_setting['brick_fulltextformat'])) 
-		$zz_setting['brick_fulltextformat'] = '';
-	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
-	// apply new text formatting
-	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
-	$page = brick_format($template, $data);
-	// restore old setting regarding text formatting
-	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
-
-	// get rid of if / else text that will be put to hidden
-	if (count($page['text']) == 2 
-		AND is_array($page['text'])
-		AND in_array('_hidden_', array_keys($page['text']))
-		AND in_array($zz_setting['brick_default_position'], array_keys($page['text']))) {
-		unset($page['text']['_hidden_']);
-		$page['text'] = end($page['text']);
-	}
-	if ($mode === 'ignore positions' AND is_array($page['text']) AND count($page['text']) == 1) {
-		$page['text'] = current($page['text']);
-	}
-	// check if errors occured while filling in the template
-	wrap_page_check_if_error($page);
-	return $page['text'];
-}
-
-/**
- * Creates valid HTML id value from string
- *
- * @param string $id_title string to be formatted
- * @return string $id_title
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function wrap_create_id($id_title) {
-	$not_allowed_in_id = array('(', ')');
-	foreach ($not_allowed_in_id as $char) {
-		$id_title = str_replace($char, '', $id_title);
-	}
-	$id_title = strtolower(forceFilename($id_title));
-	return $id_title;
-}
-
-/**
  * sends a file to the browser from a directory below document root
  *
  * @param array $file
@@ -794,147 +686,6 @@ function wrap_check_request() {
 		else
 			$zz_page['deep'] = '/';
 	}
-}
-
-/**
- * Sends an e-mail
- *
- * @param array $mail
- *		mixed 'to' (string: To:-Line; array: 'name', 'e_mail'),
- *		string 'subject' (subject of message)
- *		string 'message' (body of message)
- *		array 'headers' (optional)
- * @global $zz_conf
- *		'error_mail_from', 'project', 'character_set', 'mail_subject_prefix'
- * @global $zz_setting
- *		'local_access', bool 'show_local_mail' log mail or show mail
- * @return bool true: message was sent; false: message was not sent
- */
-function wrap_mail($mail) {
-	global $zz_conf;
-	global $zz_setting;
-
-	mb_internal_encoding(strtoupper($zz_conf['character_set']));
-
-	// To
-	$mail['to'] = wrap_mail_name($mail['to']);
-
-	// Subject
-	if (!empty($zz_conf['mail_subject_prefix']))
-		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
-	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
-
-	// From
-	if (!isset($mail['headers']['From'])) {
-		$mail['headers']['From']['name'] = $zz_conf['project'];
-		$mail['headers']['From']['e_mail'] = $zz_conf['error_mail_from'];
-	}
-	$mail['headers']['From'] = wrap_mail_name($mail['headers']['From']);
-	
-	// Reply-To
-	if (!empty($mail['headers']['Reply-To'])) {
-		$mail['headers']['Reply-To'] = wrap_mail_name($mail['headers']['Reply-To']);
-	}
-	
-	// Additional headers
-	if (!isset($mail['headers']['MIME-Version']))
-		$mail['headers']['MIME-Version'] = '1.0';
-	if (!isset($mail['headers']['Content-Type']))
-		$mail['headers']['Content-Type'] = 'text/plain; charset='.$zz_conf['character_set'];
-	if (!isset($mail['headers']['Content-Transfer-Encoding']))
-		$mail['headers']['Content-Transfer-Encoding'] = '8bit';
-
-	$additional_headers = '';
-	foreach ($mail['headers'] as $field_name => $field_body) {
-		// set but empty headers will be ignored
-		if (!$field_body) continue;
-		// newlines and carriage returns: probably some injection, ignore
-		if (strstr($field_body, "\n")) continue;
-		if (strstr($field_body, "\r")) continue;
-		// @todo field name ASCII characters 33-126 except colon
-		// @todo field body any ASCII characters except CR LF
-		// @todo field body longer than 78 characters SHOULD / 998 
-		// characters MUST be folded with CR LF WSP
-		$additional_headers .= $field_name.': '.$field_body."\r\n";
-	}
-
-	// Additional parameters
-	if (!isset($mail['parameters'])) $mail['parameters'] = '';
-
-	$old_error_handling = $zz_conf['error_handling'];
-	if ($zz_conf['error_handling'] == 'mail') {
-		$zz_conf['error_handling'] = false; // don't send mail, does not work!
-	}
-
-	// if local server, show e-mail, don't send it
-	if ($zz_setting['local_access']) {
-		$mail = 'Mail '.htmlspecialchars('To: '.$mail['to']."\n"
-			.'Subject: '.$mail['subject']."\n".
-			$additional_headers."\n".$mail['message']);
-		if (!empty($zz_setting['show_local_mail'])) {
-			echo '<pre>', $mail, '</pre>';
-			exit;
-		} else {
-			wrap_error($mail, E_USER_NOTICE);
-		}
-	} else {
-		// if real server, send mail
-		$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
-		if (!$success) {
-			wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
-				.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
-				.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
-		}
-	}
-	$zz_conf['error_handling'] = $old_error_handling;
-	return true;
-}
-
-/**
- * Combine Name and e-mail address for mail header
- *
- * @param array $name
- * @return string
- */
-function wrap_mail_name($name) {
-	if (!is_array($name)) return $name;
-	$mail = '';
-	if (!empty($name['name'])) {
-		// remove line feeds
-		$name['name'] = str_replace("\n", "", $name['name']);
-		$name['name'] = str_replace("\r", "", $name['name']);
-		// patterns that are allowed for atom
-		$pattern_unquoted = "/^[a-z0-9 \t!#$%&'*+\-^?=~{|}_`\/]*$/i";
-		$name['name'] = mb_encode_mimeheader($name['name']);
-		if (!preg_match($pattern_unquoted, $name['name'])) {
-			// alternatively use quoted-string
-			// @todo: allow quoted-pair
-			$name['name'] = str_replace('"', '', $name['name']);
-			$name['name'] = str_replace('\\', '', $name['name']);
-			$name['name'] = '"'.$name['name'].'"';
-		}
-		$mail .= $name['name'].' ';
-	}
-	$mail .=  '<'.$name['e_mail'].'>';
-	return $mail;
-}
-
-/**
- * check a single e-mail address if it's valid
- *
- * @param string $e_mail
- * @return string $e_mail if it's correct, empty string if address is invalid
- * @see zz_check_mail_single
- */
-function wrap_mail_valid($e_mail) {
-	// remove <>-brackets around address
-	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
-		$e_mail = substr($e_mail, 1, -1); 
-	// check address
-	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
-	if (preg_match($e_mail_pm, $e_mail, $check))
-		return $e_mail;
-	return '';
 }
 
 /**
@@ -1676,22 +1427,6 @@ function wrap_cache_filename($type = 'url', $url = '') {
 }
 
 /**
- * debug: print_r included in text so we do not get problems with headers, zip
- * etc.
- *
- * @param array $array
- * @return string
- */
-function wrap_print($array, $color = 'FFF') {
-	ob_start();
-	echo '<pre style="text-align: left; background-color: #'.$color
-		.'; position: relative; z-index: 10;">';
-	print_R($array);
-	echo '</pre>';
-	return ob_get_clean();
-}
-
-/**
  * Test HTTP REQUEST method
  * 
  * @global array $zz_setting
@@ -1858,6 +1593,31 @@ function wrap_restrict_ip_access($ip_list) {
 		wrap_quit(403);
 	}
 	return true;
+}
+
+/**
+ * Test, whether URL contains a correct secret key to allow page previews
+ * 
+ * @param string $secret_key shared secret key
+ * @param string $_GET['tle'] timestamp, begin of legitimate timeframe
+ * @param string $_GET['tld'] timestamp, end of legitimate timeframe
+ * @param string $_GET['tlh'] hash
+ * @return bool $wrap_page_preview true|false i. e. true means show page, false don't
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @todo replace with wrap_check_hash()
+ */
+function wrap_test_secret_key($secret_key) {
+	$wrap_page_preview = false;
+	if (empty($_GET['tle'])) return false;
+	if (empty($_GET['tld'])) return false;
+	if (empty($_GET['tlh'])) return false;
+	if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
+		$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
+		wrap_session_start();
+		$_SESSION['wrap_page_preview'] = true;
+		$wrap_page_preview = true;
+	}
+	return $wrap_page_preview;
 }
 
 /**

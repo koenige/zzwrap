@@ -26,9 +26,8 @@ function zzwrap() {
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
 
-	wrap_set_defaults_pre_conf();
-
 	// configuration settings, defaults
+	wrap_set_defaults_pre_conf();
 	if (file_exists($zz_setting['inc'].'/config.inc.php'))
 		require_once $zz_setting['inc'].'/config.inc.php';
 	if (empty($zz_setting['lib']))
@@ -39,6 +38,7 @@ function zzwrap() {
 	wrap_set_defaults_post_conf();
 
 	// function libraries
+	require_once $zz_setting['core'].'/mail.inc.php';
 	require_once $zz_setting['core'].'/errorhandling.inc.php';
 	require_once $zz_setting['core'].'/database.inc.php';
 	require_once $zz_setting['core'].'/core.inc.php';
@@ -64,14 +64,12 @@ function zzwrap() {
 		wrap_errorpage(array(), $zz_page);
 		exit;
 	}
-	if (!empty($zz_conf['error_503'])) {
-		// exit for maintenance reasons
-		wrap_error($zz_conf['error_503'], E_USER_ERROR);
-	}
 	
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_functions.inc.php';
 
+	// do not check if database connection is established until now
+	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
 
 	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
@@ -91,7 +89,7 @@ function zzwrap() {
 		wrap_auth();
 	}
 
-	// TODO: check if we can start this earlier
+	// @todo: check if we can start this earlier
 	if (!empty($zz_setting['cache_age'])) {
 		wrap_send_cache($zz_setting['cache_age']);
 	}

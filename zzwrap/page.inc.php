@@ -7,22 +7,110 @@
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzwrap
  *
- *		wrap_get_menu()					-- gets menu from database
- *			wrap_get_menu_navigation()	-- gets menu from separate navigation table
- *			wrap_get_menu_webpages()	-- gets menu from webpages table
- *		wrap_htmlout_menu()				-- outputs menu in HTML
- *		wrap_get_breadcrumbs()			-- gets breadcrumbs from database
- *			wrap_get_breadcrumbs_recursive()	-- recursively gets breadcrumbs
- *		wrap_htmlout_breadcrumbs()		-- outputs breadcrumbs in HTML
- *		wrap_get_authors()				-- gets authors from database
- *		wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
- *		wrap_mailto()
- *		wrap_dates()
+ *	wrap_template()
+ *	wrap_get_menu()					-- gets menu from database
+ *		wrap_get_menu_navigation()	-- gets menu from separate navigation table
+ *		wrap_get_menu_webpages()	-- gets menu from webpages table
+ *	wrap_htmlout_menu()				-- outputs menu in HTML
+ *	wrap_get_breadcrumbs()			-- gets breadcrumbs from database
+ *		wrap_get_breadcrumbs_recursive()	-- recursively gets breadcrumbs
+ *	wrap_htmlout_breadcrumbs()		-- outputs breadcrumbs in HTML
+ *	wrap_get_authors()				-- gets authors from database
+ *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
+ *	wrap_mailto()
+ *	wrap_dates()
+ *	wrap_print()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
+
+
+/**
+ * Puts data from request into template and returns full page
+ *
+ * @param string $template Name of template that will be filled
+ * @param array $data Data which will be used to fill the template
+ * @param string $mode
+ *		'ignore position': ignores position, returns a string instead of an array
+ *		'error': returns simple template, with placeholders
+ * @return mixed $text (string or array indexed by positions)
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_template($template, $data = array(), $mode = false) {
+	global $zz_setting;
+
+	// Template einbinden und füllen
+	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
+	if (!file_exists($tpl)) {
+		// check if there's a default template
+		$tpl = $zz_setting['wrap_template_dir'].'/'.$template.'.template.txt';
+		if (!file_exists($tpl)) {
+			global $zz_page;
+			$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), htmlspecialchars($template));
+			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
+				echo $error_msg;
+				return false;
+			} else {
+				wrap_quit(503, $error_msg);
+			}
+		}
+	}
+	$zz_setting['current_template'] = $template;
+	$template = file($tpl);
+	// remove comments and next empty line from the start
+	foreach ($template as $index => $line) {
+		if (substr($line, 0, 1) == '#') unset($template[$index]); // comments
+		elseif (!trim($line)) unset($template[$index]); // empty lines
+		else break;
+	}
+	$template = implode("", $template);
+	// now we have the template as string, in case of error, return
+	if ($mode === 'error') return $template;
+
+	// replace placeholders in template
+	// save old setting regarding text formatting
+	if (!isset($zz_setting['brick_fulltextformat'])) 
+		$zz_setting['brick_fulltextformat'] = '';
+	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
+	// apply new text formatting
+	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
+	$page = brick_format($template, $data);
+	// restore old setting regarding text formatting
+	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
+
+	// get rid of if / else text that will be put to hidden
+	if (count($page['text']) == 2 
+		AND is_array($page['text'])
+		AND in_array('_hidden_', array_keys($page['text']))
+		AND in_array($zz_setting['brick_default_position'], array_keys($page['text']))) {
+		unset($page['text']['_hidden_']);
+		$page['text'] = end($page['text']);
+	}
+	if ($mode === 'ignore positions' AND is_array($page['text']) AND count($page['text']) == 1) {
+		$page['text'] = current($page['text']);
+	}
+	// check if errors occured while filling in the template
+	wrap_page_check_if_error($page);
+	return $page['text'];
+}
+
+/**
+ * Creates valid HTML id value from string
+ *
+ * @param string $id_title string to be formatted
+ * @return string $id_title
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ */
+function wrap_create_id($id_title) {
+	$not_allowed_in_id = array('(', ')');
+	foreach ($not_allowed_in_id as $char) {
+		$id_title = str_replace($char, '', $id_title);
+	}
+	$id_title = strtolower(forceFilename($id_title));
+	return $id_title;
+}
 
 //
 //	menu
@@ -905,6 +993,22 @@ function wrap_dates($begin, $end, $format = false) {
 	}
 	wrap_error(sprintf('Unknown output format %s', $format));
 	return '';
+}
+
+/**
+ * debug: print_r included in text so we do not get problems with headers, zip
+ * etc.
+ *
+ * @param array $array
+ * @return string
+ */
+function wrap_print($array, $color = 'FFF') {
+	ob_start();
+	echo '<pre style="text-align: left; background-color: #'.$color
+		.'; position: relative; z-index: 10;">';
+	print_R($array);
+	echo '</pre>';
+	return ob_get_clean();
 }
 
 ?>
