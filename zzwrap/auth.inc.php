@@ -187,52 +187,6 @@ function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
 }
 
 /**
- * Stops SESSION if cookie exists but time is up
- *
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- */
-function wrap_session_stop() {
-	$sql = false;
-	$sql_mask = false;
-
-	// start session
-	wrap_session_start();
-	
-	// check if SESSION should be kept
-	if (!empty($_SESSION['keep_session'])) {
-		unset($_SESSION['login_id']);
-		unset($_SESSION['mask_id']);
-		unset($_SESSION['last_click_at']);
-		unset($_SESSION['domain']);
-		unset($_SESSION['logged_in']);
-		unset($_SESSION['user_id']);
-		unset($_SESSION['masquerade']);
-		unset($_SESSION['change_password']);
-		return false;
-	}
-
-	// update login db if logged in, set to logged out
-	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql('logout'))
-		$sql = sprintf($sql, $_SESSION['login_id']);
-	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade'))
-		$sql_mask = sprintf($sql_mask, 'NOW()', $_SESSION['mask_id']);
-	// Unset all of the session variables.
-	$_SESSION = array();
-	// If it's desired to kill the session, also delete the session cookie.
-	// Note: This will destroy the session, and not just the session data!
-	if (ini_get("session.use_cookies")) {
-		$params = session_get_cookie_params();
-		setcookie(session_name(), '', time() - 42000, $params["path"],
-	        $params["domain"], $params["secure"], $params["httponly"]
-  		);
-	}
-	session_destroy();
-	if ($sql) wrap_db_query($sql, E_USER_NOTICE);
-	if ($sql_mask) wrap_db_query($sql_mask, E_USER_NOTICE);
-}
-
-
-/**
  * Logout from restricted area
  *
  * should be used via %%% request logout %%%

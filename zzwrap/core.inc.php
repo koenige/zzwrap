@@ -2,7 +2,8 @@
 
 /**
  * zzwrap
- * Core functions
+ * Core functions: session handling, handling of HTTP requests (URLs, HTTP
+ * communication, send ressources), caching + common functions
  *
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzwrap
@@ -12,6 +13,12 @@
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
+
+/*
+ * --------------------------------------------------------------------
+ * Session handling
+ * --------------------------------------------------------------------
+ */
 
 /**
  * will start a session with some parameters set before
@@ -45,6 +52,58 @@ function wrap_session_start() {
 	}
 	return true;
 }
+
+/**
+ * Stops session if cookie exists but time is up
+ *
+ * @return bool
+ */
+function wrap_session_stop() {
+	$sql = false;
+	$sql_mask = false;
+
+	// start session
+	wrap_session_start();
+	
+	// check if SESSION should be kept
+	if (!empty($_SESSION['keep_session'])) {
+		unset($_SESSION['login_id']);
+		unset($_SESSION['mask_id']);
+		unset($_SESSION['last_click_at']);
+		unset($_SESSION['domain']);
+		unset($_SESSION['logged_in']);
+		unset($_SESSION['user_id']);
+		unset($_SESSION['masquerade']);
+		unset($_SESSION['change_password']);
+		return false;
+	}
+
+	// update login db if logged in, set to logged out
+	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql('logout'))
+		$sql = sprintf($sql, $_SESSION['login_id']);
+	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade'))
+		$sql_mask = sprintf($sql_mask, 'NOW()', $_SESSION['mask_id']);
+	// Unset all of the session variables.
+	$_SESSION = array();
+	// If it's desired to kill the session, also delete the session cookie.
+	// Note: This will destroy the session, and not just the session data!
+	if (ini_get("session.use_cookies")) {
+		$params = session_get_cookie_params();
+		setcookie(session_name(), '', time() - 42000, $params["path"],
+	        $params["domain"], $params["secure"], $params["httponly"]
+  		);
+	}
+	session_destroy();
+	if ($sql) wrap_db_query($sql, E_USER_NOTICE);
+	if ($sql_mask) wrap_db_query($sql_mask, E_USER_NOTICE);
+	return true;
+}
+
+/*
+ * --------------------------------------------------------------------
+ * URLs
+ * --------------------------------------------------------------------
+ */
 
 /**
  * Tests whether URL is in database (or a part of it ending with *), or a part 
@@ -280,6 +339,182 @@ function wrap_read_url($url) {
 }
 
 /**
+ * check for redirects, if there's a corresponding table.
+ *
+ * @param array $page_url = $zz_page['url']
+ * @global array $zz_setting
+ * @global array $zz_page
+ * @return mixed (bool false: no redirect; array: fields needed for redirect)
+ */
+function wrap_check_redirects($page_url) {
+	global $zz_setting;
+	global $zz_page;
+
+	if (empty($zz_setting['check_redirects'])) return false;
+	$url = wrap_read_url($zz_page['url']);
+	$url['db'] = wrap_db_escape($url['db']);
+	$where_language = (!empty($_GET['lang']) 
+		? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
+			.$url['db'].'.html.'.wrap_db_escape($_GET['lang']).'"'
+		: ''
+	);
+	$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
+	// not needed anymore, but set to false hinders from getting into a loop
+	// (wrap_db_fetch() will call wrap_quit() if table does not exist)
+	$zz_setting['check_redirects'] = false; 
+	$redir = wrap_db_fetch($sql);
+	if ($redir) return $redir;
+
+	// If no redirect was found until now, check if there's a redirect above
+	// the current level with a placeholder (*)
+	$parameter = false;
+	$found = false;
+	$break_next = false;
+	while (!$found) {
+		$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
+		$redir = wrap_db_fetch($sql);
+		if ($redir) break; // we have a result, get out of this loop!
+		if (strrpos($url['db'], '/'))
+			$parameter = '/'.substr($url['db'], strrpos($url['db'], '/')+1).$parameter;
+		$url['db'] = substr($url['db'], 0, strrpos($url['db'], '/'));
+		if ($break_next) break; // last round
+		if (!strstr($url['db'], '/')) $break_next = true;
+	}
+	if (!$redir) return false;
+	// If there's an asterisk (*) at the end of the redirect
+	// the cut part will be pasted to the end of the string
+	$field_name = wrap_sql('redirects_new_fieldname');
+	if (substr($redir[$field_name], -1) == '*')
+		$redir[$field_name] = substr($redir[$field_name], 0, -1).$parameter;
+	return $redir;
+}
+
+/**
+ * Logs URL in URI table for statistics and further reference
+ * sends only notices if some update does not work because it's just for the
+ * statistics
+ *
+ * @return bool
+ */
+function wrap_log_uri() {
+	global $zz_conf;
+	global $zz_page;
+	if (empty($zz_conf['uris_table'])) return false;
+
+	$scheme = $zz_page['url']['full']['scheme'];
+	$host = $zz_page['url']['full']['host'];
+	$path = $zz_page['url']['full']['path'];
+	$query = !empty($zz_page['url']['full']['query'])
+		? '"'.$zz_page['url']['full']['query'].'"'
+		: 'NULL';
+	$etag = !empty($zz_page['etag'])
+		? $zz_page['etag']
+		: 'NULL';
+	if (substr($etag, 0, 1) !== '"' AND $etag !== 'NULL')
+		$etag = '"'.$etag.'"';
+	$last_modified = !empty($zz_page['last_modified'])
+		? '"'.wrap_dates($zz_page['last_modified'], '', 'rfc1123->datetime').'"'
+		: 'NULL';
+	$status = !empty($zz_page['error_code'])
+		? $zz_page['error_code']
+		: 200;
+	$content_type = !empty($zz_page['content_type'])
+		? $zz_page['content_type']
+		: 'unknown';
+	$encoding = !empty($zz_page['character_set'])
+		? '"'.$zz_page['character_set'].'"'
+		: 'NULL';
+	if (strstr($content_type, '; charset=')) {
+		$content_type = explode('; charset=', $content_type);
+		$encoding = '"'.$content_type[1].'"';
+		$content_type = $content_type[0];
+	}
+	
+	$sql = 'SELECT uri_id
+		FROM /*_PREFIX_*/_uris
+		WHERE uri_scheme = "'.$scheme.'"
+		AND uri_host = "'.$host.'"
+		AND uri_path = "'.$path.'"';
+	if ($query === 'NULL') {
+		$sql .= ' AND ISNULL(uri_query)';
+	} else {
+		$sql .= ' AND uri_query = '.$query;
+	}
+	$uri_id = wrap_db_fetch($sql, '', 'single value', E_USER_NOTICE);
+	
+	if (is_null($uri_id)) {
+		return false;
+	} elseif ($uri_id) {
+		$sql = 'UPDATE /*_PREFIX_*/_uris
+			SET hits = hits +1
+				, status_code = '.$status.'
+				, etag_md5 = '.$etag.'
+				, last_modified = '.$last_modified.'
+				, last_access = NOW(), last_update = NOW()
+				, character_encoding = '.$encoding.'
+		';
+		if ($content_type)
+			$sql .= ' , content_type = "'.$content_type.'"';
+		if (!empty($zz_page['content_length'])) 
+			$sql .= ' , content_length = '.$zz_page['content_length'];
+		$sql .= ' WHERE uri_id = '.$uri_id;
+		$result = wrap_db_query($sql, E_USER_NOTICE);
+	} else {
+		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
+			uri_query, content_type, character_encoding, content_length,
+			status_code, etag_md5, last_modified, hits, first_access,
+			last_access, last_update) VALUES ("'.$scheme.'", "'.$host.'", 
+			"'.$path.'", '.$query.', "'.$content_type.'",
+			'.$encoding.', '.$zz_page['content_length'].', '.$status.',
+			'.$etag.', '.$last_modified.', 1, NOW(), NOW(), NOW())';
+		$result = wrap_db_query($sql, E_USER_NOTICE);
+	}
+	return true;
+}
+
+/**
+ * Get rid of unwanted query strings
+ * 
+ * since we do not use session-IDs in the URL, get rid of these since sometimes
+ * they might be used for session_start()
+ * e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
+ * @param array $url ($zz_page['url'])
+ * @param array $objectionable_qs key names of query strings
+ * @todo get objectionable querystrings from setting
+ */
+function wrap_remove_query_strings($url, $objectionable_qs = array()) {
+	if (empty($url['full']['query'])) return $url;
+	if (empty($objectionable_qs)) {
+		$objectionable_qs = array('PHPSESSID');
+	}
+	if (!is_array($objectionable_qs)) {
+		$objectionable_qs = array($objectionable_qs);
+	}
+	parse_str($url['full']['query'], $query);
+	// furthermore, keys with % signs are not allowed (propably errors in
+	// some parsing script)
+	foreach (array_keys($query) AS $key) {
+		if (strstr($key, '%')) $objectionable_qs[] = $key;
+	}
+	if ($remove = array_intersect(array_keys($query), $objectionable_qs)) {
+		foreach ($remove as $key) {
+			unset($query[$key]);
+			unset($_GET[$key]);
+			unset($_REQUEST[$key]);
+		}
+		$url['full']['query'] = http_build_query($query);
+		$url['redirect'] = true;
+	}
+	return $url;
+}
+
+/*
+ * --------------------------------------------------------------------
+ * HTTP: checks
+ * --------------------------------------------------------------------
+ */
+
+/**
  * Stops execution of script, check for redirects to other pages,
  * includes http error pages
  * 
@@ -410,57 +645,6 @@ function wrap_http_status_list($code) {
 }
 
 /**
- * check for redirects, if there's a corresponding table.
- *
- * @param array $page_url = $zz_page['url']
- * @global array $zz_setting
- * @global array $zz_page
- * @return mixed (bool false: no redirect; array: fields needed for redirect)
- */
-function wrap_check_redirects($page_url) {
-	global $zz_setting;
-	global $zz_page;
-
-	if (empty($zz_setting['check_redirects'])) return false;
-	$url = wrap_read_url($zz_page['url']);
-	$url['db'] = wrap_db_escape($url['db']);
-	$where_language = (!empty($_GET['lang']) 
-		? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
-			.$url['db'].'.html.'.wrap_db_escape($_GET['lang']).'"'
-		: ''
-	);
-	$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
-	// not needed anymore, but set to false hinders from getting into a loop
-	// (wrap_db_fetch() will call wrap_quit() if table does not exist)
-	$zz_setting['check_redirects'] = false; 
-	$redir = wrap_db_fetch($sql);
-	if ($redir) return $redir;
-
-	// If no redirect was found until now, check if there's a redirect above
-	// the current level with a placeholder (*)
-	$parameter = false;
-	$found = false;
-	$break_next = false;
-	while (!$found) {
-		$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
-		$redir = wrap_db_fetch($sql);
-		if ($redir) break; // we have a result, get out of this loop!
-		if (strrpos($url['db'], '/'))
-			$parameter = '/'.substr($url['db'], strrpos($url['db'], '/')+1).$parameter;
-		$url['db'] = substr($url['db'], 0, strrpos($url['db'], '/'));
-		if ($break_next) break; // last round
-		if (!strstr($url['db'], '/')) $break_next = true;
-	}
-	if (!$redir) return false;
-	// If there's an asterisk (*) at the end of the redirect
-	// the cut part will be pasted to the end of the string
-	$field_name = wrap_sql('redirects_new_fieldname');
-	if (substr($redir[$field_name], -1) == '*')
-		$redir[$field_name] = substr($redir[$field_name], 0, -1).$parameter;
-	return $redir;
-}
-
-/**
  * Checks if HTTP request should be HTTPS request instead and vice versa
  * 
  * Function will redirect request to the same URL except for the scheme part
@@ -488,6 +672,72 @@ function wrap_check_https($zz_page, $zz_setting) {
 		.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : ''));
 	exit;
 }
+
+/**
+ * checks the HTTP request made, builds URL
+ * sets language according to URL and request
+ *
+ * @global array $zz_conf
+ * @global array $zz_setting
+ * @global array $zz_page
+ */
+function wrap_check_request() {
+	global $zz_conf;
+	global $zz_setting;
+	global $zz_page;
+
+	// check REQUEST_URI
+	// Base URL, allow it to be set manually (handle with care!)
+	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
+	if (empty($zz_page['url']['full'])) {
+		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$_SERVER['REQUEST_URI']);
+		// in case, some script requests GET ? HTTP/1.1 or so:
+		if (empty($zz_page['url']['full']['path'])) {
+			$zz_page['url']['full']['path'] = '/';
+			$zz_page['url']['redirect'] = true;
+		}
+	}
+
+	// check REQUEST_METHOD, quit if inappropriate
+	// $zz_page['url'] needed for wrap_quit()
+	wrap_check_http_request_method();
+
+	// get rid of unwanted query strings, set redirect if necessary
+	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
+
+	// check language
+	wrap_set_language();
+
+	// Relative linking
+	if (empty($zz_page['deep'])) {
+		if (!empty($zz_page['url']['full']['path']))
+			$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
+		else
+			$zz_page['deep'] = '/';
+	}
+}
+
+/**
+ * Test HTTP REQUEST method
+ * 
+ * @global array $zz_setting
+ * @return void
+ */
+function wrap_check_http_request_method() {
+	global $zz_setting;
+	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed']))
+		return true;
+	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
+		wrap_quit(405);	// 405 Not Allowed
+	}
+	wrap_quit(501); // 501 Not Implemented
+}
+
+/*
+ * --------------------------------------------------------------------
+ * HTTP: send ressources
+ * --------------------------------------------------------------------
+ */
 
 /**
  * sends a file to the browser from a directory below document root
@@ -591,29 +841,6 @@ function wrap_file_send($file) {
 }
 
 /**
- * returns integer byte value from PHP shorthand byte notation
- *
- * @param string $val
- * @return int
- * @see zz_return_bytes(), identical
- */
-function wrap_return_bytes($val) {
-    $val = trim($val);
-    $last = strtolower($val[strlen($val)-1]);
-    switch($last) {
-        // The 'G' modifier is available since PHP 5.1.0
-        case 'g':
-            $val *= 1024;
-        case 'm':
-            $val *= 1024;
-        case 'k':
-            $val *= 1024;
-    }
-
-    return $val;
-}
-
-/**
  * does cleanup after a file was sent
  *
  * @param array $file
@@ -625,50 +852,6 @@ function wrap_file_cleanup($file) {
 	unlink($file['name']);
 	if (!empty($file['cleanup_dir'])) rmdir($file['cleanup_dir']);
 	return true;
-}
-
-/**
- * checks the HTTP request made, builds URL
- * sets language according to URL and request
- *
- * @global array $zz_conf
- * @global array $zz_setting
- * @global array $zz_page
- */
-function wrap_check_request() {
-	global $zz_conf;
-	global $zz_setting;
-	global $zz_page;
-
-	// check REQUEST_URI
-	// Base URL, allow it to be set manually (handle with care!)
-	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
-	if (empty($zz_page['url']['full'])) {
-		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$_SERVER['REQUEST_URI']);
-		// in case, some script requests GET ? HTTP/1.1 or so:
-		if (empty($zz_page['url']['full']['path'])) {
-			$zz_page['url']['full']['path'] = '/';
-			$zz_page['url']['redirect'] = true;
-		}
-	}
-
-	// check REQUEST_METHOD, quit if inappropriate
-	// $zz_page['url'] needed for wrap_quit()
-	wrap_check_http_request_method();
-
-	// get rid of unwanted query strings, set redirect if necessary
-	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
-
-	// check language
-	wrap_set_language();
-
-	// Relative linking
-	if (empty($zz_page['deep'])) {
-		if (!empty($zz_page['url']['full']['path']))
-			$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
-		else
-			$zz_page['deep'] = '/';
-	}
 }
 
 /**
@@ -963,89 +1146,6 @@ function wrap_ranges_check($zz_page) {
 }
 
 /**
- * Logs URL in URI table for statistics and further reference
- * sends only notices if some update does not work because it's just for the
- * statistics
- *
- * @return bool
- */
-function wrap_log_uri() {
-	global $zz_conf;
-	global $zz_page;
-	if (empty($zz_conf['uris_table'])) return false;
-
-	$scheme = $zz_page['url']['full']['scheme'];
-	$host = $zz_page['url']['full']['host'];
-	$path = $zz_page['url']['full']['path'];
-	$query = !empty($zz_page['url']['full']['query'])
-		? '"'.$zz_page['url']['full']['query'].'"'
-		: 'NULL';
-	$etag = !empty($zz_page['etag'])
-		? $zz_page['etag']
-		: 'NULL';
-	if (substr($etag, 0, 1) !== '"' AND $etag !== 'NULL')
-		$etag = '"'.$etag.'"';
-	$last_modified = !empty($zz_page['last_modified'])
-		? '"'.wrap_dates($zz_page['last_modified'], '', 'rfc1123->datetime').'"'
-		: 'NULL';
-	$status = !empty($zz_page['error_code'])
-		? $zz_page['error_code']
-		: 200;
-	$content_type = !empty($zz_page['content_type'])
-		? $zz_page['content_type']
-		: 'unknown';
-	$encoding = !empty($zz_page['character_set'])
-		? '"'.$zz_page['character_set'].'"'
-		: 'NULL';
-	if (strstr($content_type, '; charset=')) {
-		$content_type = explode('; charset=', $content_type);
-		$encoding = '"'.$content_type[1].'"';
-		$content_type = $content_type[0];
-	}
-	
-	$sql = 'SELECT uri_id
-		FROM /*_PREFIX_*/_uris
-		WHERE uri_scheme = "'.$scheme.'"
-		AND uri_host = "'.$host.'"
-		AND uri_path = "'.$path.'"';
-	if ($query === 'NULL') {
-		$sql .= ' AND ISNULL(uri_query)';
-	} else {
-		$sql .= ' AND uri_query = '.$query;
-	}
-	$uri_id = wrap_db_fetch($sql, '', 'single value', E_USER_NOTICE);
-	
-	if (is_null($uri_id)) {
-		return false;
-	} elseif ($uri_id) {
-		$sql = 'UPDATE /*_PREFIX_*/_uris
-			SET hits = hits +1
-				, status_code = '.$status.'
-				, etag_md5 = '.$etag.'
-				, last_modified = '.$last_modified.'
-				, last_access = NOW(), last_update = NOW()
-				, character_encoding = '.$encoding.'
-		';
-		if ($content_type)
-			$sql .= ' , content_type = "'.$content_type.'"';
-		if (!empty($zz_page['content_length'])) 
-			$sql .= ' , content_length = '.$zz_page['content_length'];
-		$sql .= ' WHERE uri_id = '.$uri_id;
-		$result = wrap_db_query($sql, E_USER_NOTICE);
-	} else {
-		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
-			uri_query, content_type, character_encoding, content_length,
-			status_code, etag_md5, last_modified, hits, first_access,
-			last_access, last_update) VALUES ("'.$scheme.'", "'.$host.'", 
-			"'.$path.'", '.$query.', "'.$content_type.'",
-			'.$encoding.', '.$zz_page['content_length'].', '.$status.',
-			'.$etag.', '.$last_modified.', 1, NOW(), NOW(), NOW())';
-		$result = wrap_db_query($sql, E_USER_NOTICE);
-	}
-	return true;
-}
-
-/**
  * Send a ressource with gzip compression
  *
  * @param string $text content of ressource, not compressed
@@ -1069,6 +1169,12 @@ function wrap_send_gzip($text, $etag_header) {
 	header('Content-Length: '.ob_get_length());
 	ob_end_flush();  // The main one
 }
+
+/*
+ * --------------------------------------------------------------------
+ * Caching
+ * --------------------------------------------------------------------
+ */
 
 /**
  * cache a ressource if it not exists or a stale cache exists
@@ -1409,56 +1515,33 @@ function wrap_cache_filename($type = 'url', $url = '') {
 	return false;
 }
 
-/**
- * Test HTTP REQUEST method
- * 
- * @global array $zz_setting
- * @return void
+/*
+ * --------------------------------------------------------------------
+ * Common functions
+ * --------------------------------------------------------------------
  */
-function wrap_check_http_request_method() {
-	global $zz_setting;
-	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed']))
-		return true;
-	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
-		wrap_quit(405);	// 405 Not Allowed
-	}
-	wrap_quit(501); // 501 Not Implemented
-}
 
 /**
- * Get rid of unwanted query strings
- * 
- * since we do not use session-IDs in the URL, get rid of these since sometimes
- * they might be used for session_start()
- * e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
- * @param array $url ($zz_page['url'])
- * @param array $objectionable_qs key names of query strings
- * @todo get objectionable querystrings from setting
+ * returns integer byte value from PHP shorthand byte notation
+ *
+ * @param string $val
+ * @return int
+ * @see zz_return_bytes(), identical
  */
-function wrap_remove_query_strings($url, $objectionable_qs = array()) {
-	if (empty($url['full']['query'])) return $url;
-	if (empty($objectionable_qs)) {
-		$objectionable_qs = array('PHPSESSID');
-	}
-	if (!is_array($objectionable_qs)) {
-		$objectionable_qs = array($objectionable_qs);
-	}
-	parse_str($url['full']['query'], $query);
-	// furthermore, keys with % signs are not allowed (propably errors in
-	// some parsing script)
-	foreach (array_keys($query) AS $key) {
-		if (strstr($key, '%')) $objectionable_qs[] = $key;
-	}
-	if ($remove = array_intersect(array_keys($query), $objectionable_qs)) {
-		foreach ($remove as $key) {
-			unset($query[$key]);
-			unset($_GET[$key]);
-			unset($_REQUEST[$key]);
-		}
-		$url['full']['query'] = http_build_query($query);
-		$url['redirect'] = true;
-	}
-	return $url;
+function wrap_return_bytes($val) {
+    $val = trim($val);
+    $last = strtolower($val[strlen($val)-1]);
+    switch($last) {
+        // The 'G' modifier is available since PHP 5.1.0
+        case 'g':
+            $val *= 1024;
+        case 'm':
+            $val *= 1024;
+        case 'k':
+            $val *= 1024;
+    }
+
+    return $val;
 }
 
 /**
@@ -1539,6 +1622,7 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
  * header_remove for old PHP 5.2
  *
  * @param string $header
+ * @deprecated
  */
 if (!function_exists('header_remove')) {
 	function header_remove($header) {
