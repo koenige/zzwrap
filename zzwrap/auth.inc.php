@@ -39,9 +39,10 @@
 function wrap_auth() {
 	global $zz_setting;
 	global $zz_page;
+	static $authentication_was_called;
 
-	if (!empty($zz_page['auth'])) return true; // don't run this function twice
-	$zz_page['auth'] = true;
+	if ($authentication_was_called) return true; // don't run this function twice
+	$authentication_was_called = true;
 
 	// check if there are URLs that need authentication
 	if (empty($zz_setting['auth_urls'])) return false;
