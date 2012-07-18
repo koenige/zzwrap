@@ -140,6 +140,6 @@ $text['HTTP Version Not Supported'] = 'HTTP-Version nicht unterst&uuml;tzt';
 $text['Please try to find the content you were looking for from our <a href="%s">main page</a>.'] = 'Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, &uuml;ber <a href="%s">unsere Hauptseite</a> zu finden.';
 
 $text['User'] = 'Nutzer';
-$text["The URL\n\n <%s> was requested from\n\n <%s>\n\n with the IP address %s\n (Browser %s)\n\n, but could not be found on the server"] = "Die Seite\n\n <%s> wurde von\n\n <%s> mit der IP-Adresse %s\n (Browser %s)\n\n angefordert, konnte auf dem Server aber nicht gefunden werden!";
+$text["The URL\n\n%s was requested from\n\n%s\n\n with the IP address %s\n (Browser %s)\n\n but could not be found on the server"] = "Die URL\n\n %s wurde von\n\n %s mit der IP-Adresse %s\n (Browser %s)\n\n angefordert, konnte auf dem Server aber nicht gefunden werden!";
 
 ?>
