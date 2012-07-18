@@ -572,25 +572,26 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	foreach ($breadcrumbs as $crumb) {
 		// don't show placeholder paths
 		if (substr($crumb['url_path'], 0, 2) == '/%' AND substr($crumb['url_path'], -2) == '%/') continue;
+		$current = ($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? true : false);
 		$formatted_breadcrumbs[] = 
-			(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path'])
+			(($current OR !$crumb['url_path'])
 				? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
 			.$crumb['title']
-			.(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path']) ? '</strong>' : '</a>');
+			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
 	if (!$formatted_breadcrumbs) return false;
 	
 	$html_output = implode(' '.$zz_page['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
 	if (!empty($brick_breadcrumbs)) {
 		foreach ($brick_breadcrumbs as $index => $crumb) {
-			if (is_array($crumb)) {
-				$brick_breadcrumbs[$index] = 
-					(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path'])
-						? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
-					.$crumb['title']
-					.(($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] OR !$crumb['url_path'])
-						? '</strong>' : '</a>');
-			}
+			if (!is_array($crumb)) continue;
+			$current = ($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? true : false);
+			$brick_breadcrumbs[$index] = 
+				(($current OR !$crumb['url_path'])
+					? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
+				.$crumb['title']
+				.(($current OR !$crumb['url_path'])
+					? '</strong>' : '</a>');
 		}
 		$html_output.= ' '.$zz_page['breadcrumbs_separator']
 			.' '.implode(' '.$zz_page['breadcrumbs_separator'].' ', $brick_breadcrumbs);
