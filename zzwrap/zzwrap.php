@@ -38,10 +38,11 @@ function zzwrap() {
 	wrap_set_defaults_post_conf();
 
 	// function libraries
-	require_once $zz_setting['core'].'/mail.inc.php';
 	require_once $zz_setting['core'].'/errorhandling.inc.php';
 	require_once $zz_setting['core'].'/database.inc.php';
 	require_once $zz_setting['core'].'/core.inc.php';
+	require_once $zz_setting['core'].'/mail.inc.php';
+	require_once $zz_setting['core'].'/access.inc.php';
 	require_once $zz_setting['core'].'/language.inc.php';
 	require_once $zz_setting['core'].'/page.inc.php';
 
