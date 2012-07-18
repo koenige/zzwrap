@@ -202,8 +202,8 @@ function wrap_text($string) {
 	
 	if (empty($text[$string])) {
 		// write missing translation to somewhere.
-		// TODO: check logfile for duplicates
-		// TODO: optional log directly in database
+		// @todo: check logfile for duplicates
+		// @todo: optional log directly in database
 		if (!empty($zz_conf['log_missing_text'])) {
 			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
 			$log_file = sprintf($zz_conf['log_missing_text'], $zz_conf['language']);
@@ -410,7 +410,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	}
 	return ($data);
 	
-	// output: TODO, mark text in different languages than page language
+	// output: @todo, mark text in different languages than page language
 	// as span lang="de" or div lang="de" etc.
 }
 
