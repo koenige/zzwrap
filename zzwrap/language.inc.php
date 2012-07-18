@@ -517,4 +517,46 @@ function wrap_negotiate_language($allowed_languages, $default_language, $accept 
 	return $current_lang;
 }
 
+/**
+ * sets values for numbers, decimal_point and thousands_separator
+ * as used in number_format()
+ * this is not exhaustive, it's just a means to reduce configuration effort.
+ *
+ * @global array $zz_conf
+ * @global array $zz_setting
+ */
+function wrap_set_units() {
+	global $zz_conf;
+	global $zz_setting;
+	
+	if (!isset($zz_conf['decimal_point'])) {
+		switch ($zz_setting['lang']) {
+		case 'de':
+		case 'fr':
+		case 'es':
+		case 'pl':
+		case 'cs':
+			$zz_conf['decimal_point'] = ',';
+			break;
+		default:
+			$zz_conf['decimal_point'] = '.';
+			break;
+		}
+	}
+	if (!isset($zz_conf['thousands_separator'])) {
+		switch ($zz_setting['lang']) {
+		case 'de':
+		case 'fr':
+		case 'es':
+		case 'pl':
+		case 'cs':
+			$zz_conf['thousands_separator'] = '&nbsp;';
+			break;
+		default:
+			$zz_conf['thousands_separator'] = ',';
+			break;
+		}
+	}
+}
+
 ?>
