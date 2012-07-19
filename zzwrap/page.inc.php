@@ -931,6 +931,7 @@ function wrap_mailto($person, $mail, $attributes = false) {
 function wrap_date($date, $format = false) {
 	global $zz_conf;
 	global $zz_setting;
+	if (!$date) return '';
 
 	if (!$format AND isset($zz_setting['date_format']))
 		$format = $zz_setting['date_format'];
@@ -1046,6 +1047,7 @@ function wrap_date($date, $format = false) {
  * @param string $type 'standard', 'short'
  */
 function wrap_date_format($date, $sep, $order, $type = 'standard') {
+	if (!$date) return '';
 	$parts = explode('-', $date);
 	if ($type === 'short') $parts[0] = substr($parts[0], 2);
 	switch ($order) {
