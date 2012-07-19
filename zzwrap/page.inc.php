@@ -927,37 +927,50 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @return string
  * @todo rewrite function so it is possible to use only one parameter
  */
-function wrap_dates($begin, $end, $format = false) {
+function wrap_dates($begin, $end = '', $output_format = false) {
 	global $zz_conf;
+	global $zz_setting;
 	if (!function_exists('datum_de')) 
 		include_once $zz_conf['dir'].'/numbers.inc.php';
 
 	if ($begin === $end) $end = '';
 
-	if (!$format AND isset($zz_setting['date_format']))
-		$format = $zz_setting['date_format'];
+	if (!$output_format AND isset($zz_setting['date_format']))
+		$output_format = $zz_setting['date_format'];
+	if (!$output_format) {
+		wrap_error('Please set at least a default format for wrap_dates().
+			via $zz_setting["date_format"] = "dates-de" or so');
+		return $begin;
+	}
 	
-	if (strstr($format, '->')) {
+	if (strstr($output_format, '->')) {
 		// reformat all inputs to timestamps
-		$format = explode('->', $format);
-		switch ($format[0]) {
-		case 'rfc1123':
-			// input = Sun, 06 Nov 1994 08:49:37 GMT
-			// remove GMT, so we are not affected by time zones and get UTC
-			$time = strtotime(substr($begin, 0, -4));
-			break;
-		case 'timestamp':
-			// input = 784108177
-			$time = $begin;
-			break;
-		default:
-			wrap_error(sprintf('Unknown input format %s', $format[0]));
-			break;
-		}
-		$format = $format[1];
+		$format = explode('->', $output_format);
+		$input_format = $format[0];
+		$output_format = $format[1];
+	} else {
+		$input_format = 'iso8601';
 	}
 
-	switch ($format) {
+	switch ($input_format) {
+	case 'iso8601':
+		break;
+	case 'rfc1123':
+		// input = Sun, 06 Nov 1994 08:49:37 GMT
+		// remove GMT, so we are not affected by time zones and get UTC
+		$time = strtotime(substr($begin, 0, -4));
+		// @todo: what happens with dates outside the timestamp scope?
+		break;
+	case 'timestamp':
+		// input = 784108177
+		$time = $begin;
+		break;
+	default:
+		wrap_error(sprintf('Unknown input format %s', $input_format));
+		break;
+	}
+
+	switch ($output_format) {
 	case 'dates-de':
 		if (!$end) {
 			// 12.03.2004 or 03.2004 or 2004
