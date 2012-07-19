@@ -18,7 +18,7 @@
  *	wrap_get_authors()				-- gets authors from database
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *	wrap_mailto()
- *	wrap_dates()
+ *	wrap_date()
  *	wrap_print()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -927,7 +927,7 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @return string
  * @todo rewrite function so it is possible to use only one parameter
  */
-function wrap_dates($begin, $end = '', $output_format = false) {
+function wrap_date($begin, $end = '', $output_format = false) {
 	global $zz_conf;
 	global $zz_setting;
 	if (!function_exists('datum_de')) 
@@ -938,7 +938,7 @@ function wrap_dates($begin, $end = '', $output_format = false) {
 	if (!$output_format AND isset($zz_setting['date_format']))
 		$output_format = $zz_setting['date_format'];
 	if (!$output_format) {
-		wrap_error('Please set at least a default format for wrap_dates().
+		wrap_error('Please set at least a default format for wrap_date().
 			via $zz_setting["date_format"] = "dates-de" or so');
 		return $begin;
 	}
@@ -970,29 +970,34 @@ function wrap_dates($begin, $end = '', $output_format = false) {
 		break;
 	}
 
+	$type = '';
+	if (substr($output_format, -6) == '-short') {
+		$output_format = substr($output_format, 0, -6);
+		$type = 'short';
+	}
 	switch ($output_format) {
 	case 'dates-de':
 		if (!$end) {
 			// 12.03.2004 or 03.2004 or 2004
-			$output = datum_de($begin);
+			$output = datum_de($begin, $type);
 		} elseif (substr($begin, 7) == substr($end, 7)
 			AND substr($begin, 7) === '-00'
 			AND substr($begin, 4) !== '-00-00') {
 			// 2004-03-00 2004-04-00 = 03-04.2004
-			$output = substr($begin, 5, 2).'&#8211;'.datum_de($end);
+			$output = substr($begin, 5, 2).'&#8211;'.datum_de($end, $type);
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
 			// 12.-14.03.2004
-			$output = substr($begin, 8).'.&#8211;'.datum_de($end);
+			$output = substr($begin, 8).'.&#8211;'.datum_de($end, $type);
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
-			$output = substr(datum_de($begin), 0, 6).'&#8203;&#8211;'.datum_de($end);
+			$output = substr(datum_de($begin, $type), 0, 6).'&#8203;&#8211;'.datum_de($end, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
 			// 2004-00-00 2005-00-00 = 2004-2005
 			// 31.12.2004-06.01.2005
-			$output = datum_de($begin).'&#8203;&#8211;'.datum_de($end);
+			$output = datum_de($begin, $type).'&#8203;&#8211;'.datum_de($end, $type);
 		}
 		return $output;
 	case 'datetime':
@@ -1005,7 +1010,7 @@ function wrap_dates($begin, $end = '', $output_format = false) {
 		// output Sun, 06 Nov 1994 08:49:37 GMT
 		return gmdate('D, d M Y H:i:s', $time). ' GMT';
 	}
-	wrap_error(sprintf('Unknown output format %s', $format));
+	wrap_error(sprintf('Unknown output format %s', $output_format));
 	return '';
 }
 

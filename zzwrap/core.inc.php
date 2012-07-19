@@ -413,7 +413,7 @@ function wrap_log_uri() {
 	if (substr($etag, 0, 1) !== '"' AND $etag !== 'NULL')
 		$etag = '"'.$etag.'"';
 	$last_modified = !empty($zz_page['last_modified'])
-		? '"'.wrap_dates($zz_page['last_modified'], '', 'rfc1123->datetime').'"'
+		? '"'.wrap_date($zz_page['last_modified'], '', 'rfc1123->datetime').'"'
 		: 'NULL';
 	$status = !empty($zz_page['error_code'])
 		? $zz_page['error_code']
@@ -1106,7 +1106,7 @@ function wrap_ranges_check($zz_page) {
 	} elseif (!empty($_SERVER['HTTP_IF_RANGE'])) {
 		// Range + If-Range (ETag or Date)
 		$etag_header = wrap_etag_header($zz_page['etag']);
-		$time = wrap_dates($_SERVER['HTTP_IF_RANGE'], '', 'rfc1123->timestamp');
+		$time = wrap_date($_SERVER['HTTP_IF_RANGE'], '', 'rfc1123->timestamp');
 		if ($_SERVER['HTTP_IF_RANGE'] === $etag_header['std']
 			OR $_SERVER['HTTP_IF_RANGE'] === $etag_header['gz']) {
 			// go on
@@ -1323,10 +1323,10 @@ function wrap_etag_header($etag) {
 function wrap_if_modified_since($time, $file = array()) {
 	global $zz_page;
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
-	$zz_page['last_modified'] = wrap_dates($time, '', 'timestamp->rfc1123');
+	$zz_page['last_modified'] = wrap_date($time, '', 'timestamp->rfc1123');
 	// Check If-Unmodified-Since
 	if (isset($_SERVER['HTTP_IF_UNMODIFIED_SINCE'])) {
-		$requested_time = wrap_dates(
+		$requested_time = wrap_date(
 			$_SERVER['HTTP_IF_UNMODIFIED_SINCE'], '', 'rfc1123->timestamp'
 		);
 		if ($requested_time AND $time > $requested_time) {
@@ -1335,7 +1335,7 @@ function wrap_if_modified_since($time, $file = array()) {
 	}
 	// Check If-Modified-Since
 	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-		$requested_time = wrap_dates(
+		$requested_time = wrap_date(
 			$_SERVER['HTTP_IF_MODIFIED_SINCE'], '', 'rfc1123->timestamp'
 		);
 		if ($time <= $requested_time) {
@@ -1400,7 +1400,7 @@ function wrap_send_cache($age = 0) {
 	if (empty($zz_page['last_modified'])) {
 		$last_modified_time = filemtime($files[0]);
 	} else {
-		$last_modified_time = wrap_dates(
+		$last_modified_time = wrap_date(
 			$zz_page['last_modified'], '', 'rfc1123->timestamp'
 		);
 	}
