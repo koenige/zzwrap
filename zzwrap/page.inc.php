@@ -915,8 +915,9 @@ function wrap_mailto($person, $mail, $attributes = false) {
 /**
  * Format a date
  *
- * @param string $begin date in ISO format, e. g. "2004-03-12"
- * @param string $end date in ISO format, e. g. "2004-03-12"
+ * @param string $date
+ *		date in ISO format, e. g. "2004-03-12" or period "2004-03-12/2004-03-20"
+ *		other date set in first part of format
  * @param string $format format which should be used:
  *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
  *			31.12.2004-06.01.2005
@@ -927,43 +928,49 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @return string
  * @todo rewrite function so it is possible to use only one parameter
  */
-function wrap_date($begin, $end = '', $output_format = false) {
+function wrap_date($date, $format = false) {
 	global $zz_conf;
 	global $zz_setting;
-	if (!function_exists('datum_de')) 
-		include_once $zz_conf['dir'].'/numbers.inc.php';
 
-	if ($begin === $end) $end = '';
-
-	if (!$output_format AND isset($zz_setting['date_format']))
-		$output_format = $zz_setting['date_format'];
-	if (!$output_format) {
+	if (!$format AND isset($zz_setting['date_format']))
+		$format = $zz_setting['date_format'];
+	if (!$format) {
 		wrap_error('Please set at least a default format for wrap_date().
 			via $zz_setting["date_format"] = "dates-de" or so');
-		return $begin;
+		return $date;
 	}
 	
-	if (strstr($output_format, '->')) {
+	if (strstr($format, '->')) {
 		// reformat all inputs to timestamps
-		$format = explode('->', $output_format);
+		$format = explode('->', $format);
 		$input_format = $format[0];
 		$output_format = $format[1];
 	} else {
 		$input_format = 'iso8601';
+		$output_format = $format;
 	}
 
 	switch ($input_format) {
 	case 'iso8601':
+		if (strstr($date, '/')) {
+			$date = explode('/', $date);
+			$begin = $date[0];
+			$end = $date[1];
+			if ($begin === $end) $end = '';
+		} else {
+			$begin = $date;
+			$end = '';
+		}
 		break;
 	case 'rfc1123':
 		// input = Sun, 06 Nov 1994 08:49:37 GMT
 		// remove GMT, so we are not affected by time zones and get UTC
-		$time = strtotime(substr($begin, 0, -4));
+		$time = strtotime(substr($date, 0, -4));
 		// @todo: what happens with dates outside the timestamp scope?
 		break;
 	case 'timestamp':
 		// input = 784108177
-		$time = $begin;
+		$time = $date;
 		break;
 	default:
 		wrap_error(sprintf('Unknown input format %s', $input_format));
@@ -975,29 +982,45 @@ function wrap_date($begin, $end = '', $output_format = false) {
 		$output_format = substr($output_format, 0, -6);
 		$type = 'short';
 	}
+	if (substr($output_format, 0, 6) == 'dates-') {
+		$lang = substr($output_format, 6);
+		$output_format = 'dates';
+		switch ($lang) {
+			case 'de':		$sep = '.'; $order = 'DMY'; break; // dd.mm.yyyy
+			case 'nl':		$sep = '-'; $order = 'DMY'; break; // dd-mm-yyyy
+			case 'en-GB':	$sep = '/'; $order = 'DMY'; break; // dd/mm/yyyy
+			default:
+				wrap_error(sprintf('Language %s currently not supported', $lang));
+				break;
+		}
+	}
 	switch ($output_format) {
-	case 'dates-de':
+	case 'dates':
 		if (!$end) {
 			// 12.03.2004 or 03.2004 or 2004
-			$output = datum_de($begin, $type);
+			$output = wrap_date_format($begin, $sep, $order, $type);
 		} elseif (substr($begin, 7) == substr($end, 7)
 			AND substr($begin, 7) === '-00'
 			AND substr($begin, 4) !== '-00-00') {
 			// 2004-03-00 2004-04-00 = 03-04.2004
-			$output = substr($begin, 5, 2).'&#8211;'.datum_de($end, $type);
+			$output = substr($begin, 5, 2).'&#8211;'
+				.wrap_date_format($end, $sep, $order, $type);
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
 			// 12.-14.03.2004
-			$output = substr($begin, 8).'.&#8211;'.datum_de($end, $type);
+			$output = substr($begin, 8).'.&#8211;'
+				.wrap_date_format($end, $sep, $order, $type);
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
-			$output = substr(datum_de($begin, $type), 0, 6).'&#8203;&#8211;'.datum_de($end, $type);
+			$output = substr(wrap_date_format($begin, $sep, $order, $type), 0, 6)
+				.'&#8203;&#8211;'.wrap_date_format($end, $sep, $order, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
 			// 2004-00-00 2005-00-00 = 2004-2005
 			// 31.12.2004-06.01.2005
-			$output = datum_de($begin, $type).'&#8203;&#8211;'.datum_de($end, $type);
+			$output = wrap_date_format($begin, $sep, $order, $type)
+				.'&#8203;&#8211;'.wrap_date_format($end, $sep, $order, $type);
 		}
 		return $output;
 	case 'datetime':
@@ -1012,6 +1035,31 @@ function wrap_date($begin, $end = '', $output_format = false) {
 	}
 	wrap_error(sprintf('Unknown output format %s', $output_format));
 	return '';
+}
+
+/**
+ * reformats an ISO 8601 date
+ * 
+ * @param string $date e. g. 2004-05-31
+ * @param string $sep separator
+ * @param string $order 'DMY', 'YMD', 'MDY'
+ * @param string $type 'standard', 'short'
+ */
+function wrap_date_format($date, $sep, $order, $type = 'standard') {
+	$parts = explode('-', $date);
+	if ($type === 'short') $parts[0] = substr($parts[0], 2);
+	switch ($order) {
+	case 'DMY':
+		$date = $parts[2].$sep.$parts[1].$sep.$parts[0];
+		break;
+	case 'YMD':
+		$date = $parts[0].$sep.$parts[1].$sep.$parts[2];
+		break;
+	case 'MDY':
+		$date = $parts[1].$sep.$parts[2].$sep.$parts[0];
+		break;
+	}
+	return $date;
 }
 
 /**
