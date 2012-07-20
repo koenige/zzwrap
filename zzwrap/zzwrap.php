@@ -26,30 +26,8 @@ function zzwrap() {
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
 
-	// configuration settings, defaults
-	wrap_set_defaults_pre_conf();
-	if (file_exists($zz_setting['inc'].'/config.inc.php'))
-		require_once $zz_setting['inc'].'/config.inc.php';
-	if (empty($zz_setting['lib']))
-		$zz_setting['lib']	= $zz_setting['inc'].'/library';
-	if (empty($zz_setting['core']))
-		$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
-	require_once $zz_setting['core'].'/defaults.inc.php';
-	wrap_set_defaults_post_conf();
-
-	// function libraries
-	require_once $zz_setting['core'].'/errorhandling.inc.php';
-	require_once $zz_setting['core'].'/database.inc.php';
-	require_once $zz_setting['core'].'/core.inc.php';
-	require_once $zz_setting['core'].'/mail.inc.php';
-	require_once $zz_setting['core'].'/access.inc.php';
-	require_once $zz_setting['core'].'/language.inc.php';
-	require_once $zz_setting['core'].'/page.inc.php';
-	if ($zz_setting['authentication_possible']) {
-		require_once $zz_setting['core'].'/auth.inc.php';
-	}
-
-	// do some tests if everything is there
+	wrap_set_defaults();
+	wrap_includes();
 	wrap_tests();
 
 	// establish database connection
@@ -128,6 +106,49 @@ function zzwrap() {
 		wrap_htmlout_page_without_templates($page);
 	}
 	exit;
+}
+
+/**
+ * includes required files for zzwrap
+ */
+function wrap_includes() {
+	global $zz_setting;
+
+	// function libraries
+	require_once $zz_setting['core'].'/errorhandling.inc.php';
+	require_once $zz_setting['core'].'/database.inc.php';
+	require_once $zz_setting['core'].'/core.inc.php';
+	require_once $zz_setting['core'].'/mail.inc.php';
+	require_once $zz_setting['core'].'/access.inc.php';
+	require_once $zz_setting['core'].'/language.inc.php';
+	require_once $zz_setting['core'].'/page.inc.php';
+	if ($zz_setting['authentication_possible']) {
+		require_once $zz_setting['core'].'/auth.inc.php';
+	}
+}
+
+/**
+ * sets defaults for zzwrap, includes config
+ *
+ * @global array $zz_setting
+ * @global array $zz_conf		might change in config.inc.php
+ * @global array $zz_page		might change in config.inc.php
+ */
+function wrap_set_defaults() {
+	global $zz_setting;
+	global $zz_conf;
+	global $zz_page;
+
+	// configuration settings, defaults
+	wrap_set_defaults_pre_conf();
+	if (file_exists($zz_setting['inc'].'/config.inc.php'))
+		require_once $zz_setting['inc'].'/config.inc.php';
+	if (empty($zz_setting['lib']))
+		$zz_setting['lib']	= $zz_setting['inc'].'/library';
+	if (empty($zz_setting['core']))
+		$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
+	require_once $zz_setting['core'].'/defaults.inc.php';
+	wrap_set_defaults_post_conf();
 }
 
 /**
