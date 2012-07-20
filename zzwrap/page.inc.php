@@ -1062,7 +1062,12 @@ function wrap_date_format($date, $sep, $order, $type = 'standard') {
 	}
 	switch ($order) {
 	case 'DMY':
-		$date = ($day === '00' ? '' : $day.$sep).$month.($year !== '' ? $sep.$year : '');
+		if ($sep === '.') {
+			// let date without year end with dot
+			$date = ($day === '00' ? '' : $day.$sep).$month.$sep.$year;
+		} else {
+			$date = ($day === '00' ? '' : $day.$sep).$month.($year !== '' ? $sep.$year : '');
+		}
 		break;
 	case 'YMD':
 		$date = ($year !== '' ? $year.$sep : '').$month.($day === '00' ? '' : $sep.$day);
