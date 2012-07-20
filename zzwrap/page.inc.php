@@ -99,18 +99,28 @@ function wrap_template($template, $data = array(), $mode = false) {
  * Creates valid HTML id value from string
  * must match [A-Za-z][-A-Za-z0-9_:.]* (HTML 4.01)
  * here we say only lowercase, only underscore besides letters and numbers
+ * Note: it's better to save an ID in the database while creating a record
  *
  * @param string $id_title string to be formatted
  * @return string $id_title
  */
 function wrap_create_id($id_title) {
 	$id_title = strtolower($id_title);
-		
-	$not_allowed_in_id = array('(', ')');
-	foreach ($not_allowed_in_id as $char) {
-		$id_title = str_replace($char, '', $id_title);
+	if (!preg_match('~^[a-z0-9_]*$~', $id_title)) {
+		$new_id = '';
+		for ($i = 0; $i < strlen($id_title); $i++) {
+			// 48-57 => 0-9; 97-122 => a-z
+			if (ord($id_title[$i]) > 122) continue;
+			if (ord($id_title[$i]) > 57 AND ord($id_title[$i]) < 97) continue;
+			if (ord($id_title[$i]) < 48) continue;
+			$new_id .= $id_title[$i];
+		}
+		$id_title = $new_id;
 	}
-	$id_title = strtolower(forceFilename($id_title));
+	if (is_numeric(substr($id_title, 0, 1))) {
+		// add a random letter, first letter must not be numeric
+		$id_title = 'n_'.$id_title;
+	}
 	return $id_title;
 }
 
@@ -152,7 +162,7 @@ function wrap_get_menu() {
 			$menu[$id][$nav_id]['current_page'] = 
 				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
 			// create ID for CSS, JavaScript
-			if (function_exists('forceFilename') AND !empty($item['id_title']))
+			if (!empty($item['id_title']))
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title']);
 			// initialize subtitle
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
