@@ -948,6 +948,11 @@ function wrap_date($date, $format = false) {
 			// DATETIME YYYY-MM-DD HH:ii:ss
 			$date = $match[1]; // ignore time, it's a date function
 		}
+		if (!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}%/", $date) {
+			// not a currently supported ISO date or no ISO date at all
+			wrap_error(sprintf('Date %s is currently either not supported as ISO date or no ISO date at all.', $date));
+			return $date;
+		}
 		if (strstr($date, '/')) {
 			$date = explode('/', $date);
 			$begin = $date[0];
