@@ -36,7 +36,6 @@
  *		'ignore position': ignores position, returns a string instead of an array
  *		'error': returns simple template, with placeholders
  * @return mixed $text (string or array indexed by positions)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_template($template, $data = array(), $mode = false) {
 	global $zz_setting;
@@ -98,12 +97,15 @@ function wrap_template($template, $data = array(), $mode = false) {
 
 /**
  * Creates valid HTML id value from string
+ * must match [A-Za-z][-A-Za-z0-9_:.]* (HTML 4.01)
+ * here we say only lowercase, only underscore besides letters and numbers
  *
  * @param string $id_title string to be formatted
  * @return string $id_title
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_create_id($id_title) {
+	$id_title = strtolower($id_title);
+		
 	$not_allowed_in_id = array('(', ')');
 	foreach ($not_allowed_in_id as $char) {
 		$id_title = str_replace($char, '', $id_title);
@@ -125,7 +127,6 @@ function wrap_create_id($id_title) {
  * $zz_setting['menu']
  *
  * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu() {
 	global $zz_setting;
@@ -152,7 +153,7 @@ function wrap_get_menu() {
 				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
 			// create ID for CSS, JavaScript
 			if (function_exists('forceFilename') AND !empty($item['id_title']))
-				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title'], '-');
+				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title']);
 			// initialize subtitle
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
 		}
@@ -165,7 +166,6 @@ function wrap_get_menu() {
  * Liest Daten für Menü aus der DB-Tabelle 'navigation' aus, übersetzt ggf. Menü
  * 
  * @return array $menu: 'title', 'url', 'subtitle' (optional), 'id_title' (optional)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu_navigation() {
 	global $zz_setting;
@@ -200,7 +200,6 @@ function wrap_get_menu_navigation() {
  * Liest Daten für Menü aus der DB-Tabelle 'webpages' aus, übersetzt ggf. Menü
  *
  * @return array $menu: 'title', 'url', 'subtitle'
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_menu_webpages() {
 	global $zz_setting;
@@ -296,7 +295,6 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key) {
  *		'main_menu', 'menu_mark_active_open', 'menu_mark_active_close',
  *		'menu_display_submenu_items'
  * @return string HTML-Output
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	if (!$nav) return false;
@@ -417,7 +415,6 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
  * 
  * @param array $menu Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
  * @return int ID des obersten Menüs
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_top_nav_id($menu) {
 	$top_nav = wrap_get_top_nav_recursive($menu);
@@ -458,7 +455,6 @@ function wrap_get_top_nav_id($menu) {
  * @param array $menu Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
  * @param int $nav_id internal value
  * @return int ID des obersten Menüs
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 	$main_nav_id = false;
@@ -495,7 +491,6 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
  * @param int $page_id ID of current webpage in database
  * @global array $zz_conf
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_breadcrumbs($page_id) {
 	if (!($sql = wrap_sql('breadcrumbs'))) return array();
@@ -523,7 +518,6 @@ function wrap_get_breadcrumbs($page_id) {
  * @param int $page_id ID of webpage in hierarchy in database
  * @param array $pages Array with all pages from database, indexed page_id
  * @return array breadcrumbs ('title' => title of menu, 'url_path' = link)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$breadcrumbs[] = array(
@@ -544,7 +538,6 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
  * @param int $page_id ID of webpage in hierarchy in database
  * @param array $brick_breadcrumbs Array of additional breadcrumbs from brick_format()
  * @return string HTML output, plain linear, of breadcrumbs
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
  function wrap_htmlout_breadcrumbs($page_id, $brick_breadcrumbs) {
 	global $zz_page;
@@ -610,7 +603,6 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
  * @param array $brick_authors IDs of authors
  * @param int $author_id extra ID of author, may be false
  * @return array authors, person = name, initials = initials, lowercase
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_get_authors($brick_authors, $author_id = false) {
 	if (!($sql = wrap_sql('authors'))) return false;
@@ -647,9 +639,9 @@ function wrap_page_last_update($page) {
 	}
 	if (!$last_update) {
 		$last_update = $zz_page['db'][wrap_sql('lastupdate')];
-		$last_update = wrap_date($last_update);
+		$last_update = $last_update;
 	}
-	return $last_update;
+	return wrap_date($last_update);
 }
 
 /**
@@ -840,7 +832,6 @@ function wrap_htmlout_page_without_templates($page) {
  * allow %%% page ... %%%-syntax
  * @param array $page
  * @return string HTML output
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_htmlout_page($page) {
 	global $zz_setting;
