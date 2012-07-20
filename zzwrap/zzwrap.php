@@ -109,7 +109,6 @@ function zzwrap() {
 				wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
 		}
 	}
-	require_once $zz_conf['dir_inc'].'/numbers.inc.php';
 
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
