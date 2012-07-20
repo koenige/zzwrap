@@ -253,7 +253,7 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['brick_fulltextformat'] = 'markdown';
 	// functions that might be used for formatting (zzbrick)
 	$zz_setting['brick_formatting_functions'] = array('markdown', 'wrap_date', 
-		'rawurlencode', 'wordwrap', 'nl2br');
+		'rawurlencode', 'wordwrap', 'nl2br', 'htmlspecialchars');
 
 	if (!$zz_setting['local_access']) {
 		$zz_setting['gzip_encode'] = true;
