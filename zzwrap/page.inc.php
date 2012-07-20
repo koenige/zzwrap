@@ -1014,7 +1014,7 @@ function wrap_date($date, $format = false) {
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
-			$output = substr(wrap_date_format($begin, $sep, $order, $type), 0, 6)
+			$output = wrap_date_format($begin, $sep, $order, 'noyear')
 				.'&#8203;&#8211;'.wrap_date_format($end, $sep, $order, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
@@ -1044,21 +1044,31 @@ function wrap_date($date, $format = false) {
  * @param string $date e. g. 2004-05-31
  * @param string $sep separator
  * @param string $order 'DMY', 'YMD', 'MDY'
- * @param string $type 'standard', 'short'
+ * @param string $type 'standard', 'short', 'noyear'
  */
 function wrap_date_format($date, $sep, $order, $type = 'standard') {
 	if (!$date) return '';
-	$parts = explode('-', $date);
-	if ($type === 'short') $parts[0] = substr($parts[0], 2);
+	list($year, $month, $day) = explode('-', $date);
+	while (substr($year, 0, 1) === '0') {
+		// 0800 = 800 etc.
+		$year = substr($year, 1);
+	}
+	switch ($type) {
+		case 'short': $year = substr($year, -2); break;
+		case 'noyear': $year = ''; $break;		
+	}
+	if ($day === '00' AND $month === '00') {
+		return $year;
+	}
 	switch ($order) {
 	case 'DMY':
-		$date = $parts[2].$sep.$parts[1].$sep.$parts[0];
+		$date = ($day === '00' ? '' : $day.$sep).$month.($year !== '' ? $sep.$year : '');
 		break;
 	case 'YMD':
-		$date = $parts[0].$sep.$parts[1].$sep.$parts[2];
+		$date = ($year !== '' ? $year.$sep : '').$month.($day === '00' ? '' : $sep.$day);
 		break;
 	case 'MDY':
-		$date = $parts[1].$sep.$parts[2].$sep.$parts[0];
+		$date = $month.($day === '00' ? '' : $sep.$day).($year !== '' ? $sep.$year : '');
 		break;
 	}
 	return $date;
