@@ -647,7 +647,7 @@ function wrap_page_last_update($page) {
 	}
 	if (!$last_update) {
 		$last_update = $zz_page['db'][wrap_sql('lastupdate')];
-		$last_update = datum_de($last_update);
+		$last_update = wrap_date($last_update);
 	}
 	return $last_update;
 }
