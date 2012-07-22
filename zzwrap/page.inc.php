@@ -954,24 +954,24 @@ function wrap_date($date, $format = false) {
 
 	switch ($input_format) {
 	case 'iso8601':
-		if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $date, $match)) {
-			// DATETIME YYYY-MM-DD HH:ii:ss
-			$date = $match[1]; // ignore time, it's a date function
-		}
-		if (!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/", $date)) {
-			// not a currently supported ISO date or no ISO date at all
-			wrap_error(sprintf('Date %s is currently either not supported as ISO date or no ISO date at all.', $date));
-			return $date;
-		}
 		if (strstr($date, '/')) {
-			$date = explode('/', $date);
-			$begin = $date[0];
-			$end = $date[1];
-			if ($begin === $end) $end = '';
+			$dates = explode('/', $date);
 		} else {
-			$begin = $date;
-			$end = '';
+			$dates = array($date);
 		}
+		foreach ($dates as $index => $mydate) {
+			if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $mydate, $match)) {
+				// DATETIME YYYY-MM-DD HH:ii:ss
+				$dates[$index] = $match[1]; // ignore time, it's a date function
+			} elseif (!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/", $mydate)) {
+				wrap_error(sprintf(
+					'Date %s is currently either not supported as ISO date or no ISO date at all.', $date
+				));
+				return $date;
+			}
+		}
+		$begin = $dates[0];
+		$end = (!empty($dates[1]) AND $dates[1] !== $begin) ? $dates[1] : '';
 		break;
 	case 'rfc1123':
 		// input = Sun, 06 Nov 1994 08:49:37 GMT
