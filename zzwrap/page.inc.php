@@ -960,6 +960,7 @@ function wrap_date($date, $format = false) {
 			$dates = array($date);
 		}
 		foreach ($dates as $index => $mydate) {
+			if (!$mydate) continue;
 			if (preg_match("/^([0-9]{4}-[0-9]{2}-[0-9]{2}) [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/", $mydate, $match)) {
 				// DATETIME YYYY-MM-DD HH:ii:ss
 				$dates[$index] = $match[1]; // ignore time, it's a date function
