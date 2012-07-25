@@ -1105,7 +1105,7 @@ function wrap_ranges_check($zz_page) {
 		// go on
 	} elseif (!empty($_SERVER['HTTP_IF_RANGE'])) {
 		// Range + If-Range (ETag or Date)
-		$etag_header = wrap_etag_header(!empty($zz_page['etag']) ? $zz_page['etag'] : ''));
+		$etag_header = wrap_etag_header(!empty($zz_page['etag']) ? $zz_page['etag'] : '');
 		$time = wrap_date($_SERVER['HTTP_IF_RANGE'], 'rfc1123->timestamp');
 		if ($_SERVER['HTTP_IF_RANGE'] === $etag_header['std']
 			OR $_SERVER['HTTP_IF_RANGE'] === $etag_header['gz']) {
