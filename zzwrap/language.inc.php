@@ -2,7 +2,7 @@
 
 /**
  * zzwrap
- * Language functions
+ * Language and internationalization functions
  *
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzwrap
@@ -187,14 +187,19 @@ function wrap_text($string) {
 		// standard translated text
 		if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
 			include $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
-		
+
+		// set text as 'included' before database operation so if
+		// database crashes just while reading values, it won't do it over and
+		// over again		
+		$zz_setting['text_included'] = $language;
+
 		// get translations from database
-		if (!empty($zz_conf['text_table']))
+		if (!empty($zz_conf['text_table'])) {
 			if (!empty($text))
 				$text = array_merge($text, wrap_language_get_text($language));
 			else
 				$text = wrap_language_get_text($language);
-		$zz_setting['text_included'] = $language;
+		}
 	}
 
 	// if string came from preg_replace_callback, it might be an array
