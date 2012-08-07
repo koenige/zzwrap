@@ -1571,8 +1571,8 @@ function wrap_substr($string, $substring, $mode = 'begin') {
  * @return mixed $setting (if not found, returns NULL)
  */
 function wrap_get_setting($key) {
-	if (function_exists('custom_get_setting')) {
-		return custom_get_setting($key);
+	if (function_exists('my_get_setting')) {
+		return my_get_setting($key);
 	} else {
 		global $zz_setting;
 		if (!isset($zz_setting[$key])) return NULL;
