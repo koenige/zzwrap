@@ -323,7 +323,7 @@ function wrap_errorpage_log($status, $page) {
 	global $zz_setting;
 	global $zz_conf;
 
-	if (in_array($status, array(401, 403, 404))) {
+	if (in_array($status, array(401, 403, 404, 410))) {
 		$ignore = wrap_errorpage_ignore($status);
 		if ($ignore) return false;
 	}
@@ -366,8 +366,8 @@ function wrap_errorpage_log($status, $page) {
 		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
 		if ('https://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
 		// own error message!
-		$msg = sprintf(wrap_text("The URL\n\n%s was requested from\n\n%s\n\n"
-			." with the IP address %s\n (Browser %s)\n\n"
+		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
+			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested_server, 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
 		$settings['mail_no_request_uri'] = true;		// we already have these
