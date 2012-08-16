@@ -1011,7 +1011,8 @@ function wrap_date($date, $format = false) {
 		if (!$end) {
 			// 12.03.2004 or 03.2004 or 2004
 			$output = wrap_date_format($begin, $sep, $order, $type);
-		} elseif (substr($begin, 7) == substr($end, 7)
+		} elseif (substr($begin, 7) === substr($end, 7)
+			AND substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) === '-00'
 			AND substr($begin, 4) !== '-00-00') {
 			// 2004-03-00 2004-04-00 = 03-04.2004
