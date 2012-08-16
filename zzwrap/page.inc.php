@@ -1098,12 +1098,14 @@ function wrap_date_format($date, $sep, $order, $type = 'standard') {
  * @return string
  */
 function wrap_print($array, $color = 'FFF') {
+	$out = '<pre style="text-align: left; background-color: #'.$color
+		.'; position: relative; z-index: 10;" class="fullarray">';
 	ob_start();
-	echo '<pre style="text-align: left; background-color: #'.$color
-		.'; position: relative; z-index: 10;">';
-	print_R($array);
-	echo '</pre>';
-	return ob_get_clean();
+	print_r($array);
+	$code = ob_get_clean();
+	$code = htmlspecialchars($code);
+	$out .= $code.'</pre>';
+	return $out;
 }
 
 ?>
