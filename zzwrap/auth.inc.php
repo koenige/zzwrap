@@ -102,7 +102,7 @@ function wrap_auth() {
 		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], wrap_sql('domain')))) {
 		// get rid of domain, since user is not logged in anymore
 		wrap_session_stop();
-		$query_string = '';
+		$request = $zz_page['url']['full']['path'];
 		if (!empty($zz_page['url']['full']['query'])) {
 			// parse URL for no-cookie to hand it over to cms_login()
 			// in case cookies are not allowed
@@ -114,12 +114,9 @@ function wrap_auth() {
 				unset($query_string['no-cookie']);
 			}
 			if ($query_string) {
-				$query_string = '?'.http_build_query($query_string);
-			} else {
-				$query_string = '';
+				$request .= '?'.http_build_query($query_string);
 			}
 		}
-		$request = $zz_page['url']['full']['path'].$query_string;
 		// do not unnecessarily expose URL structure
 		if ($request == $zz_setting['login_entryurl']
 			OR (is_array($zz_setting['login_entryurl']) 
