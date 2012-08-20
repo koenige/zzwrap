@@ -92,7 +92,7 @@ function wrap_db_connect() {
 	} else {
 		$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
 	}
-	if ($charset) wrap_db_query('SET NAMES '.$charset);
+	if ($charset) mysql_set_charset($character_set);
 	return true;
 }
 
