@@ -127,6 +127,11 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$time = wrap_microtime_float();
 	}
 	if (!$zz_conf['db_connection']) return array();
+	
+	if (substr($sql, 0, 10) === 'SET NAMES ') {
+		$charset = trim(substr($sql, 10));
+		mysql_set_charset($charset);
+	}
 
 	$sql = wrap_db_prefix($sql);
 	$result = mysql_query($sql);
