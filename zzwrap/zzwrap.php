@@ -4,11 +4,11 @@
  * zzwrap
  * Main function
  *
- * Part of Â»Zugzwang ProjectÂ«
+ * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright Â© 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -54,8 +54,8 @@ function zzwrap() {
 	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
 
-	// Secret Key fÃ¼r Vorschaufunktion, damit auch noch nicht zur
-	// VerÃ¶ffentlichung freigegebene Seiten angeschaut werden kÃ¶nnen.
+	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
+	// Veröffentlichung freigegebene Seiten angeschaut werden können.
 	if (!empty($zz_setting['secret_key']) AND !wrap_rights('preview'))
 		wrap_rights('preview', 'set', wrap_test_secret_key($zz_setting['secret_key']));
 
