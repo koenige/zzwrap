@@ -64,7 +64,7 @@ CREATE TABLE `_relations` (
   `detail_db` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `detail_table` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `detail_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `delete` enum('delete','ask','no-delete') COLLATE latin1_general_cs NOT NULL DEFAULT 'no-delete',
+  `delete` enum('delete','ask','no-delete','update') COLLATE latin1_general_cs NOT NULL DEFAULT 'no-delete',
   `detail_id_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `detail_url` varchar(63) COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`rel_id`),
