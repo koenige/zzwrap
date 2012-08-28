@@ -32,3 +32,6 @@
 
 # this is a data-URL misinterpreted
 404	end	data:image/gif;base64,AAAA
+
+# some Chrome extension going wild
+404	regex	~/cache/[a-z0-9]{32}$~
