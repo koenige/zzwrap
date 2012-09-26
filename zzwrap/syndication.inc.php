@@ -94,13 +94,15 @@ function wrap_syndication_get($url, $type = 'json') {
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
 			}
 			$data = curl_exec($ch);
-			$ssl_verify = curl_getinfo($ch, CURLINFO_SSL_VERIFYRESULT);
-			if (!$ssl_verify) {
-				wrap_error(sprintf('Syndication from URL %s: SSL certificate could not be validated.', $url), E_USER_NOTICE);
-				if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
-					// try again without SSL verification
-					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-					$data = curl_exec($ch);
+			if (substr($url, 0, 8) === 'https://') {
+				$ssl_verify = curl_getinfo($ch, CURLINFO_SSL_VERIFYRESULT);
+				if (!$ssl_verify) {
+					wrap_error(sprintf('Syndication from URL %s: SSL certificate could not be validated.', $url), E_USER_NOTICE);
+					if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+						// try again without SSL verification
+						curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+						$data = curl_exec($ch);
+					}
 				}
 			}
 			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
