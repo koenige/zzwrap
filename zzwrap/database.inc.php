@@ -385,8 +385,15 @@ function wrap_db_parents($id, $sql) {
 	$result = true;
 	while ($result) {
 		$id = wrap_db_fetch(sprintf($sql, $id), '', 'single value');
-		if ($id) $ids[] = $id;
-		else $result = false;
+		// no infinite recursion please:
+		if (in_array($id, $ids)) {
+			wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_WARNING);
+			break;
+		} elseif ($id) {
+			$ids[] = $id;
+		} else {
+			$result = false;
+		}
 	}
 	$ids = array_reverse($ids); // top-down
 	return $ids;
