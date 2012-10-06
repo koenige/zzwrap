@@ -927,7 +927,6 @@ function wrap_mailto($person, $mail, $attributes = false) {
  *		timestamp->rfc1123
  *		timestamp->datetime
  * @return string
- * @todo rewrite function so it is possible to use only one parameter
  */
 function wrap_date($date, $format = false) {
 	global $zz_conf;
@@ -1107,6 +1106,85 @@ function wrap_print($array, $color = 'FFF') {
 	$code = htmlspecialchars($code);
 	$out .= $code.'</pre>';
 	return $out;
+}
+
+/**
+ * Format a number
+ *
+ * @param string $number
+ * @param string $format format which should be used:
+ *		roman->arabic
+ *		arabic->roman
+ * @return string
+ */
+function wrap_number($number, $format = false) {
+	global $zz_setting;
+	if (!$number) return '';
+
+	if (!$format AND isset($zz_setting['number_format']))
+		$format = $zz_setting['number_format'];
+	if (!$format) {
+		wrap_error('Please set at least a default format for wrap_number().
+			via $zz_setting["number_format"] = "roman->arabic" or so');
+		return $number;
+	}
+	
+	switch ($format) {
+	case 'roman->arabic':
+	case 'arabic->roman':
+		$roman_letters = array(
+			1000 => 'M', 900 => 'CM', 500 => 'D', 400 => 'CD', 100 => 'C',
+			90 => 'XC', 50 => 'L', 40 => 'XL', 10 => 'X', 9 => 'IX', 5 => 'V', 
+			4 => 'IV', 1 => 'I'
+		);
+		if (is_numeric($number)) {
+			// arabic/roman
+			if ($number > 3999 OR $number < 1) {
+				wrap_error(wrap_text(
+					'Sorry, we can only convert numbers between 1 and 3999 to roman numbers.'
+				), E_USER_NOTICE);
+				return '';
+			}
+			$output = '';
+			foreach ($roman_letters as $arabic => $letter) {
+				while ($number >= $arabic) {
+					$output .= $letter;
+					$number -= $arabic;
+				}
+			}
+		} else {
+			// roman/arabic
+			$output = 0;
+			$input = $number;
+			$error = false;
+			foreach ($roman_letters as $value => $key) {
+				$count = 0;
+				while (strpos($number, $key) === 0) {
+					$output += $value;
+					$number = substr($number, strlen($key));
+					$count++;
+				}
+				// validity check: combined letters and letters representing
+				// half of 10^n might be repeated once; other letters four times
+				if (strlen($key) === 2 AND $count > 1) $error = true;
+				elseif (substr($value, 0, 1) == '5' AND $count > 1) $error = true;
+				elseif ($count > 4) $error = true;
+			}
+			// if it's a valid number, no character may remain
+			if ($number) $error = true;
+			if ($error) {
+				wrap_error(sprintf(wrap_text(
+					'Sorry, <strong>%s</strong> appears not to be a valid roman number.'
+				), htmlspecialchars($input)), E_USER_NOTICE);
+				return '';
+			}
+		}
+		return $output;
+	default:
+		wrap_error(sprintf(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.'),
+			htmlspecialchars($format)), E_USER_NOTICE);
+		return '';
+	}
 }
 
 ?>
