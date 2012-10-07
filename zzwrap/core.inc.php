@@ -888,6 +888,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 
 	// Content-Type HTTP header
 	// Content-Disposition HTTP header
+	$filename = '';
 	switch ($type) {
 	case 'html':
 		$zz_page['content_type'] = 'text/html';
@@ -898,13 +899,11 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		$zz_page['content_type'] = 'application/json';
 		$zz_page['character_set'] = 'utf-8';
 		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.json';
-		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
 	case 'kml':
 		$zz_page['content_type'] = 'application/vnd.google-earth.kml+xml';
 		$zz_page['character_set'] = 'utf-8';
 		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.kml';
-		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 		break;
 	case 'mediarss':
 		$zz_page['content_type'] = 'application/xhtml+xml';
@@ -918,8 +917,16 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		$zz_page['content_type'] = 'text/plain';
 		$zz_page['character_set'] = $zz_conf['character_set'];
 		break;
+	case 'csv':
+		$zz_page['content_type'] = 'text/csv';
+		$zz_page['character_set'] = $zz_conf['character_set'];
+		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.csv';
+		break;
 	default:
 		break;
+	}
+	if ($filename) {
+		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
 	}
 	if (!empty($zz_page['content_type'])) {
 		if (!empty($zz_page['character_set'])) {
