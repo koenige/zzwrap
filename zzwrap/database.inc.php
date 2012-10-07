@@ -130,7 +130,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	
 	if (substr($sql, 0, 10) === 'SET NAMES ') {
 		$charset = trim(substr($sql, 10));
-		mysql_set_charset($charset);
+		return mysql_set_charset($charset);
 	}
 
 	$sql = wrap_db_prefix($sql);
