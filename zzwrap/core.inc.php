@@ -48,7 +48,7 @@ function wrap_session_start() {
 			$session_error = error_get_last();
 			if ($last_error != $session_error
 				AND wrap_substr($session_error['message'], 'session_start()')) {
-				wrap_error('Login not possible: '.json_encode($session_error));
+				wrap_error('Session start not possible: '.json_encode($session_error));
 				wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 			}
 		}
