@@ -1635,6 +1635,36 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
 }
 
 /**
+ * Creates a folder and its top folders if neccessary
+ *
+ * @param string $folder (may contain .. and . which will be resolved)
+ * @param bool true: folder creation was successful
+ */
+function wrap_mkdir($folder) {
+	if (is_dir($folder)) return true;
+	$subfolders = explode('/', $folder);
+	$current_folder = '';
+	foreach ($subfolders as $subfolder) {
+		if (!$subfolder) continue;
+		if ($subfolder === '..') {
+			$current_folder = substr($current_folder, 0, strrpos($current_folder, '/'));
+		} elseif ($subfolder === '.') {
+			$current_folder .= '';
+		} else {
+			$current_folder .= '/'.$subfolder;
+		}
+		if (!file_exists($current_folder)) {
+			$success = mkdir($current_folder);
+			if (!$success) {
+				wrap_error(sprintf('Could not create folder %s.', $current_folder), E_USER_ERROR);
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+/**
  * header_remove for old PHP 5.2
  *
  * @param string $header
