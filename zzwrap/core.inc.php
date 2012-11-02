@@ -37,6 +37,10 @@ function wrap_session_start() {
 		$last_error = error_get_last();
 	}
 	$success = session_start();
+	// try it twice, some providers have problems with ps_files_cleanup_dir()
+	// accessing the /tmp-directory and failing temporarily with
+	// insufficient access rights
+	if (!$success) $success = session_start();
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		// only throw 503 error if authentication is a MUST HAVE
 		// otherwise, page might still be accessible without authentication
@@ -44,6 +48,7 @@ function wrap_session_start() {
 			$session_error = error_get_last();
 			if ($last_error != $session_error
 				AND wrap_substr($session_error['message'], 'session_start()')) {
+				wrap_error('Login not possible: '.json_encode($session_error));
 				wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 			}
 		}
