@@ -27,9 +27,16 @@
  */
 function wrap_session_start() {
 	global $zz_setting;
+	global $zz_conf;
 	
 	// is already a session active?
 	if (session_id()) return false;
+	// change session_save_path
+	if (!empty($zz_setting['session_save_path'])) {
+		$success = wrap_mkdir($zz_setting['session_save_path']);
+		if ($success) 
+			session_save_path($zz_setting['session_save_path']);
+	}
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	$last_error = false;
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
@@ -40,7 +47,6 @@ function wrap_session_start() {
 	// try it twice, some providers have problems with ps_files_cleanup_dir()
 	// accessing the /tmp-directory and failing temporarily with
 	// insufficient access rights
-	if (!$success) $success = session_start();
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
 		// only throw 503 error if authentication is a MUST HAVE
 		// otherwise, page might still be accessible without authentication
@@ -53,7 +59,9 @@ function wrap_session_start() {
 			}
 		}
 	} else {
-		if (!$success) wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
+		// prior to PHP 5.3.0:
+		// If a session fails to start, then FALSE is returned. Previously TRUE was returned. 
+		if ($success) wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 	}
 	return true;
 }
