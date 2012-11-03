@@ -43,6 +43,8 @@ function wrap_session_start() {
 		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
 		$last_error = error_get_last();
 	}
+	// don't collide with other PHPSESSID on the same server, set own name:
+	session_name('zugzwang_sid');
 	$success = session_start();
 	// try it twice, some providers have problems with ps_files_cleanup_dir()
 	// accessing the /tmp-directory and failing temporarily with
@@ -104,7 +106,7 @@ function wrap_session_stop() {
 		$params = session_get_cookie_params();
 		setcookie(session_name(), '', time() - 42000, $params["path"],
 	        $params["domain"], $params["secure"], $params["httponly"]
-  		);
+		);
 	}
 	session_destroy();
 	if ($sql) wrap_db_query($sql, E_USER_NOTICE);
