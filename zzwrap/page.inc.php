@@ -574,7 +574,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$formatted_breadcrumbs = array();
 	foreach ($breadcrumbs as $crumb) {
 		// don't show placeholder paths
-		if (substr($crumb['url_path'], 0, 2) == '/%' AND substr($crumb['url_path'], -2) == '%/') continue;
+		$paths = explode('/', $crumb['url_path']);
+		foreach ($paths as $path) {
+			if (substr($path, 0, 1) == '%' AND substr($path, -1) == '%') continue 2;
+		}
 		$current = ($zz_setting['base'].$crumb['url_path'] == $_SERVER['REQUEST_URI'] ? true : false);
 		$formatted_breadcrumbs[] = 
 			(($current OR !$crumb['url_path'])
@@ -1184,6 +1187,14 @@ function wrap_number($number, $format = false) {
 		wrap_error(sprintf(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.'),
 			htmlspecialchars($format)), E_USER_NOTICE);
 		return '';
+	}
+}
+
+function wrap_money_format($number, $format = false) {
+	switch ($format) {
+	default:
+	case 'de':
+		return number_format($number, 2, ',', '.');
 	}
 }
 
