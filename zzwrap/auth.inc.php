@@ -228,7 +228,7 @@ function cms_login($params) {
 
 	$login['username'] = '';
 	$login['password'] = '';
-	$login['single_sign_on'] = false;
+	$login['different_sign_on'] = false;
 
 	// Check if there are parameters for single sign on
 	if (!empty($params[0]) AND $params[0] == 'Single Sign On') {
@@ -237,9 +237,16 @@ function cms_login($params) {
 		if ($params[1] != $zz_setting['single_sign_on_secret']) return false;
 		$login['username'] = $params[2];
 		if (!empty($params[3])) $login['context'] = $params[3];
-		$login['single_sign_on'] = true;
+		$login['different_sign_on'] = true;
 	} elseif (!empty($params[0])) {
 		return false; // other parameters are not allowed
+	}
+	
+	// Check if a Login via IP address is allowed
+	if ($sql = wrap_sql('login_ip')) {
+		$sql = sprintf($sql, inet_pton($_SERVER['REMOTE_ADDR']));
+		$login['username'] = wrap_db_fetch($sql, '', 'single value');
+		if ($login['username']) $login['different_sign_on'] = true;
 	}
 
 	// default settings
@@ -250,7 +257,7 @@ function cms_login($params) {
 	$loginform = array();
 	$loginform['msg'] = false;
 	// someone tried to login via POST
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' OR $login['single_sign_on']) {
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' OR $login['different_sign_on']) {
 	// send header for IE for P3P (Platform for Privacy Preferences Project)
 	// if cookie is needed
 		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
@@ -289,7 +296,7 @@ function cms_login($params) {
 		$data = wrap_db_fetch($sql);
 		if ($data) {
 			$hash = array_shift($data);
-			if ($login['single_sign_on']) {
+			if ($login['different_sign_on']) {
 				$_SESSION['logged_in'] = true;
 			} elseif (wrap_password_check($login['password'], $hash)) {
 				$_SESSION['logged_in'] = true;
