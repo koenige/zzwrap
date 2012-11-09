@@ -245,8 +245,11 @@ function cms_login($params) {
 	// Check if a Login via IP address is allowed
 	if ($sql = wrap_sql('login_ip')) {
 		$sql = sprintf($sql, inet_pton($_SERVER['REMOTE_ADDR']));
-		$login['username'] = wrap_db_fetch($sql, '', 'single value');
-		if ($login['username']) $login['different_sign_on'] = true;
+		$username = wrap_db_fetch($sql, '', 'single value');
+		if ($username) {
+			$login['different_sign_on'] = true;
+			$login['username'] = $username;
+		}
 	}
 
 	// default settings
