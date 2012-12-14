@@ -40,8 +40,10 @@ function wrap_session_start() {
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	$last_error = false;
 	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-		session_set_cookie_params(0, '/', $zz_setting['hostname'], false, true);
+		session_set_cookie_params(0, '/', $zz_setting['hostname'], $zz_setting['session_secure_cookie'], true);
 		$last_error = error_get_last();
+	} else {
+		session_set_cookie_params(0, '/', $zz_setting['hostname'], $zz_setting['session_secure_cookie']);
 	}
 	// don't collide with other PHPSESSID on the same server, set own name:
 	session_name('zugzwang_sid');

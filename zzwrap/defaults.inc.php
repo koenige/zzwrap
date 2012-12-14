@@ -75,7 +75,14 @@ function wrap_set_defaults_post_conf() {
 	if (!isset($zz_setting['ignore_scheme'])) $zz_setting['ignore_scheme'] = false;
 	if ($zz_setting['ignore_scheme']) 
 		$zz_setting['https'] = empty($_SERVER['HTTPS']) ? false : true;
-	
+
+	if (!isset($zz_setting['session_secure_cookie'])) {
+		$zz_setting['session_secure_cookie'] = true;
+	}
+	if ($zz_setting['no_https'] OR !$zz_setting['https']) {
+		$zz_setting['session_secure_cookie'] = false;
+	}
+
 	if (empty($zz_setting['protocol']))
 		$zz_setting['protocol'] 	= 'http'.($zz_setting['https'] ? 's' : '');
 	if (empty($zz_setting['host_base']))
