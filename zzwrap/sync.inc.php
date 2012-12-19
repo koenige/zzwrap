@@ -289,10 +289,10 @@ function wrap_sync_zzform($raw, $import) {
 			$values['POST'][$field_name] = $value;
 		}
 		if (!empty($ids[$identifier])) {
-			$values['POST']['zz_action'] = 'update';
+			$values['action'] = 'update';
 			$values['GET']['where'][$import['id_field_name']] = $ids[$identifier];
 		} else {
-			$values['POST']['zz_action'] = 'insert';
+			$values['action'] = 'insert';
 		}
 		if (!empty($import['testing'])) {
 			$nothing++;
