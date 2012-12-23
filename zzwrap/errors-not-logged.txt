@@ -22,6 +22,9 @@
 # wrong CMS, don't send enerving errors
 404	begin	/plugins/editors/tinymce/
 
+# JavaScript errors
+404	end	/undefined
+
 # encoded mail addresses, some bots are too stupid for them
 404	end	&
 404	end	%26
