@@ -56,6 +56,11 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	// PHP does not support all encodings
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
+
+	// Log prefix?
+	if (!empty($zz_setting['error_prefix'])) {
+		$msg = $zz_setting['error_prefix'].' '.$msg;
+	}
 	
 	// Log output
 	$log_output = $msg;
