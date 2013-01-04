@@ -36,5 +36,6 @@
 # this is a data-URL misinterpreted
 404	end	data:image/gif;base64,AAAA
 
-# some Chrome extension going wild
+# Chrome extension Ginyas Browser Companion going wild
+# see http://code.google.com/p/chromium/issues/detail?id=132059
 404	regex	~/cache/[a-z0-9]{32}$~
