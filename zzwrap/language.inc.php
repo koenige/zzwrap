@@ -70,6 +70,7 @@ function wrap_set_language() {
 	$zz_page['url']['redirect'] = true;
 	// vary header for caching
 	header('Vary: Accept-Language');
+	header('Cache-Control: private');
 
 	return true;
 }
