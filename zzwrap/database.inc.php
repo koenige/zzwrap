@@ -142,6 +142,14 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	if ($result) return $result;
 
 	// error
+	$close_connection_errors = array(
+		1030	// Got error %d from storage engine
+	);
+	if (in_array(mysql_errno(), $close_connection_errors)) {
+		mysql_close($zz_conf['db_connection']);
+		$zz_conf['db_connection'] = NULL;
+	}
+	
 	if (function_exists('wrap_error')) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), $error);
