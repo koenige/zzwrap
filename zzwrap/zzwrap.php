@@ -286,6 +286,7 @@ function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	$zz_setting['login_url']	= '/login/';
+	$zz_setting['logout_url']	= '/logout/';
 	// minutes until you will be logged out automatically while inactive
 	$zz_setting['logout_inactive_after'] = 30;
 

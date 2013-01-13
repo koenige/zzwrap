@@ -47,7 +47,10 @@ function wrap_set_defaults_post_conf() {
 	
 	if (empty($zz_setting['https'])) $zz_setting['https'] = false;
 	// HTTPS; zzwrap authentication will always be https
-	if (!empty($zz_setting['https_urls'])) {
+	if ($_SERVER['REQUEST_URI'] === $zz_setting['logout_url']) {
+		// Logout must go via HTTPS because of secure cookie
+		$zz_setting['https'] = true;
+	} elseif (!empty($zz_setting['https_urls'])) {
 		foreach ($zz_setting['https_urls'] AS $url) {
 			// check language strings
 			// @todo: add support for language strings at some other position of the URL
