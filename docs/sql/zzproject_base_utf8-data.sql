@@ -238,7 +238,7 @@ CREATE TABLE `filetypes` (
   `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `filetype_description` varchar(63) DEFAULT NULL,
-  `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
 ) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
