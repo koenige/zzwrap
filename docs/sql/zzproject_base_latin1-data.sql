@@ -379,6 +379,8 @@ CREATE TABLE `media` (
   `filetype_id` int(10) unsigned NOT NULL DEFAULT '0',
   `thumb_filetype_id` int(10) unsigned DEFAULT NULL,
   `filesize` int(10) unsigned NOT NULL DEFAULT '0',
+  `md5_hash` varchar(32) COLLATE latin1_german2_ci DEFAULT NULL,
+  `version` tinyint(3) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
   UNIQUE KEY `project_id` (`project_id`,`sequence`),
