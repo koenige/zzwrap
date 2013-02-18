@@ -49,6 +49,16 @@
 			<coordinates>%%% item longitude %%%,%%% item latitude %%%,%%% item altitude %%%</coordinates>
 		</Point>
 %%% condition endif %%%
+%%% condition if extended_data %%%
+		<ExtendedData>
+%%% loop extended_data %%%
+		<Data name="%%% item field_name %%%">
+			<displayName>%%% item title %%%</displayName>
+			<value>%%% item value %%%</value>
+		</Data>
+%%% loop end %%%
+		</ExtendedData>
+%%% condition endif %%%
 	</Placemark>
 %%% loop end %%%
 	</Document>
