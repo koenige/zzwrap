@@ -22,7 +22,7 @@
 		<Style id="%%% item id %%%">
 			<IconStyle>
 				<scale>1</scale>
-				<hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction" />
+				<hotSpot x="%%% item pos_x "%s" | 0.5 %%%" y="%%% item pos_y "%s" | 0 %%%" xunits="fraction" yunits="fraction" />
 				<Icon>
 					<href>%%% item href %%%</href>
 				</Icon>
