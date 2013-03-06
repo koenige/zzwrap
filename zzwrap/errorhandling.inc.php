@@ -308,6 +308,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		$page['text'] = str_replace('%%% page code %%%', $page['status'], $page['text']);
 		$page['text'] = str_replace('%%% page error_description %%%', $page['error_description'], $page['text']);
 		$page['text'] = str_replace('%%% page error_explanation %%%', $page['error_explanation'], $page['text']);
+		$page['text'] = str_replace('%%% page error_explanation "<p>%s</p>" %%%', '<p>'.$page['error_explanation'].'</p>', $page['text']);
+
 		include $zz_page['head'];
 		echo $page['text'];
 		include $zz_page['foot'];
