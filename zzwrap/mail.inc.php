@@ -31,8 +31,6 @@ function wrap_mail($mail) {
 	global $zz_conf;
 	global $zz_setting;
 
-	mb_internal_encoding(strtoupper($zz_conf['character_set']));
-
 	// To
 	$mail['to'] = wrap_mail_name($mail['to']);
 

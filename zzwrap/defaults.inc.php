@@ -25,6 +25,16 @@ function wrap_set_defaults_post_conf() {
 	global $zz_page;
 
 	// -------------------------------------------------------------------------
+	// Internationalization, Language, Character Encoding
+	// -------------------------------------------------------------------------
+
+	if (function_exists('mb_internal_encoding')) {
+		// (if PHP does not know character set, will default to
+		// ISO-8859-1)
+		mb_internal_encoding(strtoupper($zz_conf['character_set']));
+	}
+
+	// -------------------------------------------------------------------------
 	// Request method
 	// -------------------------------------------------------------------------
 	
