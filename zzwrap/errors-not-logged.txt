@@ -40,6 +40,7 @@
 # see http://code.google.com/p/chromium/issues/detail?id=132059
 404	regex	~/cache/[a-z0-9]{32}$~
 
+# Blue Coat ProxySG
 # Some system that blocks websites, unclear why they expect content
 # on a remote website (maybe proxy problem)
 # https://hypersonic.bluecoat.com/doc/578
