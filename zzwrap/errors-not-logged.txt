@@ -39,3 +39,10 @@
 # Chrome extension Ginyas Browser Companion going wild
 # see http://code.google.com/p/chromium/issues/detail?id=132059
 404	regex	~/cache/[a-z0-9]{32}$~
+
+# Some system that blocks websites, unclear why they expect content
+# on a remote website (maybe proxy problem)
+# https://hypersonic.bluecoat.com/doc/578
+# https://bto.bluecoat.com/doc/8577
+404	begin	/notified-
+404	begin	/verify-
