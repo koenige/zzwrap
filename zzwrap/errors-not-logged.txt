@@ -47,3 +47,4 @@
 # https://bto.bluecoat.com/doc/8577
 404	begin	/notified-
 404	begin	/verify-
+404	begin	/accepted-
