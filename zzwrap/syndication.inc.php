@@ -173,4 +173,78 @@ function wrap_syndication_errors($errno, $errstr, $errfile, $errline, $errcontex
 	return;
 }
 
+/**
+ * Get geographic coordinates and postal code from address or parts of an
+ * address
+ *
+ * @param array $address address data, utf8 encoded
+ *	string 'country'
+ *	string 'locality'
+ *	string 'postal_code' (optional)
+ *	string 'street_name' (optional)
+ *	string 'street_number' (optional)
+ * @return array
+ *		double 'longitude'
+ *		double 'latitude'
+ *		string 'postal_code'
+ */
+function wrap_syndication_geocode($address) {
+	global $zz_setting;
+	global $zz_error;
+	
+	if (!isset($zz_setting['geocoder'])) {
+		$zz_setting['geocoder'] = 'Google Maps';
+	}
+	switch ($zz_setting['geocoder']) {
+	case 'Google Maps':
+		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
+		$add = '';
+		if (isset($address['locality'])) {
+			$add = $address['locality'];
+		}
+		if (isset($address['postal_code'])) {
+			$add = $address['postal_code'].($add ? ' ' : '').$add;
+		}
+		$add = urlencode($add);
+		if (isset($address['street_name'])) {
+			$add = urlencode($address['street_name']
+				.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
+				.($add ? ',' : '').$add;
+		}
+		$region = isset($address['country']) ? $address['country'] : '';
+		$url = sprintf($url, $add, $region);
+		break;
+	default:
+		$zz_error[]['msg_dev'] = sprintf('Geocoder %s not supported.', $zz_setting['geocoder']);
+		break;
+	}
+
+	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
+	$zz_setting['cache_age_syndication'] = -1;
+	$coords = wrap_syndication_get($url);	
+	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
+	if ($coords['status'] !== 'OK') {
+		if ($coords['status'] === 'OVER_QUERY_LIMIT') {
+			// we must not cache this.
+			wrap_cache_delete(404, $url);
+		}
+		wrap_error(sprintf('Syndication from %s failed with status %s. (%s)',
+			$zz_setting['geocoder'], $coords['status'], $url));
+		return false;
+	}
+	
+	if (empty($coords['results'][0]['geometry']['location']['lng'])) return false;
+	$postal_code = '';
+	foreach ($coords['results'][0]['address_components'] as $component) {
+		if (in_array('postal_code', $component['types']))
+			$postal_code = $component['long_name'];
+	}
+	$result = array(
+		'longitude' => $coords['results'][0]['geometry']['location']['lng'], 
+		'latitude' => $coords['results'][0]['geometry']['location']['lat'],
+		'postal_code' => $postal_code
+	);
+	return $result;
+}
+
 ?>
