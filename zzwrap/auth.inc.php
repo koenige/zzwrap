@@ -31,17 +31,20 @@
  * - if current URL needs no authentication, but user is logged in: show that 
  * she or he is logged in, do not prolong login time, set person as logged out
  * if login time has passed
+ * @param bool $force explicitly force authentication
  * @global array $zz_setting
  * @global array $zz_page
  * @return bool true if login is necessary, false if no login is required
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
-function wrap_auth() {
+function wrap_auth($force = false) {
 	global $zz_setting;
 	global $zz_page;
 	static $authentication_was_called;
 
-	if ($authentication_was_called) return true; // don't run this function twice
+	if (!$force) {
+		if ($authentication_was_called) return true; // don't run this function twice
+	}
 	$authentication_was_called = true;
 
 	// check if there are URLs that need authentication
@@ -55,31 +58,33 @@ function wrap_auth() {
 	wrap_sql('auth', 'set');
 
 	// check if current URL needs authentication
-	$authentication = false;
-	foreach($zz_setting['auth_urls'] as $auth_url) {
-		if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) != strtolower($auth_url))
-			continue;
-		if ($zz_page['url']['full']['path'] == $zz_setting['login_url'])
-			continue;
-		if (wrap_authenticate_url())
-			$authentication = true;
-	}
-
-	if (!$authentication) {
-		// Keep session if logged in and clicking on the public part of the page
-		// but do not prolong time until automatically logging out someone
-		if (isset($_SESSION)) return false;
-		if (empty($_COOKIE[session_name()])) return false;
-		wrap_session_start();
-		// calculate maximum login time
-		// you'll stay logged in for x minutes
-		$keep_alive = $zz_setting['logout_inactive_after'] * 60;
-		if (empty($_SESSION['last_click_at']) OR
-			$_SESSION['last_click_at']+$keep_alive < time()) {
-			// automatically logout
-			wrap_session_stop();
+	if (!$force) {
+		$authentication = false;
+		foreach ($zz_setting['auth_urls'] as $auth_url) {
+			if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) != strtolower($auth_url))
+				continue;
+			if ($zz_page['url']['full']['path'] == $zz_setting['login_url'])
+				continue;
+			if (wrap_authenticate_url())
+				$authentication = true;
 		}
-		return false;
+
+		if (!$authentication) {
+			// Keep session if logged in and clicking on the public part of the page
+			// but do not prolong time until automatically logging out someone
+			if (isset($_SESSION)) return false;
+			if (empty($_COOKIE[session_name()])) return false;
+			wrap_session_start();
+			// calculate maximum login time
+			// you'll stay logged in for x minutes
+			$keep_alive = $zz_setting['logout_inactive_after'] * 60;
+			if (empty($_SESSION['last_click_at']) OR
+				$_SESSION['last_click_at']+$keep_alive < time()) {
+				// automatically logout
+				wrap_session_stop();
+			}
+			return false;
+		}
 	}
 
 	$now = time();
