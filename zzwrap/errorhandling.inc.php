@@ -215,6 +215,7 @@ function wrap_error_summary() {
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
 	global $zz_conf;
+	global $zz_page;
 
 	// -- 1. check what kind of error page it is
 	// if wanted, check if mod_rewrite works
@@ -282,6 +283,10 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		$page['nav_db'] = wrap_get_menu();
 	}
 	
+	// error pages have no last update
+	$page[wrap_sql('lastupdate')] = false;
+	$zz_page['db'][wrap_sql('lastupdate')] = false;
+	
 	// -- 3. output HTTP header
 	header($_SERVER['SERVER_PROTOCOL'].' '.$status['code'].' '.$status['text']);
 	if ($page['status'] == 405) {
@@ -294,7 +299,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 
 	// -- 5. output page
 	
-	if ($zz_setting['brick_page_templates'] == true) {
+	if ($zz_setting['brick_page_templates'] === true) {
 		wrap_htmlout_page($page);
 	} else {
 		if (!empty($zz_conf['character_set']))
