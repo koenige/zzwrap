@@ -939,6 +939,11 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		$zz_page['character_set'] = $zz_conf['character_set'];
 		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.csv';
 		break;
+	case 'ics':
+		$zz_page['content_type'] = 'text/calendar';
+		$zz_page['character_set'] = 'utf-8';
+		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.ics';
+		break;
 	default:
 		break;
 	}
