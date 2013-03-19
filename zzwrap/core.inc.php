@@ -846,7 +846,7 @@ function wrap_file_send($file) {
 	$download_filetypes = array('application/octet-stream', 'application/zip', 
 		'text/html', 'application/xhtml+xml');
 	if (in_array($zz_page['content_type'], $download_filetypes)) {
-		header('Content-Disposition: attachment; filename="'.$file['send_as'].'"');
+		wrap_http_content_disposition('attachment', $file['send_as']);
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
 		header('Pragma: public');
 			// dieser Header widerspricht im Grunde dem mit SESSION ausgesendeten
@@ -855,7 +855,7 @@ function wrap_file_send($file) {
 			// erlauben, wenn Cache-Control gesetzt ist.
 			// http://support.microsoft.com/kb/323308/de
 	} else {
-		header('Content-Disposition: inline; filename="'.$file['send_as'].'"');
+		wrap_http_content_disposition('inline', $file['send_as']);
 	}
 	
 	wrap_send_ressource('file', $file);
@@ -947,8 +947,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	default:
 		break;
 	}
-	if ($filename) {
-		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
+	if ($filename) {	
+		wrap_http_content_disposition('attachment', $filename);
 	}
 	if (!empty($zz_page['content_type'])) {
 		if (!empty($zz_page['character_set'])) {
@@ -990,6 +990,37 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	wrap_if_modified_since($last_modified_time);
 
 	wrap_send_ressource('memory', $text, $etag_header);
+}
+
+/**
+ * Send a HTTP Content-Disposition-Header with a filename
+ *
+ * @param string $type 'inline' or 'attachment'
+ * @param string $filename
+ * @global $zz_conf
+ * @return void
+ */
+function wrap_http_content_disposition($type, $filename) {
+	global $zz_conf;
+
+	// RFC 2616: filename must consist of all ASCII characters
+	// RFC 5987: filename* may be sent with UTF-8 encoding
+	$filename_ascii = $filename;
+	if ($zz_conf['character_set'] === 'utf-8') {
+		$filename_ascii = utf8_decode($filename_ascii);
+	} else {
+		// @todo use iconv for encodings different from latin1
+		$filename = utf8_encode($filename);
+	}
+	$filename_ascii = preg_replace('/[^(\x20-\x7F)]*/','', $filename_ascii);
+	if ($filename_ascii !== $filename) {
+		header(sprintf(
+			'Content-Disposition: attachment; filename="%s"; filename*=utf-8\'\'%s',
+			$filename_ascii, rawurlencode($filename))
+		);
+	} else {
+		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename_ascii));
+	}
 }
 
 /**
@@ -1337,6 +1368,9 @@ function wrap_etag_check($etag_header, $http_request) {
  * @return array
  */
 function wrap_etag_header($etag) {
+	if (substr($etag, 0, 1) === '"' AND substr($etag, -1) === '"') {
+		$etag = substr(etag, 1, -1);
+	}
 	$etag_header = array(
 		'std' => sprintf('"%s"', $etag),
 		'gz' => sprintf('"%s"', $etag.'-gz')
@@ -1689,7 +1723,11 @@ function wrap_mkdir($folder) {
  */
 if (!function_exists('header_remove')) {
 	function header_remove($header) {
-		header($header.':');
+		$headers = headers_list();
+		foreach ($headers as $listed) {
+			if (substr($listed, 0, strlen($header)+1) !== $header.':') continue;
+			header($header.':');
+		}
 	}
 }
 
