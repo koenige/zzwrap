@@ -346,14 +346,19 @@ function wrap_check_canonical_ending($ending, $url) {
 function wrap_read_url($url) {
 	// better than mod_rewrite, because '&' won't always be treated correctly
 	$url['db'] = $url['full']['path'];
-	$url['suffix_length'] = !empty($_GET['lang']) ? strlen($_GET['lang']) + 6 : 5;
+	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
+		// might be array if someone constructs an invalid URL
+		$url['suffix_length'] = strlen($_GET['lang']) + 6;
+	} else {
+		$url['suffix_length'] = 5;
+	}
 	// cut '/' at the beginning and - if necessary - at the end
 	if (substr($url['db'], 0, 1) == '/') $url['db'] = substr($url['db'], 1);
 	if (substr($url['db'], -1) == '/') $url['db'] = substr($url['db'], 0, -1);
 	if (substr($url['db'], -5) == '.html') $url['db'] = substr($url['db'], 0, -5);
 	elseif (substr($url['db'], -8) == '.html%3E') $url['db'] = substr($url['db'], 0, -8);
 	elseif (substr($url['db'], -4) == '.php') $url['db'] = substr($url['db'], 0, -4);
-	if (!empty($_GET['lang']))
+	if (!empty($_GET['lang']) AND !is_array($_GET['lang']))
 		if (substr($url['db'], -$url['suffix_length']) == '.html.'.$_GET['lang']) 
 			$url['db'] = substr($url['db'], 0, -$url['suffix_length']);
 	return $url;
