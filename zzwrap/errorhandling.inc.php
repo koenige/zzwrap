@@ -241,7 +241,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	$status = wrap_http_status_list($page['status']);
 	if (!$status) {
-		wrap_error(sprintf('Status %s is not a valid HTTP status code.', $status), E_USER_NOTICE);
+		wrap_error(sprintf('Status %s is not a valid HTTP status code.', $page['status']), E_USER_NOTICE);
 		$page['status'] = 404;
 		$status = wrap_http_status_list($page['status']);
 	}
