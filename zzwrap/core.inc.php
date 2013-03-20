@@ -643,7 +643,7 @@ function wrap_http_status_list($code) {
 	$pos[2] = 'description';
 	$codes_from_file = file($zz_setting['core'].'/http-statuscodes.txt');
 	foreach ($codes_from_file as $line) {
-		if (substr($line, 0, 1) == '#') continue;	// Lines with # will be ignored
+		if (substr($line, 0, 1) === '#') continue;	// Lines with # will be ignored
 		elseif (!trim($line)) continue;				// empty lines will be ignored
 		if (substr($line, 0, 3) != $code) continue;
 		$values = explode("\t", trim($line));
