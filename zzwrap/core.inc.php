@@ -1369,7 +1369,7 @@ function wrap_etag_check($etag_header, $http_request) {
  */
 function wrap_etag_header($etag) {
 	if (substr($etag, 0, 1) === '"' AND substr($etag, -1) === '"') {
-		$etag = substr(etag, 1, -1);
+		$etag = substr($etag, 1, -1);
 	}
 	$etag_header = array(
 		'std' => sprintf('"%s"', $etag),
