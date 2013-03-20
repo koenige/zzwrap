@@ -750,7 +750,7 @@ function wrap_db_escape($value) {
 	// should never happen, just during development
 	if (!$value) return '';
 	if (is_array($value) OR is_object($value)) {
-		wrap_error(__FUNCTION__'() - value is not a string: '.json_encode($value));
+		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
 		return '';
 	}
 	if (function_exists('mysql_real_escape_string')) { 
