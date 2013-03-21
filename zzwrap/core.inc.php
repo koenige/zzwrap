@@ -1020,11 +1020,11 @@ function wrap_http_content_disposition($type, $filename) {
 	$filename_ascii = preg_replace('/[^(\x20-\x7F)]*/','', $filename_ascii);
 	if ($filename_ascii !== $filename) {
 		header(sprintf(
-			'Content-Disposition: attachment; filename="%s"; filename*=utf-8\'\'%s',
-			$filename_ascii, rawurlencode($filename))
+			'Content-Disposition: %s; filename="%s"; filename*=utf-8\'\'%s',
+			$type, $filename_ascii, rawurlencode($filename))
 		);
 	} else {
-		header(sprintf('Content-Disposition: attachment; filename="%s"', $filename_ascii));
+		header(sprintf('Content-Disposition: %s; filename="%s"', $type, $filename_ascii));
 	}
 }
 
