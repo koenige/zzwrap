@@ -144,7 +144,8 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	// error
 	$close_connection_errors = array(
 		1030,	// Got error %d from storage engine
-		2006	// MySQL server has gone away
+		2006,	// MySQL server has gone away
+		2008	// MySQL client ran out of memory
 	);
 	if (in_array(mysql_errno(), $close_connection_errors)) {
 		mysql_close($zz_conf['db_connection']);
