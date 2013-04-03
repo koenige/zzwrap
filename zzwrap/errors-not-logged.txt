@@ -48,3 +48,9 @@
 404	begin	/notified-
 404	begin	/verify-
 404	begin	/accepted-
+
+# - unknown -
+404	end	/undefinedsf_main.jsp?clientVersion=null&dlsource=null&CTID=null&userId=userIdFail&statsReporter=false
+
+# WordPress
+404	end	/wp-login.php
