@@ -257,7 +257,14 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	}
 
 	// get page language: $zz_setting['lang']
-	if (!$target_language) $target_language = $zz_setting['lang'];
+	if (!$target_language) {
+		if (!empty($zz_setting['lang'])) { 
+			$target_language = $zz_setting['lang'];
+		} else {
+			// we do not have a language to translate to, return data untranslated
+			return $data;
+		}
+	}
 
 	// check which of the fields of the table might have translations
 	$sql_tt = 'SELECT translationfield_id, %s AS field_key, field_type
