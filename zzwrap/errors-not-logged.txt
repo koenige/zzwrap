@@ -54,3 +54,6 @@
 
 # WordPress
 404	end	/wp-login.php
+
+# - unknown (could be JavaScript, but appears on webpages without JS as well)
+404	end	/[object]
