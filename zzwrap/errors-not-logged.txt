@@ -55,5 +55,6 @@
 # WordPress
 404	end	/wp-login.php
 
-# - unknown (could be JavaScript, but appears on webpages without JS as well)
+# - unknown, probably a toolbar or something else; request are made
+# even if referer URL is redirected with a HTTP 302
 404	end	/[object]
