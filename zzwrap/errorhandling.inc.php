@@ -434,22 +434,32 @@ function wrap_errorpage_ignore($status) {
 			}
 			switch ($line[1]) {
 			case 'all':
-				if ($_SERVER['REQUEST_URI'] == $line[2]) {
+				if ($_SERVER['REQUEST_URI'] === $line[2]) {
 					return true;
 				}
 				break;
 			case 'end':
-				if (substr($_SERVER['REQUEST_URI'], -(strlen($line[2]))) == $line[2]) {
+				if (substr($_SERVER['REQUEST_URI'], -(strlen($line[2]))) === $line[2]) {
 					return true;
 				}
 				break;
 			case 'begin':
-				if (substr($_SERVER['REQUEST_URI'], 0, (strlen($line[2]))) == $line[2]) {
+				if (substr($_SERVER['REQUEST_URI'], 0, (strlen($line[2]))) === $line[2]) {
 					return true;
 				}
 				break;
 			case 'regex':
 				if (preg_match($line[2], $_SERVER['REQUEST_URI'])) {
+					return true;
+				}
+				break;
+			case 'ip':
+				if (substr($_SERVER['REMOTE_ADDR'], 0, (strlen($line[2]))) === $line[2]) {
+					return true;
+				}
+				break;
+			case 'ua':
+				if ($_SERVER['HTTP_USER_AGENT'] === $line[2]) {
 					return true;
 				}
 				break;

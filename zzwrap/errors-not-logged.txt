@@ -58,3 +58,7 @@
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
 404	end	/[object]
+
+# Broken spider which does not say if it's supporting robots.txt
+# and creates links from every string it sees in JavaScript files
+404	ua	Mozilla/5.0 (compatible;WI Job Roboter Spider Version 3;+http://www.webintegration.at)
