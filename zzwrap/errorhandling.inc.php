@@ -459,6 +459,7 @@ function wrap_errorpage_ignore($status) {
 				}
 				break;
 			case 'ua':
+				if (empty($_SERVER['HTTP_USER_AGENT'])) break;
 				if ($_SERVER['HTTP_USER_AGENT'] === $line[2]) {
 					return true;
 				}
