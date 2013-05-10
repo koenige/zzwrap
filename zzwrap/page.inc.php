@@ -161,6 +161,10 @@ function wrap_get_menu() {
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
 				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
+			if ($menu[$id][$nav_id]['current_page']) {
+				$menu['current_navitem'] = $nav_id;
+				$menu['current_menu'] = $id;
+			}
 			// create ID for CSS, JavaScript
 			if (!empty($item['id_title']))
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title']);
@@ -768,6 +772,18 @@ function wrap_get_page() {
 	$page['project']	= !empty($page['project']) ? $page['project'] : $zz_conf['project'];
 	$page['pagetitle']	= wrap_page_title($page);
 	$page['nav_db']		= wrap_get_menu();
+	if (isset($page['nav_db']['current_navitem'])) {
+		$page['current_navitem'] = $page['nav_db']['current_navitem'];
+		unset($page['nav_db']['current_navitem']);
+	} else {
+		$page['current_navitem'] = 0;
+	}
+	if (isset($page['nav_db']['current_menu'])) {
+		$page['current_menu'] = $page['nav_db']['current_menu'];
+		unset($page['nav_db']['current_menu']);
+	} else {
+		$page['current_menu'] = '';
+	}
 	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
 	if (!empty($zz_page['db'][wrap_sql('author_id')]))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
