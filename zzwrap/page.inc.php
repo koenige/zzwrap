@@ -136,13 +136,18 @@ function wrap_create_id($id_title) {
  * global variables: 
  * $zz_setting['menu']
  *
- * @return array $menu: 'title', 'url', 'current_page', 'id', 'subtitle'
+ * @param array $page
+ * @return array
+ *	$page['nav_db']: 'title', 'url', 'current_page', 'id', 'subtitle'
  */
-function wrap_get_menu() {
+function wrap_get_menu($page) {
 	global $zz_setting;
 	if (empty($zz_setting['menu'])) 
 		$zz_setting['menu'] = 'webpages';
 	
+	$page['current_navitem'] = 0;
+	$page['current_menu'] = '';
+
 	if ($zz_setting['menu'] == 'navigation') {
 		// Menu from separate navigation table
 		$menu = wrap_get_menu_navigation();
@@ -150,7 +155,7 @@ function wrap_get_menu() {
 		// Menu settings included in webpages table
 		$menu = wrap_get_menu_webpages();
 	}
-	if (empty($menu)) return array();
+	if (empty($menu)) return $page;
 
 	// set current_page, id, subtitle, url with base for _ALL_ menu items
 	foreach (array_keys($menu) as $id) {
@@ -162,8 +167,8 @@ function wrap_get_menu() {
 			$menu[$id][$nav_id]['current_page'] = 
 				($item['url'] == $_SERVER['REQUEST_URI']) ? true : false;
 			if ($menu[$id][$nav_id]['current_page']) {
-				$menu['current_navitem'] = $nav_id;
-				$menu['current_menu'] = $id;
+				$page['current_navitem'] = $nav_id;
+				$page['current_menu'] = $id;
 			}
 			// create ID for CSS, JavaScript
 			if (!empty($item['id_title']))
@@ -172,7 +177,9 @@ function wrap_get_menu() {
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
 		}
 	}
-	return $menu;
+
+	$page['nav_db'] = $menu;
+	return $page;
 }
 
 /**
@@ -773,19 +780,7 @@ function wrap_get_page() {
 	$page['title']		= wrap_page_h1($page);
 	$page['project']	= !empty($page['project']) ? $page['project'] : $zz_conf['project'];
 	$page['pagetitle']	= wrap_page_title($page);
-	$page['nav_db']		= wrap_get_menu();
-	if (isset($page['nav_db']['current_navitem'])) {
-		$page['current_navitem'] = $page['nav_db']['current_navitem'];
-		unset($page['nav_db']['current_navitem']);
-	} else {
-		$page['current_navitem'] = 0;
-	}
-	if (isset($page['nav_db']['current_menu'])) {
-		$page['current_menu'] = $page['nav_db']['current_menu'];
-		unset($page['nav_db']['current_menu']);
-	} else {
-		$page['current_menu'] = '';
-	}
+	$page				= wrap_get_menu($page);
 	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
 	if (!empty($zz_page['db'][wrap_sql('author_id')]))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
