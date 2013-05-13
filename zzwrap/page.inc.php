@@ -383,7 +383,9 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		if (empty($item['subtitle'])) $item['subtitle'] = '';
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
-		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) == $item['url']) ? true : false;
+		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
+		// all pages are below homepage, don't highlight this
+		if ($item['url'] === '/') $page_below = false;
 
 		$class = array();
 		if (!$i) $class[] = 'first-child';
