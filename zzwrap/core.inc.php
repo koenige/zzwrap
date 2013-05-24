@@ -920,12 +920,12 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	case 'json':
 		$zz_page['content_type'] = 'application/json';
 		$zz_page['character_set'] = 'utf-8';
-		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.json';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.json';
 		break;
 	case 'kml':
 		$zz_page['content_type'] = 'application/vnd.google-earth.kml+xml';
 		$zz_page['character_set'] = 'utf-8';
-		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.kml';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.kml';
 		break;
 	case 'mediarss':
 		$zz_page['content_type'] = 'application/xhtml+xml';
@@ -942,12 +942,12 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	case 'csv':
 		$zz_page['content_type'] = 'text/csv';
 		$zz_page['character_set'] = $zz_conf['character_set'];
-		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.csv';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.csv';
 		break;
 	case 'ics':
 		$zz_page['content_type'] = 'text/calendar';
 		$zz_page['character_set'] = 'utf-8';
-		$filename = !empty($headers['filename']) ? $headers['filename'] : 'download.ics';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.ics';
 		break;
 	default:
 		break;
