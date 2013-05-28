@@ -400,6 +400,18 @@ function wrap_errorpage_log($status, $page) {
 	case 501:
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
+	case 500:
+		if (substr($_SERVER['SERVER_PROTOCOL'], 0, 4) !== 'HTTP') {
+			$msg .= sprintf(
+				wrap_text('Unsupported server protocol (%s)'),
+				htmlspecialchars($_SERVER['SERVER_PROTOCOL'])
+			);
+			wrap_error($msg, E_USER_NOTICE, $settings);
+		} else {
+			$msg .= "\n".json_encode($_SERVER);
+			wrap_error($msg, E_USER_WARNING, $settings);
+		}
+		break;
 	default:
 		wrap_error($msg, E_USER_WARNING, $settings);
 		break;

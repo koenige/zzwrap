@@ -41,13 +41,13 @@ $text['Found'] = 'Umleitung (unbestimmt)';
 $text['See Other'] = 'Umleitung';
 
 // HTTP Status Code 304
-$text['Not Modified'] = 'Keine Veränderung';
+$text['Not Modified'] = 'Keine Ver&auml;nderung';
 
 // HTTP Status Code 305
 $text['Use Proxy'] = 'Proxy benutzen';
 
 // HTTP Status Code 307
-$text['Temporary Redirect'] = 'Vorübergehende Umleitung';
+$text['Temporary Redirect'] = 'Vor&uuml;bergehende Umleitung';
 
 // HTTP Status Code 400
 $text['Bad Request'] = 'Fehlerhafte Anfrage';
@@ -117,6 +117,7 @@ $text['Expectation Failed'] = 'Erwartung (<code>Expect</code>) fehlgeschlagen';
 // HTTP Status Code 500	
 $text['Internal Server Error'] = 'Serverfehler';
 $text['The server encountered an internal error and was unable to complete your request.'] = 'Die Anfrage kann nicht beantwortet werden, da im Server ein interner Fehler aufgetreten ist.';
+$text['Unsupported server protocol (%s)'] = 'Server-Protokoll wird nicht unterst&uuml;tzt (%s)';
 
 // HTTP Status Code 501
 $text['Not Implemented'] = 'Abfrage nicht unterst&uuml;tzt';
