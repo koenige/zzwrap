@@ -760,8 +760,12 @@ function wrap_get_page() {
 	global $zz_conf;
 	global $zz_page;
 	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
-	
-	$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
+
+	if (!empty($_POST['xmlHttpRequest'])) {
+		$page = brick_xhr($_POST['xmlHttpRequest'], $zz_page['db']['parameter']);
+	} else {
+		$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
+	}
 	wrap_page_check_if_error($page);
 
 	if (!empty($page['content_type']) AND $page['content_type'] != 'html') {
