@@ -1071,6 +1071,7 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 	
 	// Binary output, without gzip, with ranges
 	// Ranges HTTP header field
+	ignore_user_abort(1); // make sure we can delete temporary files at the end
 	$chunksize = 1 * (1024 * 16); // how many bytes per chunk
 	$ranges = wrap_ranges_check($zz_page);
 	if (!$ranges) {
