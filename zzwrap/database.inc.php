@@ -527,7 +527,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				// is still part of the remaining sql query, because
 				// preg_match will take 2000 times longer if there is no match
 				// at all (bug in php?)
-				if (strstr($o_parts[$statement][1], $statement) 
+				if (stristr($o_parts[$statement][1], $statement) 
 					AND preg_match($search, $o_parts[$statement][1], $o_parts[$statement])) {
 					$o_parts[$statement][2] = $o_parts[$statement][2].' '.$lastpart;
 				} else {
