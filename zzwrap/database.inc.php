@@ -164,6 +164,14 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	return false;	
 }
 
+/**
+ * Return current Unix timestamp with microseconds as float
+ * = microtime(true) in PHP 5
+ *
+ * @return float
+ * @deprecated
+ * @todo remove from zzwrap
+ */
 function wrap_microtime_float() {
     list($usec, $sec) = explode(" ", microtime());
     return ((float)$usec + (float)$sec);
