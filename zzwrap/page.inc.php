@@ -1207,12 +1207,35 @@ function wrap_number($number, $format = false) {
 	}
 }
 
+/**
+ * returns own money_format
+ *
+ * @param double $number
+ * @param string $format (optional)
+ * @todo read default format from settings, as in wrap_number()
+ */
 function wrap_money_format($number, $format = false) {
 	switch ($format) {
 	default:
 	case 'de':
 		return number_format($number, 2, ',', '.');
 	}
+}
+
+/**
+ * returns random hash to use as a short identifier
+ *
+ * @param int $length
+ * @param string $charset (optional)
+ * @return string
+ */
+function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
+    $str = '';
+    $count = strlen($charset) - 1;
+    while ($length--) {
+        $str .= $charset[mt_rand(0, $count)];
+    }
+    return $str;
 }
 
 ?>
