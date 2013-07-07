@@ -724,6 +724,8 @@ function wrap_check_request() {
 		}
 	}
 
+	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
+	
 	// check REQUEST_METHOD, quit if inappropriate
 	// $zz_page['url'] needed for wrap_quit()
 	wrap_check_http_request_method();
@@ -741,6 +743,65 @@ function wrap_check_request() {
 		else
 			$zz_page['deep'] = '/';
 	}
+}
+
+/**
+ * normalizes a URL
+ *
+ * @param array $url (scheme, host, path, ...)
+ * @return array
+ */
+function wrap_url_normalize($url) {
+	// RFC 3986 Section 6.2.2.3. Path Segment Normalization
+	// Normally, the browser will already do that
+	if (strstr($url['path'], '/../')) {
+		// /path/../ = /
+		// @todo implement that
+	}
+	if (strstr($url['path'], '/./')) {
+		// /path/./ = /path/
+		$url['path'] = str_replace('/./', '/', $url['path']);
+	}
+
+	// RFC 3986 Section 6.2.2.2. Percent-Encoding Normalization
+	if (strstr($url['path'], '%')) {
+		$url['path'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_path_decode', $url['path']);
+	}
+	
+	// @todo normalize query string
+	return $url;
+}
+
+/**
+ * Normalizes percent encoded characters in URL path into equivalent characters
+ * if encoding is superfluous
+ * @see RFC 3986 Section 6.2.2.2. Percent-Encoding Normalization
+ *
+ * Characters which will remain percent encoded (range: 0020 - 007F) are
+ * 0020    0022 "  0023 #  0025 %  002F /
+ * 003C <  003E >  003F ?
+ * 005B [  005C \  005D ]  005E ^
+ * 0060 `  
+ * 007B {  007C |  007D }  007F [DEL]
+ *
+ * @param $input array
+ * @return string
+ */
+function wrap_url_path_decode($input) {
+	$codepoint = substr(strtoupper($input[0]), 1);
+	if (hexdec($codepoint) < hexdec('20')) return 'a%'.$codepoint;
+	if (hexdec($codepoint) > hexdec('7E')) return 'b%'.$codepoint;
+	$dont_encode = array(
+		'20', '22', '23', '25', '2F',
+		'3C', '3E', '3F',
+		'5B', '5C', '5D', '5E',
+		'60',
+		'7B', '7C', '7D'
+	);
+	if (in_array($codepoint, $dont_encode)) {
+		return '%'.$codepoint;
+	}
+	return chr(hexdec($codepoint));
 }
 
 /**
