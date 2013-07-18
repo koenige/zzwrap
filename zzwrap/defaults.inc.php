@@ -75,8 +75,16 @@ function wrap_set_defaults_post_conf() {
 			}
 		}
 	}
-	// local connections are never made via https
+	// local (development) connections are never made via https
 	if (!empty($zz_setting['local_access'])) {
+		$zz_setting['https'] = false;
+		$zz_setting['no_https'] = true;
+	}
+	// connections from local don't need to go via https
+	// makes it easier for some things
+	if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1'
+		OR $_SERVER['REMOTE_ADDR'] === '::1'
+		OR $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR']) {
 		$zz_setting['https'] = false;
 		$zz_setting['no_https'] = true;
 	}
