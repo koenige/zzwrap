@@ -266,6 +266,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 			// you can reach this part here with a dummy id_field_name
 			// because no $id_field_name is needed!
 			while ($line = mysql_fetch_array($result)) {
+				if (!$line[0]) continue;
 				$lines[$line[0]] = $line[0];
 			}
 		} elseif ($format == 'key/value') {
