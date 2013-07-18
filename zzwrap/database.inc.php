@@ -402,13 +402,18 @@ function wrap_db_parents($id, $sql) {
 	$ids = array();
 	$result = true;
 	while ($result) {
-		$id = wrap_db_fetch(sprintf($sql, $id), '', 'single value');
-		// no infinite recursion please:
-		if (in_array($id, $ids)) {
-			wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_WARNING);
-			break;
-		} elseif ($id) {
-			$ids[] = $id;
+		// allow several parent IDs as well
+		$new_ids = wrap_db_fetch(sprintf($sql, $id), '_dummy_', 'single value');
+		if ($new_ids) {
+			foreach ($new_ids as $id) {
+				// no infinite recursion please:
+				if (in_array($id, $ids)) {
+					wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_WARNING);
+					break;
+				} else {
+					$ids[] = $id;
+				}
+			}
 		} else {
 			$result = false;
 		}
