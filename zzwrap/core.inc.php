@@ -816,7 +816,7 @@ function wrap_check_http_request_method() {
 		if (strtoupper($_SERVER['REQUEST_METHOD']) === 'OPTIONS') {
 			// @todo allow checking request methods depending on ressources
 			// e. g. GET only ressources may forbid POST
-			header('Allow: '.implode(', ', $zz_setting['http']['allowed']));
+			header('Allow: '.implode(',', $zz_setting['http']['allowed']));
 			header('Content-Length: 0');
 			exit;
 		} else {

@@ -290,7 +290,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// -- 3. output HTTP header
 	header($_SERVER['SERVER_PROTOCOL'].' '.$status['code'].' '.$status['text']);
 	if ($page['status'] == 405) {
-		header('Allow: '.implode(', ', $zz_setting['http']['allowed']));
+		header('Allow: '.implode(',', $zz_setting['http']['allowed']));
 	}
 	
 	// -- 4. error logging
