@@ -812,8 +812,17 @@ function wrap_url_path_decode($input) {
  */
 function wrap_check_http_request_method() {
 	global $zz_setting;
-	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed']))
-		return true;
+	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
+		if (strtoupper($_SERVER['REQUEST_METHOD']) === 'OPTIONS') {
+			// @todo allow checking request methods depending on ressources
+			// e. g. GET only ressources may forbid POST
+			header('Allow: '.implode(', ', $zz_setting['http']['allowed']));
+			header('Content-Length: 0');
+			exit;
+		} else {
+			return true;
+		}
+	}
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
 		wrap_quit(405);	// 405 Not Allowed
 	}
@@ -1103,7 +1112,7 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 	header_remove('X-Powered-By');
 
 	// HEAD HTTP request
-	if (stripos($_SERVER['REQUEST_METHOD'], 'HEAD') !== FALSE) {
+	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
 		if ($type === 'file') wrap_file_cleanup($content);
 		wrap_log_uri();
 		exit;

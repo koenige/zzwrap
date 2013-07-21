@@ -39,7 +39,7 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	
 	if (empty($zz_setting['http']['allowed'])) {
-		$zz_setting['http']['allowed'] = array('GET', 'HEAD', 'POST');
+		$zz_setting['http']['allowed'] = array('GET', 'HEAD', 'POST', 'OPTIONS');
 	} else {
 		// The following REQUEST methods must always be allowed in general:
 		if (!in_array('GET', $zz_setting['http']['allowed']))
@@ -48,7 +48,7 @@ function wrap_set_defaults_post_conf() {
 			$zz_setting['http']['allowed'][] = 'HEAD';
 	}
 	if (empty($zz_setting['http']['not_allowed'])) {
-		$zz_setting['http']['not_allowed'] = array('OPTIONS', 'PUT', 'DELETE', 'TRACE', 'CONNECT');
+		$zz_setting['http']['not_allowed'] = array('PUT', 'DELETE', 'TRACE', 'CONNECT');
 	}
 	
 	// -------------------------------------------------------------------------
