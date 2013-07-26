@@ -1750,6 +1750,13 @@ function wrap_hierarchy($data, $main_field_name, $top_id = 'NULL') {
  * @return array $id => $level, sorted as $data is sorted (parts of it)
  */
 function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
+	if (!array_key_exists($top_id, $indexed_by_main)) {
+		wrap_error(sprintf(
+			'Creating hierarchy impossible because ID %d is not part of the given list'
+			, $top_id)
+		);
+		return array();
+	}
 	$keys = array_keys($indexed_by_main[$top_id]);
 	foreach ($keys as $id) {
 		$hierarchy[$id] = $level;
