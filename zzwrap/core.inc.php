@@ -789,8 +789,8 @@ function wrap_url_normalize($url) {
  */
 function wrap_url_path_decode($input) {
 	$codepoint = substr(strtoupper($input[0]), 1);
-	if (hexdec($codepoint) < hexdec('20')) return 'a%'.$codepoint;
-	if (hexdec($codepoint) > hexdec('7E')) return 'b%'.$codepoint;
+	if (hexdec($codepoint) < hexdec('20')) return '%'.$codepoint;
+	if (hexdec($codepoint) > hexdec('7E')) return '%'.$codepoint;
 	$dont_encode = array(
 		'20', '22', '23', '25', '2F',
 		'3C', '3E', '3F',
