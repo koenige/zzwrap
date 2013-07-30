@@ -35,7 +35,6 @@
  * @global array $zz_setting
  * @global array $zz_page
  * @return bool true if login is necessary, false if no login is required
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_auth($force = false) {
 	global $zz_setting;
@@ -160,7 +159,6 @@ function wrap_auth($force = false) {
  * @param string $url URL from database
  * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
  * @return bool true if authentication is required, false if not
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
 	global $zz_page;
@@ -185,7 +183,6 @@ function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
  * should be used via %%% request logout %%%
  * @param array $params -
  * @return - (redirect to main page)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function cms_logout($params) {
 	global $zz_setting;
@@ -217,7 +214,6 @@ function cms_logout($params) {
  * @global array $zz_page
  * @return mixed bool false: login failed; array $page: login form; or redirect
  *		to (wanted) landing page
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function cms_login($params) {
 	global $zz_setting;
@@ -422,7 +418,6 @@ function cms_login($params) {
  * @param array (optional) $querystring query string of current URL
  * @global array $zz_setting
  * @return - (redirect to different page)
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function cms_login_redirect($url, $querystring = array()) {
 	global $zz_setting;
@@ -453,7 +448,6 @@ function cms_login_redirect($url, $querystring = array()) {
  * @param int $user_id
  * @param array (optional) $data result of wrap_sql('login') or custom LDAP function
  * @global array $zz_setting
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_register($user_id = false, $data = array()) {
 	global $zz_setting;
@@ -492,8 +486,9 @@ function wrap_register($user_id = false, $data = array()) {
 		$_SESSION['settings'] = wrap_db_fetch($sql, 'dummy_id', 'key/value');
 	}
 	// get user groups, if module present
-	if (file_exists($zz_setting['custom_wrap_dir'].'/usergroups.inc.php')) {
-		include $zz_setting['custom_wrap_dir'].'/usergroups.inc.php';
+	$usergroups_file = $zz_setting['custom'].'/zzbrick_rights/usergroups.inc.php';
+	if (file_exists($usergroups_file)) {
+		include_once $usergroups_file;
 		wrap_register_usergroups($user_id);
 	}
 	$_SESSION['last_click_at'] = time();
