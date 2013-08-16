@@ -170,6 +170,8 @@ function wrap_text($string) {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
+	
+	if (!$string) return $string;
 
 	// get filename for translated texts
 	$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
