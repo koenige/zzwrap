@@ -409,7 +409,8 @@ function wrap_db_parents($id, $sql) {
 			foreach ($new_ids as $id) {
 				// no infinite recursion please:
 				if (in_array($id, $ids)) {
-					wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_WARNING);
+					// throw a notice because warnings might be sent via mail
+					wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_NOTICE);
 					break;
 				} else {
 					$ids[] = $id;
