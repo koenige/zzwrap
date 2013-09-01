@@ -72,7 +72,7 @@ function wrap_auth($force = false) {
 			// Keep session if logged in and clicking on the public part of the page
 			// but do not prolong time until automatically logging out someone
 			if (isset($_SESSION)) return false;
-			if (empty($_COOKIE[session_name()])) return false;
+			if (empty($_COOKIE['zugzwang_sid'])) return false;
 			wrap_session_start();
 			// calculate maximum login time
 			// you'll stay logged in for x minutes
