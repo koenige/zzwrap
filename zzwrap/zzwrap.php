@@ -60,7 +60,6 @@ function zzwrap() {
 		wrap_rights('preview', 'set', wrap_test_secret_key($zz_setting['secret_key']));
 
 	$zz_page['db'] = wrap_look_for_page($zz_page);
-	wrap_check_https($zz_page, $zz_setting);
 
 	// Functions which might be executed always, before possible login
 	if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
@@ -69,6 +68,7 @@ function zzwrap() {
 	if ($zz_setting['authentication_possible']) {
 		wrap_auth();
 	}
+	wrap_check_https($zz_page, $zz_setting);
 
 	// @todo: check if we can start this earlier
 	if (!empty($zz_setting['cache_age'])) {

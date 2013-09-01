@@ -690,6 +690,8 @@ function wrap_check_https($zz_page, $zz_setting) {
 	// attention: $_POST will not be preserved
 	if (!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') {
 		if ($zz_setting['protocol'] === 'https') return true;
+		// if user is logged in, do not redirect
+		if (!empty($_SESSION)) return true;
 	} else {
 		if ($zz_setting['protocol'] === 'http') return true;
 	}
