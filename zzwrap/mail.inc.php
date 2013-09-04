@@ -145,11 +145,19 @@ function wrap_mail_valid($e_mail) {
 	// remove <>-brackets around address
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); 
-	// check address
-	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
-	if (preg_match($e_mail_pm, $e_mail, $check))
-		return $e_mail;
-	return '';
+
+	// check address if syntactically correct
+	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*'
+		.'@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
+	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
+
+	// check if hostname has MX record
+	$host = explode('@', $e_mail);
+	if (count($host) !== 2) return false;
+	$exists = checkdnsrr($host[1]);
+	if (!$exists) return false;
+
+	return $e_mail;
 }
 
 ?>
