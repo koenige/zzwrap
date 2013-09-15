@@ -411,7 +411,7 @@ function wrap_db_parents($id, $sql) {
 				if (in_array($id, $ids)) {
 					// throw a notice because warnings might be sent via mail
 					wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_NOTICE);
-					break;
+					break 2;
 				} else {
 					$ids[] = $id;
 				}
