@@ -280,9 +280,10 @@ function wrap_sync_zzform($raw, $import) {
 				if (count($fields === 3)) {
 					$values['POST'][$fields[0]][$fields[1]][$fields[2]] = trim($line[$pos]);
 				}
-			} else {
+			} elseif (isset($line[$pos])) {
 				$values['POST'][$field_name] = trim($line[$pos]);
 			}
+			// do nothing if value is NULL
 		}
 		// static values which will be imported
 		foreach ($import['static'] as $field_name => $value) {
@@ -300,9 +301,8 @@ function wrap_sync_zzform($raw, $import) {
 			continue;
 		}
 		$ops = zzform_multi($import['form_script'], $values, 'record');
-		if (!empty($ops['record_new'][0][$import['id_field_name']])) {
-			$ids[$identifier][$import['id_field_name']] 
-				= $ops['record_new'][0][$import['id_field_name']];
+		if ($ops['id']) {
+			$ids[$identifier][$ops['return'][0]['id_field_name']] = $ops['id'];
 		}
 		if ($ops['result'] === 'successful_insert') {
 			$inserted++;
