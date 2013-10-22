@@ -1804,16 +1804,32 @@ function wrap_mkdir($folder) {
  * call a website in the background via http
  * https is not supported
  *
- * @param string $path URL path
- * @param string $host URL host
+ * @param string $url
  * @return array $page
  */
-function wrap_trigger_url($path, $host = false) {
-	if (!$host) {
+function wrap_trigger_url($url) {
+	$port = 80;
+	if (substr($url, 0, 1) === '/') {
 		global $zz_page;
 		$host = $zz_page['url']['full']['host'];
+		$path = $url;
+	} else {
+		$parsed = parse_url($url);
+		if ($parsed['scheme'] !== 'http') {
+			$page['status'] = 503;
+			$page['text'] = sprintf('Scheme %s not supported.', htmlspecialchars($parsed['scheme']));
+			return $page;
+		}
+		if ($parsed['user'] OR $parsed['pass']) {
+			$page['status'] = 503;
+			$page['text'] = 'Authentication not supported.';
+			return $page;
+		}
+		if ($parsed['port']) $port = $parsed['port'];
+		$host = $parsed['host'];
+		$path = $parsed['path'].($path['query'] ? '?'.$path['query'] : '');
 	}
-	$fp = fsockopen($host, 80);
+	$fp = fsockopen($host, $port);
 	if ($fp === false) {
 		$page['status'] = 503;
 		$page['text'] = sprintf('Connection to server %s failed.', htmlspecialchars($host));
@@ -1824,7 +1840,7 @@ function wrap_trigger_url($path, $host = false) {
 	$out .= "Connection: Close\r\n\r\n";
 	fwrite($fp, $out);
 	fclose($fp);
-	$page['text'] = 'Connection successful';
+	$page['text'] = 'Connection successful.';
 	return $page;
 }
 
