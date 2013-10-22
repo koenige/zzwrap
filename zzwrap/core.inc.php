@@ -1801,6 +1801,34 @@ function wrap_mkdir($folder) {
 }
 
 /**
+ * call a website in the background via http
+ * https is not supported
+ *
+ * @param string $path URL path
+ * @param string $host URL host
+ * @return array $page
+ */
+function wrap_trigger_url($path, $host = false) {
+	if (!$host) {
+		global $zz_page;
+		$host = $zz_page['url']['full']['host'];
+	}
+	$fp = fsockopen($host, 80);
+	if ($fp === false) {
+		$page['status'] = 503;
+		$page['text'] = sprintf('Connection to server %s failed.', htmlspecialchars($host));
+		return $page;
+	}
+	$out = "GET ".$path." HTTP/1.1\r\n";
+	$out .= "Host: ".$host."\r\n";
+	$out .= "Connection: Close\r\n\r\n";
+	fwrite($fp, $out);
+	fclose($fp);
+	$page['text'] = 'Connection successful';
+	return $page;
+}
+
+/**
  * header_remove for old PHP 5.2
  *
  * @param string $header
