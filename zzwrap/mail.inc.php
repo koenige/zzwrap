@@ -154,7 +154,7 @@ function wrap_mail_valid($e_mail) {
 	// check if hostname has MX record
 	$host = explode('@', $e_mail);
 	if (count($host) !== 2) return false;
-	$exists = checkdnsrr($host[1]);
+	$exists = checkdnsrr($host[1], 'ANY');
 	if (!$exists) return false;
 
 	return $e_mail;
