@@ -476,7 +476,7 @@ function wrap_errorpage_ignore($status) {
 					return true;
 				}
 				break;
-			case 'referer'
+			case 'referer':
 				if (empty($_SERVER['HTTP_REFERER'])) break;
 				if ($_SERVER['HTTP_REFERER'] === $line[2]) {
 					return true;
