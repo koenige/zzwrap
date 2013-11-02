@@ -476,6 +476,12 @@ function wrap_errorpage_ignore($status) {
 					return true;
 				}
 				break;
+			case 'referer'
+				if (empty($_SERVER['HTTP_REFERER'])) break;
+				if ($_SERVER['HTTP_REFERER'] === $line[2]) {
+					return true;
+				}
+				break;
 			default:
 				wrap_error(sprintf('Case %s in file %s in line %s not supported.', $line[1], $file, $i), E_USER_NOTICE);
 			}

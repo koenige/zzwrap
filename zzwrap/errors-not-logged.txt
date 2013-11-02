@@ -62,3 +62,7 @@
 # Broken spider which does not say if it's supporting robots.txt
 # and creates links from every string it sees in JavaScript files
 404	ua	Mozilla/5.0 (compatible;WI Job Roboter Spider Version 3;+http://www.webintegration.at)
+
+# Script testing over 100 URIs at a time thinking it's clever to use a referer
+# but real referer will always include query string
+404	referer	http://www.baidu.com
