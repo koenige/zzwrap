@@ -46,10 +46,21 @@ function wrap_sync($import) {
 	else $import['limit'] = intval($_GET['limit']);
 	$import['end'] = $import['limit'] + $zz_setting['sync_records_per_run'];
 
+	$import_types = array('csv', 'sql');
+	if (empty($import['type']) OR !in_array($import['type'], $import_types)) {
+		wrap_error(sprintf(
+			'Please set an import type via $import["type"]. Possible types are: %s',
+			implode(', ', $import_types)
+		), E_USER_ERROR);
+	}
+
 	switch ($import['type']) {
 	case 'csv':
 		// get source file
-		$import['source'] = $zz_setting['sync_lists_dir'].$import['filename'];
+		if (empty($import['filename'])) {
+			wrap_error('Please set an import filename via $import["filename"].', E_USER_ERROR);
+		}
+		$import['source'] = $zz_setting['sync_lists_dir'].'/'.$import['filename'];
 		if (!file_exists($import['source'])) {
 			$page['text'] = sprintf(wrap_text('Import: File %s does not exist. '
 				.'Please set a different filename'), $import['source']);
@@ -84,8 +95,7 @@ function wrap_sync($import) {
 		}
 		break;
 	default:
-		$raw = array();
-		break;
+		wrap_error('Please set an import type via <code>$import["type"]</code>.', E_USER_ERROR);
 	}
 
 	// sync data
@@ -162,6 +172,11 @@ function wrap_sync_csv($import) {
 	$i = 0;
 	$first = false;
 	$handle = fopen($import['source'], "r");
+
+	if (!isset($import['key'])) {
+		wrap_error('Please set one or more fields as key fields in $import["key"].', E_USER_ERROR);
+	}
+
 	while (!feof($handle)) {
 		$line = fgetcsv($handle, 8192, $import['delimiter'], $import['enclosure']);
 		$line_complete = $line;
@@ -195,6 +210,12 @@ function wrap_sync_csv($import) {
 		if (is_array($import['key'])) {
 			$key = array();
 			foreach ($import['key'] AS $no) {
+				if (!isset($line[$no])) {
+					wrap_error(sprintf(
+						'New record has not enough values for the key. (%d expected, record looks as follows: %s)',
+						count($line), implode(' -- ', $line)
+					), E_USER_ERROR);
+				}
 				$key[] = $line[$no];
 			}
 			$key = implode($import['key_concat'], $key);
@@ -203,7 +224,7 @@ function wrap_sync_csv($import) {
 		}
 		$key = trim($key);
 		$raw[$key] = $line;
-		if (count($raw) === ($import['end']-$import['limit'])) break;
+		if (count($raw) === ($import['end'] - $import['limit'])) break;
 	}
 	fclose($handle);
 	return $raw;
@@ -229,6 +250,19 @@ function wrap_sync_zzform($raw, $import) {
 	global $zz_conf;
 	// include form scripts
 	require_once $zz_conf['dir'].'/zzform.php';
+
+	if (empty($import['existing_sql'])) {
+		wrap_error('Please define a query for the existing records in the database with $import["existing_sql"].', E_USER_ERROR);
+	}
+	if (empty($import['fields'])) {
+		wrap_error('Please set which fields should be imported in $import["fields"].', E_USER_ERROR);	
+	}
+	if (empty($import['form_script'])) {
+		wrap_error('Please tell us the name of the form script in $import["form_script"].', E_USER_ERROR);	
+	}
+	if (empty($import['id_field_name'])) {
+		wrap_error('Please set the id field name of the table in $import["id_field_name"].', E_USER_ERROR);	
+	}
 
 	$updated = 0;
 	$inserted = 0;
