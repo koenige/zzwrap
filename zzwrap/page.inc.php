@@ -779,10 +779,10 @@ function wrap_get_page() {
 	wrap_redirect($zz_page['url']);
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
-	$page['lang']		= !empty($page['lang']) ? $page['lang'] : $zz_setting['lang'];
+	!empty($page['lang']) OR $page['lang'] = $zz_setting['lang'];
 	$page['media']		= wrap_page_media($page);
 	$page['title']		= wrap_page_h1($page);
-	$page['project']	= !empty($page['project']) ? $page['project'] : $zz_conf['project'];
+	!empty($page['project']) OR $page['project'] = $zz_conf['project'];
 	$page['pagetitle']	= wrap_page_title($page);
 	$page				= wrap_get_menu($page);
 	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
