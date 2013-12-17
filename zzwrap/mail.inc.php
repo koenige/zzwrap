@@ -83,7 +83,7 @@ function wrap_mail($mail) {
 
 	// if local server, show e-mail, don't send it
 	if ($zz_setting['local_access']) {
-		$mail = 'Mail '.htmlspecialchars('To: '.$mail['to']."\n"
+		$mail = 'Mail '.wrap_html_escape('To: '.$mail['to']."\n"
 			.'Subject: '.$mail['subject']."\n".
 			$additional_headers."\n".$mail['message']);
 		if (!empty($zz_setting['show_local_mail'])) {

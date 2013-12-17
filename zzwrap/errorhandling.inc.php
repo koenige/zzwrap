@@ -152,7 +152,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	case 'output':
 		if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
 		$zz_page['error_msg'] .= '<p class="error">'
-			.str_replace("\n", "<br>", htmlspecialchars($msg)).'</p>';
+			.str_replace("\n", "<br>", wrap_html_escape($msg)).'</p>';
 		break;
 	default:
 		break;
@@ -404,7 +404,7 @@ function wrap_errorpage_log($status, $page) {
 		if (substr($_SERVER['SERVER_PROTOCOL'], 0, 4) !== 'HTTP') {
 			$msg .= sprintf(
 				wrap_text('Unsupported server protocol (%s)'),
-				htmlspecialchars($_SERVER['SERVER_PROTOCOL'])
+				wrap_html_escape($_SERVER['SERVER_PROTOCOL'])
 			);
 			wrap_error($msg, E_USER_NOTICE, $settings);
 		} else {

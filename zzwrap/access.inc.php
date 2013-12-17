@@ -137,7 +137,7 @@ function wrap_restrict_ip_access($ip_list) {
 	if (!is_array($ip_list)) $ip_list = array($ip_list);
 	if (!in_array($_SERVER['REMOTE_ADDR'], $ip_list)) {
 		wrap_error(sprintf(wrap_text('Your IP address %s is not in the allowed range.'),
-			htmlspecialchars($_SERVER['REMOTE_ADDR'])), E_USER_NOTICE);
+			wrap_html_escape($_SERVER['REMOTE_ADDR'])), E_USER_NOTICE);
 		wrap_quit(403);
 	}
 	return true;

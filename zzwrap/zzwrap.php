@@ -122,6 +122,7 @@ function wrap_includes() {
 	require_once $zz_setting['core'].'/access.inc.php';
 	require_once $zz_setting['core'].'/language.inc.php';
 	require_once $zz_setting['core'].'/page.inc.php';
+	require_once $zz_setting['core'].'/format.inc.php';
 	if ($zz_setting['authentication_possible']) {
 		require_once $zz_setting['core'].'/auth.inc.php';
 	}
@@ -176,9 +177,9 @@ function wrap_set_defaults_pre_conf() {
 // Hostname
 // -------------------------------------------------------------------------
 
-	// HTTP_HOST, htmlspecialchars against XSS
-	if (!empty($_SERVER['HTTP_HOST']))
-		$zz_setting['hostname']	= htmlspecialchars($_SERVER['HTTP_HOST']);
+	// HTTP_HOST, check against XSS
+	if (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
+		$zz_setting['hostname']	= $_SERVER['HTTP_HOST'];
 	else
 		$zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
 	// fully-qualified (unambiguous) DNS domain names have a dot at the end

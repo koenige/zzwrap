@@ -1817,7 +1817,7 @@ function wrap_trigger_url($url) {
 		$parsed = parse_url($url);
 		if ($parsed['scheme'] !== 'http') {
 			$page['status'] = 503;
-			$page['text'] = sprintf('Scheme %s not supported.', htmlspecialchars($parsed['scheme']));
+			$page['text'] = sprintf('Scheme %s not supported.', wrap_html_escape($parsed['scheme']));
 			return $page;
 		}
 		if ($parsed['user'] OR $parsed['pass']) {
@@ -1832,7 +1832,7 @@ function wrap_trigger_url($url) {
 	$fp = fsockopen($host, $port);
 	if ($fp === false) {
 		$page['status'] = 503;
-		$page['text'] = sprintf('Connection to server %s failed.', htmlspecialchars($host));
+		$page['text'] = sprintf('Connection to server %s failed.', wrap_html_escape($host));
 		return $page;
 	}
 	$out = "GET ".$path." HTTP/1.1\r\n";

@@ -401,7 +401,7 @@ function cms_login($params) {
 				? $zz_setting['login_fields_output'][$login_field] : '',
 			// text input
 			'value' => !empty($_POST[strtolower($login_field)])
-				? htmlspecialchars($_POST[strtolower($login_field)]) : ''
+				? wrap_html_escape($_POST[strtolower($login_field)]) : ''
 		);
 	}
 	$page['text'] = wrap_template('login', $loginform);
