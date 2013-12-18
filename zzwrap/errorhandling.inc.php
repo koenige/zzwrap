@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2013 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -367,13 +367,16 @@ function wrap_errorpage_log($status, $page) {
 		// script behaves differently the next time it was uploaded, but we
 		// ignore these), bad programmed script
 		global $zz_page;
+		// internal URI (language code may be added / removed etc.)
 		$requested = $zz_page['url']['full']['scheme'].'://'
 			.$zz_page['url']['full']['host'].$zz_setting['base']
 			.$zz_page['url']['full']['path']
 			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : '');
+		if ($_SERVER['HTTP_REFERER'] === $requested) return false;
+		// requested URI
 		$requested_server = $zz_page['url']['full']['scheme'].'://'
 			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-		if ($_SERVER['HTTP_REFERER'] == $requested) return false;
+		if ($_SERVER['HTTP_REFERER'] === $requested_server) return false;
 		// http:// is so uncool ...
 		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
 		if ('https://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
