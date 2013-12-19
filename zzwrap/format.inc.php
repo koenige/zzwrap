@@ -342,7 +342,13 @@ function wrap_money_format($number, $format = false) {
  */
 function wrap_html_escape($string) {
 	global $zz_conf;
-	$string = htmlspecialchars($string, ENT_QUOTES, $zz_conf['character_set']);
+	// overwrite default character set UTF-8 because htmlspecialchars will
+	// return NULL if character set is unknown
+	switch ($zz_conf['character_set']) {
+		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
+		default: $character_set = $zz_conf['character_set']; break;
+	}
+	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
 	return $string;
 }
 
