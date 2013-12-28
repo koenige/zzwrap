@@ -229,8 +229,10 @@ function wrap_print($array, $color = 'FFF') {
 	ob_start();
 	print_r($array);
 	$code = ob_get_clean();
-	$code = wrap_html_escape($code);
-	$out .= $code.'</pre>';
+	$codeout = wrap_html_escape($code);
+	if ($code AND !$codeout)
+		$codeout = htmlspecialchars($code, ENT_QUOTES, 'iso-8859-1');
+	$out .= $codeout.'</pre>';
 	return $out;
 }
 
