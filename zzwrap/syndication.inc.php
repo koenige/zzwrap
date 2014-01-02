@@ -46,7 +46,7 @@ function wrap_syndication_get($url, $type = 'json') {
 			} else {
 				// get ETag and Last-Modified from cache file
 				$etag = wrap_cache_get_header($files[1], 'ETag');
-				$last_modified = filemtime($files[1]);
+				$last_modified = filemtime($files[0]);
 			}
 		}
 	}
