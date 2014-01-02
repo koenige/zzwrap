@@ -1341,6 +1341,7 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 		// header along
 		$etag = wrap_cache_get_header($head, 'ETag');
 		if ($etag === $existing_etag) {
+			wrap_cache_revalidated($head);
 			return false;
 		}
 	}
@@ -1354,6 +1355,24 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 	}
 	file_put_contents($head, implode("\r\n", $headers));
 	return true;
+}
+
+/**
+ * write an X-Revalidated-Header to cache file to allow it for some time
+ * to be considered as fresh after the last revalidation
+ *
+ * @param string $file Name of header cache file
+ * @return void
+ */
+function wrap_cache_revalidated($file) {
+	$headers = file_get_contents($file);
+	$headers = explode("\r\n", $headers);
+	foreach ($headers as $index => $header) {
+		if (substr($header, 0, 15) === 'X-Revalidated: ')
+			unset($headers[$index]);
+	}
+	$headers[] = sprintf('X-Revalidated: %s', wrap_date(time(), 'timestamp->rfc1123'));
+	file_put_contents($file, implode("\r\n", $headers));
 }
 
 /**
@@ -1572,10 +1591,18 @@ function wrap_cache_freshness($files, $age) {
 	// -1: cache will always considered to be fresh
 	if ($age === -1) return true;
 	// 0 or positive values: cache files will be checked
-	foreach ($files as $file) {
-		if ((filemtime($file) + $age) < time()) return false;
+	// check if X-Revalidated is set
+	$now = time();
+	$revalidated = wrap_cache_get_header($files[1], 'X-Revalidated');
+	$revalidated_timestamp = wrap_date($revalidated, 'rfc1123->timestamp');
+	if ($revalidated_timestamp + $age > $now) {
+		// thought of putting in Age, but Date has to be changed accordingly
+		// header(sprintf('Age: %d', $now - $revalidated_timestamp));
+		return true;
 	}
-	return true;
+	// check if cached files date is fresh
+	if (filemtime($files[0]) + $age > $now) return true;
+	return false;
 }
 
 /**
@@ -1617,7 +1644,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
 			}
 		}
 	}
-	$sent = true;
+	if ($send) $sent = true;
 	return $value;
 }
 
