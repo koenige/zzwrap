@@ -15,7 +15,7 @@
  *  wrap_html_escape()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -100,8 +100,7 @@ function wrap_date($date, $format = false) {
 		break;
 	case 'rfc1123':
 		// input = Sun, 06 Nov 1994 08:49:37 GMT
-		// remove GMT, so we are not affected by time zones and get UTC
-		$time = strtotime(substr($date, 0, -4));
+		$time = strtotime($date);
 		// @todo: what happens with dates outside the timestamp scope?
 		break;
 	case 'timestamp':
