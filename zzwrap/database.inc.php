@@ -24,7 +24,7 @@
  *	- wrap_microtime_float()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -101,7 +101,7 @@ function wrap_db_connect() {
  *
  * @param string $sql some SQL query or part of it
  * @return string
- * @todo: parse SQL to check whether it's not a comment but something
+ * @todo parse SQL to check whether it's not a comment but something
  * from inside a query. Until then the value of $prefix must not appear
  * legally inside queries
  */
@@ -198,6 +198,9 @@ function wrap_microtime_float() {
  *	"single value" = returns $value
  *	"object" = returns object
  *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
+ *	"list field_name_1 field_name_2" = returns lines in hierarchical array
+ *	for direct use in zzbrick templates, e. g. 0 => array(
+ *		field_name_1 = value, field_name_2 = array()), 1 => ..
  * @param int $errorcode let's you set error level, default = E_USER_ERROR
  * @return array with queried database content, NULL if query failed
  * @author Gustaf Mossakowski <gustaf@koenige.org>
@@ -214,45 +217,52 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 
 	if (!$id_field_name) {
 		// only one record
-		if (mysql_num_rows($result) == 1) {
-			if ($format == 'single value') {
+		if (mysql_num_rows($result) === 1) {
+			if ($format === 'single value') {
 				$lines = mysql_result($result, 0, 0);
-			} elseif ($format == 'object') {
+			} elseif ($format === 'object') {
 				$lines = mysql_fetch_object($result);
 			} else {
 				$lines = mysql_fetch_assoc($result);
 			}
 		}
 	} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
-		if ($format == 'object') {
+		if ($format === 'object') {
 			while ($line = mysql_fetch_object($result)) {
-				if (count($id_field_name) == 3) {
+				if (count($id_field_name) === 3) {
 					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
 				} else {
 					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
 				}
 			}
+		} elseif (substr($format, 0, 5) === 'list ') {
+			$listkey = substr($format, 5);
+			$listkey = explode(' ', $listkey);
+			while ($line = mysql_fetch_assoc($result)) {
+				$lines[$line[$id_field_name[0]]][$listkey[0]] = $line[$id_field_name[0]];
+				$lines[$line[$id_field_name[0]]][$listkey[1]][$line[$id_field_name[1]]] = $line;
+			}
 		} else {
 			// default or unknown format
 			while ($line = mysql_fetch_assoc($result)) {
-				if ($format == 'single value') {
+				if ($format === 'single value') {
 					// just get last field, make sure that it's not one of the id_field_names!
 					$values = array_pop($line);
 				} else {
 					$values = $line;
 				}
-				if (count($id_field_name) == 4) {
+				if (count($id_field_name) === 4) {
 					$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
-				} elseif (count($id_field_name) == 3) {
-					if ($format == 'key/value') {
+				} elseif (count($id_field_name) === 3) {
+					if ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line[$id_field_name[2]];
 					} else {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
 					}
 				} else {
-					if ($format == 'key/value') {
+					if ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-					} elseif ($format == 'numeric') {
+					} elseif ($format === 'numeric') {
 						$lines[$line[$id_field_name[0]]][] = $values;
 					} else {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
@@ -261,24 +271,24 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 			}
 		}
 	} elseif (mysql_num_rows($result)) {
-		if ($format == 'count') {
+		if ($format === 'count') {
 			$lines = mysql_num_rows($result);
-		} elseif ($format == 'single value') {
+		} elseif ($format === 'single value') {
 			// you can reach this part here with a dummy id_field_name
 			// because no $id_field_name is needed!
 			while ($line = mysql_fetch_array($result)) {
 				if (!$line[0]) continue;
 				$lines[$line[0]] = $line[0];
 			}
-		} elseif ($format == 'key/value') {
+		} elseif ($format === 'key/value') {
 			// return array in pairs
 			while ($line = mysql_fetch_array($result)) {
 				$lines[$line[0]] = $line[1];
 			}
-		} elseif ($format == 'object') {
+		} elseif ($format === 'object') {
 			while ($line = mysql_fetch_object($result))
 				$lines[$line->$id_field_name] = $line;
-		} elseif ($format == 'numeric') {
+		} elseif ($format === 'numeric') {
 			while ($line = mysql_fetch_assoc($result))
 				$lines[] = $line;
 		} else {
@@ -314,7 +324,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 		foreach ($data as $record) $ids[] = $record[$key_field_name];
 	else
 		$ids = $data;
-	if ($mode == 'hierarchy') {
+	if ($mode === 'hierarchy') {
 		$old_data = $data;
 		unset($data);
 		$data[0] = $old_data; // 0 is the top hierarchy, means nothing stands above this
@@ -389,7 +399,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 			break;
 		}
 	}
-	if ($mode == 'hierarchy') sort($data['ids']);
+	if ($mode === 'hierarchy') sort($data['ids']);
 	return $data;
 }
 
@@ -440,9 +450,9 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
 	foreach ($tables as $table) {
 		$table = wrap_db_prefix($table);
 		$db_table = explode('.', $table);
-		if (count($db_table) == 2)
+		if (count($db_table) === 2)
 			$my_tables[$db_table[0]][] = $db_table[1];
-		elseif (count($db_table) == 1)
+		elseif (count($db_table) === 1)
 			$my_tables['NULL'][] = $db_table[0];
 		else {
 			wrap_error('Checking table updates. Error: Table name '.$table.' has too many dots.', E_USER_WARNING);
@@ -452,7 +462,7 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
 	$last_update = '';	
 	foreach ($my_tables AS $db => $these_tables) {
 		$sql = 'SHOW TABLE STATUS '
-			.($db == 'NULL' ? '' : 'FROM `'.$db.'`')
+			.($db === 'NULL' ? '' : 'FROM `'.$db.'`')
 			.' WHERE Name IN ("'.implode('","', $these_tables).'")';
 		$status = wrap_db_fetch($sql, 'Name');
 		foreach ($status as $table) {
@@ -523,7 +533,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			// 2. count opening and closing ()
 			//  if equal ok, if not, it's a statement in a subselect
 			// assumption: there must not be brackets outside " or '
-			if (substr_count($temp_sql, '(') == substr_count($temp_sql, ')')) {
+			if (substr_count($temp_sql, '(') === substr_count($temp_sql, ')')) {
 				$sql = $o_parts[$statement][1]; // looks correct, so go on.
 				$found = true;
 			} else {
@@ -553,38 +563,38 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				$o_parts['LIMIT'][2] = $values;
 			break;
 			case 'ORDER BY':
-				if ($mode == 'add') {
+				if ($mode === 'add') {
 					// append old ORDER BY to new ORDER BY
 					if (!empty($o_parts['ORDER BY'][2])) 
 						$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
 					else
 						$o_parts['ORDER BY'][2] = $values;
-				} elseif ($mode == 'delete') {
+				} elseif ($mode === 'delete') {
 					unset($o_parts['ORDER BY']);
 				}
 			break;
 			case 'WHERE':
 			case 'GROUP BY':
 			case 'HAVING':
-				if ($mode == 'add') {
+				if ($mode === 'add') {
 					if (!empty($o_parts[$n_part][2])) 
 						$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
 					else 
 						$o_parts[$n_part][2] = $values;
-				}  elseif ($mode == 'delete') {
+				}  elseif ($mode === 'delete') {
 					unset($o_parts[$n_part]);
 				}
 			break;
 			case 'SELECT':
 				if (!empty($o_parts['SELECT DISTINCT'][2])) {
-					if ($mode == 'add')
+					if ($mode === 'add')
 						$o_parts['SELECT DISTINCT'][2] .= ','.$values;
-					elseif ($mode == 'replace')
+					elseif ($mode === 'replace')
 						$o_parts['SELECT DISTINCT'][2] = $values;
 				} else {
-					if ($mode == 'add')
+					if ($mode === 'add')
 						$o_parts['SELECT'][2] = ','.$values;
-					elseif ($mode == 'replace')
+					elseif ($mode === 'replace')
 						$o_parts['SELECT'][2] = $values;
 				}
 			break;
