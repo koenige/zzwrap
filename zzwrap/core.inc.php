@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1869,6 +1869,21 @@ function wrap_trigger_url($url) {
 	fclose($fp);
 	$page['text'] = 'Connection successful.';
 	return $page;
+}
+
+/**
+ * check if a number is an integer or a string with an integer in it
+ *
+ * @param mixed $var
+ * @return bool
+ */
+function wrap_is_int($var) {
+	$i = intval($var);
+	if ("$i" === "$var") {
+  		return true;
+	} else {
+    	return false;
+    }
 }
 
 /**
