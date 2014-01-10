@@ -1878,6 +1878,7 @@ function wrap_trigger_url($url) {
  * @return bool
  */
 function wrap_is_int($var) {
+	if (!is_numeric($var)) return false;
 	$i = intval($var);
 	if ("$i" === "$var") {
   		return true;
