@@ -37,41 +37,9 @@
 function wrap_template($template, $data = array(), $mode = false) {
 	global $zz_setting;
 
-	// Template einbinden und füllen
-	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
-	if (!file_exists($tpl)) {
-		// check if there's a module template
-		if (strstr($template, '/')) {
-			$templateparts = explode('/', $template);
-			$my_module = array_shift($template_parts);
-			$template = implode('/', $template_parts);
-		} else {
-			$my_module = '';
-		}
-		foreach ($zz_setting['modules'] as $module) {
-			if ($my_module AND $module !== $my_module) continue;
-			$tpl = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'.template.txt';
-			if (file_exists($tpl)) $found[] = $tpl;
-		}
-		if (count($found) !== 1) {
-			global $zz_page;
-			if (!$found) {
-				$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), wrap_html_escape($template));
-			} else {
-				$error_msg = sprintf(wrap_text('More than one template with the name <code>%s</code> exists.'), wrap_html_escape($template));
-			}
-			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
-				echo $error_msg;
-				return false;
-			} else {
-				wrap_quit(503, $error_msg);
-			}
-		} else {
-			$tpl = $found[0];
-		}
-	}
+	$tpl_file = wrap_template_file($template);
 	$zz_setting['current_template'] = $template;
-	$template = file($tpl);
+	$template = file($tpl_file);
 	// remove comments and next empty line from the start
 	foreach ($template as $index => $line) {
 		if (substr($line, 0, 1) == '#') unset($template[$index]); // comments
@@ -107,6 +75,54 @@ function wrap_template($template, $data = array(), $mode = false) {
 	// check if errors occured while filling in the template
 	wrap_page_check_if_error($page);
 	return $page['text'];
+}
+
+/**
+ * Gets template filename for any given template
+ *
+ * @param string $template
+ * @param bool $show_error return with error 503 if not found or not
+ * @global array $zz_setting
+ * @return string $filename
+ */
+function wrap_template_file($template, $show_error = true) {
+	global $zz_setting;	
+
+	$found = array();
+	$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
+	if (!file_exists($tpl_file)) {
+		// check if there's a module template
+		if (strstr($template, '/')) {
+			$templateparts = explode('/', $template);
+			$my_module = array_shift($template_parts);
+			$template = implode('/', $template_parts);
+		} else {
+			$my_module = '';
+		}
+		foreach ($zz_setting['modules'] as $module) {
+			if ($my_module AND $module !== $my_module) continue;
+			$tpl_file = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'.template.txt';
+			if (file_exists($tpl_file)) $found[] = $tpl_file;
+		}
+		if (count($found) !== 1) {
+			if (!$show_error) return false;
+			global $zz_page;
+			if (!$found) {
+				$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), wrap_html_escape($template));
+			} else {
+				$error_msg = sprintf(wrap_text('More than one template with the name <code>%s</code> exists.'), wrap_html_escape($template));
+			}
+			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
+				echo $error_msg;
+				return false;
+			} else {
+				wrap_quit(503, $error_msg);
+			}
+		} else {
+			$tpl_file = $found[0];
+		}
+	}
+	return $tpl_file;
 }
 
 /**
@@ -897,9 +913,8 @@ function wrap_htmlout_page($page) {
 	if (!empty($page['template'])) {
 		if (substr($page['template'], -5) != '-page')
 			$page['template'] .= '-page';
-		$template_path = $zz_setting['custom_wrap_template_dir']
-			.'/'.$page['template'].'.template.txt';
-		if (file_exists($template_path)) $zz_page['template'] = $page['template'];
+		$tpl_file = wrap_template_file($page['template'], false);
+		if ($tpl_file) $zz_page['template'] = $page['template'];
 	}
 
 	// Add title to page
