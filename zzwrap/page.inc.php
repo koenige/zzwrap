@@ -40,17 +40,34 @@ function wrap_template($template, $data = array(), $mode = false) {
 	// Template einbinden und füllen
 	$tpl = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
 	if (!file_exists($tpl)) {
-		// check if there's a default template
-		$tpl = $zz_setting['wrap_template_dir'].'/'.$template.'.template.txt';
-		if (!file_exists($tpl)) {
+		// check if there's a module template
+		if (strstr($template, '/')) {
+			$templateparts = explode('/', $template);
+			$my_module = array_shift($template_parts);
+			$template = implode('/', $template_parts);
+		} else {
+			$my_module = '';
+		}
+		foreach ($zz_setting['modules'] as $module) {
+			if ($my_module AND $module !== $my_module) continue;
+			$tpl = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'.template.txt';
+			if (file_exists($tpl)) $found[] = $tpl;
+		}
+		if (count($found) !== 1) {
 			global $zz_page;
-			$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), wrap_html_escape($template));
+			if (!$found) {
+				$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), wrap_html_escape($template));
+			} else {
+				$error_msg = sprintf(wrap_text('More than one template with the name <code>%s</code> exists.'), wrap_html_escape($template));
+			}
 			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
 				echo $error_msg;
 				return false;
 			} else {
 				wrap_quit(503, $error_msg);
 			}
+		} else {
+			$tpl = $found[0];
 		}
 	}
 	$zz_setting['current_template'] = $template;

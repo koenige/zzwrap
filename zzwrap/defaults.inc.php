@@ -137,11 +137,26 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['db_inc']))
 		$zz_setting['db_inc']		= $zz_setting['custom_wrap_sql_dir'].'/db.inc.php';
 	
+	// modules
+	if (empty($zz_setting['modules_dir'])) {
+		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
+	}
+	if (empty($zz_setting['modules'])) {
+		$zz_setting['modules'] = array();
+		if (is_dir($zz_setting['modules_dir'])) {
+			$handle = opendir($zz_setting['modules_dir']);
+			while ($file = readdir($handle)) {
+				if (substr($file, 0, 1) === '.') continue;
+				if (!is_dir($zz_setting['modules_dir'].'/'.$file)) continue;
+				$zz_setting['modules'][] = $file;
+			}
+			closedir($handle);
+		}
+	}
+	
 	// cms core
 	if (empty($zz_setting['core']))
 		$zz_setting['core']			= $zz_setting['lib'].'/zzwrap';
-	if (empty($zz_setting['wrap_template_dir']))
-		$zz_setting['wrap_template_dir'] = $zz_setting['core'].'/default_templates';
 	
 	// zzform path
 	if (empty($zz_conf['dir']))
