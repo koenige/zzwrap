@@ -260,6 +260,7 @@ function wrap_get_menu_webpages() {
 	$menu = array();
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
+	if (!$entries) return false;
 	if ($menu_table = wrap_sql('menu_table'))
 		$entries = wrap_translate($entries, $menu_table);
 	foreach ($entries as $line) {
