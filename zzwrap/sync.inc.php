@@ -242,6 +242,8 @@ function wrap_sync_csv($import) {
  *		array 	'static' = values for fields, indexed by field name
  *		string	'id_field_name' = field name of PRIMARY KEY of database table
  *		string	'form_script' = table script for sync
+ *		array	'ignore_if_null' = list of field nos which will be ignored if
+ *				no value is set
  * @global array $zz_conf string 'dir'
  * @return array $updated, $inserted, $nothing = count of records, $errors,
  *		$testing
@@ -305,6 +307,9 @@ function wrap_sync_zzform($raw, $import) {
 			continue;
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
+			// don't delete field values if ignore_if_null is set
+			if (in_array($pos, $import['ignore_if_null'])
+				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
 			if (strstr($field_name, '[')) {
 				$fields = explode('[', $field_name);
 				foreach ($fields as $index => $field) {
@@ -321,7 +326,16 @@ function wrap_sync_zzform($raw, $import) {
 		}
 		// static values which will be imported
 		foreach ($import['static'] as $field_name => $value) {
-			$values['POST'][$field_name] = $value;
+			if (strstr($field_name, '[')) {
+				$field_name = explode('[', $field_name);
+				foreach ($field_name as $index => $fname) {
+					$field_name[$index] = trim($fname, ']');
+				}
+				$values['POST'][$field_name[0]][$field_name[1]][$field_name[2]]
+					= $value;
+			} else {
+				$values['POST'][$field_name] = $value;
+			}
 		}
 		if (!empty($ids[$identifier])) {
 			$values['action'] = 'update';
@@ -336,15 +350,19 @@ function wrap_sync_zzform($raw, $import) {
 		}
 		$ops = zzform_multi($import['form_script'], $values, 'record');
 		if ($ops['id']) {
-			$ids[$identifier][$ops['return'][0]['id_field_name']] = $ops['id'];
+			$ids[$identifier] = $ops['id'];
 		}
 		if ($ops['result'] === 'successful_insert') {
 			$inserted++;
 		} elseif ($ops['result'] === 'successful_update') {
 			$updated++;
-		} elseif ($ops['error']) {
-			foreach ($ops['error'] as $error) {
-				$errors[] = sprintf('Record "%s": ', $identifier).$error;
+		} elseif (!$ops['id']) {
+			if ($ops['error']) {
+				foreach ($ops['error'] as $error) {
+					$errors[] = sprintf('Record "%s": ', $identifier).$error;
+				}
+			} else {
+				$errors[] = 'Unknown error.';
 			}
 		} else {
 			$nothing++;
