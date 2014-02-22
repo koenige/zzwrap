@@ -170,7 +170,9 @@ function wrap_text($string) {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
+	static $module_text;
 	if (empty($text)) $text = array();
+	if (empty($module_text)) $module_text = array();
 	
 	if (!$string) return $string;
 
@@ -200,6 +202,10 @@ function wrap_text($string) {
 				if (!empty($po_text['_global'])) {
 					$text = array_merge($text, $po_text['_global']);
 				}
+				foreach (array_keys($po_text) as $area) {
+					if (substr($area, 0, 1) === '_') continue;
+					$module_text[$area] = $po_text[$area];
+				}
 			} else {
 				$text = array_merge($text, wrap_text_include($file));
 			}
@@ -218,8 +224,14 @@ function wrap_text($string) {
 
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
+
+	$my_text = $text;
+	// active module?
+	if (!empty($zz_setting['active_module']) AND !empty($module_text[$zz_setting['active_module']])) {
+		$my_text = array_merge($module_text[$zz_setting['active_module']], $text);
+	}
 	
-	if (empty($text[$string])) {
+	if (empty($my_text[$string])) {
 		// write missing translation to somewhere.
 		// @todo check logfile for duplicates
 		// @todo optional log directly in database
@@ -232,7 +244,7 @@ function wrap_text($string) {
 		}
 		return $string;
 	} else
-		return $text[$string];
+		return $my_text[$string];
 }
 
 /**
