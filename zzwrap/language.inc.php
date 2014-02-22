@@ -170,6 +170,7 @@ function wrap_text($string) {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
+	if (empty($text)) $text = array();
 	
 	if (!$string) return $string;
 
@@ -179,14 +180,29 @@ function wrap_text($string) {
 	if (empty($zz_setting['text_included'])
 		OR $zz_setting['text_included'] != $language) {
 
-		$text = array();
-		$files = array(
-			$zz_setting['custom_wrap_dir'].'/text-en.inc.php', // standard text english
-			$zz_setting['core'].'/default-text-'.$language.'.inc.php', // default translated text
-			$zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php' // standard translated text 
-		);
+		// standard text english
+		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
+		// default translated text
+		$files[] = $zz_setting['core'].'/default-text-'.$language.'.po';
+		// module text(s)
+		foreach ($zz_setting['modules'] as $module) {
+			$modules_dir = $zz_setting['modules_dir'].'/'.$module.'/zzwrap';
+			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
+		}
+		// standard translated text 
+		$files[] = 	$zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
+
 		foreach ($files as $file) {
-			$text = array_merge($text, wrap_text_include($file));
+			if (substr($file, -3) === '.po') {
+				$po_text = wrap_po_parse($file);
+				// @todo plurals
+				// @todo consider scopes!
+				if (!empty($po_text['_global'])) {
+					$text = array_merge($text, $po_text['_global']);
+				}
+			} else {
+				$text = array_merge($text, wrap_text_include($file));
+			}
 		}
 		
 		// set text as 'included' before database operation so if
@@ -205,8 +221,9 @@ function wrap_text($string) {
 	
 	if (empty($text[$string])) {
 		// write missing translation to somewhere.
-		// @todo: check logfile for duplicates
-		// @todo: optional log directly in database
+		// @todo check logfile for duplicates
+		// @todo optional log directly in database
+		// @todo log missing text in a .pot file
 		if (!empty($zz_conf['log_missing_text'])) {
 			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
 			$log_file = sprintf($zz_conf['log_missing_text'], $zz_conf['language']);
@@ -583,4 +600,129 @@ function wrap_set_units() {
 			break;
 		}
 	}
+}
+
+/**
+ * Parse a gettext po file as a source for translations
+ *
+ * @param string $file
+ * @return array
+ */
+function wrap_po_parse($file) {
+	global $zz_conf;
+
+	if (!file_exists($file)) return array();
+	$chunks = wrap_po_chunks($file);
+	
+	foreach ($chunks as $index => $chunk) {
+		if (empty($chunk['msgid'])) {
+			// chunks without msgid will be ignored
+			unset ($chunks[$index]);
+			if ($index) continue;
+			if (empty($chunk['msgstr'])) continue;
+			$header = wrap_po_headers($chunk['msgstr']);
+			continue;
+		}
+		$scope = '_global';
+		$plurals = false;
+		$format = false;
+		foreach (array_keys($chunk) as $key) {
+			$chunk[$key] = implode('', $chunk[$key]);
+			$chunk[$key] = str_replace('\"', '"', $chunk[$key]);
+			if ($zz_conf['character_set'] !== $header['X-Character-Encoding']) {
+				$chunk[$key] = iconv($header['X-Character-Encoding'], $zz_conf['character_set'], $chunk[$key]);
+			}
+			switch ($key) {
+			case 'msgctxt': $scope = $chunk[$key]; break;
+			case 'msgid_plural': $plurals = true; break;
+			case '#,':
+				if (!strstr($chunk[$key], 'php-format')) break;
+				$format = true; break;
+			}
+		}
+		if (!$plurals) {
+			$text[$scope][$chunk['msgid']] = $chunk['msgstr'];
+		} else {
+			$text[$scope][$chunk['msgid']] = $chunk['msgstr[0]'];
+			$i = 1;
+			while (isset($chunk['msgstr['.$i.']'])) {
+				$text[$scope][$chunk['msgid_plural']][$i] = $chunk['msgstr['.$i.']'];
+				$i++;
+			}
+			$text['_plural'][$scope][$chunk['msgid_plural']] = true;
+		}
+		if ($format) {
+			$text['_format'][$scope][$chunk['msgid']] = true;
+			if ($plurals) $text['_format'][$scope][$chunk['msgid_plural']] = true;
+		}
+	}
+	if (!empty($header['Plural-Forms'])) {
+		$text['_plural_forms'] = $header['Plural-Forms'];
+	}
+	$text['_po_header'] = $header;
+	return $text;
+}
+
+/**
+ * get contents of a text file and split it into chunks separated by blank lines
+ *
+ * @param string $file
+ * @return array
+ */
+function wrap_po_chunks($file) {
+	$lines = file($file);
+	$index = 0;
+	$chunks = array();
+	foreach ($lines as $line) {
+		if ($line === "\n" OR $line === "\r\n") {
+			$index++;
+			continue;
+		}
+		$chunks[$index][] = $line;
+	}
+	$last_key = '';
+	foreach ($chunks as $index => $chunk) {
+		$is_header = false;
+		foreach ($chunk as $line) {
+			$line = trim($line);
+			if (substr($line, 0, 1) === '"' AND substr($line, -1) === '"') {
+				$my_chunks[$index][$last_key][] = trim($line, '"');
+				continue;
+			}
+			
+			$tokens = preg_split('~\s+~', $line);
+			$key = trim(array_shift($tokens));
+			$last_key = $key;
+			switch ($key) {
+				case '#': continue 2;
+			}
+			$value = trim(substr($line, strlen($key)));
+			$value = trim($value, '"');
+			if (!$value) continue; 
+			$my_chunks[$index][$key][] = $value;
+		}
+	}
+	return $my_chunks;
+}
+
+/**
+ * format headers of PO file
+ *
+ * @param array e. g. [0] => Content-Type: text/plain; charset=UTF-8\n
+ * @return array e. g. [Content-Type] = text/plain; charset=UTF-8
+ */
+function wrap_po_headers($headers) {
+	$my_headers = array();
+	$my_headers['X-Character-Encoding'] = '';
+	foreach ($headers as $header) {
+		if (substr($header, -2) == '\n') $header = substr($header, 0, -2);
+		$tokens = explode(': ', $header);
+		$key = array_shift($tokens);
+		$my_headers[$key] = implode(' ', $tokens);
+		if ($key === 'Content-Type') {
+			if (substr($my_headers[$key], 0, 20) !== 'text/plain; charset=') continue;
+			$my_headers['X-Character-Encoding'] = strtolower(substr($my_headers[$key], 20));
+		}
+	}
+	return $my_headers;
 }
