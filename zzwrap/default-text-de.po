@@ -1,11 +1,11 @@
 # zzwrap
 # Default translations to german language
 #
-# Part of �Zugzwang Project�
+# Part of »Zugzwang Project«
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright � 2008-2009, 2014 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=us-ascii\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: de\n"
 "X-Generator: Poedit 1.6.4\n"
@@ -32,11 +32,11 @@ msgstr "Benutzername:"
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username are empty. Please try again."
-msgstr "Pa&szlig;wort oder Benutzername leer. Bitte versuchen Sie es erneut."
+msgstr "Paßwort oder Benutzername leer. Bitte versuchen Sie es erneut."
 
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
-msgstr "Vor&uuml;bergehend ist keine Anmeldung m&ouml;glich."
+msgstr "Vorübergehend ist keine Anmeldung möglich."
 
 # HTTP Status Code 300
 #: library/zzwrap/auth.inc.php
@@ -61,7 +61,7 @@ msgstr "Umleitung"
 # HTTP Status Code 304
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Modified"
-msgstr "Keine Ver&auml;nderung"
+msgstr "Keine Veränderung"
 
 # HTTP Status Code 305
 #: library/zzwrap/errorhandling.inc.php
@@ -71,7 +71,7 @@ msgstr "Proxy benutzen"
 # HTTP Status Code 307
 #: library/zzwrap/errorhandling.inc.php
 msgid "Temporary Redirect"
-msgstr "Vor&uuml;bergehende Umleitung"
+msgstr "Vorübergehende Umleitung"
 
 # HTTP Status Code 400
 msgid "Bad Request"
@@ -82,8 +82,8 @@ msgstr "Fehlerhafte Anfrage"
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
-"Ihr Browser (oder Proxy) hat eine ung&uuml;ltige Anfrage gesendet, die vom "
-"Server nicht beantwortet werden kann."
+"Ihr Browser (oder Proxy) hat eine ungültige Anfrage gesendet, die vom Server "
+"nicht beantwortet werden kann."
 
 # HTTP Status Code 401
 #: library/zzwrap/errorhandling.inc.php
@@ -97,10 +97,10 @@ msgid ""
 "either supplied the wrong credentials (e.g., bad password), or your browser "
 "doesn't understand how to supply the credentials required."
 msgstr ""
-"Der Server konnte nicht pr&uuml;fen, ob Sie autorisiert sind, auf diese URL "
+"Der Server konnte nicht prüfen, ob Sie autorisiert sind, auf diese URL "
 "zuzugreifen. Entweder wurden falsche Daten (z. B. ein falsches Passwort) "
 "angegeben oder Ihr Browser versteht nicht, wie die geforderten Daten zu "
-"&uuml;bermitteln sind."
+"übermitteln sind."
 
 # HTTP Status Code 402
 #: library/zzwrap/errorhandling.inc.php
@@ -118,8 +118,8 @@ msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
 msgstr ""
-"Der Zugriff auf den angeforderten Inhalt ist nicht m&ouml;glich. Entweder "
-"kann er vom Server nicht gelesen werden oder er ist zugriffsgesch&uuml;tzt."
+"Der Zugriff auf den angeforderten Inhalt ist nicht möglich. Entweder kann er "
+"vom Server nicht gelesen werden oder er ist zugriffsgeschützt."
 
 # HTTP Status Code 404
 #: library/zzwrap/errorhandling.inc.php
@@ -129,7 +129,7 @@ msgstr "Inhalt nicht gefunden"
 # HTTP Status Code 404
 #: library/zzwrap/errorhandling.inc.php
 msgid "The requested URL was not found on this server."
-msgstr "Der von Ihnen gew&uuml;nschte Inhalt konnte nicht gefunden werden."
+msgstr "Der von Ihnen gewünschte Inhalt konnte nicht gefunden werden."
 
 # HTTP Status Code 405
 #: library/zzwrap/errorhandling.inc.php
@@ -139,7 +139,7 @@ msgstr "Methode nicht erlaubt"
 # HTTP Status Code 405
 #: library/zzwrap/errorhandling.inc.php
 msgid "The %s-method is not allowed for the requested URL."
-msgstr "Die %s-Methode ist f&uuml;r die angeforderte URL nicht erlaubt."
+msgstr "Die %s-Methode ist für die angeforderte URL nicht erlaubt."
 
 # HTTP Status Code 406
 #: library/zzwrap/errorhandling.inc.php
@@ -159,7 +159,7 @@ msgstr "Konflikt"
 # HTTP Status Code 410
 #: library/zzwrap/errorhandling.inc.php
 msgid "Gone"
-msgstr "Inhalt nicht mehr verf&uuml;gbar"
+msgstr "Inhalt nicht mehr verfügbar"
 
 # HTTP Status Code 410
 #: library/zzwrap/errorhandling.inc.php
@@ -168,7 +168,7 @@ msgid ""
 "forwarding address."
 msgstr ""
 "Der angeforderte Inhalt existiert auf dem Server nicht mehr und wurde "
-"dauerhaft entfernt. Eine Weiterleitungsadresse ist nicht verf&uuml;gbar."
+"dauerhaft entfernt. Eine Weiterleitungsadresse ist nicht verfügbar."
 
 # HTTP Status Code 411
 #: library/zzwrap/errorhandling.inc.php
@@ -181,8 +181,8 @@ msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
 msgstr ""
-"Die Anfrage kann nicht beantwortet werden. Bei Verwendung der %s-Methode "
-"mu&szlig; ein korrekter <code>Content-Length</code>-Header angegeben werden."
+"Die Anfrage kann nicht beantwortet werden. Bei Verwendung der %s-Methode muß "
+"ein korrekter <code>Content-Length</code>-Header angegeben werden."
 
 # HTTP Status Code 412
 #: library/zzwrap/errorhandling.inc.php
@@ -193,13 +193,13 @@ msgstr "Vorbedingung verfehlt"
 #: library/zzwrap/errorhandling.inc.php
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr ""
-"Die f&uuml;r den Abruf der angeforderten URL notwendige Vorbedingung wurde "
-"nicht erf&uuml;llt."
+"Die für den Abruf der angeforderten URL notwendige Vorbedingung wurde nicht "
+"erfüllt."
 
 # HTTP Status Code 413
 #: library/zzwrap/errorhandling.inc.php
 msgid "Request Entity Too Large"
-msgstr "&Uuml;bergebene Daten zu gro&szlig;"
+msgstr "Übergebene Daten zu groß"
 
 # HTTP Status Code 413
 #: library/zzwrap/errorhandling.inc.php
@@ -207,13 +207,13 @@ msgid ""
 "The %s-method does not allow the data transmitted, or the data volume "
 "exceeds the capacity limit."
 msgstr ""
-"Die bei der Anfrage &uuml;bermittelten Daten sind f&uuml;r die %s-Methode "
-"nicht erlaubt oder die Datenmenge hat das Maximum &uuml;berschritten."
+"Die bei der Anfrage übermittelten Daten sind für die %s-Methode nicht erlaubt "
+"oder die Datenmenge hat das Maximum überschritten."
 
 # HTTP Status Code 414
 #: library/zzwrap/errorhandling.inc.php
 msgid "Request-URI Too Long"
-msgstr "&Uuml;bergebene URI zu lang"
+msgstr "Übergebene URI zu lang"
 
 # HTTP Status Code 414
 #: library/zzwrap/errorhandling.inc.php
@@ -221,25 +221,25 @@ msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
 msgstr ""
-"Die bei der Anfrage  &uuml;bermittelte URI &uuml;berschreitet die maximale "
-"L&auml;nge. Die Anfrage kann nicht ausgef&uuml;hrt werden."
+"Die bei der Anfrage  übermittelte URI überschreitet die maximale Länge. Die "
+"Anfrage kann nicht ausgeführt werden."
 
 # HTTP Status Code 415
 #: library/zzwrap/errorhandling.inc.php
 msgid "Unsupported Media Type"
-msgstr "Nicht unterst&uuml;tztes Format"
+msgstr "Nicht unterstütztes Format"
 
 # HTTP Status Code 415
 #: library/zzwrap/errorhandling.inc.php
 msgid "The server does not support the media type transmitted in the request."
 msgstr ""
-"Das bei der Anfrage &uuml;bermittelte Format (Media Type) wird vom Server "
-"nicht unterst&uuml;tzt."
+"Das bei der Anfrage übermittelte Format (Media Type) wird vom Server nicht "
+"unterstützt."
 
 # HTTP Status Code 416
 #: library/zzwrap/errorhandling.inc.php
 msgid "Requested Range Not Satisfiable"
-msgstr "Abgefragtes Intervall (<code>range</code>) nicht erf&uuml;llbar"
+msgstr "Abgefragtes Intervall (<code>range</code>) nicht erfüllbar"
 
 # HTTP Status Code 417
 #: library/zzwrap/errorhandling.inc.php
@@ -263,19 +263,18 @@ msgstr ""
 # HTTP Status Code 500
 #: library/zzwrap/errorhandling.inc.php
 msgid "Unsupported server protocol (%s)"
-msgstr "Server-Protokoll wird nicht unterst&uuml;tzt (%s)"
+msgstr "Server-Protokoll wird nicht unterstützt (%s)"
 
 # HTTP Status Code 501
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Implemented"
-msgstr "Abfrage nicht unterst&uuml;tzt"
+msgstr "Abfrage nicht unterstützt"
 
 # HTTP Status Code 501
 #: library/zzwrap/errorhandling.inc.php
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr ""
-"Die vom Browser angeforderte Aktion wird vom Server nicht unterst&uuml;tzt "
-"(%s)."
+"Die vom Browser angeforderte Aktion wird vom Server nicht unterstützt (%s)."
 
 # HTTP Status Code 502
 #: library/zzwrap/errorhandling.inc.php
@@ -286,13 +285,13 @@ msgstr "Fehlerhaftes Gateway"
 #: library/zzwrap/errorhandling.inc.php
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr ""
-"Der Proxy-Server erhielt eine fehlerhafte Antwort eines &uuml;bergeordneten "
+"Der Proxy-Server erhielt eine fehlerhafte Antwort eines übergeordneten "
 "Servers oder Proxies."
 
 # HTTP Status Code 503
 #: library/zzwrap/errorhandling.inc.php
 msgid "Service Unavailable"
-msgstr "Dienst steht nicht zur Verf&uuml;gung."
+msgstr "Dienst steht nicht zur Verfügung."
 
 # HTTP Status Code 503
 #: library/zzwrap/errorhandling.inc.php
@@ -301,26 +300,26 @@ msgid ""
 "downtime or capacity problems. Please try again later."
 msgstr ""
 "Der Server kann zur Zeit Ihre Anfrage nicht bearbeiten. Grund kann eine "
-"&Uuml;berlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es "
-"sp&auml;ter noch einmal."
+"Überlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es später "
+"noch einmal."
 
 # HTTP Status Code 504
 #: library/zzwrap/errorhandling.inc.php
 msgid "Gateway Timeout"
 msgstr ""
-"Zeitlimit am Netz&uuml;bergang (<code>gateway</code>) &uuml;berschritten"
+"Zeitlimit am Netzübergang (<code>gateway</code>) überschritten"
 
 # HTTP Status Code 505
 #: library/zzwrap/errorhandling.inc.php
 msgid "HTTP Version Not Supported"
-msgstr "HTTP-Version nicht unterst&uuml;tzt"
+msgstr "HTTP-Version nicht unterstützt"
 
 #: library/zzwrap/errorhandling.inc.php
 msgid ""
 "Please try to find the content you were looking for from our <a href=\"%s"
 "\">main page</a>."
 msgstr ""
-"Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, &uuml;ber <a href="
+"Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, über <a href="
 "\"%s\">unsere Hauptseite</a> zu finden."
 
 #: library/zzwrap/errorhandling.inc.php
