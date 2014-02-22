@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -178,19 +178,17 @@ function wrap_text($string) {
 
 	if (empty($zz_setting['text_included'])
 		OR $zz_setting['text_included'] != $language) {
-		
-		// standard text english
-		if (file_exists($zz_setting['custom_wrap_dir'].'/text-en.inc.php')) 
-			include $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
-		
-		// default translated text
-		if (file_exists($zz_setting['core'].'/default-text-'.$language.'.inc.php'))
-			include $zz_setting['core'].'/default-text-'.$language.'.inc.php';
-		
-		// standard translated text
-		if (file_exists($zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php'))
-			include $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
 
+		$text = array();
+		$files = array(
+			$zz_setting['custom_wrap_dir'].'/text-en.inc.php', // standard text english
+			$zz_setting['core'].'/default-text-'.$language.'.inc.php', // default translated text
+			$zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php' // standard translated text 
+		);
+		foreach ($files as $file) {
+			$text = array_merge($text, wrap_text_include($file));
+		}
+		
 		// set text as 'included' before database operation so if
 		// database crashes just while reading values, it won't do it over and
 		// over again		
@@ -221,6 +219,19 @@ function wrap_text($string) {
 		return $string;
 	} else
 		return $text[$string];
+}
+
+/**
+ * include a text file
+ *
+ * @param string $file filename with path
+ * @return array $text
+ */
+function wrap_text_include($file) {
+	if (!file_exists($file)) return array();
+	include $file;
+	if (isset($text)) return $text;
+	return array();
 }
 
 /**
@@ -575,5 +586,3 @@ function wrap_set_units() {
 		}
 	}
 }
-
-?>
