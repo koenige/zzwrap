@@ -196,10 +196,7 @@ function wrap_text($string) {
 
 		// get translations from database
 		if (!empty($zz_conf['text_table'])) {
-			if (!empty($text))
-				$text = array_merge($text, wrap_language_get_text($language));
-			else
-				$text = wrap_language_get_text($language);
+			$text = array_merge($text, wrap_language_get_text($language));
 		}
 	}
 
@@ -230,8 +227,9 @@ function wrap_text($string) {
 function wrap_text_include($file) {
 	if (!file_exists($file)) return array();
 	include $file;
-	if (isset($text)) return $text;
-	return array();
+	if (!isset($text)) return array();
+	if (!is_array($text)) return array();
+	return $text;
 }
 
 /**
