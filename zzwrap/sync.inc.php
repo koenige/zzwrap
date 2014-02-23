@@ -362,7 +362,7 @@ function wrap_sync_zzform($raw, $import) {
 					$errors[] = sprintf('Record "%s": ', $identifier).$error;
 				}
 			} else {
-				$errors[] = 'Unknown error.';
+				$errors[] = 'Unknown error: '.$ops['output'];
 			}
 		} else {
 			$nothing++;
