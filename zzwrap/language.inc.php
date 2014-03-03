@@ -184,6 +184,7 @@ function wrap_text($string) {
 
 		// standard text english
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
+		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.po';
 		// default translated text
 		$files[] = $zz_setting['core'].'/default-text-'.$language.'.po';
 		// module text(s)
@@ -193,6 +194,7 @@ function wrap_text($string) {
 		}
 		// standard translated text 
 		$files[] = 	$zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
+		$files[] = 	$zz_setting['custom_wrap_dir'].'/text-'.$language.'.po';
 
 		foreach ($files as $file) {
 			if (substr($file, -3) === '.po') {
