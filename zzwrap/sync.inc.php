@@ -265,6 +265,8 @@ function wrap_sync_zzform($raw, $import) {
 	if (empty($import['id_field_name'])) {
 		wrap_error('Please set the id field name of the table in $import["id_field_name"].', E_USER_ERROR);	
 	}
+	if (empty($import['ignore_if_null']))
+		$import['ignore_if_null'] = array();
 
 	$updated = 0;
 	$inserted = 0;
