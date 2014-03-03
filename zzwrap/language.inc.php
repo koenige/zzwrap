@@ -712,7 +712,7 @@ function wrap_po_chunks($file) {
 			}
 			$value = trim(substr($line, strlen($key)));
 			$value = trim($value, '"');
-			if (!$value) continue; 
+			if ($key !== 'msgstr' AND !$value) continue;
 			$my_chunks[$index][$key][] = $value;
 		}
 	}
