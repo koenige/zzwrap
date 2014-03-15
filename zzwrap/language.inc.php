@@ -643,8 +643,21 @@ function wrap_po_parse($file) {
 		foreach (array_keys($chunk) as $key) {
 			$chunk[$key] = implode('', $chunk[$key]);
 			$chunk[$key] = str_replace('\"', '"', $chunk[$key]);
+			if (in_array($key, array('#:'))) continue;
 			if ($zz_conf['character_set'] !== $header['X-Character-Encoding']) {
-				$chunk[$key] = iconv($header['X-Character-Encoding'], $zz_conf['character_set'], $chunk[$key]);
+				$translated = @iconv($header['X-Character-Encoding'], $zz_conf['character_set'], $chunk[$key]);
+				if (!$translated) {
+					// characters which are not defined in the desired character set
+					// replace with htmlentities
+					$translated = htmlentities($chunk[$key], ENT_NOQUOTES, $header['X-Character-Encoding'], false);
+				}
+				// don't translate mssgids!
+				if ($key === 'msgid') {
+					$dest_key = 'msgid_converted';
+				} else {
+					$dest_key = $key;
+				}
+				$chunk[$dest_key] = $translated;
 			}
 			switch ($key) {
 			case 'msgctxt': $scope = $chunk[$key]; break;
@@ -655,8 +668,14 @@ function wrap_po_parse($file) {
 			}
 		}
 		if (!$plurals) {
-			$text[$scope][$chunk['msgid']] = $chunk['msgstr'];
+			if (!$chunk['msgstr']) {
+				// if there is no translation, set text to converted msgid
+				$text[$scope][$chunk['msgid']] = $chunk['msgid_converted'];
+			} else {
+				$text[$scope][$chunk['msgid']] = $chunk['msgstr'];
+			}
 		} else {
+			// @todo msgid_converted
 			$text[$scope][$chunk['msgid']] = $chunk['msgstr[0]'];
 			$i = 1;
 			while (isset($chunk['msgstr['.$i.']'])) {
