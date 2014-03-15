@@ -905,7 +905,7 @@ function wrap_file_send($file) {
 	}
 	
 	// Last-Modified HTTP header
-	wrap_if_modified_since(filemtime($file['name']), $file);
+	wrap_if_modified_since(filemtime($file['name']), 200, $file);
 
 	// Remove some HTTP headers PHP might send because of SESSION
 	// @todo: do some tests if this is okay
@@ -1064,7 +1064,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	}
 
 	// Last Modified HTTP header
-	wrap_if_modified_since($last_modified_time);
+	wrap_if_modified_since($last_modified_time, $status);
 
 	wrap_send_ressource('memory', $text, $etag_header);
 }
@@ -1481,10 +1481,15 @@ function wrap_etag_header($etag) {
  * respond to If Modified Since with 304 header if appropriate
  *
  * @param int $time (timestamp)
+ * @param int $status HTTP status code
  * @param array $file (optional)
  * @return string time formatted for Last-Modified
  */
-function wrap_if_modified_since($time, $file = array()) {
+function wrap_if_modified_since($time, $status = 200, $file = array()) {
+	// do not send Last-Modified header for client (4xx) or server (5xx) errors
+	if (substr($status, 0, 1) === '4') return '';
+	if (substr($status, 0, 1) === '5') return '';
+
 	global $zz_page;
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
 	$zz_page['last_modified'] = wrap_date($time, 'timestamp->rfc1123');
