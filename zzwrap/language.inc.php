@@ -670,7 +670,11 @@ function wrap_po_parse($file) {
 		if (!$plurals) {
 			if (!$chunk['msgstr']) {
 				// if there is no translation, set text to converted msgid
-				$text[$scope][$chunk['msgid']] = $chunk['msgid_converted'];
+				if (isset($chunk['msgid_converted'])) {
+					$text[$scope][$chunk['msgid']] = $chunk['msgid_converted'];
+				} else {
+					$text[$scope][$chunk['msgid']] = $chunk['msgid'];
+				}
 			} else {
 				$text[$scope][$chunk['msgid']] = $chunk['msgstr'];
 			}
