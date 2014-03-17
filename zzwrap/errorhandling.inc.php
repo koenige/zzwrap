@@ -122,6 +122,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		break;
 	case 'mail':
 		if (!in_array($level, $zz_conf['error_mail_level'])) break;
+		if (empty($zz_conf['error_mail_to'])) break;
 		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
 		$foot = false;
