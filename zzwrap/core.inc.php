@@ -130,7 +130,6 @@ function wrap_session_stop() {
  * @global array $zz_conf zz configuration variables
  * @global array $zz_setting
  * @return array $page
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_look_for_page($zz_page) {
 	// no database connection or settings are missing
@@ -170,8 +169,9 @@ function wrap_look_for_page($zz_page) {
 			} else {
 				// something was found, get out of here
 				// but get placeholders as parameters as well!
-				if (!empty($leftovers[$i])) 
+				if (!empty($leftovers[$i])) {
 					$parameter[$i] = implode('/', $leftovers[$i]).($parameter[$i] ? '/'.$parameter[$i] : '');
+				}
 				$url[$i] = $my_url;
 				break;
 			}
@@ -240,7 +240,6 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  * @param array $zz_page
  * @param array $page
  * @return array $url
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_check_canonical($zz_page, $page) {
 	global $zz_setting;
@@ -290,41 +289,41 @@ function wrap_check_canonical($zz_page, $page) {
  * @param string $ending ending of URL (/, .html, .php, none)
  * @param array $url ($zz_page['url'])
  * @return array $url, with new 'path' and 'redirect' set to 1 if necessary
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_check_canonical_ending($ending, $url) {
 	$new = false;
 	switch ($ending) {
 	case '/':
-		if (substr($url['full']['path'], -5) == '.html') {
+		if (substr($url['full']['path'], -5) === '.html') {
 			$new = substr($url['full']['path'], 0, -5);
-		} elseif (substr($url['full']['path'], -4) == '.php') {
+		} elseif (substr($url['full']['path'], -4) === '.php') {
 			$new = substr($url['full']['path'], 0, -4);
-		} elseif (substr($url['full']['path'], -1) != '/') {
+		} elseif (substr($url['full']['path'], -1) !== '/') {
 			$new = $url['full']['path'];
 		}
 		if ($new) $new .= '/';
 		break;
 	case '.html':
 	case '.html%3E':
-		if (substr($url['full']['path'], -1) == '/') {
+		if (substr($url['full']['path'], -1) === '/') {
 			$new = substr($url['full']['path'], 0, -1);
-		} elseif (substr($url['full']['path'], -4) == '.php') {
+		} elseif (substr($url['full']['path'], -4) === '.php') {
 			$new = substr($url['full']['path'], 0, -4);
-		} elseif (substr($url['full']['path'], -8) == '.html%3E') {
+		} elseif (substr($url['full']['path'], -8) === '.html%3E') {
 			$new = substr($url['full']['path'], 0, -8);
-		} elseif (substr($url['full']['path'], -5) != '.html') {
+		} elseif (substr($url['full']['path'], -5) !== '.html') {
 			$new = $url['full']['path'];
 		}
 		if ($new) $new .= '.html';
 		break;
 	case 'none':
 	case 'keine':
-		if (substr($url['full']['path'], -5) == '.html') {
+		if (substr($url['full']['path'], -5) === '.html') {
 			$new = substr($url['full']['path'], 0, -5);
-		} elseif (substr($url['full']['path'], -1) == '/' AND strlen($url['full']['path']) > 1) {
+		} elseif (substr($url['full']['path'], -1) === '/'
+			AND strlen($url['full']['path']) > 1) {
 			$new = substr($url['full']['path'], 0, -1);
-		} elseif (substr($url['full']['path'], -4) == '.php') {
+		} elseif (substr($url['full']['path'], -4) === '.php') {
 			$new = substr($url['full']['path'], 0, -4);
 		}
 		break;
@@ -341,7 +340,6 @@ function wrap_check_canonical_ending($ending, $url) {
  * 
  * @param array $url $url['full'] with result from parse_url
  * @return array $url with new keys ['db'] (URL in database), ['suffix_length']
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_read_url($url) {
 	// better than mod_rewrite, because '&' won't always be treated correctly
@@ -353,14 +351,24 @@ function wrap_read_url($url) {
 		$url['suffix_length'] = 5;
 	}
 	// cut '/' at the beginning and - if necessary - at the end
-	if (substr($url['db'], 0, 1) == '/') $url['db'] = substr($url['db'], 1);
-	if (substr($url['db'], -1) == '/') $url['db'] = substr($url['db'], 0, -1);
-	if (substr($url['db'], -5) == '.html') $url['db'] = substr($url['db'], 0, -5);
-	elseif (substr($url['db'], -8) == '.html%3E') $url['db'] = substr($url['db'], 0, -8);
-	elseif (substr($url['db'], -4) == '.php') $url['db'] = substr($url['db'], 0, -4);
-	if (!empty($_GET['lang']) AND !is_array($_GET['lang']))
-		if (substr($url['db'], -$url['suffix_length']) == '.html.'.$_GET['lang']) 
+	if (substr($url['db'], 0, 1) === '/') {
+		$url['db'] = substr($url['db'], 1);
+	}
+	if (substr($url['db'], -1) === '/') {
+		$url['db'] = substr($url['db'], 0, -1);
+	}
+	if (substr($url['db'], -5) === '.html') {
+		$url['db'] = substr($url['db'], 0, -5);
+	} elseif (substr($url['db'], -8) === '.html%3E') {
+		$url['db'] = substr($url['db'], 0, -8);
+	} elseif (substr($url['db'], -4) === '.php') {
+		$url['db'] = substr($url['db'], 0, -4);
+	}
+	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
+		if (substr($url['db'], -$url['suffix_length']) === '.html.'.$_GET['lang']) {
 			$url['db'] = substr($url['db'], 0, -$url['suffix_length']);
+		}
+	}
 	return $url;
 }
 
@@ -410,7 +418,7 @@ function wrap_check_redirects($page_url) {
 	// If there's an asterisk (*) at the end of the redirect
 	// the cut part will be pasted to the end of the string
 	$field_name = wrap_sql('redirects_new_fieldname');
-	if (substr($redir[$field_name], -1) == '*')
+	if (substr($redir[$field_name], -1) === '*')
 		$redir[$field_name] = substr($redir[$field_name], 0, -1).$parameter;
 	return $redir;
 }
@@ -429,9 +437,9 @@ function wrap_log_uri() {
 
 	$scheme = $zz_page['url']['full']['scheme'];
 	$host = $zz_page['url']['full']['host'];
-	$path = $zz_page['url']['full']['path'];
+	$path = wrap_db_escape($zz_page['url']['full']['path']);
 	$query = !empty($zz_page['url']['full']['query'])
-		? '"'.$zz_page['url']['full']['query'].'"'
+		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
 		: 'NULL';
 	$etag = !empty($zz_page['etag'])
 		? $zz_page['etag']
@@ -458,13 +466,14 @@ function wrap_log_uri() {
 	
 	$sql = 'SELECT uri_id
 		FROM /*_PREFIX_*/_uris
-		WHERE uri_scheme = "'.$scheme.'"
-		AND uri_host = "'.$host.'"
-		AND uri_path = "'.$path.'"';
+		WHERE uri_scheme = "%s"
+		AND uri_host = "%s"
+		AND uri_path = "%s"';
+	$sql = sprintf($sql, $scheme, $host, $path);
 	if ($query === 'NULL') {
 		$sql .= ' AND ISNULL(uri_query)';
 	} else {
-		$sql .= ' AND uri_query = '.$query;
+		$sql .= sprintf(' AND uri_query = %s', $query);
 	}
 	$uri_id = wrap_db_fetch($sql, '', 'single value', E_USER_NOTICE);
 	
@@ -473,26 +482,29 @@ function wrap_log_uri() {
 	} elseif ($uri_id) {
 		$sql = 'UPDATE /*_PREFIX_*/_uris
 			SET hits = hits +1
-				, status_code = '.$status.'
-				, etag_md5 = '.$etag.'
-				, last_modified = '.$last_modified.'
+				, status_code = %d
+				, etag_md5 = %s
+				, last_modified = %s
 				, last_access = NOW(), last_update = NOW()
-				, character_encoding = '.$encoding.'
+				, character_encoding = %s
 		';
 		if ($content_type)
-			$sql .= ' , content_type = "'.$content_type.'"';
+			$sql .= sprintf(' , content_type = "%s"', $content_type);
 		if (!empty($zz_page['content_length'])) 
-			$sql .= ' , content_length = '.$zz_page['content_length'];
-		$sql .= ' WHERE uri_id = '.$uri_id;
+			$sql .= sprintf(' , content_length = %d', $zz_page['content_length']);
+		$sql .= ' WHERE uri_id = %d';
+		$sql = sprintf($sql, $status, $etag, $last_modified, $encoding, $uri_id);
 		$result = wrap_db_query($sql, E_USER_NOTICE);
 	} else {
 		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
 			uri_query, content_type, character_encoding, content_length,
 			status_code, etag_md5, last_modified, hits, first_access,
-			last_access, last_update) VALUES ("'.$scheme.'", "'.$host.'", 
-			"'.$path.'", '.$query.', "'.$content_type.'",
-			'.$encoding.', '.$zz_page['content_length'].', '.$status.',
-			'.$etag.', '.$last_modified.', 1, NOW(), NOW(), NOW())';
+			last_access, last_update) VALUES ("%s", "%s", 
+			"%s", %s, "%s", %s, %d, %d, %s, %s, 1, NOW(), NOW(), NOW())';
+		$sql = sprintf($sql,
+			$scheme, $host, $path, $query, $content_type, $encoding,
+			$zz_page['content_length'], $status, $etag, $last_modified
+		);
 		$result = wrap_db_query($sql, E_USER_NOTICE);
 	}
 	return true;
@@ -553,7 +565,6 @@ function wrap_remove_query_strings($url, $objectionable_qs = array()) {
  * @param string $error_msg (optional, error message for user)
  * @param array $page (optional, if normal output shall be shown, not error msg)
  * @return exits function with a redirect or an error document
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	global $zz_conf;
@@ -617,7 +628,7 @@ function wrap_http_status_header($code) {
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
-	if (substr(php_sapi_name(), 0, 3) == 'cgi') $protocol = 'Status:';
+	if (substr(php_sapi_name(), 0, 3) === 'cgi') $protocol = 'Status:';
 	
 	if ($protocol === 'HTTP/1.0' AND in_array($code, array(302, 303, 307))) {
 		header($protocol.' 302 Moved Temporarily');
@@ -680,7 +691,6 @@ function wrap_http_status_list($code) {
  * @param array $zz_setting settings, 'ignore_scheme' ignores redirect
  *		and 'protocol' defines the protocol wanted (http or https)
  * @return redirect header
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_check_https($zz_page, $zz_setting) {
 	// if it doesn't matter, get out of here
@@ -849,7 +859,6 @@ function wrap_check_http_request_method() {
  *		'error_msg' => additional error message that appears on error page,
  *		'etag_generate_md5' => creates 'etag' if not send with MD5
  * @global array $zz_conf
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo send pragma public header only if browser that is affected by this bug
  * @todo implement Ranges for bytes
  */
@@ -1040,7 +1049,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	// check whether content is identical to previously sent content
 	// @todo: do not send 304 immediately but with a Last-Modified header
 	$etag_header = array();
-	if ($status == 200) {
+	if ($status === 200) {
 		// only compare ETag in case of status 2xx
 		$zz_page['etag'] = md5($text);
 		$etag_header = wrap_if_none_match($zz_page['etag']);
@@ -1050,7 +1059,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
-		AND empty($_POST) AND $status == 200) {
+		AND empty($_POST) AND $status === 200) {
 		$cache_saved = wrap_cache_ressource($text, $zz_page['etag']);
 		if (!$cache_saved) {
 			// identical cache file exists
@@ -1622,7 +1631,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
 	static $sent;
 	global $zz_page;
 	$headers = file_get_contents($file);
-	if (substr($headers, 0, 2) == '["') {
+	if (substr($headers, 0, 2) === '["') {
 		// @deprecated: used JSON format instead of plain text for headers
 		$headers = json_decode($headers);
 		file_put_contents($file, implode("\r\n", $headers));
@@ -1641,7 +1650,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
 			header($header);
 			$zz_page[str_replace('-', '_', strtolower($req_header))] = $req_value;
 		}
-		if ($req_header == $type) {
+		if ($req_header === $type) {
 			// check if respond with 304
 			$value = substr($header, strlen($type) + 2);
 			if (substr($value, 0, 1) === '"' AND substr($value, -1) === '"') {
@@ -1669,7 +1678,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 	if (!$url) {
 		$url = $zz_page['url']['full'];
 		$base = $zz_setting['base'];
-		if ($base == '/') $base = '';
+		if ($base === '/') $base = '';
 	} else {
 		$url = parse_url($url);
 		$base = '';
@@ -1907,5 +1916,3 @@ if (!function_exists('header_remove')) {
 		}
 	}
 }
-
-?>
