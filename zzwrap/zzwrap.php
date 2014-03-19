@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -47,8 +47,14 @@ function zzwrap() {
 		exit;
 	}
 	
-	if (file_exists($zz_setting['custom_wrap_dir'].'/_functions.inc.php'))
-		require_once $zz_setting['custom_wrap_dir'].'/_functions.inc.php';
+	if (file_exists($file = $zz_setting['custom_wrap_dir'].'/_functions.inc.php')) {
+		require_once $file;
+	}
+	foreach ($zz_setting['modules'] as $module) {
+		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/zzwrap/_functions.inc.php')) {
+			require_once $file;
+		}
+	}
 
 	// do not check if database connection is established until now
 	// to avoid infinite recursion due to calling the error page
@@ -298,5 +304,3 @@ function wrap_set_defaults_pre_conf() {
 	$zz_conf['character_set'] = 'utf-8';
 
 }
-
-?>
