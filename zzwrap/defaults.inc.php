@@ -215,7 +215,9 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['layout_path'] = '/_layout';
 	if (empty($zz_setting['behaviour_path']))
 		$zz_setting['behaviour_path'] = '/_behaviour';
-	
+	if (empty($zz_setting['files_path']))
+		$zz_setting['files_path'] = '/files';
+
 	// -------------------------------------------------------------------------
 	// Page paths
 	// -------------------------------------------------------------------------
