@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2011 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -210,6 +210,12 @@ function wrap_set_defaults_post_conf() {
 		$zz_page['template'] = 'page';
 	}
 	
+	// HTML paths, relative to DOCUMENT_ROOT
+	if (empty($zz_setting['layout_path']))
+		$zz_setting['layout_path'] = '/_layout';
+	if (empty($zz_setting['behaviour_path']))
+		$zz_setting['behaviour_path'] = '/_behaviour';
+	
 	// -------------------------------------------------------------------------
 	// Page paths
 	// -------------------------------------------------------------------------
@@ -326,5 +332,3 @@ function wrap_tests() {
 	}
 	return true;
 }
-
-?>
