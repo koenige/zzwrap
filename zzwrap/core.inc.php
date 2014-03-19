@@ -195,6 +195,37 @@ function wrap_look_for_page($zz_page) {
 }
 
 /**
+ * check if there's a layout or behaviour file in one of the modules
+ * then send it out
+ *
+ * @param array $url_path ($zz_page['url']['full']['path'])
+ * @global array $zz_setting
+ *		array 'modules', string 'modules_dir', string 'layout_path',
+ *		string 'behaviour_path'
+ * @return
+ */
+function wrap_look_for_file($url_path) {
+	global $zz_setting;
+	if (empty($zz_setting['modules'])) return false;
+	if (!$url_path) return false;
+
+	$url_path = explode('/', $url_path);
+	array_shift($url_path); // first is empty because URL path starts with /
+	$paths = array('layout', 'behaviour');
+	foreach ($paths as $path) {
+		if (empty($zz_setting[$path.'_path'])) continue;
+		if ('/'.$url_path[0] !== $zz_setting[$path.'_path']) continue;
+		if (!in_array($url_path[1], $zz_setting['modules'])) continue;
+		array_shift($url_path);
+		$module = array_shift($url_path);
+		$file['name'] = sprintf('%s/%s/%s/%s',
+			$zz_setting['modules_dir'], $module, $path, implode('/', $url_path));
+		wrap_file_send($file);
+	}
+	return false;
+}
+
+/**
  * check for placeholders in URL
  *
  * replaces parts that match with placeholders, if necessary multiple times

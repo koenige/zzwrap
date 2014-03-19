@@ -99,7 +99,10 @@ function zzwrap() {
 
 	// on error exit, after all files are included, check redirects
 	// Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
-	if (!$zz_page['db']) wrap_quit();
+	if (!$zz_page['db']) {
+		wrap_look_for_file($zz_page['url']['full']['path']);
+		wrap_quit();
+	}
 	
 	wrap_translate_page();
 	wrap_set_units();
