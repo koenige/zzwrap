@@ -360,7 +360,8 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// alpha key: title => CMS.seiten.titel or seiten.titel
 			$names = explode('.', $field);
 			$sql = sprintf($sql_ttf, '"'.$key.'"', $names[0], $names[1], $names[2]);
-			$matrix += wrap_db_fetch($sql, array('field_type', 'translationfield_id'));
+			$fields = wrap_db_fetch($sql, array('field_type', 'translationfield_id'));
+			$matrix = array_merge_recursive($matrix, $fields);
 		}
 	}
 
