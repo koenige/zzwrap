@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -230,17 +230,15 @@ function wrap_get_menu_navigation() {
 	if (function_exists('wrap_translate_menu'))
 		$unsorted_menu = wrap_translate_menu($unsorted_menu);
 	// write database output into hierarchical array
+	$menu = array();
 	foreach ($unsorted_menu as $item) {
-		if ($item['title'] == '*') {
-			$menufunc = 'wrap_menu_'.substr($item['url'], 1, strrpos($item['url'], '*')-1);
-			if (function_exists($menufunc)) {
-				$entries = $menufunc($item);
-				if ($entries) foreach ($entries as $index => $entry) {
-					$menu[$item['main_nav_id']][$item['nav_id'].'-'.$index] = $entry;
-				}
+		$my_item = wrap_menu_asterisk_check($item, $menu, $item['main_nav_id'], 'nav_id');
+		if ($my_item) {
+			if (!empty($menu[$item['main_nav_id']])) {
+				$menu[$item['main_nav_id']] += $my_item;
+			} else {
+				$menu[$item['main_nav_id']] = $my_item;
 			}
-		} else {
-			$menu[$item['main_nav_id']][$item['nav_id']] = $item;
 		}
 	}
 	return $menu;
@@ -301,12 +299,15 @@ function wrap_get_menu_webpages() {
  * @param array $line
  * @param array $menu
  * @param string $menu_key
+ * @param string $id (optional, page_id or nav_id, depending on where data comes from)
  * @return array $menu[$menu_key]
  */
-function wrap_menu_asterisk_check($line, $menu, $menu_key) {
+function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
 	if (substr($line['url'], -1) != '*' AND substr($line['url'], -2) != '*/'
 		AND substr($line['url'], -6) != '*.html') {
-		$menu[$menu_key][$line[wrap_sql('page_id')]] = $line;
+		if ($id === 'page_id') $id = wrap_sql('page_id');
+		$menu[$menu_key][$line[$id]] = $line;
+		return $menu[$menu_key];
 	}
 	// get name of function either from sql query
 	// (for multilingual pages) or from the part until *
@@ -960,5 +961,3 @@ function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
     }
     return $str;
 }
-
-?>
