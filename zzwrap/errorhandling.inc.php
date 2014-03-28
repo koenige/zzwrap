@@ -286,7 +286,9 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	// error pages have no last update
 	$page[wrap_sql('lastupdate')] = false;
-	$zz_page['db'][wrap_sql('lastupdate')] = false;
+	if (!empty($zz_page['db'][wrap_sql('lastupdate')])) {
+		$zz_page['db'][wrap_sql('lastupdate')] = false;
+	}
 	
 	// -- 3. output HTTP header
 	header($_SERVER['SERVER_PROTOCOL'].' '.$status['code'].' '.$status['text']);
