@@ -121,9 +121,14 @@ function wrap_date($date, $format = false) {
 		$lang = substr($output_format, 6);
 		$output_format = 'dates';
 		switch ($lang) {
-			case 'de':		$sep = '.'; $order = 'DMY'; break; // dd.mm.yyyy
-			case 'nl':		$sep = '-'; $order = 'DMY'; break; // dd-mm-yyyy
-			case 'en-GB':	$sep = '/'; $order = 'DMY'; break; // dd/mm/yyyy
+			case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY'; break; // dd.mm.yyyy
+			case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY'; break; // dd-mm-yyyy
+			case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY'; 
+				$set['months'] = array(
+					1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun',
+					7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
+				);
+				break; // dd/mm/yyyy
 			default:
 				wrap_error(sprintf('Language %s currently not supported', $lang));
 				break;
@@ -133,30 +138,30 @@ function wrap_date($date, $format = false) {
 	case 'dates':
 		if (!$end) {
 			// 12.03.2004 or 03.2004 or 2004
-			$output = wrap_date_format($begin, $sep, $order, $type);
+			$output = wrap_date_format($begin, $set, $type);
 		} elseif (substr($begin, 7) === substr($end, 7)
 			AND substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) === '-00'
 			AND substr($begin, 4) !== '-00-00') {
 			// 2004-03-00 2004-04-00 = 03-04.2004
 			$output = substr($begin, 5, 2).'&#8211;'
-				.wrap_date_format($end, $sep, $order, $type);
+				.wrap_date_format($end, $set, $type);
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
 			// 12.-14.03.2004
 			$output = substr($begin, 8).'.&#8211;'
-				.wrap_date_format($end, $sep, $order, $type);
+				.wrap_date_format($end, $set, $type);
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
-			$output = wrap_date_format($begin, $sep, $order, 'noyear')
-				.'&#8203;&#8211;'.wrap_date_format($end, $sep, $order, $type);
+			$output = wrap_date_format($begin, $set, 'noyear')
+				.'&#8203;&#8211;'.wrap_date_format($end, $set, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
 			// 2004-00-00 2005-00-00 = 2004-2005
 			// 31.12.2004-06.01.2005
-			$output = wrap_date_format($begin, $sep, $order, $type)
-				.'&#8203;&#8211;'.wrap_date_format($end, $sep, $order, $type);
+			$output = wrap_date_format($begin, $set, $type)
+				.'&#8203;&#8211;'.wrap_date_format($end, $set, $type);
 		}
 		return $output;
 	case 'datetime':
@@ -177,11 +182,13 @@ function wrap_date($date, $format = false) {
  * reformats an ISO 8601 date
  * 
  * @param string $date e. g. 2004-05-31
- * @param string $sep separator
- * @param string $order 'DMY', 'YMD', 'MDY'
+ * @param array $set settings:
+ * 	string 'sep' separator
+ * 	string 'order' 'DMY', 'YMD', 'MDY'
+ *  array 'months'
  * @param string $type 'standard', 'short', 'noyear'
  */
-function wrap_date_format($date, $sep, $order, $type = 'standard') {
+function wrap_date_format($date, $set, $type = 'standard') {
 	if (!$date) return '';
 	list($year, $month, $day) = explode('-', $date);
 	while (substr($year, 0, 1) === '0') {
@@ -195,20 +202,23 @@ function wrap_date_format($date, $sep, $order, $type = 'standard') {
 	if ($day === '00' AND $month === '00') {
 		return $year;
 	}
-	switch ($order) {
+	if (!empty($set['months'])) {
+		$month = $set['months'][intval($month)];
+	}
+	switch ($set['order']) {
 	case 'DMY':
-		if ($sep === '.') {
+		if ($set['sep'] === '.') {
 			// let date without year end with dot
-			$date = ($day === '00' ? '' : $day.$sep).$month.$sep.$year;
+			$date = ($day === '00' ? '' : $day.$set['sep']).$month.$set['sep'].$year;
 		} else {
-			$date = ($day === '00' ? '' : $day.$sep).$month.($year !== '' ? $sep.$year : '');
+			$date = ($day === '00' ? '' : $day.$set['sep']).$month.($year !== '' ? $set['sep'].$year : '');
 		}
 		break;
 	case 'YMD':
-		$date = ($year !== '' ? $year.$sep : '').$month.($day === '00' ? '' : $sep.$day);
+		$date = ($year !== '' ? $year.$set['sep'] : '').$month.($day === '00' ? '' : $set['sep'].$day);
 		break;
 	case 'MDY':
-		$date = $month.($day === '00' ? '' : $sep.$day).($year !== '' ? $sep.$year : '');
+		$date = $month.($day === '00' ? '' : $set['sep'].$day).($year !== '' ? $set['sep'].$year : '');
 		break;
 	}
 	return $date;
