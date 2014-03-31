@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.1.50, for apple-darwin10.3.0 (i386)
+-- MySQL dump 10.13  Distrib 5.6.16, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.1.50
+-- Server version	5.6.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -367,21 +367,21 @@ DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `medium_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `main_medium_id` int(10) unsigned DEFAULT NULL,
-  `title` varchar(127) COLLATE latin1_german2_ci NOT NULL DEFAULT '',
-  `description` text COLLATE latin1_german2_ci,
+  `title` varchar(127) NOT NULL DEFAULT '',
+  `description` text,
   `language_id` int(10) unsigned DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
   `category_id` int(10) unsigned DEFAULT NULL,
   `project_id` int(10) unsigned DEFAULT NULL,
-  `source` varchar(255) COLLATE latin1_german2_ci DEFAULT NULL,
+  `source` varchar(255) DEFAULT NULL,
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `sequence` smallint(5) unsigned DEFAULT NULL,
   `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `filetype_id` int(10) unsigned NOT NULL DEFAULT '0',
   `thumb_filetype_id` int(10) unsigned DEFAULT NULL,
   `filesize` int(10) unsigned NOT NULL DEFAULT '0',
-  `md5_hash` varchar(32) COLLATE latin1_german2_ci DEFAULT NULL,
+  `md5_hash` varchar(32) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `version` tinyint(3) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
@@ -390,7 +390,7 @@ CREATE TABLE `media` (
   KEY `filetype_id` (`filetype_id`),
   KEY `thumb_filetype_id` (`thumb_filetype_id`),
   KEY `main_medium_id` (`main_medium_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

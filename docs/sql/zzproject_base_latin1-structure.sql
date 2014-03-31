@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.1.50, for apple-darwin10.3.0 (i386)
+-- MySQL dump 10.13  Distrib 5.6.16, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_latin1
 -- ------------------------------------------------------
--- Server version	5.1.50
+-- Server version	5.6.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -19,7 +19,7 @@
 -- Current Database: `zzproject_base_latin1`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `zzproject_base_latin1` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_german2_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `zzproject_base_latin1` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 USE `zzproject_base_latin1`;
 
