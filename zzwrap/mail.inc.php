@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -70,7 +70,7 @@ function wrap_mail($mail) {
 		// @todo field body any ASCII characters except CR LF
 		// @todo field body longer than 78 characters SHOULD / 998 
 		// characters MUST be folded with CR LF WSP
-		$additional_headers .= $field_name.': '.$field_body."\r\n";
+		$additional_headers .= $field_name.': '.$field_body.$zz_setting['mail_header_eol'];
 	}
 
 	// Additional parameters
@@ -159,5 +159,3 @@ function wrap_mail_valid($e_mail) {
 
 	return $e_mail;
 }
-
-?>
