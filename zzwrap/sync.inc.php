@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -350,7 +350,7 @@ function wrap_sync_zzform($raw, $import) {
 			$testing[] = $values;
 			continue;
 		}
-		$ops = zzform_multi($import['form_script'], $values, 'record');
+		$ops = zzform_multi($import['form_script'], $values);
 		if ($ops['id']) {
 			$ids[$identifier] = $ops['id'];
 		}
@@ -372,5 +372,3 @@ function wrap_sync_zzform($raw, $import) {
 	}
 	return array($updated, $inserted, $nothing, $errors, $testing);
 }
-
-?>
