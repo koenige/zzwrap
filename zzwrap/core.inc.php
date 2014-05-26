@@ -1864,9 +1864,21 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
  */
 function wrap_mkdir($folder) {
 	if (is_dir($folder)) return true;
+
+	// check if open_basedir restriction is in effect
+	$allowed_dirs = explode(':', ini_get('open_basedir'));
+	if ($allowed_dirs) {
+		$basefolders = array();
+		foreach ($allowed_dirs as $dir) {
+			if (substr($folder, 0, strlen($dir)) === $dir) {
+				$basefolders = explode('/', $dir);
+				break;
+			}
+		}
+	}
 	$subfolders = explode('/', $folder);
 	$current_folder = '';
-	foreach ($subfolders as $subfolder) {
+	foreach ($subfolders as $index => $subfolder) {
 		if (!$subfolder) continue;
 		if ($subfolder === '..') {
 			$current_folder = substr($current_folder, 0, strrpos($current_folder, '/'));
@@ -1874,6 +1886,11 @@ function wrap_mkdir($folder) {
 			$current_folder .= '';
 		} else {
 			$current_folder .= '/'.$subfolder;
+		}
+		if (!empty($basefolders[$index]) AND $basefolders[$index] === $subfolder) {
+			// it's in open_basedir, so folder should exist and we cannot
+			// test whether it exists anyways
+			continue;
 		}
 		if (!file_exists($current_folder)) {
 			$success = mkdir($current_folder);
