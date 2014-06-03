@@ -64,6 +64,23 @@ CREATE TABLE `_relations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `_settings`
+--
+
+DROP TABLE IF EXISTS `_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `_settings` (
+  `setting_id` int(11) NOT NULL AUTO_INCREMENT,
+  `login_id` int(11) DEFAULT NULL,
+  `setting_key` varchar(32) NOT NULL,
+  `setting_value` varchar(255) NOT NULL,
+  `explanation` text,
+  PRIMARY KEY (`setting_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `_translationfields`
 --
 
