@@ -1964,6 +1964,77 @@ function wrap_is_int($var) {
 }
 
 /**
+ * write settings to database
+ *
+ * @param string $key
+ * @param string $value
+ * @param int $login_id (optional)
+ * @return bool
+ */
+function wrap_setting_write($key, $value, $login_id = 0) {
+	$existing_setting = wrap_setting_read($key, $login_id);
+	if ($existing_setting) {
+		if ($existing_setting[$key] === $value) return false;
+		$sql = 'UPDATE /*_PREFIX_*/_settings
+			SET setting_value = "%s"
+			WHERE setting_key = "%s"
+		';
+		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
+		$sql .= wrap_setting_login_id($login_id);
+	} else {
+		if (!$login_id) $login_id = 'NULL';
+		$sql = 'INSERT INTO /*_PREFIX_*/_settings
+			(setting_value, setting_key, login_id) VALUES ("%s", "%s", %s)
+		';
+		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $login_id);
+	}
+	$result = wrap_db_query($sql);
+	if ($result) return true;
+
+	wrap_error(sprintf(
+		wrap_text('Setting could not be changed. Key: %s, value: %s, login: %s'),
+		wrap_html_escape($key), wrap_html_escape($value), $login_id
+	));	
+	return false;
+}
+
+/**
+ * read settings from database
+ *
+ * @param string $key (* at the end used as wildcard)
+ * @param int $login_id (optional)
+ * @return array
+ */
+function wrap_setting_read($key, $login_id = 0) {
+	$sql = 'SELECT setting_key, setting_value
+		FROM /*_PREFIX_*/_settings
+		WHERE setting_key %s "%s"';
+	if (substr($key, -1) === '*') {
+		$sql = sprintf($sql, 'LIKE', substr($key, 0, -1).'%');
+	} else {
+		$sql = sprintf($sql, '=', $key);
+	}
+	$sql .= wrap_setting_login_id($login_id);
+	$settings = wrap_db_fetch($sql, 'setting_key', 'key/value');
+	// @todo: replace [] with hierarchical array
+	return $settings;
+}
+
+/**
+ * add login_id or not to setting query
+ *
+ * @param int $login_id (optional)
+ * @return string WHERE query part
+ */
+function wrap_setting_login_id($login_id = 0) {
+	if ($login_id) {
+		return sprintf('AND login_id = %d', $login_id);
+	} else {
+		return 'AND ISNULL(login_id)';
+	}
+}
+
+/**
  * header_remove for old PHP 5.2
  *
  * @param string $header
