@@ -1075,6 +1075,10 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		$zz_page['character_set'] = 'utf-8';
 		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.ics';
 		break;
+	case 'pgn':
+		$zz_page['content_type'] = 'application/x-chess-pgn';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.pgn';
+		break;
 	default:
 		break;
 	}
@@ -1166,6 +1170,8 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 	global $zz_page;
 
 	header_remove('X-Powered-By');
+	// Prevent IE > 7 from sniffing mime types
+	header('Content-Type: X-Content-Type-Options: nosniff');
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
@@ -1941,6 +1947,7 @@ function wrap_trigger_url($url) {
 	$out = "GET ".$path." HTTP/1.1\r\n";
 	$out .= "Host: ".$host."\r\n";
 	$out .= "Connection: Close\r\n\r\n";
+	// @todo retry if 503 error in 10 seconds
 	fwrite($fp, $out);
 	fclose($fp);
 	$page['text'] = 'Connection successful.';
