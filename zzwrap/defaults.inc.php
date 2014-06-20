@@ -176,6 +176,12 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['local_pwd']))
 		$zz_setting['local_pwd'] = "/Users/pwd.inc";
 	
+	// cainfo
+	// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
+	// so there should be currently no need to include an own PEM file
+	// if (empty($zz_setting['cainfo_file']))
+	//	$zz_setting['cainfo_file'] = __DIR__.'/cacert.pem';
+	
 	// -------------------------------------------------------------------------
 	// Page
 	// -------------------------------------------------------------------------

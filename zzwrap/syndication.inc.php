@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -58,71 +58,11 @@ function wrap_syndication_get($url, $type = 'json') {
 			);
 		}
 
-		if (!function_exists('curl_init')) {
-			// file_get_contents does not allow to send additional headers
-			// e. g. IF_NONE_MATCH, so we'll always try to get the data
-			// do not log error here
-			$opts = array(
-				'http' => array(
-					'method' => 'GET',
-					'header' => implode("\r\n", $headers_to_send)
-				)
-			);
-			$context = stream_context_create($opts);
-			set_error_handler('wrap_syndication_errors');
-			$data = file_get_contents($url, false, $context);
-			restore_error_handler();
-			if (!empty($http_response_header)) {
-				$headers = $http_response_header;
-			} else {
-				$headers = array();
-				$status = 503;
-			}
-			foreach ($headers as $header) {
-				if (substr($header, 0, 5) === 'HTTP/') {
-					$status = explode(' ', $header);
-					$status = $status[1];
-				}
-			}
-		} else {
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HEADER, 1);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
-			if ($etag) {
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
-			}
-			$data = curl_exec($ch);
-			if (substr($url, 0, 8) === 'https://') {
-				$ssl_verify = curl_getinfo($ch, CURLINFO_SSL_VERIFYRESULT);
-				if (!$ssl_verify) {
-					wrap_error(sprintf('Syndication from URL %s: SSL certificate could not be validated.', $url), E_USER_NOTICE);
-					if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
-						// try again without SSL verification
-						curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-						$data = curl_exec($ch);
-					}
-				}
-			}
-			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-			//$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-			curl_close($ch);
-			// separate headers from data
-			if ($status === 200) {
-				$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
-				$headers = explode("\r\n", $headers);
-				$data = substr($data, strpos($data, "\r\n\r\n") + 4);
-			}
-		}
+		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send);
 
 		switch ($status) {
 		case 200:
-			$my_etag = '';
-			foreach ($headers as $header) {
-				if (substr($header, 0, 6) != 'ETag: ') continue;
-				$my_etag = substr($header, 7, -1);
-			}
+			$my_etag = substr(wrap_syndication_http_header('ETag', $headers), 1, -1);
 			if ($data and !empty($zz_setting['cache'])) {
 				wrap_cache_ressource($data, $my_etag, $url, $headers);
 			}
@@ -131,6 +71,13 @@ function wrap_syndication_get($url, $type = 'json') {
 			// cache file must exist, we would not have an etag header
 			// so use it
 			$data = file_get_contents($files[0]);
+			break;
+		case 302:
+		case 303:
+		case 307:
+			$data = NULL;
+			wrap_error(sprintf('Syndication from URL %s failed with redirect status code %s. Use URL %s instead.',
+				$url, $status, wrap_syndication_http_header('Location', $headers)), $zz_setting['syndication_error_code']);
 			break;
 		case 404:
 			$data = array();
@@ -247,4 +194,98 @@ function wrap_syndication_geocode($address) {
 	return $result;
 }
 
-?>
+/**
+ * get content via HTTP URL
+ *
+ * @param string $url
+ * @param array $headers_to_send
+ * @return array
+ *		int $status
+ *		array $headers
+ *		array $data
+ */
+function wrap_syndication_retrieve_via_http($url, $headers_to_send = array()) {
+	global $zz_setting;
+
+	if (!function_exists('curl_init')) {
+		// file_get_contents does not allow to send additional headers
+		// e. g. IF_NONE_MATCH, so we'll always try to get the data
+		// do not log error here
+		$opts = array(
+			'http' => array(
+				'method' => 'GET',
+				'header' => implode("\r\n", $headers_to_send)
+			)
+		);
+		$context = stream_context_create($opts);
+		set_error_handler('wrap_syndication_errors');
+		$data = file_get_contents($url, false, $context);
+		restore_error_handler();
+		if (!empty($http_response_header)) {
+			$headers = $http_response_header;
+		} else {
+			$headers = array();
+			$status = 503;
+		}
+		foreach ($headers as $header) {
+			if (substr($header, 0, 5) === 'HTTP/') {
+				$status = explode(' ', $header);
+				$status = $status[1];
+			}
+		}
+	} else {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HEADER, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
+		if ($headers_to_send) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
+		}
+		if (substr($url, 0, 8) === 'https://') {
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+			// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
+			// so there should be currently no need to include an own PEM file
+			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
+		}
+		$data = curl_exec($ch);
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if (!$status) {
+			if (substr($url, 0, 8) === 'https://' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+				// try again without SSL verification
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+				$data = curl_exec($ch);
+				$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			}
+			if ($status) {
+				wrap_error(sprintf('Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+			} else {
+				wrap_error(sprintf('Syndication from URL %s failed. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+			}
+		}
+		curl_close($ch);
+		// separate headers from data
+		$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
+		$headers = explode("\r\n", $headers);
+		$data = substr($data, strpos($data, "\r\n\r\n") + 4);
+	}
+	return array($status, $headers, $data);
+}
+
+/**
+ * parse the value from a HTTP header
+ *
+ * @param string $which
+ * @param array $headers
+ * @return string
+ */
+function wrap_syndication_http_header($which, $headers) {
+	$value = '';
+	foreach ($headers as $header) {
+		if (substr($header, 0, strlen($which) + 2) != $which.': ') continue;
+		$value = substr($header, strlen($which) + 2);
+	}
+	return $value;
+}
