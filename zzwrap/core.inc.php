@@ -1171,7 +1171,7 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 
 	header_remove('X-Powered-By');
 	// Prevent IE > 7 from sniffing mime types
-	header('Content-Type: X-Content-Type-Options: nosniff');
+	header('X-Content-Type-Options: nosniff');
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
