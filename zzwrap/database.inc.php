@@ -648,7 +648,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$set['core'] = true;
 			$zz_sql['pages'] = 'SELECT webpages.*
 				FROM /*_PREFIX_*/webpages webpages
-				WHERE webpages.identifier = "%s"';
+				WHERE webpages.identifier = _latin1"%s"';
 			
 			$zz_sql['is_public'] = 'live = "yes"';
 
@@ -656,16 +656,16 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['redirects_old_fieldname'] = 'old_url';
 
 			$zz_sql['redirects'] = 'SELECT * FROM /*_PREFIX_*/redirects
-				WHERE old_url = "%s/"
-				OR old_url = "%s.html"
-				OR old_url = "%s"';
+				WHERE old_url = _latin1"%s/"
+				OR old_url = _latin1"%s.html"
+				OR old_url = _latin1"%s"';
 
 			$zz_sql['redirects_*'] = 'SELECT * FROM /*_PREFIX_*/redirects
-				WHERE old_url = "%s*"';
+				WHERE old_url = _latin1"%s*"';
 				
 			$zz_sql['filetypes'] = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
 				FROM /*_PREFIX_*/filetypes
-				WHERE extension = "%s"';
+				WHERE extension = _latin1"%s"';
 
 			$zz_sql['page_id']		= 'page_id';
 			$zz_sql['content']		= 'content';
@@ -719,7 +719,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 				, logins.login_id
 				FROM /*_PREFIX_*/logins logins
 				WHERE active = "yes"
-				AND username = "%s"';
+				AND username = _latin1"%s"';
 			$zz_sql['last_masquerade'] = false;
 			$zz_sql['login_masquerade'] = false;
 			$zz_sql['login_settings'] = false;
@@ -787,4 +787,3 @@ function wrap_db_escape($value) {
 		return addslashes($value);
 	}
 }
-?>
