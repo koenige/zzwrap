@@ -1810,11 +1810,16 @@ function wrap_substr($string, $substring, $mode = 'begin') {
 function wrap_get_setting($key) {
 	if (function_exists('my_get_setting')) {
 		return my_get_setting($key);
-	} else {
-		global $zz_setting;
-		if (!isset($zz_setting[$key])) return NULL;
+	}
+	global $zz_setting;
+	if (isset($zz_setting[$key])) {
 		return $zz_setting[$key];
 	}
+	$value = wrap_setting_read($key);
+	if (array_key_exists($key, $value)) {
+		return $value[$key];
+	}
+	return NULL;
 }
 
 /**
