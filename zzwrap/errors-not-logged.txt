@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2012 Gustaf Mossakowski
+# @copyright Copyright © 2012-2014 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 # 
 # begin = check if begin of string is identical; end = check end; all: check full
@@ -54,6 +54,19 @@
 
 # WordPress
 404	end	/wp-login.php
+
+# Joomla
+404	all	/administrator/index.php
+
+# Looking for security flaws
+404	end	/register.asp
+404	end	/reg.asp
+404	end	/user/CreateUser.aspx?ReturnUrl=
+404	end	/register.php
+404	end	/logging.php?action=login
+404	end	/member.php?mod=register
+404	end	/member.php?mod=logging&action=login
+404	end	/user/create_form/
 
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
