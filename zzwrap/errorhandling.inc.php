@@ -388,6 +388,9 @@ function wrap_errorpage_log($status, $page) {
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested_server, 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
+		if (substr($_SERVER['REQUEST_URI'], -11) === '/trackback/') {
+			$msg .= "\n\n".wrap_print($_REQUEST);
+		}
 		$settings['mail_no_request_uri'] = true;		// we already have these
 		$settings['mail_no_ip'] = true;
 		$settings['mail_no_user_agent'] = true;
