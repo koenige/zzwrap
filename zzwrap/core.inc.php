@@ -2018,6 +2018,9 @@ function wrap_setting_write($key, $value, $login_id = 0) {
  * @return array
  */
 function wrap_setting_read($key, $login_id = 0) {
+	$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/_settings"';
+	$setting_table = wrap_db_fetch($sql);
+	if (!$setting_table) return array();
 	$sql = 'SELECT setting_key, setting_value
 		FROM /*_PREFIX_*/_settings
 		WHERE setting_key %s "%s"';
@@ -2040,9 +2043,9 @@ function wrap_setting_read($key, $login_id = 0) {
  */
 function wrap_setting_login_id($login_id = 0) {
 	if ($login_id) {
-		return sprintf('AND login_id = %d', $login_id);
+		return sprintf(' AND login_id = %d', $login_id);
 	} else {
-		return 'AND ISNULL(login_id)';
+		return ' AND ISNULL(login_id)';
 	}
 }
 
