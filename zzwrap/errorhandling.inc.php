@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2013 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -388,8 +388,8 @@ function wrap_errorpage_log($status, $page) {
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested_server, 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
-		if (substr($_SERVER['REQUEST_URI'], -11) === '/trackback/') {
-			$msg .= "\n\n".wrap_print($_REQUEST);
+		if (!empty($_POST)) {
+			$msg .= "\n\n".print_r($_REQUEST);
 		}
 		$settings['mail_no_request_uri'] = true;		// we already have these
 		$settings['mail_no_ip'] = true;
@@ -498,5 +498,3 @@ function wrap_errorpage_ignore($status) {
 	}
 	return false;
 }
-	
-?>
