@@ -229,19 +229,26 @@ function wrap_date_format($date, $set, $type = 'standard') {
  * etc.
  *
  * @param array $array
+ * @param string $color (optional)
+ * @param bool $html (optional)
  * @return string
  */
-function wrap_print($array, $color = 'FFF') {
-	global $zz_conf;
-	$out = '<pre style="text-align: left; background-color: #'.$color
-		.'; position: relative; z-index: 10;" class="fullarray">';
+function wrap_print($array, $color = 'FFF', $html = true) {
+	if ($html) {
+		$out = '<pre style="text-align: left; background-color: #'.$color
+			.'; position: relative; z-index: 10;" class="fullarray">';
+	}
 	ob_start();
 	print_r($array);
 	$code = ob_get_clean();
-	$codeout = wrap_html_escape($code);
-	if ($code AND !$codeout)
-		$codeout = htmlspecialchars($code, ENT_QUOTES, 'iso-8859-1');
-	$out .= $codeout.'</pre>';
+	if ($html) {
+		$codeout = wrap_html_escape($code);
+		if ($code AND !$codeout)
+			$codeout = htmlspecialchars($code, ENT_QUOTES, 'iso-8859-1');
+		$out .= $codeout.'</pre>';
+	} else {
+		$out .= $code;
+	}
 	return $out;
 }
 
