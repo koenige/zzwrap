@@ -349,12 +349,13 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 					list($database, $table) = wrap_translate_get_table_db(substr($field, 0, -2));
 				}
 				$sql = sprintf($sql_tt, 'field_name', $database, $table);
-				$matrix += wrap_db_fetch($sql, array('field_type', 'translationfield_id'));
 			} else {
 				// we have a selection of fields to be translated
 				$names = explode('.', $field);
 				$sql = sprintf($sql_ttf, 'field_name', $names[0], $names[1], $names[2]);
-				$matrix += wrap_db_fetch($sql, array('field_type', 'translationfield_id'));
+			}
+			if ($data = wrap_db_fetch($sql, array('field_type', 'translationfield_id'))) {
+				$matrix += $data;
 			}
 		} else {
 		// alpha key: title => CMS.seiten.titel or seiten.titel
