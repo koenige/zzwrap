@@ -354,8 +354,8 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 				$names = explode('.', $field);
 				$sql = sprintf($sql_ttf, 'field_name', $names[0], $names[1], $names[2]);
 			}
-			if ($data = wrap_db_fetch($sql, array('field_type', 'translationfield_id'))) {
-				$matrix += $data;
+			if ($mydata = wrap_db_fetch($sql, array('field_type', 'translationfield_id'))) {
+				$matrix += $mydata;
 			}
 		} else {
 		// alpha key: title => CMS.seiten.titel or seiten.titel
