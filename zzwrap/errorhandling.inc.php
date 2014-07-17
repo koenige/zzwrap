@@ -389,7 +389,7 @@ function wrap_errorpage_log($status, $page) {
 			." but could not be found on the server"), $requested_server, 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
 		if (!empty($_POST)) {
-			$msg .= "\n\n".wrap_print($_REQUEST, false, false);
+			$msg .= "\n\n".wrap_print($_POST, false, false);
 		}
 		$settings['mail_no_request_uri'] = true;		// we already have these
 		$settings['mail_no_ip'] = true;
