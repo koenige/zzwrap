@@ -84,3 +84,6 @@
 # Script testing over 100 URIs at a time thinking it's clever to use a referer
 # but real referer will always include query string
 404	referer	http://www.baidu.com
+
+# Trackback-Spam, normally with POST
+404	end	/trackback/
