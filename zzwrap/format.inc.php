@@ -237,6 +237,8 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	if ($html) {
 		$out = '<pre style="text-align: left; background-color: #'.$color
 			.'; position: relative; z-index: 10;" class="fullarray">';
+	} else {
+		$out = '';
 	}
 	ob_start();
 	print_r($array);
