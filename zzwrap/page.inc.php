@@ -112,7 +112,7 @@ function wrap_template_file($template, $show_error = true) {
 			} else {
 				$error_msg = sprintf(wrap_text('More than one template with the name <code>%s</code> exists.'), wrap_html_escape($template));
 			}
-			if (!empty($zz_page['error_code']) AND $zz_page['error_code'] === 503) {
+			if (!empty($zz_page['error_code'])) {
 				echo $error_msg;
 				return false;
 			} else {
