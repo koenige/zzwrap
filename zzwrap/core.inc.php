@@ -1648,6 +1648,10 @@ function wrap_send_cache($age = 0) {
 }
 
 /**
+ * check freshness of cache, either if it was last revalidated in a given
+ * timeframe (positive values for $age) or if it was created after a given 
+ * timestamp (negative values for $age)
+ *
  * @param array $files list of files
  * @param int $age (negative -1: don't care about freshness; other values: check)
  * @return bool false: not fresh, true: cache is fresh
@@ -1655,18 +1659,47 @@ function wrap_send_cache($age = 0) {
 function wrap_cache_freshness($files, $age) {
 	// -1: cache will always considered to be fresh
 	if ($age === -1) return true;
-	// 0 or positive values: cache files will be checked
-	// check if X-Revalidated is set
 	$now = time();
-	$revalidated = wrap_cache_get_header($files[1], 'X-Revalidated');
-	$revalidated_timestamp = wrap_date($revalidated, 'rfc1123->timestamp');
-	if ($revalidated_timestamp + $age > $now) {
-		// thought of putting in Age, but Date has to be changed accordingly
-		// header(sprintf('Age: %d', $now - $revalidated_timestamp));
-		return true;
+	if ($age < 0) {
+		// check if there's a cache that was not modified later than $age
+		$last_mod = wrap_cache_get_header($files[1], 'Last-Modified');
+		$last_mod_timestamp = wrap_date($last_mod, 'rfc1123->timestamp');
+		if ($last_mod_timestamp > $now + $age) {
+			return true;
+		}
+		if (filemtime($files[0]) > $now + $age) return true;
+	} else {
+		// 0 or positive values: cache files will be checked
+		// check if X-Revalidated is set
+		$revalidated = wrap_cache_get_header($files[1], 'X-Revalidated');
+		$revalidated_timestamp = wrap_date($revalidated, 'rfc1123->timestamp');
+		if ($revalidated_timestamp + $age > $now) {
+			// thought of putting in Age, but Date has to be changed accordingly
+			// header(sprintf('Age: %d', $now - $revalidated_timestamp));
+			return true;
+		}
+		// check if cached files date is fresh
+		if (filemtime($files[0]) + $age > $now) return true;
 	}
-	// check if cached files date is fresh
-	if (filemtime($files[0]) + $age > $now) return true;
+	return false;
+}
+
+/**
+ * Check if there's a cache file and it's newer than last modified
+ * date e. g. of database tables
+ *
+ * @param string $datetime timestamp e.g. 2014-08-14 10:28:36
+ * @return void false if no cache was found, or it will send the cache
+ */
+function wrap_cache_send_if_newer($datetime) {
+	if (!$datetime) return false;
+	$datetime = strtotime($datetime);
+	$now = time();
+	$diff = $now - $datetime;
+	if ($diff > 0) {
+		// check if there's a cache younger than $diff
+		wrap_send_cache(-$diff);
+	}
 	return false;
 }
 
