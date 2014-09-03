@@ -20,7 +20,6 @@
  * @param string $url
  * @param string $type Type of ressource, defaults to 'json'
  * @return array $data
- * @todo: think about cURL if it's available
  */
 function wrap_syndication_get($url, $type = 'json') {
 	global $zz_setting;
@@ -41,12 +40,12 @@ function wrap_syndication_get($url, $type = 'json') {
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
+			$last_modified = filemtime($files[0]);
 			if ($fresh) {
 				$data = file_get_contents($files[0]);
 			} else {
 				// get ETag and Last-Modified from cache file
 				$etag = wrap_cache_get_header($files[1], 'ETag');
-				$last_modified = filemtime($files[0]);
 			}
 		}
 	}
@@ -57,6 +56,7 @@ function wrap_syndication_get($url, $type = 'json') {
 				'If-None-Match: "'.$etag.'"'
 			);
 		}
+		// @todo Last-Modified
 
 		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send);
 
@@ -65,12 +65,16 @@ function wrap_syndication_get($url, $type = 'json') {
 			$my_etag = substr(wrap_syndication_http_header('ETag', $headers), 1, -1);
 			if ($data and !empty($zz_setting['cache'])) {
 				wrap_cache_ressource($data, $my_etag, $url, $headers);
+				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 			}
 			break;
 		case 304:
 			// cache file must exist, we would not have an etag header
 			// so use it
 			$data = file_get_contents($files[0]);
+			if (!empty($zz_setting['cache'])) {
+				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+			}
 			break;
 		case 302:
 		case 303:
@@ -88,6 +92,9 @@ function wrap_syndication_get($url, $type = 'json') {
 				$data = file_get_contents($files[0]);
 				wrap_error(sprintf('Syndication from URL %s failed with status code %s. Using cached file instead.',
 					$url, $status), E_USER_NOTICE);
+				if (!empty($zz_setting['cache'])) {
+					$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+				}
 			} else {
 				$data = NULL;
 				wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
@@ -108,6 +115,9 @@ function wrap_syndication_get($url, $type = 'json') {
 			// convert it back to a string
 			if (count($object) == 1 AND isset($object[0]))
 				$object = $object[0];
+		}
+		if ($last_modified AND is_array($object)) {
+			$object['_']['Last-Modified'] = $last_modified;
 		}
 		return $object;
 	default:
