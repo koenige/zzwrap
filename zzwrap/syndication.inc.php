@@ -35,6 +35,7 @@ function wrap_syndication_get($url, $type = 'json') {
 	if (!isset($zz_setting['cache_age_syndication'])) {
 		$zz_setting['cache_age_syndication'] = 0;
 	}
+	$files = array();
 	if (!empty($zz_setting['cache'])) {
 		$files = array(wrap_cache_filename('url', $url), wrap_cache_filename('headers', $url));
 		// does a cache file exist?
@@ -121,7 +122,15 @@ function wrap_syndication_get($url, $type = 'json') {
 		}
 		return $object;
 	default:
-		return -1;
+		$object = array();
+		$object['_']['data'] = true;
+		if (!empty($files[0])) {
+			$object['_']['filename'] = $files[0];
+		}
+		if ($last_modified) {
+			$object['_']['Last-Modified'] = $last_modified;
+		}
+		return $object;
 	}
 }
 
