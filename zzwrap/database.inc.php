@@ -723,6 +723,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['last_masquerade'] = false;
 			$zz_sql['login_masquerade'] = false;
 			$zz_sql['login_settings'] = false;
+			$zz_sql['password'] = 'password';
 
 			break;
 		default:

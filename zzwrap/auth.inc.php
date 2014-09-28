@@ -302,7 +302,7 @@ function cms_login($params) {
 			$hash = array_shift($data);
 			if ($login['different_sign_on']) {
 				$_SESSION['logged_in'] = true;
-			} elseif (wrap_password_check($login['password'], $hash)) {
+			} elseif (wrap_password_check($login['password'], $hash, $data['login_id'])) {
 				$_SESSION['logged_in'] = true;
 			}
 			unset($hash);
@@ -524,12 +524,13 @@ function wrap_login_format($field_value, $field_name) {
  *
  * @param string $pass password as entered by user
  * @param string $hash hash as stored in database
+ * @param int $login_id
  * @global array $zz_conf
  *		'hash_password', 'hash_script'
  * @return bool true: given credentials are correct, false: no access!
  * @see zz_passsword_check()
  */
-function wrap_password_check($pass, $hash) {
+function wrap_password_check($pass, $hash, $login_id) {
 	global $zz_conf;
 	if (!empty($zz_conf['hash_script']))
 		require_once $zz_conf['hash_script'];
@@ -540,6 +541,21 @@ function wrap_password_check($pass, $hash) {
 	case 'phpass':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
 		if ($hasher->CheckPassword($pass, $hash)) return true;
+		else return false;
+	case 'phpass-md5':
+		// to transfer old double md5 hashed logins without salt to more secure logins
+		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		if ($hasher->CheckPassword($pass, $hash)) return true;
+		if ($hasher->CheckPassword(md5($pass), $hash)) {
+			// Update existing password
+			require_once $zz_conf['dir'].'/zzform.php';
+			$values['action'] = 'update';
+			$values['POST']['login_id'] = $login_id;
+			$values['POST']['secure_password'] = 'yes';
+			$values['POST'][wrap_sql('password')] = $pass;
+			$ops = zzform_multi('logins', $values);
+			return true;
+		}
 		else return false;
 	default:
 		if ($hash === wrap_password_hash($pass)) return true;
@@ -566,6 +582,7 @@ function wrap_password_hash($pass) {
 
 	switch ($zz_conf['hash_password']) {
 	case 'phpass':
+	case 'phpass-md5':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
 		$hash = $hasher->HashPassword($pass);
 		if (strlen($hash) < 20) return false;
