@@ -472,9 +472,9 @@ function wrap_check_redirects($page_url) {
  * @return bool
  */
 function wrap_log_uri() {
-	global $zz_conf;
+	global $zz_setting;
 	global $zz_page;
-	if (empty($zz_conf['uris_table'])) return false;
+	if (empty($zz_setting['uris_table'])) return false;
 
 	$scheme = $zz_page['url']['full']['scheme'];
 	$host = $zz_page['url']['full']['host'];
