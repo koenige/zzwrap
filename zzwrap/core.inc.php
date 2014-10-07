@@ -1077,6 +1077,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		break;
 	case 'pgn':
 		$zz_page['content_type'] = 'application/x-chess-pgn';
+		$zz_page['character_set'] = $zz_conf['character_set']; // utf-8 and latin1 possible
 		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.pgn';
 		break;
 	default:
