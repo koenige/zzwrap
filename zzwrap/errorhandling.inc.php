@@ -106,11 +106,11 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		$zz_conf['error_handling'] = false;
 
 	if (!is_array($zz_conf['error_mail_level'])) {
-		if ($zz_conf['error_mail_level'] == 'error') 
+		if ($zz_conf['error_mail_level'] === 'error') 
 			$zz_conf['error_mail_level'] = array('error');
-		elseif ($zz_conf['error_mail_level'] == 'warning') 
+		elseif ($zz_conf['error_mail_level'] === 'warning') 
 			$zz_conf['error_mail_level'] = array('error', 'warning');
-		elseif ($zz_conf['error_mail_level'] == 'notice') 
+		elseif ($zz_conf['error_mail_level'] === 'notice') 
 			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
 		else
 			$zz_conf['error_mail_level'] = array();
@@ -159,7 +159,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		break;
 	}
 
-	if ($return == 'exit') {
+	if ($return === 'exit') {
 		$page['status'] = 503;
 		wrap_errorpage($page, $zz_page, false);
 		exit;
@@ -309,7 +309,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 			header('Content-Type: text/html; charset='.$zz_conf['character_set']);
 		$lines = explode("\n", $page['text']);
 		foreach ($lines as $index => $line) {
-			if (substr($line, 0, 1) == '#') unset($lines[$index]);
+			if (substr($line, 0, 1) === '#') unset($lines[$index]);
 		}
 		$page['text'] = implode("\n", $lines);
 		$page['text'] = str_replace('%%% page h1 %%%', $page['h1'], $page['text']);
@@ -380,9 +380,10 @@ function wrap_errorpage_log($status, $page) {
 		$requested_server = $zz_page['url']['full']['scheme'].'://'
 			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 		if ($_SERVER['HTTP_REFERER'] === $requested_server) return false;
+		if (str_replace('//', '//www.', $_SERVER['HTTP_REFERER']) === $requested_server) return false;
 		// http:// is so uncool ...
-		if ('http://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
-		if ('https://'.$_SERVER['HTTP_REFERER'] == $requested) return false;
+		if ('http://'.$_SERVER['HTTP_REFERER'] === $requested) return false;
+		if ('https://'.$_SERVER['HTTP_REFERER'] === $requested) return false;
 		// own error message!
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
