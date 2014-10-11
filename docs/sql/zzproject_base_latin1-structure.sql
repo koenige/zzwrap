@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.16, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.20, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_latin1
 -- ------------------------------------------------------
--- Server version	5.6.16
+-- Server version	5.6.20
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -76,7 +76,8 @@ CREATE TABLE `_settings` (
   `setting_key` varchar(32) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `setting_value` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `explanation` text CHARACTER SET latin1 COLLATE latin1_general_ci,
-  PRIMARY KEY (`setting_id`)
+  PRIMARY KEY (`setting_id`),
+  UNIQUE KEY `setting_key_login_id` (`setting_key`,`login_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

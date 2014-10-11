@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.16, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.20, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.6.16
+-- Server version	5.6.20
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -71,12 +71,13 @@ DROP TABLE IF EXISTS `_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_settings` (
-  `setting_id` int(11) NOT NULL AUTO_INCREMENT,
-  `login_id` int(11) DEFAULT NULL,
+  `setting_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `login_id` int(10) unsigned DEFAULT NULL,
   `setting_key` varchar(32) NOT NULL,
   `setting_value` varchar(255) NOT NULL,
   `explanation` text,
-  PRIMARY KEY (`setting_id`)
+  PRIMARY KEY (`setting_id`),
+  UNIQUE KEY `setting_key_login_id` (`setting_key`,`login_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

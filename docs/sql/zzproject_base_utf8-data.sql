@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.16, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.20, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.6.16
+-- Server version	5.6.20
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -89,12 +89,13 @@ DROP TABLE IF EXISTS `_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_settings` (
-  `setting_id` int(11) NOT NULL AUTO_INCREMENT,
-  `login_id` int(11) DEFAULT NULL,
+  `setting_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `login_id` int(10) unsigned DEFAULT NULL,
   `setting_key` varchar(32) NOT NULL,
   `setting_value` varchar(255) NOT NULL,
   `explanation` text,
-  PRIMARY KEY (`setting_id`)
+  PRIMARY KEY (`setting_id`),
+  UNIQUE KEY `setting_key_login_id` (`setting_key`,`login_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -307,7 +308,7 @@ CREATE TABLE `filetypes` (
   `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -316,7 +317,7 @@ CREATE TABLE `filetypes` (
 
 LOCK TABLES `filetypes` WRITE;
 /*!40000 ALTER TABLE `filetypes` DISABLE KEYS */;
-INSERT INTO `filetypes` VALUES (1,'jpeg','image','jpeg','JPEG Image','jpeg'),(2,'gif','image','gif','GIF Image','gif'),(3,'pdf','application','pdf','Portable Document Format','pdf'),(4,'txt','text','plain','Text File','txt'),(5,'html','text','html','Hypertext Markup Language','html'),(6,'tiff','image','tiff','TIFF Image','tif'),(7,'png','image','png','Portable Network Graphic','png'),(8,'rtf','text','rtf','Rich Text Format','rtf'),(9,'xls','application','vnd.ms-excel','MS Excel Document','xls'),(10,'3gp','video','3gpp','3GPP-Video','3gp'),(11,'zip','application','zip','ZIP Archive','zip'),(12,'doc','application','msword','MS Word Document','doc'),(14,'mdb','application','msaccess','MS Access Database','mdb'),(15,'dot','application','msword','MS Word Document Template','dot'),(16,'folder','example','x-folder',NULL,'');
+INSERT INTO `filetypes` VALUES (1,'jpeg','image','jpeg','JPEG Image','jpeg'),(2,'gif','image','gif','GIF Image','gif'),(3,'pdf','application','pdf','Portable Document Format','pdf'),(4,'txt','text','plain','Text File','txt'),(5,'html','text','html','Hypertext Markup Language','html'),(6,'tiff','image','tiff','TIFF Image','tif'),(7,'png','image','png','Portable Network Graphic','png'),(8,'rtf','text','rtf','Rich Text Format','rtf'),(9,'xls','application','vnd.ms-excel','MS Excel Document','xls'),(10,'3gp','video','3gpp','3GPP-Video','3gp'),(11,'zip','application','zip','ZIP Archive','zip'),(12,'doc','application','msword','MS Word Document','doc'),(14,'mdb','application','msaccess','MS Access Database','mdb'),(15,'dot','application','msword','MS Word Document Template','dot'),(16,'folder','example','x-folder',NULL,''),(17,'css','text','css','Cascading Stylesheets','css'),(18,'js','application','javascript','JavaScript','js');
 /*!40000 ALTER TABLE `filetypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
