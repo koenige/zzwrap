@@ -18,7 +18,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -100,37 +100,12 @@ function wrap_auth($force = false) {
 	
 	// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
 	// initialize request, should be in front of nocookie
-	$qs['request'] = false; 
 	if (empty($_SESSION['logged_in']) 
 		OR $now > ($_SESSION['last_click_at'] + $keep_alive)
 		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], wrap_sql('domain')))) {
 		// get rid of domain, since user is not logged in anymore
 		wrap_session_stop();
-		$request = $zz_page['url']['full']['path'];
-		if (!empty($zz_page['url']['full']['query'])) {
-			// parse URL for no-cookie to hand it over to cms_login()
-			// in case cookies are not allowed
-			parse_str($zz_page['url']['full']['query'], $query_string);
-			if (isset($query_string['no-cookie'])) {
-				// add no-cookie to query string so login knows that there's no
-				// cookie (in case SESSIONs don't work here)
-				$qs['nocookie'] = 'no-cookie';
-				unset($query_string['no-cookie']);
-			}
-			if ($query_string) {
-				$request .= '?'.http_build_query($query_string);
-			}
-		}
-		// do not unnecessarily expose URL structure
-		if ($request == $zz_setting['login_entryurl']
-			OR (is_array($zz_setting['login_entryurl']) 
-				AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
-		else $qs['request'] = 'url='.urlencode($request);
-		wrap_http_status_header(307);
-		header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
-			.$zz_setting['login_url']
-			.(count($qs) ? '?'.implode('&', $qs) : ''));
-		exit;
+		wrap_auth_loginpage();
 	}
 
 	// remove no-cookie from URL
@@ -151,6 +126,44 @@ function wrap_auth($force = false) {
 		$result = wrap_db_query($sql_mask, E_USER_NOTICE);
 	}
 	return true;
+}
+
+/**
+ * redirect to login page if user is not logged in
+ *
+ * @return void (exit)
+ */
+function wrap_auth_loginpage() {
+	global $zz_page;
+	global $zz_setting;
+
+	$qs = array();
+	$qs['request'] = false; 
+	$request = $zz_page['url']['full']['path'];
+	if (!empty($zz_page['url']['full']['query'])) {
+		// parse URL for no-cookie to hand it over to cms_login()
+		// in case cookies are not allowed
+		parse_str($zz_page['url']['full']['query'], $query_string);
+		if (isset($query_string['no-cookie'])) {
+			// add no-cookie to query string so login knows that there's no
+			// cookie (in case SESSIONs don't work here)
+			$qs['nocookie'] = 'no-cookie';
+			unset($query_string['no-cookie']);
+		}
+		if ($query_string) {
+			$request .= '?'.http_build_query($query_string);
+		}
+	}
+		// do not unnecessarily expose URL structure
+	if ($request == $zz_setting['login_entryurl']
+		OR (is_array($zz_setting['login_entryurl']) 
+			AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
+	else $qs['request'] = 'url='.urlencode($request);
+	wrap_http_status_header(307);
+	header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
+		.$zz_setting['login_url']
+		.(count($qs) ? '?'.implode('&', $qs) : ''));
+	exit;
 }
 
 /**
@@ -595,5 +608,3 @@ function wrap_password_hash($pass) {
 
 	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
 }
-
-?>
