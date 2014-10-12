@@ -14,6 +14,7 @@
  *		- wrap_session_stop()
  *	- cms_login()
  *		- wrap_register()
+ *		- wrap_login()
  *		- wrap_login_format()
  *		- cms_login_redirect()
  *
@@ -275,8 +276,8 @@ function cms_login($params) {
 	$loginform['msg'] = false;
 	// someone tried to login via POST
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' OR $login['different_sign_on']) {
-	// send header for IE for P3P (Platform for Privacy Preferences Project)
-	// if cookie is needed
+		// send header for IE for P3P (Platform for Privacy Preferences Project)
+		// if cookie is needed
 		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
 
 		$try_login = true;
@@ -307,31 +308,7 @@ function cms_login($params) {
 
 		// Session will be saved in Cookie so check whether we got a cookie or not
 		wrap_session_start();
-		unset($_SESSION['logged_in']);
-
-		// check username and password
-		$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
-		$data = wrap_db_fetch($sql);
-		if ($data) {
-			$hash = array_shift($data);
-			if ($login['different_sign_on']) {
-				$_SESSION['logged_in'] = true;
-			} elseif (wrap_password_check($login['password'], $hash, $data['login_id'])) {
-				$_SESSION['logged_in'] = true;
-			}
-			unset($hash);
-		}
-		// if database login does not work, try different sources
-		// ... LDAP ...
-		// ... different database server ...
-		if (!empty($zz_setting['ldap_login']) AND empty($_SESSION['logged_in'])) {
-			require_once $zz_setting['custom_wrap_dir'].'/ldap-login.inc.php';
-			$data = cms_login_ldap($login);
-			if ($data) $_SESSION['logged_in'] = true;
-		}
-		if (!empty($_SESSION['logged_in'])) {
-			wrap_register(false, $data);
-		}
+		$_SESSION['logged_in'] = wrap_login($login);
 	}
 
 	// get URL where redirect is done to after logging in
@@ -456,6 +433,44 @@ function cms_login_redirect($url, $querystring = array()) {
 	wrap_http_status_header(303);
 	header('Location: '.$zz_setting['myhost'].$url);
 	exit;
+}
+
+/**
+ * Login to a website and register user if successful
+ *
+ * @param array $login
+ *		string 'username'
+ *		string 'password'
+ *		bool 'different_sign_on'
+ * @return bool true: login was successful, false: login was not successful
+ */
+function wrap_login($login) {
+	global $zz_setting;
+	$logged_in = false;
+
+	// check username and password
+	$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
+	$data = wrap_db_fetch($sql);
+	if ($data) {
+		$hash = array_shift($data);
+		if ($login['different_sign_on']) {
+			$logged_in = true;
+		} elseif (wrap_password_check($login['password'], $hash, $data['login_id'])) {
+			$logged_in = true;
+		}
+		unset($hash);
+	}
+	// if database login does not work, try different sources
+	// ... LDAP ...
+	// ... different database server ...
+	if (!empty($zz_setting['ldap_login']) AND !$logged_in) {
+		require_once $zz_setting['custom_wrap_dir'].'/ldap-login.inc.php';
+		$data = cms_login_ldap($login);
+		if ($data) $logged_in = true;
+	}
+	if (!$logged_in) return false;
+	wrap_register(false, $data);
+	return true;
 }
 
 /**
