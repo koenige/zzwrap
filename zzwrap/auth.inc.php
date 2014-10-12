@@ -110,10 +110,12 @@ function wrap_auth($force = false) {
 	}
 
 	if (!$logged_in) $logged_in = wrap_login_ip();
+	if (!$logged_in) $logged_in = wrap_login_http_auth();
 
 	if (!$logged_in) {
 		wrap_session_stop();
 		wrap_auth_loginpage();
+		// = exit;
 	}
 	$_SESSION['logged_in'] = true;
 
@@ -490,6 +492,35 @@ function wrap_login_ip() {
 }
 
 /**
+ * Login via HTTP auth
+ * can be forced by sending a custom HTTP header X-Request-WWW-Authentication
+ *
+ * @param void
+ * @return bool true: login was successful
+ */
+function wrap_login_http_auth() {
+	global $zz_conf;
+	if (empty($_SERVER['HTTP_X_REQUEST_WWW_AUTHENTICATION'])) return false;
+
+	// send WWW-Authenticate header to get username if not yet there
+	if (empty($_SERVER['PHP_AUTH_USER'])) {
+		header(sprintf('WWW-Authenticate: Basic realm="%s"', $zz_conf['project']));
+		wrap_http_status_header(401);
+		exit;
+	}
+	if (empty($_SERVER['PHP_AUTH_USER'])) return false;
+	if (empty($_SERVER['PHP_AUTH_PW'])) return false;
+
+	// check password
+	$password = wrap_password_token($_SERVER['PHP_AUTH_USER']);
+	if ($password !== $_SERVER['PHP_AUTH_PW']) return false;
+	
+	$login['different_sign_on'] = true;
+	$login['username'] = $_SERVER['PHP_AUTH_USER'];
+	return wrap_login($login);
+}
+
+/**
  * Writes SESSION-variables specific to different user ID
  *
  * @param int $user_id
@@ -638,4 +669,31 @@ function wrap_password_hash($pass) {
 	if (!isset($zz_conf['password_salt'])) 
 		$zz_conf['password_salt'] = '';
 	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
+}
+
+/**
+ * create a password token for a user to login without password
+ * dependent on user ID, username, existing password, secret and timeframe
+ *
+ * @param string $username (will be taken from SESSION if not set)
+ * @param string $secret_key name of secret key in settings
+ * @return string
+ */
+function wrap_password_token($username = '', $secret_key = 'login_key') {
+	if (!$username) $username = $_SESSION['username'];
+	// get password, even if it is empty
+	$sql = wrap_sql('login');
+	$sql = sprintf($sql, $username);
+	$userdata = wrap_db_fetch($sql);
+	if (!$userdata AND $sql = wrap_sql('login_user_id')) {
+		$sql = sprintf($sql, $username);
+		$userdata = wrap_db_fetch($sql);
+		if (!$userdata) return false;
+	}
+	$password_in_db = array_shift($userdata);
+	$password = wrap_set_hash(
+		sprintf('%s %d %s', $userdata['username'], $userdata['user_id'], $password_in_db),
+		$secret_key
+	);
+	return $password;
 }
