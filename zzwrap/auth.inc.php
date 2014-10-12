@@ -280,8 +280,6 @@ function cms_login($params) {
 		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
 
 		$try_login = true;
-		// Session will be saved in Cookie so check whether we got a cookie or not
-		wrap_session_start();
 		
 		// get password and username
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -307,9 +305,12 @@ function cms_login($params) {
 			if (!empty($login['context'])) $full_login[] = $login['context'];
 		}
 
+		// Session will be saved in Cookie so check whether we got a cookie or not
+		wrap_session_start();
+		unset($_SESSION['logged_in']);
+
 		// check username and password
 		$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
-		unset($_SESSION['logged_in']);
 		$data = wrap_db_fetch($sql);
 		if ($data) {
 			$hash = array_shift($data);
@@ -328,6 +329,9 @@ function cms_login($params) {
 			$data = cms_login_ldap($login);
 			if ($data) $_SESSION['logged_in'] = true;
 		}
+		if (!empty($_SESSION['logged_in'])) {
+			wrap_register(false, $data);
+		}
 	}
 
 	// get URL where redirect is done to after logging in
@@ -339,7 +343,7 @@ function cms_login($params) {
 	}
 
 	// everything was tried, so check if $_SESSION['logged_in'] is true
-	// and in that case, register and redirect to wanted URL in media database
+	// and in that case, redirect to wanted URL in database
 	if ($try_login) {
 		if (empty($_SESSION['logged_in'])) { // Login not successful
 			if (!$loginform['msg']) {
@@ -360,7 +364,6 @@ function cms_login($params) {
 				$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
 		} else {
 			// Hooray! User has been logged in
-			wrap_register(false, $data);
 			if (!empty($_SESSION['change_password']) AND !empty($zz_setting['change_password_url'])) {
 			// if password has to be changed, redirect to password change page
 				if ($url) $url = '?url='.urlencode($url);
