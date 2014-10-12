@@ -79,7 +79,7 @@ function wrap_auth($force = false) {
 			// you'll stay logged in for x minutes
 			$keep_alive = $zz_setting['logout_inactive_after'] * 60;
 			if (empty($_SESSION['last_click_at']) OR
-				$_SESSION['last_click_at']+$keep_alive < time()) {
+				$_SESSION['last_click_at'] + $keep_alive < time()) {
 				// automatically logout
 				wrap_session_stop();
 			}
@@ -99,15 +99,23 @@ function wrap_auth($force = false) {
 	// you'll stay logged in for x minutes
 	$keep_alive = $zz_setting['logout_inactive_after'] * 60;
 	
+	$logged_in = true;
 	// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
 	// initialize request, should be in front of nocookie
 	if (empty($_SESSION['logged_in']) 
 		OR $now > ($_SESSION['last_click_at'] + $keep_alive)
 		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], wrap_sql('domain')))) {
 		// get rid of domain, since user is not logged in anymore
+		$logged_in = false;
+	}
+
+	if (!$logged_in) $logged_in = wrap_login_ip();
+
+	if (!$logged_in) {
 		wrap_session_stop();
 		wrap_auth_loginpage();
 	}
+	$_SESSION['logged_in'] = true;
 
 	// remove no-cookie from URL
 	$zz_page['url'] = wrap_remove_query_strings($zz_page['url'], 'no-cookie');
@@ -255,16 +263,6 @@ function cms_login($params) {
 		$login['different_sign_on'] = true;
 	} elseif (!empty($params[0])) {
 		return false; // other parameters are not allowed
-	}
-	
-	// Check if a Login via IP address is allowed
-	if ($sql = wrap_sql('login_ip')) {
-		$sql = sprintf($sql, wrap_db_escape(inet_pton($_SERVER['REMOTE_ADDR'])));
-		$username = wrap_db_fetch($sql, '', 'single value');
-		if ($username) {
-			$login['different_sign_on'] = true;
-			$login['username'] = $username;
-		}
 	}
 
 	// default settings
@@ -471,6 +469,24 @@ function wrap_login($login) {
 	if (!$logged_in) return false;
 	wrap_register(false, $data);
 	return true;
+}
+
+/**
+ * Check if a Login via IP address is allowed
+ *
+ * @param void
+ * @return bool true: login was successful
+ */
+function wrap_login_ip() {
+	$sql = wrap_sql('login_ip');
+	if (!$sql) return false;
+	$sql = sprintf($sql, wrap_db_escape(inet_pton($_SERVER['REMOTE_ADDR'])));
+	$username = wrap_db_fetch($sql, '', 'single value');
+	if (!$username) return false;
+
+	$login['different_sign_on'] = true;
+	$login['username'] = $username;
+	return wrap_login($login);
 }
 
 /**
