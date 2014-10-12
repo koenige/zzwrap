@@ -60,9 +60,9 @@ function wrap_auth($force = false) {
 	if (!$force) {
 		$authentication = false;
 		foreach ($zz_setting['auth_urls'] as $auth_url) {
-			if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) != strtolower($auth_url))
+			if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) !== strtolower($auth_url))
 				continue;
-			if ($zz_page['url']['full']['path'] == $zz_setting['login_url'])
+			if ($zz_page['url']['full']['path'] === $zz_setting['login_url'])
 				continue;
 			if (wrap_authenticate_url())
 				$authentication = true;
@@ -155,7 +155,7 @@ function wrap_auth_loginpage() {
 		}
 	}
 		// do not unnecessarily expose URL structure
-	if ($request == $zz_setting['login_entryurl']
+	if ($request === $zz_setting['login_entryurl']
 		OR (is_array($zz_setting['login_entryurl']) 
 			AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
@@ -183,7 +183,7 @@ function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
 		$no_auth_urls = $zz_setting['no_auth_urls'];
 	}
 	foreach ($no_auth_urls AS $test_url) {
-		if (substr($url, 0, strlen($test_url)) == $test_url) {
+		if (substr($url, 0, strlen($test_url)) === $test_url) {
 			return false; // no authentication required
 		}
 	}
@@ -245,10 +245,10 @@ function cms_login($params) {
 	$login['different_sign_on'] = false;
 
 	// Check if there are parameters for single sign on
-	if (!empty($params[0]) AND $params[0] == 'Single Sign On') {
+	if (!empty($params[0]) AND $params[0] === 'Single Sign On') {
 		if (count($params) > 4) return false;
 		if (count($params) < 3) return false;
-		if ($params[1] != $zz_setting['single_sign_on_secret']) return false;
+		if ($params[1] !== $zz_setting['single_sign_on_secret']) return false;
 		$login['username'] = $params[2];
 		if (!empty($params[3])) $login['context'] = $params[3];
 		$login['different_sign_on'] = true;
@@ -274,7 +274,7 @@ function cms_login($params) {
 	$loginform = array();
 	$loginform['msg'] = false;
 	// someone tried to login via POST
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' OR $login['different_sign_on']) {
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' OR $login['different_sign_on']) {
 	// send header for IE for P3P (Platform for Privacy Preferences Project)
 	// if cookie is needed
 		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
@@ -284,7 +284,7 @@ function cms_login($params) {
 		wrap_session_start();
 		
 		// get password and username
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			if (empty($_POST['username']) OR empty($_POST['password']))
 				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
 			$full_login = array();
@@ -383,7 +383,7 @@ function cms_login($params) {
 	}
 	
 	if (isset($zz_page['url']['full']['query']) 
-		AND substr($zz_page['url']['full']['query'], 0, 6) == 'logout') {
+		AND substr($zz_page['url']['full']['query'], 0, 6) === 'logout') {
 		// Stop the session, delete all session data
 		wrap_session_stop();
 		$loginform['logout'] = true;
@@ -554,7 +554,7 @@ function wrap_password_check($pass, $hash, $login_id) {
 	case 'phpass':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
 		if ($hasher->CheckPassword($pass, $hash)) return true;
-		else return false;
+		return false;
 	case 'phpass-md5':
 		// to transfer old double md5 hashed logins without salt to more secure logins
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
@@ -569,7 +569,7 @@ function wrap_password_check($pass, $hash, $login_id) {
 			$ops = zzform_multi('logins', $values);
 			return true;
 		}
-		else return false;
+		return false;
 	default:
 		if ($hash === wrap_password_hash($pass)) return true;
 		return false;
@@ -600,11 +600,8 @@ function wrap_password_hash($pass) {
 		$hash = $hasher->HashPassword($pass);
 		if (strlen($hash) < 20) return false;
 		return $hash;
-	default:
-		if (!isset($zz_conf['password_salt'])) 
-			$zz_conf['password_salt'] = '';
-		return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
 	}
-
+	if (!isset($zz_conf['password_salt'])) 
+		$zz_conf['password_salt'] = '';
 	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
 }
