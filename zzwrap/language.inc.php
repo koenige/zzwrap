@@ -171,8 +171,6 @@ function wrap_text($string) {
 	global $zz_setting;
 	static $text;
 	static $module_text;
-	if (empty($text)) $text = array();
-	if (empty($module_text)) $module_text = array();
 	
 	if (!$string) return $string;
 
@@ -180,8 +178,10 @@ function wrap_text($string) {
 	$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
 
 	if (empty($zz_setting['text_included'])
-		OR $zz_setting['text_included'] != $language) {
+		OR $zz_setting['text_included'] !== $language) {
 
+		$text = array();
+		$module_text = array();
 		// standard text english
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.po';
@@ -324,7 +324,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// used without other field definitions, one can write done the
 		// sole db_name.table_name as well without .*
 		if (substr_count($matrix, '.') < 2) {
-			$matrix = array(0 => $matrix.(substr($matrix, -2) == '.*' ? '' : '.*'));
+			$matrix = array(0 => $matrix.(substr($matrix, -2) === '.*' ? '' : '.*'));
 		} else {
 			$matrix = array(0 => $matrix);
 		}
@@ -340,10 +340,10 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	foreach ($old_matrix as $key => $field) {
 		$field = wrap_db_prefix($field);
 		// database name is optional, so add it here for all cases
-		if (substr_count($field, '.') == 1) $field = $zz_conf['db_name'].'.'.$field;
+		if (substr_count($field, '.') === 1) $field = $zz_conf['db_name'].'.'.$field;
 		if (is_numeric($key)) {
 		// numeric key: CMS.seiten.titel, CMS.seiten.*
-			if (substr($field, -2) == '.*') {
+			if (substr($field, -2) === '.*') {
 				// wildcard: all fields that are possible will be translated
 				if (!$database) {
 					list($database, $table) = wrap_translate_get_table_db(substr($field, 0, -2));
@@ -754,7 +754,7 @@ function wrap_po_headers($headers) {
 	$my_headers = array();
 	$my_headers['X-Character-Encoding'] = '';
 	foreach ($headers as $header) {
-		if (substr($header, -2) == '\n') $header = substr($header, 0, -2);
+		if (substr($header, -2) === '\n') $header = substr($header, 0, -2);
 		$tokens = explode(': ', $header);
 		$key = array_shift($tokens);
 		$my_headers[$key] = implode(' ', $tokens);
