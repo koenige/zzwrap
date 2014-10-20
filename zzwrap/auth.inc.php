@@ -449,17 +449,9 @@ function wrap_login($login) {
 	$logged_in = false;
 
 	// check username and password
-	$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
-	$data = wrap_db_fetch($sql);
-	if ($data) {
-		$hash = array_shift($data);
-		if ($login['different_sign_on']) {
-			$logged_in = true;
-		} elseif (wrap_password_check($login['password'], $hash, $data['login_id'])) {
-			$logged_in = true;
-		}
-		unset($hash);
-	}
+	$data = wrap_login_db($login);
+	if ($data) $logged_in = true;
+
 	// if database login does not work, try different sources
 	// ... LDAP ...
 	// ... different database server ...
@@ -471,6 +463,29 @@ function wrap_login($login) {
 	if (!$logged_in) return false;
 	wrap_register(false, $data);
 	return true;
+}
+
+/**
+ * check login credentials against website, get userdata
+ *
+ * @param array $login
+ *		string 'username'
+ *		string 'password'
+ *		bool 'different_sign_on'
+ * @return array $data
+ */
+function wrap_login_db($login) {
+	$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
+	$data = wrap_db_fetch($sql);
+	if (!$data) return array();
+
+	$hash = array_shift($data);
+	if (!empty($login['different_sign_on'])) {
+		return $data;
+	} elseif (wrap_password_check($login['password'], $hash, $data['login_id'])) {
+		return $data;
+	}
+	return array();
 }
 
 /**
