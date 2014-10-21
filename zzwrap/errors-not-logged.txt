@@ -58,6 +58,12 @@
 # Joomla
 404	all	/administrator/index.php
 
+# Magento
+404	all	/js/mage/cookies.js
+
+# DedeCMS
+404	all	/data/admin/ver.txt
+
 # Looking for security flaws
 404	end	/register.asp
 404	end	/reg.asp
