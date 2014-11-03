@@ -599,7 +599,7 @@ function wrap_remove_query_strings($url, $objectionable_qs = array()) {
  * 
  * The execution of the CMS will be stopped. The script test if there's
  * an entry for the URL in the redirect table to redirect to another page
- * If that's true, 301 or 302 codes redirect pages, 410 redirect to gone.
+ * If that's true, 30x codes redirect pages, 410 redirect to gone.
  * if no error code is defined, a 404 code and the corresponding error page
  * will be shown
  * @param int $statuscode HTTP Status Code, default value is 404
@@ -613,8 +613,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	global $zz_page;
 
 	$page['status'] = $statuscode;
-	$no_redirection = array(304, 412, 416);
-	if (!in_array($statuscode, $no_redirection)) {
+	if ($statuscode === 404) {
 		$redir = wrap_check_redirects($zz_page['url']);
 		if ($redir) $page['status'] = $redir['code'];
 	}
@@ -765,6 +764,9 @@ function wrap_check_request() {
 	global $zz_setting;
 	global $zz_page;
 
+	// check REQUEST_METHOD, quit if inappropriate
+	wrap_check_http_request_method();
+
 	// check REQUEST_URI
 	// Base URL, allow it to be set manually (handle with care!)
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
@@ -779,10 +781,6 @@ function wrap_check_request() {
 
 	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
 	
-	// check REQUEST_METHOD, quit if inappropriate
-	// $zz_page['url'] needed for wrap_quit()
-	wrap_check_http_request_method();
-
 	// get rid of unwanted query strings, set redirect if necessary
 	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
 
@@ -866,15 +864,12 @@ function wrap_url_path_decode($input) {
 function wrap_check_http_request_method() {
 	global $zz_setting;
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
-		if (strtoupper($_SERVER['REQUEST_METHOD']) === 'OPTIONS') {
-			// @todo allow checking request methods depending on ressources
-			// e. g. GET only ressources may forbid POST
-			header('Allow: '.implode(',', $zz_setting['http']['allowed']));
-			header('Content-Length: 0');
-			exit;
-		} else {
-			return true;
-		}
+		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'OPTIONS') return true;
+		// @todo allow checking request methods depending on ressources
+		// e. g. GET only ressources may forbid POST
+		header('Allow: '.implode(',', $zz_setting['http']['allowed']));
+		header('Content-Length: 0');
+		exit;
 	}
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
 		wrap_quit(405);	// 405 Not Allowed
