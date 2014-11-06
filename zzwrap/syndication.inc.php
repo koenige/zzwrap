@@ -229,6 +229,7 @@ function wrap_syndication_geocode($address) {
 function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $method = 'GET', $data_to_send = array(), $pwd = false) {
 	global $zz_setting;
 
+	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
 		// e. g. IF_NONE_MATCH, so we'll always try to get the data
@@ -272,6 +273,14 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
 		if ($headers_to_send) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
+			if (in_array('X-Timeout-Ignore: 1', $headers_to_send)) {
+				$timeout_ignore = true;
+				curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+				// without NOSIGNAL, cURL might terminate immediately
+				// when using the standard name resolver
+				curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+				curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
+			}
 		}
 		if ($method === 'POST') {
 			curl_setopt($ch, CURLOPT_POST, true);
@@ -291,26 +300,34 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
 		}
 		$data = curl_exec($ch);
-		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if (!$status) {
-			if (substr($url, 0, 8) === 'https://' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
-				// try again without SSL verification
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-				$data = curl_exec($ch);
-				$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-			}
-			if ($status) {
-				wrap_error(sprintf('Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
-			} else {
-				wrap_error(sprintf('Syndication from URL %s failed. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+		if (!$timeout_ignore) {
+			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			if (!$status) {
+				if (substr($url, 0, 8) === 'https://' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+					// try again without SSL verification
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+					$data = curl_exec($ch);
+					$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				}
+				if ($status) {
+					wrap_error(sprintf('Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+				} else {
+					wrap_error(sprintf('Syndication from URL %s failed. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+				}
 			}
 		}
 		curl_close($ch);
-		// separate headers from data
-		$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
-		$headers = explode("\r\n", $headers);
-		$data = substr($data, strpos($data, "\r\n\r\n") + 4);
+		if (!$timeout_ignore) {
+			// separate headers from data
+			$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
+			$headers = explode("\r\n", $headers);
+			$data = substr($data, strpos($data, "\r\n\r\n") + 4);
+		} else {
+			$status = 200; // not necessarily true, but we don't want to wait
+			$headers = array();
+			$data = array();
+		}
 	}
 	return array($status, $headers, $data);
 }
