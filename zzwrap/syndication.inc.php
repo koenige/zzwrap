@@ -238,6 +238,9 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			$headers_to_send[] = 'Content-Type: application/x-www-form-urlencoded';
 			$content = wrap_syndication_http_post($data_to_send);
 		}
+		if ($pwd) {
+			$headers_to_send[] = "Authorization: Basic " . base64_encode($pwd);
+		}
 		$opts = array(
 			'http' => array(
 				'method' => $method,
