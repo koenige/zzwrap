@@ -26,6 +26,11 @@ function zzwrap() {
 	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
 
+	if (!empty($_SERVER['HTTP_X_TIMEOUT_IGNORE'])) {
+		ignore_user_abort(true);
+		set_time_limit(0);
+	}
+
 	wrap_set_defaults();
 	wrap_includes();
 	wrap_tests();
