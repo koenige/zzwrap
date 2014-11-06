@@ -517,6 +517,14 @@ function wrap_login_http_auth() {
 	global $zz_conf;
 	if (empty($_SERVER['HTTP_X_REQUEST_WWW_AUTHENTICATION'])) return false;
 
+	// Fast-CGI workaround
+	// needs this line in Apache server configuration:
+	// RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+	if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = 
+			explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+	}
+
 	// send WWW-Authenticate header to get username if not yet there
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
 		header(sprintf('WWW-Authenticate: Basic realm="%s"', $zz_conf['project']));
