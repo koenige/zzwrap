@@ -218,22 +218,30 @@ function wrap_syndication_geocode($address) {
  *
  * @param string $url
  * @param array $headers_to_send
+ * @param string $method (optional, defaults to GET)
+ * @param array $data_to_send (optional)
  * @return array
  *		int $status
  *		array $headers
  *		array $data
  */
-function wrap_syndication_retrieve_via_http($url, $headers_to_send = array()) {
+function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $method = 'GET', $data_to_send = array()) {
 	global $zz_setting;
 
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
 		// e. g. IF_NONE_MATCH, so we'll always try to get the data
 		// do not log error here
+		$content = false;
+		if ($method === 'POST') {
+			$headers_to_send[] = 'Content-Type: application/x-www-form-urlencoded';
+			$content = wrap_syndication_http_post($data_to_send);
+		}
 		$opts = array(
 			'http' => array(
-				'method' => 'GET',
-				'header' => implode("\r\n", $headers_to_send)
+				'method' => $method,
+				'header' => implode("\r\n", $headers_to_send),
+				'content' => $content
 			)
 		);
 		$context = stream_context_create($opts);
@@ -260,6 +268,12 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array()) {
 		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
 		if ($headers_to_send) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
+		}
+		if ($method === 'POST') {
+			curl_setopt($ch, CURLOPT_POST, true);
+			if (!empty($data_to_send) {
+				curl_setopt($ch, CURLOPT_POSTFIELDS, wrap_syndication_http_post($data_to_send));
+			}
 		}
 		if (substr($url, 0, 8) === 'https://') {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
@@ -307,4 +321,18 @@ function wrap_syndication_http_header($which, $headers) {
 		$value = substr($header, strlen($which) + 2);
 	}
 	return $value;
+}
+
+/**
+ * write the form data in URL encoded form
+ *
+ * @param array $data
+ * @return string
+ */
+function wrap_syndication_http_post($data) {
+	$postdata = array();
+	foreach ($data as $key => $value) {
+		$postdata[] = urlencode($key).'='.urlencode($value);
+	}
+	return implode('&', $postdata);
 }
