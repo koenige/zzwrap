@@ -220,12 +220,13 @@ function wrap_syndication_geocode($address) {
  * @param array $headers_to_send
  * @param string $method (optional, defaults to GET)
  * @param array $data_to_send (optional)
+ * @param string $pwd (optional, username:password)
  * @return array
  *		int $status
  *		array $headers
  *		array $data
  */
-function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $method = 'GET', $data_to_send = array()) {
+function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $method = 'GET', $data_to_send = array(), $pwd = false) {
 	global $zz_setting;
 
 	if (!function_exists('curl_init')) {
@@ -271,9 +272,13 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 		}
 		if ($method === 'POST') {
 			curl_setopt($ch, CURLOPT_POST, true);
-			if (!empty($data_to_send) {
+			if (!empty($data_to_send)) {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, wrap_syndication_http_post($data_to_send));
 			}
+		}
+		if ($pwd) {
+			curl_setopt($ch, CURLOPT_USERPWD, $pwd);
+			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		}
 		if (substr($url, 0, 8) === 'https://') {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
