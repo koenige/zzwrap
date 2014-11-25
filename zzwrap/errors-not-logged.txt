@@ -94,3 +94,6 @@
 
 # Trackback-Spam, normally with POST
 404	end	/trackback/
+
+# Unknown
+404	regex	/\?o=3&g=&s=&z=/
