@@ -99,5 +99,5 @@
 # wrong hostnames
 404	referer	http://www.diebestesuchmaschinederwelt.de/
 
-# Unknown
+# Malware Adpeak
 404	regex	/\?o=3&g=&s=&z=/
