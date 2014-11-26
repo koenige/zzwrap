@@ -779,6 +779,14 @@ function wrap_check_request() {
 		}
 	}
 
+	// return 404 if path or query includes Unicode Replacement Character 
+	// U+FFFD (hex EF BF BD, dec 239 191 189)
+	// since that does not make sense
+	if (strstr($zz_page['url']['full']['path'], '%EF%BF%BD')) wrap_quit(404);
+	if (!empty($zz_page['url']['full']['query'])) {
+		if (strstr($zz_page['url']['full']['query'], '%EF%BF%BD')) wrap_quit(404);
+	}
+
 	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
 	
 	// get rid of unwanted query strings, set redirect if necessary
