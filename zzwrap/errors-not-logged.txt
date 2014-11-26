@@ -95,5 +95,9 @@
 # Trackback-Spam, normally with POST
 404	end	/trackback/
 
+# Bot with a referrer on a non-existent domain, creates URLs with
+# wrong hostnames
+404	referer	http://www.diebestesuchmaschinederwelt.de/
+
 # Unknown
 404	regex	/\?o=3&g=&s=&z=/
