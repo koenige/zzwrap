@@ -338,7 +338,7 @@ function wrap_errorpage_log($status, $page) {
 	global $zz_setting;
 	global $zz_conf;
 
-	if (in_array($status, array(401, 403, 404, 410))) {
+	if (in_array($status, array(401, 403, 404, 410, 503))) {
 		$ignore = wrap_errorpage_ignore($status);
 		if ($ignore) return false;
 	}
@@ -431,6 +431,10 @@ function wrap_errorpage_log($status, $page) {
 
 /**
  * Checks errorlog-ignores whether to ignore this error for log or not
+ *
+ * Because some internet providers consider it clever to send a 503 status
+ * code if a script is looking for security holes, a 503 might not be logged.
+ * This is not recommended for other cases when a 503 might occur.
  *
  * @param int $status
  * @return bool true: ignore for logging, false: log error
