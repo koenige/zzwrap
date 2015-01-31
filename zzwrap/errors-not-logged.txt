@@ -65,6 +65,13 @@
 
 # DedeCMS
 404	all	/data/admin/ver.txt
+404	all	/templets/default/style/dedecms.css
+
+# Discuz X
+404	all	/template/default/common/footer.htm
+
+# FCK editor
+404	all	/Administrator/FCKeditor/fckeditor.js
 
 # Looking for security flaws
 404	end	/register.asp
