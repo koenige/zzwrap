@@ -71,8 +71,7 @@
 404	all	/template/default/common/footer.htm
 
 # FCK editor
-404	all	/Administrator/FCKeditor/fckeditor.js
-404	all	/FCKEditorV2/fckeditor.js
+404	end	/fckeditor.js
 
 # Looking for security flaws
 404	end	/register.asp
