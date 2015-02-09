@@ -395,9 +395,9 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 				continue;
 			}
 		}
-		// there are no detail records at all?
-		if (empty($data_ids)) $matrix = array(); // get out of here
 	}
+	// there are no detail records at all?
+	if (empty($data_ids)) $matrix = array(); // get out of here
 	
 	$old_empty_fields = array();
 	foreach ($matrix as $field_type => $fields) {
@@ -416,6 +416,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		$sql = sprintf($translation_sql, $field_type, implode(',', array_keys($fields)), 
 			implode(',', $data_ids), $target_language);
 		$translations = wrap_db_fetch($sql, 'translation_id');
+		if (!$translations) continue;
 
 		// merge $translations into $data
 		foreach ($translations as $tl) {
