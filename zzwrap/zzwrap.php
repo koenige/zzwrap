@@ -59,6 +59,7 @@ function zzwrap() {
 		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/zzwrap/_functions.inc.php')) {
 			require_once $file;
 		}
+		// get configs
 		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/config.inc.php')) {
 			require_once $file;
 		}
