@@ -1110,6 +1110,10 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	}
 
 	$last_modified_time = time();
+	if (!empty($_SERVER['REQUEST_TIME'])
+		AND $_SERVER['REQUEST_TIME'] < $last_modified_time) {
+		$last_modified_time = $_SERVER['REQUEST_TIME'];
+	}
 
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
