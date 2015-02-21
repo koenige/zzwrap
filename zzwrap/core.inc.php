@@ -925,11 +925,11 @@ function wrap_file_send($file) {
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
 
 	// Accept-Ranges HTTP header
-	header('Accept-Ranges: bytes');
+	wrap_cache_header('Accept-Ranges: bytes');
 
 	// Content-Length HTTP header
 	$zz_page['content_length'] = sprintf("%u", filesize($file['name']));
-	header('Content-Length: '.$zz_page['content_length']);
+	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 	// Maybe the problem is we are running into PHPs own memory limit, so:
 	if ($zz_page['content_length'] + 1 > wrap_return_bytes(ini_get('memory_limit'))
 		&& intval($zz_page['content_length'] * 1.5) <= 1073741824) { 
@@ -948,7 +948,7 @@ function wrap_file_send($file) {
 	$sql = sprintf(wrap_sql('filetypes'), $suffix);
 	$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 	if (!$zz_page['content_type']) $zz_page['content_type'] = 'application/octet-stream';
-	header('Content-Type: '.$zz_page['content_type']);
+	wrap_cache_header('Content-Type: '.$zz_page['content_type']);
 
 	// ETag HTTP header
 	if (!empty($file['etag_generate_md5']) AND empty($file['etag'])) {
@@ -968,7 +968,7 @@ function wrap_file_send($file) {
 		header_remove('Expires');
 		header_remove('Pragma');
 		// Cache-Control header private as in session_cache_limiter()
-		header(sprintf('Cache-Control: private, max-age=%s, pre-check=%s',
+		wrap_cache_header(sprintf('Cache-Control: private, max-age=%s, pre-check=%s',
 			session_cache_expire() * 60, session_cache_expire() * 60));
 	}
 
@@ -979,7 +979,7 @@ function wrap_file_send($file) {
 	if (in_array($zz_page['content_type'], $download_filetypes)) {
 		wrap_http_content_disposition('attachment', $file['send_as']);
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
-		header('Pragma: public');
+		wrap_cache_header('Pragma: public');
 			// dieser Header widerspricht im Grunde dem mit SESSION ausgesendeten
 			// Cache-Control-Header
 			// Wird aber für IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
@@ -1025,14 +1025,14 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	$text = trim($text);
 
 	if (!empty($zz_setting['gzip_encode'])) {
-		header('Vary: Accept-Encoding');
+		wrap_cache_header('Vary: Accept-Encoding');
 	}
 	header_remove('Accept-Ranges');
 
 	// Content-Length HTTP header
 	// might be overwritten later
 	$zz_page['content_length'] = strlen($text);
-	header('Content-Length: '.$zz_page['content_length']);
+	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 
 	// Content-Type HTTP header
 	// Content-Disposition HTTP header
@@ -1092,10 +1092,10 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	}
 	if (!empty($zz_page['content_type'])) {
 		if (!empty($zz_page['character_set'])) {
-			header(sprintf('Content-Type: %s; charset=%s', $zz_page['content_type'], 
+			wrap_cache_header(sprintf('Content-Type: %s; charset=%s', $zz_page['content_type'], 
 				$zz_page['character_set']));
 		} else {
-			header(sprintf('Content-Type: %s', $zz_page['content_type']));
+			wrap_cache_header(sprintf('Content-Type: %s', $zz_page['content_type']));
 		}
 	}
 
@@ -1154,12 +1154,12 @@ function wrap_http_content_disposition($type, $filename) {
 	}
 	$filename_ascii = preg_replace('/[^(\x20-\x7F)]*/','', $filename_ascii);
 	if ($filename_ascii !== $filename) {
-		header(sprintf(
+		wrap_cache_header(sprintf(
 			'Content-Disposition: %s; filename="%s"; filename*=utf-8\'\'%s',
 			$type, $filename_ascii, rawurlencode($filename))
 		);
 	} else {
-		header(sprintf('Content-Disposition: %s; filename="%s"', $type, $filename_ascii));
+		wrap_cache_header(sprintf('Content-Disposition: %s; filename="%s"', $type, $filename_ascii));
 	}
 }
 
@@ -1176,7 +1176,7 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 
 	header_remove('X-Powered-By');
 	// Prevent IE > 7 from sniffing mime types
-	header('X-Content-Type-Options: nosniff');
+	wrap_cache_header('X-Content-Type-Options: nosniff');
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
@@ -1393,6 +1393,7 @@ function wrap_send_gzip($text, $etag_header) {
  * @return bool false: no new cache file was written, true: new cache file created
  */
 function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = array()) {
+	global $zz_setting;
 	$host = wrap_cache_filename('domain', $url);
 	if (!file_exists($host)) {
 		$success = mkdir($host);
@@ -1416,9 +1417,23 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 	// without '-gz'
 	if (!$headers) {
 		header_remove('X-Powered-By');
-		$headers = headers_list();
+		$headers = $zz_setting['headers'];
 	}
 	file_put_contents($head, implode("\r\n", $headers));
+	return true;
+}
+
+/**
+ * send a HTTP header and save it for later caching
+ *
+ * @param string $header
+ * @return bool
+ */
+function wrap_cache_header($header) {
+	global $zz_setting;
+	header($header);
+	$header_parts = explode(': ', $header);
+	$zz_setting['headers'][$header_parts[0]] = $header;
 	return true;
 }
 
@@ -1484,7 +1499,7 @@ function wrap_if_none_match($etag, $file = array()) {
 			if (in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD'))) {
 				if ($file) wrap_file_cleanup($file);
 				wrap_log_uri();
-				header('ETag: '.$etag_header['std']);
+				wrap_cache_header('ETag: '.$etag_header['std']);
 				wrap_quit(304);
 			} else {
 				wrap_quit(412);
@@ -1493,7 +1508,7 @@ function wrap_if_none_match($etag, $file = array()) {
 	}
 	// Neither header field affects request
 	// ETag std header might be overwritten by gzip-ETag later on
-	header('ETag: '.$etag_header['std']);
+	wrap_cache_header('ETag: '.$etag_header['std']);
 	return $etag_header;
  }
 
@@ -1573,13 +1588,13 @@ function wrap_if_modified_since($time, $status = 200, $file = array()) {
 			$_SERVER['HTTP_IF_MODIFIED_SINCE'], 'rfc1123->timestamp'
 		);
 		if ($time <= $requested_time) {
-			header('Last-Modified: '.$zz_page['last_modified']);
+			wrap_cache_header('Last-Modified: '.$zz_page['last_modified']);
 			if ($file) wrap_file_cleanup($file);
 			wrap_log_uri();
 			wrap_quit(304);
 		}
 	}
-	header('Last-Modified: '.$zz_page['last_modified']);
+	wrap_cache_header('Last-Modified: '.$zz_page['last_modified']);
 	return $zz_page['last_modified'];
 }
 
@@ -1615,13 +1630,13 @@ function wrap_send_cache($age = 0) {
 	wrap_cache_get_header($files[1], '', true);
 
 	if (!empty($zz_setting['gzip_encode'])) {
-		header('Vary: Accept-Encoding');
+		wrap_cache_header('Vary: Accept-Encoding');
 	}
 
 	// Content-Length HTTP header
 	if (empty($zz_page['content_length'])) {
 		$zz_page['content_length'] = sprintf("%u", filesize($files[0]));
-		header('Content-Length: '.$zz_page['content_length']);
+		wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 	}
 
 	// ETag HTTP header
@@ -1680,7 +1695,7 @@ function wrap_cache_freshness($files, $age) {
 		$revalidated_timestamp = wrap_date($revalidated, 'rfc1123->timestamp');
 		if ($revalidated_timestamp + $age > $now) {
 			// thought of putting in Age, but Date has to be changed accordingly
-			// header(sprintf('Age: %d', $now - $revalidated_timestamp));
+			// wrap_cache_header(sprintf('Age: %d', $now - $revalidated_timestamp));
 			return true;
 		}
 		// check if cached files date is fresh
