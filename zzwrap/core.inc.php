@@ -1367,8 +1367,8 @@ function wrap_send_gzip($text, $etag_header) {
 	ob_end_flush();  // The ob_gzhandler one
 	if ($etag_header) {
 		// only if HTTP status = 200
-		foreach (headers_list() AS $header) {
-			if (!wrap_substr($header, 'Content-Encoding: ')) continue;
+		if (!empty($_SERVER['HTTP_ACCEPT_ENCODING'])
+			AND strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			// overwrite ETag with -gz ending
 			header('ETag: '.$etag_header['gz']);
 		}
