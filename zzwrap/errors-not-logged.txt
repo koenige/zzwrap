@@ -51,6 +51,7 @@
 
 # - unknown -
 404	end	/undefinedsf_main.jsp?clientVersion=null&dlsource=null&CTID=null&userId=userIdFail&statsReporter=false
+404	end	/6_S3_
 
 # WordPress login and bugs
 404	end	/wp-login.php
