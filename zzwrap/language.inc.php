@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -368,13 +368,22 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 
 	// check if $data is an array indexed by IDs
 	$simple_data = false;
+	$old_indices = array();
 	foreach ($data as $id => $record) {
 		if (!is_numeric($id)) {
-			$simple_data = $data[$id];	// save ID for later
-			$old_data = $data;			// save old data in array
-			unset($data);				// remove all keys
-			$data[$old_data[$id]] = $old_data;
-			break;
+			if (!is_array($data[$id])) {
+				// single record
+				$simple_data = $data[$id];	// save ID for later
+				$old_data = $data;			// save old data in array
+				unset($data);				// remove all keys
+				$data[$old_data[$id]] = $old_data;
+				break;
+			} else {
+				// indices are non-numeric, keep them for later
+				$old_indices = array_keys($data);
+				$data = array_values($data);
+				break;
+			}
 		}
 	}
 
@@ -465,6 +474,9 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	// reset if array was simple
 	if ($simple_data) {
 		$data = $data[$simple_data];
+	}
+	if (!empty($old_indices)) {
+		$data = array_combine($old_indices, $data);
 	}
 	return ($data);
 	
