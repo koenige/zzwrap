@@ -345,10 +345,17 @@ function wrap_money($number, $format = false) {
 }
 
 function wrap_money_format($number, $format = false) {
+	if (!$format) {
+		global $zz_setting;
+		$format = $zz_setting['lang'];
+	}
 	switch ($format) {
-	default:
 	case 'de':
 		return number_format($number, 2, ',', '.');
+	case 'en':
+		return number_format($number, 2, '.', ',');
+	default:
+		return $number;
 	}
 }
 
