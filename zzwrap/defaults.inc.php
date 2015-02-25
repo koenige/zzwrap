@@ -160,7 +160,11 @@ function wrap_set_defaults_post_conf() {
 	
 	// zzform path
 	if (empty($zz_conf['dir']))
-		$zz_conf['dir']				= $zz_setting['lib'].'/zzform';
+		if (file_exists($dir = $zz_setting['modules_dir'].'/zzform/zzform')) {
+			$zz_conf['dir']				= $dir;
+		} else {
+			$zz_conf['dir']				= $zz_setting['lib'].'/zzform';
+		}
 	if (empty($zz_conf['dir_custom']))
 		$zz_conf['dir_custom']		= $zz_setting['custom'].'/zzform';
 	if (empty($zz_conf['dir_ext']))
