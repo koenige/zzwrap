@@ -139,7 +139,7 @@ function wrap_set_defaults_post_conf() {
 	
 	// modules
 	if (empty($zz_setting['modules_dir'])) {
-		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
+		$zz_setting['modules_dir'] = realpath($zz_setting['inc'].'/modules');
 	}
 	if (empty($zz_setting['modules'])) {
 		$zz_setting['modules'] = array();
