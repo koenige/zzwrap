@@ -59,6 +59,9 @@ function zzwrap() {
 		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/zzwrap/_functions.inc.php')) {
 			require_once $file;
 		}
+		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/'.$module.'/_functions.inc.php')) {
+			require_once $file;
+		}
 		// get configs
 		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/config.inc.php')) {
 			require_once $file;
@@ -79,6 +82,11 @@ function zzwrap() {
 	// Functions which might be executed always, before possible login
 	if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
+	foreach ($zz_setting['modules'] as $module) {
+		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/'.$module.'/start.inc.php')) {
+			require_once $file;
+		}
+	}
 	
 	if ($zz_setting['authentication_possible']) {
 		wrap_auth();
