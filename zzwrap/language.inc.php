@@ -189,7 +189,7 @@ function wrap_text($string) {
 		$files[] = $zz_setting['core'].'/default-text-'.$language.'.po';
 		// module text(s)
 		foreach ($zz_setting['modules'] as $module) {
-			$modules_dir = $zz_setting['modules_dir'].'/'.$module.'/zzwrap';
+			$modules_dir = $zz_setting['modules_dir'].'/'.$module.'/'.$module;
 			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
 		}
 		// standard translated text 
