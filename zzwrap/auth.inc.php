@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -456,7 +456,6 @@ function wrap_login($login) {
 	// ... LDAP ...
 	// ... different database server ...
 	if (!empty($zz_setting['ldap_login']) AND !$logged_in) {
-		require_once $zz_setting['custom_wrap_dir'].'/ldap-login.inc.php';
 		$data = cms_login_ldap($login);
 		if ($data) $logged_in = true;
 	}
@@ -587,7 +586,7 @@ function wrap_register($user_id = false, $data = array()) {
 		$_SESSION['settings'] = wrap_db_fetch($sql, 'dummy_id', 'key/value');
 	}
 	// get user groups, if module present
-	$usergroups_file = $zz_setting['custom'].'/zzbrick_rights/usergroups.inc.php';
+	$usergroups_file = $zz_setting['custom_rights_dir'].'/usergroups.inc.php';
 	if (file_exists($usergroups_file)) {
 		include_once $usergroups_file;
 		wrap_register_usergroups($user_id);
