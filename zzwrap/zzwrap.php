@@ -113,6 +113,11 @@ function zzwrap() {
 
 	if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
 		require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
+	foreach ($zz_setting['modules'] as $module) {
+		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/'.$module.'/_settings_post_login.inc.php')) {
+			require_once $file;
+		}
+	}
 
 	// on error exit, after all files are included, check redirects
 	// Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
