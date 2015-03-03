@@ -1022,17 +1022,14 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	global $zz_setting;
 	global $zz_page;
 
-	$text = trim($text);
+	if ($type !== 'csv') {
+		$text = trim($text);
+	}
 
 	if (!empty($zz_setting['gzip_encode'])) {
 		wrap_cache_header('Vary: Accept-Encoding');
 	}
 	header_remove('Accept-Ranges');
-
-	// Content-Length HTTP header
-	// might be overwritten later
-	$zz_page['content_length'] = strlen($text);
-	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 
 	// Content-Type HTTP header
 	// Content-Disposition HTTP header
@@ -1067,7 +1064,11 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		break;
 	case 'csv':
 		$zz_page['content_type'] = 'text/csv';
-		$zz_page['character_set'] = $zz_conf['character_set'];
+		$zz_page['character_set'] = !empty($headers['character_set']) ? $headers['character_set'] : $zz_conf['character_set'];
+		if ($zz_page['character_set'] === 'utf-16le') {
+			// Add BOM, little endian
+			$text = chr(255).chr(254).$text;
+		}
 		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.csv';
 		break;
 	case 'css':
@@ -1090,6 +1091,12 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	default:
 		break;
 	}
+
+	// Content-Length HTTP header
+	// might be overwritten later
+	$zz_page['content_length'] = strlen($text);
+	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
+
 	if ($filename) {	
 		wrap_http_content_disposition('attachment', $filename);
 	}
