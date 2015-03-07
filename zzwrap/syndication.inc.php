@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -19,9 +19,10 @@
  *
  * @param string $url
  * @param string $type Type of ressource, defaults to 'json'
+ * @param string $cache_filename (optional)
  * @return array $data
  */
-function wrap_syndication_get($url, $type = 'json') {
+function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 	global $zz_setting;
 	// you may change the error code if e. g. only pictures will be fetched
 	// via JSON to E_USER_WARNING or E_USER_NOTICE
@@ -31,13 +32,14 @@ function wrap_syndication_get($url, $type = 'json') {
 	$etag = '';
 	$last_modified = '';
 	if (!$url) return false;
+	if (!$cache_filename) $cache_filename = $url;
 
 	if (!isset($zz_setting['cache_age_syndication'])) {
 		$zz_setting['cache_age_syndication'] = 0;
 	}
 	$files = array();
 	if (!empty($zz_setting['cache'])) {
-		$files = array(wrap_cache_filename('url', $url), wrap_cache_filename('headers', $url));
+		$files = array(wrap_cache_filename('url', $cache_filename), wrap_cache_filename('headers', $cache_filename));
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
@@ -65,7 +67,10 @@ function wrap_syndication_get($url, $type = 'json') {
 		case 200:
 			$my_etag = substr(wrap_syndication_http_header('ETag', $headers), 1, -1);
 			if ($data and !empty($zz_setting['cache'])) {
-				wrap_cache_ressource($data, $my_etag, $url, $headers);
+				if ($cache_filename !== $url) {
+					$headers[] = sprintf('X-Source-URL: %s', $url);
+				}
+				wrap_cache_ressource($data, $my_etag, $cache_filename, $headers);
 				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 			}
 			break;
