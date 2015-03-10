@@ -967,21 +967,30 @@ function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
  *
  * @param array $records all records, indexed by ID
  * @param int $record_id current record ID
+ * @param bool $endless true: endless navigation; false: start to end
  * @return array
  *		array data of previous record
  *		array data of next record
  */
-function wrap_get_prevnext($records, $record_id) {
+function wrap_get_prevnext($records, $record_id, $endless = true) {
 	$keys = array_keys($records);
 	$found = array_search($record_id, $keys);
 	if ($found === false) return array('prev' => false, 'next' => false);
 	$prev = $found - 1;
 	$next = $found + 1;
-	if ($prev < 0) $prev = count($records) - 1;
-	if ($next > count($records) - 1) $next = 0;
-	$prev_id = $keys[$prev];
-	$next_id = $keys[$next];
-	return array($records[$prev_id], $records[$next_id]);
+	if ($endless) {
+		if ($prev < 0) $prev = count($records) - 1;
+		if ($next > count($records) - 1) $next = 0;
+		$prev_id = $keys[$prev];
+		$next_id = $keys[$next];
+		return array($records[$prev_id], $records[$next_id]);
+	} else {
+		if ($prev < 0) $return[0] = array();
+		else $return[0] = $keys[$prev];
+		if ($next > count($records) - 1) $return[1] = array();
+		else $return[1] = $keys[$next];
+		return $return;
+	}
 }
 
 /**
@@ -989,10 +998,11 @@ function wrap_get_prevnext($records, $record_id) {
  *
  * @param array $records all records, indexed by ID
  * @param int $record_id current record ID
+ * @param bool $endless true: endless navigation; false: start to end
  * @return array
  */
-function wrap_get_prevnext_flat($records, $record_id) {
-	list($prev, $next) = wrap_get_prevnext($records, $record_id);
+function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
+	list($prev, $next) = wrap_get_prevnext($records, $record_id, $endless);
 	$return = array();
 	foreach ($prev as $key => $value) {
 		$return['_prev_'.$key] = $value;
