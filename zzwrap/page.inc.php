@@ -974,23 +974,23 @@ function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
  */
 function wrap_get_prevnext($records, $record_id, $endless = true) {
 	$keys = array_keys($records);
-	$found = array_search($record_id, $keys);
-	if ($found === false) return array('prev' => false, 'next' => false);
-	$prev = $found - 1;
-	$next = $found + 1;
-	if ($endless) {
-		if ($prev < 0) $prev = count($records) - 1;
-		if ($next > count($records) - 1) $next = 0;
-		$prev_id = $keys[$prev];
-		$next_id = $keys[$next];
-		return array($records[$prev_id], $records[$next_id]);
+	$pos = array_search($record_id, $keys);
+	if ($pos === false) return array(0 => false, 1 => false);
+	$prev = $pos - 1;
+	if ($prev >= 0) {
+		$return[0] = $records[$keys[$prev]];
 	} else {
-		if ($prev < 0) $return[0] = array();
-		else $return[0] = $records[$keys[$prev]];
-		if ($next > count($records) - 1) $return[1] = array();
-		else $return[1] = $records[$keys[$next]];
-		return $return;
+		if ($endless) $return[0] = $records[$keys[count($records) - 1]];
+		else $return[0] = array();
 	}
+	$next = $pos + 1;
+	if ($next < count($records)) {
+		$return[1] = $records[$keys[$next]];
+	} else {
+		if ($endless) $return[1] = $records[0];
+		else $return[1] = array();
+	}
+	return $return;
 }
 
 /**
