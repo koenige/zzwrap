@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -960,4 +960,45 @@ function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
         $str .= $charset[mt_rand(0, $count)];
     }
     return $str;
+}
+
+/**
+ * Get previous and next record in a list of records
+ *
+ * @param array $records all records, indexed by ID
+ * @param int $record_id current record ID
+ * @return array
+ *		array data of previous record
+ *		array data of next record
+ */
+function wrap_get_prevnext($records, $record_id) {
+	$keys = array_keys($records);
+	$found = array_search($record_id, $keys);
+	if ($found === false) return array('prev' => false, 'next' => false);
+	$prev = $found - 1;
+	$next = $found + 1;
+	if ($prev < 0) $prev = count($records) - 1;
+	if ($next > count($records) - 1) $next = 0;
+	$prev_id = $keys[$prev];
+	$next_id = $keys[$next];
+	return array($records[$prev_id], $records[$next_id]);
+}
+
+/**
+ * Get previous and next records with all values prefixed by _next, _prev
+ *
+ * @param array $records all records, indexed by ID
+ * @param int $record_id current record ID
+ * @return array
+ */
+function wrap_get_prevnext_flat($records, $record_id) {
+	list($prev, $next) = wrap_get_prevnext($records, $record_id);
+	$return = array();
+	foreach ($prev as $key => $value) {
+		$return['_prev_'.$key] = $value;
+	}
+	foreach ($next as $key => $value) {
+		$return['_next_'.$key] = $value;
+	}
+	return $return;
 }
