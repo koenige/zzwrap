@@ -986,9 +986,9 @@ function wrap_get_prevnext($records, $record_id, $endless = true) {
 		return array($records[$prev_id], $records[$next_id]);
 	} else {
 		if ($prev < 0) $return[0] = array();
-		else $return[0] = $keys[$prev];
+		else $return[0] = $records[$keys[$prev]];
 		if ($next > count($records) - 1) $return[1] = array();
-		else $return[1] = $keys[$next];
+		else $return[1] = $records[$keys[$next]];
 		return $return;
 	}
 }
@@ -1004,10 +1004,10 @@ function wrap_get_prevnext($records, $record_id, $endless = true) {
 function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
 	list($prev, $next) = wrap_get_prevnext($records, $record_id, $endless);
 	$return = array();
-	if ($prev) foreach ($prev as $key => $value) {
+	foreach ($prev as $key => $value) {
 		$return['_prev_'.$key] = $value;
 	}
-	if ($next) foreach ($next as $key => $value) {
+	foreach ($next as $key => $value) {
 		$return['_next_'.$key] = $value;
 	}
 	return $return;
