@@ -184,7 +184,7 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['local_pwd']))
 		$zz_setting['local_pwd'] = "/Users/pwd.inc";
 
-	if (empty($zz_setting['session_save_path']) AND !empty($zz_conf['tmp_dir'])) {
+	if (empty($zz_setting['session_save_path']) AND is_dir($zz_conf['tmp_dir'])) {
 		$zz_setting['session_save_path'] = $zz_conf['tmp_dir'].'/sessions';
 	}
 	
