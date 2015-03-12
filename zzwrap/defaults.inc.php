@@ -183,6 +183,10 @@ function wrap_set_defaults_post_conf() {
 	// local pwd
 	if (empty($zz_setting['local_pwd']))
 		$zz_setting['local_pwd'] = "/Users/pwd.inc";
+
+	if (empty($zz_setting['session_save_path']) AND !empty($zz_conf['tmp_dir'])) {
+		$zz_setting['session_save_path'] = $zz_conf['tmp_dir'].'/sessions';
+	}
 	
 	// cainfo
 	// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
