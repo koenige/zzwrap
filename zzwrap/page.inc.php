@@ -987,7 +987,7 @@ function wrap_get_prevnext($records, $record_id, $endless = true) {
 	if ($next < count($records)) {
 		$return[1] = $records[$keys[$next]];
 	} else {
-		if ($endless) $return[1] = $records[0];
+		if ($endless) $return[1] = $records[$keys[0]];
 		else $return[1] = array();
 	}
 	return $return;
