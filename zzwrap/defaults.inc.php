@@ -156,6 +156,14 @@ function wrap_set_defaults_post_conf() {
 			}
 			closedir($handle);
 		}
+		// some hosters sort files in reverse order
+		sort($zz_setting['modules']);
+		// put default module always on top to have the possibility to
+		// add functions with the same name in other modules
+		if ($key = array_search('default', $zz_setting['modules'])) {
+			unset($zz_setting['modules'][$key]);
+			array_unshift($zz_setting['modules'], 'default');
+		}
 	}
 	
 	// cms core
