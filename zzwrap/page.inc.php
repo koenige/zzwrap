@@ -943,6 +943,8 @@ function wrap_htmlout_page($page) {
 	}
 
 	$text = wrap_template($zz_page['template'], $page);
+	// allow %%% notation on page with an escaping backslash
+	$text = str_replace('\%%%', '%%%', $text);
 	wrap_send_text($text, 'html', $page['status']);
 }
 
