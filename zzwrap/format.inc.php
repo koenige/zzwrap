@@ -15,7 +15,7 @@
  *  wrap_html_escape()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -349,6 +349,7 @@ function wrap_money_format($number, $format = false) {
 		global $zz_setting;
 		$format = $zz_setting['lang'];
 	}
+	if (!is_numeric($number)) return $number;
 	switch ($format) {
 	case 'de':
 		return number_format($number, 2, ',', '.');
