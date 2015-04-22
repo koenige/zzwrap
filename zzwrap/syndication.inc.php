@@ -305,8 +305,15 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
 		}
 		$data = curl_exec($ch);
-		if (!$timeout_ignore) {
-			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($timeout_ignore) {
+			if (!$status AND curl_errno($ch) === 28) {
+				// time out, try again longer
+				curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+				$data = curl_exec($ch);
+				$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			}
+		} else {
 			if (!$status) {
 				if (substr($url, 0, 8) === 'https://' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
 					// try again without SSL verification
