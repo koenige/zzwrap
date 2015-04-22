@@ -2027,6 +2027,30 @@ function wrap_trigger_url($url) {
 }
 
 /**
+ * trigger a protected URL
+ *
+ * @param string $url
+ * @param string $username (optional, $zz_conf/SESSION['username'] will be used unless set)
+ * @global array $zz_setting
+ *	login_key, login_key_validity_in_minutes must be set
+ * @return array from wrap_syndication_retrieve_via_http()
+ */
+function wrap_trigger_protected_url($url, $username = false) {
+	global $zz_setting;
+	global $zz_conf;
+	
+	if (!$username) $username = !empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['username'];
+	$headers[] = 'X-Request-WWW-Authentication: 1';
+	$headers[] = 'X-Timeout-Ignore: 1';
+	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
+	if (substr($url, 0, 1) === '/') $url = $zz_setting['host_base'].$url;
+	
+	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+	$result = wrap_syndication_retrieve_via_http($url, $headers, 'GET', array(), $pwd);
+	return $result;
+}
+
+/**
  * check if a number is an integer or a string with an integer in it
  *
  * @param mixed $var
