@@ -312,6 +312,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 				curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 				$data = curl_exec($ch);
 				$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			} elseif (!$status) {
+				wrap_error(sprintf('Access URL %s failed. CURL error: %s', $url, json_encode(curl_getinfo($ch))));
 			}
 		} else {
 			if (!$status) {
