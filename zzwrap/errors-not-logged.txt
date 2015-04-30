@@ -83,6 +83,8 @@
 404	end	/member.php?mod=register
 404	end	/member.php?mod=logging&action=login
 404	end	/user/create_form/
+404	all	/js/transport.js
+404	all	/templates/cn/template.xml
 
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
