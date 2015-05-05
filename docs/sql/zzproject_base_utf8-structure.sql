@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.20, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.23, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.6.20
+-- Server version	5.6.23
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -19,7 +19,7 @@
 -- Current Database: `zzproject_base_utf8`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `zzproject_base_utf8` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `zzproject_base_utf8` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
 USE `zzproject_base_utf8`;
 
@@ -32,12 +32,12 @@ DROP TABLE IF EXISTS `_logging`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_logging` (
   `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `query` text NOT NULL,
+  `query` text COLLATE utf8_unicode_ci NOT NULL,
   `record_id` int(10) unsigned DEFAULT NULL,
   `user` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`log_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,12 +73,12 @@ DROP TABLE IF EXISTS `_settings`;
 CREATE TABLE `_settings` (
   `setting_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `login_id` int(10) unsigned DEFAULT NULL,
-  `setting_key` varchar(32) NOT NULL,
-  `setting_value` varchar(255) NOT NULL,
-  `explanation` text,
+  `setting_key` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `setting_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `explanation` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`setting_id`),
   UNIQUE KEY `setting_key_login_id` (`setting_key`,`login_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,14 +110,14 @@ CREATE TABLE `_translations_text` (
   `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `translationfield_id` int(10) unsigned NOT NULL DEFAULT '0',
   `field_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `translation` text NOT NULL,
+  `translation` text COLLATE utf8_unicode_ci NOT NULL,
   `language_id` int(10) unsigned NOT NULL DEFAULT '0',
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
   UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
   KEY `language_id` (`language_id`),
   KEY `translationfield_id` (`translationfield_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,14 +131,14 @@ CREATE TABLE `_translations_varchar` (
   `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `translationfield_id` int(10) unsigned NOT NULL DEFAULT '0',
   `field_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `translation` varchar(255) NOT NULL DEFAULT '',
+  `translation` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `language_id` int(10) unsigned NOT NULL DEFAULT '0',
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
   UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
   KEY `translationfield_id` (`translationfield_id`),
   KEY `language_id` (`language_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -179,15 +179,15 @@ DROP TABLE IF EXISTS `categories`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `categories` (
   `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `category` varchar(63) NOT NULL DEFAULT '',
-  `description` text,
+  `category` varchar(63) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `description` text COLLATE utf8_unicode_ci,
   `main_category_id` int(10) unsigned DEFAULT NULL,
   `path` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY `path` (`path`),
   KEY `main_category_id` (`main_category_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -200,12 +200,12 @@ DROP TABLE IF EXISTS `countries`;
 CREATE TABLE `countries` (
   `country_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `country_code` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `country` varchar(63) NOT NULL DEFAULT '',
+  `country` varchar(63) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`country_id`),
   UNIQUE KEY `country_code` (`country_code`),
   KEY `website` (`website`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -220,11 +220,11 @@ CREATE TABLE `filetypes` (
   `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `filetype_description` varchar(63) DEFAULT NULL,
+  `filetype_description` varchar(63) COLLATE utf8_unicode_ci DEFAULT NULL,
   `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,14 +239,14 @@ CREATE TABLE `languages` (
   `iso_639_2t` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `iso_639_2b` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `iso_639_1` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `language_de` varchar(255) NOT NULL DEFAULT '',
-  `language_en` varchar(255) NOT NULL DEFAULT '',
-  `language_fr` varchar(255) NOT NULL DEFAULT '',
+  `language_de` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `language_en` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `language_fr` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`language_id`),
   UNIQUE KEY `iso_639_2t` (`iso_639_2t`),
   KEY `website` (`website`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -281,14 +281,12 @@ DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `medium_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `main_medium_id` int(10) unsigned DEFAULT NULL,
-  `title` varchar(127) NOT NULL DEFAULT '',
-  `description` text,
+  `title` varchar(127) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `description` text COLLATE utf8_unicode_ci,
   `language_id` int(10) unsigned DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
-  `category_id` int(10) unsigned DEFAULT NULL,
-  `project_id` int(10) unsigned DEFAULT NULL,
-  `source` varchar(255) DEFAULT NULL,
+  `source` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `sequence` smallint(5) unsigned DEFAULT NULL,
   `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
@@ -299,12 +297,10 @@ CREATE TABLE `media` (
   `version` tinyint(3) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
-  UNIQUE KEY `project_id` (`project_id`,`sequence`),
-  KEY `kategorie_id` (`category_id`),
   KEY `filetype_id` (`filetype_id`),
   KEY `thumb_filetype_id` (`thumb_filetype_id`),
   KEY `main_medium_id` (`main_medium_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -316,15 +312,15 @@ DROP TABLE IF EXISTS `redirects`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `redirects` (
   `redirect_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `old_url` varchar(127) NOT NULL,
-  `new_url` varchar(127) NOT NULL,
+  `old_url` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
+  `new_url` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
   `code` smallint(5) unsigned NOT NULL DEFAULT '301',
-  `area` varchar(15) DEFAULT NULL,
+  `area` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`redirect_id`),
   UNIQUE KEY `alt` (`old_url`),
   KEY `area` (`area`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -336,14 +332,14 @@ DROP TABLE IF EXISTS `text`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `text` (
   `text_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `text` varchar(255) NOT NULL,
-  `more_text` text,
-  `area` varchar(16) DEFAULT NULL,
+  `text` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `more_text` text COLLATE utf8_unicode_ci,
+  `area` varchar(16) COLLATE utf8_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`text_id`),
   UNIQUE KEY `text` (`text`),
   KEY `area` (`area`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -355,8 +351,8 @@ DROP TABLE IF EXISTS `webpages`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `webpages` (
   `page_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(63) NOT NULL,
-  `content` text NOT NULL,
+  `title` varchar(63) COLLATE utf8_unicode_ci NOT NULL,
+  `content` text COLLATE utf8_unicode_ci NOT NULL,
   `identifier` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `ending` enum('.html','/','none') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'none',
   `sequence` tinyint(4) NOT NULL DEFAULT '0',
@@ -365,7 +361,7 @@ CREATE TABLE `webpages` (
   `menu` enum('top','bottom','internal') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`page_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

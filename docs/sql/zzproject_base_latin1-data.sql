@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.20, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.23, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_latin1
 -- ------------------------------------------------------
--- Server version	5.6.20
+-- Server version	5.6.23
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -399,8 +399,6 @@ CREATE TABLE `media` (
   `language_id` int(10) unsigned DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
-  `category_id` int(10) unsigned DEFAULT NULL,
-  `project_id` int(10) unsigned DEFAULT NULL,
   `source` varchar(255) COLLATE latin1_german2_ci DEFAULT NULL,
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `sequence` smallint(5) unsigned DEFAULT NULL,
@@ -412,8 +410,6 @@ CREATE TABLE `media` (
   `version` tinyint(3) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
-  UNIQUE KEY `project_id` (`project_id`,`sequence`),
-  KEY `kategorie_id` (`category_id`),
   KEY `filetype_id` (`filetype_id`),
   KEY `thumb_filetype_id` (`thumb_filetype_id`),
   KEY `main_medium_id` (`main_medium_id`)
