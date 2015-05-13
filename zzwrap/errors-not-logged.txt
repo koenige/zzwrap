@@ -57,6 +57,8 @@
 404	end	/wp-login.php
 404	all	/xmlrpc.php
 404	all	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
+404	all	/wp-includes/wlwmanifest.xml
+404	all	/wp-includes/css/buttons.css
 
 # Joomla
 404	all	/administrator/index.php
@@ -73,6 +75,11 @@
 
 # FCK editor
 404	end	/fckeditor.js
+404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.phpindex.php
+404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.php
+
+# phpMoAdmin
+404	end	/moadmin.php
 
 # Looking for security flaws
 404	end	/register.asp
@@ -84,7 +91,10 @@
 404	end	/member.php?mod=logging&action=login
 404	end	/user/create_form/
 404	all	/js/transport.js
+404	all	/js/tools.js
+404	all	/includes/general.js
 404	all	/templates/cn/template.xml
+404	all	/catalog/view/javascript/common.js
 
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
