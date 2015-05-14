@@ -171,8 +171,7 @@ function wrap_auth_loginpage() {
 			AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
 	wrap_http_status_header(307);
-	header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
-		.$zz_setting['login_url']
+	header('Location: '.$zz_setting['host_base'].$zz_setting['login_url']
 		.(count($qs) ? '?'.implode('&', $qs) : ''));
 	exit;
 }
@@ -219,8 +218,7 @@ function cms_logout($params) {
 	wrap_session_stop();
 
 	wrap_http_status_header(307);
-	header('Location: '.$zz_setting['protocol'].'://'.$zz_setting['hostname']
-		.$zz_setting['login_url'].'?logout');
+	header('Location: '.$zz_setting['host_base'].$zz_setting['login_url'].'?logout');
 	exit;
 }
 
@@ -417,21 +415,21 @@ function cms_login_redirect($url, $querystring = array()) {
 	
 	// get correct protocol/hostname
 	$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
-	$zz_setting['myhost'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
+	$zz_setting['host_base'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
 
 	// test whether COOKIEs for session management are allowed
 	// if not, add no-cookie to URL so that wrap_auth() can hand that
 	// back over to cms_login() if login was unsuccessful because of
 	// lack of acceptance of cookies
 	if (empty($_COOKIE) OR isset($querystring['no-cookie'])) {
-		$redir_query_string = parse_url($zz_setting['myhost'].$url);
+		$redir_query_string = parse_url($zz_setting['host_base'].$url);
 		if (!empty($redir_query_string['query']))
 			$url .= '&no-cookie';
 		else
 			$url .= '?no-cookie';
 	}
 	wrap_http_status_header(303);
-	header('Location: '.$zz_setting['myhost'].$url);
+	header('Location: '.$zz_setting['host_base'].$url);
 	exit;
 }
 
