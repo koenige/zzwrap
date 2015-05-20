@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.23, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.24, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.6.23
+-- Server version	5.6.24
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -217,11 +217,11 @@ DROP TABLE IF EXISTS `filetypes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `filetypes` (
   `filetype_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '',
   `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `filetype_description` varchar(63) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.23, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.24, for osx10.9 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_latin1
 -- ------------------------------------------------------
--- Server version	5.6.23
+-- Server version	5.6.24
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -301,11 +301,11 @@ DROP TABLE IF EXISTS `filetypes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `filetypes` (
   `filetype_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '',
   `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `filetype_description` varchar(63) COLLATE latin1_german2_ci DEFAULT NULL,
-  `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
 ) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
@@ -372,7 +372,7 @@ CREATE TABLE `logins` (
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`login_id`),
   UNIQUE KEY `benutzername` (`username`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
