@@ -934,6 +934,11 @@ function wrap_htmlout_page($page) {
 			$page['nav_'.$menu] = wrap_htmlout_menu($page['nav_db'], $menu);
 		}
 	}
+	if (strstr($page['text'], '<p>%%%') AND strstr($page['text'], '%%%</p>')) {
+		// allow return of %%% encoding for later decoding, e. g. for image
+		$page['text'] = str_replace('<p>%%%', '%%%', $page['text']);
+		$page['text'] = str_replace('%%%</p>', '%%%', $page['text']);
+	}
 	$output = brick_format($page['text'], $page);
 	$page['text'] = $output['text'];
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
