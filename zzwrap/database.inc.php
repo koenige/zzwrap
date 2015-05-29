@@ -24,7 +24,7 @@
  *	- wrap_microtime_float()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -252,7 +252,11 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 					$values = $line;
 				}
 				if (count($id_field_name) === 4) {
-					$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
+					if ($format === 'key/value') {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $line[$id_field_name[3]];
+					} else {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
+					}
 				} elseif (count($id_field_name) === 3) {
 					if ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line[$id_field_name[2]];
