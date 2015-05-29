@@ -307,14 +307,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 		$data = curl_exec($ch);
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($timeout_ignore) {
-			if (!$status AND curl_errno($ch) === 28) {
-				// time out, try again longer
-				curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-				$data = curl_exec($ch);
-				$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-			} elseif (!$status) {
-				wrap_error(sprintf('Access URL %s failed. CURL error: %s', $url, json_encode(curl_getinfo($ch))));
-			}
+			// we don't know what happened but can't check it
+			$status = 200;
 		} else {
 			if (!$status) {
 				if (substr($url, 0, 8) === 'https://' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
