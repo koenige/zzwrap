@@ -479,7 +479,8 @@ function wrap_log_uri() {
 
 	$scheme = $zz_page['url']['full']['scheme'];
 	$host = $zz_page['url']['full']['host'];
-	$path = wrap_db_escape($zz_page['url']['full']['path']);
+	$base = substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['base'])) === $zz_setting['base'] ? $zz_setting['base'] : '';
+	$path = $base.wrap_db_escape($zz_page['url']['full']['path']);
 	$query = !empty($zz_page['url']['full']['query'])
 		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
 		: 'NULL';
