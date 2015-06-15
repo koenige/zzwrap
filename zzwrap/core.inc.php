@@ -430,6 +430,15 @@ function wrap_check_redirects($page_url) {
 	$redir = wrap_db_fetch($sql);
 	if ($redir) return $redir;
 
+	// check full URL with query strings for migration from a different CMS
+	if (!empty($url['full']['query'])) {
+		$sql = sprintf(wrap_sql('redirects'), $url['full']['path'].'?'.$url['full']['query']
+			, $url['full']['path'].'?'.$url['full']['query']
+			, $url['full']['path'].'?'.$url['full']['query']);
+		$redir = wrap_db_fetch($sql);
+		if ($redir) return $redir;
+	}
+
 	// If no redirect was found until now, check if there's a redirect above
 	// the current level with a placeholder (*)
 	$parameter = false;
