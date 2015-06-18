@@ -220,6 +220,7 @@ function wrap_look_for_file($url_path) {
 		$module = array_shift($url_path);
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$zz_setting['modules_dir'], $module, $path, implode('/', $url_path));
+		$file['etag_generate_md5'] = true;
 		wrap_file_send($file);
 	}
 	return false;
