@@ -1045,6 +1045,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	// Content-Type HTTP header
 	// Content-Disposition HTTP header
 	$filename = '';
+	$content_disposition = 'attachment';
 	switch ($type) {
 	case 'html':
 		$zz_page['content_type'] = 'text/html';
@@ -1098,6 +1099,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		break;
 	case 'png':
 		$zz_page['content_type'] = 'image/png';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.png';
+		$content_disposition = 'inline';
 		break;
 	default:
 		break;
@@ -1109,7 +1112,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 
 	if ($filename) {	
-		wrap_http_content_disposition('attachment', $filename);
+		wrap_http_content_disposition($content_disposition, $filename);
 	}
 	if (!empty($zz_page['content_type'])) {
 		if (!empty($zz_page['character_set'])) {
