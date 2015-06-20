@@ -95,6 +95,7 @@
 404	all	/includes/general.js
 404	all	/templates/cn/template.xml
 404	all	/catalog/view/javascript/common.js
+404	end	/error.php?err=404
 
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
