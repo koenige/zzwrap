@@ -195,6 +195,7 @@ function wrap_microtime_float() {
  *  hierarchical array for the returned array with both keys
  * @param string $format optional, currently implemented
  *	"key/value" = returns array($key => $value)
+ *	"key/values" = returns array($key => array($values))
  *	"single value" = returns $value
  *	"object" = returns object
  *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
@@ -252,19 +253,25 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 					$values = $line;
 				}
 				if (count($id_field_name) === 4) {
-					if ($format === 'key/value') {
+					if ($format === 'key/values') {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][] = $line[$id_field_name[3]];
+					} elseif ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $line[$id_field_name[3]];
 					} else {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][$line[$id_field_name[3]]] = $values;
 					}
 				} elseif (count($id_field_name) === 3) {
-					if ($format === 'key/value') {
+					if ($format === 'key/values') {
+						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][] = $line[$id_field_name[2]];
+					} elseif ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $line[$id_field_name[2]];
 					} else {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
 					}
 				} else {
-					if ($format === 'key/value') {
+					if ($format === 'key/values') {
+						$lines[$line[$id_field_name[0]]][] = $line[$id_field_name[1]];
+					} elseif ($format === 'key/value') {
 						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
 					} elseif ($format === 'numeric') {
 						$lines[$line[$id_field_name[0]]][] = $values;
