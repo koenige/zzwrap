@@ -89,8 +89,10 @@ function wrap_template_file($template, $show_error = true) {
 	global $zz_setting;
 	
 	$found = array();
-	$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
-	if (file_exists($tpl_file)) return $tpl_file;
+	if (!empty($zz_setting['lang'])) {
+		$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
+		if (file_exists($tpl_file)) return $tpl_file;
+	}
 
 	$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
 	if (file_exists($tpl_file)) return $tpl_file;
@@ -105,10 +107,14 @@ function wrap_template_file($template, $show_error = true) {
 	}
 	foreach ($zz_setting['modules'] as $module) {
 		if ($my_module AND $module !== $my_module) continue;
-		$tpl_file = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'-'.$zz_setting['lang'].'.template.txt';
-		if (file_exists($tpl_file)) {
-			$found[] = $tpl_file;
-		} else {
+		$lang_var_exists = false;
+		if (!empty($zz_setting['lang'])) {
+			$tpl_file = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'-'.$zz_setting['lang'].'.template.txt';
+			if ($lang_var_exists = file_exists($tpl_file)) {
+				$found[] = $tpl_file;
+			}
+		}
+		if (!$lang_var_exists) {
 			$tpl_file = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'.template.txt';
 			if (file_exists($tpl_file)) $found[] = $tpl_file;
 		}
