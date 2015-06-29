@@ -1108,7 +1108,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	$zz_page['content_length'] = strlen($text);
 	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 
-	if ($filename) {	
+	if ($filename) {
 		wrap_http_content_disposition($content_disposition, $filename);
 	}
 	if (!empty($zz_page['content_type'])) {
@@ -1168,6 +1168,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 function wrap_http_content_disposition($type, $filename) {
 	global $zz_conf;
 
+	// no double quotes in filenames
+	$filename = str_replace('"', '', $filename);
 	// RFC 2616: filename must consist of all ASCII characters
 	// RFC 5987: filename* may be sent with UTF-8 encoding
 	$filename_ascii = $filename;
