@@ -96,6 +96,9 @@
 404	all	/templates/cn/template.xml
 404	all	/catalog/view/javascript/common.js
 404	end	/error.php?err=404
+404	all	/editor/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
+404	all	/spaw/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
+404	all	/spaw2/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
 
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
@@ -123,6 +126,9 @@
 
 # Malware Adpeak
 404	regex	/\?o=3&g=&s=&z=/
+
+# malware marking the begin of its attack
+404	all	/Ringing.at.your.dorbell!
 
 # Badly written bots coming via Yahoo
 404	end	/RK=0
