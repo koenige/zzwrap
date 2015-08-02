@@ -102,6 +102,7 @@
 404	all	/editor/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
 404	all	/spaw/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
 404	all	/spaw2/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
+404	all	/license.php
 
 # - unknown, probably a toolbar or something else; request are made
 # even if referer URL is redirected with a HTTP 302
