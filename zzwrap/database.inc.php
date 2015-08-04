@@ -239,18 +239,23 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 		} elseif (substr($format, 0, 5) === 'list ') {
 			$listkey = substr($format, 5);
 			$listkey = explode(' ', $listkey);
+			if (count($listkey) < count($id_field_name)) {
+				$topkey = array_shift($id_field_name);
+			} else {
+				$topkey = $id_field_name[1];
+			}
 			if (count($listkey) === 2) {
 				while ($line = mysql_fetch_assoc($result)) {
-					$lines[$line[$id_field_name[0]]][$listkey[0]] = $line[$id_field_name[0]];
-					$lines[$line[$id_field_name[0]]][$listkey[1]][$line[$id_field_name[1]]] = $line;
+					$lines[$line[$topkey]][$listkey[0]] = $line[$id_field_name[0]];
+					$lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]] = $line;
 				}
 			} else {
 				while ($line = mysql_fetch_assoc($result)) {
-					$lines[$line[$id_field_name[0]]][$listkey[0]] = $line[$id_field_name[0]];
-					if (!isset($lines[$line[$id_field_name[0]]][$listkey[1]][$line[$id_field_name[1]]])) {
-						$lines[$line[$id_field_name[0]]][$listkey[1]][$line[$id_field_name[1]]] = $line;
+					$lines[$line[$topkey]][$listkey[0]] = $line[$id_field_name[0]];
+					if (!isset($lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]])) {
+						$lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]] = $line;
 					}
-					$lines[$line[$id_field_name[0]]][$listkey[1]][$line[$id_field_name[1]]][$listkey[2]][$line[$id_field_name[2]]] = $line;
+					$lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]][$listkey[2]][$line[$id_field_name[2]]] = $line;
 				}
 			}
 		} else {
