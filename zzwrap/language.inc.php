@@ -422,8 +422,9 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		$all_fields_to_translate += count($fields)*count($data_ids);
 
 		// get translations corresponding to matrix from database
+		$data_ids_flat = array_unique($data_ids);
 		$sql = sprintf($translation_sql, $field_type, implode(',', array_keys($fields)), 
-			implode(',', $data_ids), $target_language);
+			implode(',', $data_ids_flat), $target_language);
 		$translations = wrap_db_fetch($sql, 'translation_id');
 		if (!$translations) continue;
 
