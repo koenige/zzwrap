@@ -242,7 +242,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 			if (count($listkey) < count($id_field_name)) {
 				$topkey = array_shift($id_field_name);
 			} else {
-				$topkey = $id_field_name[1];
+				$topkey = $id_field_name[0];
 			}
 			if (count($listkey) === 2) {
 				while ($line = mysql_fetch_assoc($result)) {
