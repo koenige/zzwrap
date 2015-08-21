@@ -1987,6 +1987,7 @@ function wrap_mkdir($folder) {
 	$subfolders = array_values($subfolders);
 
 	foreach ($subfolders as $index => $subfolder) {
+		if (!$subfolder) continue;
 		$current_folder .= '/'.$subfolder;
 		if (!empty($basefolders[$index]) AND $basefolders[$index] === $subfolder) {
 			// it's in open_basedir, so folder should exist and we cannot
