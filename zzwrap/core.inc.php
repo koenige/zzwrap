@@ -1969,15 +1969,25 @@ function wrap_mkdir($folder) {
 	}
 	$subfolders = explode('/', $folder);
 	$current_folder = '';
+
+	// get rid of .. and .
 	foreach ($subfolders as $index => $subfolder) {
 		if (!$subfolder) continue;
 		if ($subfolder === '..') {
-			$current_folder = substr($current_folder, 0, strrpos($current_folder, '/'));
+			unset($subfolders[$index]);
+			unset($subfolders[$index - 1]);
+			continue;
 		} elseif ($subfolder === '.') {
-			$current_folder .= '';
-		} else {
-			$current_folder .= '/'.$subfolder;
+			unset($subfolders[$index]);
+			continue;
 		}
+	}
+
+	// get indices straight
+	$subfolders = array_values($subfolders);
+
+	foreach ($subfolders as $index => $subfolder) {
+		$current_folder .= '/'.$subfolder;
 		if (!empty($basefolders[$index]) AND $basefolders[$index] === $subfolder) {
 			// it's in open_basedir, so folder should exist and we cannot
 			// test whether it exists anyways
