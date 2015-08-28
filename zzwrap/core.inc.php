@@ -2148,6 +2148,9 @@ function wrap_setting_read($key, $login_id = 0) {
 	$sql .= wrap_setting_login_id($login_id);
 	$settings = wrap_db_fetch($sql, 'setting_key', 'key/value');
 	// @todo: replace [] with hierarchical array
+	foreach ($settings as $key => $value) {
+		$settings[$key] = wrap_setting_value($value);
+	}
 	return $settings;
 }
 
@@ -2163,6 +2166,26 @@ function wrap_setting_login_id($login_id = 0) {
 	} else {
 		return ' AND ISNULL(login_id)';
 	}
+}
+
+/**
+ * allows settings from db to be in the format (1, 2, 3); first \ will be
+ * removed and allows settings starting with (
+ *
+ * @param string $string
+ * @return mixed
+ */
+function wrap_setting_value($string) {
+	if (substr($string, 0, 1) == '\\') return substr($string, 1);
+	if (substr($string, 0, 1) == '(' AND substr($string, -1) == ')') {
+		$string = substr($string, 1, -1);
+		$strings = explode(',', $string);
+		foreach ($strings as $index => $string) {
+			$strings[$index] = trim($string);
+		}
+		return $strings;
+	}
+	return $string;
 }
 
 /**
