@@ -227,6 +227,7 @@ function wrap_sync_csv($import) {
 		if (count($raw) === ($import['end'] - $import['limit'])) break;
 	}
 	fclose($handle);
+	if (empty($raw)) return array();
 	return $raw;
 }
 
