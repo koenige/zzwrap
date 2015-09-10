@@ -947,15 +947,19 @@ function wrap_file_send($file) {
 	}
 
 	// Content-Type HTTP header
-	// Canonicalize suffices
-	$suffix_map = array(
-		'jpg' => 'jpeg',
-		'tif' => 'tiff'
-	);
-	if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
 	// Read mime type from database
 	$sql = sprintf(wrap_sql('filetypes'), $suffix);
 	$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
+	if (!$zz_page['content_type']) {
+		// Canonicalize suffices
+		$suffix_map = array(
+			'jpg' => 'jpeg',
+			'tif' => 'tiff'
+		);
+		if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
+		$sql = sprintf(wrap_sql('filetypes'), $suffix);
+		$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
+	}
 	if (!$zz_page['content_type']) $zz_page['content_type'] = 'application/octet-stream';
 	wrap_cache_header('Content-Type: '.$zz_page['content_type']);
 
