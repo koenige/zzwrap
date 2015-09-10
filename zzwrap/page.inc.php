@@ -962,8 +962,25 @@ function wrap_htmlout_page($page) {
 	}
 
 	$text = wrap_template($zz_page['template'], $page);
+
 	// allow %%% notation on page with an escaping backslash
-	$text = str_replace('%\%%', '%%%', $text);
+	// but do not replace this in textareas because editing needs to be possible
+	if (strstr($text, '<textarea')) {
+		$text = preg_split("/(<[\/]?textarea)/", $text);
+		$i = 0;
+		foreach (array_keys($text) as $index) {
+			if ($i & 1) {
+				$text[$index] = '<textarea'.$text[$index].'</textarea';
+			} else {
+				$text[$index] = str_replace('%\%%', '%%%', $text[$index]);
+			}
+			$i++;
+		}
+		$text = implode('', $text);
+	} else {
+		$text = str_replace('%\%%', '%%%', $text);
+	}
+		
 	wrap_send_text($text, 'html', $page['status']);
 }
 
