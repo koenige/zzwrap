@@ -2050,6 +2050,9 @@ function wrap_trigger_url($url) {
 	$out .= "Connection: Close\r\n\r\n";
 	// @todo retry if 503 error in 10 seconds
 	fwrite($fp, $out);
+	// read at least one byte because some servers won't establish a connection
+	// otherwise
+	fread($fp, 1);
 	fclose($fp);
 	$page['text'] = 'Connection successful.';
 	return $page;
