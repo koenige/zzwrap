@@ -142,3 +142,8 @@
 
 # Whatever malware with referer http://search.mail.com/web?q=domain.example&search=
 404	all	/media/index.html
+
+# JBoss HttpAdaptor JMXInvokerServlet
+404	all	/invoker/JMXInvokerServlet
+404	all	/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss.system:type=ServerInfo
+404	all	/web-console/ServerInfo.jsp
