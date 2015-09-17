@@ -83,6 +83,7 @@
 404	end	/fckeditor.js
 404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.phpindex.php
 404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.php
+404	all	/admin/fckeditor/editor/filemanager/connectors/php/upload.php
 
 # phpMoAdmin
 404	end	/moadmin.php
