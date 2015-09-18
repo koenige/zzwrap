@@ -124,6 +124,7 @@ function zzwrap() {
 	
 	wrap_translate_page();
 	wrap_set_units();
+	if (!empty($_SESSION['logged_in'])) session_write_close();
 	$page = wrap_get_page();
 	
 	// output of content if not already sent by wrap_get_page()
