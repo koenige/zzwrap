@@ -233,6 +233,7 @@ function wrap_syndication_geocode($address) {
  */
 function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $method = 'GET', $data_to_send = array(), $pwd = false) {
 	global $zz_setting;
+	global $zz_conf;
 
 	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
@@ -271,7 +272,20 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			}
 		}
 	} else {
+		// avoid buggy DNS name lookup for IPv6 on some machines
+		$protocol = substr($url, 0, strpos($url, ':'));
+		if (substr($url, strlen($protocol.'://'), strlen($zz_setting['hostname'])) === $zz_setting['hostname']) {
+			array_unshift($headers_to_send, 'Host: '.$zz_setting['hostname']);
+			$url = $protocol.'://127.0.0.1'.substr($url, strlen($protocol.'://') + strlen($zz_setting['hostname']));
+			// another way would be to add
+			// curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		}
 		$ch = curl_init();
+		if ($zz_conf['debug']) {
+			$f = fopen($zz_conf['tmp_dir'].'/curl-request-'.time().'.txt', 'w');
+			curl_setopt($ch, CURLOPT_VERBOSE, 1);
+			curl_setopt($ch, CURLOPT_STDERR, $f);
+		}
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -297,7 +311,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			curl_setopt($ch, CURLOPT_USERPWD, $pwd);
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		}
-		if (substr($url, 0, 8) === 'https://') {
+		if ($protocol === 'https') {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 			// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
@@ -305,13 +319,18 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
 		}
 		$data = curl_exec($ch);
+		if ($zz_conf['debug']) fclose($f);
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($timeout_ignore) {
+			if ($zz_conf['debug']) {
+				$info = curl_getinfo($ch);
+				wrap_error('JSON '.json_encode($info));
+			}
 			// we don't know what happened but can't check it
 			$status = 200;
 		} else {
 			if (!$status) {
-				if (substr($url, 0, 8) === 'https://' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+				if ($protocol === 'https' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
 					// try again without SSL verification
 					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
