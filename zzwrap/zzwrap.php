@@ -294,8 +294,10 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['brick_page_templates'] = true;
 	$zz_setting['brick_fulltextformat'] = 'markdown';
 	// functions that might be used for formatting (zzbrick)
-	$zz_setting['brick_formatting_functions'] = array('markdown', 'wrap_date', 
-		'rawurlencode', 'wordwrap', 'nl2br', 'htmlspecialchars');
+	$zz_setting['brick_formatting_functions'] = array(
+		'markdown', 'wrap_date', 'rawurlencode', 'wordwrap', 'nl2br',
+		'htmlspecialchars', 'wrap_html_escape'
+	);
 
 	if (!$zz_setting['local_access']) {
 		$zz_setting['gzip_encode'] = true;
