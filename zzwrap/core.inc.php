@@ -2071,7 +2071,7 @@ function wrap_trigger_protected_url($url, $username = false) {
 	global $zz_setting;
 	global $zz_conf;
 	
-	if (!$username) $username = !empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['username'];
+	if (!$username) $username = !empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['user'];
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	$headers[] = 'X-Timeout-Ignore: 1';
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
