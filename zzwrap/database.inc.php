@@ -357,8 +357,10 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 		$data['ids'] = $ids;
 		$top_id = key($ids);
 		$data['level'][$top_id] = 0;
-		$data['flat'][$top_id] = reset($old_data);
-		$data['flat'][$top_id]['_level'] = 0;
+		if ($key_field_name) {
+			$data['flat'][$top_id] = reset($old_data);
+			$data['flat'][$top_id]['_level'] = 0;
+		}
 	}
 	// as long as we have IDs in the pool, check if the current ID has child records
 	$used_ids = array();
@@ -411,12 +413,14 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 			$pos = array_search($my_id, array_keys($data['level']))+1;
 			$data['level'] = array_slice($data['level'], 0, $pos, true)
 				+ $level + array_slice($data['level'], $pos, NULL, true);
-			$flat_data = $my_data;
-			foreach (array_keys($flat_data) as $level_data_id) {
-				$flat_data[$level_data_id]['_level'] = $my_level;
+			if ($key_field_name) {
+				$flat_data = $my_data;
+				foreach (array_keys($flat_data) as $level_data_id) {
+					$flat_data[$level_data_id]['_level'] = $my_level;
+				}
+				$data['flat'] = array_slice($data['flat'], 0, $pos, true)
+					+ $flat_data + array_slice($data['flat'], $pos, NULL, true);
 			}
-			$data['flat'] = array_slice($data['flat'], 0, $pos, true)
-				+ $flat_data + array_slice($data['flat'], $pos, NULL, true);
 
 			// append new records to $data-Array
 			if (empty($data[$my_id])) $data[$my_id] = array();
