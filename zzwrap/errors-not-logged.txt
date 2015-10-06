@@ -148,3 +148,6 @@
 404	all	/invoker/JMXInvokerServlet
 404	all	/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss.system:type=ServerInfo
 404	all	/web-console/ServerInfo.jsp
+
+# Malware unkown
+404	regex	~/clike.su/adbstyles.js\?u=\d+~
