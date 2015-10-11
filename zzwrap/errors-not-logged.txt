@@ -151,3 +151,11 @@
 
 # Malware unkown
 404	regex	~/clike.su/adbstyles.js\?u=\d+~
+
+# http://www.ewebeditor.com
+404	end	/ewebeditor.js
+404	end	/ewebeditor/Include/menu.js
+404	end	/Include/menu.js
+
+# Spaw Editor
+404	all	/admin/spaw2/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
