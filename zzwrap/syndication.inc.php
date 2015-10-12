@@ -272,14 +272,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			}
 		}
 	} else {
-		// avoid buggy DNS name lookup for IPv6 on some machines
+		// @todo add some method to avoid timeouts because of slow name lookups
 		$protocol = substr($url, 0, strpos($url, ':'));
-		if (substr($url, strlen($protocol.'://'), strlen($zz_setting['hostname'])) === $zz_setting['hostname']) {
-			array_unshift($headers_to_send, 'Host: '.$zz_setting['hostname']);
-			$url = $protocol.'://127.0.0.1'.substr($url, strlen($protocol.'://') + strlen($zz_setting['hostname']));
-			// another way would be to add
-			// curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-		}
 		$ch = curl_init();
 		if ($zz_conf['debug']) {
 			$f = fopen($zz_conf['tmp_dir'].'/curl-request-'.time().'.txt', 'w');
