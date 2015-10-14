@@ -381,27 +381,53 @@ function wrap_html_escape($string) {
 }
 
 /**
+ * formats a numeric value into a readable representation using different units
+ *
+ * @param int $value value to format
+ * @param int $precision
+ * @param array $units units that can be used, indexed by power
+ * @param int $factor factor between different units, defaults to 1000
+ * @param int $precision
+ * @return string
+ */
+function wrap_unit_format($value, $precision, $units, $factor = 1000) {
+	global $zz_conf;
+    $value = max($value, 0);
+    $pow = floor(($value ? log($value) : 0) / log($factor)); 
+    $pow = min($pow, count($units) - 1); 
+
+	$value /= pow($factor, $pow);
+
+    $text = round($value, $precision) . '&nbsp;' . $units[$pow]; 
+    if ($zz_conf['decimal_point'] !== '.')
+    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
+    return $text;
+}
+
+/**
  * formats an integer into a readable byte representation
  *
- * @param int $byts
+ * @param int $bytes
  * @param int $precision
  * @return string
  * @see zz_byte_format
  */
 function wrap_bytes($bytes, $precision = 1) { 
-	global $zz_conf;
     $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB'); 
+	return wrap_unit_format($bytes, $precision, $units, 1024);
+}
 
-    $bytes = max($bytes, 0); 
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-    $pow = min($pow, count($units) - 1); 
-
-    // Uncomment one of the following alternatives
-    // $bytes /= pow(1024, $pow);
-    $bytes /= (1 << (10 * $pow)); 
-
-    $text = round($bytes, $precision) . '&nbsp;' . $units[$pow]; 
-    if ($zz_conf['decimal_point'] !== '.')
-    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
-    return $text;
+/**
+ * formats a numeric value into a readable gram representation
+ *
+ * @param int $gram
+ * @param int $precision
+ * @return string
+ */
+function wrap_gram($gram, $precision = 1) {
+	$units = array(
+		-3 => 'ng', -2 => 'µg', -1 => 'mg', 0 => 'g', 1 => 'kg',
+		2 => 't', 3 => 'kt', 4 => 'Mt', 5 => 'Gt'
+	);
+	return wrap_unit_format($gram, $precision, $units);
 }
