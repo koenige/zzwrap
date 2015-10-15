@@ -1059,6 +1059,11 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		$zz_page['character_set'] = 'utf-8';
 		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.json';
 		break;
+	case 'js':
+		$zz_page['content_type'] = 'application/javascript';
+		if (!empty($zz_conf['character_set']))
+			$zz_page['character_set'] = $zz_conf['character_set'];
+		break;
 	case 'kml':
 		$zz_page['content_type'] = 'application/vnd.google-earth.kml+xml';
 		$zz_page['character_set'] = 'utf-8';
