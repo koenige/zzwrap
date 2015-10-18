@@ -395,6 +395,7 @@ function cms_login($params) {
 				? wrap_html_escape($_POST[strtolower($login_field)]) : ''
 		);
 	}
+	$loginform['password_link'] = wrap_get_setting('password_link');
 	$page['text'] = wrap_template('login', $loginform);
 	$page['meta'][] = array('name' => 'robots',
 		'content' => 'noindex, follow, noarchive'
