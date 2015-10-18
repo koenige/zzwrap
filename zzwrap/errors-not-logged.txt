@@ -62,6 +62,7 @@
 404	end	/wp-admin/admin-ajax.php?action=showbiz_show_image&img=../wp-config.php
 404	end	/wp-admin/admin-ajax.php?action=revolution-slider_show_image&img=../wp-config.php
 404	end	/wp-content/uploads/2015/08/info.php
+404	end	/wordpr
 
 # Joomla
 404	all	/administrator/index.php
