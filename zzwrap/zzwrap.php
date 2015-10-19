@@ -210,6 +210,8 @@ function wrap_set_defaults_pre_conf() {
 	// http root directory
 	if (!isset($zz_conf['root']))
 		$zz_conf['root'] = $_SERVER['DOCUMENT_ROOT'];
+	if (substr($zz_conf['root'], -1) === '/')
+		$zz_conf['root'] = substr($zz_conf['root'], 0, -1);
 	// includes
 	if (!isset($zz_setting['inc']))
 		$zz_setting['inc'] = $zz_conf['root'].'/../_inc';
