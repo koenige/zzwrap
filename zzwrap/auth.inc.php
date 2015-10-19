@@ -330,6 +330,12 @@ function cms_login($params) {
 		// Session will be saved in Cookie so check whether we got a cookie or not
 		wrap_session_start();
 		$_SESSION['logged_in'] = wrap_login($login);
+		if (!empty($login['change_password'])) {
+			$_SESSION['change_password'] = true;
+		}
+		if (!empty($login['dont_require_old_password'])) {
+			$_SESSION['dont_require_old_password'] = true;
+		}
 	}
 
 	// get URL where redirect is done to after logging in
@@ -593,6 +599,8 @@ function wrap_login_hash($hash, $login) {
 	if ($password !== $hash) return $login;
 	$login['different_sign_on'] = true;
 	$login['username'] = $username;
+	$login['change_password'] = true;
+	$login['dont_require_old_password'] = true;
 	return $login;
 }
 
