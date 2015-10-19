@@ -421,6 +421,9 @@ function cms_login($params) {
 		);
 	}
 	$loginform['password_link'] = wrap_get_setting('password_link');
+	if ($loginform['password_link'] === true) {
+		$loginform['password_link'] = '?password';
+	}
 	$page['query_strings'] = array('password', 'auth');
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
