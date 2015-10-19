@@ -254,7 +254,9 @@ function cms_login($params) {
 	$login['different_sign_on'] = false;
 
 	// Check if there are parameters for single sign on
-	if (!empty($params[0]) AND $params[0] === 'Single Sign On') {
+	if (!empty($_GET['auth'])) {
+		$login = wrap_login_hash($_GET['auth'], $login);
+	} elseif (!empty($params[0]) AND $params[0] === 'Single Sign On') {
 		if (count($params) > 4) return false;
 		if (count($params) < 3) return false;
 		if ($params[1] !== $zz_setting['single_sign_on_secret']) return false;
@@ -273,7 +275,25 @@ function cms_login($params) {
 	$loginform = array();
 	$loginform['msg'] = false;
 	// someone tried to login via POST
-	if ($_SERVER['REQUEST_METHOD'] === 'POST' OR $login['different_sign_on']) {
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['request_password'])) {
+		$loginform['name'] = !empty($_POST['name']) ? $_POST['name'] : '';
+		if (!empty($_POST['mail'])) {
+			$loginform['mail'] = $_POST['mail'];
+			if (wrap_mail_valid($_POST['mail'])) {
+				$loginform['mail_sent'] = true;
+				$loginform['login_link_valid'] = wrap_get_setting('password_key_validity_in_minutes');
+				wrap_password_reminder($_POST['mail']);
+			} else {
+				$loginform['mail_invalid'] = true;
+				wrap_error(sprintf(
+					'Request for password with invalid e-mail address: %s (%s)',
+					$_POST['mail'], $loginform['name']
+				));
+			}
+		} else {
+			$loginform['mail_missing'] = true;
+		}
+	} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' OR $login['different_sign_on']) {
 		// send header for IE for P3P (Platform for Privacy Preferences Project)
 		// if cookie is needed
 		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
@@ -378,6 +398,8 @@ function cms_login($params) {
 	}
 	if (isset($querystring['no-cookie'])) {
 		$params[] = 'no-cookie';
+	}
+	if (!empty($querystring)) {
 		$zz_setting['cache'] = false;
 	}
 	$loginform['params'] = $params ? '?'.implode('&amp;', $params) : '';
@@ -396,8 +418,16 @@ function cms_login($params) {
 		);
 	}
 	$loginform['password_link'] = wrap_get_setting('password_link');
-	$page['text'] = wrap_template('login', $loginform);
-	$page['meta'][] = array('name' => 'robots',
+	$page['query_strings'] = array('password', 'auth');
+	if (isset($_GET['password'])) {
+		$page['text'] = wrap_template('login-password', $loginform);
+		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
+		$page['breadcrumbs'][] = wrap_text('Request password');
+	} else {
+		$page['text'] = wrap_template('login', $loginform);
+	}
+	$page['meta'][] = array(
+		'name' => 'robots',
 		'content' => 'noindex, follow, noarchive'
 	);
 	return $page;
@@ -539,6 +569,25 @@ function wrap_login_http_auth() {
 	$login['different_sign_on'] = true;
 	$login['username'] = $_SERVER['PHP_AUTH_USER'];
 	return wrap_login($login);
+}
+
+/**
+ * Login via hash
+ *
+ * @param string $hash (id-hash)
+ * @param array $login
+ * @return bool true: login was successful
+ */
+function wrap_login_hash($hash, $login) {
+	$hash = explode('-', $hash);
+	$username = array_shift($hash);
+	$hash = implode('-', $hash);
+
+	$password = wrap_password_token($username, 'password_key');
+	if ($password !== $hash) return $login;
+	$login['different_sign_on'] = true;
+	$login['username'] = $username;
+	return $login;
 }
 
 /**
@@ -709,12 +758,39 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 	if (!$userdata AND $sql = wrap_sql('login_user_id')) {
 		$sql = sprintf($sql, $username);
 		$userdata = wrap_db_fetch($sql);
-		if (!$userdata) return false;
 	}
+	if (!$userdata) return false;
 	$password_in_db = array_shift($userdata);
 	$password = wrap_set_hash(
 		sprintf('%s %d %s', $userdata['username'], $userdata['user_id'], $password_in_db),
 		$secret_key
 	);
 	return $password;
+}
+
+/**
+ * send a password reminder
+ *
+ * @param string $address E-Mail
+ * @return bool
+ */
+function wrap_password_reminder($address) {
+	$sql = wrap_sql('password_reminder');
+	$sql = sprintf($sql, wrap_db_escape($address));
+	$data = wrap_db_fetch($sql);
+	if (!$data) {
+		wrap_error('A password was requested for e-mail %s, but there was no login in the database.');
+		return false;
+	} elseif (!$data['active']) {
+		wrap_error('A password was requested for e-mail %s, but the login is disabled.');
+		return false;
+	}
+	$data['token'] = $data['username'].'-'.wrap_password_token($data['username'], 'password_key');
+
+	$mail = array();
+	$mail['to']['name'] = $data['recipient'];
+	$mail['to']['e_mail'] = $data['e_mail'];
+	$mail['subject'] = wrap_text('Forgotten Password');
+	$mail['message'] = wrap_template('password-reminder-mail', $data);
+	return wrap_mail($mail);
 }

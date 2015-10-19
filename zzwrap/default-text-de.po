@@ -26,13 +26,21 @@ msgstr ""
 msgid "Password or username incorrect. Please try again."
 msgstr "Passwort oder Benutzername falsch. Bitte versuchen Sie es erneut."
 
-#: library/zzwrap/core.inc.php
+#: library/zzwrap/auth.inc.php
 msgid "Username:"
 msgstr "Benutzername:"
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username are empty. Please try again."
 msgstr "Paßwort oder Benutzername leer. Bitte versuchen Sie es erneut."
+
+#: library/zzwrap/auth.inc.php
+msgid "Request password"
+msgstr "Passwort anfordern"
+
+#: library/zzwrap/auth.inc.php
+msgid "Forgotten Password"
+msgstr "Vergessenes Passwort"
 
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."

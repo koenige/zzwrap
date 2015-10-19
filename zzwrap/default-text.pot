@@ -34,6 +34,14 @@ msgstr ""
 msgid "Password or username are empty. Please try again."
 msgstr ""
 
+#: library/zzwrap/auth.inc.php
+msgid "Request password"
+msgstr ""
+
+#: library/zzwrap/auth.inc.php
+msgid "Forgotten Password"
+msgstr ""
+
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
 msgstr ""
