@@ -39,6 +39,11 @@ function wrap_mail($mail) {
 		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
 	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
 
+	// Signature?
+	if (wrap_template_file('signature-mail')) {
+		$mail['message'] .= "\r\n".wrap_template('signature-mail');
+	}
+
 	// From
 	if (!isset($mail['headers']['From'])) {
 		$mail['headers']['From']['name'] = $zz_conf['project'];
