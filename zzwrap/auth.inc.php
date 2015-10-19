@@ -785,10 +785,10 @@ function wrap_password_reminder($address) {
 	$sql = sprintf($sql, wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
 	if (!$data) {
-		wrap_error('A password was requested for e-mail %s, but there was no login in the database.');
+		wrap_error(sprintf('A password was requested for e-mail %s, but there was no login in the database.', $address));
 		return false;
 	} elseif (!$data['active']) {
-		wrap_error('A password was requested for e-mail %s, but the login is disabled.');
+		wrap_error(sprintf('A password was requested for e-mail %s, but the login is disabled.', $address));
 		return false;
 	}
 	$data['token'] = $data['username'].'-'.wrap_password_token($data['username'], 'password_key');
