@@ -30,7 +30,11 @@ function wrap_session_start() {
 	global $zz_conf;
 	
 	// is already a session active?
-	if (session_id()) return false;
+	if (session_id()) {
+		session_write_close();
+		session_start();
+		return true;
+	}
 	// change session_save_path
 	if (!empty($zz_setting['session_save_path'])) {
 		$success = wrap_mkdir($zz_setting['session_save_path']);
