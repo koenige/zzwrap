@@ -42,17 +42,21 @@ msgstr ""
 msgid "Forgotten Password"
 msgstr ""
 
+#: library/zzwrap/auth.inc.php
+msgid "Link for login is wrong or out of date. Please get a new one."
+msgstr ""
+
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
 msgstr ""
 
 # HTTP Status Code 300
-#: library/zzwrap/auth.inc.php
+#: library/zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"
 msgstr ""
 
 # HTTP Status Code 301
-#: library/zzwrap/auth.inc.php
+#: library/zzwrap/errorhandling.inc.php
 msgid "Moved Permanently"
 msgstr ""
 

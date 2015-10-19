@@ -42,17 +42,21 @@ msgstr "Passwort anfordern"
 msgid "Forgotten Password"
 msgstr "Vergessenes Passwort"
 
+#: library/zzwrap/auth.inc.php
+msgid "Link for login is wrong or out of date. Please get a new one."
+msgstr "Link für Login ist falsch oder abgelaufen. Bitte besorgen Sie sich einen neuen."
+
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
 msgstr "Vorübergehend ist keine Anmeldung möglich."
 
 # HTTP Status Code 300
-#: library/zzwrap/auth.inc.php
+#: library/zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"
 msgstr "Mehrfachauswahl"
 
 # HTTP Status Code 301
-#: library/zzwrap/auth.inc.php
+#: library/zzwrap/errorhandling.inc.php
 msgid "Moved Permanently"
 msgstr "Dauerhaft verschoben"
 

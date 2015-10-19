@@ -253,9 +253,14 @@ function cms_login($params) {
 	$login['password'] = '';
 	$login['different_sign_on'] = false;
 
+	$loginform = array();
+	$loginform['msg'] = false;
+
 	// Check if there are parameters for single sign on
 	if (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
+		// if successful, redirect
+		$loginform['msg'] = wrap_text('Link for login is wrong or out of date. Please get a new one.');
 	} elseif (!empty($params[0]) AND $params[0] === 'Single Sign On') {
 		if (count($params) > 4) return false;
 		if (count($params) < 3) return false;
@@ -272,8 +277,6 @@ function cms_login($params) {
 		$zz_setting['login_fields'][] = 'Username';
 	}
 
-	$loginform = array();
-	$loginform['msg'] = false;
 	// someone tried to login via POST
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['request_password'])) {
 		$loginform['name'] = !empty($_POST['name']) ? $_POST['name'] : '';
