@@ -40,7 +40,7 @@ function wrap_mail($mail) {
 	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
 
 	// Signature?
-	if (wrap_template_file('signature-mail')) {
+	if (wrap_template_file('signature-mail', false)) {
 		$mail['message'] .= "\r\n".wrap_template('signature-mail');
 	}
 
