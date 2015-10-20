@@ -1063,6 +1063,11 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 		$zz_page['character_set'] = 'utf-8';
 		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.json';
 		break;
+	case 'jsonl':
+		$zz_page['content_type'] = 'application/json';
+		$zz_page['character_set'] = 'utf-8';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.jsonl';
+		break;
 	case 'js':
 		$zz_page['content_type'] = 'application/javascript';
 		if (!empty($zz_conf['character_set']))
