@@ -134,6 +134,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		if ($last_modified AND is_array($object)) {
 			$object['_']['Last-Modified'] = $last_modified;
 		}
+		$object['_']['type'] = 'json';
 		return $object;
 	default:
 		$object = array();
@@ -144,6 +145,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		if ($last_modified) {
 			$object['_']['Last-Modified'] = $last_modified;
 		}
+		$object['_']['type'] = $type;
 		return $object;
 	}
 }
