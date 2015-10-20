@@ -39,7 +39,10 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 	}
 	$files = array();
 	if (!empty($zz_setting['cache'])) {
-		$files = array(wrap_cache_filename('url', $cache_filename), wrap_cache_filename('headers', $cache_filename));
+		$files = array(
+			wrap_cache_filename('url', $cache_filename),
+			wrap_cache_filename('headers', $cache_filename)
+		);
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
@@ -86,8 +89,10 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		case 303:
 		case 307:
 			$data = NULL;
-			wrap_error(sprintf('Syndication from URL %s failed with redirect status code %s. Use URL %s instead.',
-				$url, $status, wrap_syndication_http_header('Location', $headers)), $zz_setting['syndication_error_code']);
+			wrap_error(sprintf(
+				'Syndication from URL %s failed with redirect status code %s. Use URL %s instead.',
+				$url, $status, wrap_syndication_http_header('Location', $headers)
+			), $zz_setting['syndication_error_code']);
 			break;
 		case 404:
 			$data = array();
@@ -96,15 +101,19 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			if (file_exists($files[0])) {
 				// connection error, use (possibly stale) cache file
 				$data = file_get_contents($files[0]);
-				wrap_error(sprintf('Syndication from URL %s failed with status code %s. Using cached file instead.',
-					$url, $status), E_USER_NOTICE);
+				wrap_error(sprintf(
+					'Syndication from URL %s failed with status code %s. Using cached file instead.',
+					$url, $status
+				), E_USER_NOTICE);
 				if (!empty($zz_setting['cache'])) {
 					$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 				}
 			} else {
 				$data = NULL;
-				wrap_error(sprintf('Syndication from URL %s failed with status code %s.',
-					$url, $status), $zz_setting['syndication_error_code']);
+				wrap_error(sprintf(
+					'Syndication from URL %s failed with status code %s.',
+					$url, $status
+				), $zz_setting['syndication_error_code']);
 			}
 			break;
 		}
@@ -283,7 +292,9 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)');
+		curl_setopt($ch, CURLOPT_USERAGENT, 
+			'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)'
+		);
 		if ($headers_to_send) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
 			if (in_array('X-Timeout-Ignore: 1', $headers_to_send)) {
@@ -332,9 +343,15 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 					$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 				}
 				if ($status) {
-					wrap_error(sprintf('Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+					wrap_error(sprintf(
+						'Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s',
+						$url, curl_error($ch)
+					), E_USER_WARNING);
 				} else {
-					wrap_error(sprintf('Syndication from URL %s failed. Reason: %s', $url, curl_error($ch)), E_USER_WARNING);
+					wrap_error(sprintf(
+						'Syndication from URL %s failed. Reason: %s',
+						$url, curl_error($ch)
+					), E_USER_WARNING);
 				}
 			}
 		}
