@@ -640,12 +640,15 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	case 307:
 		// (header 302 is sent automatically if using Location)
 		wrap_http_status_header($page['status']);
-		$field_name = wrap_sql('redirects_new_fieldname');
-		$new = parse_url($redir[$field_name]);
-		if (!empty($new['scheme'])) {
-			$new = $redir[$field_name];
+		if (!empty($page['redirect'])) {
+			$new = $page['redirect'];
 		} else {
-			$new = $zz_setting['host_base'].$zz_setting['base'].$redir[$field_name];
+			$field_name = wrap_sql('redirects_new_fieldname');
+			$new = $redir[$field_name];
+		}
+		$newurl = parse_url($new);
+		if (empty($newurl['scheme'])) {
+			$new = $zz_setting['host_base'].$zz_setting['base'].$new;
 		}
 		header('Location: '.$new);
 		exit;
