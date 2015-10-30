@@ -1,5 +1,5 @@
 # zzwrap
-# Default translations to german language
+# Default translations template
 #
 # Part of »Zugzwang Project«
 # http://www.zugzwang.org/projects/zzwrap
