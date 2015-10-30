@@ -172,7 +172,7 @@ function wrap_text($string) {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
-	static $text_included
+	static $text_included;
 	static $module_text;
 	
 	if (!$string) return $string;
