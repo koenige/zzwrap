@@ -242,7 +242,7 @@ function wrap_text($string) {
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
 	
-	if (empty($my_text[$string])) {
+	if (!array_key_exists($string, $my_text)) {
 		// write missing translation to somewhere.
 		// @todo check logfile for duplicates
 		// @todo optional log directly in database
