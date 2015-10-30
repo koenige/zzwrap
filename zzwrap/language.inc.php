@@ -157,11 +157,13 @@ function wrap_language_get_text($language) {
 }
 
 /**
- * Translate text from textfile if possible or write back text string to be translated
+ * Translate text from textfile if possible 
+ * or write back text string to be translated
  * 
  * @param string $string	Text string to be translated
- * @global array $zz_conf	Configuration variables, here:
- *			'log_missing_text', 'language' must both be set to log missing text
+ * @global array $zz_conf	configuration variables
+ * @global array $zz_setting
+ *			'log_missing_text' must be set to log missing text
  * @return string $string	Translation of text
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_text()
@@ -237,9 +239,9 @@ function wrap_text($string) {
 		// @todo check logfile for duplicates
 		// @todo optional log directly in database
 		// @todo log missing text in a .pot file
-		if (!empty($zz_conf['log_missing_text'])) {
+		if (!empty($zz_setting['log_missing_text'])) {
 			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
-			$log_file = sprintf($zz_conf['log_missing_text'], $zz_conf['language']);
+			$log_file = sprintf($zz_setting['log_missing_text'], $language);
 			error_log($log_message, 3, $log_file);
 			chmod($log_file, 0664);
 		}
