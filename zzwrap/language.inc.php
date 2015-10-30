@@ -170,6 +170,7 @@ function wrap_text($string) {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
+	static $text_included
 	static $module_text;
 	
 	if (!$string) return $string;
@@ -177,9 +178,7 @@ function wrap_text($string) {
 	// get filename for translated texts
 	$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
 
-	if (empty($zz_setting['text_included'])
-		OR $zz_setting['text_included'] !== $language) {
-
+	if (empty($text_included) OR $text_included !== $language) {
 		$text = array();
 		$module_text = array();
 		// standard text english
@@ -216,7 +215,7 @@ function wrap_text($string) {
 		// set text as 'included' before database operation so if
 		// database crashes just while reading values, it won't do it over and
 		// over again		
-		$zz_setting['text_included'] = $language;
+		$text_included = $language;
 
 		// get translations from database
 		if (!empty($zz_conf['text_table'])) {
@@ -224,14 +223,14 @@ function wrap_text($string) {
 		}
 	}
 
-	// if string came from preg_replace_callback, it might be an array
-	if (is_array($string) AND !empty($string[1])) $string = $string[1];
-
 	$my_text = $text;
 	// active module?
 	if (!empty($zz_setting['active_module']) AND !empty($module_text[$zz_setting['active_module']])) {
 		$my_text = array_merge($module_text[$zz_setting['active_module']], $text);
 	}
+
+	// if string came from preg_replace_callback, it might be an array
+	if (is_array($string) AND !empty($string[1])) $string = $string[1];
 	
 	if (empty($my_text[$string])) {
 		// write missing translation to somewhere.
@@ -245,8 +244,8 @@ function wrap_text($string) {
 			chmod($log_file, 0664);
 		}
 		return $string;
-	} else
-		return $my_text[$string];
+	}
+	return $my_text[$string];
 }
 
 /**
