@@ -193,6 +193,9 @@ function wrap_text($string) {
 		// module text(s)
 		foreach ($zz_setting['modules'] as $module) {
 			$modules_dir = $zz_setting['modules_dir'].'/'.$module.'/'.$module;
+			// zzform: for historical reasons, include -en text here as well
+			if ($module === 'zzform' AND $language !== 'en')
+				$files[] = $modules_dir.'/'.$module.'-en.po';
 			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
 		}
 		// standard translated text 
@@ -232,6 +235,9 @@ function wrap_text($string) {
 	if (!empty($zz_setting['active_module']) AND !empty($module_text[$zz_setting['active_module']])) {
 		$my_text = array_merge($module_text[$zz_setting['active_module']], $text);
 	}
+	if (!empty($zz_conf['text'][$language])) {
+		$my_text = array_merge($my_text, $zz_conf['text'][$language]);
+	}
 
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
@@ -256,13 +262,21 @@ function wrap_text($string) {
  * include a text file
  *
  * @param string $file filename with path
+ * @global array $zz_conf
  * @return array $text
  */
 function wrap_text_include($file) {
+	global $zz_conf;
+
 	if (!file_exists($file)) return array();
 	include $file;
 	if (!isset($text)) return array();
 	if (!is_array($text)) return array();
+	if ($zz_conf['character_set'] !== 'utf-8') {
+		foreach ($text as $key => $value) {
+			$text[$key] = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8'); 
+		}
+	}
 	return $text;
 }
 
