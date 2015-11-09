@@ -238,6 +238,11 @@ function wrap_text($string) {
 	if (!empty($zz_conf['text'][$language])) {
 		$my_text = array_merge($my_text, $zz_conf['text'][$language]);
 	}
+	if (!empty($zz_conf['text']['--'])) {
+		foreach ($zz_conf['text']['--'] as $old => $new) {
+			$my_text[$old] = $my_text[$new];
+		}
+	}
 
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
