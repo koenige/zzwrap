@@ -32,7 +32,7 @@ msgstr "Benutzername:"
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username are empty. Please try again."
-msgstr "Paßwort oder Benutzername leer. Bitte versuchen Sie es erneut."
+msgstr "Passwort oder Benutzername leer. Bitte versuchen Sie es erneut."
 
 #: library/zzwrap/auth.inc.php
 msgid "Request password"
