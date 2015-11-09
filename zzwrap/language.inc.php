@@ -677,6 +677,8 @@ function wrap_po_parse($file) {
 			$chunk[$key] = implode('', $chunk[$key]);
 			$chunk[$key] = str_replace('\"', '"', $chunk[$key]);
 			if (in_array($key, array('#:'))) continue;
+			// does not recognize \n as newline
+			$chunk[$key] = str_replace('\n', "\n", $chunk[$key]);
 			if ($zz_conf['character_set'] !== $header['X-Character-Encoding']) {
 				$translated = @iconv($header['X-Character-Encoding'], $zz_conf['character_set'], $chunk[$key]);
 				if (!$translated) {
