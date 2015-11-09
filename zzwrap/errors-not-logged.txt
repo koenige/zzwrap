@@ -160,3 +160,6 @@
 
 # Spaw Editor
 404	all	/admin/spaw2/dialogs/dialog.php?module=spawfm&dialog=spawfm&theme=spaw2lite&type=imagesundefined
+
+# WebVTT
+404	end	/node_modules/vtt.js/dist/vtt.js
