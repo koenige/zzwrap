@@ -441,6 +441,11 @@ function cms_login($params) {
 		$page['text'] = wrap_template('login-password', $loginform);
 		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
 		$page['breadcrumbs'][] = wrap_text('Request password');
+	} elseif (isset($_GET['via'])) {
+		$page['status'] = 403;
+		// @todo JSON content type will be overwritten with HTML in errorhandling
+		$page['content_type'] = 'json';
+		$page['text'] = json_encode('Login failed. Password or username are incorrect');
 	} else {
 		$page['text'] = wrap_template('login', $loginform);
 	}
