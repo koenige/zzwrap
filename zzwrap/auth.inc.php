@@ -385,6 +385,9 @@ function cms_login($params) {
 				}
 			}
 			// Redirect to protected landing page
+			if (array_key_exists('via', $_GET)) {
+				return wrap_auth_show_session();
+			}
 			return cms_login_redirect($url);
 		}
 	}
@@ -408,6 +411,9 @@ function cms_login($params) {
 	if (isset($querystring['no-cookie'])) {
 		$params[] = 'no-cookie';
 	}
+	if (isset($querystring['via'])) {
+		$params[] = 'via';
+	}
 	if (!empty($querystring)) {
 		$zz_setting['cache'] = false;
 	}
@@ -430,7 +436,7 @@ function cms_login($params) {
 	if ($loginform['password_link'] === true) {
 		$loginform['password_link'] = '?password';
 	}
-	$page['query_strings'] = array('password', 'auth');
+	$page['query_strings'] = array('password', 'auth', 'via');
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
 		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
@@ -807,4 +813,16 @@ function wrap_password_reminder($address) {
 	$mail['subject'] = wrap_text('Forgotten Password');
 	$mail['message'] = wrap_template('password-reminder-mail', $data);
 	return wrap_mail($mail);
+}
+
+/**
+ * Login and return SESSION variables as JSON for further use
+ *
+ * @return array
+ */
+function wrap_auth_show_session() {
+	$page['text'] = json_encode($_SESSION);
+	$page['content_type'] = 'json';
+	$page['headers']['filename'] = 'session-'.$_SESSION['user_id'].'.json';
+	return $page;
 }
