@@ -506,6 +506,10 @@ function wrap_login($login) {
 		$data = cms_login_ldap($login);
 		if ($data) $logged_in = true;
 	}
+	if (!empty($zz_setting['formauth_login']) AND !$logged_in) {
+		$data = cms_login_formauth($login);
+		if ($data) $logged_in = true;
+	}
 	if (!$logged_in) return false;
 	wrap_register(false, $data);
 	return true;
