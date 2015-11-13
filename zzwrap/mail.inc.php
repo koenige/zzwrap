@@ -37,7 +37,7 @@ function wrap_mail($mail) {
 	// Subject
 	if (!empty($zz_conf['mail_subject_prefix']))
 		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
-	$mail['subject'] = mb_encode_mimeheader($mail['subject']);
+	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', $zz_setting['mail_header_eol']);
 
 	// Signature?
 	if (wrap_template_file('signature-mail', false)) {
