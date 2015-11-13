@@ -163,3 +163,6 @@
 
 # WebVTT
 404	end	/node_modules/vtt.js/dist/vtt.js
+
+# unknown
+404	end	/resource/UserFollowResource/create/
