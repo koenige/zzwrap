@@ -385,7 +385,7 @@ function cms_login($params) {
 				}
 			}
 			// Redirect to protected landing page
-			if (array_key_exists('via', $_GET)) {
+			if (!empty($_GET) AND array_key_exists('via', $_GET)) {
 				return wrap_auth_show_session();
 			}
 			return cms_login_redirect($url);
