@@ -244,6 +244,11 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['files_path']))
 		$zz_setting['files_path'] = '/files';
 
+	// zzform: local zzform-colours.css?		
+	if (!isset($zz_setting['zzform_colours'])) {
+		$zz_setting['zzform_colours'] = true;
+	}
+
 	// -------------------------------------------------------------------------
 	// Page paths
 	// -------------------------------------------------------------------------
