@@ -890,6 +890,7 @@ function wrap_check_http_request_method() {
 	global $zz_setting;
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
 		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'OPTIONS') return true;
+		if (wrap_is_dav_url()) return true;
 		// @todo allow checking request methods depending on ressources
 		// e. g. GET only ressources may forbid POST
 		header('Allow: '.implode(',', $zz_setting['http']['allowed']));
@@ -900,6 +901,21 @@ function wrap_check_http_request_method() {
 		wrap_quit(405);	// 405 Not Allowed
 	}
 	wrap_quit(501); // 501 Not Implemented
+}
+
+/**
+ * check if a URL is inside a WebDAV library and will not be handled by zzproject
+ *
+ * @global array $zz_setting
+ * @return bool
+ */
+function wrap_is_dav_url() {
+	global $zz_setting;
+	if (empty($zz_setting['dav_url'])) return false;
+	if (substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['dav_url']) === $zz_setting['dav_url'])) {
+		return true;
+	}
+	return false;
 }
 
 /*
