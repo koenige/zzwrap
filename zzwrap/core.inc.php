@@ -903,21 +903,6 @@ function wrap_check_http_request_method() {
 	wrap_quit(501); // 501 Not Implemented
 }
 
-/**
- * check if a URL is inside a WebDAV library and will not be handled by zzproject
- *
- * @global array $zz_setting
- * @return bool
- */
-function wrap_is_dav_url() {
-	global $zz_setting;
-	if (empty($zz_setting['dav_url'])) return false;
-	if (substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['dav_url']) === $zz_setting['dav_url'])) {
-		return true;
-	}
-	return false;
-}
-
 /*
  * --------------------------------------------------------------------
  * HTTP: send ressources
