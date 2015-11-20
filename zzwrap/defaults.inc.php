@@ -39,7 +39,14 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	
 	if (empty($zz_setting['http']['allowed'])) {
-		$zz_setting['http']['allowed'] = array('GET', 'HEAD', 'POST', 'OPTIONS');
+		if (!wrap_is_dav_url()) {
+			$zz_setting['http']['allowed'] = array('GET', 'HEAD', 'POST', 'OPTIONS');
+		} else {
+			$zz_setting['http']['allowed'] = array(
+				'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'PROPFIND',
+				'PROPPATCH', 'MKCOL', 'COPY', 'MOVE', 'LOCK', 'UNLOCK'
+			);
+		}
 	} else {
 		// The following REQUEST methods must always be allowed in general:
 		if (!in_array('GET', $zz_setting['http']['allowed']))
@@ -48,7 +55,11 @@ function wrap_set_defaults_post_conf() {
 			$zz_setting['http']['allowed'][] = 'HEAD';
 	}
 	if (empty($zz_setting['http']['not_allowed'])) {
-		$zz_setting['http']['not_allowed'] = array('PUT', 'DELETE', 'TRACE', 'CONNECT');
+		if (!wrap_is_dav_url()) {
+			$zz_setting['http']['not_allowed'] = array('PUT', 'DELETE', 'TRACE', 'CONNECT');
+		} else {
+			$zz_setting['http']['not_allowed'] = array('TRACE', 'CONNECT');
+		}
 	}
 	
 	// -------------------------------------------------------------------------
