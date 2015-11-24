@@ -397,7 +397,7 @@ function wrap_tests() {
 function wrap_is_dav_url() {
 	global $zz_setting;
 	if (empty($zz_setting['dav_url'])) return false;
-	if (substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['dav_url']) === $zz_setting['dav_url'])) {
+	if (substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['dav_url'])) === $zz_setting['dav_url']) {
 		return true;
 	}
 	return false;
