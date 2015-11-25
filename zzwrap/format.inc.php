@@ -395,7 +395,8 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
     $value = max($value, 0);
     $pow = floor(($value ? log($value) : 0) / log($factor)); 
     $pow = min($pow, count($units) - 1); 
-
+	// does unit for this exist?
+	while (!isset($units[$pow])) $pow--;
 	$value /= pow($factor, $pow);
 
     $text = round($value, $precision) . '&nbsp;' . $units[$pow]; 
@@ -430,4 +431,18 @@ function wrap_gram($gram, $precision = 1) {
 		2 => 't', 3 => 'kt', 4 => 'Mt', 5 => 'Gt'
 	);
 	return wrap_unit_format($gram, $precision, $units);
+}
+
+/**
+ * formats a numeric value into a readable meter representation
+ *
+ * @param int $meters
+ * @param int $precision
+ * @return string
+ */
+function wrap_meters($meters, $precision = 1) {
+	$units = array(
+		-9 => 'nm', -6 => 'µm', -3 => 'mm', -2 => 'cm', 0 => 'm', 3 => 'km'
+	);
+	return wrap_unit_format($meters, $precision, $units, 10);
 }
