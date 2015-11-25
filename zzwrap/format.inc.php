@@ -4,7 +4,7 @@
  * zzwrap
  * Formatting functions for strings
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  *	wrap_mailto()
@@ -15,7 +15,7 @@
  *  wrap_html_escape()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2015 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -427,7 +427,7 @@ function wrap_bytes($bytes, $precision = 1) {
  */
 function wrap_gram($gram, $precision = 1) {
 	$units = array(
-		-3 => 'ng', -2 => 'µg', -1 => 'mg', 0 => 'g', 1 => 'kg',
+		-3 => 'ng', -2 => 'Âµg', -1 => 'mg', 0 => 'g', 1 => 'kg',
 		2 => 't', 3 => 'kt', 4 => 'Mt', 5 => 'Gt'
 	);
 	return wrap_unit_format($gram, $precision, $units);
@@ -442,7 +442,7 @@ function wrap_gram($gram, $precision = 1) {
  */
 function wrap_meters($meters, $precision = 1) {
 	$units = array(
-		-9 => 'nm', -6 => 'µm', -3 => 'mm', -2 => 'cm', 0 => 'm', 3 => 'km'
+		-9 => 'nm', -6 => 'Âµm', -3 => 'mm', -2 => 'cm', 0 => 'm', 3 => 'km'
 	);
 	return wrap_unit_format($meters, $precision, $units, 10);
 }
@@ -457,7 +457,7 @@ function wrap_meters($meters, $precision = 1) {
 function wrap_bearing($value, $precision = 1) {
 	global $zz_conf;
 	if ($value < 0) $value = 360 - $value;
-	$text = round($value, $precision).'° ';
+	$text = round($value, $precision).'Â° ';
     if ($zz_conf['decimal_point'] !== '.')
     	$text = str_replace('.', $zz_conf['decimal_point'], $text);
     $units = array(
