@@ -446,3 +446,48 @@ function wrap_meters($meters, $precision = 1) {
 	);
 	return wrap_unit_format($meters, $precision, $units, 10);
 }
+
+/**
+ * formats a numeric value into a direction with N E S W
+ *
+ * @param int $value
+ * @param int $precision
+ * @return string
+ */
+function wrap_bearing($value, $precision = 1) {
+	global $zz_conf;
+	if ($value < 0) $value = 360 - $value;
+	$text = round($value, $precision).'° ';
+    if ($zz_conf['decimal_point'] !== '.')
+    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
+    $units = array(
+    	  0 => 'N North', '22.5' => 'NNE North-northeast',
+    	 45 => 'NE Northeast', '67.5' => 'ENE East-northeast',
+    	 90 => 'E East', '112.5' => 'ESE East-southeast',
+    	135 => 'SE Southeast', '157.5' => 'SSE South-southeast',
+    	180 => 'S South', '202.5' => 'SSW South-southwest',
+    	225 => 'SW Southwest', '247.5' => 'WSW West-southwest',
+    	270 => 'W West', '292.5' => 'WNW West-northwest',
+    	315 => 'NW Northwest', '337.5' => 'NNW North-northwest'
+    );
+    $check = $value + 11.25;
+    if ($check >= 360) $check -= 360;
+    foreach ($units as $deg => $direction) {
+    	if ($value == $deg) {
+			$title = $direction;
+    		break;
+    	}
+    	if ($check >= $deg) {
+    		$last_direction = $direction;
+    		continue;
+		}
+		$title = $last_direction;
+    	break;
+    }
+    $title = wrap_text($title);
+    $title = explode(' ', $title);
+    $abbr = array_shift($title);
+    $title = implode(' ', $title);
+    $text .= sprintf('<abbr title="%s">%s</abbr>', $title, $abbr);
+	return $text;
+}

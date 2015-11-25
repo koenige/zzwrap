@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2015 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -322,4 +322,84 @@ msgstr ""
 
 #: library/zzwrap/errorhandling.inc.php
 msgid "Error on website"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "N North"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "NNE North-northeast"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "NE Northeast"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "ENE East-northeast"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "E East"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "ESE East-southeast"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "SE Southeast"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "SSE South-southeast"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "S South"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "SSW South-southwest"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "SW Southwest"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "WSW West-southwest"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "W West"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "WNW West-northwest"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "NW Northwest"
+msgstr ""
+
+# Points of the compass (abbreviation, space, long form)
+#: library/zzwrap/format.inc.php
+msgid "NNW North-northwest"
 msgstr ""
