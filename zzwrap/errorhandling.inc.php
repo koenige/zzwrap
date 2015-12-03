@@ -371,10 +371,7 @@ function wrap_errorpage_log($status, $page) {
 		// ignore these), bad programmed script
 		global $zz_page;
 		// internal URI (language code may be added / removed etc.)
-		$requested = $zz_page['url']['full']['scheme'].'://'
-			.$zz_page['url']['full']['host'].$zz_setting['base']
-			.$zz_page['url']['full']['path']
-			.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : '');
+		$requested = wrap_glue_url($zz_page['url']['full']);
 		if ($_SERVER['HTTP_REFERER'] === $requested) return false;
 		// requested URI
 		$requested_server = $zz_page['url']['full']['scheme'].'://'

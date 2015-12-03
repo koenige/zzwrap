@@ -762,9 +762,9 @@ function wrap_check_https($zz_page, $zz_setting) {
 	} else {
 		if ($zz_setting['protocol'] === 'http') return true;
 	}
-	header('Location: '.$zz_setting['protocol'].'://'.$zz_page['url']['full']['host']
-		.$zz_setting['base'].$zz_page['url']['full']['path']
-		.(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : ''));
+	$url = $zz_page['url']['full'];
+	$url['scheme'] = $zz_setting['protocol'];
+	header('Location: '.wrap_glue_url($url));
 	exit;
 }
 
@@ -2242,4 +2242,18 @@ if (!function_exists('header_remove')) {
 			header($header.':');
 		}
 	}
+}
+
+
+/**
+ * Glues a URL together
+ *
+ * @param array $url (e. g. result of parse_url())
+ * @return string
+ */
+function wrap_glue_url($url) {
+	global $zz_setting;
+	$full_url = $url['scheme'].'://'.$url['host'].$zz_setting['base']
+		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
+	return $full_url;
 }
