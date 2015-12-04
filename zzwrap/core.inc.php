@@ -409,6 +409,19 @@ function wrap_read_url($url) {
 }
 
 /**
+ * Glues a URL together
+ *
+ * @param array $url (e. g. result of parse_url())
+ * @return string
+ */
+function wrap_glue_url($url) {
+	global $zz_setting;
+	$full_url = $url['scheme'].'://'.$url['host'].$zz_setting['base']
+		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
+	return $full_url;
+}
+
+/**
  * check for redirects, if there's a corresponding table.
  *
  * @param array $page_url = $zz_page['url']
@@ -2242,18 +2255,4 @@ if (!function_exists('header_remove')) {
 			header($header.':');
 		}
 	}
-}
-
-
-/**
- * Glues a URL together
- *
- * @param array $url (e. g. result of parse_url())
- * @return string
- */
-function wrap_glue_url($url) {
-	global $zz_setting;
-	$full_url = $url['scheme'].'://'.$url['host'].$zz_setting['base']
-		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
-	return $full_url;
 }
