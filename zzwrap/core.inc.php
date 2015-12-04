@@ -490,6 +490,29 @@ function wrap_check_redirects($page_url) {
 }
 
 /**
+ * redirect to URL if it's a known error in adding space or quotes to URL
+ * and a corresponding cache file exists
+ *
+ * @param array $page
+ * @param array $url
+ * @return array $page
+ */
+function wrap_check_redirect_from_cache($page, $url) {
+	$redirect_endings = array('%20', ')', '%5C');
+	foreach ($redirect_endings as $ending) {
+		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
+		$url['path'] = substr($url['path'], 0, -strlen($ending));
+		$new_url = wrap_glue_url($url);
+		$filename = wrap_cache_filename('url', $new_url);
+		if (!file_exists($filename)) continue;
+		$page['status'] = 307;
+		$page['redirect'] = $new_url;
+		break;
+	}
+	return $page;
+}
+
+/**
  * Logs URL in URI table for statistics and further reference
  * sends only notices if some update does not work because it's just for the
  * statistics
@@ -642,7 +665,11 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	$page['status'] = $statuscode;
 	if ($statuscode === 404) {
 		$redir = wrap_check_redirects($zz_page['url']);
-		if ($redir) $page['status'] = $redir['code'];
+		if ($redir) {
+			$page['status'] = $redir['code'];
+		} else {
+			$page = wrap_check_redirect_from_cache($page, $zz_page['url']['full']);
+		}
 	}
 
 	// Check redirection code
