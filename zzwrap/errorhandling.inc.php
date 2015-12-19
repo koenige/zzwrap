@@ -16,7 +16,7 @@
 /**
  * error handling: log errors, mail errors, exits script if critical error
  *
- * @param string $msg error message
+ * @param mixed $msg error message (arrays will be JSON-encoded)
  * @param int $error_code E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
@@ -56,6 +56,8 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	// PHP does not support all encodings
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
+
+	if (is_array($msg)) $msg = 'JSON '.json_encode($msg);
 
 	// Log prefix?
 	if (!empty($zz_setting['error_prefix'])) {
