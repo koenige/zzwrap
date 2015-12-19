@@ -268,6 +268,7 @@ function cms_login($params) {
 		$login['username'] = $params[2];
 		if (!empty($params[3])) $login['context'] = $params[3];
 		$login['different_sign_on'] = true;
+		$login['create_missing_user'] = true;
 	} elseif (!empty($params[0])) {
 		return false; // other parameters are not allowed
 	}
