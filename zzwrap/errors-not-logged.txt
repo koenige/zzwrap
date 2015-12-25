@@ -126,6 +126,9 @@
 # but real referer will always include query string
 404	referer	http://www.baidu.com
 
+# The real GoogleBot does not use this referer
+404	referer	http://www.googlebot.com/bot.html
+
 # Trackback-Spam, normally with POST
 404	end	/trackback/
 
