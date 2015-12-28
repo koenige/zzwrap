@@ -31,27 +31,39 @@
 /**
  * convert a string into a different character encoding if necessary
  *
- * @param string $string
+ * @param mixed $data
  * @param string $encoding (optional, if not set, internal encoding is used)
- * @return string
+ * @return mixed
  */
-function wrap_convert_string($string, $encoding = false) {
+function wrap_convert_string($data, $encoding = false) {
 	if (!$encoding) $encoding = mb_internal_encoding();
-	$test_string = $string;
+	if (is_array($data)) {
+		// just support for one dimensional arrays
+		$test_string = implode('', $data);
+	} else {
+		$test_string = $data;
+	}
 	if (substr($test_string, -1) === chr(241)) {
 		$test_string .= 'a'; // PHP bug? Latin1 string ending with n tilde returns UTF-8
 	}
 	// strict mode (last parameter) set to true because function is probably
 	// useless without (see http://php.net/mb_detect_encoding)
 	$detected_encoding = mb_detect_encoding($test_string, mb_detect_order(), true);
-	if ($detected_encoding === $encoding) return $string;
+	if ($detected_encoding === $encoding) return $data;
 	if (substr($detected_encoding, 0, 9) === 'ISO-8859-' AND 
 		substr($encoding, 0, 9) === 'ISO-8859-') {
 		// all ISO character encodings will be seen as ISO-8859-1
 		// @see http://www.php.net/manual/en/function.mb-detect-order.php
-		return $string;
+		return $data;
 	}
-	return mb_convert_encoding($string, $encoding, $detected_encoding);
+	if (!is_array($data)) {
+		$data = mb_convert_encoding($data, $encoding, $detected_encoding);
+	} else {
+		foreach ($data as $index => $line) {
+			$data[$index] = mb_convert_encoding($line, $encoding, $detected_encoding);
+		}
+	}
+	return $data;
 }
 
 /**
