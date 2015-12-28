@@ -122,6 +122,7 @@ function zzwrap() {
 		wrap_quit();
 	}
 	
+	wrap_set_encoding($zz_conf['character_set']);
 	wrap_translate_page();
 	wrap_set_units();
 	if (!empty($_SESSION['logged_in'])) session_write_close();
