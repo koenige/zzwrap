@@ -57,6 +57,7 @@
 404	end	/wp-login.php
 404	all	/xmlrpc.php
 404	all	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
+503	all	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
 404	all	/wp-includes/wlwmanifest.xml
 404	all	/wp-includes/css/buttons.css
 404	end	/wp-admin/admin-ajax.php?action=showbiz_show_image&img=../wp-config.php
@@ -169,3 +170,6 @@
 
 # unknown
 404	end	/resource/UserFollowResource/create/
+
+# Bot which has problems with scrambled e-mail addresses
+404	ua	Mozilla/5.0 (compatible; spbot/4.4.2; +http://OpenLinkProfiler.org/bot )
