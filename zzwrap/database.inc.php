@@ -24,7 +24,7 @@
  *	- wrap_microtime_float()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -345,6 +345,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') {
+	if (!is_array($data)) $data = array($data); // allow single ID
 	// get all IDs that were submitted to the function
 	if ($key_field_name)
 		foreach ($data as $record) $ids[] = $record[$key_field_name];
