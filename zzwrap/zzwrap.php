@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -275,9 +275,6 @@ function wrap_set_defaults_pre_conf() {
 
 	// modules
 	$zz_setting['standard_extensions'][] = 'markdown-extra';
-
-	// Forms
-	$zz_conf['ext_modules']		= array('markdown-extra');
 
 	// Forms: zzform upload module
 	$zz_conf['graphics_library'] = 'imagemagick';

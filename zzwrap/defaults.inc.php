@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -190,8 +190,6 @@ function wrap_set_defaults_post_conf() {
 		}
 	if (empty($zz_conf['dir_custom']))
 		$zz_conf['dir_custom']		= $zz_setting['custom'].'/zzform';
-	if (empty($zz_conf['dir_ext']))
-		$zz_conf['dir_ext']			= $zz_setting['lib'];
 	if (empty($zz_conf['dir_inc']))
 		$zz_conf['dir_inc']			= $zz_conf['dir'];
 	
