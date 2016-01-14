@@ -93,6 +93,7 @@ function wrap_db_connect() {
 		$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
 	}
 	if ($charset) mysql_set_charset($charset);
+	wrap_mysql_mode();
 	return true;
 }
 
@@ -826,4 +827,28 @@ function wrap_db_escape($value) {
 	} else {
 		return addslashes($value);
 	}
+}
+
+/**
+ * Change MySQL mode
+ *
+ * @param void
+ * @global array $zz_setting
+ *		'unwanted_mysql_modes'	
+ */
+function wrap_mysql_mode() {
+	global $zz_setting;
+	if (empty($zz_setting['unwanted_mysql_modes'])) return;
+
+	$sql = 'SELECT @@SESSION.sql_mode';
+	$mode = wrap_db_fetch($sql, '', 'single value');
+	$modes = explode(',', $mode);
+	foreach ($modes as $index => $mode) {
+		if (!in_array($mode, $zz_setting['unwanted_mysql_modes'])) continue;
+		unset($modes[$index]);
+	}
+	$mode = implode(',', $modes);
+	$sql = sprintf("SET SESSION sql_mode = '%s'", $mode);
+	$result = wrap_db_query($sql);
+	return $result;
 }

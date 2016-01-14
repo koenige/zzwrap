@@ -304,12 +304,15 @@ function wrap_set_defaults_pre_conf() {
 	}
 
 // -------------------------------------------------------------------------
-// Database structure
+// Database
 // -------------------------------------------------------------------------
 
 	$zz_conf['prefix']			= ''; // prefix for all database tables
 	$zz_conf['logging']			= true;
 	$zz_conf['logging_id']		= true;
+	$zz_setting['unwanted_mysql_modes'] = array(
+		'NO_ZERO_IN_DATE'
+	);
 
 // -------------------------------------------------------------------------
 // Error Logging
