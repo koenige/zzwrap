@@ -177,3 +177,9 @@
 
 # D-Link Multiple Routers HNAP Protocol Security Bypass Vulnerability
 404	all	/HNAP1/
+
+# Uploadify jQuery plugin for Uploads
+404	end	/uploadify.css
+
+# Unknown
+404	end	/bocadmin/j/custom.js
