@@ -174,3 +174,6 @@
 
 # Bot which has problems with scrambled e-mail addresses
 404	ua	Mozilla/5.0 (compatible; spbot/4.4.2; +http://OpenLinkProfiler.org/bot )
+
+# D-Link Multiple Routers HNAP Protocol Security Bypass Vulnerability
+404	all	/HNAP1/
