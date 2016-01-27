@@ -498,7 +498,7 @@ function wrap_check_redirects($page_url) {
  * @return array $page
  */
 function wrap_check_redirect_from_cache($page, $url) {
-	$redirect_endings = array('%20', ')', '%5C', '%22');
+	$redirect_endings = array('%20', ')', '%5C', '%22', '%3E');
 	foreach ($redirect_endings as $ending) {
 		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
 		$url['path'] = substr($url['path'], 0, -strlen($ending));
