@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -498,7 +498,7 @@ function wrap_check_redirects($page_url) {
  * @return array $page
  */
 function wrap_check_redirect_from_cache($page, $url) {
-	$redirect_endings = array('%20', ')', '%5C');
+	$redirect_endings = array('%20', ')', '%5C', '%22');
 	foreach ($redirect_endings as $ending) {
 		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
 		$url['path'] = substr($url['path'], 0, -strlen($ending));
