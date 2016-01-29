@@ -719,7 +719,6 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
  *
  * @param int $code
  * @return bool true if header was sent, false if not
- * @see zz_http_status_header() (duplicate function)
  */
 function wrap_http_status_header($code) {
 	// Set protocol
