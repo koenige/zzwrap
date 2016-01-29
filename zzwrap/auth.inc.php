@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -706,35 +706,31 @@ function wrap_login_format($field_value, $field_name) {
  * @global array $zz_conf
  *		'hash_password', 'hash_script'
  * @return bool true: given credentials are correct, false: no access!
- * @see zz_passsword_check()
  */
-function wrap_password_check($pass, $hash, $login_id) {
+function wrap_password_check($pass, $hash, $login_id = 0) {
 	global $zz_conf;
 	if (!empty($zz_conf['hash_script']))
 		require_once $zz_conf['hash_script'];
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
-	
+
 	switch ($zz_conf['hash_password']) {
 	case 'phpass':
-		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
-		if ($hasher->CheckPassword($pass, $hash)) return true;
-		return false;
 	case 'phpass-md5':
-		// to transfer old double md5 hashed logins without salt to more secure logins
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
 		if ($hasher->CheckPassword($pass, $hash)) return true;
-		if ($hasher->CheckPassword(md5($pass), $hash)) {
-			// Update existing password
-			require_once $zz_conf['dir'].'/zzform.php';
-			$values['action'] = 'update';
-			$values['POST']['login_id'] = $login_id;
-			$values['POST']['secure_password'] = 'yes';
-			$values['POST'][wrap_sql('password')] = $pass;
-			$ops = zzform_multi('logins', $values);
-			return true;
-		}
-		return false;
+		if ($zz_conf['hash_password'] === 'phpass') return false;
+		if (!$login_id) return false;
+		// to transfer old double md5 hashed logins without salt to more secure logins
+		if (!$hasher->CheckPassword(md5($pass), $hash)) return false;
+		// Update existing password
+		require_once $zz_conf['dir'].'/zzform.php';
+		$values['action'] = 'update';
+		$values['POST']['login_id'] = $login_id;
+		$values['POST']['secure_password'] = 'yes';
+		$values['POST'][wrap_sql('password')] = $pass;
+		$ops = zzform_multi('logins', $values);
+		return true;
 	default:
 		if ($hash === wrap_password_hash($pass)) return true;
 		return false;
