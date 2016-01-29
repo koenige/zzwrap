@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -445,8 +445,9 @@ function wrap_html_escape($string) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
 		default: $character_set = $zz_conf['character_set']; break;
 	}
-	$string = htmlspecialchars($string, ENT_QUOTES, $character_set);
-	return $string;
+	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
+	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
+	return $new_string;
 }
 
 /**
