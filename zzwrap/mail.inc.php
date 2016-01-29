@@ -144,7 +144,6 @@ function wrap_mail_name($name) {
  *
  * @param string $e_mail
  * @return string $e_mail if it's correct, empty string if address is invalid
- * @see zz_check_mail_single
  */
 function wrap_mail_valid($e_mail) {
 	// remove <>-brackets around address
@@ -159,6 +158,7 @@ function wrap_mail_valid($e_mail) {
 	// check if hostname has MX record
 	$host = explode('@', $e_mail);
 	if (count($host) !== 2) return false;
+	// MX record is not obligatory, so use ANY
 	$exists = checkdnsrr($host[1], 'ANY');
 	if (!$exists) return false;
 
