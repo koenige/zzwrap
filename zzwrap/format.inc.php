@@ -481,7 +481,6 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
  * @param int $bytes
  * @param int $precision
  * @return string
- * @see zz_byte_format
  */
 function wrap_bytes($bytes, $precision = 1) { 
     $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB'); 
