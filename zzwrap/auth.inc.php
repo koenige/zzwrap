@@ -745,7 +745,6 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
  *		'hash_password', 'password_salt',
  *		'hash_script', 'hash_cost_log2', 'hash_portable'
  * @return string hash
- * @see zz_passsword_hash()
  */
 function wrap_password_hash($pass) {
 	global $zz_conf;
