@@ -1905,7 +1905,6 @@ function wrap_cache_filename($type = 'url', $url = '') {
  *
  * @param string $val
  * @return int
- * @see zz_return_bytes(), identical
  */
 function wrap_return_bytes($val) {
     $val = trim($val);
