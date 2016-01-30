@@ -812,7 +812,6 @@ function wrap_check_db_connection() {
  *
  * @param string $value
  * @return string escaped $value
- * @see zz_db_escape(), equivalent function in zzform
  */
 function wrap_db_escape($value) {
 	// should never happen, just during development
