@@ -560,3 +560,60 @@ function wrap_bearing($value, $precision = 1) {
     $text .= sprintf('<abbr title="%s">%s</abbr>', $title, $abbr);
 	return $text;
 }
+
+/**
+ * normalizes input to NFC
+ * Canonical normalization
+ *
+ * @param string $input
+ * @return string
+ */
+function wrap_normalize($input) {
+	global $zz_conf;
+	static $replacements;
+
+	if ($zz_conf['character_set'] !== 'utf-8') return $input;
+	if (!$input) return $input;
+	if (is_numeric($input)) return $input;
+	if (!is_string($input)) return $input; // e. g. subrecords
+
+	if (class_exists("Normalizer", $autoload = false)) {
+		$output = normalizer_normalize($input, Normalizer::FORM_C);
+		if (!$output) return $input;
+		return $output;
+	}
+	
+	if (!$replacements) {
+		$replacements = array();
+		$file = __DIR__.'/unicode-normalization.tsv';
+		$handle = fopen($file, 'r');
+		while (!feof($handle)) {
+			$line = fgetcsv($handle, 256, "\t");
+			if (!$line[0]) continue;
+			if (substr($line[0], 0, 1) === '#') continue;
+			$replacements[wrap_hex2chars($line[0])] = wrap_hex2chars($line[3]);
+		}
+	}
+	foreach ($replacements as $search => $replace) {
+		if (!strstr($input, $search)) continue;
+		$input = str_replace($search, $replace, $input);
+	}
+	return $input;
+}
+
+/**
+ * reformat hexadecimal codes to characters
+ * on a byte basis, so resulting characters might be unicode as well
+ * e. g. "c3 84" to "Ä"
+ *
+ * @param string $string hexadecimal codepoints separated by space
+ * @return string
+ */
+function wrap_hex2chars($string) {
+	$codes = explode(' ', $string);
+	$string = '';
+	foreach ($codes as $code) {
+		$string .= chr(hexdec($code));
+	}
+	return $string;
+}
