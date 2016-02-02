@@ -334,6 +334,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
  */
 function wrap_number($number, $format = false) {
 	global $zz_setting;
+	global $zz_conf;
 	if (!$number) return '';
 
 	if (!$format AND isset($zz_setting['number_format']))
@@ -394,6 +395,11 @@ function wrap_number($number, $format = false) {
 				return '';
 			}
 		}
+		return $output;
+	case 'simple':
+		$output = round($number, 1); 
+    	if ($zz_conf['decimal_point'] !== '.')
+    		$output = str_replace('.', $zz_conf['decimal_point'], $output);
 		return $output;
 	default:
 		wrap_error(sprintf(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.'),
