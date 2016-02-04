@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -438,7 +438,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		if (isset($item['ignore'])) continue;
 		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
 		// all pages are below homepage, don't highlight this
-		if ($item['url'] === '/') $page_below = false;
+		if ($item['url'] === $zz_setting['base'].'/') $page_below = false;
 
 		$class = array();
 		if (!$i) $class[] = 'first-child';
