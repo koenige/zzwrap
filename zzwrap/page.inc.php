@@ -219,6 +219,19 @@ function wrap_get_menu($page) {
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title']);
 			// initialize subtitle
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
+			if (isset($item['section'])) {
+				// sections can put spacers inbetween menu items via classes
+				if (!isset($previous_section)) {
+					$previous_section = $item['section'];
+				} elseif ($previous_section !== $item['section']) {
+					if (isset($menu[$id][$nav_id]['class']))
+						$menu[$id][$nav_id]['class'] .= ' ';
+					else
+						$menu[$id][$nav_id]['class'] = '';
+					$menu[$id][$nav_id]['class'] .= 'menuspacer';
+					$previous_section = $item['section'];
+				}
+			}
 		}
 	}
 
