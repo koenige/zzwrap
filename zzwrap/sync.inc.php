@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2011-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2011-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -284,6 +284,7 @@ function wrap_sync_zzform($raw, $import) {
 
 	foreach ($raw as $identifier => $line) {
 		$values = array();
+		$values['POST'] = array();
 		if (count($line) > count($import['fields'])) {
 			// remove whitespace only fields at the end of the line
 			do {
@@ -301,44 +302,25 @@ function wrap_sync_zzform($raw, $import) {
 				}
 			}
 			if (count($line) > count($import['fields'])) {
-				$errors = array_merge($errors, array('too many values: '
-					.wrap_print($error_line).wrap_print($line)));
+				$error_msg = 'too many values:';
 			} else {
-				$errors = array_merge($errors, array('not enough values: '
-					.wrap_print($error_line).wrap_print($line)));
+				$error_msg = 'not enough values:';
 			}
+			$errors = array_merge($errors, array($error_msg.' '
+				.wrap_print($error_line).wrap_print($line)));
 			continue;
 		}
 		foreach ($import['fields'] as $pos => $field_name) {
 			// don't delete field values if ignore_if_null is set
 			if (in_array($pos, $import['ignore_if_null'])
 				AND empty($line[$pos]) AND $line[$pos] !== 0 AND $line[$pos] !== '0') continue;
-			if (strstr($field_name, '[')) {
-				$fields = explode('[', $field_name);
-				foreach ($fields as $index => $field) {
-					if (!$index) continue;
-					$fields[$index] = substr($field, 0, -1);
-				}
-				if (count($fields === 3)) {
-					$values['POST'][$fields[0]][$fields[1]][$fields[2]] = trim($line[$pos]);
-				}
-			} elseif (isset($line[$pos])) {
-				$values['POST'][$field_name] = trim($line[$pos]);
-			}
 			// do nothing if value is NULL
+			if (!isset($line[$pos])) continue;
+			$values['POST'] = wrap_sync_values($values['POST'], $field_name, trim($line[$pos]));
 		}
-		// static values which will be imported
+		// static values to import
 		foreach ($import['static'] as $field_name => $value) {
-			if (strstr($field_name, '[')) {
-				$field_name = explode('[', $field_name);
-				foreach ($field_name as $index => $fname) {
-					$field_name[$index] = trim($fname, ']');
-				}
-				$values['POST'][$field_name[0]][$field_name[1]][$field_name[2]]
-					= $value;
-			} else {
-				$values['POST'][$field_name] = $value;
-			}
+			$values['POST'] = wrap_sync_values($values['POST'], $field_name, $value);
 		}
 		if (!empty($ids[$identifier])) {
 			$values['action'] = 'update';
@@ -372,4 +354,29 @@ function wrap_sync_zzform($raw, $import) {
 		}
 	}
 	return array($updated, $inserted, $nothing, $errors, $testing);
+}
+
+/**
+ * reformat hierarchical field names to array
+ * table_name[0][field_name]
+ *
+ * @param array $post
+ * @param string $field_name
+ * @param string $value
+ * @return array
+ */
+function wrap_sync_values($post, $field_name, $value) {
+	if (strstr($field_name, '[')) {
+		$fields = explode('[', $field_name);
+		foreach ($fields as $index => $field) {
+			if (!$index) continue;
+			$fields[$index] = trim($field, ']');
+		}
+		if (count($fields === 3)) {
+			$post[$fields[0]][$fields[1]][$fields[2]] = $value;
+		}
+	} else {
+		$post[$field_name] = $value;
+	}
+	return $post;
 }
