@@ -296,7 +296,8 @@ function wrap_set_defaults_pre_conf() {
 	// functions that might be used for formatting (zzbrick)
 	$zz_setting['brick_formatting_functions'] = array(
 		'markdown', 'wrap_date', 'rawurlencode', 'wordwrap', 'nl2br',
-		'htmlspecialchars', 'wrap_html_escape'
+		'htmlspecialchars', 'wrap_html_escape', 'wrap_latitude',
+		'wrap_longitude'
 	);
 
 	if (!$zz_setting['local_access']) {

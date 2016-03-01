@@ -568,6 +568,32 @@ function wrap_bearing($value, $precision = 1) {
 }
 
 /**
+ * format a geographical coordinate (latitude)
+ * 
+ * @param double $value
+ * @return string
+ */
+function wrap_latitude($value) {
+	global $zz_conf;
+	if (!file_exists($zz_conf['dir'].'/geo.inc.php')) return $value; // @todo
+	require_once $zz_conf['dir'].'/geo.inc.php';
+	return zz_geo_coord_out($value, 'lat', 'dms');
+}
+
+/**
+ * format a geographical coordinate (longitude)
+ * 
+ * @param double $value
+ * @return string
+ */
+function wrap_longitude($value) {
+	global $zz_conf;
+	if (!file_exists($zz_conf['dir'].'/geo.inc.php')) return $value; // @todo
+	require_once $zz_conf['dir'].'/geo.inc.php';
+	return zz_geo_coord_out($value, 'lon', 'dms');
+}
+
+/**
  * normalizes input to NFC
  * Canonical normalization
  *
