@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -131,10 +131,12 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			if (count($object) == 1 AND isset($object[0]))
 				$object = $object[0];
 		}
-		if ($last_modified AND is_array($object)) {
-			$object['_']['Last-Modified'] = $last_modified;
+		if (is_array($object)) {
+			if ($last_modified) {
+				$object['_']['Last-Modified'] = $last_modified;
+			}
+			$object['_']['type'] = 'json';
 		}
-		$object['_']['type'] = 'json';
 		return $object;
 	default:
 		$object = array();
