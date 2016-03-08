@@ -188,3 +188,6 @@
 
 # Unknown
 404	end	/bocadmin/j/custom.js
+
+# Uploadify
+404	end	/uploadify/uploadify.swf
