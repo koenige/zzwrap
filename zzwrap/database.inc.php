@@ -531,23 +531,54 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
  * 		WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ...
  * @param string $values new value for e. g. WHERE ...
  * @param string $mode Mode, 'add' adds new values while keeping the old ones, 
- *		'replace' replaces all old values
+ *		'replace' replaces all old values, 'list' returns existing values
+ *		'delete' deletes values
  * @return string $sql modified SQL query
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_edit_sql()
  */
 function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
+	if (substr(trim($sql), 0, 4) === 'SHOW' AND $n_part === 'LIMIT') {
+	// LIMIT, WHERE etc. is only allowed with SHOW
+	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
+		return $sql;
+	}
+	if (substr(trim($sql), 0, 14) === 'SHOW DATABASES' AND $n_part === 'WHERE') {
+		// this is impossible and will automatically trigger an error
+		return false; 
+		// @todo implement LIKE here.
+	}
+
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
-	$statements_desc = array('LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'FROM', 'SELECT DISTINCT', 'SELECT');
+	$statements_desc = array(
+		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'JOIN',
+		'FORCE INDEX', 'FROM', 'SELECT DISTINCT', 'SELECT'
+	);
 	foreach ($statements_desc as $statement) {
+		// add whitespace in between brackets and statements to make life easier
+		$sql = str_replace(')'.$statement.' ', ') '.$statement.' ', $sql);
+		$sql = str_replace(')'.$statement.'(', ') '.$statement.' (', $sql);
+		$sql = str_replace(' '.$statement.'(', ' '.$statement.' (', $sql);
+		// check for statements
 		$explodes = explode(' '.$statement.' ', $sql);
 		if (count($explodes) > 1) {
-		// = look only for last statement
-		// and put remaining query in [1] and cut off part in [2]
-			$o_parts[$statement][2] = array_pop($explodes);
-			$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; // last blank needed for exploding SELECT from DISTINCT
+			if ($statement === 'JOIN') {
+				$o_parts[$statement][1] = array_shift($explodes);
+				$last_keyword = explode(' ', $o_parts[$statement][1]);
+				$last_keyword = array_pop($last_keyword);
+				$o_parts[$statement][2] = $statement.' '.implode(' '.$statement.' ', $explodes);
+				if (in_array($last_keyword, array('LEFT', 'RIGHT', 'OUTER', 'INNER'))) {
+					$o_parts[$statement][2] = $last_keyword.' '.$o_parts[$statement][2];
+					$o_parts[$statement][1] = substr($o_parts[$statement][1], 0, -strlen($last_keyword) - 1);
+				}
+			} else {
+				// = look only for last statement
+				// and put remaining query in [1] and cut off part in [2]
+				$o_parts[$statement][2] = array_pop($explodes);
+				// last blank needed for exploding SELECT from DISTINCT
+				$o_parts[$statement][1] = implode(' '.$statement.' ', $explodes).' '; 
+			}
 		}
 		$search = '/(.+) '.$statement.' (.+?)$/i'; 
 //		preg_match removed because it takes way too long if nothing is found
@@ -595,59 +626,104 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			}
 		}
 	}
-	if ($n_part && $values) {
+	if (($n_part && $values) OR $mode === 'list') {
 		$n_part = strtoupper($n_part);
 		switch ($n_part) {
-			case 'LIMIT':
-				// replace complete old LIMIT with new LIMIT
-				$o_parts['LIMIT'][2] = $values;
+		case 'LIMIT':
+			// replace complete old LIMIT with new LIMIT
+			$o_parts['LIMIT'][2] = $values;
 			break;
-			case 'ORDER BY':
-				if ($mode === 'add') {
-					// append old ORDER BY to new ORDER BY
-					if (!empty($o_parts['ORDER BY'][2])) 
-						$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
-					else
-						$o_parts['ORDER BY'][2] = $values;
-				} elseif ($mode === 'delete') {
-					unset($o_parts['ORDER BY']);
+		case 'ORDER BY':
+			if ($mode === 'add') {
+				// append old ORDER BY to new ORDER BY
+				if (!empty($o_parts['ORDER BY'][2])) 
+					$o_parts['ORDER BY'][2] = $values.', '.$o_parts['ORDER BY'][2];
+				else
+					$o_parts['ORDER BY'][2] = $values;
+			} elseif ($mode === 'delete') {
+				unset($o_parts['ORDER BY']);
+			}
+			break;
+		case 'WHERE':
+		case 'GROUP BY':
+		case 'HAVING':
+			if ($mode === 'add') {
+				if (!empty($o_parts[$n_part][2])) 
+					$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
+				else 
+					$o_parts[$n_part][2] = $values;
+			}  elseif ($mode === 'delete') {
+				unset($o_parts[$n_part]);
+			}
+			break;
+		case 'JOIN':
+			if ($mode === 'delete') {
+				// don't remove JOIN in case of WHERE, HAVING OR GROUP BY
+				// SELECT and ORDER BY should be removed beforehands!
+				// use at your own risk
+				if (isset($o_parts['WHERE'])) break;
+				if (isset($o_parts['HAVING'])) break;
+				if (isset($o_parts['GROUP BY'])) break;
+				unset($o_parts['JOIN']);
+			} elseif ($mode === 'add') {
+				// add is only possible with correct JOIN statement in $values
+				$o_parts[$n_part][2] .= ' '.$values;
+			} elseif ($mode === 'replace') {
+				// replace is only possible with correct JOIN statement in $values
+				$o_parts[$n_part][2] = $values;
+			}
+			break;
+		case 'FROM':
+			if ($mode === 'list') {
+				$tables = array();
+				$tables[] = $o_parts['FROM'][2];
+				if (isset($o_parts['JOIN']) AND stristr($o_parts['JOIN'][2], 'JOIN')) {
+					$test = explode('JOIN', $o_parts['JOIN'][2]);
+					for ($i = 0; $i < count($test); $i++) {
+						if (!$i & 1) continue;
+						$table = explode(' ', trim($test[$i]));
+						$tables[] = $table[0];
+					}
 				}
+			}
 			break;
-			case 'WHERE':
-			case 'GROUP BY':
-			case 'HAVING':
-				if ($mode === 'add') {
-					if (!empty($o_parts[$n_part][2])) 
-						$o_parts[$n_part][2] = '('.$o_parts[$n_part][2].') AND ('.$values.')';
-					else 
-						$o_parts[$n_part][2] = $values;
-				}  elseif ($mode === 'delete') {
-					unset($o_parts[$n_part]);
-				}
+		case 'SELECT':
+			if (!empty($o_parts['SELECT DISTINCT'][2])) {
+				if ($mode === 'add')
+					$o_parts['SELECT DISTINCT'][2] .= ','.$values;
+				elseif ($mode === 'replace')
+					$o_parts['SELECT DISTINCT'][2] = $values;
+			} else {
+				if ($mode === 'add')
+					$o_parts['SELECT'][2] = ','.$values;
+				elseif ($mode === 'replace')
+					$o_parts['SELECT'][2] = $values;
+			}
 			break;
-			case 'SELECT':
-				if (!empty($o_parts['SELECT DISTINCT'][2])) {
-					if ($mode === 'add')
-						$o_parts['SELECT DISTINCT'][2] .= ','.$values;
-					elseif ($mode === 'replace')
-						$o_parts['SELECT DISTINCT'][2] = $values;
-				} else {
-					if ($mode === 'add')
-						$o_parts['SELECT'][2] = ','.$values;
-					elseif ($mode === 'replace')
-						$o_parts['SELECT'][2] = $values;
-				}
+		case 'FORCE INDEX':
+			if ($mode === 'delete') unset($o_parts[$n_part]);
 			break;
-			default:
-				echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
-				exit;
-			break;
+		default:
+			echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
+			exit;
 		}
+	}
+	if ($mode === 'list') {
+		if (!isset($tables)) return zz_return(array());
+		foreach (array_keys($tables) as $index) {
+			$tables[$index] = trim($tables[$index]);
+			if (strstr($tables[$index], ' ')) {
+				$tables[$index] = trim(substr($tables[$index], 0, strpos($tables[$index], ' ')));
+			}
+		}
+		return zz_return($tables);
 	}
 	$statements_asc = array_reverse($statements_desc);
 	foreach ($statements_asc as $statement) {
-		if (!empty($o_parts[$statement][2])) 
-			$sql.= ' '.$statement.' '.$o_parts[$statement][2];
+		if (!empty($o_parts[$statement][2])) {
+			$keyword = $statement === 'JOIN' ? '' : $statement;
+			$sql .= ' '.$keyword.' '.$o_parts[$statement][2];
+		}
 	}
 	return $sql;
 }
