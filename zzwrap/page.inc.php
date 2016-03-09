@@ -820,7 +820,7 @@ function wrap_get_page() {
 	global $zz_page;
 	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 
-	if (!empty($_POST['httpRequest'])) {
+	if (!empty($_POST['httpRequest']) AND $_POST['httpRequest'] !== 'zzform') {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
 	} else {
 		$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
