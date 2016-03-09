@@ -709,14 +709,14 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		}
 	}
 	if ($mode === 'list') {
-		if (!isset($tables)) return zz_return(array());
+		if (!isset($tables)) return array();
 		foreach (array_keys($tables) as $index) {
 			$tables[$index] = trim($tables[$index]);
 			if (strstr($tables[$index], ' ')) {
 				$tables[$index] = trim(substr($tables[$index], 0, strpos($tables[$index], ' ')));
 			}
 		}
-		return zz_return($tables);
+		return $tables;
 	}
 	$statements_asc = array_reverse($statements_desc);
 	foreach ($statements_asc as $statement) {
