@@ -739,9 +739,6 @@ function wrap_edit_sql_fieldlist($fields) {
 		$field = trim($field);
 		if ($append_next) {
 			$fields[$append_next] .= ', '.$field;
-			if ($pos = strpos($fields[$append_next], ' AS ')) {
-				$fields[$append_next] = substr($fields[$append_next], 0, $pos);
-			}
 			if (strpos($field, ')')) $append_next = false;
 			unset($fields[$index]);
 		} else {
@@ -749,6 +746,12 @@ function wrap_edit_sql_fieldlist($fields) {
 		}
 		if (strpos($field, '(')) {
 			$append_next = $index;
+		}
+	}
+	$fields = array_values($fields);
+	foreach ($fields as $index => $field) {
+		if ($pos = strpos($field, ' AS ')) {
+			$fields[$index] = substr($field, 0, $pos);
 		}
 	}
 	return $fields;
