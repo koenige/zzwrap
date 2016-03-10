@@ -735,17 +735,22 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 function wrap_edit_sql_fieldlist($fields) {
 	$fields = explode(',', $fields);
 	$append_next = false;
+	$open = 0;
 	foreach ($fields as $index => $field) {
 		$field = trim($field);
 		if ($append_next) {
 			$fields[$append_next] .= ', '.$field;
-			if (strpos($field, ')')) $append_next = false;
+			if ($count = substr_count($field, ')')) {
+				if ($open) $open -= $count;
+				else $append_next = false;
+			}
 			unset($fields[$index]);
 		} else {
 			$fields[$index] = $field;
 		}
-		if (strpos($field, '(')) {
-			$append_next = $index;
+		if ($count = substr_count($field, '(')) {
+			if ($append_next) $open += $count;
+			else $append_next = $index;
 		}
 	}
 	$fields = array_values($fields);
