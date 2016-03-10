@@ -676,13 +676,13 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		case 'FROM':
 			if ($mode === 'list') {
 				$tokens = array();
-				$tokens[] = $o_parts['FROM'][2];
+				$tokens[] = wrap_edit_sql_tablenames($o_parts['FROM'][2]);
 				if (isset($o_parts['JOIN']) AND stristr($o_parts['JOIN'][2], 'JOIN')) {
 					$test = explode('JOIN', $o_parts['JOIN'][2]);
 					for ($i = 0; $i < count($test); $i++) {
 						if (!$i & 1) continue;
 						$table = explode(' ', trim($test[$i]));
-						$tokens[] = $table[0];
+						$tokens[] = wrap_edit_sql_tablenames($table[0]);
 					}
 				}
 			}
@@ -694,14 +694,14 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				elseif ($mode === 'replace')
 					$o_parts['SELECT DISTINCT'][2] = $values;
 				elseif ($mode === 'list')
-					$tokens = explode(',', $o_parts['SELECT DISTINCT'][2]);
+					$tokens = wrap_edit_sql_fieldlist($o_parts['SELECT DISTINCT'][2]);
 			} else {
 				if ($mode === 'add')
 					$o_parts['SELECT'][2] = ','.$values;
 				elseif ($mode === 'replace')
 					$o_parts['SELECT'][2] = $values;
 				elseif ($mode === 'list')
-					$tokens = explode(',', $o_parts['SELECT'][2]);
+					$tokens = wrap_edit_sql_fieldlist($o_parts['SELECT'][2]);
 			}
 			break;
 		case 'FORCE INDEX':
@@ -714,12 +714,6 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	}
 	if ($mode === 'list') {
 		if (!isset($tokens)) return array();
-		foreach (array_keys($tokens) as $index) {
-			$tokens[$index] = trim($tokens[$index]);
-			if (strstr($tokens[$index], ' ')) {
-				$tokens[$index] = trim(substr($tokens[$index], 0, strpos($tokens[$index], ' ')));
-			}
-		}
 		return $tokens;
 	}
 	$statements_asc = array_reverse($statements_desc);
@@ -730,6 +724,50 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		}
 	}
 	return $sql;
+}
+
+/**
+ * put a list of fields in an SQL query into an array of fields
+ *
+ * @param string $fields part after SELECT and before FROM
+ * @return array
+ */
+function wrap_edit_sql_fieldlist($fields) {
+	$fields = explode(',', $fields);
+	$append_next = false;
+	foreach ($fields as $index => $field) {
+		$field = trim($field);
+		if ($append_next) {
+			$fields[$append_next] .= ', '.$field;
+			if ($pos = strpos($fields[$append_next], ' AS ')) {
+				$fields[$append_next] = substr($fields[$append_next], 0, $pos);
+			}
+			if (strpos($field, ')')) $append_next = false;
+			unset($fields[$index]);
+		} else {
+			$fields[$index] = $field;
+		}
+		if (strpos($field, '(')) {
+			$append_next = $index;
+		}
+	}
+	return $fields;
+}
+
+
+/**
+ * get a clean table name without spaces and AS
+ *
+ * @param string $table 'raw' name of table
+ * @return string
+ */
+function wrap_edit_sql_tablenames($table) {
+	$table = trim($table);
+	if (strstr($table, ' ')) {
+		// remove AS ...
+		$table = trim(substr($table, 0, strpos($table, ' ')));
+	}
+	return $table;
 }
 
 /**
