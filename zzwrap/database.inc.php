@@ -524,7 +524,6 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
  * might get problems with backticks that mark fieldname that is equal with SQL 
  * keyword
  * mode = add until now default, mode = replace is only implemented for SELECT
- * identical to zz_edit_sql()!
  * @param string $sql original SQL query
  * @param string $n_part SQL keyword for part shall be edited or replaced
  *		SELECT ... FROM ... JOIN ...
@@ -533,8 +532,9 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
  * @param string $mode Mode, 'add' adds new values while keeping the old ones, 
  *		'replace' replaces all old values, 'list' returns existing values
  *		'delete' deletes values
- * @return string $sql modified SQL query
- * @see zz_edit_sql()
+ * @return mixed
+ *		string $sql modified SQL query
+ *		array $tokens list of fields if in list mode
  */
 function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	if (substr(trim($sql), 0, 4) === 'SHOW' AND $n_part === 'LIMIT') {
@@ -675,14 +675,14 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			break;
 		case 'FROM':
 			if ($mode === 'list') {
-				$tables = array();
-				$tables[] = $o_parts['FROM'][2];
+				$tokens = array();
+				$tokens[] = $o_parts['FROM'][2];
 				if (isset($o_parts['JOIN']) AND stristr($o_parts['JOIN'][2], 'JOIN')) {
 					$test = explode('JOIN', $o_parts['JOIN'][2]);
 					for ($i = 0; $i < count($test); $i++) {
 						if (!$i & 1) continue;
 						$table = explode(' ', trim($test[$i]));
-						$tables[] = $table[0];
+						$tokens[] = $table[0];
 					}
 				}
 			}
@@ -693,30 +693,34 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 					$o_parts['SELECT DISTINCT'][2] .= ','.$values;
 				elseif ($mode === 'replace')
 					$o_parts['SELECT DISTINCT'][2] = $values;
+				elseif ($mode === 'list')
+					$tokens = explode(',', $o_parts['SELECT DISTINCT'][2]);
 			} else {
 				if ($mode === 'add')
 					$o_parts['SELECT'][2] = ','.$values;
 				elseif ($mode === 'replace')
 					$o_parts['SELECT'][2] = $values;
+				elseif ($mode === 'list')
+					$tokens = explode(',', $o_parts['SELECT'][2]);
 			}
 			break;
 		case 'FORCE INDEX':
 			if ($mode === 'delete') unset($o_parts[$n_part]);
 			break;
 		default:
-			echo 'The variable <code>'.$n_part.'</code> is not supported by zz_edit_sql().';
+			echo 'The variable <code>'.$n_part.'</code> is not supported by '.__FUNCTION__.'().';
 			exit;
 		}
 	}
 	if ($mode === 'list') {
-		if (!isset($tables)) return array();
-		foreach (array_keys($tables) as $index) {
-			$tables[$index] = trim($tables[$index]);
-			if (strstr($tables[$index], ' ')) {
-				$tables[$index] = trim(substr($tables[$index], 0, strpos($tables[$index], ' ')));
+		if (!isset($tokens)) return array();
+		foreach (array_keys($tokens) as $index) {
+			$tokens[$index] = trim($tokens[$index]);
+			if (strstr($tokens[$index], ' ')) {
+				$tokens[$index] = trim(substr($tokens[$index], 0, strpos($tokens[$index], ' ')));
 			}
 		}
-		return $tables;
+		return $tokens;
 	}
 	$statements_asc = array_reverse($statements_desc);
 	foreach ($statements_asc as $statement) {
