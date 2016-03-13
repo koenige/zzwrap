@@ -826,6 +826,11 @@ function wrap_get_page() {
 
 	if (!empty($_POST['httpRequest']) AND $_POST['httpRequest'] !== 'zzform') {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
+	} elseif (array_key_exists('tpl_file', $zz_page)) {
+		$page['text'] = wrap_template($zz_page['tpl_file'], $zz_conf + $zz_setting);
+		$page['content_type'] = wrap_file_extension($zz_page['tpl_file']);
+		$zz_conf['character_set'] = wrap_detect_encoding($page['text']);
+		$page['status'] = 200;
 	} else {
 		$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
 	}

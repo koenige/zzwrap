@@ -224,10 +224,24 @@ function wrap_look_for_file($url_path) {
 		$module = array_shift($url_path);
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$zz_setting['modules_dir'], $module, $path, implode('/', $url_path));
+		if (in_array($ext = wrap_file_extension($file['name']), array('css'))) {
+			return $file['name'];
+		}
 		$file['etag_generate_md5'] = true;
 		wrap_file_send($file);
 	}
 	return false;
+}
+
+/**
+ * get file extension by filename
+ *
+ * @param string $filename
+ * @return string
+ */
+function wrap_file_extension($file) {
+	$file = explode('.', $file);
+	return array_pop($file);
 }
 
 /**

@@ -118,8 +118,8 @@ function zzwrap() {
 	// on error exit, after all files are included, check redirects
 	// Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
 	if (!$zz_page['db']) {
-		wrap_look_for_file($zz_page['url']['full']['path']);
-		wrap_quit();
+		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
+		if (!$zz_page['tpl_file']) wrap_quit();
 	}
 	
 	wrap_set_encoding($zz_conf['character_set']);
@@ -129,7 +129,7 @@ function zzwrap() {
 	$page = wrap_get_page();
 	
 	// output of content if not already sent by wrap_get_page()
-	if ($zz_setting['brick_page_templates'] == true) {
+	if ($zz_setting['brick_page_templates'] === true) {
 		wrap_htmlout_page($page);
 	} else {
 		wrap_htmlout_page_without_templates($page);
@@ -233,12 +233,12 @@ function wrap_set_defaults_pre_conf() {
 		$zz_setting['hostname'] = substr($zz_setting['hostname'], 0, -1);
 	// in case, somebody's doing a CONNECT or something similar, use some default
 	if (empty($zz_setting['hostname'])) 
-		$zz_setting['hostname'] == 'www.example.org';
+		$zz_setting['hostname'] === 'www.example.org';
 	// make hostname lowercase to avoid duplicating caches
 	$zz_setting['hostname'] = strtolower($zz_setting['hostname']);
 
 	// check if it's a local development server
-	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) == '.local') ? true : false;
+	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) === '.local') ? true : false;
 
 	// base URL, e. g. for languages
 	$zz_setting['base'] = '';
