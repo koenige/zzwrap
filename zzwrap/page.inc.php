@@ -37,7 +37,11 @@
 function wrap_template($template, $data = array(), $mode = false) {
 	global $zz_setting;
 
-	$tpl_file = wrap_template_file($template);
+	if (substr($template, 0, 1) === '/' AND file_exists($template)) {
+		$tpl_file = $template;
+	} else {
+		$tpl_file = wrap_template_file($template);
+	}
 	$zz_setting['current_template'] = $template;
 	$template = file($tpl_file);
 	// remove comments and next empty line from the start
