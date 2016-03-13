@@ -742,15 +742,15 @@ function wrap_edit_sql_fieldlist($fields) {
 			$fields[$append_next] .= ', '.$field;
 			if ($count = substr_count($field, ')')) {
 				if ($open) $open -= $count;
-				else $append_next = false;
+				if (!$open) $append_next = false;
 			}
 			unset($fields[$index]);
 		} else {
 			$fields[$index] = $field;
 		}
 		if ($count = substr_count($field, '(')) {
-			if ($append_next) $open += $count;
-			else $append_next = $index;
+			$open += $count;
+			if (!$append_next) $append_next = $index;
 		}
 	}
 	$fields = array_values($fields);
