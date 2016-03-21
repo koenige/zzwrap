@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -380,6 +380,12 @@ function wrap_errorpage_log($status, $page) {
 			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 		if ($_SERVER['HTTP_REFERER'] === $requested_server) return false;
 		if (str_replace('//', '//www.', $_SERVER['HTTP_REFERER']) === $requested_server) return false;
+		// redirect from IP because someone is looking for bugs with IP only
+		// only if virtual host has its own IP
+		$full_url = $zz_page['url']['full'];
+		$full_url['host'] = $_SERVER['SERVER_ADDR'].':'.$_SERVER['SERVER_PORT'];
+		$requested_with_ip = wrap_glue_url($full_url);
+		if ($_SERVER['HTTP_REFERER'] === $requested_with_ip) return false;
 		// http:// is so uncool ...
 		if ('http://'.$_SERVER['HTTP_REFERER'] === $requested) return false;
 		if ('https://'.$_SERVER['HTTP_REFERER'] === $requested) return false;
