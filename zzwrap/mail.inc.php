@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2014 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -40,7 +40,7 @@ function wrap_mail($mail) {
 	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', $zz_setting['mail_header_eol']);
 
 	// Signature?
-	if (wrap_template_file('signature-mail', false)) {
+	if (!empty($zz_setting['mail_with_signature']) AND wrap_template_file('signature-mail', false)) {
 		$mail['message'] .= "\r\n".wrap_template('signature-mail');
 	}
 

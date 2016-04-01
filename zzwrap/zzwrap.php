@@ -316,7 +316,7 @@ function wrap_set_defaults_pre_conf() {
 	);
 
 // -------------------------------------------------------------------------
-// Error Logging
+// Error Logging, Mail
 // -------------------------------------------------------------------------
 
 	$zz_conf['error_mail_level'] = array('error', 'warning');
@@ -328,6 +328,7 @@ function wrap_set_defaults_pre_conf() {
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
 	}
+	$zz_setting['mail_with_signature'] = true;
 
 // -------------------------------------------------------------------------
 // Authentication
