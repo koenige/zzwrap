@@ -345,7 +345,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 function wrap_number($number, $format = false) {
 	global $zz_setting;
 	global $zz_conf;
-	if (!$number) return '';
+	if (!$number AND $number !== '0' AND $number !== 0) return '';
 
 	if (!$format AND isset($zz_setting['number_format']))
 		$format = $zz_setting['number_format'];
@@ -407,9 +407,11 @@ function wrap_number($number, $format = false) {
 		}
 		return $output;
 	case 'simple':
-		$output = round($number, 1); 
-    	if ($zz_conf['decimal_point'] !== '.')
-    		$output = str_replace('.', $zz_conf['decimal_point'], $output);
+		if (strstr($number, '.')) {
+			$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+		} else {
+			$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+		}
 		return $output;
 	default:
 		wrap_error(sprintf(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.'),
@@ -419,10 +421,25 @@ function wrap_number($number, $format = false) {
 }
 
 /**
+ * returns percentage with one decimal place
+ *
+ * @param double $number
+ * @return string
+ */
+function wrap_percent($number) {
+	global $zz_conf;
+	$number *= 100;
+	$number = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+	$number .= '&nbsp;%';
+	return $number;
+}
+
+/**
  * returns own money_format
  *
  * @param double $number
  * @param string $format (optional)
+ * @return string
  * @todo read default format from settings, as in wrap_number()
  */
 function wrap_money($number, $format = false) {
