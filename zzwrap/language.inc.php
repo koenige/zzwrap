@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2015 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -645,7 +645,11 @@ function wrap_set_units() {
 		case 'es':
 		case 'pl':
 		case 'cs':
-			$zz_conf['thousands_separator'] = ' ';
+			if (version_compare(PHP_VERSION, '5.4.0', '>=') AND $zz_conf['character_set'] === 'utf-8') {
+				$zz_conf['thousands_separator'] = "\xC2\xA0"; // non-breaking space
+			} else {
+				$zz_conf['thousands_separator'] = ' ';
+			}
 			break;
 		default:
 			$zz_conf['thousands_separator'] = ',';
