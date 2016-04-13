@@ -642,6 +642,10 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 					$o_parts['ORDER BY'][2] = $values;
 			} elseif ($mode === 'delete') {
 				unset($o_parts['ORDER BY']);
+			} elseif ($mode === 'list') {
+				if (!empty($o_parts['ORDER BY'][2])) {
+					$tokens = wrap_edit_sql_fieldnames($o_parts['ORDER BY'][2]);
+				}
 			}
 			break;
 		case 'WHERE':
@@ -779,6 +783,27 @@ function wrap_edit_sql_tablenames($table) {
 		$table = trim(substr($table, 0, strpos($table, ' ')));
 	}
 	return $table;
+}
+
+/**
+ * get a list of fields from SQL query
+ * remove sort order
+ *
+ * @param mixed $fields (array = list of fields, string = fields concatenated with ,)
+ * @return array
+ */
+function wrap_edit_sql_fieldnames($fields) {
+	if (!is_array($fields)) {
+		$fields = trim($fields);
+		$fields = explode(',', $fields);
+	}
+	foreach ($fields as $index => $value) {
+		$value = trim($value);
+		if (substr($value, -4) === ' ASC') $value = substr($value, 0, -4);
+		elseif (substr($value, -5) === ' DESC') $value = substr($value, 0, -5);
+		$fields[$index] = $value;
+	}
+	return $fields;
 }
 
 /**
