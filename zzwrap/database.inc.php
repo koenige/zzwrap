@@ -742,9 +742,13 @@ function wrap_edit_sql_fieldlist($fields) {
 	$open = 0;
 	foreach ($fields as $index => $field) {
 		$field = trim($field);
+		$count_close = substr_count($field, '(');
+		$count_open = substr_count($field, ')');
+		$count = $count_open - $count_close;
+		
 		if ($append_next) {
 			$fields[$append_next] .= ', '.$field;
-			if ($count = substr_count($field, ')')) {
+			if ($count > 0) {
 				if ($open) $open -= $count;
 				if (!$open) $append_next = false;
 			}
@@ -752,8 +756,8 @@ function wrap_edit_sql_fieldlist($fields) {
 		} else {
 			$fields[$index] = $field;
 		}
-		if ($count = substr_count($field, '(')) {
-			$open += $count;
+		if ($count < 0) {
+			$open -= $count;
 			if (!$append_next) $append_next = $index;
 		}
 	}
