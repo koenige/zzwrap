@@ -787,7 +787,7 @@ function wrap_edit_sql_tablenames($table) {
 
 /**
  * get a list of fields from SQL query
- * remove sort order
+ * remove sort order ASC, DESC, remove IFNULL()
  *
  * @param mixed $fields (array = list of fields, string = fields concatenated with ,)
  * @return array
@@ -799,8 +799,10 @@ function wrap_edit_sql_fieldnames($fields) {
 	}
 	foreach ($fields as $index => $value) {
 		$value = trim($value);
-		if (substr($value, -4) === ' ASC') $value = substr($value, 0, -4);
+		if (substr($value, 0, 7) === 'IFNULL(') $value = substr($value, 7);
+		elseif (substr($value, -4) === ' ASC') $value = substr($value, 0, -4);
 		elseif (substr($value, -5) === ' DESC') $value = substr($value, 0, -5);
+		if (substr($value, -1) === ')') $value = substr($value, 0, -1);
 		$fields[$index] = $value;
 	}
 	return $fields;
