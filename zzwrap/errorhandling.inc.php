@@ -362,33 +362,7 @@ function wrap_errorpage_log($status, $page) {
 		wrap_error($msg, E_USER_ERROR, $settings);
 		break;
 	case 404:
-		// access without REFERER will be ignored (may be typo, ...)
-		if (!isset($_SERVER['HTTP_REFERER'])) return false;
-		if (!trim($_SERVER['HTTP_REFERER'])) return false;
-		// access without USER_AGENT will be ignored, badly programmed script
-		if (empty($_SERVER['HTTP_USER_AGENT'])) return false;
-		// access from the same existing page to this page nonexisting
-		// is impossible (there are some special circumstances, e. g. a 
-		// script behaves differently the next time it was uploaded, but we
-		// ignore these), bad programmed script
-		global $zz_page;
-		// internal URI (language code may be added / removed etc.)
-		$requested = wrap_glue_url($zz_page['url']['full']);
-		if ($_SERVER['HTTP_REFERER'] === $requested) return false;
-		// requested URI
-		$requested_server = $zz_page['url']['full']['scheme'].'://'
-			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-		if ($_SERVER['HTTP_REFERER'] === $requested_server) return false;
-		if (str_replace('//', '//www.', $_SERVER['HTTP_REFERER']) === $requested_server) return false;
-		// redirect from IP because someone is looking for bugs with IP only
-		// only if virtual host has its own IP
-		$requested_with_ip = $zz_page['url']['full']['scheme'].'://'
-			.$_SERVER['SERVER_ADDR'].':'.$_SERVER['SERVER_PORT'].$_SERVER['REQUEST_URI'];
-		if ($_SERVER['HTTP_REFERER'] === $requested_with_ip) return false;
-		// http:// is so uncool ...
-		if ('http://'.$_SERVER['HTTP_REFERER'] === $requested) return false;
-		if ('https://'.$_SERVER['HTTP_REFERER'] === $requested) return false;
-		// own error message!
+		if (wrap_errorpage_logignore()) return false;
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested_server, 
@@ -505,5 +479,48 @@ function wrap_errorpage_ignore($status) {
 			}
 		}
 	}
+	return false;
+}
+
+/**
+ * determine whether to log an error
+ *
+ * @param void
+ * @return bool true: do not log
+ */
+function wrap_errorpage_logignore() {
+	global $zz_page;
+
+	// access without REFERER will be ignored (may be typo, ...)
+	if (!isset($_SERVER['HTTP_REFERER'])) return true;
+	if (!trim($_SERVER['HTTP_REFERER'])) return true;
+
+	// access without USER_AGENT will be ignored, badly programmed script
+	if (empty($_SERVER['HTTP_USER_AGENT'])) return true;
+
+	// access from the same existing page to this page nonexisting
+	// is impossible (there are some special circumstances, e. g. a 
+	// script behaves differently the next time it was uploaded, but we
+	// ignore these), bad programmed script
+
+	// internal URI (language code may be added / removed etc.)
+	$requested = wrap_glue_url($zz_page['url']['full']);
+	if ($_SERVER['HTTP_REFERER'] === $requested) return true;
+
+	// requested URI
+	$requested_server = $zz_page['url']['full']['scheme'].'://'
+		.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+	if ($_SERVER['HTTP_REFERER'] === $requested_server) return true;
+	if (str_replace('//', '//www.', $_SERVER['HTTP_REFERER']) === $requested_server) return true;
+
+	// redirect from IP because someone is looking for bugs with IP only
+	// only if virtual host has its own IP
+	$requested_with_ip = $zz_page['url']['full']['scheme'].'://'
+		.$_SERVER['SERVER_ADDR'].':'.$_SERVER['SERVER_PORT'].$_SERVER['REQUEST_URI'];
+	if ($_SERVER['HTTP_REFERER'] === $requested_with_ip) return true;
+	// http:// is so uncool ...
+	if ('http://'.$_SERVER['HTTP_REFERER'] === $requested) return true;
+	if ('https://'.$_SERVER['HTTP_REFERER'] === $requested) return true;
+	// own error message!
 	return false;
 }
