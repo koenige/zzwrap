@@ -362,10 +362,13 @@ function wrap_errorpage_log($status, $page) {
 		wrap_error($msg, E_USER_ERROR, $settings);
 		break;
 	case 404:
+		$requested = $zz_page['url']['full']['scheme'].'://'
+			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 		if (wrap_errorpage_logignore()) return false;
+		// own error message!
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
-			." but could not be found on the server"), $requested_server, 
+			." but could not be found on the server"), $requested, 
 			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
 		if (!empty($_POST)) {
 			$msg .= "\n\n".wrap_print($_POST, false, false);
@@ -485,11 +488,11 @@ function wrap_errorpage_ignore($status) {
 /**
  * determine whether to log an error
  *
- * @param void
  * @return bool true: do not log
  */
 function wrap_errorpage_logignore() {
 	global $zz_page;
+	global $zz_setting;
 
 	// access without REFERER will be ignored (may be typo, ...)
 	if (!isset($_SERVER['HTTP_REFERER'])) return true;
@@ -503,24 +506,24 @@ function wrap_errorpage_logignore() {
 	// script behaves differently the next time it was uploaded, but we
 	// ignore these), bad programmed script
 
-	// internal URI (language code may be added / removed etc.)
-	$requested = wrap_glue_url($zz_page['url']['full']);
-	if ($_SERVER['HTTP_REFERER'] === $requested) return true;
-
-	// requested URI
-	$requested_server = $zz_page['url']['full']['scheme'].'://'
-		.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-	if ($_SERVER['HTTP_REFERER'] === $requested_server) return true;
-	if (str_replace('//', '//www.', $_SERVER['HTTP_REFERER']) === $requested_server) return true;
-
-	// redirect from IP because someone is looking for bugs with IP only
-	// only if virtual host has its own IP
-	$requested_with_ip = $zz_page['url']['full']['scheme'].'://'
-		.$_SERVER['SERVER_ADDR'].':'.$_SERVER['SERVER_PORT'].$_SERVER['REQUEST_URI'];
-	if ($_SERVER['HTTP_REFERER'] === $requested_with_ip) return true;
-	// http:// is so uncool ...
-	if ('http://'.$_SERVER['HTTP_REFERER'] === $requested) return true;
-	if ('https://'.$_SERVER['HTTP_REFERER'] === $requested) return true;
-	// own error message!
+	$referer = parse_url($_SERVER['HTTP_REFERER']);
+	if (!$referer) return false; // not parseable = invalid
+	if ($_SERVER['SERVER_NAME'] !== $referer['host']) {
+		$ok = false;
+		// missing www. redirect
+		if ('www.'.$referer['host'] === $_SERVER['SERVER_NAME']) $ok = true;
+		// IP redirect
+		if ($referer['host'] === $_SERVER['SERVER_ADDR']) $ok = true;
+		if (!$ok) return false;
+	}
+	// ignore scheme, port, user, pass
+	// query
+	if (!empty($referer['query']) AND $referer['query'] !== $zz_page['url']['full']['query']) {
+		return false;
+	}
+	// path is left
+	if ($referer['path'] === $zz_page['url']['full']['path']) return true;
+	if ($zz_setting['base'].$referer['path'] === $zz_page['url']['full']['path']) return true;
+	
 	return false;
 }
