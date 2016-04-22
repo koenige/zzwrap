@@ -339,6 +339,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 function wrap_errorpage_log($status, $page) {
 	global $zz_setting;
 	global $zz_conf;
+	global $zz_page;
 
 	if (in_array($status, array(401, 403, 404, 410, 503))) {
 		$ignore = wrap_errorpage_ignore($status);
