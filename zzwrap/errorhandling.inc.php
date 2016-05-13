@@ -468,20 +468,37 @@ function wrap_errorpage_ignore($status) {
 				break;
 			case 'ua':
 				if (empty($_SERVER['HTTP_USER_AGENT'])) break;
-				if ($_SERVER['HTTP_USER_AGENT'] === $line[2]) {
-					return true;
-				}
-				break;
+				return wrap_error_checkmatch($_SERVER['HTTP_USER_AGENT'], $line[2]);
 			case 'referer':
 				if (empty($_SERVER['HTTP_REFERER'])) break;
-				if ($_SERVER['HTTP_REFERER'] === $line[2]) {
-					return true;
-				}
-				break;
+				return wrap_error_checkmatch($_SERVER['HTTP_REFERER'], $line[2]);
 			default:
 				wrap_error(sprintf('Case %s in file %s in line %s not supported.', $line[1], $file, $i), E_USER_NOTICE);
 			}
 		}
+	}
+	return false;
+}
+
+/**
+ * simple matching check with wildcard (asterisk) allowed at both
+ * beginning and end of match
+ *
+ * @param string $string string to check
+ * @param string $match match to check against
+ * @return bool true: match was found
+ */
+function wrap_error_checkmatch($string, $match) {
+	if ($string === $match) return true;
+	if (substr($match, 0, 1) === '*' AND substr($match, -1) === '*') {
+		$without = substr($match, 1, -1);
+		if (strstr($string, $without)) return true;
+	} elseif (substr($match, 0, 1) === '*') {
+		$without = substr($match, 1);
+		if (substr($string, -strlen($without)) === $without) return true;
+	} elseif (substr($match, -1) === '*') {
+		$without = substr($match, 0, -1);
+		if (substr($string, 0, strlen($without)) === $without) return true;
 	}
 	return false;
 }
