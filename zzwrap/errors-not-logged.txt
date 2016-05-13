@@ -92,6 +92,7 @@
 404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.phpindex.php
 404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.php
 404	all	/admin/fckeditor/editor/filemanager/connectors/php/upload.php
+404	referer	*/fckeditor/editor/filemanager/connectors/asp/connector.asp?Command=FileUpload&Type=Image&CurrentFolder=%2F
 
 # phpMoAdmin
 404	end	/moadmin.php
