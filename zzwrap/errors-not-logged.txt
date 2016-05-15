@@ -192,3 +192,6 @@
 
 # Uploadify
 404	end	/uploadify/uploadify.swf
+
+# Some weirdo adding some random referer for his hacking attempts
+404	end	/cache/label/909.php
