@@ -20,9 +20,6 @@
  *	- wrap_edit_sql()
  *	- wrap_sql()
  *
- *	Miscellaneous functions
- *	- wrap_microtime_float()
- *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
@@ -125,7 +122,7 @@ function wrap_db_prefix($sql) {
 function wrap_db_query($sql, $error = E_USER_ERROR) {
 	global $zz_conf;
 	if (!empty($zz_conf['debug'])) {
-		$time = wrap_microtime_float();
+		$time = microtime(true);
 	}
 	if (!$zz_conf['db_connection']) return array();
 	
@@ -137,7 +134,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	$sql = wrap_db_prefix($sql);
 	$result = mysql_query($sql);
 	if (!empty($zz_conf['debug'])) {
-		$time = wrap_microtime_float() - $time;
+		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
 	if ($result) return $result;
@@ -164,19 +161,6 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		}
 	}
 	return false;	
-}
-
-/**
- * Return current Unix timestamp with microseconds as float
- * = microtime(true) in PHP 5
- *
- * @return float
- * @deprecated
- * @todo remove from zzwrap
- */
-function wrap_microtime_float() {
-    list($usec, $sec) = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
 }
 
 /**
