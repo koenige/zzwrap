@@ -198,3 +198,6 @@
 
 # Some weirdo adding some random referer for his hacking attempts
 404	end	/cache/label/909.php
+
+# Old HTML injection bugs, old scanners, e. g. <script>
+404	referer	<*
