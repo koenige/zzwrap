@@ -822,7 +822,6 @@ function wrap_get_page() {
 	global $zz_setting;
 	global $zz_conf;
 	global $zz_page;
-	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 
 	if (!empty($_POST['httpRequest']) AND $_POST['httpRequest'] !== 'zzform') {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
@@ -935,9 +934,6 @@ function wrap_htmlout_page($page) {
 	global $zz_setting;
 	global $zz_page;
 	global $zz_conf;
-
-	// format page with brick_format()
-	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php';
 
 	// if globally dont_show_h1 is set, don't show it
 	if (!empty($zz_page['dont_show_h1'])) $page['dont_show_h1'] = true;

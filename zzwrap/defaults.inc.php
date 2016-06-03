@@ -365,6 +365,15 @@ function wrap_set_defaults_post_conf() {
 		// replace \n with \r\n for outgoing mail, ending with \r\r\n = CRCRLF
 		$zz_setting['mail_header_eol'] = "\r\n";
 	}
+
+	// -------------------------------------------------------------------------
+	// Libraries
+	// -------------------------------------------------------------------------
+
+	if (empty($zz_setting['ext_libraries']) OR !in_array('zzbrick', $zz_setting['ext_libraries'])) {
+		$zz_setting['ext_libraries'][] = 'zzbrick';
+	}
+
 }
 
 /**
