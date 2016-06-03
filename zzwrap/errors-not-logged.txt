@@ -207,3 +207,6 @@ query	string	utm_source
 query	string	utm_medium
 query	string	utm_campaign
 query	string	utm_content
+
+# Buggy virus on client side ? Troj/Agent-AJRU
+404	regex	~://pixel.yabidos.com/fltiu.js~
