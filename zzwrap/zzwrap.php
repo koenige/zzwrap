@@ -96,8 +96,8 @@ function zzwrap() {
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
-	if (!empty($zz_setting['standard_extensions']))	{
-		foreach ($zz_setting['standard_extensions'] as $function) {
+	if (!empty($zz_setting['ext_libraries']))	{
+		foreach ($zz_setting['ext_libraries'] as $function) {
 			if (file_exists($zz_setting['lib'].'/'.$function.'.php')) 
 				require_once $zz_setting['lib'].'/'.$function.'.php';
 			elseif (file_exists($zz_setting['lib'].'/'.$function.'/'.$function.'.php'))
@@ -274,7 +274,7 @@ function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	// modules
-	$zz_setting['standard_extensions'][] = 'markdown-extra';
+	$zz_setting['ext_libraries'][] = 'markdown-extra';
 
 	// Forms: zzform upload module
 	$zz_conf['graphics_library'] = 'imagemagick';
