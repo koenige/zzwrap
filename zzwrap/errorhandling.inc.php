@@ -387,7 +387,7 @@ function wrap_errorpage_log($status, $page) {
 		break;
 	case 410:
 		if (wrap_errorpage_logignore()) return false;
-		$settings['logfile'] .= ' Referer: '.$_SERVER['HTTP_REFERER'].' ';
+		$msg .= ' Referer: '.$_SERVER['HTTP_REFERER'];
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 400:
