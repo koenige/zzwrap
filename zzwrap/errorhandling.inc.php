@@ -536,6 +536,7 @@ function wrap_errorpage_logignore() {
 
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
 	if (!$referer) return false; // not parseable = invalid
+	if (empty($referer['host'])) return false; // not really parseable = invalid
 	if ($_SERVER['SERVER_NAME'] !== $referer['host']) {
 		$ok = false;
 		// missing www. redirect
