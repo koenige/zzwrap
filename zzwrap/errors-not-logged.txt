@@ -201,3 +201,9 @@
 
 # Old HTML injection bugs, old scanners, e. g. <script>
 404	referer	<*
+
+# UTM = Urchin Traffic Monitor
+query	string	utm_source
+query	string	utm_medium
+query	string	utm_campaign
+query	string	utm_content
