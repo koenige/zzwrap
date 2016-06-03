@@ -418,10 +418,11 @@ function wrap_errorpage_log($status, $page) {
  * code if a script is looking for security holes, a 503 might not be logged.
  * This is not recommended for other cases when a 503 might occur.
  *
- * @param int $status
+ * @param mixed $status
+ * @param string $string (optional) string to compare
  * @return bool true: ignore for logging, false: log error
  */
-function wrap_errorpage_ignore($status) {
+function wrap_errorpage_ignore($status, $string = false) {
 	global $zz_setting;
 	
 	$files = array();
@@ -441,6 +442,11 @@ function wrap_errorpage_ignore($status) {
 				wrap_error(sprintf('File %s is wrong in line %s.', $file, $i), E_USER_NOTICE);
 			}
 			switch ($line[1]) {
+			case 'string':
+				if ($string === $line[2]) {
+					return true;
+				}
+				break;
 			case 'all':
 				if ($_SERVER['REQUEST_URI'] === $line[2]) {
 					return true;
