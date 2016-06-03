@@ -363,10 +363,10 @@ function wrap_errorpage_log($status, $page) {
 		wrap_error($msg, E_USER_ERROR, $settings);
 		break;
 	case 404:
-		$requested = $zz_page['url']['full']['scheme'].'://'
-			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 		if (wrap_errorpage_logignore()) return false;
 		// own error message!
+		$requested = $zz_page['url']['full']['scheme'].'://'
+			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested, 
@@ -385,10 +385,12 @@ function wrap_errorpage_log($status, $page) {
 			.(!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown').')';
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
+	case 410:
+		if (wrap_errorpage_logignore()) return false;
+		// no break;
 	case 400:
 	case 401:
 	case 405:
-	case 410:
 	case 501:
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
