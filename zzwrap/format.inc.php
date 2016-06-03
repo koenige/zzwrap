@@ -46,8 +46,18 @@ function wrap_convert_string($data, $encoding = false) {
 		return $data;
 	}
 	if (!is_array($data)) {
+		if ($detected_encoding === 'UTF-8') {
+			if (substr($data, 0, 3) === "\xEF\xBB\xBF") { // UTF8_BOM
+				$data = substr($data, 3);
+			}
+		}
 		$data = mb_convert_encoding($data, $encoding, $detected_encoding);
 	} else {
+		if ($detected_encoding === 'UTF-8') {
+			if (substr($data[0], 0, 3) === "\xEF\xBB\xBF") { // UTF8_BOM
+				$data[0] = substr($data[0], 3);
+			}
+		}
 		foreach ($data as $index => $line) {
 			$data[$index] = mb_convert_encoding($line, $encoding, $detected_encoding);
 		}
