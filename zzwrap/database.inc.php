@@ -748,10 +748,10 @@ function wrap_edit_sql_fieldlist($fields) {
 	$fields = array_values($fields);
 	foreach ($fields as $index => $field) {
 		if ($pos = stripos($field, ' AS ')) {
-			$new[$index]['field'] = substr($field, 0, $pos);
+			$new[$index]['field_name'] = substr($field, 0, $pos);
 			$new[$index]['as'] = substr($field, $pos + 4);
 		} else {
-			$new[$index]['field'] = $new[$index]['as'] = $field;
+			$new[$index]['field_name'] = $new[$index]['as'] = $field;
 		}
 	}
 	return $new;
