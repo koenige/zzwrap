@@ -326,7 +326,7 @@ function wrap_check_canonical($zz_page, $page) {
 			// no error logging for query strings which shall be redirected
 			if (in_array($param, $page['query_strings_redirect'])) continue;
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
-			if (!wrap_errorpage_ignore('query', $param)) {
+			if (!wrap_errorpage_ignore('qs', $param)) {
 				wrap_error(sprintf('Wrong URL: query string %s=%s [%s]', $param, $param_value, $_SERVER['REQUEST_URI']), E_USER_NOTICE);
 			}
 		}
