@@ -117,8 +117,12 @@ function wrap_set_defaults_post_conf() {
 
 	if (empty($zz_setting['protocol']))
 		$zz_setting['protocol'] 	= 'http'.($zz_setting['https'] ? 's' : '');
-	if (empty($zz_setting['host_base']))
+	if (empty($zz_setting['host_base'])) {
 		$zz_setting['host_base'] 	= $zz_setting['protocol'].'://'.$zz_setting['hostname'];
+		if ($_SERVER['SERVER_PORT'] != 80) {
+			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
+		}
+	}
 	
 	// -------------------------------------------------------------------------
 	// Paths
