@@ -220,6 +220,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_conf;
 	global $zz_page;
 
+	wrap_include_ext_libraries();
+
 	// -- 1. check what kind of error page it is
 	// if wanted, check if mod_rewrite works
 	if (!empty($zz_setting['mod_rewrite_error']) 
