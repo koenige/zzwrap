@@ -16,6 +16,31 @@
 
 /*
  * --------------------------------------------------------------------
+ * External Libraries
+ * --------------------------------------------------------------------
+ */
+
+function wrap_include_ext_libraries() {
+	global $zz_setting;
+	static $included;
+	if ($included) return true;
+
+	if (empty($zz_setting['ext_libraries'])) return false;
+	foreach ($zz_setting['ext_libraries'] as $function) {
+		if (file_exists($zz_setting['lib'].'/'.$function.'.php')) 
+			require_once $zz_setting['lib'].'/'.$function.'.php';
+		elseif (file_exists($zz_setting['lib'].'/'.$function.'/'.$function.'.php'))
+			require_once $zz_setting['lib'].'/'.$function.'/'.$function.'.php';
+		else
+			wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
+	}
+	$included = true;
+	return true;
+}
+
+
+/*
+ * --------------------------------------------------------------------
  * Session handling
  * --------------------------------------------------------------------
  */
