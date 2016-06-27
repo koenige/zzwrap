@@ -480,10 +480,12 @@ function wrap_errorpage_ignore($status, $string = false) {
 				break;
 			case 'ua':
 				if (empty($_SERVER['HTTP_USER_AGENT'])) break;
-				return wrap_error_checkmatch($_SERVER['HTTP_USER_AGENT'], $line[2]);
+				if (wrap_error_checkmatch($_SERVER['HTTP_USER_AGENT'], $line[2])) return true;
+				break;
 			case 'referer':
 				if (empty($_SERVER['HTTP_REFERER'])) break;
-				return wrap_error_checkmatch($_SERVER['HTTP_REFERER'], $line[2]);
+				if (wrap_error_checkmatch($_SERVER['HTTP_REFERER'], $line[2])) return true;
+				break;
 			default:
 				wrap_error(sprintf('Case %s in file %s in line %s not supported.', $line[1], $file, $i), E_USER_NOTICE);
 			}
