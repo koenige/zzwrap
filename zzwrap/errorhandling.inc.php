@@ -557,7 +557,7 @@ function wrap_errorpage_logignore() {
 	}
 	// path is left
 	if ($referer['path'] === $zz_page['url']['full']['path']) return true;
-	if ($zz_setting['base'].$referer['path'] === $zz_page['url']['full']['path']) return true;
+	if ($referer['path'] === $zz_setting['base'].$zz_page['url']['full']['path']) return true;
 	
 	return false;
 }
