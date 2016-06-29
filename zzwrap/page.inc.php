@@ -41,6 +41,7 @@ function wrap_template($template, $data = array(), $mode = false) {
 		$tpl_file = $template;
 	} else {
 		$tpl_file = wrap_template_file($template);
+		if (!$tpl_file) return false;
 	}
 	$zz_setting['current_template'] = $template;
 	$template = file($tpl_file);
@@ -103,7 +104,10 @@ function wrap_template_file($template, $show_error = true) {
 
 	// check if there's a module template
 	if (strstr($template, '/')) {
-		$templateparts = explode('/', $template);
+		// is it a full file name coming from 'tpl_file'?
+		// we cannot do anything with this here
+		if (substr($template, 0, 1) === '/') return false;
+		$template_parts = explode('/', $template);
 		$my_module = array_shift($template_parts);
 		$template = implode('/', $template_parts);
 	} else {
@@ -827,6 +831,7 @@ function wrap_get_page() {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
 		$page['text'] = wrap_template($zz_page['tpl_file'], $zz_conf + $zz_setting);
+		if (!$page['text']) wrap_quit(404);
 		$page['content_type'] = wrap_file_extension($zz_page['tpl_file']);
 		$zz_conf['character_set'] = wrap_detect_encoding($page['text']);
 		$page['status'] = 200;
