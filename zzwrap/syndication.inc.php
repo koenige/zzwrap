@@ -176,59 +176,181 @@ function wrap_syndication_geocode($address) {
 	global $zz_setting;
 	global $zz_error;
 	
-	if (!isset($zz_setting['geocoder'])) {
-		$zz_setting['geocoder'] = 'Google Maps';
+	$urls['Google Maps'] = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
+	// @see http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
+	$urls['Nominatim'] = 'http://nominatim.openstreetmap.org/search.php?q=%s&countrycodes=%s&format=jsonv2&accept-language=de&limit=50';
+	
+	$add[0] = '';
+	if (isset($address['locality'])) {
+		$add[0] = trim($address['locality']);
 	}
-	switch ($zz_setting['geocoder']) {
-	case 'Google Maps':
-		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
-		$add = '';
-		if (isset($address['locality'])) {
-			$add = $address['locality'];
+	if (!empty($address['postal_code'])) {
+		$add[0] = trim($address['postal_code']).($add[0] ? '+' : '').$add[0];
+	}
+	$add[0] = urlencode($add[0]);
+	if (!empty($address['street_name'])) {
+		$add[0] = urlencode($address['street_name']
+			.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
+			.($add[0] ? ',' : '').$add[0];
+	}
+	if (!empty($address['state'])) {
+		$add[0] .= ','.urlencode($address['state']);
+	}
+	$region = isset($address['country']) ? $address['country'] : '';
+
+	// place is optional
+	// remove parts of place name that are already found in other keys
+	if (!empty($address['place'])) {
+		$remove_keys = array('locality', 'postal_code', 'street_name', 'street_number');
+		foreach ($remove_keys as $key) {
+			if (empty($address[$key])) continue;
+			if (strstr($address['place'], $address[$key]))
+				$address['place'] = trim(str_replace($address[$key], '', $address['place']));
 		}
-		if (isset($address['postal_code'])) {
-			$add = $address['postal_code'].($add ? ' ' : '').$add;
+		if ($address['place'] === ',') $address['place'] = '';
+		if ($address['place']) {
+			$add[-1] = urlencode($address['place']).','.$add[0];
 		}
-		$add = urlencode($add);
-		if (isset($address['street_name'])) {
-			$add = urlencode($address['street_name']
-				.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
-				.($add ? ',' : '').$add;
+	}
+	ksort($add);
+
+	// set geocoders
+	if (!isset($zz_setting['geocoder'])) {
+		$zz_setting['geocoder'] = array('Nominatim', 'Google Maps');
+	} elseif (!is_array($zz_setting['geocoder'])) {
+		$zz_setting['geocoder'] = array($zz_setting['geocoder']);
+	}
+	foreach ($zz_setting['geocoder'] as $geocoder) {
+		if (!array_key_exists($geocoder, $urls)) {
+			$zz_error[]['msg_dev'] = sprintf('Geocoder %s not supported.', $geocoder);
+			return false;
 		}
-		$region = isset($address['country']) ? $address['country'] : '';
-		$url = sprintf($url, $add, $region);
-		break;
-	default:
-		$zz_error[]['msg_dev'] = sprintf('Geocoder %s not supported.', $zz_setting['geocoder']);
-		break;
+		foreach (array_keys($add) as $index) {
+			$geocoders[] = array(
+				'geocoder' => $geocoder,
+				'add' => $add[$index],
+				'region' => $region
+			);
+		}
 	}
 
 	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
 	$zz_setting['cache_age_syndication'] = -1;
-	$coords = wrap_syndication_get($url);	
-	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
-	if ($coords['status'] !== 'OK') {
-		if ($coords['status'] === 'OVER_QUERY_LIMIT') {
-			// we must not cache this.
-			wrap_cache_delete(404, $url);
+
+	$results = array();
+	$found = array();
+	foreach ($geocoders as $gc) {
+		// only call a geocoder twice if first call was unsuccesful
+		if (in_array($gc['geocoder'], $found)) continue;
+
+		$url = sprintf($urls[$gc['geocoder']], $gc['add'], $gc['region']);
+		$coords = wrap_syndication_get($url);	
+
+		$success = true;
+		switch ($gc['geocoder']) {
+		case 'Google Maps':
+			if ($coords['status'] !== 'OK') {
+				if ($coords['status'] === 'OVER_QUERY_LIMIT') {
+					// we must not cache this.
+					wrap_cache_delete(404, $url);
+				}
+				$success = false;
+			}
+			break;
+		case 'Nominatim':
+			if (empty($coords[0])) {
+				$success = false;
+				$coords['status'] = 'unknown';
+			}
+			break;
 		}
-		wrap_error(sprintf('Syndication from %s failed with status %s. (%s)',
-			$zz_setting['geocoder'], $coords['status'], $url));
-		return false;
+		if (!$success) {
+			wrap_error(sprintf('Syndication from %s failed with status %s. (%s)',
+				$gc['geocoder'], $coords['status'], $url));
+			continue;
+		}
+
+		switch ($gc['geocoder']) {
+		case 'Google Maps':
+			foreach ($coords['results'] as $coord) {
+				if (empty($coord['geometry']['location']['lng'])) continue;
+				$postal_code = '';
+				foreach ($coord['address_components'] as $component) {
+					if (in_array('postal_code', $component['types']))
+						$postal_code = $component['long_name'];
+					// check if country is the same
+					if (in_array('country', $component['types'])) {
+						if ($gc['region'] !== $component['short_name']) continue 2;
+					}
+				}
+				$results[] = array(
+					'longitude' => $coord['geometry']['location']['lng'], 
+					'latitude' => $coord['geometry']['location']['lat'],
+					'display' => $coord['formatted_address'],
+					'source' => $gc['geocoder'],
+					'postal_code' => $postal_code
+				);
+				$found[] = $gc['geocoder'];
+			}
+			break;
+		case 'Nominatim':
+			foreach ($coords as $index => $coord) {
+				if (!is_numeric($index)) continue;
+				$postal_code = '';
+				// unfortunately, Nominatim has no way of getting the postal code directly
+				// so this assumes that there is at least one numeric character in each
+				// postal code
+				$display = explode(', ', $coord['display_name']);
+				array_pop($display); // country
+				$postal_code = array_pop($display);
+				if (!preg_match('~[0-9]+~', $postal_code)) $postal_code = '';
+				$results[] = array(
+					'longitude' => $coord['lon'], 
+					'latitude' => $coord['lat'],
+					'source' => $gc['geocoder'],
+					'display' => $coord['display_name'],
+					'postal_code' => $postal_code
+				);
+				$found[] = $gc['geocoder'];
+			}
+			break;
+		}
 	}
-	
-	if (empty($coords['results'][0]['geometry']['location']['lng'])) return false;
-	$postal_code = '';
-	foreach ($coords['results'][0]['address_components'] as $component) {
-		if (in_array('postal_code', $component['types']))
-			$postal_code = $component['long_name'];
+	if (!$results) return array();
+	if (count($results) === 1) return $results[0];
+
+	$remove = array(',', '.', '/', '-', '(', ')', '?');
+	foreach ($remove as $token) {
+		foreach ($address as $key => $value) {
+			$address[$key] = trim(str_replace($token, ' ', $value));
+		}
 	}
-	$result = array(
-		'longitude' => $coords['results'][0]['geometry']['location']['lng'], 
-		'latitude' => $coords['results'][0]['geometry']['location']['lat'],
-		'postal_code' => $postal_code
-	);
-	return $result;
+	$parts = array();
+	foreach ($address as $key => $value) {
+		if (!$value) continue;
+		while (strstr($value, '  ')) {
+			$value = str_replace('  ', ' ', $value);
+		}
+		$values = explode(' ', $value);
+		$parts = array_merge($parts, $values);
+	}
+	$top_match = 0;
+	$result_index = false;
+	foreach ($results as $index => $result) {
+		$results[$index]['matches'] = 0;
+		foreach ($parts as $part) {
+			// add space to get correct matches for house nos.
+			// which otherwise might be part of postal code etc.
+			if (strstr(' '.$result['display'], ' '.$part)) $results[$index]['matches']++;
+		}
+		if ($results[$index]['matches'] > $top_match) {
+			$result_index = $index;
+			$top_match = $results[$index]['matches'];
+		}
+	}
+
+	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
+	return $results[$result_index];
 }
 
 /**
