@@ -2,7 +2,7 @@
 
 /**
  * zzwrap
- * Syndication functions
+ * Syndication functions, Locking functions
  *
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzwrap
@@ -244,7 +244,13 @@ function wrap_syndication_geocode($address) {
 		if (in_array($gc['geocoder'], $found)) continue;
 
 		$url = sprintf($urls[$gc['geocoder']], $gc['add'], $gc['region']);
+		if ($gc['geocoder'] === 'Nominatim') {
+			wrap_lock_wait('nominatim', 1);
+		}
 		$coords = wrap_syndication_get($url);	
+		if ($gc['geocoder'] === 'Nominatim') {
+			wrap_unlock('nominatim');
+		}
 
 		$success = true;
 		switch ($gc['geocoder']) {
@@ -524,4 +530,111 @@ function wrap_syndication_http_post($data) {
 		$postdata[] = urlencode($key).'='.urlencode($value);
 	}
 	return implode('&', $postdata);
+}
+
+
+/*
+ * --------------------------------------------------------------------
+ * Locks
+ * --------------------------------------------------------------------
+ */
+
+/**
+ * check if in a realm, a lock is set
+ * e. g. to avoid race conditions
+ *
+ * @param string $realm
+ * @param string $type
+ *		'sequential': allow just one call after the other ended
+ *		'wait': just wait the time in seconds before starting the next call, no
+ *			matter if the old call ended 
+ * @param int $seconds time in seconds, either to wait or till automatic release
+ * @return bool true: locked; false: lock is free, occupied for own process
+ */
+function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
+	$lockfile = wrap_lock_file($realm);
+	$hash = wrap_lock_hash();
+	$time = time();
+	if (!file_exists($lockfile)) {
+		// lockfile should always exist, here for first call, a non-existent
+		// lockfile prolongs waiting time
+		file_put_contents($lockfile, $hash."\n");
+	}
+	$last_touched = filemtime($lockfile);
+	$locking_hash = trim(file_get_contents($lockfile));
+
+	switch ($type) {
+	case 'sequential':
+		// 1. check if own process locked 
+		if ($hash === $locking_hash) {
+			file_put_contents($lockfile, $hash."\n"); // change last modification
+			return false;
+		}
+		// 2. check if it's unlocked
+		if (!$locking_hash) {
+			file_put_contents($lockfile, $hash."\n");
+			if (trim(file_get_contents($lockfile)) === $hash) return false;
+		}
+		// 3. it's locked, so check if we overwrite the lock (no)
+		if (!$seconds) return true;
+		// 4. yes, we overwrite, but not if not enough time has passed
+		if ($time - $seconds < $last_touched) return true;
+		break;
+	case 'wait':
+		if ($time - $seconds - 1 < $last_touched) return true;
+		break;
+	}
+	file_put_contents($lockfile, $hash."\n");
+	if (trim(file_get_contents($lockfile)) === $hash) return false;
+	return true; // another process took over the lockfile
+}
+
+/**
+ * unlock a realm
+ *
+ * @param string $realm
+ * @return bool
+ */
+function wrap_unlock($realm) {
+	$lockfile = wrap_lock_file($realm);
+	$hash = wrap_lock_hash();
+	$locking_hash = trim(file_get_contents($lockfile));
+	if ($locking_hash !== $hash) return false;
+	file_put_contents($lockfile, '');
+	return true;
+}
+
+/**
+ * wait n seconds until lock is released
+ *
+ * @param string $realm
+ * @param int $sec
+ * @return bool
+ */
+function wrap_lock_wait($realm, $sec) {
+	while (wrap_lock($realm, 'wait', $sec)) sleep($sec);
+	return true;
+}
+
+/**
+ * generate a hash for this request
+ *
+ * @return string
+ */
+function wrap_lock_hash() {
+	static $hash;
+	if ($hash) return $hash;
+	$hash = wrap_random_hash(32);
+	return $hash;
+}
+
+/**
+ * get lock filename
+ *
+ * @param string $realm
+ * @return string filename
+ */
+function wrap_lock_file($realm) {
+	global $zz_setting;
+	return $zz_setting['cache'].'/'.basename($realm).'.lock';
 }
