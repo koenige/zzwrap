@@ -182,12 +182,11 @@ function wrap_syndication_geocode($address) {
 	
 	$add[0] = '';
 	if (isset($address['locality'])) {
-		$add[0] = trim($address['locality']);
+		$add[0] = trim(urlencode($address['locality']));
 	}
 	if (!empty($address['postal_code'])) {
-		$add[0] = trim($address['postal_code']).($add[0] ? '+' : '').$add[0];
+		$add[0] = trim(urlencode($address['postal_code'])).($add[0] ? '+' : '').$add[0];
 	}
-	$add[0] = urlencode($add[0]);
 	if (!empty($address['street_name'])) {
 		$add[0] = urlencode($address['street_name']
 			.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
