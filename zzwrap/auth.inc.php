@@ -471,7 +471,7 @@ function cms_login_redirect($url, $querystring = array()) {
 	// get correct protocol/hostname
 	$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
 	$zz_setting['host_base'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443)) {
+	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
 		$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 	}
 
