@@ -119,9 +119,7 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['protocol'] 	= 'http'.($zz_setting['https'] ? 's' : '');
 	if (empty($zz_setting['host_base'])) {
 		$zz_setting['host_base'] 	= $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-		if (($zz_setting['protocol'] === 'http' AND $_SERVER['SERVER_PORT'] != 80)
-			OR ($zz_setting['protocol'] === 'https' AND $_SERVER['SERVER_PORT'] != 443)
-		) {
+		if (!in_array($_SERVER['SERVER_PORT'], array(80, 443)) {
 			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 		}
 	}
