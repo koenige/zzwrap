@@ -70,10 +70,9 @@ function wrap_db_connect() {
 	if (!$found) wrap_error('No password file for database found.', E_USER_ERROR);
 	
 	// connect to database
-	$zz_conf['db_connection'] = @mysql_connect($db_host, $db_user, $db_pwd);
+	$zz_conf['db_connection'] = @mysqli_connect($db_host, $db_user, $db_pwd, $zz_conf['db_name']);
 	if (!$zz_conf['db_connection']) return false;
 
-	mysql_select_db($zz_conf['db_name']);
 	// mySQL uses different identifiers for character encoding than HTML
 	// mySQL verwendet andere Kennungen für die Zeichencodierung als HTML
 	$charset = '';
@@ -89,7 +88,7 @@ function wrap_db_connect() {
 	} else {
 		$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
 	}
-	if ($charset) mysql_set_charset($charset);
+	if ($charset) mysqli_set_charset($zz_conf['db_connection'], $charset);
 	wrap_mysql_mode();
 	return true;
 }
@@ -128,11 +127,11 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	
 	if (substr($sql, 0, 10) === 'SET NAMES ') {
 		$charset = trim(substr($sql, 10));
-		return mysql_set_charset($charset);
+		return mysqli_set_charset($zz_conf['db_connection'], $charset);
 	}
 
 	$sql = wrap_db_prefix($sql);
-	$result = mysql_query($sql);
+	$result = mysqli_query($zz_conf['db_connection'], $sql);
 	if (!empty($zz_conf['debug'])) {
 		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
@@ -146,18 +145,18 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		2006,	// MySQL server has gone away
 		2008	// MySQL client ran out of memory
 	);
-	if (in_array(mysql_errno(), $close_connection_errors)) {
-		mysql_close($zz_conf['db_connection']);
+	if (in_array(mysqli_errno($zz_conf['db_connection']), $close_connection_errors)) {
+		mysqli_close($zz_conf['db_connection']);
 		$zz_conf['db_connection'] = NULL;
 	}
 	
 	if (function_exists('wrap_error')) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
-			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysql_error(), $sql), $error);
+			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysqli_error($zz_conf['db_connection']), $sql), $error);
 	} else {
 		if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] === 'output') {
 			global $zz_page;
-			$zz_page['error_msg'] = '<p class="error">'.mysql_error().'<br>'.$sql.'</p>';
+			$zz_page['error_msg'] = '<p class="error">'.mysqli_error($zz_conf['db_connection']).'<br>'.$sql.'</p>';
 		}
 	}
 	return false;	
@@ -203,18 +202,20 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 
 	if (!$id_field_name) {
 		// only one record
-		if (mysql_num_rows($result) === 1) {
+		if (mysqli_num_rows($result) === 1) {
 			if ($format === 'single value') {
-				$lines = mysql_result($result, 0, 0);
+				mysqli_data_seek($result, 0);
+				$lines = mysqli_fetch_row($result);
+				$lines = reset($lines);
 			} elseif ($format === 'object') {
-				$lines = mysql_fetch_object($result);
+				$lines = mysqli_fetch_object($result);
 			} else {
-				$lines = mysql_fetch_assoc($result);
+				$lines = mysqli_fetch_assoc($result);
 			}
 		}
-	} elseif (is_array($id_field_name) AND mysql_num_rows($result)) {
+	} elseif (is_array($id_field_name) AND mysqli_num_rows($result)) {
 		if ($format === 'object') {
-			while ($line = mysql_fetch_object($result)) {
+			while ($line = mysqli_fetch_object($result)) {
 				if (count($id_field_name) === 3) {
 					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
 				} else {
@@ -230,12 +231,12 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 				$topkey = $id_field_name[0];
 			}
 			if (count($listkey) === 2) {
-				while ($line = mysql_fetch_assoc($result)) {
+				while ($line = mysqli_fetch_assoc($result)) {
 					$lines[$line[$topkey]][$listkey[0]] = $line[$id_field_name[0]];
 					$lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]] = $line;
 				}
 			} else {
-				while ($line = mysql_fetch_assoc($result)) {
+				while ($line = mysqli_fetch_assoc($result)) {
 					$lines[$line[$topkey]][$listkey[0]] = $line[$id_field_name[0]];
 					if (!isset($lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]])) {
 						$lines[$line[$topkey]][$listkey[1]][$line[$id_field_name[1]]] = $line;
@@ -245,7 +246,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 			}
 		} else {
 			// default or unknown format
-			while ($line = mysql_fetch_assoc($result)) {
+			while ($line = mysqli_fetch_assoc($result)) {
 				if ($format === 'single value') {
 					// just get last field, make sure that it's not one of the id_field_names!
 					$values = array_pop($line);
@@ -281,30 +282,30 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
 				}
 			}
 		}
-	} elseif (mysql_num_rows($result)) {
+	} elseif (mysqli_num_rows($result)) {
 		if ($format === 'count') {
-			$lines = mysql_num_rows($result);
+			$lines = mysqli_num_rows($result);
 		} elseif ($format === 'single value') {
 			// you can reach this part here with a dummy id_field_name
 			// because no $id_field_name is needed!
-			while ($line = mysql_fetch_array($result)) {
+			while ($line = mysqli_fetch_array($result)) {
 				if (!$line[0]) continue;
 				$lines[$line[0]] = $line[0];
 			}
 		} elseif ($format === 'key/value') {
 			// return array in pairs
-			while ($line = mysql_fetch_array($result)) {
+			while ($line = mysqli_fetch_array($result)) {
 				$lines[$line[0]] = $line[1];
 			}
 		} elseif ($format === 'object') {
-			while ($line = mysql_fetch_object($result))
+			while ($line = mysqli_fetch_object($result))
 				$lines[$line->$id_field_name] = $line;
 		} elseif ($format === 'numeric') {
-			while ($line = mysql_fetch_assoc($result))
+			while ($line = mysqli_fetch_assoc($result))
 				$lines[] = $line;
 		} else {
 			// default or unknown format
-			while ($line = mysql_fetch_assoc($result))
+			while ($line = mysqli_fetch_assoc($result))
 				$lines[$line[$id_field_name]] = $line;
 		}
 	}
@@ -958,18 +959,15 @@ function wrap_check_db_connection() {
  * @return string escaped $value
  */
 function wrap_db_escape($value) {
+	global $zz_conf;
+
 	// should never happen, just during development
 	if (!$value) return '';
 	if (is_array($value) OR is_object($value)) {
 		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
 		return '';
 	}
-	if (function_exists('mysql_real_escape_string')) { 
-		// just from PHP 4.3.0 on
-		return mysql_real_escape_string($value);
-	} else {
-		return addslashes($value);
-	}
+	return mysqli_real_escape_string($zz_conf['db_connection'], $value);
 }
 
 /**
