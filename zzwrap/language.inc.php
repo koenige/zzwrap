@@ -176,6 +176,9 @@ function wrap_text($string) {
 	static $module_text;
 	
 	if (!$string) return $string;
+	if ($zz_conf['character_set'] !== 'utf-8') {
+		$string = mb_convert_encoding($string, 'HTML-ENTITIES', 'UTF-8'); 
+	}
 
 	// get filename for translated texts
 	$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
