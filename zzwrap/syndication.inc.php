@@ -437,6 +437,9 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 				curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
 			}
 		}
+		if (!$timeout_ignore AND !empty($zz_setting['CURLOPT_TIMEOUT_MS'])) {
+			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['CURLOPT_TIMEOUT_MS']);
+		}
 		if ($method === 'POST') {
 			curl_setopt($ch, CURLOPT_POST, true);
 			if (!empty($data_to_send)) {
