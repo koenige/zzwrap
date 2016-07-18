@@ -392,7 +392,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			'http' => array(
 				'method' => $method,
 				'header' => implode("\r\n", $headers_to_send),
-				'content' => $content
+				'content' => $content,
+				'timeout' => !empty($zz_setting['syndication_timeout_ms']) ? $zz_setting['syndication_timeout_ms'] / 1000 : 0
 			)
 		);
 		$context = stream_context_create($opts);
@@ -437,8 +438,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 				curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
 			}
 		}
-		if (!$timeout_ignore AND !empty($zz_setting['CURLOPT_TIMEOUT_MS'])) {
-			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['CURLOPT_TIMEOUT_MS']);
+		if (!$timeout_ignore AND !empty($zz_setting['syndication_timeout_ms'])) {
+			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['syndication_timeout_ms']);
 		}
 		if ($method === 'POST') {
 			curl_setopt($ch, CURLOPT_POST, true);
