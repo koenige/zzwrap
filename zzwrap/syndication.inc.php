@@ -174,7 +174,6 @@ function wrap_syndication_errors($errno, $errstr, $errfile, $errline, $errcontex
  */
 function wrap_syndication_geocode($address) {
 	global $zz_setting;
-	global $zz_error;
 	
 	$urls['Google Maps'] = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
 	// @see http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
@@ -221,7 +220,7 @@ function wrap_syndication_geocode($address) {
 	}
 	foreach ($zz_setting['geocoder'] as $geocoder) {
 		if (!array_key_exists($geocoder, $urls)) {
-			$zz_error[]['msg_dev'] = sprintf('Geocoder %s not supported.', $geocoder);
+			wrap_error(sprintf('Geocoder %s not supported.', $geocoder), E_USER_WARNING);
 			return false;
 		}
 		foreach (array_keys($add) as $index) {
