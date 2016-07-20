@@ -4,7 +4,7 @@
  * zzwrap
  * Standard page functions (menu, breadcrumbs, authors, page)
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  *	wrap_template()
@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2016 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -249,7 +249,7 @@ function wrap_get_menu($page) {
 
 /**
  * Read data for menu from db table 'navigation', translate if required
- * Liest Daten für Menü aus der DB-Tabelle 'navigation' aus, übersetzt ggf. Menü
+ * Liest Daten fÃ¼r MenÃ¼ aus der DB-Tabelle 'navigation' aus, Ã¼bersetzt ggf. MenÃ¼
  * 
  * @return array $menu: 'title', 'url', 'subtitle' (optional), 'id_title' (optional)
  */
@@ -281,7 +281,7 @@ function wrap_get_menu_navigation() {
 
 /**
  * Read data for menu from db table 'webpages/, translate if required
- * Liest Daten für Menü aus der DB-Tabelle 'webpages' aus, übersetzt ggf. Menü
+ * Liest Daten fÃ¼r MenÃ¼ aus der DB-Tabelle 'webpages' aus, Ã¼bersetzt ggf. MenÃ¼
  *
  * @return array $menu: 'title', 'url', 'subtitle'
  */
@@ -366,17 +366,17 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
 }
 
 /**
- * Gibt in HTML formatiertes Navigationsmenü von wrap_get_menu() aus
+ * Gibt in HTML formatiertes NavigationsmenÃ¼ von wrap_get_menu() aus
  * 
  * HTML-Ausgabe erfolgt als verschachtelte Liste mit id="menu" und role
- * auf oberster Ebene, darunter obj2, obj3, .. je nach Anzahl der Menüeinträge
- * aktuelle Seite wird mit '<strong>' ausgezeichnet. Gibt komplettes Menü
- * zurück
+ * auf oberster Ebene, darunter obj2, obj3, .. je nach Anzahl der MenÃ¼eintrÃ¤ge
+ * aktuelle Seite wird mit '<strong>' ausgezeichnet. Gibt komplettes MenÃ¼
+ * zurÃ¼ck
  * @param array $nav Ausgabe von wrap_get_menu();
  *	required keys: 'title', 'url', 'current_page'
  *	optional keys: 'long_title', 'id', 'class', 'subtitle', 'ignore'
- * @param string $menu_name optional; 0 bzw. für Untermenüs $nav_id des jeweiligen 
- *	Eintrags oder Name des Menüs
+ * @param string $menu_name optional; 0 bzw. fÃ¼r UntermenÃ¼s $nav_id des jeweiligen 
+ *	Eintrags oder Name des MenÃ¼s
  * @param int $page_id optional; show only the one correspondig entry from the menu
  *	and show it with a long title
  * @global array $zz_setting
@@ -501,10 +501,10 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 
 
 /**
- * gibt zur aktuellen Seite die ID der obersten Menüebene aus
+ * gibt zur aktuellen Seite die ID der obersten MenÃ¼ebene aus
  * 
- * @param array $menu Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
- * @return int ID des obersten Menüs
+ * @param array $menu Alle MenÃ¼eintrage, wie aus wrap_get_menu() zurÃ¼ckgegeben
+ * @return int ID des obersten MenÃ¼s
  */
 function wrap_get_top_nav_id($menu) {
 	$top_nav = wrap_get_top_nav_recursive($menu);
@@ -542,9 +542,9 @@ function wrap_get_top_nav_id($menu) {
 /**
  * Hilfsfunktion zu wrap_get_top_nav_id()
  * 
- * @param array $menu Alle Menüeintrage, wie aus wrap_get_menu() zurückgegeben
+ * @param array $menu Alle MenÃ¼eintrage, wie aus wrap_get_menu() zurÃ¼ckgegeben
  * @param int $nav_id internal value
- * @return int ID des obersten Menüs
+ * @return int ID des obersten MenÃ¼s
  */
 function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 	$main_nav_id = false;
@@ -804,7 +804,7 @@ function wrap_page_check_if_error($page) {
 		} elseif (!empty($page['error']['msg_text'])) {
 			$msg = wrap_text($page['error']['msg_text']);
 		} else {
-			$msg = wrap_text('zzbrick returned with an error. Sorry, that\'s all we know.');
+			$msg = wrap_text('zzbrick returned with an error. Sorry, thatâ€™s all we know.');
 		}
 		wrap_error($msg, $page['error']['level']);
 	}
