@@ -662,6 +662,25 @@ function wrap_set_units() {
 }
 
 /**
+ * recode text from one character encoding to the used character encoding
+ *
+ * @param string $str
+ * @param string $in_charset
+ * @return string
+ */
+function wrap_text_recode($str, $in_charset) {
+	global $zz_conf;
+
+	$translated = @iconv($in_charset, $zz_conf['character_set'], $str);
+	if (!$translated) {
+		// characters which are not defined in the desired character set
+		// replace with htmlentities
+		$translated = htmlentities($str, ENT_NOQUOTES, $in_charset, false);
+	}
+	return $translated;
+}
+
+/**
  * Parse a gettext po file as a source for translations
  *
  * @param string $file
@@ -692,13 +711,7 @@ function wrap_po_parse($file) {
 			// does not recognize \n as newline
 			$chunk[$key] = str_replace('\n', "\n", $chunk[$key]);
 			if ($zz_conf['character_set'] !== $header['X-Character-Encoding']) {
-				$translated = @iconv($header['X-Character-Encoding'], $zz_conf['character_set'], $chunk[$key]);
-				if (!$translated) {
-					// characters which are not defined in the desired character set
-					// replace with htmlentities
-					$translated = htmlentities($chunk[$key], ENT_NOQUOTES, $header['X-Character-Encoding'], false);
-				}
-				$chunk[$key] = $translated;
+				$chunk[$key] = wrap_text_recode($chunk[$key], $header['X-Character-Encoding']);
 			}
 			switch ($key) {
 			case 'msgctxt': $scope = $chunk[$key]; break;
