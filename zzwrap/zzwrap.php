@@ -67,6 +67,15 @@ function zzwrap() {
 	// do not check if database connection is established until now
 	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
+	
+	// page offline?
+	if (wrap_get_setting('site_offline')) {
+		if ($tpl = wrap_get_setting('site_offline_template')) {
+			$zz_page['template'] = $tpl;
+		}
+		wrap_quit(503, wrap_text('This page is currently offline.'));
+		exit;
+	}
 
 	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
 	// Veröffentlichung freigegebene Seiten angeschaut werden können.
@@ -89,7 +98,7 @@ function zzwrap() {
 	}
 	wrap_check_https($zz_page, $zz_setting);
 
-	// @todo: check if we can start this earlier
+	// @todo check if we can start this earlier
 	if (!empty($zz_setting['cache_age'])) {
 		wrap_send_cache($zz_setting['cache_age']);
 	}
