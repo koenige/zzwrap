@@ -38,7 +38,7 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
-		$error_msg = array();
+		$messages = array();
 	}
 	if ($collect AND $msg) {
 		// Split message per sentence to avoid redundant messages
