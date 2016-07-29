@@ -374,6 +374,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 	global $zz_setting;
 	global $zz_conf;
 
+	if (empty($zz_setting['syndication_error_code']))
+		$zz_setting['syndication_error_code'] = E_USER_ERROR;
 	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
@@ -482,12 +484,12 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 					wrap_error(sprintf(
 						'Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s',
 						$url, curl_error($ch)
-					), E_USER_WARNING);
+					), $zz_setting['syndication_error_code']);
 				} else {
 					wrap_error(sprintf(
 						'Syndication from URL %s failed. Reason: %s',
 						$url, curl_error($ch)
-					), E_USER_WARNING);
+					), $zz_setting['syndication_error_code']);
 				}
 			}
 		}
