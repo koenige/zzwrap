@@ -34,11 +34,12 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	global $zz_page;
 	static $post_errors_logged;
 	static $collect;
-	static $messages;
+	static $collect_messages;
+	static $collect_errorcode;
 
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
-		$messages = array();
+		$collect_messages = array();
 	}
 	if ($collect AND $msg) {
 		// Split message per sentence to avoid redundant messages
@@ -47,14 +48,25 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 		foreach ($msg as $mymsg) {
 			$mymsg = trim($mymsg);
 			if (!$mymsg) continue;
-			$messages[$mymsg] = $mymsg.'. ';
+			$collect_messages[$mymsg] = $mymsg.'. ';
 		}
 		$msg = false;
+		if (!empty($collect_errorcode)) {
+			if ($collect_errorcode < $errorcode) {
+				$collect_errorcode = $errorcode;
+			}
+		} else {
+			$collect_errorcode = $errorcode;
+		}
+		$collect_errorcode = $errorcode < $collect_errorcode ? $errorcode : $collect_errorcode;
 	}
 	if (!empty($settings['collect_end'])) {
 		$collect = false;
-		$msg = implode(' ', $messages);
-		$messages = NULL;
+		$msg = implode('', $collect_messages);
+		$collect_messages = NULL;
+		if (!empty($collect_errorcode)) {
+			$errorcode = $collect_errorcode;
+		}
 	}
 	if (!$msg) return false;
 
