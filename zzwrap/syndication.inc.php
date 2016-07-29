@@ -56,6 +56,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		}
 	}
 	if (!$data) {
+		wrap_error(false, false, array('collect_start' => true));
 		$headers_to_send = array();
 		if ($etag) {
 			$headers_to_send = array(
@@ -102,7 +103,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 				// connection error, use (possibly stale) cache file
 				$data = file_get_contents($files[0]);
 				wrap_error(sprintf(
-					'Syndication from URL %s failed with status code %s. Using cached file instead.',
+					'Syndication from URL %s failed. Status code %s. Using cached file instead.',
 					$url, $status
 				), E_USER_NOTICE);
 				if (!empty($zz_setting['cache'])) {
@@ -111,12 +112,13 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			} else {
 				$data = NULL;
 				wrap_error(sprintf(
-					'Syndication from URL %s failed with status code %s.',
+					'Syndication from URL %s failed. Status code %s.',
 					$url, $status
 				), $zz_setting['syndication_error_code']);
 			}
 			break;
 		}
+		wrap_error(false, false, array('collect_end' => true));
 	}
 
 	if (!$data) return $data;
