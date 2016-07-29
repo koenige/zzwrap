@@ -216,3 +216,4 @@ qs	string	utm_content
 
 # there are no links on example.com, another broken script
 404	referer	http://www.example.com
+404	referer	http://www.example.com/
