@@ -34,6 +34,8 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	global $zz_page;
 	static $post_errors_logged;
 
+	if (!$msg) return false;
+
 	$return = false;
 	switch ($errorcode) {
 	case E_USER_ERROR: // critical error: stop!
