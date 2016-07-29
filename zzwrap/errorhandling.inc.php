@@ -21,7 +21,7 @@
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
- *		'subject', bool 'log_post_data'
+ *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end'
  * @global array $zz_conf cofiguration settings
  *		'error_mail_to', 'error_mail_from', 'error_handling', 'error_log',
  *		'log_errors', 'log_errors_max_len', 'debug', 'error_mail_level',
@@ -33,7 +33,29 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 	global $zz_setting;
 	global $zz_page;
 	static $post_errors_logged;
+	static $collect;
+	static $messages;
 
+	if (!empty($settings['collect_start'])) {
+		$collect = true;
+		$error_msg = array();
+	}
+	if ($collect AND $msg) {
+		// Split message per sentence to avoid redundant messages
+		$msg .= ' ';
+		$msg = explode('. ', $msg);
+		foreach ($msg as $mymsg) {
+			$mymsg = trim($mymsg);
+			if (!$mymsg) continue;
+			$messages[$mymsg] = $mymsg.'. ';
+		}
+		$msg = false;
+	}
+	if (!empty($settings['collect_end'])) {
+		$collect = false;
+		$msg = implode(' ', $messages);
+		$messages = NULL;
+	}
 	if (!$msg) return false;
 
 	$return = false;
