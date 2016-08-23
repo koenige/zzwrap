@@ -77,6 +77,8 @@
 404	all	/index.php?option=com_users&view=registration
 404	all	/index.php?option=com_kide
 404	all	/index.php?option=com_easyblog&view=dashboard&layout=write
+404	all	/index.php/component/users/?view=registration
+404	all	/component/users/?view=registration
 
 # Magento
 404	end	/js/mage/cookies.js
