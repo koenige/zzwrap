@@ -1380,8 +1380,10 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 	global $zz_page;
 
 	header_remove('X-Powered-By');
-	// Prevent IE > 7 from sniffing mime types
-	wrap_cache_header('X-Content-Type-Options: nosniff');
+	// send extra http headers, @see defaults.inc.php
+	foreach ($zz_setting['extra_http_headers'] as $header) {
+		wrap_cache_header($header);
+	}
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {

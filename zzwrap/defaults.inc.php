@@ -63,7 +63,7 @@ function wrap_set_defaults_post_conf() {
 	}
 	
 	// -------------------------------------------------------------------------
-	// Hostname, Access via HTTPS or not
+	// HTTP, Hostname, Access via HTTPS or not
 	// -------------------------------------------------------------------------
 	
 	if (empty($zz_setting['https'])) $zz_setting['https'] = false;
@@ -122,6 +122,12 @@ function wrap_set_defaults_post_conf() {
 		if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
 			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 		}
+	}
+	
+	if (empty($zz_setting['extra_http_headers'])) {
+		$zz_setting['extra_http_headers'] = array();
+		// Prevent IE > 7 from sniffing mime types
+		$zz_setting['extra_http_headers'][] = 'X-Content-Type-Options: nosniff';
 	}
 	
 	// -------------------------------------------------------------------------
