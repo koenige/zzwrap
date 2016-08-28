@@ -31,7 +31,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 	$data = array();
 	$etag = '';
 	$last_modified = '';
-	if (!$url) return false;
+	if (!$url) return array();
 	if (!$cache_filename) $cache_filename = $url;
 
 	if (!isset($zz_setting['cache_age_syndication'])) {
@@ -121,7 +121,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		wrap_error(false, false, array('collect_end' => true));
 	}
 
-	if (!$data) return $data;
+	if (!$data) return array();
 	switch ($type) {
 	case 'json':
 		$object = json_decode($data, true);	// Array
