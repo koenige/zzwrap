@@ -124,12 +124,6 @@ function wrap_set_defaults_post_conf() {
 		}
 	}
 	
-	if (empty($zz_setting['extra_http_headers'])) {
-		$zz_setting['extra_http_headers'] = array();
-		// Prevent IE > 7 from sniffing mime types
-		$zz_setting['extra_http_headers'][] = 'X-Content-Type-Options: nosniff';
-	}
-	
 	// -------------------------------------------------------------------------
 	// Paths
 	// -------------------------------------------------------------------------
