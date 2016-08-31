@@ -1979,7 +1979,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
  * @param string $type (optional) default: 'url'; 'headers', 'domain'
  * @param string $url (optional) URL to cache, if not set, internal URL will be used
  * @global array $zz_page ($zz_page['url']['full'])
- * @global array $zz_setting 'cache'
+ * @global array $zz_setting 'cache_dir'
  * @return string filename
  */
 function wrap_cache_filename($type = 'url', $url = '') {
@@ -1994,7 +1994,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$url = parse_url($url);
 		$base = '';
 	}
-	$file = $zz_setting['cache'].'/'.urlencode($url['host']);
+	$file = $zz_setting['cache_dir'].'/'.urlencode($url['host']);
 	if ($type === 'domain') return $file;
 
 	if (!empty($url['query'])) {

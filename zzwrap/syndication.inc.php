@@ -644,5 +644,5 @@ function wrap_lock_hash() {
  */
 function wrap_lock_file($realm) {
 	global $zz_setting;
-	return $zz_setting['cache'].'/'.basename($realm).'.lock';
+	return $zz_setting['cache_dir'].'/'.basename($realm).'.lock';
 }

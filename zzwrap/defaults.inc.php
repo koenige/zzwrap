@@ -396,9 +396,9 @@ function wrap_tests() {
 	global $zz_setting;
 	// check if cache directory exists
 	if (!empty($zz_setting['cache'])) {
-		if (!file_exists($zz_setting['cache'])) {
+		if (!file_exists($zz_setting['cache_dir'])) {
 			wrap_error(sprintf('Cache directory %s does not exist. Caching disabled.', 
-				$zz_setting['cache']), E_USER_WARNING);
+				$zz_setting['cache_dir']), E_USER_WARNING);
 			$zz_setting['cache'] = '';
 		}
 		// @todo: not is writable
