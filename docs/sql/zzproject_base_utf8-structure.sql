@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.24, for osx10.9 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.13, for osx10.11 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.6.24
+-- Server version	5.7.13
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -151,8 +151,8 @@ DROP TABLE IF EXISTS `_uris`;
 CREATE TABLE `_uris` (
   `uri_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uri_scheme` varchar(15) COLLATE latin1_general_ci NOT NULL,
-  `uri_host` varchar(32) COLLATE latin1_general_ci NOT NULL,
-  `uri_path` varchar(128) COLLATE latin1_general_ci NOT NULL,
+  `uri_host` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `uri_path` varchar(127) COLLATE latin1_general_ci NOT NULL,
   `uri_query` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
   `content_type` varchar(127) COLLATE latin1_general_ci NOT NULL,
   `character_encoding` varchar(31) COLLATE latin1_general_ci DEFAULT NULL,
@@ -183,6 +183,8 @@ CREATE TABLE `categories` (
   `description` text COLLATE utf8_unicode_ci,
   `main_category_id` int(10) unsigned DEFAULT NULL,
   `path` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `sequence` tinyint(3) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY `path` (`path`),
@@ -290,9 +292,9 @@ CREATE TABLE `media` (
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `sequence` smallint(5) unsigned DEFAULT NULL,
   `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `filetype_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `filetype_id` int(10) unsigned NOT NULL,
   `thumb_filetype_id` int(10) unsigned DEFAULT NULL,
-  `filesize` int(10) unsigned NOT NULL DEFAULT '0',
+  `filesize` int(10) unsigned DEFAULT NULL,
   `md5_hash` varchar(32) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `version` tinyint(3) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -359,10 +361,15 @@ CREATE TABLE `webpages` (
   `mother_page_id` int(10) unsigned DEFAULT NULL,
   `live` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
   `menu` enum('top','bottom','internal') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`page_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping routines for database 'zzproject_base_utf8'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
