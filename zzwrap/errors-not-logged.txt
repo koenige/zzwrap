@@ -71,6 +71,7 @@
 404	all	/wp-admin/includes/images.php?php
 404	all	/wp-content/uploads/woo.php
 404	end	/wp-foot.php
+404	all	/wp-content/
 
 # Joomla
 404	all	/administrator/index.php
