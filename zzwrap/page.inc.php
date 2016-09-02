@@ -210,11 +210,12 @@ function wrap_get_menu($page) {
 	if (empty($menu)) return $page;
 
 	// set current_page, id, subtitle, url with base for _ALL_ menu items
+	$base = wrap_nav_base();
 	foreach (array_keys($menu) as $id) {
 		foreach ($menu[$id] as $nav_id => $item) {
 			// add base_url for non-http links
 			if (substr($item['url'], 0, 1) === '/') 
-				$menu[$id][$nav_id]['url'] = $zz_setting['base'].$item['url'];
+				$menu[$id][$nav_id]['url'] = $base.$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
 				($menu[$id][$nav_id]['url'] === $_SERVER['REQUEST_URI']) ? true : false;
@@ -641,10 +642,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	// set default values
 	if (empty($zz_page['breadcrumbs_separator']))
 		$zz_page['breadcrumbs_separator'] = '&gt;';
-	if (empty($zz_setting['base'])) $zz_setting['base'] = '';
-	// cut last slash because breadcrumb URLs always start with slash
-	if (substr($zz_setting['base'], -1) === '/') 
-		$zz_setting['base'] = substr($zz_setting['base'], 0, -1);
+	$base = wrap_nav_base();
 
 	// if there are breadcrumbs returned from brick_format, remove the last
 	// and append later these breadcrumbs instead
@@ -658,10 +656,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($paths as $path) {
 			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
 		}
-		$current = ($zz_setting['base'].$crumb['url_path'] === $_SERVER['REQUEST_URI'] ? true : false);
+		$current = ($base.$crumb['url_path'] === $_SERVER['REQUEST_URI'] ? true : false);
 		$formatted_breadcrumbs[] = 
 			(($current OR !$crumb['url_path'])
-				? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
+				? '<strong>' : '<a href="'.$base.$crumb['url_path'].'">')
 			.$crumb['title']
 			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
@@ -671,10 +669,10 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	if (!empty($brick_breadcrumbs)) {
 		foreach ($brick_breadcrumbs as $index => $crumb) {
 			if (!is_array($crumb)) continue;
-			$current = ($zz_setting['base'].$crumb['url_path'] === $_SERVER['REQUEST_URI'] ? true : false);
+			$current = ($base.$crumb['url_path'] === $_SERVER['REQUEST_URI'] ? true : false);
 			$brick_breadcrumbs[$index] = 
 				(($current OR !$crumb['url_path'])
-					? '<strong>' : '<a href="'.$zz_setting['base'].$crumb['url_path'].'">')
+					? '<strong>' : '<a href="'.$base.$crumb['url_path'].'">')
 				.$crumb['title']
 				.(($current OR !$crumb['url_path'])
 					? '</strong>' : '</a>');
@@ -683,6 +681,27 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			.' '.implode(' '.$zz_page['breadcrumbs_separator'].' ', $brick_breadcrumbs);
 	}
 	return $html_output;
+}
+
+/**
+ * get base URL for navigation
+ * if 'language_not_in_nav' is set, remove language strings
+ *
+ * @global array $zz_setting
+ * @return string
+ */
+function wrap_nav_base() {
+	global $zz_setting;
+	$base = empty($zz_setting['base']) ? '' : $zz_setting['base'];
+	if (!empty($zz_setting['language_not_in_nav'])) {
+		if (substr($base, -strlen($zz_setting['lang']) - 1) === '/'. $zz_setting['lang']) {
+			 $base = substr($base, 0, -3);
+		}
+	}
+	// cut last slash because breadcrumb URLs always start with slash
+	if (substr($base, -1) === '/') 
+		$base = substr($base, 0, -1);
+	return $base;
 }
 
 
