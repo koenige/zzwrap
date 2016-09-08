@@ -166,6 +166,7 @@ function wrap_session_check($token) {
 		// Cookietest durch redirect auf dieselbe URL mit ?cookie am Ende
 		return wrap_session_cookietest_start($token);
 	}
+	session_write_close();
 	return true;
 }
 
@@ -178,7 +179,6 @@ function wrap_session_check($token) {
  */
 function wrap_session_cookietest_start($token) {
 	global $zz_page;
-	wrap_session_start();
 	$_SESSION[$token] = true;
 	$_SESSION['last_click_at'] = time();
 	session_write_close();
@@ -203,12 +203,12 @@ function wrap_session_cookietest_start($token) {
  */
 function wrap_session_cookietest_end($token) {
 	global $zz_page;
+	session_write_close();
 	$url = $zz_page['url']['full'];
 	parse_str($url['query'], $query);
 	unset($query['no-cookie']);
 	$url['query'] = http_build_query($query);
 	$data['url'] = wrap_glue_url($url);
-	wrap_session_start();
 	if (!empty($_SESSION[$token])) {
 		return brick_format('%%% redirect '.$data['url'].' %%%');
 	}
