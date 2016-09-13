@@ -404,7 +404,7 @@ function wrap_errorpage_log($status, $page) {
 		if (wrap_errorpage_logignore()) return false;
 		// own error message!
 		$requested = $zz_page['url']['full']['scheme'].'://'
-			.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+			.$zz_setting['hostname'].$_SERVER['REQUEST_URI'];
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested, 
@@ -577,10 +577,10 @@ function wrap_errorpage_logignore() {
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
 	if (!$referer) return false; // not parseable = invalid
 	if (empty($referer['host'])) return false; // not really parseable = invalid
-	if ($_SERVER['SERVER_NAME'] !== $referer['host']) {
+	if ($zz_setting['hostname'] !== $referer['host']) {
 		$ok = false;
 		// missing www. redirect
-		if ('www.'.$referer['host'] === $_SERVER['SERVER_NAME']) $ok = true;
+		if ('www.'.$referer['host'] === $zz_setting['hostname']) $ok = true;
 		// IP redirect
 		if ($referer['host'] === $_SERVER['SERVER_ADDR']) $ok = true;
 		if (!$ok) return false;
