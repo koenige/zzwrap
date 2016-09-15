@@ -967,6 +967,9 @@ function wrap_db_escape($value) {
 		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
 		return '';
 	}
+	if (!$zz_conf['db_connection']) {
+		return addslashes($value);
+	}
 	return mysqli_real_escape_string($zz_conf['db_connection'], $value);
 }
 
