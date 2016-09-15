@@ -263,7 +263,7 @@ function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	// Caching	
-	$zz_setting['cache']		=
+	$zz_setting['cache']		= true;
 	$zz_setting['cache_dir']	= $zz_conf['root'].'/../_cache';
 	$zz_setting['cache_age']	= 10;
 	if ($zz_setting['local_access']) {
