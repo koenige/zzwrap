@@ -2241,6 +2241,9 @@ function wrap_trigger_url($url) {
  */
 function wrap_trigger_protected_url($url, $username = false) {
 	$headers[] = 'X-Timeout-Ignore: 1';
+	if (function_exists('wrap_lock_hash')) {
+		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
+	}
 	return wrap_get_protected_url($url, $headers, 'GET', array(), $username);
 }
 

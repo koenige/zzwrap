@@ -632,6 +632,9 @@ function wrap_lock_wait($realm, $sec) {
 function wrap_lock_hash() {
 	static $hash;
 	if ($hash) return $hash;
+	if (!empty($_SERVER['HTTP_X_LOCK_HASH'])) {
+		return $_SERVER['HTTP_X_LOCK_HASH'];
+	}
 	$hash = wrap_random_hash(32);
 	return $hash;
 }
