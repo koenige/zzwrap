@@ -393,6 +393,20 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  */
 function wrap_check_canonical($zz_page, $page) {
 	global $zz_setting;
+	
+	// canonical hostname?
+	if (!empty($zz_setting['canonical_hostname'])) {
+		if (!empty($zz_setting['local_access'])) {
+			$canonical = $zz_setting['canonical_hostname'].'.local';
+		} else {
+			$canonical = $zz_setting['canonical_hostname'];
+		}
+		if ($zz_setting['hostname'] !== $canonical) {
+			$zz_page['url']['full']['host'] = $canonical;
+			$zz_page['url']['redirect'] = true;
+		}
+	}
+	
 	// if database allows field 'ending', check if the URL is canonical
 	if (!empty($zz_page['db'][wrap_sql('ending')])) {
 		$ending = $zz_page['db'][wrap_sql('ending')];
@@ -404,6 +418,7 @@ function wrap_check_canonical($zz_page, $page) {
 		$zz_page['url']['full']['path'] = '/';
 		$zz_page['url']['redirect'] = true;
 	}
+
 	$types = array('query_strings', 'query_strings_redirect');
 	foreach ($types as $type) {
 		// initialize
@@ -532,7 +547,14 @@ function wrap_read_url($url) {
  */
 function wrap_glue_url($url) {
 	global $zz_setting;
-	$full_url = $url['scheme'].'://'.$url['host'].$zz_setting['base']
+	$base = !empty($zz_setting['base']) ? $zz_setting['base'] : '';
+	if (substr($base, -1) === '/') $base = substr($base, 0, -1);
+	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
+		$port = sprintf(':%s', $_SERVER['SERVER_PORT']);
+	} else {
+		$port = '';
+	}
+	$full_url = $url['scheme'].'://'.$url['host'].$port.$base
 		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
 	return $full_url;
 }

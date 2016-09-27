@@ -893,12 +893,9 @@ function wrap_get_page() {
 function wrap_redirect($url) {
 	if (empty($url['redirect'])) return false;
 	global $zz_setting;
-	
-	$base = !empty($zz_setting['base']) ? $zz_setting['base'] : '';
-	if (substr($base, -1) === '/') $base = substr($base, 0, -1);
+
+	$location = wrap_glue_url($url['full']);
 	wrap_http_status_header(301);
-	$location = $zz_setting['host_base'].$base.$url['full']['path'];
-	if (!empty($url['full']['query'])) $location .= '?'.$url['full']['query'];
 	header('Location: '.$location);
 	exit;
 }
