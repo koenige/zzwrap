@@ -583,6 +583,9 @@ function wrap_errorpage_logignore() {
 		if ('www.'.$referer['host'] === $zz_setting['hostname']) $ok = true;
 		// IP redirect
 		if ($referer['host'] === $_SERVER['SERVER_ADDR']) $ok = true;
+		// referer from canonical hostname
+		if (!empty($zz_setting['canonical_hostname'])
+			AND $zz_setting['canonical_hostname'] === $referer['host']) $ok = true;
 		if (!$ok) return false;
 	}
 	// ignore scheme, port, user, pass
