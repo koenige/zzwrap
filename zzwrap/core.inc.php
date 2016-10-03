@@ -574,9 +574,8 @@ function wrap_check_redirects($page_url) {
 	if (empty($zz_setting['check_redirects'])) return false;
 	$url = wrap_read_url($zz_page['url']);
 	$url['db'] = wrap_db_escape($url['db']);
-	$where_language = ((!empty($_GET['lang']) AND !is_array($_GET['lang']))
-		? ' OR '.wrap_sql('redirects_old_fieldname').' = "/'
-			.$url['db'].'.html.'.wrap_db_escape($_GET['lang']).'"'
+	$where_language = (!empty($_GET['lang']) AND !is_array($_GET['lang'])
+		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql('redirects_old_fieldname'), $url['db'], wrap_db_escape($_GET['lang']))
 		: ''
 	);
 	$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
