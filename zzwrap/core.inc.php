@@ -598,7 +598,7 @@ function wrap_check_redirects($page_url) {
 	$parameter = false;
 	$found = false;
 	$break_next = false;
-	$separators = array('/', '-');
+	$separators = array('/', '-', '.');
 	while (!$found) {
 		$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
 		$redir = wrap_db_fetch($sql);
@@ -606,7 +606,10 @@ function wrap_check_redirects($page_url) {
 		$last_pos = 0;
 		foreach ($separators as $separator) {
 			$pos = strrpos($url['db'], $separator);
-			if ($pos > $last_pos) $last_pos = $pos;
+			if ($pos > $last_pos) {
+				$last_pos = $pos;
+				$last_separator = $separator;
+			}
 		}
 		if ($last_pos) {
 			$parameter = substr($url['db'], $last_pos).$parameter;
@@ -616,13 +619,14 @@ function wrap_check_redirects($page_url) {
 		if (!strstr($url['db'], '/')) $break_next = true;
 	}
 	if (!$redir) return false;
+	// parameters starting with - will be changed to start with /
+	if ($last_separator === '-') $last_separator = '/';
 	// If there's an asterisk (*) at the end of the redirect
 	// the cut part will be pasted to the end of the string
-	// parameters starting with - will be changed to start with /
 	$field_name = wrap_sql('redirects_new_fieldname');
 	if (substr($redir[$field_name], -1) === '*') {
 		$parameter = substr($parameter, 1);
-		$redir[$field_name] = substr($redir[$field_name], 0, -1).'/'.$parameter;
+		$redir[$field_name] = substr($redir[$field_name], 0, -1).$last_separator.$parameter;
 	}
 	return $redir;
 }
