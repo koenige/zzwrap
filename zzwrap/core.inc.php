@@ -619,7 +619,8 @@ function wrap_check_redirects($page_url) {
 	}
 	if (!$redir) return false;
 	// parameters starting with - will be changed to start with /
-	if ($last_separator === '-') $last_separator = '/';
+	if (empty($last_separator)) $last_separator = '/'; // default
+	elseif ($last_separator === '-') $last_separator = '/';
 	// If there's an asterisk (*) at the end of the redirect
 	// the cut part will be pasted to the end of the string
 	$field_name = wrap_sql('redirects_new_fieldname');
