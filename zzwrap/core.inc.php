@@ -821,7 +821,6 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	case 303:
 	case 307:
 		// (header 302 is sent automatically if using Location)
-		wrap_http_status_header($page['status']);
 		if (!empty($page['redirect'])) {
 			$new = $page['redirect'];
 		} else {
@@ -832,7 +831,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 		if (empty($newurl['scheme'])) {
 			$new = $zz_setting['host_base'].$zz_setting['base'].$new;
 		}
-		header('Location: '.$new);
+		wrap_redirect($new, $page['status']);
 		exit;
 	case 304:
 	case 412:
@@ -945,7 +944,7 @@ function wrap_check_https($zz_page, $zz_setting) {
 	}
 	$url = $zz_page['url']['full'];
 	$url['scheme'] = $zz_setting['protocol'];
-	header('Location: '.wrap_glue_url($url));
+	wrap_redirect(wrap_glue_url($url));
 	exit;
 }
 
