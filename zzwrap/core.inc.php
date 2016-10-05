@@ -1626,7 +1626,7 @@ function wrap_send_gzip($text, $etag_header) {
  * @param array $headers (optional), if not set use sent headers
  * @return bool false: no new cache file was written, true: new cache file created
  */
-function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = array()) {
+function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $headers = array()) {
 	global $zz_setting;
 	$host = wrap_cache_filename('domain', $url);
 	if (!file_exists($host)) {
@@ -1646,7 +1646,11 @@ function wrap_cache_ressource($text, $existing_etag, $url = false, $headers = ar
 		}
 	}
 	// save document
-	file_put_contents($doc, $text);
+	if ($text) {
+		file_put_contents($doc, $text);
+	} else {
+		unlink($doc);
+	}
 	// save headers
 	// without '-gz'
 	if (!$headers) {
@@ -1851,7 +1855,8 @@ function wrap_send_cache($age = 0) {
 	if (!empty($_POST)) return false;
 
 	$files = array(wrap_cache_filename(), wrap_cache_filename('headers'));
-	if (!file_exists($files[0]) OR !file_exists($files[1])) return false;
+	// $files[0] might not exist (redirect!)
+	if (!file_exists($files[1])) return false;
 
 	if ($age) {
 		// return cached files if they're still fresh enough
