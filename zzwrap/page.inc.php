@@ -867,7 +867,10 @@ function wrap_get_page() {
 	if (!empty($page['no_output'])) exit;
 
 	$zz_page['url'] = wrap_check_canonical($zz_page, $page);
-	wrap_redirect($zz_page['url']);
+	if (!empty($zz_page['url']['redirect'])) {
+		// redirect to canonical URL or URL with language code
+		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301);
+	}
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
 	!empty($page['lang']) OR $page['lang'] = $zz_setting['lang'];
@@ -886,16 +889,13 @@ function wrap_get_page() {
 }
 
 /**
- * Redirects to a canonical URL or a URL with language information etc.
+ * Redirects to another URL
  * 
- * @param array $url $zz_page['url']
+ * @param array $location URL to redirect to
+ * @param int $status (defaults to 302)
  */
-function wrap_redirect($url) {
-	if (empty($url['redirect'])) return false;
-	global $zz_setting;
-
-	$location = wrap_glue_url($url['full']);
-	wrap_http_status_header(301);
+function wrap_redirect($location, $status = 302) {
+	wrap_http_status_header($status);
 	header('Location: '.$location);
 	exit;
 }
