@@ -895,8 +895,13 @@ function wrap_get_page() {
  * @param int $status (defaults to 302)
  */
 function wrap_redirect($location, $status = 302) {
+	global $zz_setting;
+
+	$header = sprintf('Location: %s', $location);
+	$zz_setting['headers'][] = $header;
+	wrap_cache_ressource();
 	wrap_http_status_header($status);
-	header('Location: '.$location);
+	header($header);
 	exit;
 }
 
