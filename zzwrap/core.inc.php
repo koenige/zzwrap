@@ -1224,6 +1224,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	global $zz_setting;
 	global $zz_page;
 
+	// positions: text might be array
+	if (is_array($text) AND count($text) === 1) $text = array_shift($text);
 	if ($type !== 'csv') {
 		$text = trim($text);
 	}
