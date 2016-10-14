@@ -822,7 +822,20 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 	case 307:
 		// (header 302 is sent automatically if using Location)
 		if (!empty($page['redirect'])) {
-			$new = $page['redirect'];
+			if (is_array($page['redirect']) AND array_key_exists('languagelink', $page['redirect'])) {
+				if (!empty($zz_setting['language_in_url'])
+					AND substr($zz_setting['base'], -3) === '/'.$zz_setting['lang']) {
+					$zz_setting['base'] = substr($zz_setting['base'], 0, -3);
+				}
+				if ($page['redirect']['languagelink']) {
+					$zz_setting['base'] .= '/'.$page['redirect']['languagelink'];
+				}
+				$new = wrap_glue_url($zz_page['url']['full']);
+			} elseif (is_array($page['redirect'])) {
+				wrap_error(sprintf('Redirect to array not supported: %s', json_encode($page['redirect'])));
+			} else {
+				$new = $page['redirect'];
+			}
 		} else {
 			$field_name = wrap_sql('redirects_new_fieldname');
 			$new = $redir[$field_name];
