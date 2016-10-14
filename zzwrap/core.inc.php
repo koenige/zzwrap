@@ -1663,7 +1663,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	// save document
 	if ($text) {
 		file_put_contents($doc, $text);
-	} else {
+	} elseif (file_exists($doc)) {
 		unlink($doc);
 	}
 	// save headers
