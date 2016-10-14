@@ -171,7 +171,7 @@ function wrap_auth_loginpage() {
 			AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
 	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url']
-		.(count($qs) ? '?'.implode('&', $qs) : ''), 307);
+		.(count($qs) ? '?'.implode('&', $qs) : ''), 307, false);
 	exit;
 }
 
@@ -216,7 +216,7 @@ function cms_logout($params) {
 	// Stop the session, delete all session data
 	wrap_session_stop();
 
-	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url'].'?logout', 307);
+	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url'].'?logout', 307, false);
 	exit;
 }
 
@@ -484,7 +484,7 @@ function cms_login_redirect($url, $querystring = array()) {
 		else
 			$url .= '?no-cookie';
 	}
-	wrap_redirect($zz_setting['host_base'].$url, 303);
+	wrap_redirect($zz_setting['host_base'].$url, 303, false);
 	exit;
 }
 
