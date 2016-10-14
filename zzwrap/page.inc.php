@@ -893,13 +893,14 @@ function wrap_get_page() {
  * 
  * @param array $location URL to redirect to
  * @param int $status (defaults to 302)
+ * @param bool $cache cache redirect, defaults to true
  */
-function wrap_redirect($location, $status = 302) {
+function wrap_redirect($location, $status = 302, $cache = true) {
 	global $zz_setting;
 
 	$header = sprintf('Location: %s', $location);
 	$zz_setting['headers'][] = $header;
-	if (!empty($zz_setting['cache'])
+	if ($cache AND !empty($zz_setting['cache'])
 		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
 		wrap_cache_ressource();
 	}
