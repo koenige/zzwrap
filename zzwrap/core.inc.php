@@ -823,6 +823,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 		// (header 302 is sent automatically if using Location)
 		if (!empty($page['redirect'])) {
 			if (is_array($page['redirect']) AND array_key_exists('languagelink', $page['redirect'])) {
+				$old_base = $zz_setting['base'];
 				if (!empty($zz_setting['language_in_url'])
 					AND substr($zz_setting['base'], -3) === '/'.$zz_setting['lang']) {
 					$zz_setting['base'] = substr($zz_setting['base'], 0, -3);
@@ -831,6 +832,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
 					$zz_setting['base'] .= '/'.$page['redirect']['languagelink'];
 				}
 				$new = wrap_glue_url($zz_page['url']['full']);
+				$zz_setting['base'] = $old_base; // keep old base for caching
 			} elseif (is_array($page['redirect'])) {
 				wrap_error(sprintf('Redirect to array not supported: %s', json_encode($page['redirect'])));
 			} else {
