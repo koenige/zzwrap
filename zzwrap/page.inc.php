@@ -899,7 +899,10 @@ function wrap_redirect($location, $status = 302) {
 
 	$header = sprintf('Location: %s', $location);
 	$zz_setting['headers'][] = $header;
-	wrap_cache_ressource();
+	if (!empty($zz_setting['cache'])
+		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
+		wrap_cache_ressource();
+	}
 	wrap_http_status_header($status);
 	header($header);
 	exit;
