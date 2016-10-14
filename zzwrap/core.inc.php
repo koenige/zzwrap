@@ -1872,10 +1872,11 @@ function wrap_send_cache($age = 0) {
 	$files = array(wrap_cache_filename(), wrap_cache_filename('headers'));
 	// $files[0] might not exist (redirect!)
 	if (!file_exists($files[1])) return false;
+	$has_content = file_exists($files[0]);
 
 	if ($age) {
 		// return cached files if they're still fresh enough
-		$fresh = wrap_cache_freshness($files, $age);
+		$fresh = wrap_cache_freshness($files, $age, $has_content);
 		if (!$fresh) return false;
 	}
 
@@ -1928,9 +1929,10 @@ function wrap_send_cache($age = 0) {
  *
  * @param array $files list of files
  * @param int $age (negative -1: don't care about freshness; other values: check)
+ * @param bool $has_content if false, it's only a redirect
  * @return bool false: not fresh, true: cache is fresh
  */
-function wrap_cache_freshness($files, $age) {
+function wrap_cache_freshness($files, $age, $has_content = true) {
 	// -1: cache will always considered to be fresh
 	if ($age === -1) return true;
 	$now = time();
@@ -1941,7 +1943,7 @@ function wrap_cache_freshness($files, $age) {
 		if ($last_mod_timestamp > $now + $age) {
 			return true;
 		}
-		if (filemtime($files[0]) > $now + $age) return true;
+		if ($has_content AND filemtime($files[0]) > $now + $age) return true;
 	} else {
 		// 0 or positive values: cache files will be checked
 		// check if X-Revalidated is set
@@ -1953,7 +1955,7 @@ function wrap_cache_freshness($files, $age) {
 			return true;
 		}
 		// check if cached files date is fresh
-		if (filemtime($files[0]) + $age > $now) return true;
+		if ($has_content AND filemtime($files[0]) + $age > $now) return true;
 	}
 	return false;
 }
