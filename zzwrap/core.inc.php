@@ -959,7 +959,7 @@ function wrap_check_https($zz_page, $zz_setting) {
 	}
 	$url = $zz_page['url']['full'];
 	$url['scheme'] = $zz_setting['protocol'];
-	wrap_redirect(wrap_glue_url($url));
+	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 	exit;
 }
 
