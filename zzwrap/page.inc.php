@@ -891,7 +891,7 @@ function wrap_get_page() {
 /**
  * Redirects to another URL
  * 
- * @param array $location URL to redirect to
+ * @param string $location URL to redirect to
  * @param int $status (defaults to 302)
  * @param bool $cache cache redirect, defaults to true
  */
@@ -902,7 +902,8 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 	$zz_setting['headers'][] = $header;
 	if ($cache AND !empty($zz_setting['cache'])
 		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
-		wrap_cache_ressource();
+		// provide cache URL since internal URL might already be rewritten
+		wrap_cache_ressource('', '', $zz_setting['host_base'].$_SERVER['REQUEST_URI']);
 	}
 	wrap_http_status_header($status);
 	header($header);
