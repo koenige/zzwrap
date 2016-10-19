@@ -240,6 +240,9 @@ function cms_login($params) {
 	global $zz_conf;
 	global $zz_page;
 
+	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
+	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
 
