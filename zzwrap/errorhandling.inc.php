@@ -303,7 +303,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	$page['error_description'] = sprintf(wrap_text($status['description']), 
 		$_SERVER['REQUEST_METHOD']);
 	if (in_array($page['status'], $extra_description_codes)) {
-		$page['error_explanation'] = sprintf(wrap_text('Please try to find the '
+		$page['error_explanation'] = ' '.sprintf(wrap_text('Please try to find the '
 			.'content you were looking for from our <a href="%s">main page</a>.'),
 			$zz_setting['homepage_url']);
 	} else {
