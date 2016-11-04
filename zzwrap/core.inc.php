@@ -262,14 +262,21 @@ function wrap_look_for_page($zz_page) {
 				$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
 			}
 			$page[$i] = wrap_db_fetch($sql);
-			if (empty($page[$i]) && strstr($my_url, '/')) {
+			if (empty($page[$i])) {
 				// if not found, remove path parts from URL
 				if ($parameter[$i]) {
 					$parameter[$i] = '/'.$parameter[$i]; // '/' as a separator for variables
 					$my_url = substr($my_url, 0, -1); // remove '*'
 				}
-				$parameter[$i] = substr($my_url, strrpos($my_url, '/') +1).$parameter[$i];
-				$my_url = substr($my_url, 0, strrpos($my_url, '/')).'*';
+				if ($pos = strrpos($my_url, '/')) {
+					$parameter[$i] = substr($my_url, $pos + 1).$parameter[$i];
+					$my_url = substr($my_url, 0, $pos).'*';
+				} elseif (substr($my_url, 0, 1) !== '_') {
+					$parameter[$i] = $my_url.$parameter[$i];
+					$my_url = '*';
+				} else {
+					break;
+				}
 			} else {
 				// something was found, get out of here
 				// but get placeholders as parameters as well!
