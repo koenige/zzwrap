@@ -2185,9 +2185,12 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
  * Creates a folder and its top folders if neccessary
  *
  * @param string $folder (may contain .. and . which will be resolved)
- * @param bool true: folder creation was successful
+ * @return mixed 
+ * 	bool true: folder creation was successful
+ * 	array: list of folders
  */
 function wrap_mkdir($folder) {
+	$created = array();
 	if (is_dir($folder)) return true;
 
 	// check if open_basedir restriction is in effect
@@ -2234,9 +2237,10 @@ function wrap_mkdir($folder) {
 				wrap_error(sprintf('Could not create folder %s.', $current_folder), E_USER_ERROR);
 				return false;
 			}
+			$created[] = $current_folder;
 		}
 	}
-	return true;
+	return $created;
 }
 
 /**
