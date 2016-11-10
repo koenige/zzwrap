@@ -800,9 +800,10 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
  * send a password reminder
  *
  * @param string $address E-Mail
+ * @param array $additional_data (optional)
  * @return bool
  */
-function wrap_password_reminder($address) {
+function wrap_password_reminder($address, $additional_data = array()) {
 	$sql = wrap_sql('password_reminder');
 	$sql = sprintf($sql, wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
@@ -813,12 +814,14 @@ function wrap_password_reminder($address) {
 		wrap_error(sprintf('A password was requested for e-mail %s, but the login is disabled.', $address));
 		return false;
 	}
+	$data = array_merge($additional_data, $data);
 	$data['token'] = $data['username'].'-'.wrap_password_token($data['username'], 'password_key');
+	if (empty($data['subject'])) $data['subject'] = 'Forgotten Password';
 
 	$mail = array();
 	$mail['to']['name'] = $data['recipient'];
 	$mail['to']['e_mail'] = $data['e_mail'];
-	$mail['subject'] = wrap_text('Forgotten Password');
+	$mail['subject'] = wrap_text($data['subject']);
 	$mail['message'] = wrap_template('password-reminder-mail', $data);
 	return wrap_mail($mail);
 }
