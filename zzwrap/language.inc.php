@@ -68,6 +68,7 @@ function wrap_set_language() {
 	$zz_setting['base'] .= '/'.$language;
 	$zz_setting['lang'] = $language;
 	$zz_page['url']['redirect'] = true;
+	$zz_page['url']['redirect_cache'] = false;
 	// vary header for caching
 	wrap_cache_header('Vary: Accept-Language');
 	wrap_cache_header('Cache-Control: private');
@@ -121,10 +122,11 @@ function wrap_prepare_url($url) {
 	$zz_setting['base'] .= '/'.$lang;
 	// modify internal URL
 	$zz_setting['language_in_url'] = true;
-	$url['full']['path'] = substr($url['full']['path'], $pos+1);
+	$url['full']['path'] = substr($url['full']['path'], $pos + 1);
 	if (!$url['full']['path']) {
 		$url['full']['path'] = '/';
 		$url['redirect'] = true;
+		$url['redirect_cache'] = false;
 	}
 	return $url;
 }

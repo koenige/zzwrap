@@ -411,6 +411,7 @@ function wrap_check_canonical($zz_page, $page) {
 		if ($zz_setting['hostname'] !== $canonical) {
 			$zz_page['url']['full']['host'] = $canonical;
 			$zz_page['url']['redirect'] = true;
+			$zz_page['url']['redirect_cache'] = false;
 		}
 	}
 	
@@ -424,6 +425,7 @@ function wrap_check_canonical($zz_page, $page) {
 	if ($zz_page['url']['full']['path'] === '//') {
 		$zz_page['url']['full']['path'] = '/';
 		$zz_page['url']['redirect'] = true;
+		$zz_page['url']['redirect_cache'] = false;
 	}
 
 	$types = array('query_strings', 'query_strings_redirect');
@@ -445,6 +447,7 @@ function wrap_check_canonical($zz_page, $page) {
 			$param_value = $params[$param];
 			unset($params[$param]);
 			$zz_page['url']['redirect'] = true;
+			$zz_page['url']['redirect_cache'] = false;
 			// no error logging for query strings which shall be redirected
 			if (in_array($param, $page['query_strings_redirect'])) continue;
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
@@ -505,6 +508,7 @@ function wrap_check_canonical_ending($ending, $url) {
 	if (!$new) return $url;
 
 	$url['redirect'] = true;
+	$url['redirect_cache'] = true;
 	$url['full']['path'] = $new;
 	return $url;
 }
@@ -781,6 +785,7 @@ function wrap_remove_query_strings($url, $objectionable_qs = array()) {
 		}
 		$url['full']['query'] = http_build_query($query);
 		$url['redirect'] = true;
+		$url['redirect_cache'] = false;
 	}
 	return $url;
 }
@@ -994,6 +999,7 @@ function wrap_check_request() {
 		if (empty($zz_page['url']['full']['path'])) {
 			$zz_page['url']['full']['path'] = '/';
 			$zz_page['url']['redirect'] = true;
+			$zz_page['url']['redirect_cache'] = false;
 		}
 	}
 

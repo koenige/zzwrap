@@ -869,7 +869,7 @@ function wrap_get_page() {
 	$zz_page['url'] = wrap_check_canonical($zz_page, $page);
 	if (!empty($zz_page['url']['redirect'])) {
 		// redirect to canonical URL or URL with language code
-		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301);
+		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
