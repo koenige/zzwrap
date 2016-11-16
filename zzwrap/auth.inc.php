@@ -257,11 +257,13 @@ function cms_login($params) {
 	$loginform = array();
 	$loginform['msg'] = false;
 
+	$no_password_link = false;
 	// Check if there are parameters for single sign on
 	if (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
-		$loginform['msg'] = wrap_text('Link for login is wrong or out of date. Please get a new one.');
+		$loginform['msg'] = wrap_text('Link for login is wrong or out of date. <a href="./?password">Please get a new one</a>.');
+		$no_password_link = true;
 	} elseif (!empty($params[0]) AND $params[0] === 'Single Sign On') {
 		if (count($params) > 4) return false;
 		if (count($params) < 3) return false;
@@ -434,9 +436,11 @@ function cms_login($params) {
 				? wrap_html_escape($_POST[strtolower($login_field)]) : ''
 		);
 	}
-	$loginform['password_link'] = wrap_get_setting('password_link');
-	if ($loginform['password_link'] === true) {
-		$loginform['password_link'] = '?password';
+	if (!$no_password_link) {
+		$loginform['password_link'] = wrap_get_setting('password_link');
+		if ($loginform['password_link'] === true) {
+			$loginform['password_link'] = '?password';
+		}
 	}
 	$page['query_strings'] = array('password', 'auth', 'via');
 	if (isset($_GET['password'])) {

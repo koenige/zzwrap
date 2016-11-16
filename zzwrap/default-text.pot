@@ -43,7 +43,7 @@ msgid "Forgotten Password"
 msgstr ""
 
 #: library/zzwrap/auth.inc.php
-msgid "Link for login is wrong or out of date. Please get a new one."
+msgid "Link for login is wrong or out of date. <a href="./?password">Please get a new one</a>."
 msgstr ""
 
 #: library/zzwrap/core.inc.php
