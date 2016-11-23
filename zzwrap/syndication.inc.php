@@ -440,7 +440,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 				// without NOSIGNAL, cURL might terminate immediately
 				// when using the standard name resolver
 				curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-				curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
+				curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['syndication_trigger_timeout_ms']);
 			}
 		}
 		if (!$timeout_ignore AND !empty($zz_setting['syndication_timeout_ms'])) {
