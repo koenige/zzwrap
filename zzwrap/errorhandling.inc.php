@@ -577,15 +577,15 @@ function wrap_errorpage_logignore() {
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
 	if (!$referer) return false; // not parseable = invalid
 	if (empty($referer['host'])) return false; // not really parseable = invalid
-	if ($zz_setting['hostname'] !== $referer['host']) {
+	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
 		$ok = false;
 		// missing www. redirect
-		if ('www.'.$referer['host'] === $zz_setting['hostname']) $ok = true;
+		if (strtolower('www.'.$referer['host']) === strtolower($zz_setting['hostname'])) $ok = true;
 		// IP redirect
 		if ($referer['host'] === $_SERVER['SERVER_ADDR']) $ok = true;
 		// referer from canonical hostname
 		if (!empty($zz_setting['canonical_hostname'])
-			AND $zz_setting['canonical_hostname'] === $referer['host']) $ok = true;
+			AND strtolower($zz_setting['canonical_hostname']) === strtolower($referer['host'])) $ok = true;
 		if (!$ok) return false;
 	}
 	// ignore scheme, port, user, pass
