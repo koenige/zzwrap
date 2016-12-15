@@ -136,7 +136,9 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
-	if (function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
+	$tokens = implode(' ', $sql);
+	if (!in_array($tokens[0], array('SELECT'))
+		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
 		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		$db_msg = array();
 		foreach ($warnings as $warning) {
