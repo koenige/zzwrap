@@ -136,6 +136,17 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
+	if (function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
+		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
+		$db_msg = array();
+		foreach ($warnings as $warning) {
+			$db_msg[] = $warning['Level'].': '.$warning['Message'];
+		}
+		if ($db_msg) {
+			wrap_error('['.$_SERVER['REQUEST_URI'].'] MySQL reports a problem.'
+				.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), E_USER_WARNING);
+		}
+	}
 	if ($result) return $result;
 
 	// error
