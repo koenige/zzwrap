@@ -136,8 +136,11 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
-	$tokens = implode(' ', $sql);
-	if (!in_array($tokens[0], array('SELECT'))
+	$tokens = explode(' ', $sql);
+	// @todo remove SET from token list after NO_ZERO_IN_DATE is not used
+	// by any application anymore
+	// SELECT is there for performance reasons
+	if (!in_array($tokens[0], array('SET', 'SELECT'))
 		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
 		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		$db_msg = array();
