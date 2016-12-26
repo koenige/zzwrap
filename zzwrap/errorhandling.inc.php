@@ -575,8 +575,9 @@ function wrap_errorpage_logignore() {
 	// ignore these), bad programmed script
 
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
-	if (!$referer) return false; // not parseable = invalid
-	if (empty($referer['host'])) return false; // not really parseable = invalid
+	if (!$referer) return true; // not parseable = invalid
+	if (empty($referer['scheme'])) return true; // no real referer comes without scheme
+	if (empty($referer['host'])) return true; // not really parseable = invalid
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
 		$ok = false;
 		// missing www. redirect
