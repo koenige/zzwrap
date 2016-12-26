@@ -2453,6 +2453,20 @@ function wrap_setting_value($string) {
 }
 
 /**
+ * recursively delete folders
+ *
+ * @param string $folder
+ */
+function wrap_unlink_recursive($folder) {
+	$files = array_diff(scandir($folder), ['.', '..']);
+	foreach ($files as $file) {
+		$path = $folder.'/'.$file;
+		is_dir($path) ? wrap_unlink_recursive($path) : unlink($path);
+	}
+	rmdir($folder);
+}
+
+/**
  * header_remove for old PHP 5.2
  *
  * @param string $header
