@@ -2302,11 +2302,12 @@ function wrap_trigger_url($url) {
  *
  * @param string $url
  * @param string $username (optional)
+ * @param bool $send_lock defaults to true, send lock hash to child process
  * @return array from wrap_syndication_retrieve_via_http()
  */
-function wrap_trigger_protected_url($url, $username = false) {
+function wrap_trigger_protected_url($url, $username = false, $send_lock = true) {
 	$headers[] = 'X-Timeout-Ignore: 1';
-	if (function_exists('wrap_lock_hash')) {
+	if (function_exists('wrap_lock_hash') AND $send_lock) {
 		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
 	}
 	return wrap_get_protected_url($url, $headers, 'GET', array(), $username);
