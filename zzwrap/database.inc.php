@@ -140,16 +140,19 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	// @todo remove SET from token list after NO_ZERO_IN_DATE is not used
 	// by any application anymore
 	// SELECT is there for performance reasons
+	$warnings = [];
 	if (!in_array($tokens[0], array('SET', 'SELECT'))
 		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
 		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		$db_msg = array();
+		$warning_error = E_USER_WARNING;
 		foreach ($warnings as $warning) {
 			$db_msg[] = $warning['Level'].': '.$warning['Message'];
+			if ($warning['Level'] === 'Error') $warning_error = $error;
 		}
 		if ($db_msg) {
 			wrap_error('['.$_SERVER['REQUEST_URI'].'] MySQL reports a problem.'
-				.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), E_USER_WARNING);
+				.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), $warning_error);
 		}
 	}
 	if ($result) return $result;
@@ -166,7 +169,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$zz_conf['db_connection'] = NULL;
 	}
 	
-	if (function_exists('wrap_error')) {
+	if (function_exists('wrap_error') AND !$warnings) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysqli_error($zz_conf['db_connection']), $sql), $error);
 	} else {
