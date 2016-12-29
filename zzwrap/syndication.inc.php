@@ -2,7 +2,7 @@
 
 /**
  * zzwrap
- * Syndication functions, Locking functions
+ * Syndication functions, Locking functions, Watchdog
  *
  * Part of »Zugzwang Project«
  * http://www.zugzwang.org/projects/zzwrap
@@ -648,4 +648,93 @@ function wrap_lock_hash() {
 function wrap_lock_file($realm) {
 	global $zz_setting;
 	return $zz_setting['cache_dir'].'/'.basename($realm).'.lock';
+}
+
+/**
+ * watchdog checks if files have changed and if so, move files to another place
+ *
+ * @param string $source
+ * @param string $destination
+ * @param array $params
+ *		array 'destination' vsprintf fields from $my to filename
+ * @param bool $delete delete source file?
+ * @return bool true: destination file exists (or was unchanged), false: either
+ *		an error occured or source file does not exist, nothing was transfered
+ */
+function wrap_watchdog($source, $destination, $params = [], $delete = false) {
+	global $zz_setting;
+	$logfile = $zz_setting['log_dir'].'/watchdog.log';
+
+	if (substr($source, 0, 7) === 'http://'
+		OR substr($source, 0, 8) === 'https://') {
+		$source = str_replace('.local', '', $source);
+		$data = wrap_syndication_get($source, 'file');
+		if (empty($data['_']['filename'])) return false;
+		$source_file = $data['_']['filename'];
+	} else {
+		$source_file = $source;
+	}
+	if (!file_exists($source_file)) return false;
+	
+	$my['sha1'] = sha1_file($source_file);
+	$my['timestamp'] = filemtime($source_file);
+	if (!empty($params['destination'])) {
+		$substitutes = [];
+		foreach ($params['destination'] as $var) {
+			$substitutes[] = $my[$var];
+		}
+		$destination = vsprintf($destination, $substitutes);
+	}
+
+	// check log
+	$watched_files = file($logfile);
+	foreach ($watched_files as $index => $line) {
+		$file = explode(' ', trim($line)); // 0 = timestamp, 1 = sha1, 2 = filename
+		if ($file[2] !== $source) continue;
+		if ($file[1] === $my['sha1']) {
+			// file was not changed, do nothing
+			return true;
+		}
+		// file was changed, remove old line, add new line
+		unset($watched_files[$index]);
+		if (!$handle = fopen($logfile, 'w+'))
+			return false; //sprintf(wrap_text('Cannot open %s for writing.'), $file);
+		foreach ($watched_files as $line)
+			fwrite($handle, $line);
+		fclose($handle);
+		break;
+	}
+	error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
+	
+	// do something
+	if (substr($destination, 0, 6) === 'ftp://') {
+		$url = parse_url($destination);
+		$ftp_stream = ftp_connect($url['host'], !empty($url['port']) ? $url['port'] : 21);
+		$success = ftp_login($ftp_stream, $url['user'], $url['pass']);
+		if (!$success) {
+			wrap_error(sprintf(
+				'FTP: Failed login to %s (User: %s, Password: %s)',
+				$url['host'], $url['user'], $url['pass']
+			));
+			return false;
+		}
+		$success = ftp_chdir($ftp_stream, dirname($url['path']));
+		if (!$success) {
+			wrap_error(sprintf(
+				'FTP: Directory was not changed to %s',
+				dirname($url['path'])
+			));
+			return false;
+		}
+		ftp_put($ftp_stream, basename($url['path']), $source_file, FTP_BINARY);
+		ftp_close($ftp_stream);
+	} else {
+		wrap_mkdir(dirname($destination));
+		if ($delete) {
+			rename($source_file, $destination);
+		} else {
+			copy($source_file, $destination);
+		}
+	}
+	return true;
 }
