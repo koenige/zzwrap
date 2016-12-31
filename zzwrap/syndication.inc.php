@@ -688,6 +688,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 
 	// check log
 	$watched_files = file($logfile);
+	$remove = false;
 	foreach ($watched_files as $index => $line) {
 		$file = explode(' ', trim($line)); // 0 = timestamp, 1 = sha1, 2 = filename
 		if ($file[2] !== $source) continue;
@@ -695,16 +696,9 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			// file was not changed, do nothing
 			return true;
 		}
-		// file was changed, remove old line, add new line
-		unset($watched_files[$index]);
-		if (!$handle = fopen($logfile, 'w+'))
-			return false; //sprintf(wrap_text('Cannot open %s for writing.'), $file);
-		foreach ($watched_files as $line)
-			fwrite($handle, $line);
-		fclose($handle);
+		$remove = $index;
 		break;
 	}
-	error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
 	
 	// do something
 	if (substr($destination, 0, 6) === 'ftp://') {
@@ -731,10 +725,40 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	} else {
 		wrap_mkdir(dirname($destination));
 		if ($delete) {
-			rename($source_file, $destination);
+			$success = rename($source_file, $destination);
+			if (!$success) {
+				wrap_error(sprintf(
+					'It was not possible to rename file %s to file %s',
+					$source_file, $destination
+				));
+				return false;
+			}
 		} else {
-			copy($source_file, $destination);
+			$success = copy($source_file, $destination);
+			if (!$success) {
+				wrap_error(sprintf(
+					'It was not possible to copy file %s to file %s',
+					$source_file, $destination
+				));
+				return false;
+			}
 		}
 	}
+	
+	// after successful moving of file, remove old log and write new one
+	// so when moving fails, next call of function tries to move file again
+	if ($remove !== false) {
+		// file was changed, remove old line, add new line
+		unset($watched_files[$remove]);
+		if (!$handle = fopen($logfile, 'w+'))
+			return false; //sprintf(wrap_text('Cannot open %s for writing.'), $file);
+		foreach ($watched_files as $line)
+			fwrite($handle, $line);
+		fclose($handle);
+		break;
+	}
+	error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
+
+	// move was successful
 	return true;
 }
