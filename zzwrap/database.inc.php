@@ -124,6 +124,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$time = microtime(true);
 	}
 	if (!$zz_conf['db_connection']) return array();
+	$sql = trim($sql);
 	
 	if (substr($sql, 0, 10) === 'SET NAMES ') {
 		$charset = trim(substr($sql, 10));
