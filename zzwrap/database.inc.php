@@ -4,7 +4,7 @@
  * zzwrap
  * Database functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  *	Database functions
@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -74,7 +74,7 @@ function wrap_db_connect() {
 	if (!$zz_conf['db_connection']) return false;
 
 	// mySQL uses different identifiers for character encoding than HTML
-	// mySQL verwendet andere Kennungen für die Zeichencodierung als HTML
+	// mySQL verwendet andere Kennungen fÃ¼r die Zeichencodierung als HTML
 	$charset = '';
 	if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']])) {
 		switch ($zz_conf['character_set']) {
@@ -116,14 +116,17 @@ function wrap_db_prefix($sql) {
  *
  * $param string $sql
  * @global array $zz_conf
- * @return ressource $result
+ * @return mixed
+ *		bool: false = query failed, true = query was succesful
+ *		int: on INSERT: inserted ID if applicable
+ *		int: on UPDATE: number of updated rows
  */
 function wrap_db_query($sql, $error = E_USER_ERROR) {
 	global $zz_conf;
 	if (!empty($zz_conf['debug'])) {
 		$time = microtime(true);
 	}
-	if (!$zz_conf['db_connection']) return array();
+	if (!$zz_conf['db_connection']) return false;
 	$sql = trim($sql);
 	
 	if (substr($sql, 0, 10) === 'SET NAMES ') {
@@ -142,6 +145,14 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	// by any application anymore
 	// SELECT is there for performance reasons
 	$warnings = [];
+	$return = false;
+	if ($tokens[0] === 'INSERT') {
+		// return inserted ID
+		$return = mysqli_insert_id($zz_conf['db_connection']);
+	} elseif ($tokens[0] === 'UPDATE') {
+		// return number of updated rows
+		$return = mysqli_affected_rows($zz_conf['db_connection']);
+	}
 	if (!in_array($tokens[0], array('SET', 'SELECT'))
 		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
 		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
@@ -156,7 +167,10 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 				.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), $warning_error);
 		}
 	}
-	if ($result) return $result;
+	if ($result) {
+		if ($return) return $return;
+		return $result;
+	}
 
 	// error
 	$close_connection_errors = array(
