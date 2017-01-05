@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -286,7 +286,7 @@ function wrap_date_format($date, $set, $type = 'standard') {
 	}
 	switch ($type) {
 		case 'short': $year = substr($year, -2); break;
-		case 'noyear': $year = ''; $break;		
+		case 'noyear': $year = ''; break;		
 	}
 	if ($day === '00' AND $month === '00') {
 		return $year;
