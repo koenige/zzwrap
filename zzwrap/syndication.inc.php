@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -755,7 +755,6 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		foreach ($watched_files as $line)
 			fwrite($handle, $line);
 		fclose($handle);
-		break;
 	}
 	error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
 
