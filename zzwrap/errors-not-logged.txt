@@ -62,6 +62,8 @@
 404	all	/wp-includes/css/buttons.css
 404	end	/wp-admin/admin-ajax.php?action=showbiz_show_image&img=../wp-config.php
 404	end	/wp-admin/admin-ajax.php?action=revolution-slider_show_image&img=../wp-config.php
+404	end	/wp-config.php~
+503	end	/wp-config.php~
 404	end	/wp-content/uploads/2015/08/info.php
 404	end	/wordpr
 404	all	/wp-admin/
