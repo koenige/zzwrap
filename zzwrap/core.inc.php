@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -738,7 +738,7 @@ function wrap_log_uri() {
 		$sql .= ' WHERE uri_id = %d';
 		$sql = sprintf($sql, $status, $etag, $last_modified, $encoding, $uri_id);
 		$result = wrap_db_query($sql, E_USER_NOTICE);
-	} else {
+	} elseif (strlen($path) < 128) {
 		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
 			uri_query, content_type, character_encoding, content_length,
 			status_code, etag_md5, last_modified, hits, first_access,
@@ -749,6 +749,8 @@ function wrap_log_uri() {
 			$zz_page['content_length'], $status, $etag, $last_modified
 		);
 		$result = wrap_db_query($sql, E_USER_NOTICE);
+	} else {
+		wrap_error(sprintf('URI path too long: %s', $path));
 	}
 	return true;
 }
