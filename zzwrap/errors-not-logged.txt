@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2012-2016 Gustaf Mossakowski
+# @copyright Copyright © 2012-2017 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 # 
 # begin = check if begin of string is identical; end = check end; all: check full
@@ -74,6 +74,7 @@
 404	all	/wp-content/uploads/woo.php
 404	end	/wp-foot.php
 404	all	/wp-content/
+404	end	/wp-content/plugins/logo_img.php
 
 # Joomla
 404	all	/administrator/index.php
