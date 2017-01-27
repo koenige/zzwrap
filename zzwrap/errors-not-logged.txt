@@ -56,8 +56,8 @@
 # WordPress login and bugs
 404	end	/wp-login.php
 404	all	/xmlrpc.php
-404	all	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
-503	all	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
+404	end	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
+503	end	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
 404	all	/wp-includes/wlwmanifest.xml
 404	all	/wp-includes/css/buttons.css
 404	end	/wp-admin/admin-ajax.php?action=showbiz_show_image&img=../wp-config.php
@@ -224,5 +224,7 @@ qs	string	utm_content
 404	referer	http://www.example.com
 404	referer	http://www.example.com/
 
-# unknown
+# elFinder
 404	all	/scripts/elfinder/connectors/php/connector.php
+404	end	/elfinder.html
+503	end	/elfinder.html
