@@ -170,7 +170,7 @@ function wrap_date($date, $format = false) {
 		if (strstr($date, '/')) {
 			$dates = explode('/', $date);
 		} else {
-			$dates = array($date);
+			$dates = [$date];
 		}
 		foreach ($dates as $index => $mydate) {
 			if (!$mydate) continue;
@@ -210,13 +210,22 @@ function wrap_date($date, $format = false) {
 		$lang = substr($output_format, 6);
 		$output_format = 'dates';
 		switch ($lang) {
-			case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY'; break; // dd.mm.yyyy
-			case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY'; break; // dd-mm-yyyy
+			case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
+				$set['months_if_no_day'] = [
+					1 => 'Januar', 2 => 'Februar', 3 => 'März', 4 => 'April',
+					5 => 'Mai', 6 => 'Juni', 7 => 'Juli', 8 => 'August',
+					9 => 'September', 10 => 'Oktober', 11 => 'November',
+					12 => 'Dezember'
+				];
+				break; // dd.mm.yyyy
+			case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
+				break; // dd-mm-yyyy
 			case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY'; 
-				$set['months'] = array(
-					1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun',
-					7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
-				);
+				$set['months'] = [
+					1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May',
+					6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct',
+					11 => 'Nov', 12 => 'Dec'
+				];
 				break; // dd/mm/yyyy
 			default:
 				wrap_error(sprintf('Language %s currently not supported', $lang));
@@ -294,6 +303,9 @@ function wrap_date_format($date, $set, $type = 'standard') {
 	if (!empty($set['months'])) {
 		$month = $set['months'][intval($month)];
 	}
+	if ($day === '00' AND !empty($set['months_if_no_day'])) {
+		return $set['months_if_no_day'][intval($month)].' '.$year;
+	}
 	switch ($set['order']) {
 	case 'DMY':
 		if ($set['sep'] === '.') {
@@ -368,11 +380,11 @@ function wrap_number($number, $format = false) {
 	switch ($format) {
 	case 'roman->arabic':
 	case 'arabic->roman':
-		$roman_letters = array(
+		$roman_letters = [
 			1000 => 'M', 900 => 'CM', 500 => 'D', 400 => 'CD', 100 => 'C',
 			90 => 'XC', 50 => 'L', 40 => 'XL', 10 => 'X', 9 => 'IX', 5 => 'V', 
 			4 => 'IV', 1 => 'I'
-		);
+		];
 		if (is_numeric($number)) {
 			// arabic/roman
 			if ($number > 3999 OR $number < 1) {
@@ -526,7 +538,7 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
  * @return string
  */
 function wrap_bytes($bytes, $precision = 1) { 
-    $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB'); 
+    $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']; 
 	return wrap_unit_format($bytes, $precision, $units, 1024);
 }
 
@@ -538,10 +550,10 @@ function wrap_bytes($bytes, $precision = 1) {
  * @return string
  */
 function wrap_gram($gram, $precision = 1) {
-	$units = array(
+	$units = [
 		-3 => 'ng', -2 => 'µg', -1 => 'mg', 0 => 'g', 1 => 'kg',
 		2 => 't', 3 => 'kt', 4 => 'Mt', 5 => 'Gt'
-	);
+	];
 	return wrap_unit_format($gram, $precision, $units);
 }
 
@@ -553,9 +565,9 @@ function wrap_gram($gram, $precision = 1) {
  * @return string
  */
 function wrap_meters($meters, $precision = 1) {
-	$units = array(
+	$units = [
 		-9 => 'nm', -6 => 'µm', -3 => 'mm', -2 => 'cm', 0 => 'm', 3 => 'km'
-	);
+	];
 	return wrap_unit_format($meters, $precision, $units, 10);
 }
 
@@ -572,7 +584,7 @@ function wrap_bearing($value, $precision = 1) {
 	$text = round($value, $precision).'° ';
     if ($zz_conf['decimal_point'] !== '.')
     	$text = str_replace('.', $zz_conf['decimal_point'], $text);
-    $units = array(
+    $units = [
     	  0 => 'N North', '22.5' => 'NNE North-northeast',
     	 45 => 'NE Northeast', '67.5' => 'ENE East-northeast',
     	 90 => 'E East', '112.5' => 'ESE East-southeast',
@@ -581,7 +593,7 @@ function wrap_bearing($value, $precision = 1) {
     	225 => 'SW Southwest', '247.5' => 'WSW West-southwest',
     	270 => 'W West', '292.5' => 'WNW West-northwest',
     	315 => 'NW Northwest', '337.5' => 'NNW North-northwest'
-    );
+    ];
     $check = $value + 11.25;
     if ($check >= 360) $check -= 360;
     foreach ($units as $deg => $direction) {
@@ -653,7 +665,7 @@ function wrap_normalize($input) {
 	}
 	
 	if (!$replacements) {
-		$replacements = array();
+		$replacements = [];
 		$file = __DIR__.'/unicode-normalization.tsv';
 		$handle = fopen($file, 'r');
 		while (!feof($handle)) {
