@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -361,7 +361,7 @@ function wrap_set_defaults_post_conf() {
 	if (in_array($zz_conf['hash_password'], array('phpass', 'phpass-md5'))) {
 		// Base-2 logarithm of the iteration count used for password stretching
 		if (!isset($zz_conf['hash_cost_log2']))
-			$zz_conf['hash_cost_log2'] = 8;
+			$zz_conf['hash_cost_log2'] = 11;
 	
 		// Do we require the hashes to be portable to older systems (less secure)?
 		if (!isset($zz_conf['hash_portable']))
