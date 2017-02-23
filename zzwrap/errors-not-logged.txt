@@ -228,3 +228,10 @@ qs	string	utm_content
 404	all	/scripts/elfinder/connectors/php/connector.php
 404	end	/elfinder.html
 503	end	/elfinder.html
+
+# ownCloud etc.
+404	all	/nextcloud/status.php
+404	all	/owncloud/status.php
+404	all	/oc-shib/status.php
+404	all	/oc/status.php
+404	all	/status.php
