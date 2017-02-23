@@ -220,16 +220,15 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
  *	"list field_name_1 field_name_2" = returns lines in hierarchical array
  *	for direct use in zzbrick templates, e. g. 0 => array(
  *		field_name_1 = value, field_name_2 = array()), 1 => ..
- * @param int $errorcode let's you set error level, default = E_USER_ERROR
+ * @param int $error_type let's you set error level, default = E_USER_ERROR
  * @return array with queried database content, NULL if query failed
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @todo give a more detailed explanation of how function works
  */
-function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode = E_USER_ERROR) {
+function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_type = E_USER_ERROR) {
 	global $zz_conf;
 	if (!$zz_conf['db_connection']) return array();
 	
-	$result = wrap_db_query($sql, $errorcode);
+	$result = wrap_db_query($sql, $error_type);
 	if (!$result) return NULL;
 
 	$lines = array();
@@ -362,7 +361,6 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $errorcode
  * @return array with queried database content or just the IDs
  *		if mode is set to hierarchy, you'll get a hierarchical list in 'level'
  *		with ID as key and the level (0, 1, 2, ..., n) as value
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') {
 	if (!is_array($data)) $data = array($data); // allow single ID
@@ -502,7 +500,6 @@ function wrap_db_parents($id, $sql) {
  * @param array $tables tables which will be checked for changes
  * @param string $last_sync (optional) datetime when last update was made
  * @return mixed false: no sync neccessary, datetime: date of last update in tables
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_db_tables_last_update($tables, $last_sync = false) {
 	if (!is_array($tables)) $tables = array($tables);
