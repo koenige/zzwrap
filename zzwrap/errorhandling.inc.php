@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -17,7 +17,7 @@
  * error handling: log errors, mail errors, exits script if critical error
  *
  * @param mixed $msg error message (arrays will be JSON-encoded)
- * @param int $error_code E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
+ * @param int $error_type E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
@@ -28,14 +28,14 @@
  *		'project', 'character_set'
  * @global array $zz_page
  */
-function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
+function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = array()) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
 	static $post_errors_logged;
 	static $collect;
 	static $collect_messages;
-	static $collect_errorcode;
+	static $collect_error_type;
 
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
@@ -51,27 +51,27 @@ function wrap_error($msg, $errorcode = E_USER_NOTICE, $settings = array()) {
 			$collect_messages[$mymsg] = $mymsg.'. ';
 		}
 		$msg = false;
-		if (!empty($collect_errorcode)) {
-			if ($collect_errorcode < $errorcode) {
-				$collect_errorcode = $errorcode;
+		if (!empty($collect_error_type)) {
+			if ($collect_error_type < $error_type) {
+				$collect_error_type = $error_type;
 			}
 		} else {
-			$collect_errorcode = $errorcode;
+			$collect_error_type = $error_type;
 		}
-		$collect_errorcode = $errorcode < $collect_errorcode ? $errorcode : $collect_errorcode;
+		$collect_error_type = $error_type < $collect_error_type ? $error_type : $collect_error_type;
 	}
 	if (!empty($settings['collect_end'])) {
 		$collect = false;
 		$msg = implode('', $collect_messages);
 		$collect_messages = NULL;
-		if (!empty($collect_errorcode)) {
-			$errorcode = $collect_errorcode;
+		if (!empty($collect_error_type)) {
+			$error_type = $collect_error_type;
 		}
 	}
 	if (!$msg) return false;
 
 	$return = false;
-	switch ($errorcode) {
+	switch ($error_type) {
 	case E_USER_ERROR: // critical error: stop!
 		if (!empty($zz_conf['exit_503'])) $settings['no_return'] = true;
 		$level = 'error';
@@ -249,7 +249,6 @@ function wrap_error_summary() {
  * @param bool $log_errors whether errors shall be logged or not
  * @global array $zz_setting
  * @global array $zz_conf
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
@@ -416,7 +415,7 @@ function wrap_errorpage_log($status, $page) {
 		$settings['mail_no_ip'] = true;
 		$settings['mail_no_user_agent'] = true;
 		$settings['logfile'] = '['.$status.']';
-		wrap_error($msg, E_USER_WARNING, $settings);
+		wrap_error($msg, !empty($page['error_type']) ? $page['error_type'] : E_USER_WARNING, $settings);
 		break;
 	case 403:
 		$settings['logfile'] .= ' (User agent: '
