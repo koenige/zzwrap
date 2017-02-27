@@ -1027,3 +1027,18 @@ function wrap_mysql_mode() {
 	$result = wrap_db_query($sql);
 	return $result;
 }
+
+/**
+ * get auto increment value of a table
+ *
+ * @param string $table
+ * @return string
+ */
+function wrap_db_auto_increment($table) {
+	global $zz_conf;
+	$sql = 'SHOW TABLE STATUS FROM `%s` WHERE `name` LIKE "%s"';
+	$sql = sprintf($sql, $zz_conf['db_name'], $table);
+	$data = wrap_db_fetch($sql);
+	if (empty($data)) return '';
+	return $data['Auto_increment'];
+}
