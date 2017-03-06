@@ -55,7 +55,8 @@
 
 # WordPress login and bugs
 404	end	/wp-login.php
-404	all	/xmlrpc.php
+404	end	/xmlrpc.php
+503	end	/xmlrpc.php
 404	end	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
 503	end	/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php
 404	all	/wp-includes/wlwmanifest.xml
