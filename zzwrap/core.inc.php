@@ -130,7 +130,7 @@ function wrap_session_stop() {
 	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade'))
 		$sql_mask = sprintf($sql_mask, 'NOW()', $_SESSION['mask_id']);
 	// Unset all of the session variables.
-	$_SESSION = array();
+	$_SESSION = [];
 	// If it's desired to kill the session, also delete the session cookie.
 	// Note: This will destroy the session, and not just the session data!
 	if (ini_get("session.use_cookies")) {
@@ -214,7 +214,7 @@ function wrap_session_cookietest_end($token) {
 	}
 	// return cookie missing message
 	$page['dont_show_h1'] = true;
-	$page['meta'][]['robots'] = 'noindex';
+	$page['meta'][] = ['name' => 'robots', 'content' => 'noindex'];
 	$page['breadcrumbs'][] = 'Cookies';
 	$page['text'] = wrap_template('cookie', $data);
 	return $page;
@@ -322,7 +322,7 @@ function wrap_look_for_file($url_path) {
 
 	$url_path = explode('/', $url_path);
 	array_shift($url_path); // first is empty because URL path starts with /
-	$paths = array('layout', 'behaviour');
+	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (empty($zz_setting[$path.'_path'])) continue;
 		if ('/'.$url_path[0] !== $zz_setting[$path.'_path']) continue;
@@ -331,7 +331,7 @@ function wrap_look_for_file($url_path) {
 		$module = array_shift($url_path);
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$zz_setting['modules_dir'], $module, $path, implode('/', $url_path));
-		if (in_array($ext = wrap_file_extension($file['name']), array('css'))) {
+		if (in_array($ext = wrap_file_extension($file['name']), ['css'])) {
 			return $file['name'];
 		}
 		$file['etag_generate_md5'] = true;
@@ -363,11 +363,11 @@ function wrap_file_extension($file) {
  * @return array (array $full_url, array $leftovers)
  */
 function wrap_look_for_placeholders($zz_page, $full_url) {
-	if (empty($zz_page['url_placeholders'])) return array($full_url, array());
+	if (empty($zz_page['url_placeholders'])) return [$full_url, []];
 	// cut url in parts
 	$url_parts[0] = explode('/', $full_url[0]);
 	$i = 1;
-	$leftovers = array();
+	$leftovers = [];
 	foreach ($zz_page['url_placeholders'] as $wildcard => $values) {
 		foreach (array_keys($values) as $key) {
 			foreach ($url_parts as $url_index => $parts) {
@@ -388,7 +388,7 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
 			}
 		}
 	}
-	return array($full_url, $leftovers);
+	return [$full_url, $leftovers];
 }
 
 /**
@@ -428,10 +428,10 @@ function wrap_check_canonical($zz_page, $page) {
 		$zz_page['url']['redirect_cache'] = false;
 	}
 
-	$types = array('query_strings', 'query_strings_redirect');
+	$types = ['query_strings', 'query_strings_redirect'];
 	foreach ($types as $type) {
 		// initialize
-		if (empty($page[$type])) $page[$type] = array();
+		if (empty($page[$type])) $page[$type] = [];
 		// merge from settings
 		if (!empty($zz_setting[$type])) {
 			$page[$type] = array_merge($page[$type], $zz_setting[$type]);
@@ -439,7 +439,7 @@ function wrap_check_canonical($zz_page, $page) {
 	}
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
-		array('no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url', 'logout'));
+		['no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url', 'logout']);
 	if (!empty($zz_page['url']['full']['query'])) {
 		parse_str($zz_page['url']['full']['query'], $params);
 		foreach (array_keys($params) as $param) {
@@ -560,7 +560,7 @@ function wrap_glue_url($url) {
 	global $zz_setting;
 	$base = !empty($zz_setting['base']) ? $zz_setting['base'] : '';
 	if (substr($base, -1) === '/') $base = substr($base, 0, -1);
-	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
+	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 		$port = sprintf(':%s', $_SERVER['SERVER_PORT']);
 	} else {
 		$port = '';
@@ -607,7 +607,7 @@ function wrap_check_redirects($page_url) {
 	$parameter = false;
 	$found = false;
 	$break_next = false;
-	$separators = array('/', '-', '.');
+	$separators = ['/', '-', '.'];
 	while (!$found) {
 		$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
 		$redir = wrap_db_fetch($sql);
@@ -650,7 +650,7 @@ function wrap_check_redirects($page_url) {
  * @return array $page
  */
 function wrap_check_redirect_from_cache($page, $url) {
-	$redirect_endings = array('%20', ')', '%5C', '%22', '%3E');
+	$redirect_endings = ['%20', ')', '%5C', '%22', '%3E'];
 	foreach ($redirect_endings as $ending) {
 		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
 		$url['path'] = substr($url['path'], 0, -strlen($ending));
@@ -765,13 +765,13 @@ function wrap_log_uri() {
  * @param array $objectionable_qs key names of query strings
  * @todo get objectionable querystrings from setting
  */
-function wrap_remove_query_strings($url, $objectionable_qs = array()) {
+function wrap_remove_query_strings($url, $objectionable_qs = []) {
 	if (empty($url['full']['query'])) return $url;
 	if (empty($objectionable_qs)) {
-		$objectionable_qs = array('PHPSESSID');
+		$objectionable_qs = ['PHPSESSID'];
 	}
 	if (!is_array($objectionable_qs)) {
-		$objectionable_qs = array($objectionable_qs);
+		$objectionable_qs = [$objectionable_qs];
 	}
 	parse_str($url['full']['query'], $query);
 	// furthermore, keys with % signs are not allowed (propably errors in
@@ -812,7 +812,7 @@ function wrap_remove_query_strings($url, $objectionable_qs = array()) {
  * @param array $page (optional, if normal output shall be shown, not error msg)
  * @return exits function with a redirect or an error document
  */
-function wrap_quit($statuscode = 404, $error_msg = '', $page = array()) {
+function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
@@ -895,7 +895,7 @@ function wrap_http_status_header($code) {
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
 	if (substr(php_sapi_name(), 0, 3) === 'cgi') $protocol = 'Status:';
 	
-	if ($protocol === 'HTTP/1.0' AND in_array($code, array(302, 303, 307))) {
+	if ($protocol === 'HTTP/1.0' AND in_array($code, [302, 303, 307])) {
 		header($protocol.' 302 Moved Temporarily');
 		return true;
 	}
@@ -916,7 +916,7 @@ function wrap_http_status_header($code) {
  */
 function wrap_http_status_list($code) {
 	global $zz_setting;
-	$status = array();
+	$status = [];
 	
 	// read error codes from file
 	$pos[0] = 'code';
@@ -1076,13 +1076,13 @@ function wrap_url_path_decode($input) {
 	$codepoint = substr(strtoupper($input[0]), 1);
 	if (hexdec($codepoint) < hexdec('20')) return '%'.$codepoint;
 	if (hexdec($codepoint) > hexdec('7E')) return '%'.$codepoint;
-	$dont_encode = array(
+	$dont_encode = [
 		'20', '22', '23', '25', '2F',
 		'3C', '3E', '3F',
 		'5B', '5C', '5D', '5E',
 		'60',
 		'7B', '7C', '7D'
-	);
+	];
 	if (in_array($codepoint, $dont_encode)) {
 		return '%'.$codepoint;
 	}
@@ -1169,10 +1169,10 @@ function wrap_file_send($file) {
 	$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 	if (!$zz_page['content_type']) {
 		// Canonicalize suffices
-		$suffix_map = array(
+		$suffix_map = [
 			'jpg' => 'jpeg',
 			'tif' => 'tiff'
-		);
+		];
 		if (in_array($suffix, array_keys($suffix_map))) $suffix = $suffix_map[$suffix];
 		$sql = sprintf(wrap_sql('filetypes'), $suffix);
 		$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
@@ -1204,8 +1204,10 @@ function wrap_file_send($file) {
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
-	$download_filetypes = array('application/octet-stream', 'application/zip', 
-		'text/html', 'application/xhtml+xml');
+	$download_filetypes = [
+		'application/octet-stream', 'application/zip', 'text/html',
+		'application/xhtml+xml'
+	];
 	if (in_array($zz_page['content_type'], $download_filetypes)) {
 		wrap_http_content_disposition('attachment', $file['send_as']);
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
@@ -1247,7 +1249,7 @@ function wrap_file_cleanup($file) {
  * @global array $zz_setting
  * @return void
  */
-function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()) {
+function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
@@ -1357,7 +1359,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = array()
 	// ETag HTTP header
 	// check whether content is identical to previously sent content
 	// @todo: do not send 304 immediately but with a Last-Modified header
-	$etag_header = array();
+	$etag_header = [];
 	if ($status === 200) {
 		// only compare ETag in case of status 2xx
 		$zz_page['etag'] = md5($text);
@@ -1431,7 +1433,7 @@ function wrap_http_content_disposition($type, $filename) {
  * @param mixed $content full content or array $file, depending on $type
  * @param array $etag_header
  */
-function wrap_send_ressource($type, $content, $etag_header = array()) {
+function wrap_send_ressource($type, $content, $etag_header = []) {
 	global $zz_setting;
 	global $zz_page;
 
@@ -1508,7 +1510,7 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
 			$content_length_total += strlen($separator) * count($ranges);
 		}
 		$handle = fopen($content['name'], 'rb');
-		$top = array();
+		$top = [];
 		foreach ($ranges as $range) {
 			$length = $range['end'] - $range['start'] + 1;
 			$content_range = sprintf('Content-Range: bytes %u-%u/%u', $range['start'],
@@ -1560,7 +1562,7 @@ function wrap_send_ressource($type, $content, $etag_header = array()) {
  * @return array
  */
 function wrap_ranges_check($zz_page) {
-	if (empty($_SERVER['HTTP_RANGE'])) return array();
+	if (empty($_SERVER['HTTP_RANGE'])) return [];
 
 	// check if Range is syntactically valid
 	// if invalid, return 200 + full content
@@ -1584,14 +1586,14 @@ function wrap_ranges_check($zz_page) {
 			// go on
 		} else {
 			// - no match: 200 + full content
-			return array();
+			return [];
 		}
 	}
 	
 	// - if Range not valid	416 (Requested range not satisfiable), Content-Range: *
 	// - else 206 + partial content
 	$raw_ranges = explode(',', substr($_SERVER['HTTP_RANGE'], 6));
-	$ranges = array();
+	$ranges = [];
 	foreach ($raw_ranges as $range) {
 		$parts = explode('-', $range);
 		$start = $parts[0];
@@ -1606,10 +1608,10 @@ function wrap_ranges_check($zz_page) {
             header('Content-Range: bytes */'.$zz_page['content_length']);
 			wrap_quit(416);
         }
-        $ranges[] = array(
+        $ranges[] = [
         	'start' => $start,
         	'end' => $end
-        );
+        ];
     }
 	wrap_http_status_header(206);
 	return $ranges;
@@ -1655,7 +1657,7 @@ function wrap_send_gzip($text, $etag_header) {
  * @param array $headers (optional), if not set use sent headers
  * @return bool false: no new cache file was written, true: new cache file created
  */
-function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $headers = array()) {
+function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $headers = []) {
 	global $zz_setting;
 	$host = wrap_cache_filename('domain', $url);
 	if (!file_exists($host)) {
@@ -1730,7 +1732,7 @@ function wrap_cache_revalidated($file) {
  * @return bool true: cache was deleted; false: cache remains intact
  */
 function wrap_cache_delete($status, $url = false) {
-	$delete_cache = array(401, 402, 403, 404, 410);
+	$delete_cache = [401, 402, 403, 404, 410];
 	if (!in_array($status, $delete_cache)) return false;
 
 	$doc = wrap_cache_filename('url', $url);
@@ -1750,7 +1752,7 @@ function wrap_cache_delete($status, $url = false) {
  *		$file: string standard header
  * @see RFC 2616 14.24
  */
-function wrap_if_none_match($etag, $file = array()) {
+function wrap_if_none_match($etag, $file = []) {
 	$etag_header = wrap_etag_header($etag);
 	// Check If-Match header field
 	if (isset($_SERVER['HTTP_IF_MATCH'])) {
@@ -1763,7 +1765,7 @@ function wrap_if_none_match($etag, $file = array()) {
 			// HTTP requires to check Last-Modified date here as well
 			// but we ignore it because if the Entity is identical, it does
 			// not really matter if the modification date is different
-			if (in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD'))) {
+			if (in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'])) {
 				if ($file) wrap_file_cleanup($file);
 				wrap_log_uri();
 				wrap_cache_header('ETag: '.$etag_header['std']);
@@ -1815,10 +1817,10 @@ function wrap_etag_header($etag) {
 	if (substr($etag, 0, 1) === '"' AND substr($etag, -1) === '"') {
 		$etag = substr($etag, 1, -1);
 	}
-	$etag_header = array(
+	$etag_header = [
 		'std' => sprintf('"%s"', $etag),
 		'gz' => sprintf('"%s"', $etag.'-gz')
-	);
+	];
 	return $etag_header;
 }
 
@@ -1832,7 +1834,7 @@ function wrap_etag_header($etag) {
  * @param array $file (optional)
  * @return string time formatted for Last-Modified
  */
-function wrap_if_modified_since($time, $status = 200, $file = array()) {
+function wrap_if_modified_since($time, $status = 200, $file = []) {
 	// do not send Last-Modified header for client (4xx) or server (5xx) errors
 	if (substr($status, 0, 1) === '4') return '';
 	if (substr($status, 0, 1) === '5') return '';
@@ -1883,7 +1885,7 @@ function wrap_send_cache($age = 0) {
 	if (!empty($_SESSION)) return false;
 	if (!empty($_POST)) return false;
 
-	$files = array(wrap_cache_filename(), wrap_cache_filename('headers'));
+	$files = [wrap_cache_filename(), wrap_cache_filename('headers')];
 	// $files[0] might not exist (redirect!)
 	if (!file_exists($files[1])) return false;
 	$has_content = file_exists($files[0]);
@@ -1929,10 +1931,10 @@ function wrap_send_cache($age = 0) {
 		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
 	}
 
-	$file = array(
+	$file = [
 		'name' => $files[0],
 		'gzip' => true
-	);
+	];
 	wrap_send_ressource('file', $file, $etag_header);
 }
 
@@ -2153,7 +2155,7 @@ function wrap_get_setting($key) {
  * @return array $id => $level, sorted as $data is sorted
  */
 function wrap_hierarchy($data, $main_field_name, $top_id = 'NULL') {
-	$indexed_by_main = array();
+	$indexed_by_main = [];
 	foreach ($data as $id => $values) {
 		if (!$values[$main_field_name]) $values[$main_field_name] = 'NULL';
 		$indexed_by_main[$values[$main_field_name]][$id] = $values;
@@ -2176,7 +2178,7 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
 			'Creating hierarchy impossible because ID %d is not part of the given list'
 			, $top_id)
 		);
-		return array();
+		return [];
 	}
 	$keys = array_keys($indexed_by_main[$top_id]);
 	foreach ($keys as $id) {
@@ -2198,13 +2200,13 @@ function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
  * 	array: list of folders
  */
 function wrap_mkdir($folder) {
-	$created = array();
+	$created = [];
 	if (is_dir($folder)) return true;
 
 	// check if open_basedir restriction is in effect
 	$allowed_dirs = explode(':', ini_get('open_basedir'));
 	if ($allowed_dirs) {
-		$basefolders = array();
+		$basefolders = [];
 		foreach ($allowed_dirs as $dir) {
 			if (substr($folder, 0, strlen($dir)) === $dir) {
 				$basefolders = explode('/', $dir);
@@ -2312,7 +2314,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
 		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
 	}
-	return wrap_get_protected_url($url, $headers, 'GET', array(), $username);
+	return wrap_get_protected_url($url, $headers, 'GET', [], $username);
 }
 
 /**
@@ -2328,7 +2330,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
  * @return array from wrap_syndication_retrieve_via_http()
  */
 
-function wrap_get_protected_url($url, $headers = array(), $method = 'GET', $data = array(), $username = false) {
+function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
 	global $zz_setting;
 	global $zz_conf;
 
@@ -2403,7 +2405,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 function wrap_setting_read($key, $login_id = 0) {
 	$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/_settings"';
 	$setting_table = wrap_db_fetch($sql);
-	if (!$setting_table) return array();
+	if (!$setting_table) return [];
 	$sql = 'SELECT setting_key, setting_value
 		FROM /*_PREFIX_*/_settings
 		WHERE setting_key %s "%s"';
@@ -2467,20 +2469,4 @@ function wrap_unlink_recursive($folder) {
 		is_dir($path) ? wrap_unlink_recursive($path) : unlink($path);
 	}
 	rmdir($folder);
-}
-
-/**
- * header_remove for old PHP 5.2
- *
- * @param string $header
- * @deprecated
- */
-if (!function_exists('header_remove')) {
-	function header_remove($header) {
-		$headers = headers_list();
-		foreach ($headers as $listed) {
-			if (substr($listed, 0, strlen($header)+1) !== $header.':') continue;
-			header($header.':');
-		}
-	}
 }
