@@ -605,9 +605,8 @@ function wrap_bearing($value, $precision = 1) {
     		$last_direction = $direction;
     		continue;
 		}
-		$title = $last_direction;
-    	break;
     }
+    if (empty($title)) $title = $last_direction;
     $title = wrap_text($title);
     $title = explode(' ', $title);
     $abbr = array_shift($title);
