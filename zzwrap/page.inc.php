@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -898,6 +898,7 @@ function wrap_get_page() {
 function wrap_redirect($location, $status = 302, $cache = true) {
 	global $zz_setting;
 
+	wrap_http_status_header($status);
 	$header = sprintf('Location: %s', $location);
 	$zz_setting['headers'][] = $header;
 	if ($cache AND !empty($zz_setting['cache'])
@@ -905,7 +906,6 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 		// provide cache URL since internal URL might already be rewritten
 		wrap_cache_ressource('', '', $zz_setting['host_base'].$_SERVER['REQUEST_URI']);
 	}
-	wrap_http_status_header($status);
 	header($header);
 	exit;
 }
