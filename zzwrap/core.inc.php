@@ -5,11 +5,11 @@
  * Core functions: session handling, handling of HTTP requests (URLs, HTTP
  * communication, send ressources), caching + common functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -893,6 +893,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
  * @return bool true if header was sent, false if not
  */
 function wrap_http_status_header($code) {
+	global $zz_setting;
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
@@ -904,7 +905,9 @@ function wrap_http_status_header($code) {
 	}
 	$status = wrap_http_status_list($code);
 	if ($status) {
-		header($protocol.' '.$status['code'].' '.$status['text']);
+		$header = $protocol.' '.$status['code'].' '.$status['text'];
+		header($header);
+		$zz_setting['headers'][] = $header;
 		return true;
 	}
 	return false;
@@ -1217,7 +1220,7 @@ function wrap_file_send($file) {
 		wrap_cache_header('Pragma: public');
 			// dieser Header widerspricht im Grunde dem mit SESSION ausgesendeten
 			// Cache-Control-Header
-			// Wird aber für IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
+			// Wird aber fÃƒÂ¼r IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
 			// erlauben, wenn Cache-Control gesetzt ist.
 			// http://support.microsoft.com/kb/323308/de
 	} else {
