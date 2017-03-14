@@ -1707,8 +1707,12 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 function wrap_cache_header($header) {
 	global $zz_setting;
 	header($header);
-	$header_parts = explode(': ', $header);
-	$zz_setting['headers'][$header_parts[0]] = $header;
+	if (strstr($header, ': ')) {
+		$header_parts = explode(': ', $header);
+		$zz_setting['headers'][$header_parts[0]] = $header;
+	} else {
+		$zz_setting['headers'][] = $header;
+	}
 	return true;
 }
 
@@ -1910,6 +1914,14 @@ function wrap_send_cache($age = 0) {
 		wrap_cache_header('Vary: Accept-Encoding');
 	}
 
+	// Log if cached version is used because there's no connection to database
+	if (empty($zz_conf['db_connection'])) {
+		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
+	}
+	
+	// is it a cached redirect? that's it. exit.
+	if (!$has_content) return true;
+
 	// Content-Length HTTP header
 	if (empty($zz_page['content_length'])) {
 		$zz_page['content_length'] = sprintf("%u", filesize($files[0]));
@@ -1931,11 +1943,6 @@ function wrap_send_cache($age = 0) {
 		);
 	}
 	wrap_if_modified_since($last_modified_time);
-
-	// Log if cached version is used because there's no connection to database
-	if (empty($zz_conf['db_connection'])) {
-		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
-	}
 
 	$file = [
 		'name' => $files[0],
