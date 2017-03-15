@@ -2152,9 +2152,12 @@ function wrap_get_setting($key) {
 	if (isset($zz_setting[$key])) {
 		return $zz_setting[$key];
 	}
-	$value = wrap_setting_read($key);
-	if (array_key_exists($key, $value)) {
-		return $value[$key];
+	$values = wrap_setting_read($key);
+	if (array_key_exists($key, $values)) {
+		return $values[$key];
+	}
+	if (substr($key, -1) === '*') {
+		return $values;
 	}
 	return NULL;
 }
