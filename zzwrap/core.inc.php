@@ -2451,6 +2451,25 @@ function wrap_setting_login_id($login_id = 0) {
 }
 
 /**
+ * sets key/value pairs in $zz_setting, key may be array in form of
+ * key[subkey], value may be array in form (1, 2, 3)
+ *
+ * @param string $key
+ * @param string $value
+ */
+function wrap_setting_key($key, $value) {
+	$settings = [];
+	if (strstr($key, '[')) {
+		$keys = explode('[', $key);
+		if (count($keys) == 2)
+			$settings[$keys[0]][substr($keys[1], 0, -1)] = $value;
+	} else {
+		$settings[$key] = $value;
+	}
+	return $settings;
+}
+
+/**
  * allows settings from db to be in the format (1, 2, 3); first \ will be
  * removed and allows settings starting with (
  *
