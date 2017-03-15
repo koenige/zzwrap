@@ -2428,10 +2428,10 @@ function wrap_setting_read($key, $login_id = 0) {
 		$sql = sprintf($sql, '=', $key);
 	}
 	$sql .= wrap_setting_login_id($login_id);
-	$settings = wrap_db_fetch($sql, 'setting_key', 'key/value');
-	// @todo: replace [] with hierarchical array
-	foreach ($settings as $key => $value) {
-		$settings[$key] = wrap_setting_value($value);
+	$settings_raw = wrap_db_fetch($sql, 'setting_key', 'key/value');
+	$settings = [];
+	foreach ($settings_raw as $key => $value) {
+		$settings = array_merge_recursive($settings, wrap_setting_key($key, wrap_setting_value($value)));
 	}
 	return $settings;
 }
