@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -267,7 +267,7 @@ function cms_login($params) {
 	} elseif (!empty($params[0]) AND $params[0] === 'Single Sign On') {
 		if (count($params) > 4) return false;
 		if (count($params) < 3) return false;
-		if ($params[1] !== $zz_setting['single_sign_on_secret']) return false;
+		if ($params[1] !== wrap_get_setting('single_sign_on_secret')) return false;
 		$login['username'] = $params[2];
 		if (!empty($params[3])) $login['context'] = $params[3];
 		$login['different_sign_on'] = true;
@@ -389,7 +389,8 @@ function cms_login($params) {
 				}
 			}
 			// Redirect to protected landing page
-			if (!empty($_GET) AND array_key_exists('via', $_GET)) {
+			if ((!empty($_GET) AND array_key_exists('via', $_GET))
+				OR !empty($login['single_sign_on'])) {
 				return wrap_auth_show_session();
 			}
 			return cms_login_redirect($url);
@@ -614,11 +615,18 @@ function wrap_login_http_auth() {
  * @return bool true: login was successful
  */
 function wrap_login_hash($hash, $login) {
+	if (substr($hash, 0, 4) === 'sso_') {
+		$login_key = 'sso_key';
+		$hash = substr($hash, 4);
+		$login['single_sign_on'] = true;
+	} else {
+		$login_key = 'password_key';
+	}
 	$hash = explode('-', $hash);
 	$username = array_shift($hash);
 	$hash = implode('-', $hash);
 
-	$password = wrap_password_token($username, 'password_key');
+	$password = wrap_password_token($username, $login_key);
 	if ($password !== $hash) return $login;
 	$login['different_sign_on'] = true;
 	$login['username'] = $username;
@@ -793,10 +801,12 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 	}
 	if (!$userdata) return false;
 	$password_in_db = array_shift($userdata);
-	$password = wrap_set_hash(
-		sprintf('%s %d %s', $userdata['username'], $userdata['user_id'], $password_in_db),
-		$secret_key
-	);
+	if ($secret_key === 'sso_key') {
+		$string = sprintf('%s Single Sign On via zzproject', $userdata['username']);
+	} else {
+		$string = sprintf('%s %d %s', $userdata['username'], $userdata['user_id'], $password_in_db);
+	}
+	$password = wrap_set_hash($string, $secret_key);
 	return $password;
 }
 
