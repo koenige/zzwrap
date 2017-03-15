@@ -265,11 +265,18 @@ function cms_login($params) {
 		$loginform['msg'] = wrap_text('Link for login is wrong or out of date. <a href="./?password">Please get a new one</a>.');
 		$no_password_link = true;
 	} elseif (!empty($params[0]) AND $params[0] === 'Single Sign On') {
-		if (count($params) > 4) return false;
-		if (count($params) < 3) return false;
-		if ($params[1] !== wrap_get_setting('single_sign_on_secret')) return false;
-		$login['username'] = $params[2];
-		if (!empty($params[3])) $login['context'] = $params[3];
+		if (count($params) > 5) return false;
+		if (count($params) < 4) return false;
+		switch ($params[1]) {
+		case 'sso_token':
+			$login['sso_token'] = $params[2];
+			break;
+		case 'sso_hash':
+			if ($params[2] !== wrap_get_setting('single_sign_on_secret')) return false;
+			break;
+		}
+		$login['username'] = $params[3];
+		if (!empty($params[4])) $login['context'] = $params[4];
 		$login['different_sign_on'] = true;
 		$login['create_missing_user'] = true;
 	} elseif (!empty($params[0])) {
