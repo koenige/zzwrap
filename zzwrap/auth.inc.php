@@ -798,19 +798,21 @@ function wrap_password_hash($pass) {
  */
 function wrap_password_token($username = '', $secret_key = 'login_key') {
 	if (!$username) $username = $_SESSION['username'];
-	// get password, even if it is empty
-	$sql = wrap_sql('login');
-	$sql = sprintf($sql, $username);
-	$userdata = wrap_db_fetch($sql);
-	if (!$userdata AND $sql = wrap_sql('login_user_id')) {
+	if ($secret_key === 'sso_key') {
+		// don't check against database, user might not exist yet
+		// it will be created and a check is performed later on
+		$string = sprintf('%s Single Sign On via zzproject', $username);
+	} else {
+		// get password, even if it is empty
+		$sql = wrap_sql('login');
 		$sql = sprintf($sql, $username);
 		$userdata = wrap_db_fetch($sql);
-	}
-	if (!$userdata) return false;
-	$password_in_db = array_shift($userdata);
-	if ($secret_key === 'sso_key') {
-		$string = sprintf('%s Single Sign On via zzproject', $userdata['username']);
-	} else {
+		if (!$userdata AND $sql = wrap_sql('login_user_id')) {
+			$sql = sprintf($sql, $username);
+			$userdata = wrap_db_fetch($sql);
+		}
+		if (!$userdata) return false;
+		$password_in_db = array_shift($userdata);
 		$string = sprintf('%s %d %s', $userdata['username'], $userdata['user_id'], $password_in_db);
 	}
 	$password = wrap_set_hash($string, $secret_key);
