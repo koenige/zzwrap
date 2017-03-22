@@ -1112,6 +1112,8 @@ function wrap_check_http_request_method() {
 		header('Content-Length: 0');
 		exit;
 	}
+	// we do not have language yet
+	wrap_init_language();
 	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
 		wrap_quit(405);	// 405 Not Allowed
 	}
