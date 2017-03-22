@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -36,12 +36,7 @@ function wrap_set_language() {
 	$zz_setting['language_redirect'] = false;
 
 	// page language, html lang attribute
-	if (!isset($zz_setting['lang'])) {
-		if (!empty($zz_conf['language']))
-			$zz_setting['lang']		= $zz_conf['language'];
-		else
-			$zz_setting['lang']		= false;
-	}
+	wrap_init_language();
 
 	// check for language code in URL
 	if ($zz_conf['translations_of_fields']) {
@@ -77,6 +72,20 @@ function wrap_set_language() {
 }
 
 /**
+ * Sets $zz_setting['lang'] if empty so far
+ *
+ */
+function wrap_init_language() {
+	global $zz_setting;
+	global $zz_conf;
+	if (isset($zz_setting['lang'])) return;
+	if (!empty($zz_conf['language']))
+		$zz_setting['lang']		= $zz_conf['language'];
+	else
+		$zz_setting['lang']		= false;
+}
+
+/**
  * Reads the language from the URL and returns without it
  * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
  * 
@@ -86,7 +95,6 @@ function wrap_set_language() {
  * @global array $zz_conf
  *		'db_connection'
  * @return array $url
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_prepare_url($url) {
 	global $zz_setting;
@@ -167,7 +175,6 @@ function wrap_language_get_text($language) {
  * @global array $zz_setting
  *			'log_missing_text' must be set to log missing text
  * @return string $string	Translation of text
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @see zz_text()
  */
 function wrap_text($string) {
