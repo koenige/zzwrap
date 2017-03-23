@@ -716,6 +716,7 @@ function wrap_punycode_encode($string) {
  */
 function wrap_punycode_decode($string) {
 	$url = parse_url($string);
+	if (empty($url['host'])) return $string;
 	$host = explode('.', $url['host']);
 	foreach ($host as $index => $part) {
 		if (substr($part, 0, 4) !== 'xn--') continue;
@@ -742,8 +743,8 @@ function wrap_punycode($string, $action) {
 	if (!file_exists($punycode_lib)) return $string;
 
 	require_once $punycode_lib;
-	require_once $zz_setting['lib'].'/idnaconvert/src/PunyCodeInterface.php';
-	require_once $zz_setting['lib'].'/idnaconvert/src/PunyCode.php';
+	require_once $zz_setting['lib'].'/idnaconvert/src/PunycodeInterface.php';
+	require_once $zz_setting['lib'].'/idnaconvert/src/Punycode.php';
 	require_once $zz_setting['lib'].'/idnaconvert/src/NamePrepDataInterface.php';
 	require_once $zz_setting['lib'].'/idnaconvert/src/NamePrepData.php';
 	require_once $zz_setting['lib'].'/idnaconvert/src/UnicodeTranscoderInterface.php';
