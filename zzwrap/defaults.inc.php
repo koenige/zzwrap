@@ -40,12 +40,12 @@ function wrap_set_defaults_post_conf() {
 	
 	if (empty($zz_setting['http']['allowed'])) {
 		if (!wrap_is_dav_url()) {
-			$zz_setting['http']['allowed'] = array('GET', 'HEAD', 'POST', 'OPTIONS');
+			$zz_setting['http']['allowed'] = ['GET', 'HEAD', 'POST', 'OPTIONS'];
 		} else {
-			$zz_setting['http']['allowed'] = array(
+			$zz_setting['http']['allowed'] = [
 				'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'PROPFIND',
 				'PROPPATCH', 'MKCOL', 'COPY', 'MOVE', 'LOCK', 'UNLOCK'
-			);
+			];
 		}
 	} else {
 		// The following REQUEST methods must always be allowed in general:
@@ -56,9 +56,9 @@ function wrap_set_defaults_post_conf() {
 	}
 	if (empty($zz_setting['http']['not_allowed'])) {
 		if (!wrap_is_dav_url()) {
-			$zz_setting['http']['not_allowed'] = array('PUT', 'DELETE', 'TRACE', 'CONNECT');
+			$zz_setting['http']['not_allowed'] = ['PUT', 'DELETE', 'TRACE', 'CONNECT'];
 		} else {
-			$zz_setting['http']['not_allowed'] = array('TRACE', 'CONNECT');
+			$zz_setting['http']['not_allowed'] = ['TRACE', 'CONNECT'];
 		}
 	}
 	
@@ -75,7 +75,7 @@ function wrap_set_defaults_post_conf() {
 		foreach ($zz_setting['https_urls'] AS $url) {
 			// check language strings
 			// @todo: add support for language strings at some other position of the URL
-			$languages = !empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : array();
+			$languages = !empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : [];
 			$languages[] = ''; // without language string should be checked always
 			foreach ($languages as $lang) {
 				if ($lang) $lang = '/'.$lang;
@@ -119,7 +119,7 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['protocol'] 	= 'http'.($zz_setting['https'] ? 's' : '');
 	if (empty($zz_setting['host_base'])) {
 		$zz_setting['host_base'] 	= $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-		if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
+		if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 		}
 	}
@@ -167,7 +167,7 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['modules_dir'] = realpath($zz_setting['inc'].'/modules');
 	}
 	if (empty($zz_setting['modules'])) {
-		$zz_setting['modules'] = array();
+		$zz_setting['modules'] = [];
 		if (is_dir($zz_setting['modules_dir'])) {
 			$handle = opendir($zz_setting['modules_dir']);
 			while ($file = readdir($handle)) {
@@ -241,9 +241,11 @@ function wrap_set_defaults_post_conf() {
 	
 	// allowed HTML rel attribute values
 	if (!isset($zz_setting['html_link_types'])) {
-		$zz_setting['html_link_types'] = array('Alternate', 'Stylesheet', 'Start',
-			'Next', 'Prev', 'Contents', 'Index', 'Glossary', 'Copyright', 'Chapter',
-			'Section', 'Subsection', 'Appendix', 'Help', 'Bookmark');
+		$zz_setting['html_link_types'] = [
+			'Alternate', 'Stylesheet', 'Start', 'Next', 'Prev', 'Contents',
+			'Index', 'Glossary', 'Copyright', 'Chapter', 'Section',
+			'Subsection', 'Appendix', 'Help', 'Bookmark'
+		];
 	}
 	
 	// XML mode? for closing tags
@@ -329,9 +331,9 @@ function wrap_set_defaults_post_conf() {
 		$zz_conf['log_errors_max_len'] 	= ini_get('log_errors_max_len');
 	
 	if (!isset($zz_conf['translate_log_encodings']))
-		$zz_conf['translate_log_encodings'] = array(
+		$zz_conf['translate_log_encodings'] = [
 			'iso-8859-2' => 'iso-8859-1'
-		);
+		];
 	if (!isset($zz_conf['error_log_post']))
 		$zz_conf['error_log_post']	= false;
 	
@@ -356,13 +358,13 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	
 	if (empty($zz_conf['hash_password'])) 
-		$zz_conf['hash_password'] = 'md5';
+		$zz_conf['hash_password'] = 'password_hash';
+
+	// Base-2 logarithm of the iteration count used for password stretching
+	if (!isset($zz_conf['hash_cost_log2']))
+		$zz_conf['hash_cost_log2'] = 11;
 	
-	if (in_array($zz_conf['hash_password'], array('phpass', 'phpass-md5'))) {
-		// Base-2 logarithm of the iteration count used for password stretching
-		if (!isset($zz_conf['hash_cost_log2']))
-			$zz_conf['hash_cost_log2'] = 11;
-	
+	if (in_array($zz_conf['hash_password'], ['phpass', 'phpass-md5'])) {
 		// Do we require the hashes to be portable to older systems (less secure)?
 		if (!isset($zz_conf['hash_portable']))
 			$zz_conf['hash_portable'] = FALSE;
