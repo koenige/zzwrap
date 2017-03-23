@@ -148,7 +148,7 @@ function wrap_auth_loginpage() {
 	global $zz_page;
 	global $zz_setting;
 
-	$qs = array();
+	$qs = [];
 	$qs['request'] = false; 
 	$request = $zz_page['url']['full']['path'];
 	if (!empty($zz_page['url']['full']['query'])) {
@@ -182,7 +182,7 @@ function wrap_auth_loginpage() {
  * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
  * @return bool true if authentication is required, false if not
  */
-function wrap_authenticate_url($url = false, $no_auth_urls = array()) {
+function wrap_authenticate_url($url = false, $no_auth_urls = []) {
 	global $zz_page;
 	global $zz_setting;
 	if (!$url) {
@@ -254,7 +254,7 @@ function cms_login($params) {
 	$login['password'] = '';
 	$login['different_sign_on'] = false;
 
-	$loginform = array();
+	$loginform = [];
 	$loginform['msg'] = false;
 
 	$no_password_link = false;
@@ -318,7 +318,7 @@ function cms_login($params) {
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			if (empty($_POST['username']) OR empty($_POST['password']))
 				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
-			$full_login = array();
+			$full_login = [];
 			foreach ($zz_setting['login_fields'] AS $login_field) {
 				$login_field = strtolower($login_field);
 				if (!empty($_POST[$login_field])) {
@@ -372,9 +372,9 @@ function cms_login($params) {
 			} else {
 				$user .= "\n";
 			}
-			$error_settings = array(
+			$error_settings = [
 				'log_post_data' => false
-			);
+			];
 			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
 				$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
 		} else {
@@ -415,7 +415,7 @@ function cms_login($params) {
 	$loginform['no_cookie'] = isset($_GET['no-cookie']) ? true : false;
 	$loginform['logout_inactive_after'] = $zz_setting['logout_inactive_after'];
 
-	$params = array();
+	$params = [];
 	if (!empty($url)) {
 		$params[] = 'url='.urlencode($url);
 		$zz_setting['cache'] = false;
@@ -431,9 +431,9 @@ function cms_login($params) {
 	}
 	$loginform['params'] = $params ? '?'.implode('&amp;', $params) : '';
 
-	$loginform['fields'] = array();
+	$loginform['fields'] = [];
 	foreach ($zz_setting['login_fields'] AS $login_field) {
-		$loginform['fields'][] = array(
+		$loginform['fields'][] = [
 			'title' => wrap_text($login_field.':'),
 			'fieldname' => strtolower($login_field),
 			// separate input, e. g. dropdown etc.
@@ -442,7 +442,7 @@ function cms_login($params) {
 			// text input
 			'value' => !empty($_POST[strtolower($login_field)])
 				? wrap_html_escape($_POST[strtolower($login_field)]) : ''
-		);
+		];
 	}
 	if (!$no_password_link) {
 		$loginform['password_link'] = wrap_get_setting('password_link');
@@ -450,7 +450,7 @@ function cms_login($params) {
 			$loginform['password_link'] = '?password';
 		}
 	}
-	$page['query_strings'] = array('password', 'auth', 'via');
+	$page['query_strings'] = ['password', 'auth', 'via'];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
 		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
@@ -463,10 +463,10 @@ function cms_login($params) {
 	} else {
 		$page['text'] = wrap_template('login', $loginform);
 	}
-	$page['meta'][] = array(
+	$page['meta'][] = [
 		'name' => 'robots',
 		'content' => 'noindex, follow, noarchive'
-	);
+	];
 	return $page;
 }
 
@@ -478,13 +478,13 @@ function cms_login($params) {
  * @global array $zz_setting
  * @return - (redirect to different page)
  */
-function cms_login_redirect($url, $querystring = array()) {
+function cms_login_redirect($url, $querystring = []) {
 	global $zz_setting;
 	
 	// get correct protocol/hostname
 	$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
 	$zz_setting['host_base'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-	if (!in_array($_SERVER['SERVER_PORT'], array(80, 443))) {
+	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 		$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 	}
 
@@ -548,7 +548,7 @@ function wrap_login($login) {
 function wrap_login_db($login) {
 	$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
 	$data = wrap_db_fetch($sql);
-	if (!$data) return array();
+	if (!$data) return [];
 
 	$hash = array_shift($data);
 	if (!empty($login['different_sign_on'])) {
@@ -556,7 +556,7 @@ function wrap_login_db($login) {
 	} elseif (wrap_password_check($login['password'], $hash, $data['login_id'])) {
 		return $data;
 	}
-	return array();
+	return [];
 }
 
 /**
@@ -649,7 +649,7 @@ function wrap_login_hash($hash, $login) {
  * @param array (optional) $data result of wrap_sql('login') or custom LDAP function
  * @global array $zz_setting
  */
-function wrap_register($user_id = false, $data = array()) {
+function wrap_register($user_id = false, $data = []) {
 	global $zz_setting;
 
 	// Local modifications to SQL queries
@@ -658,7 +658,7 @@ function wrap_register($user_id = false, $data = array()) {
 	if (!$data) {
 		// keep login ID
 		$login_id = $_SESSION['login_id'];
-		$_SESSION = array();
+		$_SESSION = [];
 		$_SESSION['logged_in'] = true;
 		$_SESSION['login_id'] = $login_id;
 		$_SESSION['user_id'] = $user_id;
@@ -737,6 +737,9 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
 	if (strlen($pass) > 72) return false;
 
 	switch ($zz_conf['hash_password']) {
+	case 'password_hash':
+		if (password_verify($pass, $hash)) return true;
+		return false;
 	case 'phpass':
 	case 'phpass-md5':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
@@ -776,6 +779,10 @@ function wrap_password_hash($pass) {
 	if (strlen($pass) > 72) return false;
 
 	switch ($zz_conf['hash_password']) {
+	case 'password_hash':
+		$hash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => $zz_conf['hash_cost_log2']]);
+		if (strlen($hash) < 20) return false;
+		return $hash;
 	case 'phpass':
 	case 'phpass-md5':
 		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
@@ -826,7 +833,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
  * @param array $additional_data (optional)
  * @return bool
  */
-function wrap_password_reminder($address, $additional_data = array()) {
+function wrap_password_reminder($address, $additional_data = []) {
 	$sql = wrap_sql('password_reminder');
 	$sql = sprintf($sql, wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
@@ -841,7 +848,7 @@ function wrap_password_reminder($address, $additional_data = array()) {
 	$data['token'] = $data['username'].'-'.wrap_password_token($data['username'], 'password_key');
 	if (empty($data['subject'])) $data['subject'] = 'Forgotten Password';
 
-	$mail = array();
+	$mail = [];
 	$mail['to']['name'] = $data['recipient'];
 	$mail['to']['e_mail'] = $data['e_mail'];
 	$mail['subject'] = wrap_text($data['subject']);
