@@ -495,6 +495,17 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 				}
 			}
 		}
+		if ($status === 200 AND !$data AND !$timeout_ignore) {
+			$info = curl_getinfo($ch);
+			if ($info['download_content_length'] > $info['size_download']) {
+				wrap_error(sprintf(
+					'CURL incomplete download, URL %s: total %s, received %s'
+					, $url, $info['download_content_length'], $info['size_download']
+				));
+			} else {
+				wrap_error(sprintf('CURL error, URL %s: %s', $url, json_encode($info)));
+			}
+		}
 		curl_close($ch);
 		if (!$timeout_ignore) {
 			// separate headers from data
