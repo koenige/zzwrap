@@ -867,3 +867,19 @@ function wrap_auth_show_session() {
 	$page['headers']['filename'] = 'session-'.$_SESSION['user_id'].'.json';
 	return $page;
 }
+
+/**
+ * create a single sign on link for a different server
+ * and redirect to that server and login
+ *
+ * @param string $login_url full URL on server where to log on
+ * @param string $dest_url local URL on server where to redirect to
+ * @return string Link
+ */
+function wrap_sso_login($login_url, $dest_url = '/') {
+	$token = wrap_password_token($_SESSION['username'], 'sso_key');
+	$url = sprintf('%s?username=%s&token=%s&url=%s', 
+		$login_url, $_SESSION['username'], $token, urlencode($dest_url)
+	);
+	return brick_format('%%% redirect 307 '.$url.' %%%');
+}
