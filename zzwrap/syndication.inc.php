@@ -271,7 +271,7 @@ function wrap_syndication_geocode($address) {
 			break;
 		}
 		if (!$success) {
-			wrap_error(sprintf('Syndication from %s failed with status %s. (%s)',
+			wrap_error(sprintf('Syndication from %s failed with status %s. %s',
 				$gc['geocoder'], $coords['status'], $url));
 			continue;
 		}
