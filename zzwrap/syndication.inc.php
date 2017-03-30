@@ -99,7 +99,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			$data = array();
 			break;
 		default:
-			if (file_exists($files[0])) {
+			if (!empty($files[0]) AND file_exists($files[0])) {
 				// connection error, use (possibly stale) cache file
 				$data = file_get_contents($files[0]);
 				wrap_error(sprintf(
