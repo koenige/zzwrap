@@ -219,6 +219,16 @@ function wrap_syndication_geocode($address) {
 			$add[$index] = str_replace("%0D%0A", ",", $line);
 		}
 	}
+	// remove duplicate tokens
+	foreach ($add as $index => $line) {
+		$line = explode(',', $line);
+		$last_token = '';
+		foreach ($line as $lindex => $token) {
+			if ($token === $last_token) unset($line[$lindex]);
+			$last_token = $token;
+		}
+		$add[$index] = implode(',', $line);
+	}
 	ksort($add);
 
 	// set geocoders
