@@ -212,6 +212,13 @@ function wrap_syndication_geocode($address) {
 			$add[-1] = urlencode($address['place']).','.$add[0];
 		}
 	}
+
+	// replace line breaks with ','
+	foreach ($add as $index => $line) {
+		if (strstr($line, "%0D%0A")) {
+			$add[$index] = str_replace("%0D%0A", ",", $line);
+		}
+	}
 	ksort($add);
 
 	// set geocoders
