@@ -993,7 +993,7 @@ function wrap_db_escape($value) {
 	global $zz_conf;
 
 	// should never happen, just during development
-	if (!$value) return '';
+	if (!$value AND $value !== '0' AND $value !== 0) return '';
 	if (is_array($value) OR is_object($value)) {
 		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
 		return '';
