@@ -271,7 +271,7 @@ function wrap_look_for_page($zz_page) {
 				if ($pos = strrpos($my_url, '/')) {
 					$parameter[$i] = substr($my_url, $pos + 1).$parameter[$i];
 					$my_url = substr($my_url, 0, $pos).'*';
-				} elseif ($my_url AND substr($my_url, 0, 1) !== '_') {
+				} elseif (($my_url OR $my_url === '0' OR $my_url === 0) AND substr($my_url, 0, 1) !== '_') {
 					$parameter[$i] = $my_url.$parameter[$i];
 					$my_url = '*';
 				} else {
