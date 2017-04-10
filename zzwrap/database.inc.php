@@ -120,6 +120,7 @@ function wrap_db_prefix($sql) {
  *		bool: false = query failed, true = query was succesful
  *		int: on INSERT: inserted ID if applicable
  *		int: on UPDATE: number of updated rows
+ *		int: on DELETE: number of deleted rows
  */
 function wrap_db_query($sql, $error = E_USER_ERROR) {
 	global $zz_conf;
@@ -146,12 +147,16 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	// SELECT is there for performance reasons
 	$warnings = [];
 	$return = false;
-	if ($tokens[0] === 'INSERT') {
+	switch ($tokens[0]) {
+	case 'INSERT':
 		// return inserted ID
 		$return = mysqli_insert_id($zz_conf['db_connection']);
-	} elseif ($tokens[0] === 'UPDATE') {
-		// return number of updated rows
+		break;
+	case 'UPDATE':
+	case 'DELETE':
+		// return number of updated or deleted rows
 		$return = mysqli_affected_rows($zz_conf['db_connection']);
+		break;
 	}
 	if (!in_array($tokens[0], array('SET', 'SELECT'))
 		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
