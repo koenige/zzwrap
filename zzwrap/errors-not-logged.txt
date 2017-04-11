@@ -67,6 +67,7 @@
 503	end	/wp-config.php~
 404	end	/wp-content/uploads/2015/08/info.php
 404	end	/wordpr
+404	all	/wp-admin
 404	all	/wp-admin/
 404	begin	/wp-content/plugins/Login-wall-etgFB/login_wall.php
 404	all	/wp-includes/pomo/index.php?php
@@ -78,7 +79,7 @@
 404	end	/wp-content/plugins/logo_img.php
 
 # Joomla
-404	all	/administrator/index.php
+404	end	/administrator/index.php
 404	all	/index.php?option=com_users&view=registration
 404	all	/index.php?option=com_kide
 404	all	/index.php?option=com_easyblog&view=dashboard&layout=write
