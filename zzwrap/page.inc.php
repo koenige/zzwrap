@@ -34,7 +34,7 @@
  *		'error': returns simple template, with placeholders
  * @return mixed $text (string or array indexed by positions)
  */
-function wrap_template($template, $data = array(), $mode = false) {
+function wrap_template($template, $data = [], $mode = false) {
 	global $zz_setting;
 
 	if (substr($template, 0, 1) === '/' AND file_exists($template)) {
@@ -93,7 +93,7 @@ function wrap_template($template, $data = array(), $mode = false) {
 function wrap_template_file($template, $show_error = true) {
 	global $zz_setting;
 	
-	$found = array();
+	$found = [];
 	if (!empty($zz_setting['lang'])) {
 		$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
 		if (file_exists($tpl_file)) return $tpl_file;
@@ -258,7 +258,7 @@ function wrap_get_menu_navigation() {
 	global $zz_setting;
 	global $zz_conf;
 	// no menu query, so we don't have a menu
-	if (!wrap_sql('menu')) return array();
+	if (!wrap_sql('menu')) return [];
 
 	// get data from database
 	$unsorted_menu = wrap_db_fetch(wrap_sql('menu'), 'nav_id');
@@ -266,7 +266,7 @@ function wrap_get_menu_navigation() {
 	if (function_exists('wrap_translate_menu'))
 		$unsorted_menu = wrap_translate_menu($unsorted_menu);
 	// write database output into hierarchical array
-	$menu = array();
+	$menu = [];
 	foreach ($unsorted_menu as $item) {
 		$my_item = wrap_menu_asterisk_check($item, $menu, $item['main_nav_id'], 'nav_id');
 		if ($my_item) {
@@ -289,9 +289,9 @@ function wrap_get_menu_navigation() {
 function wrap_get_menu_webpages() {
 	global $zz_setting;
 	// no menu query, so we don't have a menu
-	if (!$sql = wrap_sql('menu')) return array(); 
+	if (!$sql = wrap_sql('menu')) return []; 
 
-	$menu = array();
+	$menu = [];
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
 	if (!$entries) return false;
@@ -462,7 +462,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		// all pages are below homepage, don't highlight this
 		if ($item['url'] === $zz_setting['base'].'/') $page_below = false;
 
-		$class = array();
+		$class = [];
 		if (!$i) $class[] = 'first-child';
 		if ($i === count($nav[$menu_name])-1) $class[] = 'last-child';
 		if (!empty($item['class'])) $class[] = $item['class'];
@@ -584,10 +584,10 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  */
 function wrap_get_breadcrumbs($page_id) {
-	if (!($sql = wrap_sql('breadcrumbs'))) return array();
+	if (!($sql = wrap_sql('breadcrumbs'))) return [];
 	global $zz_conf;
 
-	$breadcrumbs = array();
+	$breadcrumbs = [];
 	// get all webpages
 	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
 	$pages = wrap_db_fetch($sql, wrap_sql('page_id'));
@@ -611,11 +611,11 @@ function wrap_get_breadcrumbs($page_id) {
  * @return array breadcrumbs ('title' => title of menu, 'url_path' = link)
  */
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
-	$breadcrumbs[] = array(
+	$breadcrumbs[] = [
 		'title' => $pages[$page_id]['title'],
 		'url_path' => $pages[$page_id]['identifier'],
 		'page_id' => $pages[$page_id][wrap_sql('page_id')]
-	);
+	];
 	if ($pages[$page_id]['mother_page_id'] 
 		&& !empty($pages[$pages[$page_id]['mother_page_id']]))
 		$breadcrumbs = array_merge($breadcrumbs, 
@@ -649,7 +649,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	if (!empty($brick_breadcrumbs)) array_pop($breadcrumbs);
 
 	// format breadcrumbs
-	$formatted_breadcrumbs = array();
+	$formatted_breadcrumbs = [];
 	foreach ($breadcrumbs as $crumb) {
 		// don't show placeholder paths
 		$paths = explode('/', $crumb['url_path']);
@@ -765,7 +765,7 @@ function wrap_page_last_update($page) {
  */
 function wrap_page_media($page) {
 	global $zz_page;
-	$media = !empty($page['media']) ? $page['media'] : array();
+	$media = !empty($page['media']) ? $page['media'] : [];
 	if (function_exists('wrap_get_media')) {
 		$page_id = $zz_page['db'][wrap_sql('page_id')];
 		$media = array_merge(wrap_get_media($page_id), $media);
@@ -846,7 +846,7 @@ function wrap_get_page() {
 	global $zz_conf;
 	global $zz_page;
 
-	if (!empty($_POST['httpRequest']) AND $_POST['httpRequest'] !== 'zzform') {
+	if (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
 		$page['text'] = wrap_template($zz_page['tpl_file'], $zz_conf + $zz_setting);
@@ -860,7 +860,7 @@ function wrap_get_page() {
 	wrap_page_check_if_error($page);
 
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
-		if (empty($page['headers'])) $page['headers'] = array();
+		if (empty($page['headers'])) $page['headers'] = [];
 		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers']);
 	}
 
@@ -1062,20 +1062,20 @@ function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
 function wrap_get_prevnext($records, $record_id, $endless = true) {
 	$keys = array_keys($records);
 	$pos = array_search($record_id, $keys);
-	if ($pos === false) return array(0 => false, 1 => false);
+	if ($pos === false) return [0 => false, 1 => false];
 	$prev = $pos - 1;
 	if ($prev >= 0) {
 		$return[0] = $records[$keys[$prev]];
 	} else {
 		if ($endless) $return[0] = $records[$keys[count($records) - 1]];
-		else $return[0] = array();
+		else $return[0] = [];
 	}
 	$next = $pos + 1;
 	if ($next < count($records)) {
 		$return[1] = $records[$keys[$next]];
 	} else {
 		if ($endless) $return[1] = $records[$keys[0]];
-		else $return[1] = array();
+		else $return[1] = [];
 	}
 	return $return;
 }
@@ -1090,7 +1090,7 @@ function wrap_get_prevnext($records, $record_id, $endless = true) {
  */
 function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
 	list($prev, $next) = wrap_get_prevnext($records, $record_id, $endless);
-	$return = array();
+	$return = [];
 	foreach ($prev as $key => $value) {
 		$return['_prev_'.$key] = $value;
 	}
