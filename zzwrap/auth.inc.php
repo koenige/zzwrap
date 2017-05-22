@@ -243,6 +243,11 @@ function cms_login($params) {
 	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
 	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
 
+	if (!empty($_SESSION['logged_in'])) {
+		$url = cms_login_redirect_url();
+		if ($url) return cms_login_redirect($url);
+	}
+
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
 
@@ -350,12 +355,7 @@ function cms_login($params) {
 	}
 
 	// get URL where redirect is done to after logging in
-	$url = false;
-	if (!empty($zz_page['url']['full']['query'])) {
-		parse_str($zz_page['url']['full']['query'], $querystring);
-		if (!empty($querystring['url']))
-			$url = $querystring['url'];
-	}
+	$url = cms_login_redirect_url();
 
 	// everything was tried, so check if $_SESSION['logged_in'] is true
 	// and in that case, redirect to wanted URL in database
@@ -468,6 +468,20 @@ function cms_login($params) {
 		'content' => 'noindex, follow, noarchive'
 	];
 	return $page;
+}
+
+/**
+ * get redirect URL from query string
+ *
+ * @global array $zz_page
+ * @return string
+ */
+function cms_login_redirect_url() {
+	global $zz_page;
+	if (empty($zz_page['url']['full']['query'])) return false;
+	parse_str($zz_page['url']['full']['query'], $querystring);
+	if (empty($querystring['url'])) return false;
+	return $querystring['url'];
 }
 
 /**
