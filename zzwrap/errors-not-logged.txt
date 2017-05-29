@@ -77,6 +77,9 @@
 404	end	/wp-foot.php
 404	all	/wp-content/
 404	end	/wp-content/plugins/logo_img.php
+404	end	//license.php
+404	end	//wp-admin/admin-ajax.php
+404	end	//uploadify/uploadify.php?folder=/
 
 # Joomla
 404	end	/administrator/index.php
