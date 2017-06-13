@@ -685,12 +685,15 @@ function wrap_lock_file($realm) {
  * @param string $destination
  * @param array $params
  *		array 'destination' vsprintf fields from $my to filename
+ *		bool 'log_destination' logs destination as well (in case the same file
+ *			has to be put to multiple destinations)
  * @param bool $delete delete source file?
  * @return bool true: destination file exists (or was unchanged), false: either
  *		an error occured or source file does not exist, nothing was transfered
  */
 function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	global $zz_setting;
+	require_once $zz_setting['core'].'/file.inc.php';
 	$logfile = $zz_setting['log_dir'].'/watchdog.log';
 
 	if (substr($source, 0, 7) === 'http://'
@@ -717,9 +720,17 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	// check log
 	$watched_files = file($logfile);
 	$remove = false;
+	$delete_lines = [];
 	foreach ($watched_files as $index => $line) {
 		$file = explode(' ', trim($line)); // 0 = timestamp, 1 = sha1, 2 = filename
+		if (empty($file[2])) {
+			$delete_lines[] = $index;
+			continue;
+		}
 		if ($file[2] !== $source) continue;
+		if (!empty($params['log_destination'])) {
+			if ($file[3] !== $destination) continue;
+		}
 		if ($file[1] === $my['sha1']) {
 			// file was not changed, do nothing
 			return true;
@@ -727,11 +738,21 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		$remove = $index;
 		break;
 	}
+	if ($delete_lines) {
+		wrap_file_delete_line($logfile, $delete_lines);
+	}
 	
 	// do something
 	if (substr($destination, 0, 6) === 'ftp://') {
 		$url = parse_url($destination);
 		$ftp_stream = ftp_connect($url['host'], !empty($url['port']) ? $url['port'] : 21);
+		if (!$ftp_stream) {
+			wrap_error(sprintf(
+				'FTP: Failed to connect to %s (Port: %d)',
+				$url['host'], !empty($url['port']) ? $url['port'] : 21
+			));
+			return false;
+		}
 		$success = ftp_login($ftp_stream, $url['user'], $url['pass']);
 		if (!$success) {
 			wrap_error(sprintf(
@@ -784,7 +805,11 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			fwrite($handle, $line);
 		fclose($handle);
 	}
-	error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
+	if (!empty($params['log_destination'])) {
+		error_log(sprintf("%s %s %s %s\n", $my['timestamp'], $my['sha1'], $source, $destination), 3, $logfile);
+	} else {
+		error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
+	}
 
 	// move was successful
 	return true;
