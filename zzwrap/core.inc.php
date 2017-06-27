@@ -983,6 +983,31 @@ function wrap_check_https($zz_page, $zz_setting) {
 }
 
 /**
+ * redirects to https URL if explicitly wanted
+ *
+ * @global array $zz_setting
+ * @global array $zz_page
+ * @return bool
+ */
+function wrap_https_redirect() {
+	global $zz_setting;
+	global $zz_page;
+
+	// access must be possible via both http and https
+	// check to avoid infinite redirection
+	if (empty($zz_setting['ignore_scheme'])) return false;
+	// connection is already via https?
+	if (!empty($zz_setting['https'])) return false;
+	// local connection?
+	if ($zz_setting['local_access']) return false;
+
+	$url = $zz_page['url']['full'];
+	$url['scheme'] = 'https';
+	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
+}
+
+
+/**
  * checks the HTTP request made, builds URL
  * sets language according to URL and request
  *
