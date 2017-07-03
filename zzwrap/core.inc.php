@@ -2382,7 +2382,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	if (substr($url, 0, 1) === '/') $url = $zz_setting['host_base'].$url;
 
-	require_once $zz_setting['lib'].'/zzwrap/syndication.inc.php';
+	require_once $zz_setting['core'].'/syndication.inc.php';
 	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
 	return $result;
 }
