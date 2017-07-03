@@ -34,7 +34,7 @@ function wrap_include_ext_libraries() {
 		else {
 			$found = false;
 			foreach ($zz_setting['modules'] as $module) {
-				$file = $zz_setting['modules_dir'].'/modules/'.$module.'/libraries/'.$function.'.inc.php'
+				$file = $zz_setting['modules_dir'].'/'.$module.'/libraries/'.$function.'.inc.php';
 				if (!file_exists($file)) continue;
 				require_once $file;
 				$found = true;
