@@ -189,7 +189,7 @@ function wrap_set_defaults_post_conf() {
 	
 	// cms core
 	if (empty($zz_setting['core']))
-		$zz_setting['core']			= $zz_setting['lib'].'/zzwrap';
+		$zz_setting['core']			= __DIR__;
 	
 	// zzform path
 	if (empty($zz_conf['dir']))

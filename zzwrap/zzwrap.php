@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2017 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -51,7 +51,7 @@ function zzwrap() {
 	// from different functions as well
 	if (!empty($_GET['code'])
 		AND substr($_SERVER['REQUEST_URI'], 0, strlen($_SERVER['SCRIPT_NAME'])) === $_SERVER['SCRIPT_NAME']) {
-		wrap_errorpage(array(), $zz_page);
+		wrap_errorpage([], $zz_page);
 		exit;
 	}
 	
@@ -176,7 +176,7 @@ function wrap_set_defaults() {
 	if (empty($zz_setting['lib']))
 		$zz_setting['lib']	= $zz_setting['inc'].'/library';
 	if (empty($zz_setting['core']))
-		$zz_setting['core'] = $zz_setting['lib'].'/zzwrap';
+		$zz_setting['core'] = __DIR__;
 	require_once $zz_setting['core'].'/defaults.inc.php';
 	wrap_set_defaults_post_conf();
 
@@ -247,7 +247,7 @@ function wrap_set_defaults_pre_conf() {
 // HTTP
 // -------------------------------------------------------------------------
 
-	$zz_setting['extra_http_headers'] = array();
+	$zz_setting['extra_http_headers'] = [];
 	// Prevent IE > 7 from sniffing mime types
 	$zz_setting['extra_http_headers'][] = 'X-Content-Type-Options: nosniff';
 
@@ -303,11 +303,11 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['brick_page_templates'] = true;
 	$zz_setting['brick_fulltextformat'] = 'markdown';
 	// functions that might be used for formatting (zzbrick)
-	$zz_setting['brick_formatting_functions'] = array(
+	$zz_setting['brick_formatting_functions'] = [
 		'markdown', 'wrap_date', 'rawurlencode', 'wordwrap', 'nl2br',
 		'htmlspecialchars', 'wrap_html_escape', 'wrap_latitude',
 		'wrap_longitude', 'wrap_number'
-	);
+	];
 
 	if (!$zz_setting['local_access']) {
 		$zz_setting['gzip_encode'] = true;
@@ -320,15 +320,15 @@ function wrap_set_defaults_pre_conf() {
 	$zz_conf['prefix']			= ''; // prefix for all database tables
 	$zz_conf['logging']			= true;
 	$zz_conf['logging_id']		= true;
-	$zz_setting['unwanted_mysql_modes'] = array(
+	$zz_setting['unwanted_mysql_modes'] = [
 		'NO_ZERO_IN_DATE'
-	);
+	];
 
 // -------------------------------------------------------------------------
 // Error Logging, Mail
 // -------------------------------------------------------------------------
 
-	$zz_conf['error_mail_level'] = array('error', 'warning');
+	$zz_conf['error_mail_level'] = ['error', 'warning'];
 	$zz_conf['error_handling']	= 'mail';
 	if ($zz_setting['local_access']) {
 		$zz_conf['error_handling']	= 'output';
