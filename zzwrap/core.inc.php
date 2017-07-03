@@ -27,12 +27,23 @@ function wrap_include_ext_libraries() {
 
 	if (empty($zz_setting['ext_libraries'])) return false;
 	foreach ($zz_setting['ext_libraries'] as $function) {
-		if (file_exists($zz_setting['lib'].'/'.$function.'.php')) 
-			require_once $zz_setting['lib'].'/'.$function.'.php';
-		elseif (file_exists($zz_setting['lib'].'/'.$function.'/'.$function.'.php'))
-			require_once $zz_setting['lib'].'/'.$function.'/'.$function.'.php';
-		else
-			wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
+		if (file_exists($file = $zz_setting['lib'].'/'.$function.'.php')) 
+			require_once $file;
+		elseif (file_exists($file = $zz_setting['lib'].'/'.$function.'/'.$function.'.php'))
+			require_once $file;
+		else {
+			$found = false;
+			foreach ($zz_setting['modules'] as $module) {
+				$file = $zz_setting['modules_dir'].'/modules/'.$module.'/libraries/'.$function.'.inc.php'
+				if (!file_exists($file)) continue;
+				require_once $file;
+				$found = true;
+				break;
+			}
+			if (!$found) {
+				wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
+			}
+		}
 	}
 	$included = true;
 	return true;
