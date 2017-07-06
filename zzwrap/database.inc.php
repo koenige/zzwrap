@@ -921,6 +921,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['breadcrumbs']	= '';
 			$zz_sql['menu']			= '';
 			$zz_sql['menu_level2']	= '';
+			$zz_sql['menu_level3']	= '';
 			break;
 		case 'auth':
 			if (!empty($set['auth'])) return true;

@@ -313,14 +313,20 @@ function wrap_get_menu_webpages() {
 	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
 		wrap_menu_session($menu);
 	}
-	// get second hierarchy level
-	if ($sql = wrap_sql('menu_level2')) {
+	// get second (and third) hierarchy level
+	$levels = [2, 3];
+	foreach ($levels as $level) {
+		if (!$sql = wrap_sql('menu_level'.$level)) continue;
 		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
 		$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
 		if ($menu_table = wrap_sql('menu_table'))
 			$entries = wrap_translate($entries, $menu_table);
 		foreach ($entries as $line) {
-			$menu_key = 'sub-'.$line['menu'].'-'.$line['mother_page_id'];
+			if (empty($line['top_ids'])) {
+				// backwards compatibility
+				$line['top_ids'] = $line['mother_page_id'];
+			}
+			$menu_key = $line['menu'].'-'.$line['top_ids'];
 			// URLs ending in * or */ or *.html are different
 			if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
 				$menu[$menu_key] = $my_item;
@@ -407,12 +413,11 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	// as default, menu comes from database table 'webpages'
 	// wrap_get_menu_webpages()
 	$fn_page_id = wrap_sql('page_id');
-	$fn_prefix = 'sub-'.$menu_name.'-';
 	// no menu_name: use default menu name
 	if (!$menu_name AND !empty($zz_setting['main_menu'])) {
 		$menu_name = $zz_setting['main_menu'];
-		$fn_prefix = 'sub-'.$menu_name.'-';
 	}
+	$fn_prefix = $menu_name.'-';
 
 	// if we have a separate navigation table, the $nav-array comes from
 	// wrap_get_menu_navigation()
@@ -475,7 +480,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 				.(!empty($item['long_title']) ? ' title="'.$item['long_title'].'"' : '')
 				.'>' : $zz_setting['menu_mark_active_open']);
 		} 
-		$title = ($page_id ? ucfirst($item['long_title']) : ucfirst($item['title'])).$item['subtitle'];
+		$title = ucfirst($page_id ? $item['long_title'] : $item['title']).$item['subtitle'];
 		$title = str_replace('& ', '&amp; ', $title);
 		$title = str_replace('-', '-&shy;', $title);
 		$output .= $title;
