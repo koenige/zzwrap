@@ -398,8 +398,7 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
  * @param int $page_id optional; show only the one correspondig entry from the menu
  *	and show it with a long title
  * @global array $zz_setting
- *		'main_menu', 'menu_mark_active_open', 'menu_mark_active_close',
- *		'menu_display_submenu_items'
+ *		'main_menu', 'menu_display_submenu_items'
  * @return string HTML-Output
  */
 function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
@@ -413,12 +412,6 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	// 'none'/false: never display submenu items
 	if (!isset($zz_setting['menu_display_submenu_items'])) 
 		$zz_setting['menu_display_submenu_items'] = 'current';
-		
-	// format active menu entry
-	if (!isset($zz_setting['menu_mark_active_open']))
-		$zz_setting['menu_mark_active_open'] = '<strong>';
-	if (!isset($zz_setting['menu_mark_active_close']))
-		$zz_setting['menu_mark_active_close'] = '</strong>';
 
 	$output = false;
 	// as default, menu comes from database table 'webpages'
@@ -468,27 +461,21 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	}
 
 	// OK, finally, we just get the menu together
-	foreach ($nav[$menu_name] as $item) {
-		if (empty($item['subtitle'])) $item['subtitle'] = '';
+	$menu = [];
+	foreach ($nav[$menu_name] as $id => $item) {
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
 
-		// output each navigation entry with its id, first entry in a ul as first-child
-		$output .= "\t".'<li'.(!empty($item['id']) ? ' id="'.$item['id'].'"' : '')
-			.(!empty($item['class']) ? ' class="'.$item['class'].'"' : '').'>';
-		if ($item['url']) {
-			$output .= (!$item['current_page'] ? '<a href="'.$item['url'].'"'
-				.($item['below'] ? ' class="below"' : '')
-				.(!empty($item['long_title']) ? ' title="'.$item['long_title'].'"' : '')
-				.'>' : $zz_setting['menu_mark_active_open']);
-		} 
-		$title = ucfirst($page_id ? $item['long_title'] : $item['title']).$item['subtitle'];
-		$title = str_replace('& ', '&amp; ', $title);
-		$title = str_replace('-', '-&shy;', $title);
-		$output .= $title;
-		if ($item['url']) {
-			$output .= !$item['current_page'] ? '</a>' : $zz_setting['menu_mark_active_close'];
-		} 
+		// do some formatting in advance
+		// @todo move to template or to wrap_get_menu()
+		$item['title'] = $page_id ? $item['long_title'] : $item['title'];
+		$item['title'] = str_replace('& ', '&amp; ', $item['title']);
+		$item['title'] = str_replace('-', '-&shy;', $item['title']);
+		if (!empty($item['subtitle'])) {
+			$item['subtitle'] = str_replace('& ', '&amp; ', $item['subtitle']);
+			$item['subtitle'] = str_replace('-', '-&shy;', $item['subtitle']);
+		}
+		
 		// get submenu if there is one and if it shall be shown
 		if (!empty($nav[$fn_prefix.$item[$fn_page_id]]) // there is a submenu and at least one of:
 			AND ($zz_setting['menu_display_submenu_items'] !== 'none')
@@ -496,13 +483,12 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 				OR $item['current_page'] 	// it's the submenu of the current page
 				OR $item['below'])) {		// it has a url one or more levels below this page
 			$id = $fn_prefix.$item[$fn_page_id];
-			$output .= "\n".'<ul class="submenu obj'.count($nav[$id]).'">'."\n";
-			$output .= wrap_htmlout_menu($nav, $id);
-			$output .= '</ul>'."\n";
+			$item['submenu_rows'] = count($nav[$id]);
+			$item['submenu'] = wrap_htmlout_menu($nav, $id);
 		}
-		$output .= '</li>'."\n";
+		$menu[] = $item;
 	}
-	
+	$output = wrap_template('menu', $menu);
 	return $output;
 }
 
