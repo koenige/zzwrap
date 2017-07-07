@@ -241,6 +241,12 @@ function wrap_get_menu($page) {
 					$previous_section = $item['section'];
 				}
 			}
+			if ($item['url'] === $zz_setting['base'].'/') {
+				// all pages are below homepage, don't highlight this
+				$menu[$id][$nav_id]['below'] = false;
+			} else {
+				$menu[$id][$nav_id]['below'] = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
+			}
 		}
 	}
 
@@ -463,9 +469,6 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		if (empty($item['subtitle'])) $item['subtitle'] = '';
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
-		$page_below = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
-		// all pages are below homepage, don't highlight this
-		if ($item['url'] === $zz_setting['base'].'/') $page_below = false;
 
 		$class = [];
 		if (!$i) $class[] = 'first-child';
@@ -476,7 +479,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 			.($class ? ' class="'.implode(' ', $class).'"' : '').'>';
 		if ($item['url']) {
 			$output .= (!$item['current_page'] ? '<a href="'.$item['url'].'"'
-				.($page_below ? ' class="below"' : '')
+				.($item['below'] ? ' class="below"' : '')
 				.(!empty($item['long_title']) ? ' title="'.$item['long_title'].'"' : '')
 				.'>' : $zz_setting['menu_mark_active_open']);
 		} 
@@ -491,8 +494,8 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 		if (!empty($nav[$fn_prefix.$item[$fn_page_id]]) // there is a submenu and at least one of:
 			AND ($zz_setting['menu_display_submenu_items'] !== 'none')
 			AND ($zz_setting['menu_display_submenu_items'] === 'all' 	// all menus shall be shown
-				OR $item['current_page'] 				// it's the submenu of the current page
-				OR $page_below)) {						// it has a url one level below this page
+				OR $item['current_page'] 	// it's the submenu of the current page
+				OR $item['below'])) {		// it has a url one or more levels below this page
 			$id = $fn_prefix.$item[$fn_page_id];
 			$output .= "\n".'<ul class="submenu obj'.count($nav[$id]).'">'."\n";
 			$output .= wrap_htmlout_menu($nav, $id);
