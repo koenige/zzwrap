@@ -306,7 +306,7 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['brick_formatting_functions'] = [
 		'markdown', 'wrap_date', 'rawurlencode', 'wordwrap', 'nl2br',
 		'htmlspecialchars', 'wrap_html_escape', 'wrap_latitude',
-		'wrap_longitude', 'wrap_number'
+		'wrap_longitude', 'wrap_number', 'ucfirst'
 	];
 
 	if (!$zz_setting['local_access']) {
