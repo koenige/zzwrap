@@ -248,6 +248,9 @@ function wrap_get_menu($page) {
 			} else {
 				$menu[$id][$nav_id]['below'] = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
 			}
+			if ($menu[$id][$nav_id]['below'] OR $menu[$id][$nav_id]['current_page']) {
+				$menu[$id]['pos'] = $i + 1;
+			}
 			if (!$i) $item['class'][] = 'first-child';
 			if ($i === count($menu[$id]) - 1) $item['class'][] = 'last-child';
 			$menu[$id][$nav_id]['class'] = implode(' ', $item['class']);
@@ -464,6 +467,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 	// OK, finally, we just get the menu together
 	$menu = [];
 	foreach ($nav[$menu_name] as $id => $item) {
+		if (!is_array($item)) continue;
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
 
@@ -489,6 +493,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 		}
 		$menu[] = $item;
 	}
+	$menu['pos'] = !empty($nav[$menu_name]['pos']) ? $nav[$menu_name]['pos'] : false;
 	if ($level) $menu['is_submenu'] = true;
 	$output = wrap_template('menu', $menu);
 	return $output;
