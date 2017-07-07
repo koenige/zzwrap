@@ -313,8 +313,8 @@ function wrap_get_menu_webpages() {
 	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
 		wrap_menu_session($menu);
 	}
-	// get second (and third) hierarchy level
-	$levels = [2, 3];
+	// get second (and third or fourth) hierarchy level
+	$levels = [2, 3, 4];
 	foreach ($levels as $level) {
 		if (!$sql = wrap_sql('menu_level'.$level)) continue;
 		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
