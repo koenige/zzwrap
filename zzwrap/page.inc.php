@@ -397,11 +397,12 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
  *	Eintrags oder Name des Menüs
  * @param int $page_id optional; show only the one correspondig entry from the menu
  *	and show it with a long title
+ * @param int $level: if it's a submenu, show the level of the menu
  * @global array $zz_setting
  *		'main_menu', 'menu_display_submenu_items'
  * @return string HTML-Output
  */
-function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
+function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 	if (!$nav) return false;
 
 	global $zz_setting;
@@ -484,10 +485,11 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 				OR $item['below'])) {		// it has a url one or more levels below this page
 			$id = $fn_prefix.$item[$fn_page_id];
 			$item['submenu_rows'] = count($nav[$id]);
-			$item['submenu'] = wrap_htmlout_menu($nav, $id);
+			$item['submenu'] = wrap_htmlout_menu($nav, $id, false, $level + 1);
 		}
 		$menu[] = $item;
 	}
+	if ($level) $menu['is_submenu'] = true;
 	$output = wrap_template('menu', $menu);
 	return $output;
 }
