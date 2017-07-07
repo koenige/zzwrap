@@ -212,7 +212,12 @@ function wrap_get_menu($page) {
 	// set current_page, id, subtitle, url with base for _ALL_ menu items
 	$base = wrap_nav_base();
 	foreach (array_keys($menu) as $id) {
+		// $i to know which is the first-child, some old browsers don't support :first-child in CSS
+		$i = 0;
 		foreach ($menu[$id] as $nav_id => $item) {
+			// class?
+			if (empty($item['class'])) $item['class'] = [];
+			elseif (!is_array($item['class'])) $item['class'] = [$item['class']];
 			// add base_url for non-http links
 			if (substr($item['url'], 0, 1) === '/') 
 				$menu[$id][$nav_id]['url'] = $base.$item['url'];
@@ -233,11 +238,7 @@ function wrap_get_menu($page) {
 				if (!isset($previous_section)) {
 					$previous_section = $item['section'];
 				} elseif ($previous_section !== $item['section']) {
-					if (isset($menu[$id][$nav_id]['class']))
-						$menu[$id][$nav_id]['class'] .= ' ';
-					else
-						$menu[$id][$nav_id]['class'] = '';
-					$menu[$id][$nav_id]['class'] .= 'menuspacer';
+					$item['class'][] = 'menuspacer';
 					$previous_section = $item['section'];
 				}
 			}
@@ -247,6 +248,10 @@ function wrap_get_menu($page) {
 			} else {
 				$menu[$id][$nav_id]['below'] = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
 			}
+			if (!$i) $item['class'][] = 'first-child';
+			if ($i === count($menu[$id]) - 1) $item['class'][] = 'last-child';
+			$menu[$id][$nav_id]['class'] = implode(' ', $item['class']);
+			$i++;
 		}
 	}
 
@@ -463,20 +468,14 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 	}
 
 	// OK, finally, we just get the menu together
-	// $i to know which is the first-child, some old browsers don't support :first-child in CSS
-	$i = 0;
 	foreach ($nav[$menu_name] as $item) {
 		if (empty($item['subtitle'])) $item['subtitle'] = '';
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
 
-		$class = [];
-		if (!$i) $class[] = 'first-child';
-		if ($i === count($nav[$menu_name])-1) $class[] = 'last-child';
-		if (!empty($item['class'])) $class[] = $item['class'];
 		// output each navigation entry with its id, first entry in a ul as first-child
 		$output .= "\t".'<li'.(!empty($item['id']) ? ' id="'.$item['id'].'"' : '')
-			.($class ? ' class="'.implode(' ', $class).'"' : '').'>';
+			.(!empty($item['class']) ? ' class="'.$item['class'].'"' : '').'>';
 		if ($item['url']) {
 			$output .= (!$item['current_page'] ? '<a href="'.$item['url'].'"'
 				.($item['below'] ? ' class="below"' : '')
@@ -502,7 +501,6 @@ function wrap_htmlout_menu(&$nav, $menu_name = false, $page_id = false) {
 			$output .= '</ul>'."\n";
 		}
 		$output .= '</li>'."\n";
-		$i++;
 	}
 	
 	return $output;
