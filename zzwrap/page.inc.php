@@ -242,11 +242,13 @@ function wrap_get_menu($page) {
 					$previous_section = $item['section'];
 				}
 			}
-			if ($item['url'] === $zz_setting['base'].'/') {
-				// all pages are below homepage, don't highlight this
-				$menu[$id][$nav_id]['below'] = false;
-			} else {
-				$menu[$id][$nav_id]['below'] = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
+			if (!isset($menu[$id][$nav_id]['below'])) {
+				if ($item['url'] === $zz_setting['base'].'/') {
+					// all pages are below homepage, don't highlight this
+					$menu[$id][$nav_id]['below'] = false;
+				} else {
+					$menu[$id][$nav_id]['below'] = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
+				}
 			}
 			if ($menu[$id][$nav_id]['below'] OR $menu[$id][$nav_id]['current_page']) {
 				$menu[$id]['pos'] = $i + 1;
