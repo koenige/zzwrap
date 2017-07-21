@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.13, for osx10.11 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.18, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_latin1
 -- ------------------------------------------------------
--- Server version	5.7.13
+-- Server version	5.7.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -374,7 +374,7 @@ CREATE TABLE `logins` (
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`login_id`),
   UNIQUE KEY `benutzername` (`username`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -403,6 +403,7 @@ CREATE TABLE `media` (
   `time` time DEFAULT NULL,
   `source` varchar(255) COLLATE latin1_german2_ci DEFAULT NULL,
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
+  `clipping` enum('center','top','right','bottom','left') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'center',
   `sequence` smallint(5) unsigned DEFAULT NULL,
   `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
   `filetype_id` int(10) unsigned NOT NULL,
