@@ -411,6 +411,8 @@ CREATE TABLE `media` (
   `filesize` int(10) unsigned DEFAULT NULL,
   `md5_hash` varchar(32) COLLATE latin1_german2_ci DEFAULT NULL,
   `version` tinyint(3) unsigned DEFAULT NULL,
+  `width_px` mediumint(8) unsigned DEFAULT NULL,
+  `height_px` mediumint(8) unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
   KEY `filetype_id` (`filetype_id`),
