@@ -722,7 +722,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 					$tokens = wrap_edit_sql_fieldlist($o_parts['SELECT DISTINCT'][2]);
 			} else {
 				if ($mode === 'add')
-					$o_parts['SELECT'][2] = ','.$values;
+					$o_parts['SELECT'][2] .= ','.$values;
 				elseif ($mode === 'replace')
 					$o_parts['SELECT'][2] = $values;
 				elseif ($mode === 'list')
