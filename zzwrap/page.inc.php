@@ -496,6 +496,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 		$menu[] = $item;
 	}
 	$menu['pos'] = !empty($nav[$menu_name]['pos']) ? $nav[$menu_name]['pos'] : false;
+	$menu['level'] = $level;
 	if ($level) $menu['is_submenu'] = true;
 	$output = wrap_template('menu', $menu);
 	return $output;
