@@ -136,6 +136,7 @@
 # Broken spider which does not say if it's supporting robots.txt
 # and creates links from every string it sees in JavaScript files
 404	ua	Mozilla/5.0 (compatible;WI Job Roboter Spider Version 3;+http://www.webintegration.at)
+404	ua	Mozilla/5.0 (compatible;Webintegration Jobroboter WebSpider/7;+http://www.webintegration.at)
 404	ua	Mozilla/5.0 (compatible;picmole/1.0 +http://www.picmole.com)
 404	ua	Mozilla/5.0 (compatible; heritrix/3.1.1 +http://www.mixdata.com)
 
