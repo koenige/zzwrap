@@ -408,9 +408,13 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
  * @return string HTML-Output
  */
 function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
-	if (!$nav) return false;
-
+	static $menus;
 	global $zz_setting;
+
+	if (!$nav) return false;
+	// avoid duplicate menus
+	if (empty($menus)) $menus = [];
+	if (in_array($menu_name, $menus)) return false;
 	
 	// when to display submenu items
 	// 'all': always display all submenu items
@@ -499,6 +503,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 	$menu['level'] = $level;
 	if ($level) $menu['is_submenu'] = true;
 	$output = wrap_template('menu', $menu);
+	$menus[] = $menu_name;
 	return $output;
 }
 
