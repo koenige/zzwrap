@@ -759,3 +759,14 @@ function wrap_punycode($string, $action) {
 	}
 	return $IDN->decode($string);
 }
+
+/**
+ * format a time
+ *
+ * @param string $time
+ * @param string $format
+ */
+function wrap_time($time, $format = false) {
+	if (empty($format)) $format = 'H:i';
+	return date($format, strtotime($time));
+}
