@@ -68,7 +68,7 @@
 404	end	/wp-content/uploads/2015/08/info.php
 404	end	/wordpr
 404	end	/wp-admin
-404	all	/wp-admin/
+404	end	/wp-admin/
 404	begin	/wp-content/plugins/Login-wall-etgFB/login_wall.php
 404	all	/wp-includes/pomo/index.php?php
 404	all	/wp-content/uploads/sites/rwb.php?php
@@ -101,6 +101,7 @@
 
 # FCK editor
 404	end	/fckeditor.js
+404	end	/fckconfig.js
 404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.phpindex.php
 404	all	/admin/fckeditor/editor/filemanager/upload/php/upload.php
 404	all	/admin/fckeditor/editor/filemanager/connectors/php/upload.php
