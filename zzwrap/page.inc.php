@@ -558,6 +558,7 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 	$main_nav_id = false;
 	foreach (array_keys($menu) as $index) {
 		foreach (array_keys($menu[$index]) AS $subindex) {
+			if (!is_numeric($subindex)) continue;
 			if (!$nav_id) {
 				// 'main_entry' allows to define in which part of
 				// the page tree this entry finds its main residence if its
