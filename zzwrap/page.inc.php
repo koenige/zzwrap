@@ -403,18 +403,22 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
  * @param int $page_id optional; show only the one correspondig entry from the menu
  *	and show it with a long title
  * @param int $level: if it's a submenu, show the level of the menu
+ * @param bool $avoid_duplicates avoid duplicate menus, can be set to false if
+ *  for some reasons menus shall be recreated (e. g. settings differ)
  * @global array $zz_setting
  *		'main_menu', 'menu_display_submenu_items'
  * @return string HTML-Output
  */
-function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
+function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_duplicates = true) {
 	static $menus;
 	global $zz_setting;
 
 	if (!$nav) return false;
 	// avoid duplicate menus
-	if (empty($menus)) $menus = [];
-	if (in_array($menu_name, $menus)) return false;
+	if ($avoid_duplicates) {
+		if (empty($menus)) $menus = [];
+		if (in_array($menu_name, $menus)) return false;
+	}
 	
 	// when to display submenu items
 	// 'all': always display all submenu items
@@ -495,7 +499,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 				OR $item['below'])) {		// it has a url one or more levels below this page
 			$id = $fn_prefix.$item[$fn_page_id];
 			$item['submenu_rows'] = count($nav[$id]);
-			$item['submenu'] = wrap_htmlout_menu($nav, $id, false, $level + 1);
+			$item['submenu'] = wrap_htmlout_menu($nav, $id, false, $level + 1, $avoid_duplicates);
 		}
 		$menu[] = $item;
 	}
@@ -503,7 +507,9 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0) {
 	$menu['level'] = $level;
 	if ($level) $menu['is_submenu'] = true;
 	$output = wrap_template('menu', $menu);
-	$menus[] = $menu_name;
+	if ($avoid_duplicates) {
+		$menus[] = $menu_name;
+	}
 	return $output;
 }
 
