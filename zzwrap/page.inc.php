@@ -427,21 +427,19 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 	if (!isset($zz_setting['menu_display_submenu_items'])) 
 		$zz_setting['menu_display_submenu_items'] = 'current';
 
-	$output = false;
-	// as default, menu comes from database table 'webpages'
-	// wrap_get_menu_webpages()
-	$fn_page_id = wrap_sql('page_id');
 	// no menu_name: use default menu name
 	if (!$menu_name AND !empty($zz_setting['main_menu'])) {
 		$menu_name = $zz_setting['main_menu'];
 	}
-	$fn_prefix = $menu_name.'-';
 
-	// if we have a separate navigation table, the $nav-array comes from
-	// wrap_get_menu_navigation()
 	if (!$menu_name OR is_numeric($menu_name)) {
+		// if we have a separate navigation table, the $nav-array comes from
+		// wrap_get_menu_navigation()
 		$fn_page_id = 'nav_id';
-		$fn_prefix = '';
+	} else {
+		// as default, menu comes from database table 'webpages'
+		// wrap_get_menu_webpages()
+		$fn_page_id = wrap_sql('page_id');
 	}
 	
 	if (empty($nav[$menu_name]) AND !$page_id) {
@@ -492,6 +490,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		}
 		
 		// get submenu if there is one and if it shall be shown
+		$fn_prefix = ($fn_page_id === 'nav_id' ? '' : $item['menu'].'-');
 		if (!empty($nav[$fn_prefix.$item[$fn_page_id]]) // there is a submenu and at least one of:
 			AND ($zz_setting['menu_display_submenu_items'] !== 'none')
 			AND ($zz_setting['menu_display_submenu_items'] === 'all' 	// all menus shall be shown
