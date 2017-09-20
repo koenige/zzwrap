@@ -752,7 +752,7 @@ function wrap_log_uri() {
 		$sql .= ' WHERE uri_id = %d';
 		$sql = sprintf($sql, $status, $etag, $last_modified, $encoding, $uri_id);
 		$result = wrap_db_query($sql, E_USER_NOTICE);
-	} elseif (strlen($path) < 128) {
+	} elseif (strlen($path) < 128 AND strlen($query) < 128) {
 		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
 			uri_query, content_type, character_encoding, content_length,
 			status_code, etag_md5, last_modified, hits, first_access,
@@ -763,8 +763,10 @@ function wrap_log_uri() {
 			$zz_page['content_length'], $status, $etag, $last_modified
 		);
 		$result = wrap_db_query($sql, E_USER_NOTICE);
-	} else {
+	} elseif (strlen($path) >= 128) {
 		wrap_error(sprintf('URI path too long: %s', $path));
+	} else {
+		wrap_error(sprintf('URI query too long: %s', $query));
 	}
 	return true;
 }
