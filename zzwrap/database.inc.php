@@ -70,7 +70,8 @@ function wrap_db_connect() {
 	if (!$found) wrap_error('No password file for database found.', E_USER_ERROR);
 	
 	// connect to database
-	$zz_conf['db_connection'] = @mysqli_connect($db_host, $db_user, $db_pwd, $zz_conf['db_name']);
+	if (empty($db_port)) $db_port = NULL;
+	$zz_conf['db_connection'] = @mysqli_connect($db_host, $db_user, $db_pwd, $zz_conf['db_name'], $db_port);
 	if (!$zz_conf['db_connection']) return false;
 
 	// mySQL uses different identifiers for character encoding than HTML
