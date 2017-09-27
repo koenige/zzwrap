@@ -68,21 +68,23 @@ function wrap_set_defaults_post_conf() {
 	
 	if (empty($zz_setting['https'])) $zz_setting['https'] = false;
 	// HTTPS; zzwrap authentication will always be https
-	if ($_SERVER['REQUEST_URI'] === $zz_setting['logout_url']) {
-		// Logout must go via HTTPS because of secure cookie
-		$zz_setting['https'] = true;
-	} elseif (!empty($zz_setting['https_urls'])) {
-		foreach ($zz_setting['https_urls'] AS $url) {
-			// check language strings
-			// @todo: add support for language strings at some other position of the URL
-			$languages = !empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : [];
-			$languages[] = ''; // without language string should be checked always
-			foreach ($languages as $lang) {
-				if ($lang) $lang = '/'.$lang;
-				if ($zz_setting['base'].$lang.strtolower($url) 
-					== substr(strtolower($_SERVER['REQUEST_URI']), 0, strlen($zz_setting['base'].$lang.$url))) {
-					$zz_setting['https'] = true;
-				}
+	if (empty($zz_setting['https_urls'])) $zz_setting['https_urls'] = [];
+	// Logout must go via HTTPS because of secure cookie
+	$zz_setting['https_urls'][] = $zz_setting['logout_url'];
+	$zz_setting['https_urls'][] = $zz_setting['login_url'];
+	if (!empty($zz_setting['auth_urls'])) {
+		$zz_setting['https_urls'] = array_merge($zz_setting['https_urls'], $zz_setting['auth_urls']);
+	}
+	foreach ($zz_setting['https_urls'] AS $url) {
+		// check language strings
+		// @todo: add support for language strings at some other position of the URL
+		$languages = !empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : [];
+		$languages[] = ''; // without language string should be checked always
+		foreach ($languages as $lang) {
+			if ($lang) $lang = '/'.$lang;
+			if ($zz_setting['base'].$lang.strtolower($url) 
+				== substr(strtolower($_SERVER['REQUEST_URI']), 0, strlen($zz_setting['base'].$lang.$url))) {
+				$zz_setting['https'] = true;
 			}
 		}
 	}
