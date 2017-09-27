@@ -79,33 +79,23 @@ function wrap_session_start() {
 	}
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	$last_error = false;
-	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-		session_set_cookie_params(0, '/', $zz_setting['hostname'], $zz_setting['session_secure_cookie'], true);
-		$last_error = error_get_last();
-	} else {
-		session_set_cookie_params(0, '/', $zz_setting['hostname'], $zz_setting['session_secure_cookie']);
-	}
+	session_set_cookie_params(0, '/', $zz_setting['hostname'], $zz_setting['session_secure_cookie'], true);
+	$last_error = error_get_last();
 	// don't collide with other PHPSESSID on the same server, set own name:
 	session_name('zugzwang_sid');
 	$success = session_start();
 	// try it twice, some providers have problems with ps_files_cleanup_dir()
 	// accessing the /tmp-directory and failing temporarily with
 	// insufficient access rights
-	if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-		// only throw 503 error if authentication is a MUST HAVE
-		// otherwise, page might still be accessible without authentication
-		if ($zz_setting['authentication_possible'] AND wrap_authenticate_url()) {
-			$session_error = error_get_last();
-			if ($last_error != $session_error
-				AND wrap_substr($session_error['message'], 'session_start()')) {
-				wrap_error('Session start not possible: '.json_encode($session_error));
-				wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
-			}
+	// only throw 503 error if authentication is a MUST HAVE
+	// otherwise, page might still be accessible without authentication
+	if ($zz_setting['authentication_possible'] AND wrap_authenticate_url()) {
+		$session_error = error_get_last();
+		if ($last_error != $session_error
+			AND wrap_substr($session_error['message'], 'session_start()')) {
+			wrap_error('Session start not possible: '.json_encode($session_error));
+			wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 		}
-	} else {
-		// prior to PHP 5.3.0:
-		// If a session fails to start, then FALSE is returned. Previously TRUE was returned. 
-		if ($success) wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 	}
 	return true;
 }
