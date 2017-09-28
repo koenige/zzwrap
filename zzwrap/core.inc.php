@@ -333,6 +333,7 @@ function wrap_look_for_file($url_path) {
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$zz_setting['modules_dir'], $module, $path, implode('/', $url_path));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css'])) {
+			wrap_cache_allow_private();
 			return $file['name'];
 		}
 		$file['etag_generate_md5'] = true;
@@ -1227,16 +1228,7 @@ function wrap_file_send($file) {
 	// Last-Modified HTTP header
 	wrap_if_modified_since(filemtime($file['name']), 200, $file);
 
-	// Remove some HTTP headers PHP might send because of SESSION
-	// @todo: do some tests if this is okay
-	// @todo: set sensible Expires header, according to age of file
-	if (!empty($_SESSION)) {
-		header_remove('Expires');
-		header_remove('Pragma');
-		// Cache-Control header private as in session_cache_limiter()
-		wrap_cache_header(sprintf('Cache-Control: private, max-age=%s, pre-check=%s',
-			session_cache_expire() * 60, session_cache_expire() * 60));
-	}
+	wrap_cache_allow_private();
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
@@ -1780,6 +1772,22 @@ function wrap_cache_delete($status, $url = false) {
 	if (file_exists($head)) unlink($head);
 	if (file_exists($doc)) unlink($doc);
 	return true;
+}
+
+/**
+ * allow private caching of a ressource inside SESSION
+ *
+ * Remove some HTTP headers PHP might send because of SESSION
+ * @todo do some tests if this is okay
+ * @todo set sensible Expires header, according to age of file
+ */
+function wrap_cache_allow_private() {
+	if (empty($_SESSION)) return;
+	header_remove('Expires');
+	header_remove('Pragma');
+	// Cache-Control header private as in session_cache_limiter()
+	wrap_cache_header(sprintf('Cache-Control: private, max-age=%s, pre-check=%s',
+		session_cache_expire() * 60, session_cache_expire() * 60));
 }
 
 /**
