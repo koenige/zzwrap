@@ -1249,6 +1249,7 @@ function wrap_file_send($file) {
 		wrap_http_content_disposition('inline', $file['send_as']);
 	}
 	
+	wrap_cache_header();
 	wrap_send_ressource('file', $file);
 }
 
@@ -1418,6 +1419,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	// Last Modified HTTP header
 	wrap_if_modified_since($last_modified_time, $status);
 
+	wrap_cache_header();
 	wrap_send_ressource('memory', $text, $etag_header);
 }
 
@@ -1464,9 +1466,6 @@ function wrap_http_content_disposition($type, $filename) {
 function wrap_send_ressource($type, $content, $etag_header = []) {
 	global $zz_setting;
 	global $zz_page;
-
-	// send extra http headers, @see defaults.inc.php
-	wrap_cache_header();
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
@@ -1719,6 +1718,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 
 /**
  * send one or more HTTP header and save it for later caching
+ * send extra http headers, @see defaults.inc.php
  *
  * @param string $header (optional, if not set: use $zz_setting['headers'])
  * @return bool
@@ -1993,6 +1993,7 @@ function wrap_send_cache($age = 0) {
 		'name' => $files[0],
 		'gzip' => true
 	];
+	wrap_cache_header();
 	wrap_send_ressource('file', $file, $etag_header);
 }
 
