@@ -1401,6 +1401,9 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		$last_modified_time = $_SERVER['REQUEST_TIME'];
 	}
 
+	// send all headers
+	wrap_cache_header();
+
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status === 200) {
@@ -1419,7 +1422,6 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	// Last Modified HTTP header
 	wrap_if_modified_since($last_modified_time, $status);
 
-	wrap_cache_header();
 	wrap_send_ressource('memory', $text, $etag_header);
 }
 
@@ -1728,13 +1730,12 @@ function wrap_cache_header($header = false) {
 	if ($header) {
 		$headers = [$header];
 	} else {
-		$headers = $zz_setting['headers'];
 		header_remove('X-Powered-By');
+		$headers = $zz_setting['extra_http_headers'];
 	}
 
 	foreach ($headers as $line) {
 		header($line);
-		if (!$header) continue;
 		if (strstr($line, ': ')) {
 			$header_parts = explode(': ', $line);
 			$zz_setting['headers'][$header_parts[0]] = $line;
