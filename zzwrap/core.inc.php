@@ -1242,7 +1242,7 @@ function wrap_file_send($file) {
 		wrap_cache_header('Pragma: public');
 			// dieser Header widerspricht im Grunde dem mit SESSION ausgesendeten
 			// Cache-Control-Header
-			// Wird aber fÃ¼r IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
+			// Wird aber für IE 5, 5.5 und 6 gebraucht, da diese keinen Dateidownload
 			// erlauben, wenn Cache-Control gesetzt ist.
 			// http://support.microsoft.com/kb/323308/de
 	} else {
@@ -1465,11 +1465,8 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 	global $zz_setting;
 	global $zz_page;
 
-	header_remove('X-Powered-By');
 	// send extra http headers, @see defaults.inc.php
-	foreach ($zz_setting['extra_http_headers'] as $header) {
-		wrap_cache_header($header);
-	}
+	wrap_cache_header();
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
@@ -1721,19 +1718,29 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 }
 
 /**
- * send a HTTP header and save it for later caching
+ * send one or more HTTP header and save it for later caching
  *
- * @param string $header
+ * @param string $header (optional, if not set: use $zz_setting['headers'])
  * @return bool
  */
-function wrap_cache_header($header) {
+function wrap_cache_header($header = false) {
 	global $zz_setting;
-	header($header);
-	if (strstr($header, ': ')) {
-		$header_parts = explode(': ', $header);
-		$zz_setting['headers'][$header_parts[0]] = $header;
+	if ($header) {
+		$headers = [$header];
 	} else {
-		$zz_setting['headers'][] = $header;
+		$headers = $zz_setting['headers'];
+		header_remove('X-Powered-By');
+	}
+
+	foreach ($headers as $line) {
+		header($line);
+		if (!$header) continue;
+		if (strstr($line, ': ')) {
+			$header_parts = explode(': ', $line);
+			$zz_setting['headers'][$header_parts[0]] = $line;
+		} else {
+			$zz_setting['headers'][] = $line;
+		}
 	}
 	return true;
 }
