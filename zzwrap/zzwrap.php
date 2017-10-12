@@ -250,6 +250,9 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['extra_http_headers'] = [];
 	// Prevent IE > 7 from sniffing mime types
 	$zz_setting['extra_http_headers'][] = 'X-Content-Type-Options: nosniff';
+	// set Cache-Control defaults
+	$zz_setting['cache_control_text'] = 3600; // 1 hour
+	$zz_setting['cache_control_file'] = 86400; // 1 day
 
 // -------------------------------------------------------------------------
 // URLs

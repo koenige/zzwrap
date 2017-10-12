@@ -1250,6 +1250,7 @@ function wrap_file_send($file) {
 	}
 	
 	wrap_cache_header();
+	wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_file']));
 	wrap_send_ressource('file', $file);
 }
 
@@ -1403,6 +1404,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 
 	// send all headers
 	wrap_cache_header();
+	wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_text']));
 
 	// Caching?
 	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
@@ -1744,6 +1746,26 @@ function wrap_cache_header($header = false) {
 		}
 	}
 	return true;
+}
+
+/**
+ * send a default header if no other header of the same name was already sent
+ *
+ * @param string $header
+ * @return bool true if a default header was sent
+ */
+function wrap_cache_header_default($header) {
+	global $zz_setting;
+	$parts = explode(': ', $header);
+	if (!empty($zz_setting['headers'][$parts[0]])) return false;
+	
+	$headers = headers_list();
+	foreach ($headers as $line) {
+		$line = explode(': ', $line);
+		if ($line[0] === $parts[0]) return false;
+	}
+	wrap_cache_header($header);
+	return true;	
 }
 
 /**
