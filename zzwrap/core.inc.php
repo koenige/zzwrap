@@ -1173,6 +1173,8 @@ function wrap_check_http_request_method() {
 function wrap_file_send($file) {
 	global $zz_conf;
 	global $zz_page;
+	global $zz_setting;
+
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
