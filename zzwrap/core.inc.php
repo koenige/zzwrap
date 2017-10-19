@@ -2176,8 +2176,8 @@ function wrap_cache_filename($type = 'url', $url = '') {
 function wrap_return_bytes($val) {
     $val = trim($val);
     $last = strtolower($val[strlen($val)-1]);
+    if (!is_numeric($last)) $val = substr($val, 0, -1);
     switch($last) {
-        // The 'G' modifier is available since PHP 5.1.0
         case 'g':
             $val *= 1024;
         case 'm':
@@ -2185,7 +2185,6 @@ function wrap_return_bytes($val) {
         case 'k':
             $val *= 1024;
     }
-
     return $val;
 }
 
