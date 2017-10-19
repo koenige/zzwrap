@@ -2049,7 +2049,7 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 		// check if X-Revalidated is set
 		$revalidated = wrap_cache_get_header($files[1], 'X-Revalidated');
 		$revalidated_timestamp = wrap_date($revalidated, 'rfc1123->timestamp');
-		if ($revalidated_timestamp + $age > $now) {
+		if ($revalidated_timestamp AND $revalidated_timestamp + $age > $now) {
 			// thought of putting in Age, but Date has to be changed accordingly
 			// wrap_cache_header(sprintf('Age: %d', $now - $revalidated_timestamp));
 			return true;
