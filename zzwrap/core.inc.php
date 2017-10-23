@@ -246,6 +246,14 @@ function wrap_look_for_page($zz_page) {
 
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
+	// sometimes, bots add second / to URL, remove and redirect
+	if (substr($url['db'], 0, 1) === '/') {
+		$url['db'] = substr($url['db'], 1);
+		global $zz_page;
+		$zz_page['url']['full']['path'] = substr($zz_page['url']['full']['path'], 1);
+		$zz_page['url']['redirect'] = true;
+		$zz_page['url']['redirect_cache'] = false;
+	}
 	$full_url[0] = $url['db'];
 
 	list($full_url, $leftovers) = wrap_look_for_placeholders($zz_page, $full_url);
@@ -1185,6 +1193,9 @@ function wrap_file_send($file) {
 		}
 		wrap_file_cleanup($file);
 		return false;
+	}
+	if (!empty($zz_page['url']['redirect'])) {
+		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
