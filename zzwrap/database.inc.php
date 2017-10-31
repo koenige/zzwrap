@@ -727,7 +727,10 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				elseif ($mode === 'replace')
 					$o_parts['SELECT'][2] = $values;
 				elseif ($mode === 'list')
-					$tokens = wrap_edit_sql_fieldlist($o_parts['SELECT'][2]);
+					if (!empty($o_parts['SELECT'][2]))
+						$tokens = wrap_edit_sql_fieldlist($o_parts['SELECT'][2]);
+					else
+						$tokens = [];
 			}
 			break;
 		case 'FORCE INDEX':
