@@ -151,10 +151,10 @@ function wrap_language_get_text($language) {
 	$sql = 'SELECT text_id, text, more_text
 		FROM '.$zz_conf['text_table'];
 	$sourcetext = wrap_db_fetch($sql, 'text_id');
-	if (!$sourcetext) return array();
+	if (!$sourcetext) return [];
 	$translations = wrap_translate($sourcetext, $zz_conf['text_table'], false, true, $language);
 
-	$text = array();
+	$text = [];
 	foreach ($sourcetext as $id => $values) {
 		if (!empty($translations[$id]['text']))
 			$text[$values['text']] = $translations[$id]['text']
@@ -195,8 +195,8 @@ function wrap_text($string) {
 		$language = $zz_conf['default_language_for'][$language];
 
 	if (empty($text_included) OR $text_included !== $language) {
-		$text = array();
-		$module_text = array();
+		$text = [];
+		$module_text = [];
 		// standard text english
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.po';
@@ -285,10 +285,10 @@ function wrap_text($string) {
 function wrap_text_include($file) {
 	global $zz_conf;
 
-	if (!file_exists($file)) return array();
+	if (!file_exists($file)) return [];
 	include $file;
-	if (!isset($text)) return array();
-	if (!is_array($text)) return array();
+	if (!isset($text)) return [];
+	if (!is_array($text)) return [];
 	if ($zz_conf['character_set'] !== 'utf-8') {
 		foreach ($text as $key => $value) {
 			$text[$key] = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8'); 
@@ -301,12 +301,15 @@ function wrap_text_include($file) {
  * Translate text from database
  * 
  * @param array $data	Array of data, indexed by ID 
- * 			array(34 => array('field1' = 34, 'field2' = 'text') ...);
+ * 			[34 => ['field1' = 34, 'field2' = 'text'] ...];
  *			if it's just a single record not indexed by ID, the first field_name
  *			is assumed to carry the ID!
  * @param mixed $matrix (string) name of database.table, translates all fields
  * 			that allow translation, write back to $data[$id][$field_name]
  *			(array) 'wrap_table' => name of database.table
+ *			example: ['maincategory' => 'categories.category'] writes value
+ *			from table categories, field category to resulting field maincategory
+ *			(add index main_category_id as $foreign_key_field_name)
  * @param string $foreign_key_field_name (optional) if it's not the main record but
  *			a detail record indexed by $foreign_key_field_name
  * @param bool $mark_incomplete	(optional) write back if fields are not translated?
@@ -317,7 +320,6 @@ function wrap_text_include($file) {
  * @global array $zz_setting
  * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
- * @author Gustaf Mossakowski <gustaf@koenige.org>
  */
 function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
@@ -358,9 +360,9 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// used without other field definitions, one can write done the
 		// sole db_name.table_name as well without .*
 		if (substr_count($matrix, '.') < 2) {
-			$matrix = array(0 => $matrix.(substr($matrix, -2) === '.*' ? '' : '.*'));
+			$matrix = [0 => $matrix.(substr($matrix, -2) === '.*' ? '' : '.*')];
 		} else {
-			$matrix = array(0 => $matrix);
+			$matrix = [0 => $matrix];
 		}
 	}
 	$database = '';
@@ -370,7 +372,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		unset($matrix['wrap_table']);
 	}
 	$old_matrix = $matrix;
-	$matrix = array();
+	$matrix = [];
 	foreach ($old_matrix as $key => $field) {
 		$field = wrap_db_prefix($field);
 		// database name is optional, so add it here for all cases
@@ -388,21 +390,21 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 				$names = explode('.', $field);
 				$sql = sprintf($sql_ttf, 'field_name', $names[0], $names[1], $names[2]);
 			}
-			if ($mydata = wrap_db_fetch($sql, array('field_type', 'translationfield_id'))) {
+			if ($mydata = wrap_db_fetch($sql, ['field_type', 'translationfield_id'])) {
 				$matrix += $mydata;
 			}
 		} else {
 		// alpha key: title => CMS.seiten.titel or seiten.titel
 			$names = explode('.', $field);
 			$sql = sprintf($sql_ttf, '"'.$key.'"', $names[0], $names[1], $names[2]);
-			$fields = wrap_db_fetch($sql, array('field_type', 'translationfield_id'));
+			$fields = wrap_db_fetch($sql, ['field_type', 'translationfield_id']);
 			$matrix = array_merge_recursive($matrix, $fields);
 		}
 	}
 
 	// check if $data is an array indexed by IDs
 	$simple_data = false;
-	$old_indices = array();
+	$old_indices = [];
 	foreach ($data as $id => $record) {
 		if (!is_numeric($id)) {
 			if (!is_array($data[$id])) {
@@ -429,7 +431,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		$data_ids = array_keys($data);
 	} else {
 		// joined table: get IDs from foreign_key and save main table ID for later
-		$data_ids = array();
+		$data_ids = [];
 		foreach ($data as $id => $record) {
 			if (!empty($record[$foreign_key_field_name])) {
 				$data_ids[$id] = $record[$foreign_key_field_name];
@@ -440,9 +442,9 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		}
 	}
 	// there are no detail records at all?
-	if (empty($data_ids)) $matrix = array(); // get out of here
+	if (empty($data_ids)) $matrix = []; // get out of here
 	
-	$old_empty_fields = array();
+	$old_empty_fields = [];
 	foreach ($matrix as $field_type => $fields) {
 		// check if some of the existing fields are empty, to get the correct
 		// number of fields to translate (empty = nothing to translate!)
@@ -465,7 +467,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// merge $translations into $data
 		foreach ($translations as $tl) {
 			$field_name = $fields[$tl['translationfield_id']]['field_key'];
-			$tl_ids = array();
+			$tl_ids = [];
 			if (!$foreign_key_field_name) {
 				// one translation = one field
 				$tl_ids[] = $tl['field_id'];
@@ -531,7 +533,7 @@ function wrap_translate_get_table_db($table_db_name) {
 		$database = $zz_conf['db_name'];
 		$table = $table_db_name;
 	}
-	return array($database, $table);
+	return [$database, $table];
 }
 
 /** 
@@ -546,8 +548,8 @@ function wrap_translate_page() {
 	global $zz_conf;
 	global $zz_page;
 	if (!$zz_conf['translations_of_fields']) return false;
-	$my_page = wrap_translate(array(
-		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']),
+	$my_page = wrap_translate([
+		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']],
 		wrap_sql('translation_matrix_pages')
 	);
 	$zz_page['db'] = array_shift($my_page);
@@ -698,7 +700,7 @@ function wrap_text_recode($str, $in_charset) {
 function wrap_po_parse($file) {
 	global $zz_conf;
 
-	if (!file_exists($file)) return array();
+	if (!file_exists($file)) return [];
 	$chunks = wrap_po_chunks($file);
 	
 	foreach ($chunks as $index => $chunk) {
@@ -716,7 +718,7 @@ function wrap_po_parse($file) {
 		foreach (array_keys($chunk) as $key) {
 			$chunk[$key] = implode('', $chunk[$key]);
 			$chunk[$key] = str_replace('\"', '"', $chunk[$key]);
-			if (in_array($key, array('#:'))) continue;
+			if (in_array($key, ['#:'])) continue;
 			// does not recognize \n as newline
 			$chunk[$key] = str_replace('\n', "\n", $chunk[$key]);
 			if ($zz_conf['character_set'] !== $header['X-Character-Encoding']) {
@@ -766,7 +768,7 @@ function wrap_po_parse($file) {
 function wrap_po_chunks($file) {
 	$lines = file($file);
 	$index = 0;
-	$chunks = array();
+	$chunks = [];
 	foreach ($lines as $line) {
 		if ($line === "\n" OR $line === "\r\n") {
 			$index++;
@@ -806,7 +808,7 @@ function wrap_po_chunks($file) {
  * @return array e. g. [Content-Type] = text/plain; charset=UTF-8
  */
 function wrap_po_headers($headers) {
-	$my_headers = array();
+	$my_headers = [];
 	$my_headers['X-Character-Encoding'] = '';
 	foreach ($headers as $header) {
 		if (substr($header, -2) === '\n') $header = substr($header, 0, -2);
