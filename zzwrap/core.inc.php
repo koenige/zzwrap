@@ -944,7 +944,7 @@ function wrap_http_status_list($code) {
 	foreach ($codes_from_file as $line) {
 		if (wrap_substr($line, '#')) continue;	// Lines with # will be ignored
 		elseif (!trim($line)) continue;				// empty lines will be ignored
-		if (!wrap_substr($line, $code)) continue;
+		if (!wrap_substr($line, $code.'')) continue;
 		$values = explode("\t", trim($line));
 		$i = 0;
 		$code = '';
