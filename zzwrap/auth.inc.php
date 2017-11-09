@@ -61,7 +61,7 @@ function wrap_auth($force = false) {
 	if (!$force) {
 		$authentication = false;
 		foreach ($zz_setting['auth_urls'] as $auth_url) {
-			if (strtolower(substr($zz_page['url']['full']['path'], 0, strlen($auth_url))) !== strtolower($auth_url))
+			if (!wrap_substr(strtolower($zz_page['url']['full']['path']), strtolower($auth_url)))
 				continue;
 			if ($zz_page['url']['full']['path'] === $zz_setting['login_url'])
 				continue;
@@ -192,7 +192,7 @@ function wrap_authenticate_url($url = false, $no_auth_urls = []) {
 		$no_auth_urls = $zz_setting['no_auth_urls'];
 	}
 	foreach ($no_auth_urls AS $test_url) {
-		if (substr($url, 0, strlen($test_url)) === $test_url) {
+		if (wrap_substr($url, $test_url)) {
 			return false; // no authentication required
 		}
 	}
@@ -405,7 +405,7 @@ function cms_login($params) {
 	}
 	
 	if (isset($zz_page['url']['full']['query']) 
-		AND substr($zz_page['url']['full']['query'], 0, 6) === 'logout') {
+		AND wrap_substr($zz_page['url']['full']['query'], 'logout')) {
 		// Stop the session, delete all session data
 		wrap_session_stop();
 		$loginform['logout'] = true;
@@ -636,7 +636,7 @@ function wrap_login_http_auth() {
  * @return bool true: login was successful
  */
 function wrap_login_hash($hash, $login) {
-	if (substr($hash, 0, 4) === 'sso_') {
+	if (wrap_substr($hash, 'sso_')) {
 		$login_key = 'sso_key';
 		$hash = substr($hash, 4);
 		$login['single_sign_on'] = true;

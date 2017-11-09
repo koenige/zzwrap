@@ -429,7 +429,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			$status = 503;
 		}
 		foreach ($headers as $header) {
-			if (substr($header, 0, 5) === 'HTTP/') {
+			if (wrap_substr($header, 'HTTP/')) {
 				$status = explode(' ', $header);
 				$status = $status[1];
 			}
@@ -696,8 +696,8 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	require_once $zz_setting['core'].'/file.inc.php';
 	$logfile = $zz_setting['log_dir'].'/watchdog.log';
 
-	if (substr($source, 0, 7) === 'http://'
-		OR substr($source, 0, 8) === 'https://') {
+	if (wrap_substr($source, 'http://')
+		OR wrap_substr($source, 'https://')) {
 		$source = str_replace('.local', '', $source);
 		$data = wrap_syndication_get($source, 'file');
 		if (empty($data['_']['filename'])) return false;
@@ -743,7 +743,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	}
 	
 	// do something
-	if (substr($destination, 0, 6) === 'ftp://') {
+	if (wrap_substr($destination, 'ftp://')) {
 		$url = parse_url($destination);
 		$ftp_stream = ftp_connect($url['host'], !empty($url['port']) ? $url['port'] : 21);
 		if (!$ftp_stream) {

@@ -247,7 +247,7 @@ function wrap_look_for_page($zz_page) {
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
 	// sometimes, bots add second / to URL, remove and redirect
-	if (substr($url['db'], 0, 1) === '/') {
+	if (wrap_substr($url['db'], '/')) {
 		$url['db'] = substr($url['db'], 1);
 		global $zz_page;
 		$zz_page['url']['full']['path'] = substr($zz_page['url']['full']['path'], 1);
@@ -692,7 +692,7 @@ function wrap_log_uri() {
 
 	$scheme = $zz_page['url']['full']['scheme'];
 	$host = $zz_page['url']['full']['host'];
-	$base = substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['base'])) === $zz_setting['base'] ? $zz_setting['base'] : '';
+	$base = wrap_substr($_SERVER['REQUEST_URI'], $zz_setting['base']) ? $zz_setting['base'] : '';
 	$path = $base.wrap_db_escape($zz_page['url']['full']['path']);
 	$query = !empty($zz_page['url']['full']['query'])
 		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
@@ -909,7 +909,7 @@ function wrap_http_status_header($code) {
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
-	if (substr(php_sapi_name(), 0, 3) === 'cgi') $protocol = 'Status:';
+	if (wrap_substr(php_sapi_name(), 'cgi')) $protocol = 'Status:';
 	
 	if ($protocol === 'HTTP/1.0' AND in_array($code, [302, 303, 307])) {
 		header($protocol.' 302 Moved Temporarily');
@@ -942,9 +942,9 @@ function wrap_http_status_list($code) {
 	$pos[2] = 'description';
 	$codes_from_file = file($zz_setting['core'].'/http-statuscodes.txt');
 	foreach ($codes_from_file as $line) {
-		if (substr($line, 0, 1) === '#') continue;	// Lines with # will be ignored
+		if (wrap_substr($line, '#')) continue;	// Lines with # will be ignored
 		elseif (!trim($line)) continue;				// empty lines will be ignored
-		if (substr($line, 0, 3) != $code) continue;
+		if (!wrap_substr($line, $code)) continue;
 		$values = explode("\t", trim($line));
 		$i = 0;
 		$code = '';
@@ -1792,7 +1792,7 @@ function wrap_cache_revalidated($file) {
 	$headers = file_get_contents($file);
 	$headers = explode("\r\n", $headers);
 	foreach ($headers as $index => $header) {
-		if (substr($header, 0, 15) === 'X-Revalidated: ')
+		if (wrap_substr($header, 'X-Revalidated: '))
 			unset($headers[$index]);
 	}
 	$headers[] = sprintf('X-Revalidated: %s', wrap_date(time(), 'timestamp->rfc1123'));

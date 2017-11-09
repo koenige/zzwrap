@@ -50,7 +50,7 @@ function zzwrap() {
 	// only if accessed without rewriting, 'code' may be used as a query string
 	// from different functions as well
 	if (!empty($_GET['code'])
-		AND substr($_SERVER['REQUEST_URI'], 0, strlen($_SERVER['SCRIPT_NAME'])) === $_SERVER['SCRIPT_NAME']) {
+		AND wrap_substr($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])) {
 		wrap_errorpage([], $zz_page);
 		exit;
 	}

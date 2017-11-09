@@ -131,7 +131,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	if (!$zz_conf['db_connection']) return false;
 	$sql = trim($sql);
 	
-	if (substr($sql, 0, 10) === 'SET NAMES ') {
+	if (wrap_substr($sql, 'SET NAMES ')) {
 		$charset = trim(substr($sql, 10));
 		return mysqli_set_charset($zz_conf['db_connection'], $charset);
 	}
@@ -261,7 +261,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
 				}
 			}
-		} elseif (substr($format, 0, 5) === 'list ') {
+		} elseif (wrap_substr($format, 'list ')) {
 			$listkey = substr($format, 5);
 			$listkey = explode(' ', $listkey);
 			if (count($listkey) < count($id_field_name)) {
@@ -559,12 +559,12 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
  *		array $tokens list of fields if in list mode
  */
 function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
-	if (substr(trim($sql), 0, 4) === 'SHOW' AND $n_part === 'LIMIT') {
+	if (wrap_substr(trim($sql), 'SHOW') AND $n_part === 'LIMIT') {
 	// LIMIT, WHERE etc. is only allowed with SHOW
 	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
 		return $sql;
 	}
-	if (substr(trim($sql), 0, 14) === 'SHOW DATABASES' AND $n_part === 'WHERE') {
+	if (wrap_substr(trim($sql), 'SHOW DATABASES') AND $n_part === 'WHERE') {
 		// this is impossible and will automatically trigger an error
 		return false; 
 		// @todo implement LIKE here.
