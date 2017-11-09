@@ -978,6 +978,9 @@ function wrap_http_status_list($code) {
 function wrap_check_https($zz_page, $zz_setting) {
 	// if it doesn't matter, get out of here
 	if ($zz_setting['ignore_scheme']) return true;
+	foreach ($zz_setting['ignore_scheme_paths'] as $path) {
+		if (wrap_substr($_SERVER['REQUEST_URI'], $path)) return true;
+	}
 
 	// change from http to https or vice versa
 	// attention: $_POST will not be preserved

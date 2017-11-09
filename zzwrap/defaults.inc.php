@@ -266,6 +266,18 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['behaviour_path'] = '/_behaviour';
 	if (empty($zz_setting['files_path']))
 		$zz_setting['files_path'] = '/files';
+	if (!isset($zz_setting['dont_negotiate_language_paths'])) {
+		$zz_setting['dont_negotiate_language_paths'] = [
+			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
+			$zz_setting['files_path']
+		];
+	}
+	if (!isset($zz_setting['ignore_scheme_paths'])) {
+		$zz_setting['ignore_scheme_paths'] = [
+			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
+			$zz_setting['files_path']
+		];
+	}
 
 	// zzform: local zzform-colours.css?		
 	if (!isset($zz_setting['zzform_colours'])) {
