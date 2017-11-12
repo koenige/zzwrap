@@ -297,11 +297,11 @@ function cms_login($params) {
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['request_password'])) {
 		$loginform['name'] = !empty($_POST['name']) ? $_POST['name'] : '';
 		if (!empty($_POST['mail'])) {
-			$loginform['mail'] = $_POST['mail'];
-			if (wrap_mail_valid($_POST['mail'])) {
+			$loginform['mail'] = trim($_POST['mail']);
+			if (wrap_mail_valid($loginform['mail'])) {
 				$loginform['mail_sent'] = true;
 				$loginform['login_link_valid'] = wrap_get_setting('password_key_validity_in_minutes');
-				wrap_password_reminder($_POST['mail']);
+				wrap_password_reminder($loginform['mail']);
 			} else {
 				$loginform['mail_invalid'] = true;
 				wrap_error(sprintf(
