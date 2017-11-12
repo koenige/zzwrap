@@ -849,7 +849,8 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
  */
 function wrap_password_reminder($address, $additional_data = []) {
 	$sql = wrap_sql('password_reminder');
-	$sql = sprintf($sql, wrap_db_escape($address));
+	// add address twice, if it's only once in the query, last parameter gets ignored
+	$sql = sprintf($sql, wrap_db_escape($address), wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
 	if (!$data) {
 		wrap_error(sprintf('A password was requested for e-mail %s, but there was no login in the database.', $address));
