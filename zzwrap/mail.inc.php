@@ -117,7 +117,13 @@ function wrap_mail($mail) {
  * @return string
  */
 function wrap_mail_name($name) {
-	if (!is_array($name)) return $name;
+	if (!is_array($name)) {
+		// add brackets, there are checks that think brackets
+		// show that a mail is less likely to be junk
+		if (substr($name, 0, 1) !== '<') $name = '<'.$name;
+		if (substr($name, -1) !== '>') $name .= '>';
+		return $name;
+	}
 	$mail = '';
 	if (!empty($name['name'])) {
 		// remove line feeds
