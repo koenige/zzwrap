@@ -242,3 +242,6 @@ qs	string	utm_content
 404	all	/oc-shib/status.php
 404	all	/oc/status.php
 404	all	/status.php
+
+# unknown
+404	end	/&wd=test
