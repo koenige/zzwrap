@@ -580,6 +580,10 @@ function wrap_meters($meters, $precision = 1) {
  */
 function wrap_bearing($value, $precision = 1) {
 	global $zz_conf;
+	if (strstr($value, '/')) {
+		$value = explode('/', $value);
+		$value = $value[0]/$value[1];
+	}
 	if ($value < 0) $value = 360 - $value;
 	$text = round($value, $precision).'° ';
     if ($zz_conf['decimal_point'] !== '.')
