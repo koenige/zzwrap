@@ -47,9 +47,9 @@ function wrap_db_connect() {
 	// get connection details, files need to define
 	// $db_host, $db_user, $db_pwd, $zz_conf['db_name']
 	if (!isset($zz_setting['db_password_files']))
-		$zz_setting['db_password_files'] = array('');
+		$zz_setting['db_password_files'] = [''];
 	elseif (!is_array($zz_setting['db_password_files']))
-		$zz_setting['db_password_files'] = array($zz_setting['db_password_files']);
+		$zz_setting['db_password_files'] = [$zz_setting['db_password_files']];
 	
 	if ($zz_setting['local_access']) {
 		if (!empty($zz_conf['db_name_local'])) {
@@ -159,10 +159,10 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		$return = mysqli_affected_rows($zz_conf['db_connection']);
 		break;
 	}
-	if (!in_array($tokens[0], array('SET', 'SELECT'))
+	if (!in_array($tokens[0], ['SET', 'SELECT'])
 		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
 		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
-		$db_msg = array();
+		$db_msg = [];
 		$warning_error = E_USER_WARNING;
 		foreach ($warnings as $warning) {
 			$db_msg[] = $warning['Level'].': '.$warning['Message'];
@@ -179,12 +179,12 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	}
 
 	// error
-	$close_connection_errors = array(
+	$close_connection_errors = [
 		1030,	// Got error %d from storage engine
 		1317,	// Query execution was interrupted
 		2006,	// MySQL server has gone away
 		2008	// MySQL client ran out of memory
-	);
+	];
 	if (in_array(mysqli_errno($zz_conf['db_connection']), $close_connection_errors)) {
 		mysqli_close($zz_conf['db_connection']);
 		$zz_conf['db_connection'] = NULL;
@@ -218,26 +218,26 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
  *  if it's an array with two strings, this will be used to construct a 
  *  hierarchical array for the returned array with both keys
  * @param string $format optional, currently implemented
- *	"key/value" = returns array($key => $value)
- *	"key/values" = returns array($key => array($values))
+ *	"key/value" = returns [$key => $value]
+ *	"key/values" = returns [$key => [$values]]
  *	"single value" = returns $value
  *	"object" = returns object
  *	"numeric" = returns lines in numerical array [0 ... n] instead of using field ids
  *	"list field_name_1 field_name_2" = returns lines in hierarchical array
- *	for direct use in zzbrick templates, e. g. 0 => array(
- *		field_name_1 = value, field_name_2 = array()), 1 => ..
+ *	for direct use in zzbrick templates, e. g. 0 => [
+ *		field_name_1 = value, field_name_2 = []], 1 => ..
  * @param int $error_type let's you set error level, default = E_USER_ERROR
  * @return array with queried database content, NULL if query failed
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_type = E_USER_ERROR) {
 	global $zz_conf;
-	if (!$zz_conf['db_connection']) return array();
+	if (!$zz_conf['db_connection']) return [];
 	
 	$result = wrap_db_query($sql, $error_type);
 	if (!$result) return NULL;
 
-	$lines = array();
+	$lines = [];
 
 	if (!$id_field_name) {
 		// only one record
@@ -356,10 +356,10 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
  * 
  * to get just IDs of records, the input array needs to be either the output
  * of wrap_db_fetch($sql, $key_field_name, 'single value') or an array of
- * IDs (array(3, 4, 5)); to get full records as specified in the SQL query, the
+ * IDs ([3, 4, 5]); to get full records as specified in the SQL query, the
  * input array must be the output of wrap_db_fetch($sql, $key_field_name) or an
- * array with the records, e. g. array(3 => array('id' => 3, 'title' => "blubb"),
- * 4 => array('id' => 4, title => "another title"))
+ * array with the records, e. g. [3 => ['id' => 3, 'title' => "blubb"],
+ * 4 => ['id' => 4, title => "another title"]]
  * @param array $data Array with records from database, indexed on ID
  * @param string $sql SQL query to get child records for each selected record
  * @param string $key_field_name optional: Fieldname of primary key
@@ -369,7 +369,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
  *		with ID as key and the level (0, 1, 2, ..., n) as value
  */
 function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') {
-	if (!is_array($data)) $data = array($data); // allow single ID
+	if (!is_array($data)) $data = [$data]; // allow single ID
 	// get all IDs that were submitted to the function
 	if ($key_field_name)
 		foreach ($data as $record) $ids[] = $record[$key_field_name];
@@ -388,7 +388,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 		}
 	}
 	// as long as we have IDs in the pool, check if the current ID has child records
-	$used_ids = array();
+	$used_ids = [];
 	while ($ids) {
 		switch ($mode) {
 		case 'hierarchy':
@@ -431,7 +431,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 				$my_level = $data['level'][$my_id] + 1;
 			else
 				$my_level = 1;
-			$level = array();
+			$level = [];
 			foreach (array_keys($my_data) AS $id) {
 				$level[$id] = $my_level;
 			}
@@ -448,7 +448,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 			}
 
 			// append new records to $data-Array
-			if (empty($data[$my_id])) $data[$my_id] = array();
+			if (empty($data[$my_id])) $data[$my_id] = [];
 			$data[$my_id] += $my_data;
 			// append new IDs to $ids-Array
 			$ids = array_merge($ids, array_keys($my_data));
@@ -474,7 +474,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
  * @return array set of IDs
  */
 function wrap_db_parents($id, $sql) {
-	$ids = array();
+	$ids = [];
 	$result = true;
 	while ($result) {
 		// allow several parent IDs as well
@@ -508,7 +508,7 @@ function wrap_db_parents($id, $sql) {
  * @return mixed false: no sync neccessary, datetime: date of last update in tables
  */
 function wrap_db_tables_last_update($tables, $last_sync = false) {
-	if (!is_array($tables)) $tables = array($tables);
+	if (!is_array($tables)) $tables = [$tables];
 	foreach ($tables as $table) {
 		$table = wrap_db_prefix($table);
 		$db_table = explode('.', $table);
@@ -573,10 +573,10 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
 	// SQL statements in descending order
-	$statements_desc = array(
+	$statements_desc = [
 		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'JOIN',
 		'FORCE INDEX', 'FROM', 'SELECT DISTINCT', 'SELECT'
-	);
+	];
 	foreach ($statements_desc as $statement) {
 		// add whitespace in between brackets and statements to make life easier
 		$sql = str_replace(')'.$statement.' ', ') '.$statement.' ', $sql);
@@ -590,7 +590,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 				$last_keyword = explode(' ', $o_parts[$statement][1]);
 				$last_keyword = array_pop($last_keyword);
 				$o_parts[$statement][2] = $statement.' '.implode(' '.$statement.' ', $explodes);
-				if (in_array($last_keyword, array('LEFT', 'RIGHT', 'OUTER', 'INNER'))) {
+				if (in_array($last_keyword, ['LEFT', 'RIGHT', 'OUTER', 'INNER'])) {
 					$o_parts[$statement][2] = $last_keyword.' '.$o_parts[$statement][2];
 					$o_parts[$statement][1] = substr($o_parts[$statement][1], 0, -strlen($last_keyword) - 1);
 				}
@@ -701,7 +701,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 			break;
 		case 'FROM':
 			if ($mode === 'list') {
-				$tokens = array();
+				$tokens = [];
 				$tokens[] = wrap_edit_sql_tablenames($o_parts['FROM'][2]);
 				if (isset($o_parts['JOIN']) AND stristr($o_parts['JOIN'][2], 'JOIN')) {
 					$test = explode('JOIN', $o_parts['JOIN'][2]);
@@ -742,7 +742,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		}
 	}
 	if ($mode === 'list') {
-		if (!isset($tokens)) return array();
+		if (!isset($tokens)) return [];
 		return $tokens;
 	}
 	$statements_asc = array_reverse($statements_desc);
@@ -905,7 +905,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($zz_conf['translations_of_fields'])) {
 				$zz_sql['translations'] = '';
 				$zz_sql['translation_matrix_pages'] = '/*_PREFIX_*/webpages';
-				$zz_sql['translation_matrix_breadcrumbs'] = array();
+				$zz_sql['translation_matrix_breadcrumbs'] = [];
 
 				if (!empty($zz_setting['default_source_language'])) {
 					$zz_sql['translations'] = 'SELECT translation_id, translationfield_id, translation, field_id,
@@ -932,7 +932,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($set['auth'])) return true;
 			$set['auth'] = true;
 			if (empty($zz_sql['domain']))
-				$zz_sql['domain'] = array($zz_setting['hostname']);
+				$zz_sql['domain'] = [$zz_setting['hostname']];
 
 			$zz_sql['logout'] = 'UPDATE /*_PREFIX_*/logins 
 				SET logged_in = "no"
@@ -961,12 +961,12 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			require_once $zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php';
 
 		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
-			$zz_sql['domain'] = array($zz_sql['domain']);
+			$zz_sql['domain'] = [$zz_sql['domain']];
 
 		return true;
 	case 'add':
 		if (empty($zz_sql[$key])) {
-			$zz_sql[$key] = array($value);
+			$zz_sql[$key] = [$value];
 			return true;
 		}
 		if (is_array($zz_sql[$key])) {
@@ -1020,6 +1020,7 @@ function wrap_db_escape($value) {
  * Change MySQL mode
  *
  * @param void
+ * @return void
  * @global array $zz_setting
  *		'unwanted_mysql_modes'	
  */
@@ -1036,8 +1037,7 @@ function wrap_mysql_mode() {
 	}
 	$mode = implode(',', $modes);
 	$sql = sprintf("SET SESSION sql_mode = '%s'", $mode);
-	$result = wrap_db_query($sql);
-	return $result;
+	wrap_db_query($sql);
 }
 
 /**

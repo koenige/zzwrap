@@ -750,7 +750,7 @@ function wrap_log_uri() {
 			$sql .= sprintf(' , content_length = %d', $zz_page['content_length']);
 		$sql .= ' WHERE uri_id = %d';
 		$sql = sprintf($sql, $status, $etag, $last_modified, $encoding, $uri_id);
-		$result = wrap_db_query($sql, E_USER_NOTICE);
+		wrap_db_query($sql, E_USER_NOTICE);
 	} elseif (strlen($path) < 128 AND strlen($query) < 128) {
 		$sql = 'INSERT INTO /*_PREFIX_*/_uris (uri_scheme, uri_host, uri_path,
 			uri_query, content_type, character_encoding, content_length,
@@ -761,7 +761,7 @@ function wrap_log_uri() {
 			$scheme, $host, $path, $query, $content_type, $encoding,
 			$zz_page['content_length'], $status, $etag, $last_modified
 		);
-		$result = wrap_db_query($sql, E_USER_NOTICE);
+		wrap_db_query($sql, E_USER_NOTICE);
 	} elseif (strlen($path) >= 128) {
 		wrap_error(sprintf('URI path too long: %s', $path));
 	} else {
@@ -2489,7 +2489,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	if ($result) return true;
 
 	wrap_error(sprintf(
-		wrap_text('Setting could not be changed. Key: %s, value: %s, login: %s'),
+		wrap_text('Could not change setting. Key: %s, value: %s, login: %s'),
 		wrap_html_escape($key), wrap_html_escape($value), $login_id
 	));	
 	return false;
