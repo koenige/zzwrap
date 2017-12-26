@@ -28,21 +28,21 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 	// via JSON to E_USER_WARNING or E_USER_NOTICE
 	if (empty($zz_setting['syndication_error_code']))
 		$zz_setting['syndication_error_code'] = E_USER_ERROR;
-	$data = array();
+	$data = [];
 	$etag = '';
 	$last_modified = '';
-	if (!$url) return array();
+	if (!$url) return [];
 	if (!$cache_filename) $cache_filename = $url;
 
 	if (!isset($zz_setting['cache_age_syndication'])) {
 		$zz_setting['cache_age_syndication'] = 0;
 	}
-	$files = array();
+	$files = [];
 	if (!empty($zz_setting['cache'])) {
-		$files = array(
+		$files = [
 			wrap_cache_filename('url', $cache_filename),
 			wrap_cache_filename('headers', $cache_filename)
-		);
+		];
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
@@ -56,12 +56,12 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		}
 	}
 	if (!$data) {
-		wrap_error(false, false, array('collect_start' => true));
-		$headers_to_send = array();
+		wrap_error(false, false, ['collect_start' => true]);
+		$headers_to_send = [];
 		if ($etag) {
-			$headers_to_send = array(
+			$headers_to_send = [
 				'If-None-Match: "'.$etag.'"'
-			);
+			];
 		}
 		// @todo Last-Modified
 
@@ -96,7 +96,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			), $zz_setting['syndication_error_code']);
 			break;
 		case 404:
-			$data = array();
+			$data = [];
 			break;
 		default:
 			if (!empty($files[0]) AND file_exists($files[0])) {
@@ -118,10 +118,10 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			}
 			break;
 		}
-		wrap_error(false, false, array('collect_end' => true));
+		wrap_error(false, false, ['collect_end' => true]);
 	}
 
-	if (!$data) return array();
+	if (!$data) return [];
 	switch ($type) {
 	case 'json':
 		$object = json_decode($data, true);	// Array
@@ -141,7 +141,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		}
 		return $object;
 	default:
-		$object = array();
+		$object = [];
 		$object['_']['data'] = true;
 		if (!empty($files[0])) {
 			$object['_']['filename'] = $files[0];
@@ -201,7 +201,7 @@ function wrap_syndication_geocode($address) {
 	// place is optional
 	// remove parts of place name that are already found in other keys
 	if (!empty($address['place'])) {
-		$remove_keys = array('locality', 'postal_code', 'street_name', 'street_number');
+		$remove_keys = ['locality', 'postal_code', 'street_name', 'street_number'];
 		foreach ($remove_keys as $key) {
 			if (empty($address[$key])) continue;
 			if (strstr($address['place'], $address[$key]))
@@ -233,9 +233,9 @@ function wrap_syndication_geocode($address) {
 
 	// set geocoders
 	if (!isset($zz_setting['geocoder'])) {
-		$zz_setting['geocoder'] = array('Nominatim', 'Google Maps');
+		$zz_setting['geocoder'] = ['Nominatim', 'Google Maps'];
 	} elseif (!is_array($zz_setting['geocoder'])) {
-		$zz_setting['geocoder'] = array($zz_setting['geocoder']);
+		$zz_setting['geocoder'] = [$zz_setting['geocoder']];
 	}
 	foreach ($zz_setting['geocoder'] as $geocoder) {
 		if (!array_key_exists($geocoder, $urls)) {
@@ -243,19 +243,19 @@ function wrap_syndication_geocode($address) {
 			return false;
 		}
 		foreach (array_keys($add) as $index) {
-			$geocoders[] = array(
+			$geocoders[] = [
 				'geocoder' => $geocoder,
 				'add' => $add[$index],
 				'region' => $region
-			);
+			];
 		}
 	}
 
 	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
 	$zz_setting['cache_age_syndication'] = -1;
 
-	$results = array();
-	$found = array();
+	$results = [];
+	$found = [];
 	foreach ($geocoders as $gc) {
 		// only call a geocoder twice if first call was unsuccesful
 		if (in_array($gc['geocoder'], $found)) continue;
@@ -306,13 +306,13 @@ function wrap_syndication_geocode($address) {
 						if ($gc['region'] !== $component['short_name']) continue 2;
 					}
 				}
-				$results[] = array(
+				$results[] = [
 					'longitude' => $coord['geometry']['location']['lng'], 
 					'latitude' => $coord['geometry']['location']['lat'],
 					'display' => $coord['formatted_address'],
 					'source' => $gc['geocoder'],
 					'postal_code' => $postal_code
-				);
+				];
 				$found[] = $gc['geocoder'];
 			}
 			break;
@@ -327,28 +327,28 @@ function wrap_syndication_geocode($address) {
 				array_pop($display); // country
 				$postal_code = array_pop($display);
 				if (!preg_match('~[0-9]+~', $postal_code)) $postal_code = '';
-				$results[] = array(
+				$results[] = [
 					'longitude' => $coord['lon'], 
 					'latitude' => $coord['lat'],
 					'source' => $gc['geocoder'],
 					'display' => $coord['display_name'],
 					'postal_code' => $postal_code
-				);
+				];
 				$found[] = $gc['geocoder'];
 			}
 			break;
 		}
 	}
-	if (!$results) return array();
+	if (!$results) return [];
 	if (count($results) === 1) return $results[0];
 
-	$remove = array(',', '.', '/', '-', '(', ')', '?');
+	$remove = [',', '.', '/', '-', '(', ')', '?'];
 	foreach ($remove as $token) {
 		foreach ($address as $key => $value) {
 			$address[$key] = trim(str_replace($token, ' ', $value));
 		}
 	}
-	$parts = array();
+	$parts = [];
 	foreach ($address as $key => $value) {
 		if (!$value) continue;
 		while (strstr($value, '  ')) {
@@ -389,7 +389,7 @@ function wrap_syndication_geocode($address) {
  *		array $headers
  *		array $data
  */
-function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $method = 'GET', $data_to_send = array(), $pwd = false) {
+function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
 	global $zz_setting;
 	global $zz_conf;
 
@@ -408,13 +408,13 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 		if ($pwd) {
 			$headers_to_send[] = "Authorization: Basic " . base64_encode($pwd);
 		}
-		$opts = array(
-			'http' => array(
+		$opts = [
+			'http' => [
 				'method' => $method,
 				'header' => implode("\r\n", $headers_to_send),
 				'content' => $content
-			)
-		);
+			]
+		];
 		if (!empty($zz_setting['syndication_timeout_ms'])) {
 			$opts['http']['timeout'] = $zz_setting['syndication_timeout_ms'] / 1000;
 		}
@@ -425,7 +425,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 		if (!empty($http_response_header)) {
 			$headers = $http_response_header;
 		} else {
-			$headers = array();
+			$headers = [];
 			$status = 503;
 		}
 		foreach ($headers as $header) {
@@ -531,11 +531,11 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = array(), $m
 			$data = substr($data, strpos($data, "\r\n\r\n") + 4);
 		} else {
 			$status = 200; // not necessarily true, but we don't want to wait
-			$headers = array();
-			$data = array();
+			$headers = [];
+			$data = [];
 		}
 	}
-	return array($status, $headers, $data);
+	return [$status, $headers, $data];
 }
 
 /**
@@ -561,7 +561,7 @@ function wrap_syndication_http_header($which, $headers) {
  * @return string
  */
 function wrap_syndication_http_post($data) {
-	$postdata = array();
+	$postdata = [];
 	foreach ($data as $key => $value) {
 		$postdata[] = urlencode($key).'='.urlencode($value);
 	}
@@ -761,7 +761,13 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			));
 			return false;
 		}
-		$success = ftp_chdir($ftp_stream, dirname($url['path']));
+		$dir = dirname($url['path']);
+		$success = @ftp_chdir($ftp_stream, $dir);
+		if (!$success) {
+			// @todo create upper dirs as well
+			ftp_mkdir($ftp_stream, $dir);
+			$success = @ftp_chdir($ftp_stream, $dir);
+		}
 		if (!$success) {
 			wrap_error(sprintf(
 				'FTP: Directory was not changed to %s',
