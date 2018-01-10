@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -280,6 +280,9 @@ function wrap_set_defaults_pre_conf() {
 	$zz_conf['tmp_dir']			= $zz_conf['root'].'/../_temp';
 	$zz_conf['backup']			= true;
 	$zz_conf['backup_dir']		= $zz_conf['root'].'/../_backup';
+
+	// Logfiles
+	$zz_setting['log_dir']		= $zz_conf['root'].'/../_logs';
 
 // -------------------------------------------------------------------------
 // Modules
