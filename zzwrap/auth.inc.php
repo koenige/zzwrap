@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -229,6 +229,11 @@ function cms_logout($params) {
  *			[1]: {single sign on secret}
  *			[2]: {username}
  *			[3]: optional: {context}
+ * @global array $_GET
+ *		string 'auth': [username]-[hash] for login if password is forgotten
+ *		bool 'via': check login data from a different server, POST some JSON
+ *		bool 'no-cookie': for cookie check only
+ *		bool 'password': show form to retrieve forgotten password
  * @global array $zz_setting
  * @global array $zz_conf
  * @global array $zz_page
