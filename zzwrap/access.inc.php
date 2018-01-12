@@ -4,11 +4,11 @@
  * zzwrap
  * Access and authorization functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2012, 2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -90,7 +90,50 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
 	$secret = $string.$secret_key;
 	if ($zz_conf['character_set'] !== 'utf-8') $secret = utf8_encode($secret);
 	$hash = sha1($secret);
+	$hash = wrap_base_convert($hash, 16, 62);
 	return $hash;
+}
+
+/**
+ * converts a number from one base to another (2 â€“ 62)
+ *
+ * this function treats values out of scope differently than base_convert()
+ * source of this function: https://stackoverflow.com/questions/1938029/php-how-to-base-convert-up-to-base-62
+ * @param string $input
+ * @param int $frombase
+ * @param int $tobase
+ * @return string
+ */
+function wrap_base_convert($input, $frombase, $tobase) {
+	if ($frombase < 2 OR $tobase < 2)
+		wrap_error('At least one base is below 2, this is not allowed.', E_USER_ERROR);
+	elseif ($frombase > 62 OR $tobase > 62)
+		wrap_error('At least one base is above 62, this is not allowed.', E_USER_ERROR);
+
+	$all_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	$chars = substr($all_chars, 0, $frombase);
+	$tostring = substr($all_chars, 0, $tobase);
+	$length = strlen($input);
+    $output = '';
+    for ($i = 0; $i < $length; $i++) {
+    	$number[$i] = strpos($chars, $input{$i});
+	}
+	do {
+		$divide = 0;
+		$newlen = 0;
+		for ($i = 0; $i < $length; $i++) {
+			$divide = $divide * $frombase + $number[$i];
+			if ($divide >= $tobase) {
+				$number[$newlen++] = (int)($divide / $tobase);
+				$divide = $divide % $tobase;
+			} elseif ($newlen > 0) {
+				$number[$newlen++] = 0;
+			}
+		}
+		$length = $newlen;
+		$output = $tostring{$divide} . $output;
+	} while ($newlen != 0);
+	return $output;
 }
 
 /**
@@ -122,8 +165,8 @@ function wrap_test_secret_key($secret_key) {
  * erlaubt Zugriff nur von berechtigten IP-Adressen, bricht andernfalls mit 403
  * Fehlercode ab
  *
- * @param string $ip_list Schlüssel in $zz_setting, der Array mit den erlaubten
- *		IP-Adressen enthält
+ * @param string $ip_list SchlÃ¼ssel in $zz_setting, der Array mit den erlaubten
+ *		IP-Adressen enthÃ¤lt
  * @return bool true: access granted; exit function: access forbidden
  * @todo make compatible to IPv6
  * @todo combine with ipfilter from zzbrick
@@ -135,7 +178,7 @@ function wrap_restrict_ip_access($ip_list) {
 			$ip_list), E_USER_NOTICE);
 		wrap_quit(403);
 	}
-	if (!is_array($ip_list)) $ip_list = array($ip_list);
+	if (!is_array($ip_list)) $ip_list = [$ip_list];
 	if (!in_array($_SERVER['REMOTE_ADDR'], $ip_list)) {
 		wrap_error(sprintf(wrap_text('Your IP address %s is not in the allowed range.'),
 			wrap_html_escape($_SERVER['REMOTE_ADDR'])), E_USER_NOTICE);
