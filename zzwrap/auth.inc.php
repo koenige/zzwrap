@@ -269,7 +269,10 @@ function cms_login($params) {
 
 	$no_password_link = false;
 	// Check if there are parameters for single sign on
-	if (!empty($_GET['auth'])) {
+	if (!empty($_GET['request'])) {
+		$page = wrap_login_request($_GET['request'], $login);
+		return $page;
+	} elseif (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
 		$loginform['msg'] = wrap_text('Link for login is wrong or out of date. <a href="./?password">Please get a new one</a>.');
@@ -455,7 +458,7 @@ function cms_login($params) {
 			$loginform['password_link'] = '?password';
 		}
 	}
-	$page['query_strings'] = ['password', 'auth', 'via'];
+	$page['query_strings'] = ['password', 'auth', 'via', 'request'];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
 		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
@@ -902,4 +905,60 @@ function wrap_sso_login($login_url, $dest_url = '/') {
 		$login_url, $_SESSION['username'], $token, urlencode($dest_url)
 	);
 	return brick_format('%%% redirect 307 '.$url.' %%%');
+}
+
+/**
+ * show a form to letting an existing user create a new login
+ *
+ * @param string $request
+ * @param array $login
+ */
+function wrap_login_request($request, $login) {
+	$return = [];
+	$page['query_strings'] = ['request'];
+	if (!substr_count($request, '-') > 1) {
+		$return['invalid_request'] = true;
+		$page['text'] = wrap_template('login-request', $return);
+		return $page;
+	}
+	$request = explode('-', $request);
+	while (count($request) > 2) {
+		// username might contain - as character
+		$first = array_shift($request);
+		$request[0] = $first.'-'.$request[0];
+	}
+
+	// check if login exists
+	$sql = sprintf(wrap_sql('login_exists'), $request[0]);
+	$existing = wrap_db_fetch($sql, '', 'single value');
+	if ($existing) {
+		$return['missing_user_or_login_exists'] = true;
+		$page['text'] = wrap_template('login-request', $return);
+		return $page;
+	}
+	
+	// check if username exists
+	$sql = sprintf(wrap_sql('username_exists'), $request[0]);
+	$user = wrap_db_fetch($sql);
+	if (!$user) {
+		$return['missing_user_or_login_exists'] = true;
+		$page['text'] = wrap_template('login-request', $return);
+		return $page;
+	}
+
+	// check if hash is correct
+	// set addlogin_key 
+	// set addlogin_key_validity_in_minutes
+	$hash = wrap_set_hash($user['user_id'].'-'.$user['username'], 'addlogin_key');
+	if ($hash !== $request[1]) {
+		$return['invalid_request'] = true;
+		$page['text'] = wrap_template('login-request', $return);
+		return $page;
+	}
+
+	// everything is correct, let user add a login
+	// addlogin must be a custom form script
+	$page = brick_format('%%% forms addlogin '.$user['user_id'].' %%%');
+	$page['query_strings'] = ['request'];
+	return $page;
 }
