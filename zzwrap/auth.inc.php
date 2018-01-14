@@ -934,6 +934,7 @@ function wrap_login_request($request, $login) {
 	$existing = wrap_db_fetch($sql, '', 'single value');
 	if ($existing) {
 		$return['missing_user_or_login_exists'] = true;
+		wrap_error(sprintf('Could not create login, login for user already exists: %s', $request[0]), E_USER_NOTICE);
 		$page['text'] = wrap_template('login-request', $return);
 		return $page;
 	}
@@ -942,6 +943,7 @@ function wrap_login_request($request, $login) {
 	$sql = sprintf(wrap_sql('username_exists'), $request[0]);
 	$user = wrap_db_fetch($sql);
 	if (!$user) {
+		wrap_error(sprintf('Could not create login, user does not exist: %s', $request[0]), E_USER_NOTICE);
 		$return['missing_user_or_login_exists'] = true;
 		$page['text'] = wrap_template('login-request', $return);
 		return $page;
@@ -953,6 +955,7 @@ function wrap_login_request($request, $login) {
 	$hash = wrap_set_hash($user['user_id'].'-'.$user['username'], 'addlogin_key');
 	if ($hash !== $request[1]) {
 		$return['invalid_request'] = true;
+		wrap_error(sprintf('Could not create login, hash is invalid: %s %s (correct hash: %s)', $request[0], $request[1], $hash), E_USER_NOTICE);
 		$page['text'] = wrap_template('login-request', $return);
 		return $page;
 	}
