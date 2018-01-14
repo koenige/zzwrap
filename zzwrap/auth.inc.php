@@ -914,6 +914,7 @@ function wrap_sso_login($login_url, $dest_url = '/') {
  * @param array $login
  */
 function wrap_login_request($request, $login) {
+	global $zz_conf;
 	$return = [];
 	$page['query_strings'] = ['request'];
 	if (!substr_count($request, '-') > 1) {
@@ -958,6 +959,7 @@ function wrap_login_request($request, $login) {
 
 	// everything is correct, let user add a login
 	// addlogin must be a custom form script
+	$zz_conf['user'] = $user['username'];
 	$page = brick_format('%%% forms addlogin '.$user['user_id'].' %%%');
 	$page['query_strings'] = ['request'];
 	return $page;
