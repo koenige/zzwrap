@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -67,8 +67,7 @@ function wrap_template($template, $data = [], $mode = false) {
 	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
 
 	// get rid of if / else text that will be put to hidden
-	if (count($page['text']) === 2 
-		AND is_array($page['text'])
+	if (is_array($page['text']) AND count($page['text']) === 2 
 		AND in_array('_hidden_', array_keys($page['text']))
 		AND in_array($zz_setting['brick_default_position'], array_keys($page['text']))) {
 		unset($page['text']['_hidden_']);
