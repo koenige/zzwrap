@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2016 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -120,8 +120,18 @@ function wrap_mail_name($name) {
 	if (!is_array($name)) {
 		// add brackets, there are checks that think brackets
 		// show that a mail is less likely to be junk
-		if (substr($name, 0, 1) !== '<') $name = '<'.$name;
-		if (substr($name, -1) !== '>') $name .= '>';
+		if (strstr($name, ',')) {
+			$name = explode(',', $name);
+		} else {
+			$name = [$name];
+		}
+		foreach ($name as $index => $part) {
+			$part = trim($part);
+			if (substr($part, 0, 1) !== '<') $part = '<'.$part;
+			if (substr($part, -1) !== '>') $part .= '>';
+			$name[$index] = $part;
+		}
+		$name = implode(', ', $name);
 		return $name;
 	}
 	$mail = '';
