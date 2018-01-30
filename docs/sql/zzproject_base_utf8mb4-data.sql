@@ -460,6 +460,35 @@ LOCK TABLES `redirects` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `text`
+--
+
+DROP TABLE IF EXISTS `text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `text` (
+  `text_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `text` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `more_text` text COLLATE utf8mb4_unicode_ci,
+  `area` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`text_id`),
+  UNIQUE KEY `text` (`text`(250)),
+  KEY `area` (`area`)
+) ENGINE=MyISAM AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `text`
+--
+
+LOCK TABLES `text` WRITE;
+/*!40000 ALTER TABLE `text` DISABLE KEYS */;
+INSERT INTO `text` VALUES (1,'Countries',NULL,'Countries','2011-06-15 19:10:54'),(2,'Categories',NULL,'Categories','2011-06-15 19:12:23'),(3,'Category',NULL,'Categories','2011-06-15 19:15:01'),(4,'Description',NULL,'Tables','2011-06-15 19:15:40'),(5,'Updated',NULL,'Tables','2011-06-15 19:15:36'),(6,'Identifier',NULL,'Tables','2011-06-15 19:15:49'),(7,'Main Category',NULL,'Categories','2011-06-15 19:16:03'),(8,'yes',NULL,'Tables','2011-06-15 19:16:26'),(9,'no',NULL,'Tables','2011-06-15 19:16:36'),(10,'Country Code',NULL,'Countries','2011-06-15 19:17:59'),(11,'Website',NULL,'Countries','2011-06-15 19:18:10'),(12,'Country',NULL,'Countries','2011-06-15 19:18:25'),(13,'Country code according to ISO 3166',NULL,'Countries','2011-06-15 19:18:57'),(14,'Will country be used on website?',NULL,'Countries','2011-06-15 19:19:18'),(15,'Languages',NULL,'Languages','2011-06-15 19:19:38'),(16,'Will language be used on website?',NULL,'Languages','2011-06-15 19:20:20'),(17,'Language code ISO 639-1',NULL,'Languages','2011-06-15 19:20:40'),(18,'Language code ISO 639-2, Bibliographic',NULL,'Languages','2011-06-15 19:21:00'),(19,'Language code ISO 639-2, Terminology',NULL,'Languages','2011-06-15 19:21:16'),(20,'Language, english',NULL,'Languages','2011-06-15 19:21:33'),(21,'Language, french',NULL,'Languages','2011-06-15 19:21:45'),(22,'Language, german',NULL,'Languages','2011-06-15 19:21:55'),(23,'Webpages',NULL,'Webpages','2011-06-15 19:46:17'),(24,'Title',NULL,'Tables','2011-06-15 19:46:27'),(25,'Content',NULL,'Tables','2011-06-15 19:46:35'),(26,'Ending',NULL,'Webpages','2011-06-15 19:46:53'),(27,'Seq.',NULL,'Webpages','2011-06-15 19:47:05'),(28,'Subpage&nbsp;of',NULL,'Webpages','2011-06-15 19:47:19'),(29,'Published?',NULL,'Webpages','2011-06-15 19:47:53'),(30,'WWW?',NULL,'Webpages','2011-06-15 19:48:10'),(31,'Menu',NULL,'Webpages','2011-06-15 19:48:31'),(32,'none',NULL,'Webpages','2011-06-15 19:49:58'),(33,'top',NULL,'Webpages','2011-06-15 19:50:07'),(34,'bottom',NULL,'Webpages','2011-06-15 19:50:14'),(37,'Redirects',NULL,'Redirects','2011-06-15 19:54:18'),(38,'Old URL',NULL,'Redirects','2011-06-15 19:54:46'),(39,'New URL',NULL,'Redirects','2011-06-15 19:54:53'),(36,'Address of page, should show hierarchy, no / at the end!<br>The identifier should contain only letters a-z, numbers 0-9 and the - sign.',NULL,'Webpages','2011-06-15 19:52:41'),(40,'Code',NULL,'Redirects','2011-06-15 19:55:06'),(41,'301 Moved Permanently',NULL,'Redirects','2011-06-15 19:58:17'),(42,'302 Found',NULL,'Redirects','2011-06-15 19:58:29'),(43,'303 See Other',NULL,'Redirects','2011-06-15 19:59:02'),(44,'307 Temporary Redirect',NULL,'Redirects','2011-06-15 19:59:22'),(45,'410 Gone',NULL,'Redirects','2011-06-15 20:00:37'),(46,'Media Pool',NULL,'Media','2011-06-15 20:35:07'),(47,'File',NULL,'Media','2011-06-15 20:35:34'),(48,'Folder',NULL,'Media','2011-06-15 20:35:39'),(49,'The filename will be used as a default if nothing is entered.',NULL,'Media','2011-06-15 20:36:36'),(50,'Sequence',NULL,'Tables','2011-06-15 20:36:52'),(62,'Thumbnail Type',NULL,'Media','2013-08-16 11:57:49'),(63,'Display as gallery',NULL,'Media','2013-08-16 11:59:36'),(52,'If it\'s not a medium created by yourself, who created it, where did you find it?',NULL,'Media','2011-06-15 20:39:00'),(53,'Source',NULL,'Media','2011-06-15 20:39:16'),(54,'h',NULL,'Media','2011-06-15 20:39:36'),(55,'at',NULL,'Media','2011-06-15 20:40:08'),(59,'Coloured border: medium is published; gray border: medium is not published.',NULL,'Media','2013-08-16 11:40:25'),(57,'You are here:',NULL,'Page','2011-06-16 06:53:12'),(58,'internal',NULL,'Webpages','2013-08-16 11:08:41'),(60,'Digital photography: If nothing is entered, date and time will be read from file.',NULL,'Media','2013-08-16 11:49:29'),(61,'Filetype of the thumbnail image. JPEG is good for photos, PNG or GIF for line art.',NULL,'Media','2013-08-16 11:54:42'),(64,'Display as table',NULL,'Media','2013-08-16 12:00:02'),(65,'ID',NULL,'Tables','2013-08-16 12:00:38'),(66,'Translation field',NULL,'Translations','2013-08-16 12:01:55'),(67,'Filesize',NULL,'Media','2013-08-16 12:02:22'),(68,'MD5',NULL,'Media','2013-08-16 12:03:05'),(69,'Text',NULL,'Tables','2013-08-16 12:03:43'),(70,'Language',NULL,'Translations','2013-08-16 12:04:00'),(71,'Translation to',NULL,'Translations','2013-08-16 12:04:44'),(72,'Time',NULL,'Media','2013-08-16 12:10:22'),(73,'Version',NULL,'Media','2013-08-16 12:10:56'),(74,'Medium',NULL,'Media','2013-08-16 12:11:41'),(75,'Area',NULL,'Translations','2013-08-16 12:55:33'),(76,'Logins',NULL,'Logins','2013-08-16 13:05:20'),(77,'Person',NULL,'Logins','2013-08-16 13:05:28'),(78,'Change Pwd?',NULL,'Logins','2013-08-16 13:05:47'),(79,'Logged in',NULL,'Logins','2013-08-16 13:05:55'),(80,'Click',NULL,'Logins','2013-08-16 13:05:59'),(81,'Active',NULL,'Logins','2013-08-16 13:06:05'),(82,'To deactivate a login',NULL,'Logins','2013-08-16 13:06:15'),(83,'Last activity in database',NULL,'Logins','2013-08-16 13:06:26'),(84,'\"Yes\" means that the user has to change the password next time he or she logs in.',NULL,'Logins','2013-08-16 13:07:04'),(85,'Password',NULL,'Logins','2013-08-16 13:07:20');
+/*!40000 ALTER TABLE `text` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `webpages`
 --
 

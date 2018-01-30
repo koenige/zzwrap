@@ -329,6 +329,25 @@ CREATE TABLE `redirects` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `text`
+--
+
+DROP TABLE IF EXISTS `text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `text` (
+  `text_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `text` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `more_text` text COLLATE utf8mb4_unicode_ci,
+  `area` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`text_id`),
+  UNIQUE KEY `text` (`text`(250)),
+  KEY `area` (`area`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `webpages`
 --
 
