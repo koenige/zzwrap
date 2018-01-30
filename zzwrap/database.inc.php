@@ -110,11 +110,9 @@ function wrap_mysql_charset($charset = '') {
 	if (strtolower($charset) === 'utf8') {
 		// use utf8mb4, the real 4-byte utf-8 encoding if database is in utf8mb4
 		// instead of proprietary 3-byte utf-8
-		$sql = 'SHOW VARIABLES LIKE "character_set_database"';
-		$result = wrap_db_fetch($sql);
-		if (!empty($result['Value']) AND $result['Value'] === 'utf8mb4') {
-			$charset = 'utf8mb4';
-		}
+		$sql = 'SELECT @@character_set_database';
+		$result = wrap_db_fetch($sql, '', 'single value');
+		if ($result === 'utf8mb4') $charset = 'utf8mb4';
 	}
 	mysqli_set_charset($zz_conf['db_connection'], $charset);
 }
