@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -74,24 +74,49 @@ function wrap_db_connect() {
 	$zz_conf['db_connection'] = @mysqli_connect($db_host, $db_user, $db_pwd, $zz_conf['db_name'], $db_port);
 	if (!$zz_conf['db_connection']) return false;
 
-	// mySQL uses different identifiers for character encoding than HTML
-	// mySQL verwendet andere Kennungen für die Zeichencodierung als HTML
-	$charset = '';
-	if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']])) {
-		switch ($zz_conf['character_set']) {
-			case 'iso-8859-1': $charset = 'latin1'; break;
-			case 'iso-8859-2': $charset = 'latin2'; break;
-			case 'utf-8': $charset = 'utf8'; break;
-			default: 
-				wrap_error(sprintf('No character set for %s found.', $zz_conf['character_set']), E_USER_NOTICE);
-				break;
-		}
-	} else {
-		$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
-	}
-	if ($charset) mysqli_set_charset($zz_conf['db_connection'], $charset);
+	wrap_mysql_charset();
 	wrap_mysql_mode();
 	return true;
+}
+
+/**
+ * set a character encoding for the database connection
+ *
+ * @param string $charset (optional)
+ * @global $zz_conf
+ * @global $zz_setting
+ * @return void
+ */
+function wrap_mysql_charset($charset = '') {
+	global $zz_conf;
+	global $zz_setting;
+	
+	if (!$charset) {
+		// mySQL uses different identifiers for character encoding than HTML
+		if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']])) {
+			switch ($zz_conf['character_set']) {
+				case 'iso-8859-1': $charset = 'latin1'; break;
+				case 'iso-8859-2': $charset = 'latin2'; break;
+				case 'utf-8': $charset = 'utf8'; break;
+				default: 
+					wrap_error(sprintf('No character set for %s found.', $zz_conf['character_set']), E_USER_NOTICE);
+					break;
+			}
+		} else {
+			$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
+		}
+	}
+	if (!$charset) return;
+	if (strtolower($charset) === 'utf8') {
+		// use utf8mb4, the real 4-byte utf-8 encoding if database is in utf8mb4
+		// instead of proprietary 3-byte utf-8
+		$sql = 'SHOW VARIABLES LIKE "character_set_database"';
+		$result = wrap_db_fetch($sql);
+		if (!empty($result['Value']) AND $result['Value'] === 'utf8mb4') {
+			$charset = 'utf8mb4';
+		}
+	}
+	mysqli_set_charset($zz_conf['db_connection'], $charset);
 }
 
 /**
@@ -132,7 +157,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	
 	if (wrap_substr($sql, 'SET NAMES ')) {
 		$charset = trim(substr($sql, 10));
-		return mysqli_set_charset($zz_conf['db_connection'], $charset);
+		return wrap_mysql_charset($charset);
 	}
 
 	$sql = wrap_db_prefix($sql);
