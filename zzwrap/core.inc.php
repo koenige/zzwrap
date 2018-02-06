@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2557,15 +2557,15 @@ function wrap_setting_key($key, $value) {
 }
 
 /**
- * allows settings from db to be in the format (1, 2, 3); first \ will be
- * removed and allows settings starting with (
+ * allows settings from db to be in the format [1, 2, 3]; first \ will be
+ * removed and allows settings starting with [
  *
  * @param string $string
  * @return mixed
  */
 function wrap_setting_value($string) {
 	if (substr($string, 0, 1) == '\\') return substr($string, 1);
-	if (substr($string, 0, 1) == '(' AND substr($string, -1) == ')') {
+	if (substr($string, 0, 1) == '[' AND substr($string, -1) == ']') {
 		$string = substr($string, 1, -1);
 		$strings = explode(',', $string);
 		foreach ($strings as $index => $string) {
