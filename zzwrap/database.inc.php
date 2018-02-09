@@ -74,7 +74,7 @@ function wrap_db_connect() {
 	$zz_conf['db_connection'] = @mysqli_connect($db_host, $db_user, $db_pwd, $zz_conf['db_name'], $db_port);
 	if (!$zz_conf['db_connection']) return false;
 
-	wrap_mysql_charset();
+	wrap_db_charset();
 	wrap_mysql_mode();
 	return true;
 }
@@ -87,7 +87,7 @@ function wrap_db_connect() {
  * @global $zz_setting
  * @return void
  */
-function wrap_mysql_charset($charset = '') {
+function wrap_db_charset($charset = '') {
 	global $zz_conf;
 	global $zz_setting;
 	
@@ -155,7 +155,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	
 	if (wrap_substr($sql, 'SET NAMES ')) {
 		$charset = trim(substr($sql, 10));
-		return wrap_mysql_charset($charset);
+		return wrap_db_charset($charset);
 	}
 
 	$sql = wrap_db_prefix($sql);
