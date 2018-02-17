@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.18, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8
 -- ------------------------------------------------------
--- Server version	5.7.17
+-- Server version	5.7.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -58,14 +58,14 @@ DROP TABLE IF EXISTS `_relations`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_relations` (
   `rel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `master_db` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `master_table` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `master_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `detail_db` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `detail_table` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `detail_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `master_db` varchar(127) COLLATE latin1_general_cs NOT NULL,
+  `master_table` varchar(127) COLLATE latin1_general_cs NOT NULL,
+  `master_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
+  `detail_db` varchar(127) COLLATE latin1_general_cs NOT NULL,
+  `detail_table` varchar(127) COLLATE latin1_general_cs NOT NULL,
+  `detail_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
   `delete` enum('delete','ask','no-delete','update') COLLATE latin1_general_cs NOT NULL DEFAULT 'no-delete',
-  `detail_id_field` varchar(127) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `detail_id_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
   `detail_url` varchar(63) COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`rel_id`),
   UNIQUE KEY `master_db` (`master_db`,`master_table`,`master_field`,`detail_db`,`detail_table`,`detail_field`)
@@ -117,9 +117,9 @@ DROP TABLE IF EXISTS `_translationfields`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_translationfields` (
   `translationfield_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `db_name` varchar(255) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `table_name` varchar(255) COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `field_name` varchar(255) COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `db_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
+  `table_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
+  `field_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
   `field_type` enum('varchar','text') COLLATE latin1_general_cs NOT NULL DEFAULT 'varchar',
   PRIMARY KEY (`translationfield_id`),
   UNIQUE KEY `db_name` (`db_name`,`table_name`,`field_name`)
@@ -145,10 +145,10 @@ DROP TABLE IF EXISTS `_translations_text`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_translations_text` (
   `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `translationfield_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `field_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `translationfield_id` int(10) unsigned NOT NULL,
+  `field_id` int(10) unsigned NOT NULL,
   `translation` text COLLATE utf8_unicode_ci NOT NULL,
-  `language_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `language_id` int(10) unsigned NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
   UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
@@ -175,10 +175,10 @@ DROP TABLE IF EXISTS `_translations_varchar`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_translations_varchar` (
   `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `translationfield_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `field_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `translation` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `language_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `translationfield_id` int(10) unsigned NOT NULL,
+  `field_id` int(10) unsigned NOT NULL,
+  `translation` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `language_id` int(10) unsigned NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
   UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
@@ -244,7 +244,7 @@ DROP TABLE IF EXISTS `categories`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `categories` (
   `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `category` varchar(63) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `category` varchar(63) COLLATE utf8_unicode_ci NOT NULL,
   `description` text COLLATE utf8_unicode_ci,
   `main_category_id` int(10) unsigned DEFAULT NULL,
   `path` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
@@ -275,8 +275,8 @@ DROP TABLE IF EXISTS `countries`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `countries` (
   `country_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `country_code` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `country` varchar(63) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `country_code` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `country` varchar(63) COLLATE utf8_unicode_ci NOT NULL,
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`country_id`),
   UNIQUE KEY `country_code` (`country_code`),
@@ -303,9 +303,9 @@ DROP TABLE IF EXISTS `filetypes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `filetypes` (
   `filetype_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT '',
-  `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
-  `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `filetype_description` varchar(63) COLLATE utf8_unicode_ci DEFAULT NULL,
   `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
@@ -332,12 +332,12 @@ DROP TABLE IF EXISTS `languages`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `languages` (
   `language_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `iso_639_2t` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `iso_639_2t` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `iso_639_2b` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `iso_639_1` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `language_de` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `language_en` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `language_fr` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `language_de` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `language_en` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `language_fr` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`language_id`),
   UNIQUE KEY `iso_639_2t` (`iso_639_2t`),
@@ -396,7 +396,7 @@ DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `medium_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `main_medium_id` int(10) unsigned DEFAULT NULL,
-  `title` varchar(127) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `title` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
   `description` text COLLATE utf8_unicode_ci,
   `language_id` int(10) unsigned DEFAULT NULL,
   `date` date DEFAULT NULL,
@@ -405,7 +405,7 @@ CREATE TABLE `media` (
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `clipping` enum('center','top','right','bottom','left') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'center',
   `sequence` smallint(5) unsigned DEFAULT NULL,
-  `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT '',
+  `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `filetype_id` int(10) unsigned NOT NULL,
   `thumb_filetype_id` int(10) unsigned DEFAULT NULL,
   `filesize` int(10) unsigned DEFAULT NULL,
@@ -501,7 +501,7 @@ CREATE TABLE `webpages` (
   `content` text COLLATE utf8_unicode_ci NOT NULL,
   `identifier` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `ending` enum('.html','/','none') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'none',
-  `sequence` tinyint(4) NOT NULL DEFAULT '0',
+  `sequence` tinyint(4) NOT NULL,
   `mother_page_id` int(10) unsigned DEFAULT NULL,
   `live` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
   `menu` enum('top','bottom','internal') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
