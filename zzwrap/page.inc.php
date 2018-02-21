@@ -675,7 +675,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			.$crumb['title']
 			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
-	if (!$formatted_breadcrumbs) return false;
+	if (!$formatted_breadcrumbs AND !$brick_breadcrumbs) return false;
 	
 	$html_output = implode(' '.$zz_page['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
 	if (!empty($brick_breadcrumbs)) {
