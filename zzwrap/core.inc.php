@@ -1186,6 +1186,7 @@ function wrap_file_send($file) {
 	global $zz_page;
 	global $zz_setting;
 
+	if (is_dir($file['name'])) return false;
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
