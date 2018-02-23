@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -250,6 +250,7 @@ function wrap_syndication_geocode($address) {
 			];
 		}
 	}
+	if (empty($geocoders)) return false;
 
 	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
 	$zz_setting['cache_age_syndication'] = -1;
