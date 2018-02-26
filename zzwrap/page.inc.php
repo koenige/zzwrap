@@ -37,14 +37,20 @@
 function wrap_template($template, $data = [], $mode = false) {
 	global $zz_setting;
 
-	if (substr($template, 0, 1) === '/' AND file_exists($template)) {
+	if (strstr($template, "\n")) {
+		$current_template = '(from variable)';
+		$template = explode("\n", $template);
+	} elseif (substr($template, 0, 1) === '/' AND file_exists($template)) {
 		$tpl_file = $template;
+		$current_template = $template;
+		$template = file($tpl_file);
 	} else {
 		$tpl_file = wrap_template_file($template);
 		if (!$tpl_file) return false;
+		$current_template = $template;
+		$template = file($tpl_file);
 	}
-	$zz_setting['current_template'] = $template;
-	$template = file($tpl_file);
+	$zz_setting['current_template'] = $current_template;
 	// remove comments and next empty line from the start
 	foreach ($template as $index => $line) {
 		if (substr($line, 0, 1) === '#') unset($template[$index]); // comments
