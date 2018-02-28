@@ -1029,13 +1029,13 @@ function wrap_htmlout_page($page) {
 			if ($i & 1) {
 				$text[$index] = '<textarea'.$text[$index].'</textarea';
 			} else {
-				$text[$index] = str_replace('%\%%', '%%%', $text[$index]);
+				$text[$index] = str_replace('%\%\%', '%%%', $text[$index]);
 			}
 			$i++;
 		}
 		$text = implode('', $text);
 	} else {
-		$text = str_replace('%\%%', '%%%', $text);
+		$text = str_replace('%\%\%', '%%%', $text);
 	}
 		
 	wrap_send_text($text, 'html', $page['status']);
