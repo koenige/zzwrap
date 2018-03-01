@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -232,6 +232,7 @@ function wrap_date($date, $format = false) {
 				break;
 		}
 	}
+	$bis = '&#8239;–&#8239;';
 	switch ($output_format) {
 	case 'dates':
 		if (!$end) {
@@ -242,24 +243,24 @@ function wrap_date($date, $format = false) {
 			AND substr($begin, 7) === '-00'
 			AND substr($begin, 4) !== '-00-00') {
 			// 2004-03-00 2004-04-00 = 03-04.2004
-			$output = substr($begin, 5, 2).'–'
+			$output = substr($begin, 5, 2).$bis
 				.wrap_date_format($end, $set, $type);
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
 			// 12.-14.03.2004
-			$output = substr($begin, 8).'.–'
+			$output = substr($begin, 8).$set['sep'].$bis
 				.wrap_date_format($end, $set, $type);
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
 			$output = wrap_date_format($begin, $set, 'noyear')
-				.'&#8203;–'.wrap_date_format($end, $set, $type);
+				.'&#8203;'.$bis.wrap_date_format($end, $set, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
 			// 2004-00-00 2005-00-00 = 2004-2005
 			// 31.12.2004-06.01.2005
 			$output = wrap_date_format($begin, $set, $type)
-				.'&#8203;–'.wrap_date_format($end, $set, $type);
+				.'&#8203;'.$bis.wrap_date_format($end, $set, $type);
 		}
 		return $output;
 	case 'datetime':
