@@ -475,8 +475,15 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		}
 		if ($protocol === 'https') {
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+			if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+				// not recommended, mainly for debugging!
+				// only set this if you know what you are doing
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			} else {
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+			}
 			// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
 			// so there should be currently no need to include an own PEM file
 			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
@@ -493,24 +500,10 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			$status = 200;
 		} else {
 			if (!$status) {
-				if ($protocol === 'https' AND !empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
-					// try again without SSL verification
-					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-					$data = curl_exec($ch);
-					$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-				}
-				if ($status) {
-					wrap_error(sprintf(
-						'Syndication from URL %s failed. Using SSL connection without validation instead. Reason: %s',
-						$url, curl_error($ch)
-					), $zz_setting['syndication_error_code']);
-				} else {
-					wrap_error(sprintf(
-						'Syndication from URL %s failed. Reason: %s',
-						$url, curl_error($ch)
-					), $zz_setting['syndication_error_code']);
-				}
+				wrap_error(sprintf(
+					'Syndication from URL %s failed. Reason: %s',
+					$url, curl_error($ch)
+				), $zz_setting['syndication_error_code']);
 			}
 		}
 		if ($status === 200 AND !$data AND !$timeout_ignore) {
