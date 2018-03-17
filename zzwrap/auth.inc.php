@@ -836,6 +836,10 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		$sql = wrap_sql('login');
 		$sql = sprintf($sql, $username);
 		$userdata = wrap_db_fetch($sql);
+		if (!$userdata AND $sql = wrap_sql('login_foreign')) {
+			$sql = sprintf($sql, $username);
+			$userdata = wrap_db_fetch($sql);
+		}
 		if (!$userdata AND $sql = wrap_sql('login_user_id')) {
 			$sql = sprintf($sql, $username);
 			$userdata = wrap_db_fetch($sql);
