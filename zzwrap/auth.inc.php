@@ -826,7 +826,10 @@ function wrap_password_hash($pass) {
  * @return string
  */
 function wrap_password_token($username = '', $secret_key = 'login_key') {
-	if (!$username) $username = $_SESSION['username'];
+	if (!$username) {
+		if (!empty($_SESSION['username'])) $username = $_SESSION['username'];
+		else wrap_error('No username found for password token');
+	}
 	if ($secret_key === 'sso_key') {
 		// don't check against database, user might not exist yet
 		// it will be created and a check is performed later on
