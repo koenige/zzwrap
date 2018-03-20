@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -174,13 +174,15 @@ function wrap_language_get_text($language) {
  * or write back text string to be translated
  * 
  * @param string $string	Text string to be translated
+ * @param string $target_language	Language to translate into (if different from
+ *		actively used language on website)
  * @global array $zz_conf	configuration variables
  * @global array $zz_setting
  *			'log_missing_text' must be set to log missing text
  * @return string $string	Translation of text
  * @see zz_text()
  */
-function wrap_text($string) {
+function wrap_text($string, $target_language = '') {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
@@ -193,7 +195,10 @@ function wrap_text($string) {
 	}
 
 	// get filename for translated texts
-	$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
+	if ($target_language)
+		$language = $target_language;
+	else
+		$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
 	if (isset($zz_conf['default_language_for'][$language]))
 		$language = $zz_conf['default_language_for'][$language];
 
