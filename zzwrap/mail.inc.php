@@ -127,8 +127,11 @@ function wrap_mail_name($name) {
 		}
 		foreach ($name as $index => $part) {
 			$part = trim($part);
-			if (substr($part, 0, 1) !== '<') $part = '<'.$part;
-			if (substr($part, -1) !== '>') $part .= '>';
+			if ($part) {
+				// add brackets, but not to empty mail addresses
+				if (substr($part, 0, 1) !== '<') $part = '<'.$part;
+				if (substr($part, -1) !== '>') $part .= '>';
+			}
 			$name[$index] = $part;
 		}
 		$name = implode(', ', $name);
