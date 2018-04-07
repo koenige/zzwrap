@@ -991,7 +991,7 @@ function wrap_htmlout_page($page) {
 	}
 
 	// Add title to page
-	if (empty($page['dont_show_h1']) AND !empty($page['title']))
+	if (empty($page['dont_show_h1']) AND !empty($page['title']) AND empty($zz_page['h1_via_template']))
 		$page['text'] = "\n".markdown('# '.$page['title']."\n")."\n"
 			.$page['text'];
 
