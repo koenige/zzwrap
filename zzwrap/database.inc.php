@@ -593,6 +593,18 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 
 	// remove whitespace
 	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
+
+	// UNION: treat queries separate
+	if (strstr($sql, ' UNION SELECT ')) {
+		$sqls = explode(' UNION SELECT ', $sql);
+		foreach ($sqls as $index => $single_sql) {
+			if ($index) $single_sql = ' SELECT '.$single_sql;
+			$sqls[$index] = trim(wrap_edit_sql($single_sql, $n_part, $values, $mode));
+		}
+		$sql = implode(' UNION ', $sqls);
+		return $sql;
+	}
+
 	// SQL statements in descending order
 	$statements_desc = [
 		'LIMIT', 'ORDER BY', 'HAVING', 'GROUP BY', 'WHERE', 'JOIN',
