@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -246,7 +246,7 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['html_link_types'] = [
 			'Alternate', 'Stylesheet', 'Start', 'Next', 'Prev', 'Contents',
 			'Index', 'Glossary', 'Copyright', 'Chapter', 'Section',
-			'Subsection', 'Appendix', 'Help', 'Bookmark'
+			'Subsection', 'Appendix', 'Help', 'Bookmark', 'Up'
 		];
 	}
 	
