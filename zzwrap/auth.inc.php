@@ -651,9 +651,9 @@ function wrap_login_hash($hash, $login) {
 	} else {
 		$login_key = 'password_key';
 	}
-	$hash = explode('-', $hash);
-	$username = array_shift($hash);
-	$hash = implode('-', $hash);
+	$user_hash = explode('-', $hash);
+	$hash = array_pop($user_hash);
+	$username = implode('-', $user_hash);
 
 	$password = wrap_password_token($username, $login_key);
 	if ($password !== $hash) return $login;
