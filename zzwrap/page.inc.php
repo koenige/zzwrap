@@ -700,6 +700,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
  */
 function wrap_nav_base() {
 	global $zz_setting;
+	if (empty($zz_setting['lang'])) return '';
 	$base = empty($zz_setting['base']) ? '' : $zz_setting['base'];
 	if (!empty($zz_setting['language_not_in_nav'])) {
 		if (substr($base, -strlen($zz_setting['lang']) - 1) === '/'. $zz_setting['lang']) {
