@@ -826,6 +826,7 @@ function wrap_password_hash($pass) {
  * @return string
  */
 function wrap_password_token($username = '', $secret_key = 'login_key') {
+	global $zz_setting;
 	if (!$username) {
 		if (!empty($_SESSION['username'])) $username = $_SESSION['username'];
 		else wrap_error('No username found for password token');
@@ -840,8 +841,16 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		$sql = sprintf($sql, $username);
 		$userdata = wrap_db_fetch($sql);
 		if (!$userdata AND $sql = wrap_sql('login_foreign')) {
-			$sql = sprintf($sql, $username);
-			$userdata = wrap_db_fetch($sql);
+			if (array_key_exists('login_foreign_ids', $zz_setting)) {
+				foreach ($zz_setting['login_foreign_ids'] as $id) {
+					$sql = sprintf($sql, $id, $username);
+					$userdata = wrap_db_fetch($sql);
+					if ($userdata) break;
+				}
+			} else {
+				$sql = sprintf($sql, $username);
+				$userdata = wrap_db_fetch($sql);
+			}
 		}
 		if (!$userdata AND $sql = wrap_sql('login_user_id')) {
 			$sql = sprintf($sql, $username);
