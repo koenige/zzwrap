@@ -179,7 +179,7 @@ function wrap_syndication_geocode($address) {
 	
 	$urls['Google Maps'] = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
 	// @see http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
-	$urls['Nominatim'] = 'http://nominatim.openstreetmap.org/search.php?q=%s&countrycodes=%s&format=jsonv2&accept-language=de&limit=50';
+	$urls['Nominatim'] = 'https://nominatim.openstreetmap.org/search.php?q=%s&countrycodes=%s&format=jsonv2&accept-language=de&limit=50';
 	
 	$add[0] = '';
 	if (isset($address['locality'])) {
