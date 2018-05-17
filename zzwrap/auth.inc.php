@@ -507,10 +507,15 @@ function cms_login_redirect($url, $querystring = []) {
 	global $zz_setting;
 	
 	// get correct protocol/hostname
-	$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
-	$zz_setting['host_base'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
-		$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
+	if (substr($url, 0, 1) === '/') {
+		$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
+		$zz_setting['host_base'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
+		if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
+			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
+		}
+	} else {
+		// protocol/hostname is already part of URL
+		$zz_setting['host_base'] = '';
 	}
 
 	// test whether COOKIEs for session management are allowed
