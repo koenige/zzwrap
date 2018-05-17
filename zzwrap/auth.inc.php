@@ -319,7 +319,7 @@ function cms_login($params, $settings = []) {
 			if (wrap_mail_valid($loginform['mail'])) {
 				$loginform['mail_sent'] = true;
 				$loginform['login_link_valid'] = wrap_get_setting('password_key_validity_in_minutes');
-				wrap_password_reminder($loginform['mail']);
+				wrap_password_reminder($loginform['mail'], !empty($settings['reminder_data']) ? $settings['reminder_data'] : []);
 			} else {
 				$loginform['mail_invalid'] = true;
 				wrap_error(sprintf(
