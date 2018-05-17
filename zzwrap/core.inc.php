@@ -1731,6 +1731,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	// without '-gz'
 	if (!$headers) {
 		header_remove('X-Powered-By');
+		header_remove('Server');
 		$headers = $zz_setting['headers'];
 	}
 	file_put_contents($head, implode("\r\n", $headers));
@@ -1750,6 +1751,7 @@ function wrap_cache_header($header = false) {
 		$headers = [$header];
 	} else {
 		header_remove('X-Powered-By');
+		header_remove('Server');
 		$headers = $zz_setting['extra_http_headers'];
 	}
 
