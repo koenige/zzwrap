@@ -270,6 +270,10 @@ function cms_login($params, $settings = []) {
 	$loginform = [];
 	$loginform['msg'] = false;
 	$loginform['action_url'] = !empty($settings['action_url']) ? $settings['action_url'] : './';
+	$loginform['password_link'] = wrap_get_setting('password_link');
+	if ($loginform['password_link'] === true) {
+		$loginform['password_link'] = $loginform['action_url'].'?password';
+	}
 
 	// Check if there are parameters for single sign on
 	if (!empty($_GET['request'])) {
@@ -278,10 +282,6 @@ function cms_login($params, $settings = []) {
 	} elseif (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
-		$loginform['password_link'] = wrap_get_setting('password_link');
-		if ($loginform['password_link'] === true) {
-			$loginform['password_link'] = $loginform['action_url'].'?password';
-		}
 		$loginform['msg'] = sprintf('%s <a href="%s">%s</a>'
 			, wrap_text('Link for login is wrong or out of date.')
 			, $loginform['password_link']
