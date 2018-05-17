@@ -216,6 +216,7 @@ function cms_logout($params) {
 	// Stop the session, delete all session data
 	wrap_session_stop();
 
+	if (substr($zz_setting['login_url'], 0, 1) !== '/') $zz_setting['host_base'] = '';
 	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url'].'?logout', 307, false);
 	exit;
 }
