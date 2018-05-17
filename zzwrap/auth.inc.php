@@ -229,6 +229,8 @@ function cms_logout($params) {
  *			[1]: {single sign on secret}
  *			[2]: {username}
  *			[3]: optional: {context}
+ * @param array $settings (optional)
+ *		[action] = set a different action URL, defaults to ./
  * @global array $_GET
  *		string 'auth': [username]-[hash] for login if password is forgotten
  *		bool 'via': check login data from a different server, POST some JSON
@@ -240,7 +242,7 @@ function cms_logout($params) {
  * @return mixed bool false: login failed; array $page: login form; or redirect
  *		to (wanted) landing page
  */
-function cms_login($params) {
+function cms_login($params, $settings = []) {
 	global $zz_setting;
 	global $zz_conf;
 	global $zz_page;
@@ -458,6 +460,7 @@ function cms_login($params) {
 			$loginform['password_link'] = '?password';
 		}
 	}
+	$loginform['action_url'] = !empty($settings['action_url']) ? $settings['action_url'] : './';
 	$page['query_strings'] = ['password', 'auth', 'via', 'request'];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
