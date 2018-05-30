@@ -177,8 +177,15 @@ function wrap_mail_valid($e_mail) {
 	// check if hostname has MX record
 	$host = explode('@', $e_mail);
 	if (count($host) !== 2) return false;
+	// trailing dot to get a FQDN
+	if (substr($host[1], -1) !== '.') $host[1] .= '.';
 	// MX record is not obligatory, so use ANY
+	$time = microtime(true);
 	$exists = checkdnsrr($host[1], 'ANY');
+	if (microtime(true) - $time > 1) {
+		wrap_error('Checking DNS record took to long, so probably it is a timeout: '.$e_mail.' host:'.$host[1]);
+		return $e_mail;
+	}
 	if (!$exists) return false;
 
 	return $e_mail;
