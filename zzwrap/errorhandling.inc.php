@@ -167,7 +167,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = array()) {
 		if (empty($settings['mail_no_request_uri']))
 			$foot .= "\nURL: ".$zz_setting['host_base'].$_SERVER['REQUEST_URI'];
 		if (empty($settings['mail_no_ip']))
-			$foot .= "\nIP: ".$_SERVER['REMOTE_ADDR'];
+			$foot .= "\nIP: ".$zz_setting['remote_ip'];
 		if (empty($settings['mail_no_user_agent']))
 			$foot .= "\nBrowser: ".(!empty($_SERVER['HTTP_USER_AGENT']) 
 				? $_SERVER['HTTP_USER_AGENT'] : wrap_text('unknown'));	
@@ -407,7 +407,7 @@ function wrap_errorpage_log($status, $page) {
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested, 
-			$_SERVER['HTTP_REFERER'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);
+			$_SERVER['HTTP_REFERER'], $zz_setting['remote_ip'], $_SERVER['HTTP_USER_AGENT']);
 		if (!empty($_POST)) {
 			$msg .= "\n\n".wrap_print($_POST, false, false);
 		}
@@ -509,7 +509,7 @@ function wrap_errorpage_ignore($status, $string = false) {
 				}
 				break;
 			case 'ip':
-				if (substr($_SERVER['REMOTE_ADDR'], 0, (strlen($line[2]))) === $line[2]) {
+				if (substr($zz_setting['remote_ip'], 0, (strlen($line[2]))) === $line[2]) {
 					return true;
 				}
 				break;
