@@ -253,6 +253,7 @@ function wrap_set_defaults_pre_conf() {
 	// set Cache-Control defaults
 	$zz_setting['cache_control_text'] = 3600; // 1 hour
 	$zz_setting['cache_control_file'] = 86400; // 1 day
+	$zz_setting['remote_ip'] = wrap_http_remote_ip();
 
 // -------------------------------------------------------------------------
 // URLs
@@ -360,4 +361,22 @@ function wrap_set_defaults_pre_conf() {
 
 	$zz_conf['character_set'] = 'utf-8';
 
+}
+
+/**
+ * get remote IP address even if behind proxy
+ *
+ * @return string
+ */
+function wrap_http_remote_ip() {
+	if (empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		if (empty($_SERVER['REMOTE_ADDR']))
+			return '';
+		return $_SERVER['REMOTE_ADDR'];
+	}
+	$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	if ($pos = strpos($remote_ip, ',')) {
+		$remote_ip = substr($remote_ip, 0, $pos);
+	}
+	return $remote_ip;
 }
