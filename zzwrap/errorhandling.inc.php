@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2017 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2018 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -28,7 +28,7 @@
  *		'project', 'character_set'
  * @global array $zz_page
  */
-function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = array()) {
+function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
@@ -39,7 +39,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = array()) {
 
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
-		$collect_messages = array();
+		$collect_messages = [];
 	}
 	if ($collect AND $msg) {
 		// Split message per sentence to avoid redundant messages
@@ -145,13 +145,13 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = array()) {
 
 	if (!is_array($zz_conf['error_mail_level'])) {
 		if ($zz_conf['error_mail_level'] === 'error') 
-			$zz_conf['error_mail_level'] = array('error');
+			$zz_conf['error_mail_level'] = ['error'];
 		elseif ($zz_conf['error_mail_level'] === 'warning') 
-			$zz_conf['error_mail_level'] = array('error', 'warning');
+			$zz_conf['error_mail_level'] = ['error', 'warning'];
 		elseif ($zz_conf['error_mail_level'] === 'notice') 
-			$zz_conf['error_mail_level'] = array('error', 'warning', 'notice');
+			$zz_conf['error_mail_level'] = ['error', 'warning', 'notice'];
 		else
-			$zz_conf['error_mail_level'] = array();
+			$zz_conf['error_mail_level'] = [];
 	}
 	switch ($zz_conf['error_handling']) {
 	case 'mail_summary':
@@ -287,7 +287,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	
 	// some codes get a link to the homepage
-	$extra_description_codes = array(404);
+	$extra_description_codes = [404];
 	
 	// -- 2. set page elements
 	
@@ -315,7 +315,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 
 	// get own or default http-error template
 	if (empty($page['text'])) {
-		$page['text'] = wrap_template('http-error', array(), 'error');
+		$page['text'] = wrap_template('http-error', [], 'error');
 	}
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
@@ -378,7 +378,7 @@ function wrap_errorpage_log($status, $page) {
 	global $zz_conf;
 	global $zz_page;
 
-	if (in_array($status, array(401, 403, 404, 410, 503))) {
+	if (in_array($status, [401, 403, 404, 410, 503])) {
 		$ignore = wrap_errorpage_ignore($status);
 		if ($ignore) return false;
 	}
@@ -391,7 +391,7 @@ function wrap_errorpage_log($status, $page) {
 	$msg = html_entity_decode(strip_tags($page['h1'])."\n\n"
 		.strip_tags($page['error_description'])."\n"
 		.strip_tags($page['error_explanation'])."\n\n", ENT_QUOTES, $log_encoding);
-	$settings = array();
+	$settings = [];
 	$settings['subject'] = '('.$status.')';
 	$settings['logfile'] = '['.$status.' '.$_SERVER['REQUEST_URI'].']';
 	switch ($status) {
@@ -466,7 +466,7 @@ function wrap_errorpage_log($status, $page) {
 function wrap_errorpage_ignore($status, $string = false) {
 	global $zz_setting;
 	
-	$files = array();
+	$files = [];
 	if (empty($zz_setting['errors_not_logged_no_defaults'])) {
 		$files[] = $zz_setting['core'].'/errors-not-logged.txt';
 	}
