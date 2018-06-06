@@ -482,47 +482,20 @@ function wrap_check_canonical($zz_page, $page) {
  */
 function wrap_check_canonical_ending($ending, $url) {
 	$new = false;
-	switch ($ending) {
-	case '/':
-		if (substr($url['full']['path'], -5) === '.html') {
-			$new = substr($url['full']['path'], 0, -5);
-		} elseif (substr($url['full']['path'], -4) === '.php') {
-			$new = substr($url['full']['path'], 0, -4);
-		} elseif (substr($url['full']['path'], -1) !== '/') {
-			$new = $url['full']['path'];
-		}
-		if ($new) $new .= '/';
-		break;
-	case '.html':
-	case '.html%3E':
-		if (substr($url['full']['path'], -1) === '/') {
-			$new = substr($url['full']['path'], 0, -1);
-		} elseif (substr($url['full']['path'], -4) === '.php') {
-			$new = substr($url['full']['path'], 0, -4);
-		} elseif (substr($url['full']['path'], -8) === '.html%3E') {
-			$new = substr($url['full']['path'], 0, -8);
-		} elseif (substr($url['full']['path'], -5) !== '.html') {
-			$new = $url['full']['path'];
-		}
-		if ($new) $new .= '.html';
-		break;
-	case 'none':
-	case 'keine':
-		if (substr($url['full']['path'], -5) === '.html') {
-			$new = substr($url['full']['path'], 0, -5);
-		} elseif (substr($url['full']['path'], -1) === '/'
-			AND strlen($url['full']['path']) > 1) {
-			$new = substr($url['full']['path'], 0, -1);
-		} elseif (substr($url['full']['path'], -4) === '.php') {
-			$new = substr($url['full']['path'], 0, -4);
-		}
+	$possible_endings = ['.html', '.html%3E', '.php', '/'];
+	foreach ($possible_endings as $p_ending) {
+		if (!wrap_substr($url['full']['path'], $p_ending, 'end')) continue;
+		if ($p_ending === $ending) return $url;
+		$url['full']['path'] = substr($url['full']['path'], 0, -strlen($p_ending));
+		$new = true;
 		break;
 	}
 	if (!$new) return $url;
-
 	$url['redirect'] = true;
 	$url['redirect_cache'] = true;
-	$url['full']['path'] = $new;
+	if (!in_array($ending, ['none', 'keine'])) {
+		$url['full']['path'] .= $ending;
+	}
 	return $url;
 }
 
