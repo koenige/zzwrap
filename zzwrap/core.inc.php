@@ -551,6 +551,9 @@ function wrap_glue_url($url) {
 	} else {
 		$port = '';
 	}
+	if (!empty($url['path_forwarded']) AND wrap_substr($url['path'], $url['path_forwarded'])) {
+		$url['path'] = substr($url['path'], strlen($url['path_forwarded']));
+	}
 	$full_url = $url['scheme'].'://'.$url['host'].$port.$base
 		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
 	return $full_url;
@@ -1021,6 +1024,15 @@ function wrap_check_request() {
 			$zz_page['url']['full']['path'] = '/';
 			$zz_page['url']['redirect'] = true;
 			$zz_page['url']['redirect_cache'] = false;
+		}
+		if (!empty($_SERVER['HTTP_X_FORWARDED_HOST']) AND !empty($zz_setting['hostname_in_url'])) {
+			$forwarded_host = '/'.$_SERVER['HTTP_X_FORWARDED_HOST'];
+			if ($zz_setting['local_access'] AND substr($forwarded_host, -6) === '.local') {
+				$forwarded_host = substr($forwarded_host, 0, -6);
+			}
+			if (wrap_substr($zz_page['url']['full']['path'], $forwarded_host)) {
+				$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
+			}
 		}
 	}
 
