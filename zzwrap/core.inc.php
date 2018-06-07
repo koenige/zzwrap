@@ -492,12 +492,13 @@ function wrap_check_canonical_ending($ending, $url) {
 		$new = true;
 		break;
 	}
+	if (!in_array($ending, ['none', 'keine'])) {
+		$url['full']['path'] .= $ending;
+		$new = true;
+	}
 	if (!$new) return $url;
 	$url['redirect'] = true;
 	$url['redirect_cache'] = true;
-	if (!in_array($ending, ['none', 'keine'])) {
-		$url['full']['path'] .= $ending;
-	}
 	return $url;
 }
 
