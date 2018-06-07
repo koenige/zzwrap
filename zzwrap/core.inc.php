@@ -481,6 +481,8 @@ function wrap_check_canonical($zz_page, $page) {
  * @return array $url, with new 'path' and 'redirect' set to 1 if necessary
  */
 function wrap_check_canonical_ending($ending, $url) {
+	// no changes for root path
+	if ($url['full']['path'] === '/') return $url;
 	$new = false;
 	$possible_endings = ['.html', '.html%3E', '.php', '/'];
 	foreach ($possible_endings as $p_ending) {
