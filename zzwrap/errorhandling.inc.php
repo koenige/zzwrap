@@ -165,7 +165,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		// add some technical information to mail
 		$foot = false;
 		if (empty($settings['mail_no_request_uri']))
-			$foot .= "\nURL: ".$zz_setting['host_base'].$_SERVER['REQUEST_URI'];
+			$foot .= "\nURL: ".$zz_setting['host_base'].$zz_setting['request_uri'];
 		if (empty($settings['mail_no_ip']))
 			$foot .= "\nIP: ".$zz_setting['remote_ip'];
 		if (empty($settings['mail_no_user_agent']))
@@ -184,7 +184,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			$mail['subject'] = '['.$zz_conf['project'].'] ';
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
-		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$_SERVER['REQUEST_URI'];
+		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$zz_setting['request_uri'];
 		$mail['headers']['X-Originating-Datetime'] = date('Y-m-d H:i:s');
 		wrap_mail($mail);
 		break;
@@ -393,7 +393,7 @@ function wrap_errorpage_log($status, $page) {
 		.strip_tags($page['error_explanation'])."\n\n", ENT_QUOTES, $log_encoding);
 	$settings = [];
 	$settings['subject'] = '('.$status.')';
-	$settings['logfile'] = '['.$status.' '.$_SERVER['REQUEST_URI'].']';
+	$settings['logfile'] = '['.$status.' '.$zz_setting['request_uri'].']';
 	switch ($status) {
 	case 503:
 		$settings['no_return'] = true; // don't exit function again
@@ -403,7 +403,7 @@ function wrap_errorpage_log($status, $page) {
 		if (wrap_errorpage_logignore()) return false;
 		// own error message!
 		$requested = $zz_page['url']['full']['scheme'].'://'
-			.$zz_setting['hostname'].$_SERVER['REQUEST_URI'];
+			.$zz_setting['hostname'].$zz_setting['request_uri'];
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested, 

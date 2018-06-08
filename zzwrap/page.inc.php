@@ -228,7 +228,7 @@ function wrap_get_menu($page) {
 				$menu[$id][$nav_id]['url'] = $base.$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
-				($menu[$id][$nav_id]['url'] === $_SERVER['REQUEST_URI']) ? true : false;
+				($menu[$id][$nav_id]['url'] === $zz_setting['request_uri']) ? true : false;
 			if ($menu[$id][$nav_id]['current_page']) {
 				$page['current_navitem'] = $nav_id;
 				$page['current_menu'] = $id;
@@ -252,7 +252,7 @@ function wrap_get_menu($page) {
 					// all pages are below homepage, don't highlight this
 					$menu[$id][$nav_id]['below'] = false;
 				} else {
-					$menu[$id][$nav_id]['below'] = (substr($_SERVER['REQUEST_URI'], 0, strlen($item['url'])) === $item['url']) ? true : false;
+					$menu[$id][$nav_id]['below'] = (substr($zz_setting['request_uri'], 0, strlen($item['url'])) === $item['url']) ? true : false;
 				}
 			}
 			if ($menu[$id][$nav_id]['below'] OR $menu[$id][$nav_id]['current_page']) {
@@ -680,7 +680,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($paths as $path) {
 			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
 		}
-		$current = ($base.$crumb['url_path'] === $_SERVER['REQUEST_URI'] ? true : false);
+		$current = ($base.$crumb['url_path'] === $zz_setting['request_uri'] ? true : false);
 		$formatted_breadcrumbs[] = 
 			(($current OR !$crumb['url_path'])
 				? '<strong>' : '<a href="'.$base.$crumb['url_path'].'">')
@@ -913,7 +913,7 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 	if ($cache AND !empty($zz_setting['cache'])
 		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
 		// provide cache URL since internal URL might already be rewritten
-		wrap_cache_ressource('', '', $zz_setting['host_base'].$_SERVER['REQUEST_URI']);
+		wrap_cache_ressource('', '', $zz_setting['host_base'].$zz_setting['request_uri']);
 	}
 	header($header);
 	exit;

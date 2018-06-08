@@ -242,6 +242,9 @@ function wrap_set_defaults_pre_conf() {
 
 	// base URL, e. g. for languages
 	$zz_setting['base'] = '';
+	
+	// request URI
+	$zz_setting['request_uri'] = $_SERVER['REQUEST_URI'];
 
 // -------------------------------------------------------------------------
 // HTTP

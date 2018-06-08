@@ -463,7 +463,7 @@ function wrap_check_canonical($zz_page, $page) {
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
 			if (!wrap_errorpage_ignore('qs', $param)) {
 				wrap_error(sprintf('Wrong URL: query string %s=%s [%s], Referer: %s'
-					, $param, $param_value, $_SERVER['REQUEST_URI']
+					, $param, $param_value, $zz_setting['request_uri']
 					, isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '--'
 				), E_USER_NOTICE);
 			}
@@ -1017,7 +1017,7 @@ function wrap_check_request() {
 	// Base URL, allow it to be set manually (handle with care!)
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
 	if (empty($zz_page['url']['full'])) {
-		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$_SERVER['REQUEST_URI']);
+		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$zz_setting['request_uri']);
 		// in case, some script requests GET ? HTTP/1.1 or so:
 		if (empty($zz_page['url']['full']['path'])) {
 			$zz_page['url']['full']['path'] = '/';
@@ -1031,6 +1031,7 @@ function wrap_check_request() {
 			}
 			if (wrap_substr($zz_page['url']['full']['path'], $forwarded_host)) {
 				$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
+				$zz_setting['request_uri'] = substr($zz_setting['request_uri'], strlen($forwarded_host));
 			}
 		}
 	}
