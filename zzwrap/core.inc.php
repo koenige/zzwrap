@@ -484,7 +484,7 @@ function wrap_check_canonical_ending($ending, $url) {
 	// no changes for root path
 	if ($url['full']['path'] === '/') return $url;
 	$new = false;
-	$possible_endings = ['.html', '.html%3E', '.php', '/'];
+	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E'];
 	foreach ($possible_endings as $p_ending) {
 		if (!wrap_substr($url['full']['path'], $p_ending, 'end')) continue;
 		if ($p_ending === $ending) return $url;
@@ -521,15 +521,11 @@ function wrap_read_url($url) {
 	if (substr($url['db'], 0, 1) === '/') {
 		$url['db'] = substr($url['db'], 1);
 	}
-	if (substr($url['db'], -1) === '/') {
-		$url['db'] = substr($url['db'], 0, -1);
-	}
-	if (substr($url['db'], -5) === '.html') {
-		$url['db'] = substr($url['db'], 0, -5);
-	} elseif (substr($url['db'], -8) === '.html%3E') {
-		$url['db'] = substr($url['db'], 0, -8);
-	} elseif (substr($url['db'], -4) === '.php') {
-		$url['db'] = substr($url['db'], 0, -4);
+	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E'];
+	foreach ($possible_endings as $p_ending) {
+		if (substr($url['db'], -strlen($p_ending)) !== $p_ending) continue;
+		$url['db'] = substr($url['db'], 0, -strlen($p_ending));
+		break; // just one!
 	}
 	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
 		if (substr($url['db'], -$url['suffix_length']) === '.html.'.$_GET['lang']) {
