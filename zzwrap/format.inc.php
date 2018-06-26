@@ -775,3 +775,54 @@ function wrap_time($time, $format = false) {
 	if (empty($format)) $format = 'H:i';
 	return date($format, strtotime($time));
 }
+
+/**
+ * format a duration
+ *
+ * @param int $duration duration
+ * @param string $unit (optional) unit of duration, defaults to 'second'
+ */
+function wrap_duration($duration, $unit = 'second') {
+	$data = [
+		'year' => 0, 'week' => 0, 'day' => 0,
+		'hour' => 0, 'minute' => 0, 'second' => 0
+	];
+	$seconds = [
+		'year' => 86400*365, 'week' => 86400*7, 'day' => 86400,
+		'hour' => 3600, 'minute' => 60, 'second' => 0
+	];
+	if ($unit !== 'second') {
+		if (!in_array($unit, array_keys($seconds))) {
+			wrap_error('Unit %s not recognized for calculating duration.');
+			return $duration;
+		}
+		$duration *= $seconds[$unit];
+	}
+	switch (true) {
+		case $duration >= $seconds['year']:
+			$data['year'] = intval(floor($duration / $seconds['year']));
+			$duration -= $data['year'] * $seconds['year'];
+		case $duration >= $seconds['week']:
+			$data['week'] = intval(floor($duration / $seconds['week']));
+			$duration -= $data['week'] * $seconds['week'];
+		case $duration >= $seconds['day']:
+			$data['day'] = intval(floor($duration / $seconds['day']));
+			$duration -= $data['day'] * $seconds['day'];
+		case $duration >= $seconds['hour']:
+			$data['hour'] = intval(floor($duration / $seconds['hour']));
+			$duration -= $data['hour'] * $seconds['hour'];
+		case $duration >= $seconds['minute']:
+			$data['minute'] = intval(floor($duration / $seconds['minute']));
+			$duration -= $data['minute'] * $seconds['minute'];
+		default:
+			$data['second'] = $duration;
+			break;
+	}
+	$out = [];
+	foreach ($data as $type => $count) {
+		if (!$count) continue;
+		if ($count === 1) $out[] = wrap_text('1 '.$type);
+		else $out[] = sprintf(wrap_text('%d '.$type.'s'), $count);
+	}
+	return implode(', ', $out);
+}
