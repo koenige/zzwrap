@@ -247,13 +247,6 @@ function wrap_look_for_page($zz_page) {
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
 	// sometimes, bots add second / to URL, remove and redirect
-	if (wrap_substr($url['db'], '/')) {
-		$url['db'] = substr($url['db'], 1);
-		global $zz_page;
-		$zz_page['url']['full']['path'] = substr($zz_page['url']['full']['path'], 1);
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
-	}
 	$full_url[0] = $url['db'];
 
 	list($full_url, $leftovers) = wrap_look_for_placeholders($zz_page, $full_url);
@@ -431,11 +424,6 @@ function wrap_check_canonical($zz_page, $page) {
 		// if brick_format() returns a page ending, use this
 		if (isset($page['url_ending'])) $ending = $page['url_ending'];
 		$zz_page['url'] = wrap_check_canonical_ending($ending, $zz_page['url']);
-	}
-	if ($zz_page['url']['full']['path'] === '//') {
-		$zz_page['url']['full']['path'] = '/';
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
 	}
 
 	$types = ['query_strings', 'query_strings_redirect'];
@@ -1018,9 +1006,15 @@ function wrap_check_request() {
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
 	if (empty($zz_page['url']['full'])) {
 		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$zz_setting['request_uri']);
-		// in case, some script requests GET ? HTTP/1.1 or so:
 		if (empty($zz_page['url']['full']['path'])) {
+			// in case, some script requests GET ? HTTP/1.1 or so:
 			$zz_page['url']['full']['path'] = '/';
+			$zz_page['url']['redirect'] = true;
+			$zz_page['url']['redirect_cache'] = false;
+		} elseif (strstr($zz_page['url']['full']['path'], '//')) {
+			// replace duplicate slashes for getting path, some bots add one
+			// redirect later if content was found
+			$zz_page['url']['full']['path'] = str_replace('//', '/', $zz_page['url']['full']['path']);
 			$zz_page['url']['redirect'] = true;
 			$zz_page['url']['redirect_cache'] = false;
 		}
