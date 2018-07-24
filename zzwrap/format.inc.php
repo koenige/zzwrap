@@ -429,6 +429,9 @@ function wrap_number($number, $format = false) {
 			}
 		}
 		return $output;
+	case 'two-decimal-places':
+		$output = number_format($number, 2, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+		return $output;
 	case 'simple':
 		if (strstr($number, '.')) {
 			$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
