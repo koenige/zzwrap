@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2012-2017 Gustaf Mossakowski
+# @copyright Copyright © 2012-2018 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 # 
 # begin = check if begin of string is identical; end = check end; all: check full
@@ -152,6 +152,9 @@
 
 # The real GoogleBot does not use this referer
 404	referer	http://www.googlebot.com/bot.html
+
+# There is no Google.com without www
+404	referer	https://google.com
 
 # Trackback-Spam, normally with POST
 404	end	/trackback/
