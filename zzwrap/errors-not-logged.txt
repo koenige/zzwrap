@@ -96,6 +96,10 @@
 404	all	/data/admin/ver.txt
 404	all	/templets/default/style/dedecms.css
 
+# ModX
+404	end	/connectors/system/phpthumb.php
+503	end	/connectors/system/phpthumb.php
+
 # Discuz X
 404	all	/template/default/common/footer.htm
 
