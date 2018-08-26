@@ -254,13 +254,13 @@ function wrap_date($date, $format = false) {
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
 			$output = wrap_date_format($begin, $set, 'noyear')
-				.'&#8203;'.$bis.wrap_date_format($end, $set, $type);
+				.$bis.wrap_date_format($end, $set, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
 			// 2004-00-00 2005-00-00 = 2004-2005
 			// 31.12.2004-06.01.2005
 			$output = wrap_date_format($begin, $set, $type)
-				.'&#8203;'.$bis.wrap_date_format($end, $set, $type);
+				.$bis.wrap_date_format($end, $set, $type);
 		}
 		return $output;
 	case 'datetime':
