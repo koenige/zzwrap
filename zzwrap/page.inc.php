@@ -151,11 +151,9 @@ function wrap_template_file($template, $show_error = true) {
 function wrap_template_file_per_folder($template, $folder) {
 	global $zz_setting;
 	if (!empty($zz_setting['lang'])) {
-		if (!empty($zz_setting['language_variations'])) {
-			foreach ($zz_setting['language_variations'] as $variation) {
-				$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'-'.$variation.'.template.txt';
-				if (file_exists($tpl_file)) return $tpl_file;
-			}
+		if (!empty($zz_setting['language_variation'])) {
+			$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'-'.$zz_setting['language_variation'].'.template.txt';
+			if (file_exists($tpl_file)) return $tpl_file;
 		}
 		$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
 		if (file_exists($tpl_file)) return $tpl_file;
