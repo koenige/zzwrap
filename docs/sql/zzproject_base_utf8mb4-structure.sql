@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.21, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8mb4
 -- ------------------------------------------------------
--- Server version	5.7.21
+-- Server version	5.7.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -244,9 +244,10 @@ CREATE TABLE `languages` (
   `language_de` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `language_en` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `language_fr` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `variation` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`language_id`),
-  UNIQUE KEY `iso_639_2t` (`iso_639_2t`),
+  UNIQUE KEY `iso_639_2t_variation` (`iso_639_2t`,`variation`),
   KEY `website` (`website`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
