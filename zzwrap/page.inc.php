@@ -98,14 +98,8 @@ function wrap_template($template, $data = [], $mode = false) {
 function wrap_template_file($template, $show_error = true) {
 	global $zz_setting;
 	
-	$found = [];
-	if (!empty($zz_setting['lang'])) {
-		$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
-		if (file_exists($tpl_file)) return $tpl_file;
-	}
-
-	$tpl_file = $zz_setting['custom_wrap_template_dir'].'/'.$template.'.template.txt';
-	if (file_exists($tpl_file)) return $tpl_file;
+	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['custom_wrap_template_dir']);
+	if ($tpl_file) return $tpl_file;
 
 	// check if there's a module template
 	if (strstr($template, '/')) {
@@ -118,19 +112,11 @@ function wrap_template_file($template, $show_error = true) {
 	} else {
 		$my_module = '';
 	}
+	$found = [];
 	foreach ($zz_setting['modules'] as $module) {
 		if ($my_module AND $module !== $my_module) continue;
-		$lang_var_exists = false;
-		if (!empty($zz_setting['lang'])) {
-			$tpl_file = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'-'.$zz_setting['lang'].'.template.txt';
-			if ($lang_var_exists = file_exists($tpl_file)) {
-				$found[] = $tpl_file;
-			}
-		}
-		if (!$lang_var_exists) {
-			$tpl_file = $zz_setting['modules_dir'].'/'.$module.'/templates/'.$template.'.template.txt';
-			if (file_exists($tpl_file)) $found[] = $tpl_file;
-		}
+		$tpl_file = wrap_template_file_per_folder($template, $zz_setting['modules_dir'].'/'.$module.'/templates');
+		if ($tpl_file) $found[] = $tpl_file;
 	}
 	if (count($found) !== 1) {
 		if (!$show_error) return false;
@@ -150,6 +136,27 @@ function wrap_template_file($template, $show_error = true) {
 		$tpl_file = $found[0];
 	}
 	return $tpl_file;
+}
+
+/**
+ * Checks per folder (templates, modules/templates) if there's a template
+ * in that folder; checks for languages
+ * and at last for templates without language information
+ *
+ * @param string $template
+ * @param string $folder
+ * @global array $zz_setting
+ * @return string $filename
+ */
+function wrap_template_file_per_folder($template, $folder) {
+	global $zz_setting;
+	if (!empty($zz_setting['lang'])) {
+		$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
+		if (file_exists($tpl_file)) return $tpl_file;
+	}
+	$tpl_file = $folder.'/'.$template.'.template.txt';
+	if (file_exists($tpl_file)) return $tpl_file;
+	return '';
 }
 
 /**
