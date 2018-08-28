@@ -140,7 +140,7 @@ function wrap_template_file($template, $show_error = true) {
 
 /**
  * Checks per folder (templates, modules/templates) if there's a template
- * in that folder; checks for languages
+ * in that folder; checks first for language variations, then for languages
  * and at last for templates without language information
  *
  * @param string $template
@@ -151,6 +151,12 @@ function wrap_template_file($template, $show_error = true) {
 function wrap_template_file_per_folder($template, $folder) {
 	global $zz_setting;
 	if (!empty($zz_setting['lang'])) {
+		if (!empty($zz_setting['language_variations'])) {
+			foreach ($zz_setting['language_variations'] as $variation) {
+				$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'-'.$variation.'.template.txt';
+				if (file_exists($tpl_file)) return $tpl_file;
+			}
+		}
 		$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
 		if (file_exists($tpl_file)) return $tpl_file;
 	}
