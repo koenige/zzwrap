@@ -477,11 +477,24 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		$data_ids_flat = array_unique($data_ids);
 		$sql = sprintf($translation_sql, $field_type, implode(',', array_keys($fields)), 
 			implode(',', $data_ids_flat), $target_language);
-		$translations = wrap_db_fetch($sql, 'translation_id');
+		$main_language_sql = $sql . ' AND ISNULL(variation)';
+		$translations = wrap_db_fetch($main_language_sql, 'translation_id');
 		if (!$translations) continue;
+
+		if (!empty($zz_setting['language_variation'])) {
+			$variation_language_sql = $sql . sprintf(' AND variation = "%s"', $zz_setting['language_variation']);
+			$variations = wrap_db_fetch($variation_language_sql, 'translation_id');
+		} else {
+			$variations = [];
+		}
 
 		// merge $translations into $data
 		foreach ($translations as $tl) {
+			foreach ($variations as $variation) {
+				if ($variation['field_id'] !== $tl['field_id']) continue;
+				if ($variation['translationfield_id'] !== $tl['translationfield_id']) continue;
+				$tl['translation'] = $variation['translation'];
+			}
 			$field_name = $fields[$tl['translationfield_id']]['field_key'];
 			$tl_ids = [];
 			if (!$foreign_key_field_name) {
