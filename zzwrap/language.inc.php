@@ -217,10 +217,22 @@ function wrap_text($string, $target_language = '') {
 			if ($module === 'zzform' AND $language !== 'en')
 				$files[] = $modules_dir.'/'.$module.'-en.po';
 			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
+			if (!empty($zz_setting['language_variations'])) {
+				foreach ($zz_setting['language_variations'] as $variant) {
+					$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.$variant.'.po';
+				}
+			}
 		}
 		// standard translated text 
-		$files[] = 	$zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
-		$files[] = 	$zz_setting['custom_wrap_dir'].'/text-'.$language.'.po';
+		$files[] = $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
+		$files[] = $zz_setting['custom_wrap_dir'].'/text-'.$language.'.po';
+		if (!empty($zz_setting['language_variations'])) {
+			// language variantes contain only some translations
+			// and are added on top of the existing translations
+			foreach ($zz_setting['language_variations'] as $variant) {
+				$files[] = $zz_setting['custom_wrap_dir'].'/text-'.$language.'-'.$variant.'.po';
+			}
+		}
 
 		foreach ($files as $file) {
 			if (substr($file, -3) === '.po') {
