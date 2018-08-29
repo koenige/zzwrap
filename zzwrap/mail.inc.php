@@ -31,6 +31,9 @@ function wrap_mail($mail) {
 	global $zz_conf;
 	global $zz_setting;
 
+	// headers in message?
+	$mail = wrap_mail_headers($mail);
+
 	// To
 	$mail['to'] = wrap_mail_name($mail['to']);
 
@@ -108,6 +111,38 @@ function wrap_mail($mail) {
 	}
 	$zz_conf['error_handling'] = $old_error_handling;
 	return true;
+}
+
+/**
+ * look for headers at the top of message
+ * empty line stops searching, unknown header as well
+ * syntax: Header: Value
+ *
+ * @param array $mail
+ * @return array
+ */
+function wrap_mail_headers($mail) {
+	$headers = [
+		'Date', 'To', 'Reply-To', 'Subject', 'From', 'User-Agent',
+		'MIME-Version', 'Content-Type', 'Content-Transfer-Encoding'
+	];
+	$lines = explode("\n", $mail['message']);
+	foreach ($lines as $index => $line) {
+		if (!trim($line)) {
+			unset($lines[$index]);
+			break;
+		}
+		if (!preg_match('~([A-Za-z-]+): (.*)~', $line, $matches)) break;
+		if (!in_array($matches[1], $headers) AND substr($matches[1], 0, 2) !== 'X-') break;
+		if (in_array($matches[1], ['To', 'Subject'])) {
+			$mail[strtolower($matches[1])] = trim($matches[2]);
+		} else {
+			$mail['headers'][$matches[1]] = trim($matches[2]);
+		}
+		unset($lines[$index]);
+	}
+	$mail['message'] = implode("\n", $lines);
+	return $mail;
 }
 
 /**
