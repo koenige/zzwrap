@@ -252,3 +252,6 @@ qs	string	utm_content
 
 # unknown
 404	end	/&wd=test
+
+# spammers trying to promote their URLs via 404s
+404	end	/SOS-Admin-Help
