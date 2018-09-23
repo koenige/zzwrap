@@ -252,6 +252,11 @@ qs	string	utm_content
 
 # unknown
 404	end	/&wd=test
+404	end	/user/swfupload.asp
 
 # spammers trying to promote their URLs via 404s
 404	end	/SOS-Admin-Help
+
+# some installation routine?
+404	end	/da.php
+404	end	/install.php?finish=1
