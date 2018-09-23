@@ -555,6 +555,8 @@ function wrap_syndication_http_header($which, $headers) {
  * @return string
  */
 function wrap_syndication_http_post($data) {
+	// not an array: string is already URL encoded
+	if (!is_array($data)) return $data;
 	$postdata = [];
 	foreach ($data as $key => $value) {
 		$postdata[] = urlencode($key).'='.urlencode($value);
