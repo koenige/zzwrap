@@ -432,7 +432,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		foreach ($headers as $header) {
 			if (wrap_substr($header, 'HTTP/')) {
 				$status = explode(' ', $header);
-				$status = $status[1];
+				$status = intval($status[1]);
 			}
 		}
 	} else {
