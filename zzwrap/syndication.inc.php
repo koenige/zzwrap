@@ -691,6 +691,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	global $zz_setting;
 	require_once $zz_setting['core'].'/file.inc.php';
 	$logfile = $zz_setting['log_dir'].'/watchdog.log';
+	if (!file_exists($logfile)) touch($logfile);
 
 	if (wrap_substr($source, 'http://')
 		OR wrap_substr($source, 'https://')) {
@@ -760,9 +761,14 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		$dir = dirname($url['path']);
 		$success = @ftp_chdir($ftp_stream, $dir);
 		if (!$success) {
-			// @todo create upper dirs as well
-			ftp_mkdir($ftp_stream, $dir);
-			$success = @ftp_chdir($ftp_stream, $dir);
+			// check folder hierarchy if all folders exist, top to bottom
+			$folders = explode('/', substr($dir, 1));
+			$my_dir = '';
+			foreach ($folders as $folder) {
+				$my_dir .= '/'.$folder;
+				$success = @ftp_chdir($ftp_stream, $my_dir);
+				if (!$sucess) ftp_mkdir($ftp_stream, $my_dir);
+			}
 		}
 		if (!$success) {
 			wrap_error(sprintf(
@@ -771,6 +777,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			));
 			return false;
 		}
+		ftp_pasv($ftp_stream, true);
 		ftp_put($ftp_stream, basename($url['path']), $source_file, FTP_BINARY);
 		ftp_close($ftp_stream);
 	} else {
