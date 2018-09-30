@@ -262,4 +262,4 @@ qs	string	utm_content
 404	end	/install.php?finish=1
 
 # unknown, but zealous (?author=1 up to ?author=15)
-404	qs	author
+qs	string	author
