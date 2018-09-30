@@ -260,3 +260,6 @@ qs	string	utm_content
 # some installation routine?
 404	end	/da.php
 404	end	/install.php?finish=1
+
+# unknown, but zealous (?author=1 up to ?author=15)
+404	qs	author
