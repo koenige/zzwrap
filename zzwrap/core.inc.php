@@ -1298,8 +1298,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	switch ($type) {
 	case 'html':
 		$zz_page['content_type'] = 'text/html';
-		if (!empty($zz_conf['character_set']))
-			$zz_page['character_set'] = $zz_conf['character_set'];
+		$zz_page['character_set'] = $zz_conf['character_set'];
 		break;
 	case 'json':
 		$zz_page['content_type'] = 'application/json';
@@ -1313,8 +1312,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		break;
 	case 'js':
 		$zz_page['content_type'] = 'application/javascript';
-		if (!empty($zz_conf['character_set']))
-			$zz_page['character_set'] = $zz_conf['character_set'];
+		$zz_page['character_set'] = $zz_conf['character_set'];
 		break;
 	case 'kml':
 		$zz_page['content_type'] = 'application/vnd.google-earth.kml+xml';
