@@ -232,7 +232,8 @@ function wrap_date($date, $format = false) {
 				break;
 		}
 	}
-	$bis = '&#8239;–&#8239;';
+	// decode HTML entities as this function can be used for mails as well
+	$bis = html_entity_decode('&#8239;–&#8239;');
 	switch ($output_format) {
 	case 'dates':
 		if (!$end) {
