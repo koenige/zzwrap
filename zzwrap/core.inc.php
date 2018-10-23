@@ -1270,7 +1270,9 @@ function wrap_file_cleanup($file) {
  * @param string $text content to be sent
  * @param string $type (optional, default html) HTTP content type
  * @param int $status (optional, default 200) HTTP status code
- * @param array $headers (optional) further HTTP headers
+ * @param array $headers (optional):
+ *		'filename': download filename
+ *		'character_set': character encoding
  * @global array $zz_conf
  * @global array $zz_setting
  * @return void
@@ -1310,6 +1312,11 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		$zz_page['character_set'] = 'utf-8';
 		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.jsonl';
 		break;
+	case 'geojson':
+		$zz_page['content_type'] = 'application/javascript'; // geo+json currently not widely supported as of 2018
+		$zz_page['character_set'] = 'utf-8';
+		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.geojson';
+		break;
 	case 'js':
 		$zz_page['content_type'] = 'application/javascript';
 		$zz_page['character_set'] = $zz_conf['character_set'];
@@ -1332,6 +1339,12 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		$zz_page['character_set'] = $zz_conf['character_set'];
 		break;
 	case 'csv':
+		if (!empty($_SERVER['HTTP_USER_AGENT']) 
+			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
+		{
+			wrap_cache_header('Cache-Control: max-age=1'); // in seconds
+			wrap_cache_header('Pragma: public');
+		}
 		$zz_page['content_type'] = 'text/csv';
 		$zz_page['character_set'] = !empty($headers['character_set']) ? $headers['character_set'] : $zz_conf['character_set'];
 		if ($zz_page['character_set'] === 'utf-16le') {
