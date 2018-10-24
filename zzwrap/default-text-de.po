@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.6\n"
+"X-Generator: Poedit 1.8.12\n"
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
@@ -43,12 +43,12 @@ msgid "Forgotten Password"
 msgstr "Vergessenes Passwort"
 
 #: library/zzwrap/auth.inc.php
-msgid "Link für Login ist falsch oder abgelaufen."
-msgstr ""
+msgid "Link for login is wrong or out of date."
+msgstr "Der Link fürs Login ist falsch oder abgelaufen."
 
 #: library/zzwrap/auth.inc.php
-msgid "Bitte besorgen Sie sich einen neuen."
-msgstr ""
+msgid "Please get a new one."
+msgstr "Bitte besorgen Sie sich einen neuen."
 
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
