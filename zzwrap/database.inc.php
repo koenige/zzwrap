@@ -206,6 +206,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		2006,	// MySQL server has gone away
 		2008	// MySQL client ran out of memory
 	];
+	$error_msg = mysqli_error($zz_conf['db_connection']);
 	if (in_array(mysqli_errno($zz_conf['db_connection']), $close_connection_errors)) {
 		mysqli_close($zz_conf['db_connection']);
 		$zz_conf['db_connection'] = NULL;
@@ -213,11 +214,11 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	
 	if (function_exists('wrap_error') AND !$warnings) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
-			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", mysqli_error($zz_conf['db_connection']), $sql), $error);
+			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
 	} else {
 		if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] === 'output') {
 			global $zz_page;
-			$zz_page['error_msg'] = '<p class="error">'.mysqli_error($zz_conf['db_connection']).'<br>'.$sql.'</p>';
+			$zz_page['error_msg'] = '<p class="error">'.$error_msg.'<br>'.$sql.'</p>';
 		}
 	}
 	return false;	
