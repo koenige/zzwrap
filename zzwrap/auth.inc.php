@@ -52,7 +52,7 @@ function wrap_auth($force = false) {
 
 	// send header for IE for P3P (Platform for Privacy Preferences Project)
 	// if cookie is needed
-	header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
+	header('P3P: CP="This site does not have a p3p policy."');
 
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
@@ -333,7 +333,7 @@ function cms_login($params, $settings = []) {
 	} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' OR $login['different_sign_on']) {
 		// send header for IE for P3P (Platform for Privacy Preferences Project)
 		// if cookie is needed
-		header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"');
+		header('P3P: CP="This site does not have a p3p policy."');
 
 		$try_login = true;
 		
