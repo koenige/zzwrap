@@ -884,7 +884,7 @@ function wrap_edit_sql_fieldnames($fields) {
  * $zz_sql['page_id'] Name of ID field in webpages-table
  * $zz_sql['authors'] person_id = ID, person = name of author
  * @param string $key
- * @param string $mode (optional: get(default), set, add)
+ * @param string $mode (optional: get(default), set, add, overwrite)
  * @return mixed true: set was succesful; string: SQL query or field name 
  *		corresponding to $key
  */
@@ -1007,6 +1007,10 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql[$key][] = $value;
 			return true;
 		}
+		return false;
+	case 'overwrite':
+		$zz_sql[$key] = $value;
+		return true;
 	default:
 		return false;	
 	}
