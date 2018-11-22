@@ -205,18 +205,22 @@ function wrap_date($date, $format = false) {
 	if (substr($output_format, -6) == '-short') {
 		$output_format = substr($output_format, 0, -6);
 		$type = 'short';
+	} elseif (substr($output_format, -5) == '-long') {
+		$output_format = substr($output_format, 0, -5);
+		$type = 'long';
 	}
 	if (substr($output_format, 0, 6) == 'dates-') {
 		$lang = substr($output_format, 6);
 		$output_format = 'dates';
 		switch ($lang) {
 			case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
-				$set['months_if_no_day'] = [
+				$set['months_if_no_day'] = $set['months_long'] = [
 					1 => 'Januar', 2 => 'Februar', 3 => 'März', 4 => 'April',
 					5 => 'Mai', 6 => 'Juni', 7 => 'Juli', 8 => 'August',
 					9 => 'September', 10 => 'Oktober', 11 => 'November',
 					12 => 'Dezember'
 				];
+				if ($type === 'long') $set['sep'] = ['. ', ' '];
 				break; // dd.mm.yyyy
 			case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
 				break; // dd-mm-yyyy
@@ -226,10 +230,21 @@ function wrap_date($date, $format = false) {
 					6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct',
 					11 => 'Nov', 12 => 'Dec'
 				];
+				$set['months_long'] = [
+					1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+					5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+					9 => 'September', 10 => 'October', 11 => 'November',
+					12 => 'December'
+				];
 				break; // dd/mm/yyyy
 			default:
 				wrap_error(sprintf('Language %s currently not supported', $lang));
 				break;
+		}
+	}
+	if (!empty($set)) {
+		if (!is_array($set['sep']) OR count($set['sep']) !== 2) {
+			$set['sep'][0] = $set['sep'][1] = $set['sep'];
 		}
 	}
 	// decode HTML entities as this function can be used for mails as well
@@ -249,12 +264,12 @@ function wrap_date($date, $format = false) {
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
 			// 12.-14.03.2004
-			$output = substr($begin, 8).$set['sep'].$bis
+			$output = substr($begin, 8).$set['sep'][0].$bis
 				.wrap_date_format($end, $set, $type);
 		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 			AND substr($begin, 7) !== '-00') {
 			// 12.04.-13.05.2004
-			$output = wrap_date_format($begin, $set, 'noyear')
+			$output = wrap_date_format($begin, $set, 'noyear'.($type === 'long' ? '-long' : ''))
 				.$bis.wrap_date_format($end, $set, $type);
 		} else {
 			// 2004-03-00 2005-04-00 = 03.2004-04.2005
@@ -283,10 +298,10 @@ function wrap_date($date, $format = false) {
  * 
  * @param string $date e. g. 2004-05-31
  * @param array $set settings:
- * 	string 'sep' separator
+ * 	array 'sep' separator
  * 	string 'order' 'DMY', 'YMD', 'MDY'
  *  array 'months'
- * @param string $type 'standard', 'short', 'noyear'
+ * @param string $type 'standard', 'long', 'short', 'noyear', 'noyear-long'
  */
 function wrap_date_format($date, $set, $type = 'standard') {
 	if (!$date) return '';
@@ -297,31 +312,35 @@ function wrap_date_format($date, $set, $type = 'standard') {
 	}
 	switch ($type) {
 		case 'short': $year = substr($year, -2); break;
-		case 'noyear': $year = ''; break;		
+		case 'noyear': case 'noyear-long': $year = ''; break;
 	}
 	if ($day === '00' AND $month === '00') {
 		return $year;
 	}
-	if (!empty($set['months'])) {
-		$month = $set['months'][intval($month)];
-	}
-	if ($day === '00' AND !empty($set['months_if_no_day'])) {
-		return $set['months_if_no_day'][intval($month)].' '.$year;
+	if (in_array($type, ['long', 'noyear-long']) AND !empty($set['months_long'])) {
+		$month = $set['months_long'][intval($month)];
+	} else {
+		if (!empty($set['months'])) {
+			$month = $set['months'][intval($month)];
+		}
+		if ($day === '00' AND !empty($set['months_if_no_day'])) {
+			return $set['months_if_no_day'][intval($month)].' '.$year;
+		}
 	}
 	switch ($set['order']) {
 	case 'DMY':
-		if ($set['sep'] === '.') {
+		if ($set['sep'][0] === '.' AND $set['sep'][1] === '.') {
 			// let date without year end with dot
-			$date = ($day === '00' ? '' : $day.$set['sep']).$month.$set['sep'].$year;
+			$date = ($day === '00' ? '' : $day.$set['sep'][0]).$month.$set['sep'][1].$year;
 		} else {
-			$date = ($day === '00' ? '' : $day.$set['sep']).$month.($year !== '' ? $set['sep'].$year : '');
+			$date = ($day === '00' ? '' : $day.$set['sep'][0]).$month.($year !== '' ? $set['sep'][1].$year : '');
 		}
 		break;
 	case 'YMD':
-		$date = ($year !== '' ? $year.$set['sep'] : '').$month.($day === '00' ? '' : $set['sep'].$day);
+		$date = ($year !== '' ? $year.$set['sep'][0] : '').$month.($day === '00' ? '' : $set['sep'][1].$day);
 		break;
 	case 'MDY':
-		$date = $month.($day === '00' ? '' : $set['sep'].$day).($year !== '' ? $set['sep'].$year : '');
+		$date = $month.($day === '00' ? '' : $set['sep'][0].$day).($year !== '' ? $set['sep'][1].$year : '');
 		break;
 	}
 	return $date;
