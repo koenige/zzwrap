@@ -506,13 +506,13 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		}
 		
 		// get submenu if there is one and if it shall be shown
-		$fn_prefix = ($fn_page_id === 'nav_id' ? '' : $item['menu'].'-');
-		if (!empty($nav[$fn_prefix.$item[$fn_page_id]]) // there is a submenu and at least one of:
+		$id = ($fn_page_id === 'nav_id' ? '' : $item['menu'].'-');
+		$id .= $item[$fn_page_id];
+		if (!empty($nav[$id]) // there is a submenu and at least one of:
 			AND ($zz_setting['menu_display_submenu_items'] !== 'none')
 			AND ($zz_setting['menu_display_submenu_items'] === 'all' 	// all menus shall be shown
 				OR $item['current_page'] 	// it's the submenu of the current page
 				OR $item['below'])) {		// it has a url one or more levels below this page
-			$id = $fn_prefix.$item[$fn_page_id];
 			$item['submenu_rows'] = count($nav[$id]);
 			$item['submenu'] = wrap_htmlout_menu($nav, $id, false, $level + 1, $avoid_duplicates);
 		}
