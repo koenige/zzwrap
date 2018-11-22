@@ -506,8 +506,17 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		}
 		
 		// get submenu if there is one and if it shall be shown
-		$id = ($fn_page_id === 'nav_id' ? '' : $item['menu'].'-');
-		$id .= $item[$fn_page_id];
+		$id = ($fn_page_id === 'nav_id' ? '' : $item['menu']);
+		if (!empty($item['top_ids'])) {
+			// create ID for menus level 3 and downwards
+			$top_id = explode('-', $id);
+			if (in_array(array_pop($top_id), explode('-', $item['top_ids']))) {
+				// if ID is somewhere in top_ids, remove it
+				$id = implode('-', $top_id);
+			}
+			$id .= ($id ? '-' : '').$item['top_ids'];
+		}
+		$id .= ($id ? '-' : '').$item[$fn_page_id];
 		if (!empty($nav[$id]) // there is a submenu and at least one of:
 			AND ($zz_setting['menu_display_submenu_items'] !== 'none')
 			AND ($zz_setting['menu_display_submenu_items'] === 'all' 	// all menus shall be shown
