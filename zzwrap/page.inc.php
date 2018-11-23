@@ -261,6 +261,7 @@ function wrap_get_menu($page) {
 				if (!isset($previous_section)) {
 					$previous_section = $item['section'];
 				} elseif ($previous_section !== $item['section']) {
+					$menu[$id][$nav_id]['spacer'] = true;
 					$item['class'][] = 'menuspacer';
 					$previous_section = $item['section'];
 				}
@@ -534,10 +535,12 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 			$item['submenu_rows'] = count($nav[$id]);
 			$item['submenu'] = wrap_htmlout_menu($nav, $id, false, $level + 1, $avoid_duplicates);
 		}
+		$item['menu_'.$menu_name] = true;
 		$menu[] = $item;
 	}
 	$menu['pos'] = !empty($nav[$menu_name]['pos']) ? $nav[$menu_name]['pos'] : false;
 	$menu['level'] = $level;
+	$menu['menu_'.$menu_name] = true;
 	if ($level) $menu['is_submenu'] = true;
 	$output = wrap_template('menu', $menu);
 	if ($avoid_duplicates) {
