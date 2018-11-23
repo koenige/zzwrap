@@ -237,6 +237,7 @@ function wrap_get_menu($page) {
 	foreach (array_keys($menu) as $id) {
 		// $i to know which is the first-child, some old browsers don't support :first-child in CSS
 		$i = 0;
+		unset($previous_section);
 		foreach ($menu[$id] as $nav_id => $item) {
 			// class?
 			if (empty($item['class'])) $item['class'] = [];
