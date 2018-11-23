@@ -1039,13 +1039,24 @@ function wrap_htmlout_page($page) {
 			$page['nav_'.$menu] = wrap_htmlout_menu($page['nav_db'], $menu);
 		}
 	}
-	if (strstr($page['text'], '<p>%%%') AND strstr($page['text'], '%%%</p>')) {
+	if (!is_array($page['text'])) $textblocks = ['text' => $page['text']];
+	else $textblocks = $page['text'];
+	unset($page['text']);
+	foreach ($textblocks as $position => $text) {
+		// do not overwrite other keys
+		if ($position !== 'text') $position = 'text_'.$position;
 		// allow return of %%% encoding for later decoding, e. g. for image
-		$page['text'] = str_replace('<p>%%%', '%%%', $page['text']);
-		$page['text'] = str_replace('%%%</p>', '%%%', $page['text']);
+		if (strstr($text, '<p>%%%') AND strstr($text, '%%%</p>')) {
+			$text = str_replace('<p>%%%', '%%%', $text);
+			$text = str_replace('%%%</p>', '%%%', $text);
+		}
+		$output = brick_format($text, $page);
+		if (array_key_exists($position, $page)) {
+			$page[$position] .= $output['text'];
+		} else {
+			$page[$position] = $output['text'];
+		}
 	}
-	$output = brick_format($page['text'], $page);
-	$page['text'] = $output['text'];
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
 		// show error message in case there is one and it's not already shown
 		// by wrap_errorpage() (status != 200)
