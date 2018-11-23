@@ -210,6 +210,13 @@ function wrap_create_id($id_title) {
  */
 function wrap_get_menu($page) {
 	global $zz_setting;
+	global $zz_page;
+	
+	if ($sql = wrap_sql('menu_hierarchy')) {
+		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql('page_id')], $sql);
+	} else {
+		$hierarchy = [];
+	}
 	if (empty($zz_setting['menu'])) 
 		$zz_setting['menu'] = 'webpages';
 	
@@ -263,7 +270,9 @@ function wrap_get_menu($page) {
 					// all pages are below homepage, don't highlight this
 					$menu[$id][$nav_id]['below'] = false;
 				} else {
-					$menu[$id][$nav_id]['below'] = (substr($zz_setting['request_uri'], 0, strlen($item['url'])) === $item['url']) ? true : false;
+					$menu[$id][$nav_id]['below']
+						= (substr($zz_setting['request_uri'], 0, strlen($item['url'])) === $item['url']) ? true
+						: (in_array($item[wrap_sql('page_id')], $hierarchy) ? true : false);
 				}
 			}
 			if ($menu[$id][$nav_id]['below'] OR $menu[$id][$nav_id]['current_page']) {
