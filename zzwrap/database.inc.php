@@ -961,6 +961,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['menu_level2']	= '';
 			$zz_sql['menu_level3']	= '';
 			$zz_sql['menu_level4']	= '';
+			$zz_sql['menu_hierarchy'] = 'SELECT mother_page_id FROM /*_PREFIX_*/webpages WHERE page_id = %d';
 			break;
 		case 'auth':
 			if (!empty($set['auth'])) return true;
