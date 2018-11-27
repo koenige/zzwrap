@@ -263,3 +263,6 @@ qs	string	utm_content
 
 # unknown, but zealous (?author=1 up to ?author=15)
 qs	string	author
+
+# Facebook Click Identifier (for tracking)
+qs	string	fbclid
