@@ -597,6 +597,7 @@ function wrap_errorpage_logignore() {
 	// path is left
 	if (empty($referer['path'])) $referer['path'] = '/';
 	if ($referer['path'] === $zz_page['url']['full']['path']) return true;
+	if (str_replace('//', '/', $referer['path']) === $zz_page['url']['full']['path']) return true;
 	if ($referer['path'] === $zz_setting['base'].$zz_page['url']['full']['path']) return true;
 	if ($referer['path'] === $zz_setting['request_uri']) return true; // for malformed URIs
 	// check if equal if path has %-encoded values
