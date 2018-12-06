@@ -33,6 +33,10 @@ function wrap_set_defaults_post_conf() {
 		// ISO-8859-1)
 		mb_internal_encoding(strtoupper($zz_conf['character_set']));
 	}
+	if (empty($zz_setting['language_translations'])) {
+		// fields in table languages.language_xx
+		$zz_setting['language_translations'] = ['en', 'de', 'fr'];
+	}
 
 	// -------------------------------------------------------------------------
 	// Request method
