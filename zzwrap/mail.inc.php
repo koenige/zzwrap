@@ -200,6 +200,7 @@ function wrap_mail_name($name) {
  * @return string $e_mail if it's correct, empty string if address is invalid
  */
 function wrap_mail_valid($e_mail) {
+	global $zz_setting;
 	// remove <>-brackets around address
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); 
@@ -210,18 +211,20 @@ function wrap_mail_valid($e_mail) {
 	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
 
 	// check if hostname has MX record
-	$host = explode('@', $e_mail);
-	if (count($host) !== 2) return false;
-	// trailing dot to get a FQDN
-	if (substr($host[1], -1) !== '.') $host[1] .= '.';
-	// MX record is not obligatory, so use ANY
-	$time = microtime(true);
-	$exists = checkdnsrr($host[1], 'ANY');
-	if (microtime(true) - $time > .5) {
-		wrap_error('Checking DNS record took to long, so probably it is a timeout: '.$e_mail.' host:'.$host[1]);
-		return $e_mail;
+	if (empty($zz_setting['mail_dont_check_mx'])) {
+		$host = explode('@', $e_mail);
+		if (count($host) !== 2) return false;
+		// trailing dot to get a FQDN
+		if (substr($host[1], -1) !== '.') $host[1] .= '.';
+		// MX record is not obligatory, so use ANY
+		$time = microtime(true);
+		$exists = checkdnsrr($host[1], 'ANY');
+		if (microtime(true) - $time > .5) {
+			wrap_error('Checking DNS record took to long, so probably it is a timeout: '.$e_mail.' host:'.$host[1]);
+			return $e_mail;
+		}
+		if (!$exists) return false;
 	}
-	if (!$exists) return false;
 
 	return $e_mail;
 }
