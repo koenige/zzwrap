@@ -212,7 +212,7 @@ function wrap_get_menu($page) {
 	global $zz_setting;
 	global $zz_page;
 	
-	if ($sql = wrap_sql('menu_hierarchy')) {
+	if ($sql = wrap_sql('menu_hierarchy') AND !empty($zz_page['db'])) {
 		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql('page_id')], $sql);
 	} else {
 		$hierarchy = [];
