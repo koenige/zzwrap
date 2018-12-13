@@ -453,8 +453,13 @@ function wrap_number($number, $format = false) {
 		$output = number_format($number, 2, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
 		return $output;
 	case 'simple':
+	case 'simple-hidezero':
 		if (strstr($number, '.')) {
-			$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+			if ($format === 'simple-hidezero' AND substr($number, -3) === '.00') {
+				$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+			} else {
+				$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+			}
 		} else {
 			$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
 		}
