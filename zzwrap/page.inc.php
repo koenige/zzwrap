@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1024,11 +1024,6 @@ function wrap_htmlout_page($page) {
 		if ($tpl_file) $zz_page['template'] = $page['template'];
 	}
 
-	// Add title to page
-	if (empty($page['dont_show_h1']) AND !empty($page['title']) AND empty($zz_page['h1_via_template']))
-		$page['text'] = "\n".markdown('# '.$page['title']."\n")."\n"
-			.$page['text'];
-
 	// bring together page output
 	// do not modify html, since this is a template
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
@@ -1043,6 +1038,11 @@ function wrap_htmlout_page($page) {
 	else $textblocks = $page['text'];
 	unset($page['text']);
 	foreach ($textblocks as $position => $text) {
+		// add title to page, main text block
+		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND empty($zz_page['h1_via_template'])
+			AND $position === 'text') {
+			$text = "\n".markdown('# '.$page['title']."\n")."\n".$text;
+		}
 		// do not overwrite other keys
 		if ($position !== 'text') $position = 'text_'.$position;
 		// allow return of %%% encoding for later decoding, e. g. for image
