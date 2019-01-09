@@ -455,7 +455,7 @@ function wrap_number($number, $format = false) {
 	case 'simple':
 	case 'simple-hidezero':
 		if (strstr($number, '.')) {
-			if ($format === 'simple-hidezero' AND substr($number, -3) === '.00') {
+			if ($format === 'simple-hidezero' AND (substr($number, -3) === '.00' OR substr($number, -4) === '.000')) {
 				$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
 			} else {
 				$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
