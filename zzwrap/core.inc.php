@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1284,6 +1284,10 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 
 	// positions: text might be array
 	if (is_array($text) AND count($text) === 1) $text = array_shift($text);
+	if (is_array($text) AND $type !== 'html') {
+		// disregard webpage content on other positions
+		$text = $text['text'];
+	}
 	if ($type !== 'csv') {
 		$text = trim($text);
 	}
