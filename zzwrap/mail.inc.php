@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -101,6 +101,10 @@ function wrap_mail($mail) {
 			wrap_error($mail, E_USER_NOTICE);
 		}
 	} else {
+		// hinder Outlook to mess with the line breaks
+		// https://support.microsoft.com/en-au/help/287816/line-breaks-are-removed-in-posts-made-in-plain-text-format-in-outlook
+		$mail['message'] = str_replace("\n", "\t\n", $mail['message']);
+		$mail['message'] = str_replace("\r\t\n", "\t\r\n", $mail['message']);
 		// if real server, send mail
 		$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 		if (!$success) {
