@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -316,6 +316,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// get own or default http-error template
 	if (empty($page['text'])) {
 		$page['text'] = wrap_template('http-error', [], 'error');
+	} elseif (is_array($page['text']) AND empty($page['text']['text'])) {
+		$page['text']['text'] = wrap_template('http-error', [], 'error');
 	}
 
 	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
