@@ -1060,6 +1060,7 @@ function wrap_htmlout_page($page) {
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
 		// show error message in case there is one and it's not already shown
 		// by wrap_errorpage() (status != 200)
+		if (empty($page['text'])) $page['text'] = '';
 		$page['text'] .= $zz_page['error_msg']."\n";
 	}
 
