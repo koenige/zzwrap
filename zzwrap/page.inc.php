@@ -1057,6 +1057,17 @@ function wrap_htmlout_page($page) {
 			$page[$position] = $output['text'];
 		}
 	}
+	if (!empty($page['text']) AND is_array($page['text'])) {
+		// positions?
+		foreach ($page['text'] as $position => $text) {
+			if ($position !== 'text') $position = 'text_'.$position;
+			if (array_key_exists($position, $page)) {
+				$page[$position] .= $text;
+			} else {
+				$page[$position] = $text;
+			}
+		}
+	}
 	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
 		// show error message in case there is one and it's not already shown
 		// by wrap_errorpage() (status != 200)
