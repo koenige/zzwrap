@@ -1286,7 +1286,10 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	if (is_array($text) AND count($text) === 1) $text = array_shift($text);
 	if (is_array($text) AND $type !== 'html') {
 		// disregard webpage content on other positions
-		$text = $text['text'];
+		if (array_key_exists('text', $text))
+			$text = $text['text'];
+		else 
+			$text = array_shift($text);
 	}
 	if ($type !== 'csv') {
 		$text = trim($text);
