@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -481,7 +481,7 @@ function wrap_percent($number) {
 	global $zz_conf;
 	$number *= 100;
 	$number = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
-	$number .= '&nbsp;%';
+	$number .= html_entity_decode('&nbsp;%');
 	return $number;
 }
 
@@ -553,7 +553,7 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
 	while (!isset($units[$pow])) $pow--;
 	$value /= pow($factor, $pow);
 
-    $text = round($value, $precision) . '&nbsp;' . $units[$pow]; 
+    $text = round($value, $precision) . html_entity_decode('&nbsp;') . $units[$pow]; 
     if ($zz_conf['decimal_point'] !== '.')
     	$text = str_replace('.', $zz_conf['decimal_point'], $text);
     return $text;
