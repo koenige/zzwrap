@@ -31,6 +31,12 @@ function wrap_mail($mail) {
 	global $zz_conf;
 	global $zz_setting;
 
+	// normalize line endings
+	$mail['message'] = str_replace("\n", "\r\n", $mail['message']);
+	$mail['message'] = str_replace("\r\r\n", "\r\n", $mail['message']);
+	$mail['message'] = str_replace("\r", "\r\n", $mail['message']);
+	$mail['message'] = str_replace("\r\n\n", "\r\n", $mail['message']);
+
 	// headers in message?
 	$mail = wrap_mail_headers($mail);
 
