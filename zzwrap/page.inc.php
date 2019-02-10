@@ -40,6 +40,10 @@ function wrap_template($template, $data = [], $mode = false) {
 	if (strstr($template, "\n")) {
 		$current_template = '(from variable)';
 		$template = explode("\n", $template);
+		// add newline that explode removed to each line
+		foreach (array_keys($template) as $no) {
+			$template[$no] .= "\n";
+		}
 	} elseif (substr($template, 0, 1) === '/' AND file_exists($template)) {
 		$tpl_file = $template;
 		$current_template = $template;
