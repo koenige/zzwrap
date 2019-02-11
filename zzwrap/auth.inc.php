@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -135,6 +135,9 @@ function wrap_auth($force = false) {
 		$sql_mask = sprintf($sql_mask, '"'.$keep_alive.'"', $_SESSION['mask_id']);
 		// it's not important if an error occurs here
 		wrap_db_query($sql_mask, E_USER_NOTICE);
+	}
+	if (!empty($zz_page['url']['redirect'])) {
+		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, false);
 	}
 	return true;
 }
