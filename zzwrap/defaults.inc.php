@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -93,7 +93,7 @@ function wrap_set_defaults_post_conf() {
 		}
 	}
 	// local (development) connections are never made via https
-	if (!empty($zz_setting['local_access'])) {
+	if (!empty($zz_setting['local_access']) AND empty($zz_setting['local_https'])) {
 		$zz_setting['https'] = false;
 		$zz_setting['no_https'] = true;
 	}

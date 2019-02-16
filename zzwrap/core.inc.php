@@ -977,7 +977,7 @@ function wrap_https_redirect() {
 	// connection is already via https?
 	if (!empty($zz_setting['https'])) return false;
 	// local connection?
-	if ($zz_setting['local_access']) return false;
+	if ($zz_setting['local_access'] AND empty($zz_setting['local_https'])) return false;
 
 	$url = $zz_page['url']['full'];
 	$url['scheme'] = 'https';

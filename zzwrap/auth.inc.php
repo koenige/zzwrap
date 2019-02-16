@@ -94,7 +94,8 @@ function wrap_auth($force = false) {
 
 	// if it's not local access (e. g. on development server), all access 
 	// should go via secure connection
-	$zz_setting['protocol'] = 'http'.((!empty($zz_setting['no_https']) OR $zz_setting['local_access']) ? '' : 's');
+	$zz_setting['protocol'] = 'http'.((!empty($zz_setting['no_https'])
+		OR ($zz_setting['local_access'] AND empty($zz_setting['local_https']))) ? '' : 's');
 	// calculate maximum login time
 	// you'll stay logged in for x minutes
 	$keep_alive = $zz_setting['logout_inactive_after'] * 60;
