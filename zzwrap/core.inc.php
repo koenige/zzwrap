@@ -1077,14 +1077,23 @@ function wrap_url_normalize($url) {
 	if (strstr($url['path'], '%')) {
 		$url['path'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_path_decode', $url['path']);
 	}
-	
-	// @todo normalize query string
+	if (strstr($url['query'], '%')) {
+		$url['query'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_query_decode', $url['query']);
+	}
 	return $url;
 }
 
+function wrap_url_query_decode($input) {
+	return wrap_url_decode($input, 'query');
+}
+
+function wrap_url_path_decode($input) {
+	return wrap_url_decode($input, 'path');
+}
+
 /**
- * Normalizes percent encoded characters in URL path into equivalent characters
- * if encoding is superfluous
+ * Normalizes percent encoded characters in URL path or query string into 
+ * equivalent characters if encoding is superfluous
  * @see RFC 3986 Section 6.2.2.2. Percent-Encoding Normalization
  *
  * Characters which will remain percent encoded (range: 0020 - 007F) are
@@ -1097,17 +1106,30 @@ function wrap_url_normalize($url) {
  * @param $input array
  * @return string
  */
-function wrap_url_path_decode($input) {
+function wrap_url_decode($input, $type = 'path') {
 	$codepoint = substr(strtoupper($input[0]), 1);
 	if (hexdec($codepoint) < hexdec('20')) return '%'.$codepoint;
 	if (hexdec($codepoint) > hexdec('7E')) return '%'.$codepoint;
-	$dont_encode = [
-		'20', '22', '23', '25', '2F',
-		'3C', '3E', '3F',
-		'5B', '5C', '5D', '5E',
-		'60',
-		'7B', '7C', '7D'
-	];
+	switch ($type) {
+	case 'path':
+		$dont_encode = [
+			'20', '22', '23', '25', '2F',
+			'3C', '3E', '3F',
+			'5B', '5C', '5D', '5E',
+			'60',
+			'7B', '7C', '7D'
+		];
+		break;
+	case 'query':
+		$dont_encode = [
+			'20', '22', '23', '25', '2F',
+			'3C', '3E', '3F',
+			'5C', '5E',
+			'60',
+			'7B', '7C', '7D'
+		];
+		break;
+	}
 	if (in_array($codepoint, $dont_encode)) {
 		return '%'.$codepoint;
 	}
