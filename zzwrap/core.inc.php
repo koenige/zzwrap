@@ -1077,7 +1077,7 @@ function wrap_url_normalize($url) {
 	if (strstr($url['path'], '%')) {
 		$url['path'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_path_decode', $url['path']);
 	}
-	if (strstr($url['query'], '%')) {
+	if (!empty($url['query']) AND strstr($url['query'], '%')) {
 		$url['query'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_query_decode', $url['query']);
 	}
 	return $url;
