@@ -783,7 +783,7 @@ function wrap_punycode($string, $action) {
 	require_once $zz_setting['lib'].'/idnaconvert/src/UnicodeTranscoderInterface.php';
 	require_once $zz_setting['lib'].'/idnaconvert/src/UnicodeTranscoder.php';
 	
-	$IDN = new Mso\IdnaConvert\IdnaConvert();
+	$IDN = new Algo26\IdnaConvert\IdnaConvert();
 	if ($action === 'encode') {
 		if ($zz_conf['character_set'] !== 'utf-8') {
 			$string = iconv($zz_conf['character_set'], 'utf-8', $string);
