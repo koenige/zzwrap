@@ -269,3 +269,6 @@ qs	string	fbclid
 
 # looking for a blog
 404	all	/blog/
+
+# whatever this means
+404	end	/images/kitten-large.png
