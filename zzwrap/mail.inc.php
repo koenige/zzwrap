@@ -97,14 +97,12 @@ function wrap_mail($mail) {
 
 	// if local server, show e-mail, don't send it
 	if ($zz_setting['local_access']) {
-		$mail = 'Mail '.wrap_html_escape('To: '.$mail['to']."\n"
+		$mailtext = 'Mail '.wrap_html_escape('To: '.$mail['to']."\n"
 			.'Subject: '.$mail['subject']."\n".
 			$additional_headers."\n".$mail['message']);
 		if (!empty($zz_setting['show_local_mail'])) {
-			echo '<pre>', $mail, '</pre>';
+			echo '<pre>', $mailtext, '</pre>';
 			exit;
-		} else {
-			wrap_error($mail, E_USER_NOTICE);
 		}
 	} else {
 		// hinder Outlook to mess with the line breaks
@@ -118,6 +116,9 @@ function wrap_mail($mail) {
 				.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
 				.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
 		}
+	}
+	if (!empty($zz_setting['log_mail'])) {
+		wrap_mail_log($mail, $additional_headers);
 	}
 	$zz_conf['error_handling'] = $old_error_handling;
 	return true;
@@ -238,4 +239,22 @@ function wrap_mail_valid($e_mail) {
 	}
 
 	return $e_mail;
+}
+
+/**
+ * log mail in mail.log
+ *
+ * @param array $mail
+ * @return void
+ */
+function wrap_mail_log($mail, $additional_headers) {
+	global $zz_setting;
+	$logfile = $zz_setting['log_dir'].'/mail.log';
+	if (!file_exists($logfile)) touch($logfile);
+	
+	$text = 'To: '.$mail['to']."\n".'Subject: '.$mail['subject']."\n"
+		.$additional_headers."\n".$mail['message']
+		."\n\n".str_repeat('-', 77)."\n\n";
+	$text = str_replace("\r\n", "\n", $text);
+	file_put_contents($logfile, $text, FILE_APPEND | LOCK_EX);
 }
