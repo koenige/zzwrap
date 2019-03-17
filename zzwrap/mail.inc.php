@@ -252,7 +252,9 @@ function wrap_mail_log($mail, $additional_headers) {
 	$logfile = $zz_setting['log_dir'].'/mail.log';
 	if (!file_exists($logfile)) touch($logfile);
 	
-	$text = 'To: '.$mail['to']."\n".'Subject: '.$mail['subject']."\n"
+	$text = 'Date: '.wrap_date(time(), 'timestamp->rfc1123')."\n"
+		.'To: '.$mail['to']."\n"
+		.'Subject: '.$mail['subject']."\n"
 		.$additional_headers."\n".$mail['message']
 		."\n\n".str_repeat('-', 77)."\n\n";
 	$text = str_replace("\r\n", "\n", $text);
