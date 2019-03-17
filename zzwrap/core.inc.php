@@ -1110,24 +1110,19 @@ function wrap_url_decode($input, $type = 'path') {
 	$codepoint = substr(strtoupper($input[0]), 1);
 	if (hexdec($codepoint) < hexdec('20')) return '%'.$codepoint;
 	if (hexdec($codepoint) > hexdec('7E')) return '%'.$codepoint;
+	$dont_encode = [
+		'20', '22', '23', '25', '2F',
+		'3C', '3E', '3F',
+		'5C', '5E',
+		'60',
+		'7B', '7C', '7D'
+	];
 	switch ($type) {
 	case 'path':
-		$dont_encode = [
-			'20', '22', '23', '25', '2F',
-			'3C', '3E', '3F',
-			'5B', '5C', '5D', '5E',
-			'60',
-			'7B', '7C', '7D'
-		];
+		$dont_encode[] = '5B';
+		$dont_encode[] = '5D';
 		break;
 	case 'query':
-		$dont_encode = [
-			'20', '22', '23', '25', '2F',
-			'3C', '3E', '3F',
-			'5C', '5E',
-			'60',
-			'7B', '7C', '7D'
-		];
 		break;
 	}
 	if (in_array($codepoint, $dont_encode)) {
