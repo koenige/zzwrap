@@ -1091,6 +1091,10 @@ function wrap_url_path_decode($input) {
 	return wrap_url_decode($input, 'path');
 }
 
+function wrap_url_all_decode($input) {
+	return wrap_url_decode($input, 'all');
+}
+
 /**
  * Normalizes percent encoded characters in URL path or query string into 
  * equivalent characters if encoding is superfluous
@@ -1123,6 +1127,9 @@ function wrap_url_decode($input, $type = 'path') {
 		$dont_encode[] = '5D';
 		break;
 	case 'query':
+		break;
+	case 'all':
+		$dont_encode = [];
 		break;
 	}
 	if (in_array($codepoint, $dont_encode)) {

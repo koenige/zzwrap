@@ -603,7 +603,13 @@ function wrap_errorpage_logignore() {
 	if ($referer['path'] === $zz_setting['base'].$zz_page['url']['full']['path']) return true;
 	if ($referer['path'] === $zz_setting['request_uri']) return true; // for malformed URIs
 	// check if equal if path has %-encoded values
-	if (urldecode($referer['path']) === $zz_setting['base'].$zz_page['url']['full']['path']) return true;
-	
+	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode($zz_setting['base'].$zz_page['url']['full']['path']))
+		return true;
+
 	return false;
+}
+
+function wrap_error_url_decode($url) {
+	$url = str_replace('//', '/', $url);
+	return preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_all_decode', $url);
 }
