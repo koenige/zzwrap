@@ -592,8 +592,10 @@ function wrap_errorpage_logignore() {
 	}
 	// ignore scheme, port, user, pass
 	// query
-	if (!empty($referer['query']) 
-		AND (empty($zz_page['url']['full']['query']) OR ($referer['query'] !== $zz_page['url']['full']['query']))) {
+	if (!empty($referer['query']) AND (
+		empty($zz_page['url']['full']['query'])
+		OR (wrap_error_url_decode($referer['query']) !== wrap_error_url_decode($zz_page['url']['full']['query']))
+	)) {
 		return false;
 	}
 	// path is left
