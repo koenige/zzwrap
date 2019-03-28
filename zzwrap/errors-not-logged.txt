@@ -159,6 +159,7 @@
 
 # There is no Google.com without www
 404	referer	https://google.com
+404	referer	http://google.com
 
 # Trackback-Spam, normally with POST
 404	end	/trackback/
