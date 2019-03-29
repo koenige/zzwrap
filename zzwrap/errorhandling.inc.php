@@ -612,6 +612,11 @@ function wrap_errorpage_logignore() {
 }
 
 function wrap_error_url_decode($url) {
-	$url = str_replace('//', '/', $url);
+	$i = 0;
+	while (strpos($url, '//')) {
+		$url = str_replace('//', '/', $url);
+		$i++;
+		if ($i > 10) break;
+	}
 	return preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_all_decode', $url);
 }
