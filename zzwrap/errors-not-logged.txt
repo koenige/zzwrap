@@ -80,6 +80,7 @@
 404	end	/license.php
 404	end	/wp-admin/admin-ajax.php
 404	end	/uploadify/uploadify.php?folder=/
+404	begin	/wp-admin/admin-post.php?swp_debug=load_options&swp_url=
 
 # Joomla
 404	end	/administrator/index.php
@@ -88,6 +89,7 @@
 404	all	/index.php?option=com_easyblog&view=dashboard&layout=write
 404	all	/index.php/component/users/?view=registration
 404	all	/component/users/?view=registration
+404	end	/webconfig.txt.php
 
 # Magento
 404	end	/js/mage/cookies.js
@@ -273,3 +275,6 @@ qs	string	fbclid
 
 # whatever this means
 404	end	/images/kitten-large.png
+
+# Drupal
+404	end	/user/register/?element_parents=account/mail/%23value&ajax_form=1&_wrapper_format=drupal_ajax
