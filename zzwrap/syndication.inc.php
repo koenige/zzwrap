@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -232,12 +232,13 @@ function wrap_syndication_geocode($address) {
 	ksort($add);
 
 	// set geocoders
-	if (!isset($zz_setting['geocoder'])) {
-		$zz_setting['geocoder'] = ['Nominatim', 'Google Maps'];
-	} elseif (!is_array($zz_setting['geocoder'])) {
-		$zz_setting['geocoder'] = [$zz_setting['geocoder']];
+	$geocoders = wrap_get_setting('geocoder');
+	if (!$geocoder) {
+		$geocoders = ['Nominatim'];
+	} elseif (!is_array($geocoders)) {
+		$geocoders = [$geocoders];
 	}
-	foreach ($zz_setting['geocoder'] as $geocoder) {
+	foreach ($geocoders as $geocoder) {
 		if (!array_key_exists($geocoder, $urls)) {
 			wrap_error(sprintf('Geocoder %s not supported.', $geocoder), E_USER_WARNING);
 			return false;
@@ -278,6 +279,9 @@ function wrap_syndication_geocode($address) {
 					// we must not cache this.
 					wrap_cache_delete(404, $url);
 				}
+				if ($coords['status'] === 'REQUEST_DENIED') {
+					wrap_cache_delete(404, $url);
+				}
 				$success = false;
 			}
 			break;
@@ -286,6 +290,9 @@ function wrap_syndication_geocode($address) {
 				$success = false;
 				$coords['status'] = 'unknown';
 			}
+			break;
+		default:
+			wrap_error(sprintf('%s is not supported for geocoding.', $gc['geocoder']));
 			break;
 		}
 		if (!$success) {
