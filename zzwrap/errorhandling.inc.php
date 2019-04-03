@@ -613,7 +613,7 @@ function wrap_errorpage_logignore() {
 
 function wrap_error_url_decode($url) {
 	$i = 0;
-	while (strpos($url, '//')) {
+	while (strpos($url, '//') !== false) {
 		$url = str_replace('//', '/', $url);
 		$i++;
 		if ($i > 10) break;
