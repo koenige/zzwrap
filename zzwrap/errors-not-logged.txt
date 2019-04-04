@@ -159,9 +159,10 @@
 # The real GoogleBot does not use this referer
 404	referer	http://www.googlebot.com/bot.html
 
-# There is no Google.com without www
+# There is no Google.com without www or without https
 404	referer	https://google.com
 404	referer	http://google.com
+404	referer	http://www.google.com.hk
 
 # Trackback-Spam, normally with POST
 404	end	/trackback/
