@@ -1001,6 +1001,10 @@ function wrap_check_request() {
 	// check REQUEST_METHOD, quit if inappropriate
 	wrap_check_http_request_method();
 
+	// check if REMOTE_ADDR is valid IP
+	if (!filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
+		wrap_quit(400, sprintf('Request with a malformed IP address: %s', wrap_html_escape($_SERVER['REMOTE_ADDR'])));
+
 	// check REQUEST_URI
 	// Base URL, allow it to be set manually (handle with care!)
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
