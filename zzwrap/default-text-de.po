@@ -446,3 +446,31 @@ msgstr "NW Nordwest"
 #: library/zzwrap/format.inc.php
 msgid "NNW North-northwest"
 msgstr "NNW Nordnordwest"
+
+# Weekdays, abbreviated
+msgid "Mon"
+msgstr "Mo"
+
+# Weekdays, abbreviated
+msgid "Tue"
+msgstr "Di"
+
+# Weekdays, abbreviated
+msgid "Wed"
+msgstr "Mi"
+
+# Weekdays, abbreviated
+msgid "Thu"
+msgstr "Do"
+
+# Weekdays, abbreviated
+msgid "Fri"
+msgstr "Fr"
+
+# Weekdays, abbreviated
+msgid "Sat"
+msgstr "Sa"
+
+# Weekdays, abbreviated
+msgid "Sun"
+msgstr "So"

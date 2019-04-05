@@ -407,3 +407,31 @@ msgstr ""
 #: library/zzwrap/format.inc.php
 msgid "NNW North-northwest"
 msgstr ""
+
+# Weekdays, abbreviated
+msgid "Mon"
+msgstr ""
+
+# Weekdays, abbreviated
+msgid "Tue"
+msgstr ""
+
+# Weekdays, abbreviated
+msgid "Wed"
+msgstr ""
+
+# Weekdays, abbreviated
+msgid "Thu"
+msgstr ""
+
+# Weekdays, abbreviated
+msgid "Fri"
+msgstr ""
+
+# Weekdays, abbreviated
+msgid "Sat"
+msgstr ""
+
+# Weekdays, abbreviated
+msgid "Sun"
+msgstr ""
