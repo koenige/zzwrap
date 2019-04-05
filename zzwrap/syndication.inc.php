@@ -233,7 +233,7 @@ function wrap_syndication_geocode($address) {
 
 	// set geocoders
 	$geocoders = wrap_get_setting('geocoder');
-	if (!$geocoder) {
+	if (!$geocoders) {
 		$geocoders = ['Nominatim'];
 	} elseif (!is_array($geocoders)) {
 		$geocoders = [$geocoders];
@@ -244,21 +244,21 @@ function wrap_syndication_geocode($address) {
 			return false;
 		}
 		foreach (array_keys($add) as $index) {
-			$geocoders[] = [
+			$gcs[] = [
 				'geocoder' => $geocoder,
 				'add' => $add[$index],
 				'region' => $region
 			];
 		}
 	}
-	if (empty($geocoders)) return false;
+	if (empty($gcs)) return false;
 
 	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
 	$zz_setting['cache_age_syndication'] = -1;
 
 	$results = [];
 	$found = [];
-	foreach ($geocoders as $gc) {
+	foreach ($gcs as $gc) {
 		// only call a geocoder twice if first call was unsuccesful
 		if (in_array($gc['geocoder'], $found)) continue;
 
