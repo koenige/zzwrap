@@ -48,11 +48,6 @@ function wrap_mail($mail) {
 		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
 	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', $zz_setting['mail_header_eol']);
 
-	// Signature?
-	if (!empty($zz_setting['mail_with_signature']) AND wrap_template_file('signature-mail', false)) {
-		$mail['message'] .= "\r\n".wrap_template('signature-mail');
-	}
-
 	// From
 	if (!isset($mail['headers']['From'])) {
 		$mail['headers']['From']['name'] = $zz_conf['project'];
@@ -85,6 +80,13 @@ function wrap_mail($mail) {
 		// @todo field body longer than 78 characters SHOULD / 998 
 		// characters MUST be folded with CR LF WSP
 		$additional_headers .= $field_name.': '.$field_body.$zz_setting['mail_header_eol'];
+	}
+
+	// Signature? Only for plain text mails
+	if (wrap_substr($mail['headers']['Content-Type'], 'text/plain')) {
+		if (!empty($zz_setting['mail_with_signature']) AND wrap_template_file('signature-mail', false)) {
+			$mail['message'] .= "\r\n".wrap_template('signature-mail');
+		}
 	}
 
 	// Additional parameters
