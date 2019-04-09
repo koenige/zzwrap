@@ -121,8 +121,8 @@ function wrap_set_encoding($character_encoding) {
 function wrap_mailto($person, $mail, $attributes = false) {
 	$mailto = str_replace('@', '&#64;', urlencode('<'.$mail.'>'));
 	$mail = str_replace('@', '&#64;', $mail);
-	$output = '<a href="mailto:'.str_replace(' ', '%20', $person)
-		.'%20'.$mailto.'"'.$attributes
+	$output = '<a href="&#109;&#x61;&#105;&#x6c;t&#111;&#x3a;%22'.str_replace(' ', '%20', $person)
+		.'%22%20'.$mailto.'"'.$attributes
 		.'>'.$mail.'</a>';
 	return $output;
 }
