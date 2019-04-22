@@ -638,6 +638,7 @@ function wrap_errorpage_logignore_no_https_referer($referer, $url) {
 
 	// check for https
 	if ($referer['scheme'] === 'https') return false;
+	if (empty($zz_setting['canonical_hostname'])) return false;
 	if ($referer['host'] !== $zz_setting['canonical_hostname']) return false;
 	// if all URLs are https, then real referer from same domain must be https, too
 	if (in_array('/', $zz_setting['https_urls'])) return true;
