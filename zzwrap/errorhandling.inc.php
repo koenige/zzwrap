@@ -586,8 +586,16 @@ function wrap_errorpage_logignore() {
 		// IP redirect
 		if ($referer['host'] === $_SERVER['SERVER_ADDR']) $ok = true;
 		// referer from canonical hostname
-		if (!empty($zz_setting['canonical_hostname'])
-			AND strtolower($zz_setting['canonical_hostname']) === strtolower($referer['host'])) $ok = true;
+		$hostnames = [];
+		if (!empty($zz_setting['canonical_hostname']))
+			$hostnames[] = $zz_setting['canonical_hostname'];
+		if (!empty($zz_setting['external_redirect_hostnames'])) // external redirects
+			$hostnames = array_merge($hostnames, $zz_setting['external_redirect_hostnames']);
+		foreach ($hostnames as $hostname) {
+			if (strtolower($hostname) !== strtolower($referer['host'])) continue;
+			$ok = true;
+			break;
+		}
 		if (!$ok) return false;
 	}
 	// ignore scheme, port, user, pass
