@@ -597,6 +597,8 @@ function wrap_errorpage_logignore() {
 			break;
 		}
 		if (!$ok) return false;
+	} else {
+		if (wrap_errorpage_logignore_no_https_referer($referer, $zz_page['url']['full'])) return true;
 	}
 	// ignore scheme, port, user, pass
 	// query
@@ -615,6 +617,30 @@ function wrap_errorpage_logignore() {
 	// check if equal if path has %-encoded values
 	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode($zz_setting['base'].$zz_page['url']['full']['path']))
 		return true;
+
+	return false;
+}
+
+/**
+ * check if referring URL has no https, but https is required (= thought out referer)
+ *
+ * @param array $referer
+ * @param array $url
+ * @return bool true: do not log
+ */
+function wrap_errorpage_logignore_no_https_referer($referer, $url) {
+	global $zz_setting;
+
+	// just if referer URL path differs
+	if (!$referer['path']) return false;
+	if (!$url['path']) return false;
+	if ($referer['path'] === $url['path']) return false;
+
+	// check for https
+	if ($referer['scheme'] === 'https') return false;
+	if ($referer['host'] !== $zz_setting['canonical_hostname']) return false;
+	// if all URLs are https, then real referer from same domain must be https, too
+	if (in_array('/', $zz_setting['https_urls'])) return true;
 
 	return false;
 }
