@@ -322,17 +322,16 @@ function wrap_look_for_file($url_path) {
 	if (empty($zz_setting['modules'])) return false;
 	if (!$url_path) return false;
 
-	$url_path = explode('/', $url_path);
-	array_shift($url_path); // first is empty because URL path starts with /
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (empty($zz_setting[$path.'_path'])) continue;
-		if ('/'.$url_path[0] !== $zz_setting[$path.'_path']) continue;
-		if (!in_array($url_path[1], $zz_setting['modules'])) continue;
-		array_shift($url_path);
-		$module = array_shift($url_path);
+		if (!wrap_substr($url_path, $zz_setting[$path.'_path'])) continue;
+		$url_folders = explode('/', substr($url_path, strlen($zz_setting[$path.'_path'])));
+		if (!in_array($url_folders[1], $zz_setting['modules'])) continue;
+		array_shift($url_folders);
+		$module = array_shift($url_folders);
 		$file['name'] = sprintf('%s/%s/%s/%s',
-			$zz_setting['modules_dir'], $module, $path, implode('/', $url_path));
+			$zz_setting['modules_dir'], $module, $path, implode('/', $url_folders));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css'])) {
 			wrap_cache_allow_private();
 			return $file['name'];
