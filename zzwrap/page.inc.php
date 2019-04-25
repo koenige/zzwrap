@@ -1159,6 +1159,7 @@ function wrap_get_prevnext($records, $record_id, $endless = true) {
  */
 function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
 	list($prev, $next) = wrap_get_prevnext($records, $record_id, $endless);
+	if (!$prev AND !$next) return [];
 	$return = [];
 	foreach ($prev as $key => $value) {
 		$return['_prev_'.$key] = $value;
