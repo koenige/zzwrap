@@ -81,6 +81,7 @@
 404	end	/wp-admin/admin-ajax.php
 404	end	/uploadify/uploadify.php?folder=/
 404	begin	/wp-admin/admin-post.php?swp_debug=load_options&swp_url=
+404	end	/wp-json/wp/v2/users
 
 # Joomla
 404	end	/administrator/index.php
