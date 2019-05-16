@@ -163,6 +163,7 @@
 # There is no Google.com without www or without https
 404	referer	https://google.com
 404	referer	http://google.com
+404	referer	http://www.google.com/
 404	referer	http://www.google.com.hk
 
 # Trackback-Spam, normally with POST
