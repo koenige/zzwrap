@@ -436,11 +436,15 @@ function wrap_check_canonical($zz_page, $page) {
 	}
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
-		['no-cookie', 'tle', 'tld', 'tlh', 'lang', 'code', 'url', 'logout']);
+		['no-cookie', 'lang', 'code', 'url', 'logout']);
 	if (!empty($zz_page['url']['full']['query'])) {
 		parse_str($zz_page['url']['full']['query'], $params);
 		foreach (array_keys($params) as $param) {
 			if (in_array($param, $page['query_strings'])) continue;
+			if (wrap_get_setting('no_query_strings_redirect')) {
+				$zz_setting['cache'] = false; // do not cache these
+				continue;
+			}
 			$param_value = $params[$param];
 			unset($params[$param]);
 			$zz_page['url']['redirect'] = true;
