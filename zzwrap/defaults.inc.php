@@ -164,10 +164,6 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['custom_wrap_template_dir']))	
 		$zz_setting['custom_wrap_template_dir'] = $zz_setting['inc'].'/templates';
 	
-	// database connection
-	if (empty($zz_setting['db_inc']))
-		$zz_setting['db_inc']		= $zz_setting['custom_wrap_sql_dir'].'/db.inc.php';
-	
 	// modules
 	if (empty($zz_setting['modules_dir'])) {
 		$zz_setting['modules_dir'] = realpath($zz_setting['inc'].'/modules');
