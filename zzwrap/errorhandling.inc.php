@@ -343,27 +343,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 
 	// -- 5. output page
 	
-	if ($zz_setting['brick_page_templates'] === true) {
-		wrap_htmlout_page($page);
-	} else {
-		if (!empty($zz_conf['character_set']))
-			header('Content-Type: text/html; charset='.$zz_conf['character_set']);
-		$lines = explode("\n", $page['text']);
-		foreach ($lines as $index => $line) {
-			if (substr($line, 0, 1) === '#') unset($lines[$index]);
-		}
-		$page['text'] = implode("\n", $lines);
-		$page['text'] = str_replace('%%% page h1 %%%', $page['h1'], $page['text']);
-		$page['text'] = str_replace('%%% page code %%%', $page['status'], $page['text']);
-		$page['text'] = str_replace('%%% page error_description %%%', $page['error_description'], $page['text']);
-		$page['text'] = str_replace('%%% page error_explanation %%%', $page['error_explanation'], $page['text']);
-		$page['text'] = str_replace('%%% page error_explanation "<p>%s</p>" %%%', '<p>'.$page['error_explanation'].'</p>', $page['text']);
-
-		include $zz_page['head'];
-		echo $page['text'];
-		include $zz_page['foot'];
-	}
-	
+	wrap_htmlout_page($page);
 	exit;
 }
 

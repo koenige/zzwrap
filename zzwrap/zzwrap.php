@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -129,11 +129,7 @@ function zzwrap() {
 	$page = wrap_get_page();
 	
 	// output of content if not already sent by wrap_get_page()
-	if ($zz_setting['brick_page_templates'] === true) {
-		wrap_htmlout_page($page);
-	} else {
-		wrap_htmlout_page_without_templates($page);
-	}
+	wrap_htmlout_page($page);
 	exit;
 }
 
@@ -308,9 +304,6 @@ function wrap_set_defaults_pre_conf() {
 	// zzbrick: brick types
 	$zz_setting['brick_types_translated']['tables'] = 'forms';
 
-	// zzbrick: use brick page templates
-	// allow %%% page ... %%%-syntax
-	$zz_setting['brick_page_templates'] = true;
 	$zz_setting['brick_fulltextformat'] = 'markdown';
 	// functions that might be used for formatting (zzbrick)
 	$zz_setting['brick_formatting_functions'] = [

@@ -957,50 +957,6 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 }
 
 /**
- * HTML output of page without brick templates
- * deprecated class mix of HTML and PHP, not recommended for new projects
- *
- * @param array $page
- * @global array $zz_page
- * @global array $zz_conf
- * @return void
- */
-function wrap_htmlout_page_without_templates($page) {
-	global $zz_page;
-	global $zz_conf;
-	
-	$page['nav'] = wrap_htmlout_menu($page['nav_db']);
-
-	$output = '';
-	if (function_exists('wrap_matrix')) {
-		// Matrix for several projects
-		$output = wrap_matrix($page, $page['media']);
-	} else {
-		if (empty($page['dont_show_h1']) AND empty($zz_page['dont_show_h1']))
-			$output .= "\n".markdown('# '.$page['title']."\n")."\n";
-		$output .= $page['text'];
-	}
-	if (function_exists('wrap_content_replace')) {
-		$output = wrap_content_replace($output);
-	}
-
-	// Output page
-	// set character set
-	if (!empty($zz_conf['character_set']))
-		header('Content-Type: text/html; charset='.$zz_conf['character_set']);
-
-	if (empty($page['no_page_head'])) include $zz_page['head'];
-	echo $output;
-	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
-		// show error message in case there is one and it's not already shown
-		// by wrap_errorpage() (status != 200)
-		echo '<div class="error">'.$zz_page['error_msg'].'</div>'."\n";
-	}
-	if (empty($page['no_page_foot'])) include $zz_page['foot'];
-	exit;
-}
-
-/**
  * Outputs a HTML page from a %%%-template
  * 
  * allow %%% page ... %%%-syntax
