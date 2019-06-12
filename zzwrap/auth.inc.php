@@ -847,6 +847,9 @@ function wrap_password_hash($pass) {
  */
 function wrap_password_token($username = '', $secret_key = 'login_key') {
 	global $zz_setting;
+	static $tokens;
+	if (empty($tokens)) $tokens = [];
+	
 	if (!$username) {
 		if (!empty($_SESSION['username'])) $username = $_SESSION['username'];
 		else wrap_error('No username found for password token');
@@ -855,6 +858,8 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		// don't check against database, user might not exist yet
 		// it will be created and a check is performed later on
 		$string = sprintf('%s Single Sign On via zzproject', $username);
+	} elseif (array_key_exists($username, $tokens)) {
+		$string = $tokens[$username];
 	} else {
 		// get password, even if it is empty
 		$sql = wrap_sql('login');
@@ -879,6 +884,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		if (!$userdata) return false;
 		$password_in_db = array_shift($userdata);
 		$string = sprintf('%s %d %s', $userdata['username'], $userdata['user_id'], $password_in_db);
+		$tokens[$username] = $string;
 	}
 	$password = wrap_set_hash($string, $secret_key);
 	return $password;
