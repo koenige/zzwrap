@@ -2542,6 +2542,12 @@ function wrap_setting_write($key, $value, $login_id = 0) {
  */
 function wrap_setting_read($key, $login_id = 0) {
 	static $setting_table;
+	static $settings;
+	if (empty($settings)) $settings = [];
+	if (array_key_exists($login_id, $settings))
+		if (array_key_exists($key, $settings[$login_id]))
+			return $settings[$login_id][$key];
+
 	if (!$setting_table) {
 		$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/_settings"';
 		$setting_table = wrap_db_fetch($sql);
@@ -2557,11 +2563,12 @@ function wrap_setting_read($key, $login_id = 0) {
 	}
 	$sql .= wrap_setting_login_id($login_id);
 	$settings_raw = wrap_db_fetch($sql, 'setting_key', 'key/value');
-	$settings = [];
-	foreach ($settings_raw as $key => $value) {
-		$settings = array_merge_recursive($settings, wrap_setting_key($key, wrap_setting_value($value)));
+	$settings[$login_id][$key] = [];
+	foreach ($settings_raw as $skey => $value) {
+		$settings[$login_id][$key]
+			= array_merge_recursive($settings[$login_id][$key], wrap_setting_key($skey, wrap_setting_value($value)));
 	}
-	return $settings;
+	return $settings[$login_id][$key];
 }
 
 /**
