@@ -774,7 +774,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			foreach ($folders as $folder) {
 				$my_dir .= '/'.$folder;
 				$success = @ftp_chdir($ftp_stream, $my_dir);
-				if (!$sucess) ftp_mkdir($ftp_stream, $my_dir);
+				if (!$success) ftp_mkdir($ftp_stream, $my_dir);
 			}
 		}
 		if (!$success) {
