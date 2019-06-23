@@ -210,8 +210,10 @@ function wrap_set_defaults_pre_conf() {
 	if (substr($zz_conf['root'], -1) === '/')
 		$zz_conf['root'] = substr($zz_conf['root'], 0, -1);
 	// includes
+	if (!isset($zz_setting['cms_dir']))
+		$zz_setting['cms_dir'] = realpath($zz_conf['root'].'/..');
 	if (!isset($zz_setting['inc']))
-		$zz_setting['inc'] = $zz_conf['root'].'/../_inc';
+		$zz_setting['inc'] = $zz_setting['cms_dir'].'/_inc';
 
 // -------------------------------------------------------------------------
 // Hostname
@@ -267,22 +269,22 @@ function wrap_set_defaults_pre_conf() {
 
 	// Caching	
 	$zz_setting['cache']		= true;
-	$zz_setting['cache_dir']	= $zz_conf['root'].'/../_cache';
+	$zz_setting['cache_dir']	= $zz_setting['cms_dir'].'/_cache';
 	$zz_setting['cache_age']	= 10;
 	if ($zz_setting['local_access']) {
 		$zz_setting['cache_age']	= 1;
 	}
 
 	// Media
-	$zz_setting['media_folder']	= $zz_conf['root'].'/../files';
+	$zz_setting['media_folder']	= $zz_setting['cms_dir'].'/files';
 
 	// Forms: zzform upload module
-	$zz_conf['tmp_dir']			= $zz_conf['root'].'/../_temp';
+	$zz_conf['tmp_dir']			= $zz_setting['cms_dir'].'/_temp';
 	$zz_conf['backup']			= true;
-	$zz_conf['backup_dir']		= $zz_conf['root'].'/../_backup';
+	$zz_conf['backup_dir']		= $zz_setting['cms_dir'].'/_backup';
 
 	// Logfiles
-	$zz_setting['log_dir']		= $zz_conf['root'].'/../_logs';
+	$zz_setting['log_dir']		= $zz_setting['cms_dir'].'/_logs';
 
 // -------------------------------------------------------------------------
 // Modules
