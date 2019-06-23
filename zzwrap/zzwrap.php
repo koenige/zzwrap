@@ -238,6 +238,13 @@ function wrap_set_defaults_pre_conf() {
 	// check if it's a local development server
 	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) === '.local') ? true : false;
 
+	// get site name without www. and .local
+	$zz_setting['site'] = $zz_setting['hostname'];
+	if (substr($zz_setting['site'], 0, 4) === 'www.')
+		$zz_setting['site'] = substr($zz_setting['site'], 4);
+	if ($zz_setting['local_access'])
+		$zz_setting['site'] = substr($zz_setting['site'], 0, -6);
+
 	// base URL, e. g. for languages
 	$zz_setting['base'] = '';
 	
