@@ -243,10 +243,11 @@ function wrap_syndication_geocode($address) {
 			wrap_error(sprintf('Geocoder %s not supported.', $geocoder), E_USER_WARNING);
 			return false;
 		}
-		foreach (array_keys($add) as $index) {
+		foreach ($add as $index => $add_values) {
+			if (empty($add_values)) continue;
 			$gcs[] = [
 				'geocoder' => $geocoder,
-				'add' => $add[$index],
+				'add' => $add_values,
 				'region' => $region
 			];
 		}
