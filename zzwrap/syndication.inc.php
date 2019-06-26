@@ -233,9 +233,8 @@ function wrap_syndication_geocode($address) {
 
 	// set geocoders
 	$geocoders = wrap_get_setting('geocoder');
-	if (!$geocoders) {
-		$geocoders = ['Nominatim'];
-	} elseif (!is_array($geocoders)) {
+	if (!$geocoders) return false;
+	if (!is_array($geocoders)) {
 		$geocoders = [$geocoders];
 	}
 	foreach ($geocoders as $geocoder) {
