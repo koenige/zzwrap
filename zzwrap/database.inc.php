@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -199,18 +199,15 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		return $result;
 	}
 
-	// error
-	$close_connection_errors = [
-		1030,	// Got error %d from storage engine
-		1317,	// Query execution was interrupted
-		2006,	// MySQL server has gone away
-		2008	// MySQL client ran out of memory
-	];
-	$error_msg = mysqli_error($zz_conf['db_connection']);
-	if (in_array(mysqli_errno($zz_conf['db_connection']), $close_connection_errors)) {
-		mysqli_close($zz_conf['db_connection']);
-		$zz_conf['db_connection'] = NULL;
+	$error_no = wrap_db_error_no();
+	if ($error_no === 2006 AND in_array($tokens[0], ['SET', 'SELECT'])) {
+		// retry connection
+		wrap_db_connect();
+		$result = mysqli_query($zz_conf['db_connection'], $sql);
+		if ($result) return $result;
+		wrap_db_error_no();
 	}
+	$error_msg = mysqli_error($zz_conf['db_connection']);
 	
 	if (function_exists('wrap_error') AND !$warnings) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
@@ -222,6 +219,28 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		}
 	}
 	return false;	
+}
+
+/**
+ * close connection if there's a database error, read error number
+ *
+ * @return int
+ */
+function wrap_db_error_no() {
+	global $zz_conf;
+	$close_connection_errors = [
+		1030,	// Got error %d from storage engine
+		1317,	// Query execution was interrupted
+		2006,	// MySQL server has gone away
+		2008	// MySQL client ran out of memory
+	];
+
+	$error_no = mysqli_errno($zz_conf['db_connection']);
+	if (in_array($error_no, $close_connection_errors)) {
+		mysqli_close($zz_conf['db_connection']);
+		$zz_conf['db_connection'] = NULL;
+	}
+	return $error_no;
 }
 
 /**
