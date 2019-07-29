@@ -621,7 +621,7 @@ function wrap_error_referer_local_redirect($referer_host) {
  */
 function wrap_error_referer_local_https($referer) {
 	global $zz_setting;
-	global $zz_page
+	global $zz_page;
 
 	// just if referer URL path differs
 	if (!$referer['path']) return false;
