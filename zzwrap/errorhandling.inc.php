@@ -562,7 +562,7 @@ function wrap_errorpage_logignore() {
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) return false;
 	} else {
-		if (wrap_errorpage_logignore_no_https_referer($referer, $zz_page['url']['full'])) return true;
+		if (wrap_error_referer_local_https($referer, $zz_page['url']['full'])) return true;
 	}
 	// ignore scheme, port, user, pass
 	// query
@@ -614,13 +614,13 @@ function wrap_error_referer_local_redirect($referer_host) {
 }
 
 /**
- * check if referring URL has no https, but https is required (= thought out referer)
+ * check if local referer must have https but has not
  *
  * @param array $referer
  * @param array $url
- * @return bool true: do not log
+ * @return bool true: https required but not there, false: ok
  */
-function wrap_errorpage_logignore_no_https_referer($referer, $url) {
+function wrap_error_referer_local_https($referer, $url) {
 	global $zz_setting;
 
 	// just if referer URL path differs
@@ -632,6 +632,7 @@ function wrap_errorpage_logignore_no_https_referer($referer, $url) {
 	if ($referer['scheme'] === 'https') return false;
 	if (empty($zz_setting['canonical_hostname'])) return false;
 	if ($referer['host'] !== $zz_setting['canonical_hostname']) return false;
+
 	// if all URLs are https, then real referer from same domain must be https, too
 	if (in_array('/', $zz_setting['https_urls'])) return true;
 
