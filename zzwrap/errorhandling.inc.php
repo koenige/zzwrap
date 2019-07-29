@@ -555,34 +555,68 @@ function wrap_errorpage_logignore() {
 	// script behaves differently the next time it was uploaded, but we
 	// ignore these), bad programmed script
 
+	$valid = wrap_error_referer_valid();
+	if (!$valid) return true;
+	return false;
+}
+
+/**
+ * check if a referer is valid
+ *
+ * @param bool $non_urls defaults to false, true: allow referers that
+ *		are not URLs
+ * @param bool $local_redirects defaults to true, false: do not allow referer to be a redirect
+ * @return bool true: referer is valid, false: referer is invalid
+ */
+function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
+	global $zz_setting;
+	global $zz_page;
+
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
-	if (!$referer) return true; // not parseable = invalid
-	if (empty($referer['scheme'])) return true; // no real referer comes without scheme
-	if (empty($referer['host'])) return true; // not really parseable = invalid
+	// not parseable = invalid
+	if (!$referer) return false;
+
+	// no real referer comes without scheme
+	if (empty($referer['scheme'])) return $non_urls;
+	// not really parseable = invalid
+	if (empty($referer['host'])) return $non_urls;
+	// there's always a path if referer is created by browser
+	if (empty($referer['path'])) return false;
+
+	// referer from external domain? if yes, return true, we don't know more about it
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
-		if (!wrap_error_referer_local_redirect($referer['host'])) return false;
-	} else {
-		if (wrap_error_referer_local_https($referer)) return true;
+		if (!wrap_error_referer_local_redirect($referer['host'])) return true;
+		if (!$local_redirects) return false;
 	}
-	// ignore scheme, port, user, pass
-	// query
-	if (!empty($referer['query']) AND (
-		empty($zz_page['url']['full']['query'])
-		OR (wrap_error_url_decode($referer['query']) !== wrap_error_url_decode($zz_page['url']['full']['query']))
-	)) {
+	// referer from own domain, but invalid because should be https?
+	if (wrap_error_referer_local_https($referer, $zz_page['url']['full'])) {
 		return false;
 	}
-	// path is left
-	if (empty($referer['path'])) $referer['path'] = '/';
-	if ($referer['path'] === $zz_page['url']['full']['path']) return true;
-	if (str_replace('//', '/', $referer['path']) === $zz_page['url']['full']['path']) return true;
-	if ($referer['path'] === $zz_setting['base'].$zz_page['url']['full']['path']) return true;
-	if ($referer['path'] === $zz_setting['request_uri']) return true; // for malformed URIs
+
+	// check for identical URL in referer, no page links to itself
+	if ($_SERVER['REQUEST_METHOD'] !== 'GET') return true;
+	// query string different?
+	if (!empty($referer['query'])) {
+		// referer has query string, URL not, probably valid referer
+		if (empty($zz_page['url']['full']['query'])) return true;
+		// referer has different query string
+		if (wrap_error_url_decode($referer['query']) !== wrap_error_url_decode($zz_page['url']['full']['query']))
+			return true;
+	} else {
+		// URL has query string, referer not
+		if (!empty($zz_page['url']['full']['query'])) return true;
+	}
+
+	// query string is equal, path is left
+	if ($referer['path'] === $zz_page['url']['full']['path']) return false;
+	if (str_replace('//', '/', $referer['path']) === $zz_page['url']['full']['path']) return false;
+	if ($referer['path'] === $zz_setting['base'].$zz_page['url']['full']['path']) return false;
+	if ($referer['path'] === $zz_setting['request_uri']) return false; // for malformed URIs
 	// check if equal if path has %-encoded values
 	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode($zz_setting['base'].$zz_page['url']['full']['path']))
-		return true;
+		return false;
 
-	return false;
+	return true;
 }
 
 /**
