@@ -562,7 +562,7 @@ function wrap_errorpage_logignore() {
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) return false;
 	} else {
-		if (wrap_error_referer_local_https($referer, $zz_page['url']['full'])) return true;
+		if (wrap_error_referer_local_https($referer)) return true;
 	}
 	// ignore scheme, port, user, pass
 	// query
@@ -617,16 +617,16 @@ function wrap_error_referer_local_redirect($referer_host) {
  * check if local referer must have https but has not
  *
  * @param array $referer
- * @param array $url
  * @return bool true: https required but not there, false: ok
  */
-function wrap_error_referer_local_https($referer, $url) {
+function wrap_error_referer_local_https($referer) {
 	global $zz_setting;
+	global $zz_page
 
 	// just if referer URL path differs
 	if (!$referer['path']) return false;
-	if (!$url['path']) return false;
-	if ($referer['path'] === $url['path']) return false;
+	if (!$zz_page['url']['full']['path']) return false;
+	if ($referer['path'] === $zz_page['url']['full']['path']) return false;
 
 	// check for https
 	if ($referer['scheme'] === 'https') return false;
