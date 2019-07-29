@@ -560,23 +560,7 @@ function wrap_errorpage_logignore() {
 	if (empty($referer['scheme'])) return true; // no real referer comes without scheme
 	if (empty($referer['host'])) return true; // not really parseable = invalid
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
-		$ok = false;
-		// missing www. redirect
-		if (strtolower('www.'.$referer['host']) === strtolower($zz_setting['hostname'])) $ok = true;
-		// IP redirect
-		if ($referer['host'] === $_SERVER['SERVER_ADDR']) $ok = true;
-		// referer from canonical hostname
-		$hostnames = [];
-		if (!empty($zz_setting['canonical_hostname']))
-			$hostnames[] = $zz_setting['canonical_hostname'];
-		if (!empty($zz_setting['external_redirect_hostnames'])) // external redirects
-			$hostnames = array_merge($hostnames, $zz_setting['external_redirect_hostnames']);
-		foreach ($hostnames as $hostname) {
-			if (strtolower($hostname) !== strtolower($referer['host'])) continue;
-			$ok = true;
-			break;
-		}
-		if (!$ok) return false;
+		if (!wrap_error_referer_local_redirect($referer['host'])) return false;
 	} else {
 		if (wrap_errorpage_logignore_no_https_referer($referer, $zz_page['url']['full'])) return true;
 	}
@@ -598,6 +582,34 @@ function wrap_errorpage_logignore() {
 	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode($zz_setting['base'].$zz_page['url']['full']['path']))
 		return true;
 
+	return false;
+}
+
+/**
+ * check if a referer is a redirect on localhost
+ *
+ * @param string $referer_host
+ * @return bool true: localhost, false: external referer
+ */
+function wrap_error_referer_local_redirect($referer_host) {
+	global $zz_setting;
+
+	// missing www. redirect
+	if (strtolower('www.'.$referer_host) === strtolower($zz_setting['hostname']))
+		return true;
+
+	// IP redirect
+	if ($referer_host === $_SERVER['SERVER_ADDR']) return true;
+
+	// referer from canonical hostname
+	$hostnames = [];
+	if (!empty($zz_setting['canonical_hostname']))
+		$hostnames[] = $zz_setting['canonical_hostname'];
+	if (!empty($zz_setting['external_redirect_hostnames'])) // external redirects
+		$hostnames = array_merge($hostnames, $zz_setting['external_redirect_hostnames']);
+	foreach ($hostnames as $hostname) {
+		if (strtolower($hostname) === strtolower($referer_host)) return true;
+	}
 	return false;
 }
 
