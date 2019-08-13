@@ -223,6 +223,10 @@ function wrap_set_defaults_post_conf() {
 	// if (empty($zz_setting['cainfo_file']))
 	//	$zz_setting['cainfo_file'] = __DIR__.'/cacert.pem';
 	
+	// images
+	if (empty($zz_setting['media_preview_size']))
+		$zz_setting['media_preview_size'] = 80;
+	
 	// -------------------------------------------------------------------------
 	// Page
 	// -------------------------------------------------------------------------
