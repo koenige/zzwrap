@@ -319,19 +319,22 @@ function wrap_look_for_page($zz_page) {
  */
 function wrap_look_for_file($url_path) {
 	global $zz_setting;
-	if (empty($zz_setting['modules'])) return false;
+	if (empty($zz_setting['modules']) AND !$zz_setting['active_theme']) return false;
 	if (!$url_path) return false;
+	$folders = !empty($zz_setting['modules']) ? $zz_setting['modules'] : [];
+	if ($zz_setting['active_theme']) array_unshift($folders, $zz_setting['active_theme']);
 
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (empty($zz_setting[$path.'_path'])) continue;
 		if (!wrap_substr($url_path, $zz_setting[$path.'_path'])) continue;
 		$url_folders = explode('/', substr($url_path, strlen($zz_setting[$path.'_path'])));
-		if (!in_array($url_folders[1], $zz_setting['modules'])) continue;
+		if (!in_array($url_folders[1], $folders)) continue;
 		array_shift($url_folders);
 		$module = array_shift($url_folders);
+		$dir = ($module === $zz_setting['active_theme']) ? $zz_setting['themes_dir'] : $zz_setting['modules_dir'];
 		$file['name'] = sprintf('%s/%s/%s/%s',
-			$zz_setting['modules_dir'], $module, $path, implode('/', $url_folders));
+			$dir, $module, $path, implode('/', $url_folders));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css'])) {
 			wrap_cache_allow_private();
 			return $file['name'];
