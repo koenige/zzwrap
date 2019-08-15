@@ -140,6 +140,8 @@ function wrap_set_defaults_post_conf() {
 	// Paths
 	// -------------------------------------------------------------------------
 	
+	$zz_setting['inc'] = realpath($zz_setting['inc']);
+	
 	// library
 	if (empty($zz_setting['lib']))
 		$zz_setting['lib']			= $zz_setting['inc'].'/library';
@@ -166,7 +168,7 @@ function wrap_set_defaults_post_conf() {
 	
 	// modules
 	if (empty($zz_setting['modules_dir'])) {
-		$zz_setting['modules_dir'] = realpath($zz_setting['inc'].'/modules');
+		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
 	}
 	if (empty($zz_setting['modules'])) {
 		$zz_setting['modules'] = [];
@@ -188,7 +190,10 @@ function wrap_set_defaults_post_conf() {
 			array_unshift($zz_setting['modules'], 'default');
 		}
 	}
-	
+	if (empty($zz_setting['themes_dir'])) {
+		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
+	}
+
 	// cms core
 	if (empty($zz_setting['core']))
 		$zz_setting['core']			= __DIR__;
@@ -257,6 +262,9 @@ function wrap_set_defaults_post_conf() {
 	// XML mode? for closing tags
 	if (!isset($zz_setting['xml_close_empty_tags']))
 		$zz_setting['xml_close_empty_tags'] = false;
+
+	// Theme
+	if (empty($zz_setting['active_theme'])) $zz_setting['active_theme'] = '';
 	
 	// Page template
 	if (empty($zz_page['template'])) {
