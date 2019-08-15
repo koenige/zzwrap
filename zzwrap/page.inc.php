@@ -101,6 +101,11 @@ function wrap_template($template, $data = [], $mode = false) {
  */
 function wrap_template_file($template, $show_error = true) {
 	global $zz_setting;
+
+	if (!empty($zz_setting['active_theme'])) {
+		$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/themes/'.$zz_setting['active_theme'].'/templates');
+		if ($tpl_file) return $tpl_file;
+	}
 	
 	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['custom_wrap_template_dir']);
 	if ($tpl_file) return $tpl_file;
