@@ -844,7 +844,12 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		}
 		$newurl = parse_url($new);
 		if (empty($newurl['scheme'])) {
-			$new = $zz_setting['host_base'].$zz_setting['base'].$new;
+			if ($zz_setting['base'] AND file_exists($zz_conf['root'].'/'.$new)) {
+				// no language redirect if it's an existing file
+				$new = $zz_setting['host_base'].$new;
+			} else {
+				$new = $zz_setting['host_base'].$zz_setting['base'].$new;
+			}
 		}
 		wrap_redirect($new, $page['status']);
 		exit;
