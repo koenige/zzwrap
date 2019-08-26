@@ -335,7 +335,7 @@ function wrap_look_for_file($url_path) {
 		$dir = ($module === $zz_setting['active_theme']) ? $zz_setting['themes_dir'] : $zz_setting['modules_dir'];
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$dir, $module, $path, implode('/', $url_folders));
-		if (in_array($ext = wrap_file_extension($file['name']), ['css'])) {
+		if (in_array($ext = wrap_file_extension($file['name']), ['css', 'js'])) {
 			wrap_cache_allow_private();
 			return $file['name'];
 		}
