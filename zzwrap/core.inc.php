@@ -1145,6 +1145,8 @@ function wrap_url_decode($input, $type = 'path') {
 		$dont_encode[] = '5D';
 		break;
 	case 'query':
+		$dont_encode[] = '3D'; // =
+		$dont_encode[] = '26'; // &
 		break;
 	case 'all':
 		$dont_encode = [];
