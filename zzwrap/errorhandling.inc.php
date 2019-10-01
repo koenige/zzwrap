@@ -595,7 +595,7 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	}
 
 	// check for identical URL in referer, no page links to itself
-	if ($_SERVER['REQUEST_METHOD'] !== 'GET') return true;
+	if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'])) return true;
 	// query string different?
 	if (!empty($referer['query'])) {
 		// referer has query string, URL not, probably valid referer
