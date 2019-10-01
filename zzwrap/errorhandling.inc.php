@@ -424,6 +424,7 @@ function wrap_errorpage_log($status, $page) {
 			wrap_error($msg, E_USER_NOTICE, $settings);
 		} else {
 			$msg .= "\n".json_encode($_SERVER);
+			if (!empty($_POST)) $msg .= "\n\n".json_encode($_POST);
 			wrap_error($msg, E_USER_WARNING, $settings);
 		}
 		break;
