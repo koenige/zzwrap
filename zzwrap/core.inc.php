@@ -1199,7 +1199,8 @@ function wrap_check_http_request_method() {
  *		'send_as' => send filename under a different name (default: basename)
  *		'error_code' => HTTP error code to send in case of file not found error
  *		'error_msg' => additional error message that appears on error page,
- *		'etag_generate_md5' => creates 'etag' if not send with MD5
+ *		'etag_generate_md5' => creates 'etag' if not send with MD5,
+ *		'caching' => bool; defaults to true, false = no caching allowed
  * @global array $zz_conf
  * @todo send pragma public header only if browser that is affected by this bug
  * @todo implement Ranges for bytes
@@ -1226,6 +1227,7 @@ function wrap_file_send($file) {
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
+	if (!isset($file['caching'])) $file['caching'] = true;
 
 	// Accept-Ranges HTTP header
 	wrap_cache_header('Accept-Ranges: bytes');
@@ -1268,7 +1270,8 @@ function wrap_file_send($file) {
 	// Last-Modified HTTP header
 	wrap_if_modified_since(filemtime($file['name']), 200, $file);
 
-	wrap_cache_allow_private();
+	if ($file['caching'])
+		wrap_cache_allow_private();
 
 	// Download files if generic mimetype
 	// or HTML, since this might be of unknown content with javascript or so
@@ -1290,7 +1293,8 @@ function wrap_file_send($file) {
 	}
 	
 	wrap_cache_header();
-	wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_file']));
+	if ($file['caching'])
+		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_file']));
 	wrap_send_ressource('file', $file);
 }
 
