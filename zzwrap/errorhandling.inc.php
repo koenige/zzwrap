@@ -409,8 +409,14 @@ function wrap_errorpage_log($status, $page) {
 		$msg .= ' Referer: '.$_SERVER['HTTP_REFERER'];
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
-	case 400:
 	case 401:
+		// do not log an error if no credentials were send
+		if (empty($_SERVER['PHP_AUTH_USER']) AND empty($_SERVER['PHP_AUTH_PW'])) break;
+		$msg .= sprintf(' (IP: %s, User agent: %s)'
+			, $_SERVER['REMOTE_ADDR']
+			, (!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown')
+		);
+	case 400:
 	case 405:
 	case 501:
 		wrap_error($msg, E_USER_NOTICE, $settings);
