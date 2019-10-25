@@ -1112,3 +1112,64 @@ function wrap_db_auto_increment($table) {
 	if (empty($data)) return '';
 	return $data['Auto_increment'];
 }
+
+/**
+ * read language IDs from database
+ *
+ * @param string $language
+ * @param string $action (optional, default 'read', 'list')
+ * @return int
+ */
+function wrap_language_id($language, $action = 'read') {
+	return wrap_id('languages', $language, $action);
+}
+
+/**
+ * read category IDs from database
+ *
+ * @param string $language
+ * @param string $action (optional, default 'read', 'list')
+ * @return int
+ */
+function wrap_category_id($category, $action = 'read') {
+	return wrap_id('categories', $category, $action);
+}
+
+/**
+ * read IDs from database
+ *
+ * @param string $table
+ * @param string $language
+ * @param string $action (optional, default 'read', 'list')
+ * @return mixed
+ */
+function wrap_id($table, $identifier, $action = 'read') {
+	static $data;
+
+	if (empty($data[$table])) {
+		switch ($table) {
+		case 'categories':
+			$sql = 'SELECT path, category_id
+				FROM categories ORDER BY path';
+			break;
+		case 'languages':
+			$sql = 'SELECT iso_639_1, language_id
+				FROM languages WHERE website = "yes" ORDER BY iso_639_1';
+			break;
+		default:
+			wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
+			return [];
+		}
+		$data[$table] = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	}
+
+	switch ($action) {
+	case 'read':
+		if (!array_key_exists($identifier, $data[$table])) return false;
+		return $data[$table][$identifier];
+	case 'list':
+		return $data[$table];
+	default:
+		return false;
+	}
+}
