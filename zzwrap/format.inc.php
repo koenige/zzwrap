@@ -384,6 +384,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
  * @param string $format format which should be used:
  *		roman->arabic
  *		arabic->roman
+ *		simple (default)
  * @return string
  */
 function wrap_number($number, $format = false) {
@@ -393,11 +394,8 @@ function wrap_number($number, $format = false) {
 
 	if (!$format AND isset($zz_setting['number_format']))
 		$format = $zz_setting['number_format'];
-	if (!$format) {
-		wrap_error('Please set at least a default format for wrap_number().
-			via $zz_setting["number_format"] = "roman->arabic" or so');
-		return $number;
-	}
+	if (!$format)
+		$format = 'simple';
 	
 	switch ($format) {
 	case 'roman->arabic':
