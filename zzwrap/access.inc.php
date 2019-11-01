@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2019 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -52,9 +52,11 @@ function wrap_check_hash($string, $hash, $error_msg = '', $key = 'secret_key') {
 	if (wrap_set_hash($string, $key, -1) == $hash) return true;
 	if (wrap_set_hash($string, $key, +1) == $hash) return true;
 
-	if (!$error_msg) $error_msg = wrap_text('Incorrect credentials');
-	wrap_error($error_msg, E_USER_NOTICE);
-	wrap_quit(403);
+	if ($error_msg) {
+		wrap_error($error_msg, E_USER_NOTICE);
+		wrap_quit(403);
+	}
+	return false;
 }
 
 /**
