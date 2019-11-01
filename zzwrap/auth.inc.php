@@ -995,10 +995,10 @@ function wrap_login_request($request, $login) {
 	// check if hash is correct
 	// set addlogin_key 
 	// set addlogin_key_validity_in_minutes
-	$hash = wrap_set_hash($user['user_id'].'-'.$user['username'], 'addlogin_key');
-	if ($hash !== $request[1]) {
+	$access = wrap_check_hash($user['user_id'].'-'.$user['username'], $request[1], '', 'addlogin_key');
+	if (!$access) {
 		$return['invalid_request'] = true;
-		wrap_error(sprintf('Could not create login, hash is invalid: %s %s (correct hash: %s)', $request[0], $request[1], $hash), E_USER_NOTICE);
+		wrap_error(sprintf('Could not create login, hash is invalid: %s %s', $request[0], $request[1]), E_USER_NOTICE);
 		$page['text'] = wrap_template('login-request', $return);
 		return $page;
 	}
