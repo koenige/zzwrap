@@ -281,3 +281,6 @@ qs	string	fbclid
 
 # Drupal
 404	end	/user/register/?element_parents=account/mail/%23value&ajax_form=1&_wrapper_format=drupal_ajax
+
+# just generating 404s on purpose
+404	all	/th1s_1s_a_4o4.html
