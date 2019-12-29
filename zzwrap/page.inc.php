@@ -910,17 +910,17 @@ function wrap_get_page() {
 	}
 	wrap_page_check_if_error($page);
 
-	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
-		if (empty($page['headers'])) $page['headers'] = [];
-		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers']);
-	}
-
 	if (!empty($page['no_output'])) exit;
 
 	$zz_page['url'] = wrap_check_canonical($zz_page, $page);
 	if (!empty($zz_page['url']['redirect'])) {
 		// redirect to canonical URL or URL with language code
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
+	}
+
+	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
+		if (empty($page['headers'])) $page['headers'] = [];
+		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers']);
 	}
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
