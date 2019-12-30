@@ -929,7 +929,7 @@ function wrap_password_reminder($address, $additional_data = []) {
 function wrap_auth_show_session() {
 	$page['text'] = json_encode($_SESSION);
 	$page['content_type'] = 'json';
-	$page['query_strings'][] = 'via';
+	$page['query_strings'] = ['via', 'auth'];
 	$page['headers']['filename'] = 'session-'.$_SESSION['user_id'].'.json';
 	return $page;
 }
