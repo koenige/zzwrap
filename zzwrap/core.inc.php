@@ -421,7 +421,8 @@ function wrap_check_canonical($zz_page, $page) {
 	}
 	
 	// if database allows field 'ending', check if the URL is canonical
-	if (!empty($zz_page['db'][wrap_sql('ending')])) {
+	// just for HTML output!
+	if (!empty($zz_page['db'][wrap_sql('ending')]) AND $page['content_type'] === 'html') {
 		$ending = $zz_page['db'][wrap_sql('ending')];
 		// if brick_format() returns a page ending, use this
 		if (isset($page['url_ending'])) $ending = $page['url_ending'];
