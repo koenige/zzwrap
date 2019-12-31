@@ -554,6 +554,8 @@ function wrap_glue_url($url) {
 	if (!empty($url['path_forwarded']) AND wrap_substr($url['path'], $url['path_forwarded'])) {
 		$url['path'] = substr($url['path'], strlen($url['path_forwarded']));
 	}
+	// remove duplicate base
+	if (wrap_substr($url['path'], $base)) $base = '';
 	$full_url = $url['scheme'].'://'.$url['host'].$port.$base
 		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
 	return $full_url;
