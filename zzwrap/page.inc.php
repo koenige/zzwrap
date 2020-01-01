@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -899,6 +899,7 @@ function wrap_get_page() {
 
 	if (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
+		$page['url_ending'] = 'ignore';
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
 		$page['text'] = wrap_template($zz_page['tpl_file'], $zz_conf + $zz_setting);
 		if (!$page['text']) wrap_quit(404);

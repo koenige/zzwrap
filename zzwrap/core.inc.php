@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -484,6 +484,7 @@ function wrap_check_canonical($zz_page, $page) {
 function wrap_check_canonical_ending($ending, $url) {
 	// no changes for root path
 	if ($url['full']['path'] === '/') return $url;
+	if ($ending === 'ignore') return $url;
 	$new = false;
 	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E'];
 	foreach ($possible_endings as $p_ending) {
