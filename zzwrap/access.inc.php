@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -118,7 +118,7 @@ function wrap_base_convert($input, $frombase, $tobase) {
 	$length = strlen($input);
     $output = '';
     for ($i = 0; $i < $length; $i++) {
-    	$number[$i] = strpos($chars, $input{$i});
+    	$number[$i] = strpos($chars, $input[$i]);
 	}
 	do {
 		$divide = 0;
@@ -133,7 +133,7 @@ function wrap_base_convert($input, $frombase, $tobase) {
 			}
 		}
 		$length = $newlen;
-		$output = $tostring{$divide} . $output;
+		$output = $tostring[$divide] . $output;
 	} while ($newlen != 0);
 	return $output;
 }
