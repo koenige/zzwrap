@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -467,6 +467,7 @@ function wrap_errorpage_ignore($status, $string = false) {
 		while (!feof($handle)) {
 			$i++;
 			$line = fgetcsv($handle, 8192, "\t");
+			if (!$line) continue;
 			if ($line[0] != $status) continue;
 			if (count($line) !== 3) {
 				wrap_error(sprintf('File %s is wrong in line %s.', $file, $i), E_USER_NOTICE);
