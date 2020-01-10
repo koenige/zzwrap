@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -751,8 +751,6 @@ function wrap_register($user_id = false, $data = []) {
 function wrap_login_format($field_value, $field_name) {
 	global $zz_setting;
 	
-	if (get_magic_quotes_gpc())
-		$field_value = stripslashes($field_value);
 	$field_value = wrap_db_escape($field_value);
 	
 	if (!empty($zz_setting['login_fields_format']))
