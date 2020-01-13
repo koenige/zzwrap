@@ -591,9 +591,13 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	// there's always a path if referer is created by browser
 	if (empty($referer['path'])) return false;
 
-	// referer from external domain? if yes, return true, we don't know more about it
+	// referer from external domain?
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
-		if (!wrap_error_referer_local_redirect($referer['host'])) return true;
+		if (!wrap_error_referer_local_redirect($referer['host'])) {
+			if (strstr($referer['path'], '/../')) return false;
+			// if yes, return true, we don't know more about it
+			return true;
+		}
 		if (!$local_redirects) return false;
 	}
 	// referer from own domain, but invalid because should be https?
