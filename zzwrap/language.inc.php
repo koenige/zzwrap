@@ -577,6 +577,7 @@ function wrap_translate_page() {
 	global $zz_conf;
 	global $zz_page;
 	if (!$zz_conf['translations_of_fields']) return false;
+	if (empty($zz_page['db'])) return false; // theme files
 	$my_page = wrap_translate([
 		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']],
 		wrap_sql('translation_matrix_pages')
