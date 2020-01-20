@@ -584,7 +584,7 @@ function wrap_get_top_nav_id($menu) {
 		// set current_page for next upper page in hierarchy
 		foreach (array_keys($menu) as $main_nav_id) {
 			foreach ($menu[$main_nav_id] as $nav_id => $element) {
-				if ($element[wrap_sql('page_id')] == $upper_breadcrumb['page_id']) {
+				if (is_array($element) AND $element[wrap_sql('page_id')] == $upper_breadcrumb['page_id']) {
 					// current_page in $menu may be set to true
 					// without problems since $menu is not used for anything anymore
 					// i. e. there will still be a link to the navigation menu entry
