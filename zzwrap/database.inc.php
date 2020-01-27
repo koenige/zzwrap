@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -940,6 +940,9 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 			$zz_sql['redirects_*'] = 'SELECT * FROM /*_PREFIX_*/redirects
 				WHERE old_url = _latin1"%s*"';
+
+			$zz_sql['redirects*_'] = 'SELECT * FROM /*_PREFIX_*/redirects
+				WHERE old_url = _latin1"*%s"';
 				
 			$zz_sql['filetypes'] = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
 				FROM /*_PREFIX_*/filetypes

@@ -596,30 +596,72 @@ function wrap_check_redirects($page_url) {
 
 	// If no redirect was found until now, check if there's a redirect above
 	// the current level with a placeholder (*)
+	$redir = wrap_check_redirects_placeholder($url, 'behind');
+	if ($redir) return $redir;
+	$redir = wrap_check_redirects_placeholder($url, 'before');
+	if ($redir) return $redir;
+	return false;
+}
+
+/**
+ * check for redirects with placeholder
+ *
+ * @param array $url
+ * @param string $position
+ * @return mixed
+ */
+function wrap_check_redirects_placeholder($url, $position) {
+	$redir = false;
 	$parameter = false;
 	$found = false;
 	$break_next = false;
 	$separators = ['/', '-', '.'];
+
+	switch ($position) {
+	case 'before':
+		$r_query = 'redirects*_';
+		break;
+	case 'behind':
+		$r_query = 'redirects_*';
+		break;
+	}
+
 	while (!$found) {
-		$sql = sprintf(wrap_sql('redirects_*'), '/'.$url['db']);
+		$current_path = sprintf('/%s', $url['db']);
+		$sql = sprintf(wrap_sql($r_query), $current_path);
 		$redir = wrap_db_fetch($sql);
 		if ($redir) break; // we have a result, get out of this loop!
 		$last_pos = 0;
-		foreach ($separators as $separator) {
-			$pos = strrpos($url['db'], $separator);
-			if ($pos > $last_pos) {
-				$last_pos = $pos;
-				$last_separator = $separator;
+		if ($position === 'before') {
+			foreach ($separators as $separator) {
+				$pos = strpos($url['db'], $separator);
+				if (!$last_pos OR $pos < $last_pos) {
+					$last_pos = $pos;
+					$last_separator = $separator;
+				}
 			}
+			if ($last_pos) {
+				$parameter .= substr($url['db'], 0, $last_pos + 1);
+			}
+			$url['db'] = substr($url['db'], $last_pos + 1);
+		} else {
+			foreach ($separators as $separator) {
+				$pos = strrpos($url['db'], $separator);
+				if ($pos > $last_pos) {
+					$last_pos = $pos;
+					$last_separator = $separator;
+				}
+			}
+			if ($last_pos) {
+				$parameter = substr($url['db'], $last_pos).$parameter;
+			}
+			$url['db'] = substr($url['db'], 0, $last_pos);
 		}
-		if ($last_pos) {
-			$parameter = substr($url['db'], $last_pos).$parameter;
-		}
-		$url['db'] = substr($url['db'], 0, $last_pos);
 		if ($break_next) break; // last round
 		if (!strstr($url['db'], '/')) $break_next = true;
 	}
 	if (!$redir) return false;
+
 	// parameters starting with - will be changed to start with /
 	if (empty($last_separator)) $last_separator = '/'; // default
 	elseif ($last_separator === '-') $last_separator = '/';
@@ -629,6 +671,9 @@ function wrap_check_redirects($page_url) {
 	if (substr($redir[$field_name], -1) === '*') {
 		$parameter = substr($parameter, 1);
 		$redir[$field_name] = substr($redir[$field_name], 0, -1).$last_separator.$parameter;
+	} elseif (substr($redir[$field_name], 0, 1) === '*') {
+		$parameter = substr($parameter, 0, -1);
+		$redir[$field_name] = $last_separator.$parameter.substr($redir[$field_name], 1);
 	}
 	return $redir;
 }
