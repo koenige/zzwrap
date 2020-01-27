@@ -329,6 +329,7 @@ function wrap_look_for_file($url_path) {
 		if (empty($zz_setting[$path.'_path'])) continue;
 		if (!wrap_substr($url_path, $zz_setting[$path.'_path'])) continue;
 		$url_folders = explode('/', substr($url_path, strlen($zz_setting[$path.'_path'])));
+		if (count($url_folders) < 2) continue;
 		if (!in_array($url_folders[1], $folders)) continue;
 		array_shift($url_folders);
 		$module = array_shift($url_folders);
