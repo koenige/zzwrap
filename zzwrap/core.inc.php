@@ -424,7 +424,7 @@ function wrap_check_canonical($zz_page, $page) {
 	// if database allows field 'ending', check if the URL is canonical
 	// just for HTML output!
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html'
-		AND in_array($_SERVER['REQUEST_METHOD'], ['HEAD', 'GET'])) {
+		AND substr($zz_page['db']['identifier'], -1) === '*') {
 		if (empty($page['url_ending'])) $page['url_ending'] = 'none';
 	}
 	if (!empty($zz_page['db'][wrap_sql('ending')])) {
