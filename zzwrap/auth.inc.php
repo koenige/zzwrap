@@ -473,7 +473,9 @@ function cms_login($params, $settings = []) {
 				? wrap_html_escape($_POST[strtolower($login_field)]) : ''
 		];
 	}
-	$page['query_strings'] = ['password', 'auth', 'via', 'request'];
+	$page['query_strings'] = [
+		'password', 'auth', 'via', 'request', 'username', 'token', 'url'
+	];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
 		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
