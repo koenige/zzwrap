@@ -599,6 +599,9 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 			return true;
 		}
 		if (!$local_redirects) return false;
+		// is it a local redirect but paths differ? impossible, the referring URL
+		// would have been redirected as well
+		if ($referer['path'] !== $zz_page['url']['full']['path']) return false;
 	}
 	// referer from own domain, but invalid because should be https?
 	if (wrap_error_referer_local_https($referer, $zz_page['url']['full'])) {
