@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -375,14 +375,17 @@ function wrap_set_defaults_pre_conf() {
  * @return string
  */
 function wrap_http_remote_ip() {
-	if (empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-		if (empty($_SERVER['REMOTE_ADDR']))
-			return '';
-		return $_SERVER['REMOTE_ADDR'];
+	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		if ($pos = strpos($remote_ip, ',')) {
+			$remote_ip = substr($remote_ip, 0, $pos);
+		}
+		// do not forward connections that say they're localhost
+		if ($remote_ip === '::1') $remote_ip = '';
+		if (substr($remote_ip, 0, 4) === '127.') $remote_ip = '';
+		if ($remote_ip) return $remote_ip;
 	}
-	$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	if ($pos = strpos($remote_ip, ',')) {
-		$remote_ip = substr($remote_ip, 0, $pos);
-	}
-	return $remote_ip;
+	if (empty($_SERVER['REMOTE_ADDR']))
+		return '';
+	return $_SERVER['REMOTE_ADDR'];
 }
