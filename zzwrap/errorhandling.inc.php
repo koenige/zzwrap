@@ -592,7 +592,13 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	if (empty($referer['path'])) return false;
 
 	// referer from external domain?
+	$external_request = false;
 	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
+		$external_request = true;
+	} elseif (!empty($zz_setting['canonical_hostname']) AND $zz_setting['canonical_hostname'] !== $zz_setting['hostname']) {
+		$external_request = true;
+	}
+	if ($external_request) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) {
 			if (strstr($referer['path'], '/../')) return false;
 			// if yes, return true, we don't know more about it
