@@ -73,12 +73,11 @@ DROP TABLE IF EXISTS `_settings`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_settings` (
   `setting_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `login_id` int unsigned DEFAULT NULL,
   `setting_key` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `setting_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `setting_value` varchar(750) COLLATE utf8_unicode_ci NOT NULL,
   `explanation` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`setting_id`),
-  UNIQUE KEY `setting_key_login_id` (`setting_key`,`login_id`)
+  UNIQUE KEY `setting_key` (`setting_key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -319,8 +318,8 @@ DROP TABLE IF EXISTS `redirects`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `redirects` (
   `redirect_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `old_url` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
-  `new_url` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
+  `old_url` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `new_url` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `code` smallint unsigned NOT NULL DEFAULT '301',
   `area` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -368,7 +367,9 @@ CREATE TABLE `webpages` (
   `menu` enum('top','bottom','internal') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`page_id`)
+  PRIMARY KEY (`page_id`),
+  UNIQUE KEY `identifier` (`identifier`),
+  KEY `mother_page_id` (`mother_page_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

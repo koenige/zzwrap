@@ -91,12 +91,11 @@ DROP TABLE IF EXISTS `_settings`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_settings` (
   `setting_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `login_id` int unsigned DEFAULT NULL,
   `setting_key` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `setting_value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `setting_value` varchar(750) COLLATE utf8mb4_unicode_ci NOT NULL,
   `explanation` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`setting_id`),
-  UNIQUE KEY `setting_key_login_id` (`setting_key`,`login_id`)
+  UNIQUE KEY `setting_key` (`setting_key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
