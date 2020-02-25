@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 5.7.22, for osx10.12 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.19, for osx10.13 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8mb4
 -- ------------------------------------------------------
--- Server version	5.7.22
+-- Server version	8.0.19
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -19,7 +19,7 @@
 -- Current Database: `zzproject_base_utf8mb4`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `zzproject_base_utf8mb4` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `zzproject_base_utf8mb4` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 USE `zzproject_base_utf8mb4`;
 
@@ -29,14 +29,15 @@ USE `zzproject_base_utf8mb4`;
 
 DROP TABLE IF EXISTS `_logging`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_logging` (
-  `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `log_id` int unsigned NOT NULL AUTO_INCREMENT,
   `query` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `record_id` int(10) unsigned DEFAULT NULL,
+  `record_id` int unsigned DEFAULT NULL,
   `user` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`log_id`)
+  PRIMARY KEY (`log_id`),
+  KEY `record_id` (`record_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -55,9 +56,9 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_relations` (
-  `rel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `rel_id` int unsigned NOT NULL AUTO_INCREMENT,
   `master_db` varchar(127) COLLATE latin1_general_cs NOT NULL,
   `master_table` varchar(127) COLLATE latin1_general_cs NOT NULL,
   `master_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
@@ -87,10 +88,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_settings` (
-  `setting_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `login_id` int(10) unsigned DEFAULT NULL,
+  `setting_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `login_id` int unsigned DEFAULT NULL,
   `setting_key` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
   `setting_value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `explanation` text COLLATE utf8mb4_unicode_ci,
@@ -114,9 +115,9 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `_translationfields`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_translationfields` (
-  `translationfield_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `translationfield_id` int unsigned NOT NULL AUTO_INCREMENT,
   `db_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
   `table_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
   `field_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
@@ -142,13 +143,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `_translations_text`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_translations_text` (
-  `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `translationfield_id` int(10) unsigned NOT NULL,
-  `field_id` int(10) unsigned NOT NULL,
+  `translation_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `translationfield_id` int unsigned NOT NULL,
+  `field_id` int unsigned NOT NULL,
   `translation` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `language_id` int(10) unsigned NOT NULL,
+  `language_id` int unsigned NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
   UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
@@ -172,13 +173,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `_translations_varchar`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_translations_varchar` (
-  `translation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `translationfield_id` int(10) unsigned NOT NULL,
-  `field_id` int(10) unsigned NOT NULL,
+  `translation_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `translationfield_id` int unsigned NOT NULL,
+  `field_id` int unsigned NOT NULL,
   `translation` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `language_id` int(10) unsigned NOT NULL,
+  `language_id` int unsigned NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
   UNIQUE KEY `field_id` (`field_id`,`translationfield_id`,`language_id`),
@@ -193,7 +194,7 @@ CREATE TABLE `_translations_varchar` (
 
 LOCK TABLES `_translations_varchar` WRITE;
 /*!40000 ALTER TABLE `_translations_varchar` DISABLE KEYS */;
-INSERT INTO `_translations_varchar` VALUES (1,1,2,'Kategorien',105,'2013-08-16 12:51:51'),(2,1,3,'Kategorie',105,'2013-08-16 12:52:50'),(3,1,7,'Hauptkategorie',105,'2013-08-16 12:52:58'),(4,1,9,'nein',105,'2013-08-16 12:54:51'),(5,1,1,'Länder',105,'2013-08-16 12:56:08'),(6,1,12,'Land',105,'2013-08-16 12:56:15'),(7,1,10,'Ländercode',105,'2013-08-16 12:56:22'),(8,1,20,'Sprache, englisch',105,'2013-08-16 12:56:45'),(9,1,21,'Sprache, französisch',105,'2013-08-16 12:56:55'),(10,1,22,'Sprache, deutsch',105,'2013-08-16 12:57:07'),(11,1,15,'Sprachen',105,'2013-08-16 12:57:19'),(12,1,8,'ja',105,'2013-08-16 12:57:29'),(13,1,50,'Reihenfolge',105,'2013-08-16 12:57:37'),(14,1,24,'Titel',105,'2013-08-16 12:57:40'),(15,1,23,'Webseiten',105,'2013-08-16 12:57:54'),(16,1,5,'Stand',105,'2013-08-16 12:59:10'),(17,1,28,'Unterseite&nbsp;von',105,'2013-08-16 12:59:24'),(18,1,33,'oben',105,'2013-08-16 12:59:30'),(19,1,32,'keine',105,'2013-08-16 12:59:40'),(20,1,25,'Inhalt',105,'2013-08-16 13:00:22'),(21,1,48,'Ordner',105,'2013-08-16 13:00:26'),(22,1,46,'Medienpool',105,'2013-08-16 13:00:32'),(23,1,53,'Quelle',105,'2013-08-16 13:00:38'),(24,1,57,'Sie sind hier:',105,'2013-08-16 13:00:46'),(25,1,4,'Beschreibung',105,'2013-08-16 13:00:53'),(26,1,6,'Kennung',105,'2013-08-16 13:00:59'),(27,1,36,'Adresse der Seite, sollte hierarchisch aufgebaut sein, ohne <code>/</code> am Ende!<br>Die Kennung sollte nur Kleinbuchstaben (<code>a-z</code>), Ziffern (<code>0-9</code>) und das <code>-</code> Zeichen enthalten.',105,'2013-08-16 13:06:39'),(28,1,27,'Folge',105,'2013-08-16 13:07:27'),(29,1,29,'Öffentlich?',105,'2013-08-16 13:07:42'),(30,1,31,'Menü',105,'2013-08-16 13:08:01'),(31,1,34,'unten',105,'2013-08-16 13:08:27'),(32,1,58,'intern',105,'2013-08-16 13:08:41'),(33,1,26,'Endung',105,'2013-08-16 13:10:17'),(34,1,30,'WWW?',105,'2013-08-16 13:11:10'),(35,1,47,'Datei',105,'2013-08-16 13:11:38'),(36,1,13,'Ländercode gemäß ISO 3166',105,'2013-08-16 13:15:01'),(37,1,55,'um',105,'2013-08-16 13:33:04'),(38,1,49,'Der Dateiname wird als Wert benutzt, wenn nichts eingegeben wird.',105,'2013-08-16 13:37:21'),(39,1,54,'Uhr',105,'2013-08-16 13:37:47'),(40,1,59,'Farbiger Rand: Medium ist veröffentlicht; grauer Rand: Medium ist nicht veröffentlicht.',105,'2013-08-16 13:40:25'),(41,1,60,'Digitales Photo: wenn hier nichts eingegeben wird, werden die Daten aus der Datei ausgelesen.',105,'2013-08-16 13:49:29'),(42,1,61,'Dateityp des Vorschaubilds. JPEG ist gut für photos, PNG/GIF für Strichzeichnungen.',105,'2013-08-16 13:54:42'),(43,1,52,'Falls es kein selbst erstelltes Medium ist, woher kommt es?',105,'2013-08-16 13:55:19'),(44,1,62,'Typ Vorschaubild',105,'2013-08-16 13:57:49'),(45,1,63,'Darstellung als Galerie',105,'2013-08-16 13:59:36'),(46,1,64,'Darstellung als Tabelle',105,'2013-08-16 14:00:02'),(47,1,65,'ID',105,'2013-08-16 14:00:38'),(48,1,66,'Übersetzungsfeld',105,'2013-08-16 14:01:55'),(49,1,67,'Dateigröße',105,'2013-08-16 14:02:22'),(50,1,68,'MD5',105,'2013-08-16 14:03:05'),(51,1,69,'Text',105,'2013-08-16 14:03:43'),(52,1,70,'Sprache',105,'2013-08-16 14:04:00'),(53,1,71,'Übersetzung auf',105,'2013-08-16 14:04:44'),(54,1,17,'Sprachcode ISO 639-1',105,'2013-08-16 14:08:10'),(55,1,18,'Sprachcode ISO 639-2, bibliographisch',105,'2013-08-16 14:08:32'),(56,1,19,'Sprachcode ISO 639-2, Terminologie',105,'2013-08-16 14:08:46'),(57,1,16,'Soll Sprache auf Website genutzt werden?',105,'2013-08-16 14:09:02'),(58,1,14,'Soll Land auf Website genutzt werden?',105,'2013-08-16 14:09:14'),(59,1,11,'Website',105,'2013-08-16 14:09:19'),(60,1,72,'Uhrzeit',105,'2013-08-16 14:10:22'),(61,1,73,'Version',105,'2013-08-16 14:10:56'),(62,1,74,'Medium',105,'2013-08-16 14:11:41'),(63,1,75,'Bereich',105,'2013-08-16 14:55:33'),(64,1,76,'Logins',105,'2013-08-16 15:05:20'),(65,1,77,'Person',105,'2013-08-16 15:05:28'),(66,1,78,'PW ändern?',105,'2013-08-16 15:05:47'),(67,1,79,'Eingeloggt',105,'2013-08-16 15:05:55'),(68,1,80,'Klick',105,'2013-08-16 15:05:59'),(69,1,81,'Aktiv',105,'2013-08-16 15:06:05'),(70,1,82,'Um ein Login zu deaktivieren',105,'2013-08-16 15:06:15'),(71,1,83,'Letzte Aktivität in Datenbank',105,'2013-08-16 15:06:26'),(72,1,84,'»Ja« bedeutet, daß der Benutzer sein Paßwort beim nächsten Login ändern muß.',105,'2013-08-16 15:07:04'),(73,1,85,'Paßwort',105,'2013-08-16 15:07:20');
+INSERT INTO `_translations_varchar` VALUES (1,1,2,'Kategorien',105,'2013-08-16 12:51:51'),(2,1,3,'Kategorie',105,'2013-08-16 12:52:50'),(3,1,7,'Hauptkategorie',105,'2013-08-16 12:52:58'),(4,1,9,'nein',105,'2013-08-16 12:54:51'),(5,1,1,'Länder',105,'2013-08-16 12:56:08'),(6,1,12,'Land',105,'2013-08-16 12:56:15'),(7,1,10,'Ländercode',105,'2013-08-16 12:56:22'),(8,1,20,'Sprache, englisch',105,'2013-08-16 12:56:45'),(9,1,21,'Sprache, französisch',105,'2013-08-16 12:56:55'),(10,1,22,'Sprache, deutsch',105,'2013-08-16 12:57:07'),(11,1,15,'Sprachen',105,'2013-08-16 12:57:19'),(12,1,8,'ja',105,'2013-08-16 12:57:29'),(13,1,50,'Reihenfolge',105,'2013-08-16 12:57:37'),(14,1,24,'Titel',105,'2013-08-16 12:57:40'),(15,1,23,'Webseiten',105,'2013-08-16 12:57:54'),(16,1,5,'Stand',105,'2013-08-16 12:59:10'),(17,1,28,'Unterseite&nbsp;von',105,'2013-08-16 12:59:24'),(18,1,33,'oben',105,'2013-08-16 12:59:30'),(19,1,32,'keine',105,'2013-08-16 12:59:40'),(20,1,25,'Inhalt',105,'2013-08-16 13:00:22'),(21,1,48,'Ordner',105,'2013-08-16 13:00:26'),(22,1,46,'Medienpool',105,'2013-08-16 13:00:32'),(23,1,53,'Quelle',105,'2013-08-16 13:00:38'),(24,1,57,'Sie sind hier:',105,'2013-08-16 13:00:46'),(25,1,4,'Beschreibung',105,'2013-08-16 13:00:53'),(26,1,6,'Kennung',105,'2013-08-16 13:00:59'),(27,1,36,'Adresse der Seite, sollte hierarchisch aufgebaut sein, ohne <code>/</code> am Ende!<br>Die Kennung sollte nur Kleinbuchstaben (<code>a-z</code>), Ziffern (<code>0-9</code>) und das <code>-</code> Zeichen enthalten.',105,'2013-08-16 13:06:39'),(28,1,27,'Folge',105,'2013-08-16 13:07:27'),(29,1,29,'Öffentlich?',105,'2013-08-16 13:07:42'),(30,1,31,'Menü',105,'2013-08-16 13:08:01'),(31,1,34,'unten',105,'2013-08-16 13:08:27'),(32,1,58,'intern',105,'2013-08-16 13:08:41'),(33,1,26,'Endung',105,'2013-08-16 13:10:17'),(34,1,30,'WWW?',105,'2013-08-16 13:11:10'),(35,1,47,'Datei',105,'2013-08-16 13:11:38'),(36,1,13,'Ländercode gemäß ISO 3166',105,'2013-08-16 13:15:01'),(37,1,55,'um',105,'2013-08-16 13:33:04'),(38,1,49,'Der Dateiname wird als Wert benutzt, wenn nichts eingegeben wird.',105,'2013-08-16 13:37:21'),(39,1,54,'Uhr',105,'2013-08-16 13:37:47'),(40,1,59,'Farbiger Rand: Medium ist veröffentlicht; grauer Rand: Medium ist nicht veröffentlicht.',105,'2013-08-16 13:40:25'),(41,1,60,'Digitales Photo: wenn hier nichts eingegeben wird, werden die Daten aus der Datei ausgelesen.',105,'2013-08-16 13:49:29'),(42,1,61,'Dateityp des Vorschaubilds. JPEG ist gut für photos, PNG/GIF für Strichzeichnungen.',105,'2013-08-16 13:54:42'),(43,1,52,'Falls es kein selbst erstelltes Medium ist, woher kommt es?',105,'2013-08-16 13:55:19'),(44,1,62,'Typ Vorschaubild',105,'2013-08-16 13:57:49'),(45,1,63,'Darstellung als Galerie',105,'2013-08-16 13:59:36'),(46,1,64,'Darstellung als Tabelle',105,'2013-08-16 14:00:02'),(47,1,65,'ID',105,'2013-08-16 14:00:38'),(48,1,66,'Übersetzungsfeld',105,'2013-08-16 14:01:55'),(49,1,67,'Dateigröße',105,'2013-08-16 14:02:22'),(50,1,68,'MD5',105,'2013-08-16 14:03:05'),(51,1,69,'Text',105,'2013-08-16 14:03:43'),(52,1,70,'Sprache',105,'2013-08-16 14:04:00'),(53,1,71,'Übersetzung auf',105,'2013-08-16 14:04:44'),(54,1,17,'Sprachcode ISO 639-1',105,'2013-08-16 14:08:10'),(55,1,18,'Sprachcode ISO 639-2, bibliographisch',105,'2013-08-16 14:08:32'),(56,1,19,'Sprachcode ISO 639-2, Terminologie',105,'2013-08-16 14:08:46'),(57,1,16,'Soll Sprache auf Website genutzt werden?',105,'2013-08-16 14:09:02'),(58,1,14,'Soll Land auf Website genutzt werden?',105,'2013-08-16 14:09:14'),(59,1,11,'Website',105,'2013-08-16 14:09:19'),(60,1,72,'Uhrzeit',105,'2013-08-16 14:10:22'),(61,1,73,'Version',105,'2013-08-16 14:10:56'),(62,1,74,'Medium',105,'2013-08-16 14:11:41'),(63,1,75,'Bereich',105,'2013-08-16 14:55:33'),(64,1,76,'Logins',105,'2013-08-16 15:05:20'),(65,1,77,'Person',105,'2013-08-16 15:05:28'),(66,1,78,'PW ändern?',105,'2013-08-16 15:05:47'),(67,1,79,'Eingeloggt',105,'2013-08-16 15:05:55'),(68,1,80,'Klick',105,'2013-08-16 15:05:59'),(69,1,81,'Aktiv',105,'2013-08-16 15:06:05'),(70,1,82,'Um ein Login zu deaktivieren',105,'2013-08-16 15:06:15'),(71,1,83,'Letzte Aktivität in Datenbank',105,'2013-08-16 15:06:26'),(72,1,84,'»Ja« bedeutet, daß der Benutzer sein Passwort beim nächsten Login ändern muß.',105,'2013-08-16 15:07:04'),(73,1,85,'Passwort',105,'2013-08-16 15:07:20');
 /*!40000 ALTER TABLE `_translations_varchar` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -203,21 +204,21 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `_uris`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_uris` (
-  `uri_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uri_id` int unsigned NOT NULL AUTO_INCREMENT,
   `uri_scheme` varchar(15) COLLATE latin1_general_ci NOT NULL,
   `uri_host` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `uri_path` varchar(127) COLLATE latin1_general_ci NOT NULL,
   `uri_query` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
   `content_type` varchar(127) COLLATE latin1_general_ci NOT NULL,
   `character_encoding` varchar(31) COLLATE latin1_general_ci DEFAULT NULL,
-  `content_length` mediumint(8) unsigned NOT NULL,
+  `content_length` mediumint unsigned NOT NULL,
   `user` varchar(64) COLLATE latin1_general_ci NOT NULL DEFAULT 'none',
-  `status_code` smallint(6) NOT NULL,
+  `status_code` smallint NOT NULL,
   `etag_md5` varchar(32) COLLATE latin1_general_ci DEFAULT NULL,
   `last_modified` datetime DEFAULT NULL,
-  `hits` int(10) unsigned NOT NULL,
+  `hits` int unsigned NOT NULL,
   `first_access` datetime NOT NULL,
   `last_access` datetime NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -241,15 +242,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `categories` (
-  `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `category_id` int unsigned NOT NULL AUTO_INCREMENT,
   `category` varchar(63) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
-  `main_category_id` int(10) unsigned DEFAULT NULL,
-  `path` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `sequence` tinyint(3) unsigned DEFAULT NULL,
+  `main_category_id` int unsigned DEFAULT NULL,
+  `path` varchar(100) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `sequence` tinyint unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY `path` (`path`),
@@ -272,9 +273,9 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `countries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `countries` (
-  `country_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `country_id` int unsigned NOT NULL AUTO_INCREMENT,
   `country_code` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `country` varchar(63) COLLATE utf8mb4_unicode_ci NOT NULL,
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
@@ -300,9 +301,9 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `filetypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `filetypes` (
-  `filetype_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `filetype_id` int unsigned NOT NULL AUTO_INCREMENT,
   `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -329,9 +330,9 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `languages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `languages` (
-  `language_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `language_id` int unsigned NOT NULL AUTO_INCREMENT,
   `iso_639_2t` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `iso_639_2b` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `iso_639_1` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
@@ -362,15 +363,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `logins`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `logins` (
-  `login_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `login_id` int unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(63) COLLATE latin1_general_cs NOT NULL,
   `login_rights` enum('admin','read and write','read') COLLATE latin1_general_cs NOT NULL DEFAULT 'read',
   `password` varchar(60) COLLATE latin1_general_cs NOT NULL,
   `password_change` enum('yes','no') COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   `logged_in` enum('yes','no') COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
-  `last_click` int(10) unsigned DEFAULT NULL,
+  `last_click` int unsigned DEFAULT NULL,
   `active` enum('yes','no') COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`login_id`),
@@ -393,27 +394,27 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `media`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `media` (
-  `medium_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `main_medium_id` int(10) unsigned DEFAULT NULL,
-  `title` varchar(127) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `medium_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `main_medium_id` int unsigned DEFAULT NULL,
+  `title` varchar(127) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
-  `language_id` int(10) unsigned DEFAULT NULL,
+  `language_id` int unsigned DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
   `source` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `clipping` enum('center','top','right','bottom','left') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'center',
-  `sequence` smallint(5) unsigned DEFAULT NULL,
+  `sequence` smallint unsigned DEFAULT NULL,
   `filename` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `filetype_id` int(10) unsigned NOT NULL,
-  `thumb_filetype_id` int(10) unsigned DEFAULT NULL,
-  `filesize` int(10) unsigned DEFAULT NULL,
+  `filetype_id` int unsigned NOT NULL,
+  `thumb_filetype_id` int unsigned DEFAULT NULL,
+  `filesize` int unsigned DEFAULT NULL,
   `md5_hash` varchar(32) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
-  `version` tinyint(3) unsigned DEFAULT NULL,
-  `width_px` mediumint(8) unsigned DEFAULT NULL,
-  `height_px` mediumint(8) unsigned DEFAULT NULL,
+  `version` tinyint unsigned DEFAULT NULL,
+  `width_px` mediumint unsigned DEFAULT NULL,
+  `height_px` mediumint unsigned DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
   KEY `filetype_id` (`filetype_id`),
@@ -437,12 +438,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `redirects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `redirects` (
-  `redirect_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `old_url` varchar(127) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `new_url` varchar(127) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `code` smallint(5) unsigned NOT NULL DEFAULT '301',
+  `redirect_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `old_url` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `new_url` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `code` smallint unsigned NOT NULL DEFAULT '301',
   `area` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`redirect_id`),
@@ -466,10 +467,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `text`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `text` (
-  `text_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `text` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `text_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `text` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `more_text` text COLLATE utf8mb4_unicode_ci,
   `area` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -495,21 +496,23 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `webpages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `webpages` (
-  `page_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `page_id` int unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(63) COLLATE utf8mb4_unicode_ci NOT NULL,
   `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `identifier` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `ending` enum('.html','/','none') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'none',
-  `sequence` tinyint(4) NOT NULL,
-  `mother_page_id` int(10) unsigned DEFAULT NULL,
+  `sequence` tinyint NOT NULL,
+  `mother_page_id` int unsigned DEFAULT NULL,
   `live` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
   `menu` enum('top','bottom','internal') CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`page_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`page_id`),
+  UNIQUE KEY `identifier` (`identifier`),
+  KEY `mother_page_id` (`mother_page_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -518,7 +521,7 @@ CREATE TABLE `webpages` (
 
 LOCK TABLES `webpages` WRITE;
 /*!40000 ALTER TABLE `webpages` DISABLE KEYS */;
-INSERT INTO `webpages` VALUES (1,'Website','Hallo Welt','/','none',1,NULL,'yes','top',NULL,'2010-08-24 18:30:43'),(5,'Interner Bereich','#Interner Bereich\r\n\r\n## Website\r\n\r\n* [Webseiten](/db/webpages)\r\n\r\n## Hilfe\r\n\r\n* [Markdown](/hilfe/markdown)\r\n\r\n## Administrative Tabellen (Zugriff normalerweise nicht notwendig)\r\n\r\n* [Umleitungen](/db/redirects), falls sich eine Web-Adresse mal geändert hat.\r\n* [Protokoll der Änderungen](/db/logging)\r\n* [Tabellenbeziehungen](/db/relations)\r\n* [Logins](/db/logins)\r\n\r\n## [Logout](/logout/)\r\n','/db','/',2,NULL,'yes','internal',NULL,'2010-07-13 12:35:35'),(6,'Datenbankskripte','%%% tables * %%%','/db*','none',1,5,'yes',NULL,NULL,'2009-02-23 22:08:18'),(7,'Login','%%% request login %%%','/login','/',0,5,'yes',NULL,NULL,'2009-01-21 10:22:27'),(8,'Logout','%%% request logout %%%','/logout','/',10,5,'yes','internal',NULL,'2009-03-12 19:50:33'),(9,'Markdown-Hilfe','# Markdown\r\n\r\n## HTML\r\n\r\nHTML kann direkt in den Text geschrieben werden und wird direkt ausgegeben. Blockelemente sollten durch Leerzeilen vom Text abgetrennt und die Start- und Endmarkierungen nicht eingerückt werden. Innerhalb von HTML-Blockelementen (Tabellen, Überschriften, Absätzen etc.) wird kein Markdown interpretiert.\r\n\r\nBeispiel:\r\n\r\n	Normaler Absatz.\r\n\r\n	<table>\r\n		<tr>\r\n			<td>Bla</td>\r\n		</tr>\r\n	</table>\r\n	\r\n	Neuer Absatz, hier kann auch eine \r\n	<abbr title=\"Abkürzung\">Abk.</abbr> eingebaut werden.\r\n\r\n## Sonderzeichen\r\n\r\n& sowie < und > werden von Markdown automatisch maskiert.\r\n\r\n## Block-Elemente\r\n\r\n### Absätze und Zeilenumbrüche\r\n\r\nEin Absatz besteht aus mehreren Zeilen, die von anderen Absätzen durch eine Leerzeile abgetrennt werden.\r\n\r\nZeilenumbrüche können durch das Einfügen von zwei Leerzeichen am Ende einer Zeile erzwungen werden.\r\n\r\n### Überschriften\r\n\r\n	Dies ist eine Überschrift 1. Ordnung (H1)\r\n	=========================================\r\n\r\n	Dies ist eine Überschrift 2. Ordnung (H2)\r\n	-----------------------------------------\r\n\r\noder\r\n\r\n	# Dies ist eine H1\r\n\r\n	## Dies ist eine H2\r\n\r\n	###### Dies ist eine H6\r\n\r\noder\r\n\r\n	# Dies ist eine H1 #\r\n\r\n	## Dies ist eine H2 ##\r\n\r\n	### Dies ist eine H3 ######\r\n\r\n### Zitate\r\n\r\n	> Zitatblöcke funktionieren wie in E-Mails.\r\n	> Zitate können auch verschachtelt werden:\r\n	>> Dies ist ein Zitat von meinem Vorredner.\r\n\r\n### Listen\r\n\r\n	* unsortierte Listen werden mit * oder\r\n	* mit - oder\r\n	* mit + als erstem Zeichen einer Zeile markiert.\r\n\r\n	1. Sortierte Listen\r\n	2. beginnen mit Zahlen, Punkt und Leerzeichen\r\n	\r\n	* Hierarchische Listen\r\n	  * mit zwei Leerzeichen Einrückung\r\n	  * dann wird die Liste automatisch hierarchisch dargestellt\r\n	* weitere Punkte wieder ausgerückt\r\n\r\nDa jede Nummer mit Punkt und Leerzeichen dazu führt, dass Text als Listeneintrag interpretiert wird, kann man dies durch Einfügen eines \\ verhindern:\r\n\r\n	1986\\. Was für ein wundervolles Jahr.\r\n	\r\n### Code-Blöcke\r\n\r\nCode-Blöcke (Programmauszüge, HTML-Schnipsel) werden mit vier Leerzeichen oder einem Tabulator eingerückt und werden dann so dargestellt wie eingegeben.\r\n\r\n### Horizontale Linien\r\n\r\n	* * *\r\n\r\n	***\r\n\r\n	*****\r\n\r\n	- - -\r\n\r\n	---------------------------------------\r\n\r\n	_ _ _\r\n\r\n## Text-Elemente\r\n\r\n### Links\r\n\r\nDirekt im Text:\r\n\r\n	Dies ist [ein Beispiel](http://example.com/ \"Titel\") Inline-Link.\r\n	\r\n	[Dieser Link](http://example.net/) hat kein Titel-Attribut.\r\n\r\n	Auf der Seite [Über mich](/about/) gibt es weitere Informationen.\r\n\r\nOder als Referenz im Text, mit Angabe der URL am Ende eines Textes. Groß- und Kleinschreibung wird dabei nicht beachtet.\r\n\r\n	Dies ist [ein Beispiel][id] für einen Referenz-Link.\r\n\r\n	[id]: http://example.com/  \"Optionalen Titel hier eintragen\"\r\n\r\nLinkreferenzen können auch abgekürzt werden:\r\n\r\n	[Google][]\r\n	\r\n	[Google]: http://google.com/\r\n\r\n### Betonung\r\n\r\n	*Betonter Text, wird meist kursiv dargestellt*\r\n\r\n	_Betonter Text, wird meist kursiv dargestellt_\r\n	\r\n	**Stark betonter Text, wird meist fett dargestellt**\r\n	\r\n	__Stark betonter Text, wird meist fett dargestellt__\r\n	\r\n	\\*Text, von Sternchen umschlossen \\*\r\n\r\n### Code\r\n\r\nCode-Blöcke werden in Zollzeichen (\'\' \' \'\') eingebunden. Enthält der Code selber ein Zollzeichen, muß der Code mit zwei Zollzeichen eingeführt und beendet werden.\r\n\r\n	Z. B. HTML-Code: \'<title>\' \r\n	\r\n	\'\'Code mit \' im Text.\'\'\r\n	\r\n\r\n### Grafiken\r\n\r\nDirekt im Text\r\n\r\n	![Alternativer Text](/pfad/zu/img.jpg)\r\n\r\n	![Alternativer Text](/pfad/zu/img.jpg \"Optionaler Titel\")\r\n\r\noder als Referenz im Text, mit Angabe der URL am Ende eines Textes\r\n\r\n	![Alternativer Text][id]\r\n\r\n	[id]: url/zur/grafik  \"Optionales title-Attribut\"\r\n\r\n### einfache Links\r\n\r\n	<http://www.example.com/>\r\n\r\n	<address@example.com>\r\n\r\n### Maskierung\r\n\r\nDa einige Zeichen an bestimmten Stellen in Markdown eine besondere Bedeutung haben, muß man sie mit einem \'\\\' maskieren, wenn man sie trotzdem darstellen möchte:\r\n\r\n	\\ \' * _ {} [] () # + - . !\r\n\r\n***\r\n	\r\n* [Komplette Referenz Markdown, Original auf Englisch](http://daringfireball.net/projects/markdown/syntax)\r\n* [Komplette Referenz Markdown, Deutsche Übersetzung](http://markdown.de/syntax/)\r\n\r\n***\r\n\r\nMarkdown-Extra            {#extra}\r\n==============\r\n\r\nMarkdown-Extra ist eine Erweiterung zu Markdown. Dadurch gibt es ein paar weitere Möglichkeiten:\r\n\r\n### Abkürzungen\r\n\r\nsehen ähnlich wie Links aus und werden an das Ende des Textes gestellt. Die Abkürzung wird dann überall im Text automatisch mit der Langform hinterlegt. \r\n\r\n	*[BBR]: Bundesamt für Bauwesen und Raumordnung\r\n\r\n### Tabellen\r\n\r\nsind etwas komplizierter: einzelne Tabellenzellen werden durch | getrennt, jede Tabelle benötigt einen Tabellenkopf (wichtig auch für die Barrierefreiheit)\r\n\r\n  Tabellenbeispiel:\r\n\r\n	Jahr    | Ereignis \r\n	------- | ------------------\r\n	1969    | Mondlandung\r\n	1989    | Mauerfall \r\n\r\n### Markdown innerhalb von HTML-Blöcken\r\n\r\nfunktioniert mit &lt;div markdown=\"1\"> ... &lt;/div> - so kann man z. B. einfach Klassen auf Markdown-Bereiche anwenden und den Bereich darüber formatieren.\r\n\r\nDazu kommen weitere Formatierungsmöglichkeiten für Fußnoten, Definitionslisten (in HTML: DL, DT, DD) und Linkanker bei Überschriften.\r\n\r\n***\r\n\r\n* [Komplette Referenz Markdown-Extra, Original auf Englisch](http://michelf.com/projects/php-markdown/extra/)\r\n','/hilfe/markdown','none',9,5,'yes',NULL,NULL,'2009-03-12 19:50:44'),(10,'Datenbankverwaltung','%%% request maintenance %%%','/db/maintenance','/',7,5,'yes',NULL,NULL,'2010-06-08 11:43:40');
+INSERT INTO `webpages` VALUES (1,'Website','Hallo Welt','/','none',1,NULL,'yes','top',NULL,'2010-08-24 18:30:43'),(5,'Interner Bereich','## Website\r\n\r\n* [Webseiten](/db/webpages)\r\n* [Medien](/db/media)\r\n* [Nachrichten](/db/articles)\r\n\r\n## Hilfe\r\n\r\n* [Markdown](/hilfe/markdown)\r\n\r\n## Administrative Tabellen\r\n\r\n(Zugriff normalerweise nicht notwendig)\r\n\r\n* [Umleitungen](/db/redirects), falls sich eine Web-Adresse mal geändert hat.\r\n* [Protokoll der Änderungen](/db/logging)\r\n* [Tabellenbeziehungen](/db/relations)\r\n* [Logins](/db/logins)\r\n\r\n## [Logout](/logout/)\r\n','/db','/',2,NULL,'yes','internal',NULL,'2018-10-01 18:38:28'),(6,'Tabellen','%%% tables * %%%','/db*','none',1,5,'yes',NULL,NULL,'2018-10-01 18:41:31'),(7,'Login','%%% request login %%%','/login','/',0,5,'yes',NULL,NULL,'2009-01-21 10:22:27'),(8,'Logout','%%% request logout %%%','/logout','/',10,5,'yes','internal',NULL,'2009-03-12 19:50:33'),(9,'Markdown-Hilfe','# Markdown\r\n\r\n## HTML\r\n\r\nHTML kann direkt in den Text geschrieben werden und wird direkt ausgegeben. Blockelemente sollten durch Leerzeilen vom Text abgetrennt und die Start- und Endmarkierungen nicht eingerückt werden. Innerhalb von HTML-Blockelementen (Tabellen, Überschriften, Absätzen etc.) wird kein Markdown interpretiert.\r\n\r\nBeispiel:\r\n\r\n	Normaler Absatz.\r\n\r\n	<table>\r\n		<tr>\r\n			<td>Bla</td>\r\n		</tr>\r\n	</table>\r\n	\r\n	Neuer Absatz, hier kann auch eine \r\n	<abbr title=\"Abkürzung\">Abk.</abbr> eingebaut werden.\r\n\r\n## Sonderzeichen\r\n\r\n& sowie < und > werden von Markdown automatisch maskiert.\r\n\r\n## Block-Elemente\r\n\r\n### Absätze und Zeilenumbrüche\r\n\r\nEin Absatz besteht aus mehreren Zeilen, die von anderen Absätzen durch eine Leerzeile abgetrennt werden.\r\n\r\nZeilenumbrüche können durch das Einfügen von zwei Leerzeichen am Ende einer Zeile erzwungen werden.\r\n\r\n### Überschriften\r\n\r\n	Dies ist eine Überschrift 1. Ordnung (H1)\r\n	=========================================\r\n\r\n	Dies ist eine Überschrift 2. Ordnung (H2)\r\n	-----------------------------------------\r\n\r\noder\r\n\r\n	# Dies ist eine H1\r\n\r\n	## Dies ist eine H2\r\n\r\n	###### Dies ist eine H6\r\n\r\noder\r\n\r\n	# Dies ist eine H1 #\r\n\r\n	## Dies ist eine H2 ##\r\n\r\n	### Dies ist eine H3 ######\r\n\r\n### Zitate\r\n\r\n	> Zitatblöcke funktionieren wie in E-Mails.\r\n	> Zitate können auch verschachtelt werden:\r\n	>> Dies ist ein Zitat von meinem Vorredner.\r\n\r\n### Listen\r\n\r\n	* unsortierte Listen werden mit * oder\r\n	* mit - oder\r\n	* mit + als erstem Zeichen einer Zeile markiert.\r\n\r\n	1. Sortierte Listen\r\n	2. beginnen mit Zahlen, Punkt und Leerzeichen\r\n	\r\n	* Hierarchische Listen\r\n	  * mit zwei Leerzeichen Einrückung\r\n	  * dann wird die Liste automatisch hierarchisch dargestellt\r\n	* weitere Punkte wieder ausgerückt\r\n\r\nDa jede Nummer mit Punkt und Leerzeichen dazu führt, dass Text als Listeneintrag interpretiert wird, kann man dies durch Einfügen eines \\ verhindern:\r\n\r\n	1986\\. Was für ein wundervolles Jahr.\r\n	\r\n### Code-Blöcke\r\n\r\nCode-Blöcke (Programmauszüge, HTML-Schnipsel) werden mit vier Leerzeichen oder einem Tabulator eingerückt und werden dann so dargestellt wie eingegeben.\r\n\r\n### Horizontale Linien\r\n\r\n	* * *\r\n\r\n	***\r\n\r\n	*****\r\n\r\n	- - -\r\n\r\n	---------------------------------------\r\n\r\n	_ _ _\r\n\r\n## Text-Elemente\r\n\r\n### Links\r\n\r\nDirekt im Text:\r\n\r\n	Dies ist [ein Beispiel](http://example.com/ \"Titel\") Inline-Link.\r\n	\r\n	[Dieser Link](http://example.net/) hat kein Titel-Attribut.\r\n\r\n	Auf der Seite [Über mich](/about/) gibt es weitere Informationen.\r\n\r\nOder als Referenz im Text, mit Angabe der URL am Ende eines Textes. Groß- und Kleinschreibung wird dabei nicht beachtet.\r\n\r\n	Dies ist [ein Beispiel][id] für einen Referenz-Link.\r\n\r\n	[id]: http://example.com/  \"Optionalen Titel hier eintragen\"\r\n\r\nLinkreferenzen können auch abgekürzt werden:\r\n\r\n	[Google][]\r\n	\r\n	[Google]: http://google.com/\r\n\r\n### Betonung\r\n\r\n	*Betonter Text, wird meist kursiv dargestellt*\r\n\r\n	_Betonter Text, wird meist kursiv dargestellt_\r\n	\r\n	**Stark betonter Text, wird meist fett dargestellt**\r\n	\r\n	__Stark betonter Text, wird meist fett dargestellt__\r\n	\r\n	\\*Text, von Sternchen umschlossen \\*\r\n\r\n### Code\r\n\r\nCode-Blöcke werden in Zollzeichen (\'\' \' \'\') eingebunden. Enthält der Code selber ein Zollzeichen, muß der Code mit zwei Zollzeichen eingeführt und beendet werden.\r\n\r\n	Z. B. HTML-Code: \'<title>\' \r\n	\r\n	\'\'Code mit \' im Text.\'\'\r\n	\r\n\r\n### Grafiken\r\n\r\nDirekt im Text\r\n\r\n	![Alternativer Text](/pfad/zu/img.jpg)\r\n\r\n	![Alternativer Text](/pfad/zu/img.jpg \"Optionaler Titel\")\r\n\r\noder als Referenz im Text, mit Angabe der URL am Ende eines Textes\r\n\r\n	![Alternativer Text][id]\r\n\r\n	[id]: url/zur/grafik  \"Optionales title-Attribut\"\r\n\r\n### einfache Links\r\n\r\n	<http://www.example.com/>\r\n\r\n	<address@example.com>\r\n\r\n### Maskierung\r\n\r\nDa einige Zeichen an bestimmten Stellen in Markdown eine besondere Bedeutung haben, muß man sie mit einem \'\\\' maskieren, wenn man sie trotzdem darstellen möchte:\r\n\r\n	\\ \' * _ {} [] () # + - . !\r\n\r\n***\r\n	\r\n* [Komplette Referenz Markdown, Original auf Englisch](http://daringfireball.net/projects/markdown/syntax)\r\n* [Komplette Referenz Markdown, Deutsche Übersetzung](http://markdown.de/syntax/)\r\n\r\n***\r\n\r\nMarkdown-Extra            {#extra}\r\n==============\r\n\r\nMarkdown-Extra ist eine Erweiterung zu Markdown. Dadurch gibt es ein paar weitere Möglichkeiten:\r\n\r\n### Abkürzungen\r\n\r\nsehen ähnlich wie Links aus und werden an das Ende des Textes gestellt. Die Abkürzung wird dann überall im Text automatisch mit der Langform hinterlegt. \r\n\r\n	*[BBR]: Bundesamt für Bauwesen und Raumordnung\r\n\r\n### Tabellen\r\n\r\nsind etwas komplizierter: einzelne Tabellenzellen werden durch | getrennt, jede Tabelle benötigt einen Tabellenkopf (wichtig auch für die Barrierefreiheit)\r\n\r\n  Tabellenbeispiel:\r\n\r\n	Jahr    | Ereignis \r\n	------- | ------------------\r\n	1969    | Mondlandung\r\n	1989    | Mauerfall \r\n\r\n### Markdown innerhalb von HTML-Blöcken\r\n\r\nfunktioniert mit &lt;div markdown=\"1\"> ... &lt;/div> - so kann man z. B. einfach Klassen auf Markdown-Bereiche anwenden und den Bereich darüber formatieren.\r\n\r\nDazu kommen weitere Formatierungsmöglichkeiten für Fußnoten, Definitionslisten (in HTML: DL, DT, DD) und Linkanker bei Überschriften.\r\n\r\n***\r\n\r\n* [Komplette Referenz Markdown-Extra, Original auf Englisch](http://michelf.com/projects/php-markdown/extra/)\r\n','/hilfe/markdown','none',9,5,'yes',NULL,NULL,'2009-03-12 19:50:44'),(10,'Datenbankverwaltung','%%% request maintenance %%%','/db/maintenance','/',7,5,'yes',NULL,NULL,'2010-06-08 11:43:40'),(11,'Files','%%% request medium * %%%','/files*','/',10,1,'yes',NULL,NULL,'2018-10-01 18:40:59'),(12,'Website-Einstellungen','%%% forms settings-website %%%','/db/settings','none',10,5,'yes',NULL,NULL,'2018-10-01 18:42:37'),(13,'Medien','%%% forms media * %%%','/db/medien','/',9,5,'yes',NULL,NULL,'2018-10-01 18:43:11'),(14,'Medien','%%% forms media * %%%','/db/medien*','/',1,13,'yes',NULL,NULL,'2018-10-01 18:43:21');
 /*!40000 ALTER TABLE `webpages` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
