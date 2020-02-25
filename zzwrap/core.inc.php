@@ -2672,8 +2672,10 @@ function wrap_setting_key($key, $value) {
 	$settings = [];
 	if (strstr($key, '[')) {
 		$keys = explode('[', $key);
-		if (count($keys) == 2)
+		if (count($keys) === 2)
 			$settings[$keys[0]][substr($keys[1], 0, -1)] = $value;
+		elseif (count($keys) === 3)
+			$settings[$keys[0]][substr($keys[1], 0, -1)][substr($keys[2], 0, -1)] = $value;
 	} else {
 		$settings[$key] = $value;
 	}
