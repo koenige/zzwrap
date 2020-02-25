@@ -2579,18 +2579,23 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
 		if ($existing_setting[$key] === $value) return false;
-		$sql = 'UPDATE /*_PREFIX_*/_settings
-			SET setting_value = "%s"
-			WHERE setting_key = "%s"
+		$sql = 'UPDATE /*_PREFIX_*/%s_settings
+			SET setting_value = "%%s"
+			WHERE setting_key = "%%s"
 		';
+		$sql = sprintf($sql, $login_id ? 'logins' : '');
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 		$sql .= wrap_setting_login_id($login_id);
-	} else {
-		if (!$login_id) $login_id = 'NULL';
-		$sql = 'INSERT INTO /*_PREFIX_*/_settings
+	} elseif ($login_id) {
+		$sql = 'INSERT INTO /*_PREFIX_*/logins_settings
 			(setting_value, setting_key, login_id) VALUES ("%s", "%s", %s)
 		';
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $login_id);
+	} else {
+		$sql = 'INSERT INTO /*_PREFIX_*/_settings
+			(setting_value, setting_key, login_id) VALUES ("%s", "%s")
+		';
+		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 	}
 	$result = wrap_db_query($sql);
 	if ($result) return true;
@@ -2611,20 +2616,25 @@ function wrap_setting_write($key, $value, $login_id = 0) {
  */
 function wrap_setting_read($key, $login_id = 0) {
 	static $setting_table;
+	static $login_setting_table;
 	static $settings;
 	if (empty($settings)) $settings = [];
 	if (array_key_exists($login_id, $settings))
 		if (array_key_exists($key, $settings[$login_id]))
 			return $settings[$login_id][$key];
 
-	if (!$setting_table) {
+	if (!$login_id AND !$setting_table) {
 		$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/_settings"';
 		$setting_table = wrap_db_fetch($sql);
+	} elseif ($login_id AND !$login_setting_table) {
+		$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/logins_settings"';
+		$login_setting_table = wrap_db_fetch($sql);
 	}
 	if (!$setting_table) return [];
 	$sql = 'SELECT setting_key, setting_value
-		FROM /*_PREFIX_*/_settings
-		WHERE setting_key %s "%s"';
+		FROM /*_PREFIX_*/%s_settings
+		WHERE setting_key %%s "%%s"';
+	$sql = sprintf($sql, $login_id ? 'logins' : '');
 	if (substr($key, -1) === '*') {
 		$sql = sprintf($sql, 'LIKE', substr($key, 0, -1).'%');
 	} else {
@@ -2647,11 +2657,8 @@ function wrap_setting_read($key, $login_id = 0) {
  * @return string WHERE query part
  */
 function wrap_setting_login_id($login_id = 0) {
-	if ($login_id) {
-		return sprintf(' AND login_id = %d', $login_id);
-	} else {
-		return ' AND ISNULL(login_id)';
-	}
+	if (!$login_id) return '';
+	return sprintf(' AND login_id = %d', $login_id);
 }
 
 /**
