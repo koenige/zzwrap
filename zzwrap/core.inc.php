@@ -2333,17 +2333,18 @@ function wrap_substr($string, $substring, $mode = 'begin') {
  * gets setting from configuration (default: zz_setting)
  *
  * @param string $key
+ * @param int $login_id
  * @return mixed $setting (if not found, returns NULL)
  */
-function wrap_get_setting($key) {
+function wrap_get_setting($key, $login_id = 0) {
 	if (function_exists('my_get_setting')) {
-		return my_get_setting($key);
+		return my_get_setting($key, $login_id);
 	}
 	global $zz_setting;
-	if (isset($zz_setting[$key])) {
+	if (isset($zz_setting[$key]) AND !$login_id) {
 		return $zz_setting[$key];
 	}
-	$values = wrap_setting_read($key);
+	$values = wrap_setting_read($key, $login_id);
 	if (array_key_exists($key, $values)) {
 		return $values[$key];
 	}
