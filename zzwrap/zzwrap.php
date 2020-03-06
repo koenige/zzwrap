@@ -312,6 +312,7 @@ function wrap_set_defaults_pre_conf() {
 
 	// zzbrick: brick types
 	$zz_setting['brick_types_translated']['tables'] = 'forms';
+	$zz_setting['brick_types_translated']['make'] = 'request';
 
 	$zz_setting['brick_fulltextformat'] = 'markdown';
 	// functions that might be used for formatting (zzbrick)
