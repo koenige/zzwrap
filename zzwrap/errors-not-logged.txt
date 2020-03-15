@@ -157,6 +157,8 @@
 # Script testing over 100 URIs at a time thinking it's clever to use a referer
 # but real referer will always include query string
 404	referer	http://www.baidu.com
+404	referer	https://www.baidu.com/
+404	ua	Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html
 
 # The real GoogleBot does not use this referer
 404	referer	http://www.googlebot.com/bot.html
