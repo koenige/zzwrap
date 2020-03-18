@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2012-2019 Gustaf Mossakowski
+# @copyright Copyright © 2012-2020 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 # 
 # begin = check if begin of string is identical; end = check end; all: check full
@@ -157,6 +157,7 @@
 # Script testing over 100 URIs at a time thinking it's clever to use a referer
 # but real referer will always include query string
 404	referer	http://www.baidu.com
+404	referer	http://baidu.com/
 404	referer	https://www.baidu.com/
 404	ua	Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html
 
