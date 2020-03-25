@@ -638,7 +638,7 @@ function wrap_check_redirects_placeholder($url, $position) {
 		if ($position === 'before') {
 			foreach ($separators as $separator) {
 				$pos = strpos($url['db'], $separator);
-				if (!$last_pos OR $pos < $last_pos) {
+				if ($pos > $last_pos) {
 					$last_pos = $pos;
 					$last_separator = $separator;
 				}
