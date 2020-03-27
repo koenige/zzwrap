@@ -514,6 +514,7 @@ function wrap_errorpage_ignore($status, $string = false) {
 			case 'post':
 				if (empty($_POST)) break;
 				if (wrap_error_checkmatch(json_encode($_POST), $line[2])) return true;
+				break;
 			default:
 				wrap_error(sprintf('Case %s in file %s in line %s not supported.', $line[1], $file, $i), E_USER_NOTICE);
 			}
