@@ -1142,7 +1142,7 @@ function wrap_category_id($category, $action = 'read') {
  * read IDs from database
  *
  * @param string $table
- * @param string $language
+ * @param string $identifier
  * @param string $action (optional, default 'read', 'list', 'write')
  * @param string $value (optional, for 'write')
  * @param string $sql (optional, SQL query)
@@ -1178,7 +1178,12 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 		if (!array_key_exists($identifier, $data[$table])) return false;
 		return $data[$table][$identifier];
 	case 'list':
-		return $data[$table];
+		if (!$identifier) return $data[$table];
+		$my_data = [];
+		foreach ($data[$table] as $key => $value) {
+			if (wrap_substr($key, $identifier)) $my_data[$key] = $value;
+		}
+		return $my_data;
 	default:
 		return false;
 	}
