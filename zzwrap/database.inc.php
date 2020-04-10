@@ -1144,24 +1144,27 @@ function wrap_category_id($category, $action = 'read') {
  * @param string $table
  * @param string $language
  * @param string $action (optional, default 'read', 'list')
+ * @param string $sql (optional, SQL query)
  * @return mixed
  */
-function wrap_id($table, $identifier, $action = 'read') {
+function wrap_id($table, $identifier, $action = 'read', $sql = '') {
 	static $data;
 
 	if (empty($data[$table])) {
-		switch ($table) {
-		case 'categories':
-			$sql = 'SELECT path, category_id
-				FROM categories ORDER BY path';
-			break;
-		case 'languages':
-			$sql = 'SELECT iso_639_1, language_id
-				FROM languages WHERE website = "yes" ORDER BY iso_639_1';
-			break;
-		default:
-			wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
-			return [];
+		if (!$sql) {
+			switch ($table) {
+			case 'categories':
+				$sql = 'SELECT path, category_id
+					FROM categories ORDER BY path';
+				break;
+			case 'languages':
+				$sql = 'SELECT iso_639_1, language_id
+					FROM languages WHERE website = "yes" ORDER BY iso_639_1';
+				break;
+			default:
+				wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
+				return [];
+			}
 		}
 		$data[$table] = wrap_db_fetch($sql, '_dummy_', 'key/value');
 	}
