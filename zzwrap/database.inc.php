@@ -1143,11 +1143,12 @@ function wrap_category_id($category, $action = 'read') {
  *
  * @param string $table
  * @param string $language
- * @param string $action (optional, default 'read', 'list')
+ * @param string $action (optional, default 'read', 'list', 'write')
+ * @param string $value (optional, for 'write')
  * @param string $sql (optional, SQL query)
  * @return mixed
  */
-function wrap_id($table, $identifier, $action = 'read', $sql = '') {
+function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') {
 	static $data;
 
 	if (empty($data[$table])) {
@@ -1170,6 +1171,9 @@ function wrap_id($table, $identifier, $action = 'read', $sql = '') {
 	}
 
 	switch ($action) {
+	case 'write':
+		$data[$table][$identifier] = $value;
+		return $value;
 	case 'read':
 		if (!array_key_exists($identifier, $data[$table])) return false;
 		return $data[$table][$identifier];
