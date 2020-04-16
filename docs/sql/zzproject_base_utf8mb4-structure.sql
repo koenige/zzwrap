@@ -32,12 +32,13 @@ DROP TABLE IF EXISTS `_logging`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_logging` (
   `log_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `query` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `query` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `record_id` int unsigned DEFAULT NULL,
   `user` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`log_id`),
-  KEY `record_id` (`record_id`)
+  KEY `record_id` (`record_id`),
+  KEY `last_update` (`last_update`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -50,15 +51,15 @@ DROP TABLE IF EXISTS `_relations`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_relations` (
   `rel_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `master_db` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `master_table` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `master_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `detail_db` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `detail_table` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `detail_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `delete` enum('delete','ask','no-delete','update') COLLATE latin1_general_cs NOT NULL DEFAULT 'no-delete',
-  `detail_id_field` varchar(127) COLLATE latin1_general_cs NOT NULL,
-  `detail_url` varchar(63) COLLATE latin1_general_cs DEFAULT NULL,
+  `master_db` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `master_table` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `master_field` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `detail_db` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `detail_table` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `detail_field` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `delete` enum('delete','ask','no-delete','update') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no-delete',
+  `detail_id_field` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `detail_url` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`rel_id`),
   UNIQUE KEY `master_db` (`master_db`,`master_table`,`master_field`,`detail_db`,`detail_table`,`detail_field`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
@@ -73,9 +74,9 @@ DROP TABLE IF EXISTS `_settings`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_settings` (
   `setting_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `setting_key` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `setting_value` varchar(750) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `explanation` text COLLATE utf8mb4_unicode_ci,
+  `setting_key` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `setting_value` varchar(750) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `explanation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`setting_id`),
   UNIQUE KEY `setting_key` (`setting_key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -90,10 +91,10 @@ DROP TABLE IF EXISTS `_translationfields`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_translationfields` (
   `translationfield_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `db_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
-  `table_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
-  `field_name` varchar(255) COLLATE latin1_general_cs NOT NULL,
-  `field_type` enum('varchar','text') COLLATE latin1_general_cs NOT NULL DEFAULT 'varchar',
+  `db_name` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `table_name` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `field_name` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `field_type` enum('varchar','text') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'varchar',
   PRIMARY KEY (`translationfield_id`),
   UNIQUE KEY `db_name` (`db_name`,`table_name`,`field_name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
@@ -110,7 +111,7 @@ CREATE TABLE `_translations_text` (
   `translation_id` int unsigned NOT NULL AUTO_INCREMENT,
   `translationfield_id` int unsigned NOT NULL,
   `field_id` int unsigned NOT NULL,
-  `translation` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `translation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `language_id` int unsigned NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
@@ -131,7 +132,7 @@ CREATE TABLE `_translations_varchar` (
   `translation_id` int unsigned NOT NULL AUTO_INCREMENT,
   `translationfield_id` int unsigned NOT NULL,
   `field_id` int unsigned NOT NULL,
-  `translation` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `translation` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `language_id` int unsigned NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`translation_id`),
@@ -150,16 +151,16 @@ DROP TABLE IF EXISTS `_uris`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_uris` (
   `uri_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `uri_scheme` varchar(15) COLLATE latin1_general_ci NOT NULL,
+  `uri_scheme` varchar(15) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `uri_host` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `uri_path` varchar(127) COLLATE latin1_general_ci NOT NULL,
-  `uri_query` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
-  `content_type` varchar(127) COLLATE latin1_general_ci NOT NULL,
-  `character_encoding` varchar(31) COLLATE latin1_general_ci DEFAULT NULL,
+  `uri_path` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `uri_query` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `content_type` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `character_encoding` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `content_length` mediumint unsigned NOT NULL,
-  `user` varchar(64) COLLATE latin1_general_ci NOT NULL DEFAULT 'none',
+  `user` varchar(64) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'none',
   `status_code` smallint NOT NULL,
-  `etag_md5` varchar(32) COLLATE latin1_general_ci DEFAULT NULL,
+  `etag_md5` varchar(32) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   `last_modified` datetime DEFAULT NULL,
   `hits` int unsigned NOT NULL,
   `first_access` datetime NOT NULL,
@@ -179,8 +180,8 @@ DROP TABLE IF EXISTS `categories`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `categories` (
   `category_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `category` varchar(63) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `category` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `main_category_id` int unsigned DEFAULT NULL,
   `path` varchar(100) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `parameters` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
@@ -202,7 +203,8 @@ DROP TABLE IF EXISTS `countries`;
 CREATE TABLE `countries` (
   `country_id` int unsigned NOT NULL AUTO_INCREMENT,
   `country_code` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `country` varchar(63) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country_code3` char(3) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `country` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`country_id`),
   UNIQUE KEY `country_code` (`country_code`),
@@ -222,7 +224,7 @@ CREATE TABLE `filetypes` (
   `filetype` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `mime_content_type` varchar(31) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `mime_subtype` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `filetype_description` varchar(63) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `filetype_description` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
@@ -241,10 +243,10 @@ CREATE TABLE `languages` (
   `iso_639_2t` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `iso_639_2b` char(3) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `iso_639_1` char(2) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `language_de` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `language_en` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `language_fr` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `variation` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `language_de` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `language_en` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `language_fr` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `variation` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `website` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   PRIMARY KEY (`language_id`),
   UNIQUE KEY `iso_639_2t_variation` (`iso_639_2t`,`variation`),
@@ -261,13 +263,13 @@ DROP TABLE IF EXISTS `logins`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `logins` (
   `login_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `username` varchar(63) COLLATE latin1_general_cs NOT NULL,
-  `login_rights` enum('admin','read and write','read') COLLATE latin1_general_cs NOT NULL DEFAULT 'read',
-  `password` varchar(60) COLLATE latin1_general_cs NOT NULL,
-  `password_change` enum('yes','no') COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
-  `logged_in` enum('yes','no') COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
+  `username` varchar(63) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `login_rights` enum('admin','read and write','read') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'read',
+  `password` varchar(60) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `password_change` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
+  `logged_in` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'no',
   `last_click` int unsigned DEFAULT NULL,
-  `active` enum('yes','no') COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
+  `active` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'yes',
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`login_id`),
   UNIQUE KEY `benutzername` (`username`)
@@ -284,12 +286,12 @@ DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `medium_id` int unsigned NOT NULL AUTO_INCREMENT,
   `main_medium_id` int unsigned DEFAULT NULL,
-  `title` varchar(127) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `title` varchar(127) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `language_id` int unsigned DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
-  `source` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `published` enum('yes','no') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'yes',
   `clipping` enum('center','top','right','bottom','left') CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL DEFAULT 'center',
   `sequence` smallint unsigned DEFAULT NULL,
@@ -321,7 +323,7 @@ CREATE TABLE `redirects` (
   `old_url` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `new_url` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `code` smallint unsigned NOT NULL DEFAULT '301',
-  `area` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `area` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`redirect_id`),
   UNIQUE KEY `alt` (`old_url`),
@@ -339,8 +341,8 @@ DROP TABLE IF EXISTS `text`;
 CREATE TABLE `text` (
   `text_id` int unsigned NOT NULL AUTO_INCREMENT,
   `text` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `more_text` text COLLATE utf8mb4_unicode_ci,
-  `area` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `more_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `area` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`text_id`),
   UNIQUE KEY `text` (`text`(250)),
@@ -357,8 +359,8 @@ DROP TABLE IF EXISTS `webpages`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `webpages` (
   `page_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(63) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `identifier` varchar(127) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `ending` enum('.html','/','none') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 'none',
   `sequence` tinyint NOT NULL,
