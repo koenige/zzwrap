@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2019 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -114,7 +114,11 @@ function wrap_mail($mail) {
 			$mail['message'] = str_replace("\r\t\n", "\t\r\n", $mail['message']);
 		}
 		// if real server, send mail
-		$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+		if (wrap_get_setting('use_library_phpmailer')) {
+			$success = wrap_mail_phpmailer($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+		} else {
+			$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+		}
 		if (!$success) {
 			wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
 				.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
@@ -263,4 +267,85 @@ function wrap_mail_log($mail, $additional_headers) {
 		."\n\n".str_repeat('-', 77)."\n\n";
 	$text = str_replace("\r\n", "\n", $text);
 	file_put_contents($logfile, $text, FILE_APPEND | LOCK_EX);
+}
+
+/**
+ * use phpmailer class instead of PHP's own mail()-function
+ * for support of using an external SMTP server
+ *
+ * @param string $to
+ * @param string $subject
+ * @param string $msg
+ * @param string $additional_headers
+ * @param string $parameters
+ * @return bool
+ */
+function wrap_mail_phpmailer($to, $subject, $msg, $additional_headers, $parameters) {
+	global $zz_setting;
+	require_once $zz_setting['modules_dir'].'/default/libraries/phpmailer.inc.php';
+	
+	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
+	$mail->isSMTP();  
+	$mail->Host = wrap_get_setting('mail_host');
+	$mail->SMTPAuth = true;
+	$mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; 
+	$mail->Username = wrap_get_setting('mail_username');
+	$mail->Password = wrap_get_setting('mail_password');
+
+
+	$mail->Subject = $subject;
+	$mail->Body = $msg;
+	
+	$to = explode(',', $to);
+	foreach ($to as $recipient) {
+		list($to_mail, $to_name) = wrap_mail_split($recipient);
+		$mail->addAddress($to_mail, $to_name); 
+	}
+	$additional_headers = explode("\n", $additional_headers);
+	foreach ($additional_headers as $line) {
+		if (!trim($line)) continue;
+		$line = explode(': ', $line);
+		switch ($line[0]) {
+		case 'From':
+			list($from_mail, $from_name) = wrap_mail_split($line[1]);
+			$mail->setFrom($from_mail, $from_name);
+			break;
+		case 'Content-Type':
+			if (substr($line[1], 0, 20) === 'text/plain; charset=')
+			$mail->CharSet = substr($line[1], 20);
+			break;
+		case 'MIME-Version':
+		case 'Content-Transfer-Encoding':
+			break;
+		default:
+			$mail->addCustomHeader($line[0], $line[1]);
+			break;
+		}
+	}
+	if(!$mail->send()) {
+		wrap_error('Send mail with phpmailer failed. '.$mail->ErrorInfo);
+		return false;
+	}
+	return true;
+}
+
+/**
+ * split full address "Test man" <test@example.org> to array with name and mail
+ *
+ * @param string $address
+ * @return array
+ */
+function wrap_mail_split($address) {
+	$address = trim($address);
+	if ($pos = strrpos($address, ' ')) {
+		$e_mail = trim(substr($address, $pos));
+		$name = trim(substr($address, 0, $pos));
+	} else {
+		$e_mail = $address;
+		$name = '';
+	}
+	$e_mail = rtrim($e_mail, '>');
+	$e_mail = ltrim($e_mail, '<');
+	$name = trim($name, '"');
+	return [$e_mail, $name];
 }
