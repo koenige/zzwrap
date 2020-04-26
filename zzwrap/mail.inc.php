@@ -34,7 +34,7 @@ function wrap_mail($mail) {
 	global $zz_setting;
 
 	// multipart?
-	if (!empty($mail['multipart'])) {
+	if (!empty($mail['multipart']) AND !wrap_get_setting('use_library_phpmailer')) {
 		foreach ($mail['multipart']['files'] as $index => $file) {
 			if (file_exists($file['path_local'])) {
 				$binary = fread(fopen($file['path_local'], "r"), filesize($file['path_local']));
@@ -304,8 +304,21 @@ function wrap_mail_phpmailer($msg) {
 	$mail->Password = wrap_get_setting('mail_password');
 
 	$mail->Subject = $msg['subject'];
-	$mail->Body = $msg['message'];
-	
+	if (!empty($msg['multipart'])) {
+		$mail->isHTML(true);
+		$mail->AltBody = $msg['message'].$msg['multipart']['text'];
+		$mail->Body = $msg['multipart']['html'];
+		foreach ($msg['multipart']['files'] as $file) {
+			if (!file_exists($file['path_local'])) {
+				wrap_error('File not found. '.$file['path_local']);
+				continue;
+			}
+			$mail->addEmbeddedImage($file['path_local'], $file['cid']);
+		}
+	} else {
+		$mail->Body = $msg['message'];
+	}
+
 	$to = explode(',', $msg['to']);
 	foreach ($to as $recipient) {
 		list($to_mail, $to_name) = wrap_mail_split($recipient);
@@ -318,6 +331,7 @@ function wrap_mail_phpmailer($msg) {
 			$mail->setFrom($from_mail, $from_name);
 			break;
 		case 'Content-Type':
+			if (!empty($msg['multipart'])) break;
 			if (substr($field_body, 0, 20) === 'text/plain; charset=')
 			$mail->CharSet = substr($field_body, 20);
 			break;
