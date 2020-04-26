@@ -35,6 +35,14 @@ function wrap_mail($mail) {
 
 	// multipart?
 	if (!empty($mail['multipart'])) {
+		foreach ($mail['multipart']['files'] as $file) {
+			if (file_exists($file['path_local'])) {
+				$binary = fread(fopen($file['path_local'], "r"), filesize($file['path_local']));
+				$file['file_base64_encoded'] = chunk_split(base64_encode($binary));
+			} else {
+				wrap_error('File not found. '.$file['path_local']);
+			}
+		}
 		$mail['message'] .= trim(wrap_template('mail-multipart', $mail['multipart']));
 	}
 
