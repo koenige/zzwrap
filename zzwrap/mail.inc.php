@@ -130,7 +130,7 @@ function wrap_mail($mail) {
 		}
 		// if real server, send mail
 		if (wrap_get_setting('use_library_phpmailer')) {
-			$success = wrap_mail_phpmailer($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+			$success = wrap_mail_phpmailer($mail, $additional_headers);
 		} else {
 			$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 		}
@@ -288,14 +288,11 @@ function wrap_mail_log($mail, $additional_headers) {
  * use phpmailer class instead of PHP's own mail()-function
  * for support of using an external SMTP server
  *
- * @param string $to
- * @param string $subject
- * @param string $msg
+ * @param array $msg
  * @param string $additional_headers
- * @param string $parameters
  * @return bool
  */
-function wrap_mail_phpmailer($to, $subject, $msg, $additional_headers, $parameters) {
+function wrap_mail_phpmailer($msg, $additional_headers) {
 	global $zz_setting;
 	require_once $zz_setting['modules_dir'].'/default/libraries/phpmailer.inc.php';
 	
@@ -307,11 +304,10 @@ function wrap_mail_phpmailer($to, $subject, $msg, $additional_headers, $paramete
 	$mail->Username = wrap_get_setting('mail_username');
 	$mail->Password = wrap_get_setting('mail_password');
 
-
-	$mail->Subject = $subject;
-	$mail->Body = $msg;
+	$mail->Subject = $msg['subject'];
+	$mail->Body = $msg['message'];
 	
-	$to = explode(',', $to);
+	$to = explode(',', $msg['to']);
 	foreach ($to as $recipient) {
 		list($to_mail, $to_name) = wrap_mail_split($recipient);
 		$mail->addAddress($to_mail, $to_name); 
