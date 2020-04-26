@@ -21,6 +21,8 @@
  *		string 'subject' (subject of message)
  *		string 'message' (body of message)
  *		array 'headers' (optional)
+ *		array 'multipart' (optional):
+ *			string 'text', string 'html', array 'files'
  * @global $zz_conf
  *		'error_mail_from', 'project', 'character_set', 'mail_subject_prefix'
  * @global $zz_setting
@@ -30,6 +32,11 @@
 function wrap_mail($mail) {
 	global $zz_conf;
 	global $zz_setting;
+
+	// multipart?
+	if (!empty($mail['multipart'])) {
+		$mail['message'] .= trim(wrap_template('mail-multipart', $mail['multipart']));
+	}
 
 	// normalize line endings
 	$mail['message'] = str_replace("\n", "\r\n", $mail['message']);
