@@ -130,7 +130,7 @@ function wrap_mail($mail) {
 		}
 		// if real server, send mail
 		if (wrap_get_setting('use_library_phpmailer')) {
-			$success = wrap_mail_phpmailer($mail, $additional_headers);
+			$success = wrap_mail_phpmailer($mail);
 		} else {
 			$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 		}
@@ -289,10 +289,9 @@ function wrap_mail_log($mail, $additional_headers) {
  * for support of using an external SMTP server
  *
  * @param array $msg
- * @param string $additional_headers
  * @return bool
  */
-function wrap_mail_phpmailer($msg, $additional_headers) {
+function wrap_mail_phpmailer($msg) {
 	global $zz_setting;
 	require_once $zz_setting['modules_dir'].'/default/libraries/phpmailer.inc.php';
 	
@@ -312,24 +311,21 @@ function wrap_mail_phpmailer($msg, $additional_headers) {
 		list($to_mail, $to_name) = wrap_mail_split($recipient);
 		$mail->addAddress($to_mail, $to_name); 
 	}
-	$additional_headers = explode("\n", $additional_headers);
-	foreach ($additional_headers as $line) {
-		if (!trim($line)) continue;
-		$line = explode(': ', $line);
-		switch ($line[0]) {
+	foreach ($msg['headers'] as $field_name => $field_body) {
+		switch ($field_name) {
 		case 'From':
-			list($from_mail, $from_name) = wrap_mail_split($line[1]);
+			list($from_mail, $from_name) = wrap_mail_split($field_body);
 			$mail->setFrom($from_mail, $from_name);
 			break;
 		case 'Content-Type':
-			if (substr($line[1], 0, 20) === 'text/plain; charset=')
-			$mail->CharSet = substr($line[1], 20);
+			if (substr($field_body, 0, 20) === 'text/plain; charset=')
+			$mail->CharSet = substr($field_body, 20);
 			break;
 		case 'MIME-Version':
 		case 'Content-Transfer-Encoding':
 			break;
 		default:
-			$mail->addCustomHeader($line[0], $line[1]);
+			$mail->addCustomHeader($field_name, $field_body);
 			break;
 		}
 	}
