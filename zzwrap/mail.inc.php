@@ -331,9 +331,8 @@ function wrap_mail_phpmailer($msg) {
 			$mail->setFrom($from_mail, $from_name);
 			break;
 		case 'Content-Type':
-			if (!empty($msg['multipart'])) break;
 			if (substr($field_body, 0, 20) === 'text/plain; charset=')
-			$mail->CharSet = substr($field_body, 20);
+				$mail->CharSet = substr($field_body, 20);
 			break;
 		case 'MIME-Version':
 		case 'Content-Transfer-Encoding':
