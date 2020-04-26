@@ -98,7 +98,7 @@ function wrap_mail($mail) {
 	}
 
 	// Signature? Only for plain text mails
-	if (wrap_substr($mail['headers']['Content-Type'], 'text/plain')) {
+	if (empty($mail['multipart']) AND wrap_substr($mail['headers']['Content-Type'], 'text/plain')) {
 		if (!empty($zz_setting['mail_with_signature']) AND wrap_template_file('signature-mail', false)) {
 			$mail['message'] .= "\r\n".wrap_template('signature-mail');
 		}
