@@ -1157,6 +1157,10 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 			case 'categories':
 				$sql = 'SELECT path, category_id
 					FROM categories ORDER BY path';
+				$sql_aliases = 'SELECT path, category_id, parameters
+					FROM categories
+					WHERE parameters LIKE "%alias=%"';
+				$aliases = wrap_db_fetch($sql_aliases, 'path');
 				break;
 			case 'languages':
 				$sql = 'SELECT iso_639_1, language_id
@@ -1168,6 +1172,17 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 			}
 		}
 		$data[$table] = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		if (!empty($aliases)) {
+			switch ($table) {
+			case 'categories':
+				foreach ($aliases as $alias) {
+					parse_str($alias['parameters'], $parameters);
+					if (empty($parameters['alias'])) continue;
+					$data[$table][$parameters['alias']] = $alias['category_id'];
+				}
+				break;
+			}
+		}
 	}
 
 	switch ($action) {
