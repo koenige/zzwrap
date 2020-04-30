@@ -1190,7 +1190,10 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 		$data[$table][$identifier] = $value;
 		return $value;
 	case 'read':
-		if (!array_key_exists($identifier, $data[$table])) return false;
+		if (!array_key_exists($identifier, $data[$table])) {
+			wrap_error(sprintf('ID value for table `%s`, key `%s` not found.', $table, $identifier));
+			return false;
+		}
 		return $data[$table][$identifier];
 	case 'list':
 		if (!$identifier) return $data[$table];
