@@ -23,13 +23,14 @@
  *		array 'headers' (optional)
  *		array 'multipart' (optional):
  *			string 'text', string 'html', array 'files'
+ * @param array $list send mails to multiple recipients via a list
  * @global $zz_conf
  *		'error_mail_from', 'project', 'character_set', 'mail_subject_prefix'
  * @global $zz_setting
  *		'local_access', bool 'show_local_mail' log mail or show mail
  * @return bool true: message was sent; false: message was not sent
  */
-function wrap_mail($mail) {
+function wrap_mail($mail, $list = []) {
 	global $zz_conf;
 	global $zz_setting;
 
@@ -130,7 +131,7 @@ function wrap_mail($mail) {
 		}
 		// if real server, send mail
 		if (wrap_get_setting('use_library_phpmailer')) {
-			$success = wrap_mail_phpmailer($mail);
+			$success = wrap_mail_phpmailer($mail, $list);
 		} else {
 			$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 		}
@@ -291,7 +292,7 @@ function wrap_mail_log($mail, $additional_headers) {
  * @param array $msg
  * @return bool
  */
-function wrap_mail_phpmailer($msg) {
+function wrap_mail_phpmailer($msg, $list) {
 	global $zz_setting;
 	require_once $zz_setting['modules_dir'].'/default/libraries/phpmailer.inc.php';
 	
@@ -302,12 +303,13 @@ function wrap_mail_phpmailer($msg) {
 	$mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; 
 	$mail->Username = wrap_get_setting('mail_username');
 	$mail->Password = wrap_get_setting('mail_password');
+	if ($list) {
+		// SMTP connection will not close after each email sent, reduces SMTP overhead
+		$mail->SMTPKeepAlive = true; 
+	}
 
 	$mail->Subject = $msg['subject'];
 	if (!empty($msg['multipart'])) {
-		$mail->isHTML(true);
-		$mail->AltBody = $msg['message'].$msg['multipart']['text'];
-		$mail->Body = $msg['multipart']['html'];
 		foreach ($msg['multipart']['files'] as $file) {
 			if (!file_exists($file['path_local'])) {
 				wrap_error('File not found. '.$file['path_local']);
@@ -315,14 +317,6 @@ function wrap_mail_phpmailer($msg) {
 			}
 			$mail->addEmbeddedImage($file['path_local'], $file['cid']);
 		}
-	} else {
-		$mail->Body = $msg['message'];
-	}
-
-	$to = explode(',', $msg['to']);
-	foreach ($to as $recipient) {
-		list($to_mail, $to_name) = wrap_mail_split($recipient);
-		$mail->addAddress($to_mail, $to_name); 
 	}
 	foreach ($msg['headers'] as $field_name => $field_body) {
 		switch ($field_name) {
@@ -342,10 +336,38 @@ function wrap_mail_phpmailer($msg) {
 			break;
 		}
 	}
-	if(!$mail->send()) {
-		wrap_error('Send mail with phpmailer failed. '.$mail->ErrorInfo);
-		return false;
+
+	if (!$list) $list[] = $msg;
+	foreach ($list as $item) {
+		if (!empty($item['multipart'])) {
+			$mail->isHTML(true);
+			$mail->AltBody = $msg['message'].$item['multipart']['text'];
+			$mail->Body = $item['multipart']['html'];
+		} else {
+			$mail->Body = $item['message'];
+		}
+		$to = explode(',', wrap_mail_name($item['to']));
+		foreach ($to as $recipient) {
+			list($to_mail, $to_name) = wrap_mail_split($recipient);
+			$mail->addAddress($to_mail, $to_name); 
+		}
+		try {
+			$mail->send();
+			if (!empty($item['sql_on_success'])) {
+				wrap_db_query($item['sql_on_success']);
+				if (function_exists('zz_log_sql'))
+					zz_log_sql($item['sql_on_success'], 'Messenger Robot 329');
+			}
+			// write to db that message was sent
+		} catch (Exception $e) {
+			wrap_error('Send mail with phpmailer failed. '.$mail->ErrorInfo);
+			// Reset the connection to abort sending this message
+			// The loop will continue trying to send to the rest of the list
+			$mail->getSMTPInstance()->reset();
+		}
+		$mail->clearAddresses();
 	}
+
 	return true;
 }
 
