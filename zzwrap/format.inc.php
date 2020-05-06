@@ -797,6 +797,7 @@ function wrap_punycode($string, $action) {
  *
  * @param string $time
  * @param string $format
+ * @return string
  */
 function wrap_time($time, $format = false) {
 	if (empty($format)) $format = 'H:i';
@@ -808,8 +809,16 @@ function wrap_time($time, $format = false) {
  *
  * @param int $duration duration
  * @param string $unit (optional) unit of duration, defaults to 'second'
+ * @param string $format
+ * @return string
  */
-function wrap_duration($duration, $unit = 'second') {
+function wrap_duration($duration, $unit = 'second', $format = '') {
+	global $zz_setting;
+	if (!$format AND isset($zz_setting['duration_format']))
+		$format = $zz_setting['duration_format'];
+	else
+		$format = 'long';
+
 	$data = [
 		'year' => 0, 'week' => 0, 'day' => 0,
 		'hour' => 0, 'minute' => 0, 'second' => 0
@@ -827,14 +836,20 @@ function wrap_duration($duration, $unit = 'second') {
 	}
 	switch (true) {
 		case $duration >= $seconds['year']:
-			$data['year'] = intval(floor($duration / $seconds['year']));
-			$duration -= $data['year'] * $seconds['year'];
+			if ($format !== 'H:i') {
+				$data['year'] = intval(floor($duration / $seconds['year']));
+				$duration -= $data['year'] * $seconds['year'];
+			}
 		case $duration >= $seconds['week']:
-			$data['week'] = intval(floor($duration / $seconds['week']));
-			$duration -= $data['week'] * $seconds['week'];
+			if ($format !== 'H:i') {
+				$data['week'] = intval(floor($duration / $seconds['week']));
+				$duration -= $data['week'] * $seconds['week'];
+			}
 		case $duration >= $seconds['day']:
-			$data['day'] = intval(floor($duration / $seconds['day']));
-			$duration -= $data['day'] * $seconds['day'];
+			if ($format !== 'H:i') {
+				$data['day'] = intval(floor($duration / $seconds['day']));
+				$duration -= $data['day'] * $seconds['day'];
+			}
 		case $duration >= $seconds['hour']:
 			$data['hour'] = intval(floor($duration / $seconds['hour']));
 			$duration -= $data['hour'] * $seconds['hour'];
@@ -845,11 +860,17 @@ function wrap_duration($duration, $unit = 'second') {
 			$data['second'] = $duration;
 			break;
 	}
+
 	$out = [];
-	foreach ($data as $type => $count) {
-		if (!$count) continue;
-		if ($count === 1) $out[] = wrap_text('1 '.$type);
-		else $out[] = sprintf(wrap_text('%d '.$type.'s'), $count);
+	switch ($format) {
+	case 'long':
+		foreach ($data as $type => $count) {
+			if (!$count) continue;
+			if ($count === 1) $out[] = wrap_text('1 '.$type);
+			else $out[] = sprintf(wrap_text('%d '.$type.'s'), $count);
+		}
+		return implode(', ', $out);
+	case 'H:i':
+		return sprintf('%d:%02d', $data['hour'], $data['minute']);
 	}
-	return implode(', ', $out);
 }
