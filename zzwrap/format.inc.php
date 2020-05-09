@@ -518,7 +518,6 @@ function wrap_money_format($number, $format = false) {
  * @param string $string
  * @return string $string
  * @global array $zz_conf
- * @see zz_html_escape()
  */
 function wrap_html_escape($string) {
 	global $zz_conf;
