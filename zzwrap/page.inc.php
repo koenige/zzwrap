@@ -464,8 +464,8 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		$zz_setting['menu_display_submenu_items'] = 'current';
 
 	// no menu_name: use default menu name
-	if (!$menu_name AND !empty($zz_setting['main_menu'])) {
-		$menu_name = $zz_setting['main_menu'];
+	if (!$menu_name AND wrap_get_setting('main_menu')) {
+		$menu_name = wrap_get_setting('main_menu');
 	}
 
 	if (!$menu_name OR is_numeric($menu_name)) {
@@ -502,10 +502,10 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 	
 	// check if there's a menu defined for SESSION
 	// and add these entries to the main menu
-	if (!empty($zz_setting['session_menu']) AND !empty($_SESSION['logged_in'])
-		AND !empty($nav[$zz_setting['session_menu']])
-		AND $menu_name === $zz_setting['main_menu']) {
-		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[$zz_setting['session_menu']]);
+	if (wrap_get_setting('session_menu') AND !empty($_SESSION['logged_in'])
+		AND !empty($nav[wrap_get_setting('session_menu')])
+		AND $menu_name === wrap_get_setting('main_menu')) {
+		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[wrap_get_setting('session_menu')]);
 	}
 
 	// OK, finally, we just get the menu together
