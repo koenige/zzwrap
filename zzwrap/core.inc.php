@@ -2613,7 +2613,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $login_id);
 	} else {
 		$sql = 'INSERT INTO /*_PREFIX_*/_settings
-			(setting_value, setting_key, login_id) VALUES ("%s", "%s")
+			(setting_value, setting_key) VALUES ("%s", "%s")
 		';
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 	}
