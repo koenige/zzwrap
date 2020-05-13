@@ -38,6 +38,7 @@ function zzwrap() {
 
 	// establish database connection
 	wrap_db_connect();
+	wrap_config('write');
 
 	// local modifications to SQL queries
 	// may need db connection

@@ -27,6 +27,7 @@ function wrap_set_defaults() {
 
 	// configuration settings, defaults
 	wrap_set_defaults_pre_conf();
+	wrap_config('read');
 	if (file_exists($file = $zz_setting['inc'].'/config.inc.php'))
 		require_once $file;
 	if (empty($zz_setting['lib']))
@@ -227,6 +228,43 @@ function wrap_set_defaults_pre_conf() {
 
 	$zz_conf['character_set'] = 'utf-8';
 
+}
+
+/**
+ * read configuration from JSON file
+ *
+ * @param string $mode (read, write)
+ * @return void
+ */
+function wrap_config($mode) {
+	global $zz_setting;
+	global $zz_conf;
+
+	$file = $zz_setting['inc'].'/config.json';
+	if (!file_exists($file)) {
+		if ($mode === 'read') return;
+		$existing_config = [];
+	} else {
+		$existing_config = file_get_contents($file);
+	}
+
+	switch ($mode) {
+	case 'read':
+		$existing_config = json_decode($existing_config, true);
+		if (!$existing_config) return;
+		foreach ($existing_config as $skey => $value) {
+			$zz_setting = array_merge_recursive($zz_setting, wrap_setting_key($skey, wrap_setting_value($value)));
+		}
+		break;
+	case 'write':
+		$sql = 'SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/_settings ORDER BY setting_key';
+		$settings = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		$new_config = json_encode($settings, JSON_PRETTY_PRINT);
+		if ($new_config !== $existing_config)
+			file_put_contents($file, $new_config);
+		break;
+	}
 }
 
 /**
