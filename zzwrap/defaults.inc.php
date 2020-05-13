@@ -253,7 +253,12 @@ function wrap_config($mode) {
 		$existing_config = json_decode($existing_config, true);
 		if (!$existing_config) return;
 		foreach ($existing_config as $skey => $value) {
-			$zz_setting = array_merge_recursive($zz_setting, wrap_setting_key($skey, wrap_setting_value($value)));
+			if (wrap_substr($skey, 'zzform_')) {
+				$skey = substr($skey, 7);
+				$zz_conf = array_merge_recursive($zz_conf, wrap_setting_key($skey, wrap_setting_value($value)));
+			} else {
+				$zz_setting = array_merge_recursive($zz_setting, wrap_setting_key($skey, wrap_setting_value($value)));
+			}
 		}
 		break;
 	case 'write':
