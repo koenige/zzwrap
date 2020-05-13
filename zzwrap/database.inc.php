@@ -1130,12 +1130,23 @@ function wrap_language_id($language, $action = 'read') {
 /**
  * read category IDs from database
  *
- * @param string $language
+ * @param string $category
  * @param string $action (optional, default 'read', 'list')
  * @return int
  */
 function wrap_category_id($category, $action = 'read') {
 	return wrap_id('categories', $category, $action);
+}
+
+/**
+ * read filetype IDs from database
+ *
+ * @param string $filetype
+ * @param string $action (optional, default 'read', 'list')
+ * @return int
+ */
+function wrap_filetype_id($filetype, $action = 'read') {
+	return wrap_id('filetypes', $filetype, $action);
 }
 
 /**
@@ -1165,6 +1176,10 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 			case 'languages':
 				$sql = 'SELECT iso_639_1, language_id
 					FROM languages WHERE website = "yes" ORDER BY iso_639_1';
+				break;
+			case 'filetypes':
+				$sql = 'SELECT filetype, filetype_id
+					FROM filetypes';
 				break;
 			default:
 				wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
