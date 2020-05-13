@@ -162,24 +162,3 @@ function wrap_includes_postconf() {
 		require_once __DIR__.'/auth.inc.php';
 	}
 }
-
-/**
- * get remote IP address even if behind proxy
- *
- * @return string
- */
-function wrap_http_remote_ip() {
-	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-		$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		if ($pos = strpos($remote_ip, ',')) {
-			$remote_ip = substr($remote_ip, 0, $pos);
-		}
-		// do not forward connections that say they're localhost
-		if ($remote_ip === '::1') $remote_ip = '';
-		if (substr($remote_ip, 0, 4) === '127.') $remote_ip = '';
-		if ($remote_ip) return $remote_ip;
-	}
-	if (empty($_SERVER['REMOTE_ADDR']))
-		return '';
-	return $_SERVER['REMOTE_ADDR'];
-}
