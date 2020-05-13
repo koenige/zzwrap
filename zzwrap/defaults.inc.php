@@ -306,6 +306,8 @@ function wrap_set_defaults_post_conf() {
 		// fields in table languages.language_xx
 		$zz_setting['language_translations'] = ['en', 'de', 'fr'];
 	}
+	if (!empty($zz_setting['timezone']))
+		date_default_timezone_set($zz_setting['timezone']);
 
 	// -------------------------------------------------------------------------
 	// Request method
