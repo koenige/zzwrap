@@ -262,7 +262,7 @@ function wrap_config($mode) {
 			}
 			$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
 			foreach ($keys_values as $key => $value) {
-				if (empty($$var[$key]))
+				if (empty($$var[$key]) OR !is_array($$var[$key]))
 					$$var[$key] = $value;
 				else
 					$$var[$key] = array_merge_recursive($$var[$key], $value);
