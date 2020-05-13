@@ -264,6 +264,10 @@ function wrap_config($mode) {
 			}
 			$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
 			foreach ($keys_values as $key => $value) {
+				if (!is_array($value)) {
+					if (!$value OR $value === 'false') $value = false;
+					elseif ($value === 'true') $value = true;
+				}
 				if (empty($$var[$key]) OR !is_array($$var[$key]))
 					$$var[$key] = $value;
 				else
