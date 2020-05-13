@@ -308,6 +308,8 @@ function wrap_set_defaults_post_conf() {
 	}
 	if (!empty($zz_setting['timezone']))
 		date_default_timezone_set($zz_setting['timezone']);
+	if (!empty($zz_setting['translate_text_db']))
+		$zz_conf['text_table'] = $zz_conf['prefix'].'text';
 
 	// -------------------------------------------------------------------------
 	// Request method
