@@ -255,9 +255,16 @@ function wrap_config($mode) {
 		foreach ($existing_config as $skey => $value) {
 			if (wrap_substr($skey, 'zzform_')) {
 				$skey = substr($skey, 7);
-				$zz_conf = array_merge_recursive($zz_conf, wrap_setting_key($skey, wrap_setting_value($value)));
+				$var = 'zz_conf';
 			} else {
-				$zz_setting = array_merge_recursive($zz_setting, wrap_setting_key($skey, wrap_setting_value($value)));
+				$var = 'zz_setting';
+			}
+			$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
+			foreach ($keys_values as $key => $value) {
+				if (empty($$var[$key]))
+					$$var[$key] = $value;
+				else
+					$$var[$key] = array_merge_recursive($$var[$key], $value);
 			}
 		}
 		break;
