@@ -200,7 +200,7 @@ function wrap_install_finish() {
 	$values['action'] = 'insert';
 	$values['POST']['setting_key'] = 'zzform_db_name_local';
 	$values['POST']['setting_value'] = $_SESSION['db_name_local'];
-	$values['POST']['description'] = 'database name on local development server';
+	$values['POST']['explanation'] = 'database name on local development server';
 	$ops = zzform_multi('settings', $values);
 	if ($ops['id']) {
 		$_SESSION['step'] = 'finish';
