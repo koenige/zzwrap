@@ -629,7 +629,6 @@ function wrap_login_ip() {
  * @return bool true: login was successful
  */
 function wrap_login_http_auth() {
-	global $zz_conf;
 	if (empty($_SERVER['HTTP_X_REQUEST_WWW_AUTHENTICATION'])) return false;
 
 	// Fast-CGI workaround
@@ -642,7 +641,7 @@ function wrap_login_http_auth() {
 
 	// send WWW-Authenticate header to get username if not yet there
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
-		header(sprintf('WWW-Authenticate: Basic realm="%s"', $zz_conf['project']));
+		header(sprintf('WWW-Authenticate: Basic realm="%s"', wrap_get_setting('project')));
 		wrap_http_status_header(401);
 		exit;
 	}

@@ -470,7 +470,7 @@ function wrap_set_defaults_post_conf() {
 	
 	// local pwd
 	if (empty($zz_setting['local_pwd']))
-		$zz_setting['local_pwd'] = "/Users/pwd.inc";
+		$zz_setting['local_pwd'] = '/Users/pwd.inc';
 
 	if (empty($zz_setting['session_save_path']) AND is_dir($zz_conf['tmp_dir'])) {
 		$zz_setting['session_save_path'] = $zz_conf['tmp_dir'].'/sessions';
@@ -490,6 +490,12 @@ function wrap_set_defaults_post_conf() {
 	// Page
 	// -------------------------------------------------------------------------
 	
+	// project title, default
+	// (will occur only if database connection fails and json does not exist)
+	if (!isset($zz_setting['project']))
+		$zz_setting['project'] = preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST'])
+			? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
+
 	// translations
 	if (!isset($zz_conf['translations_of_fields']))
 		$zz_conf['translations_of_fields'] = false;

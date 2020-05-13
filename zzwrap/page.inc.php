@@ -928,7 +928,7 @@ function wrap_get_page() {
 	!empty($page['lang']) OR $page['lang'] = $zz_setting['lang'];
 	$page['media']		= wrap_page_media($page);
 	$page['title']		= wrap_page_h1($page);
-	!empty($page['project']) OR $page['project'] = wrap_text($zz_conf['project']);
+	!empty($page['project']) OR $page['project'] = wrap_text(wrap_get_setting('project'));
 	$page['pagetitle']	= wrap_page_title($page);
 	$page				= wrap_get_menu($page);
 	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);

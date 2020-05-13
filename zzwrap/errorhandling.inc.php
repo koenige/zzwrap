@@ -181,7 +181,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			$mail['parameters'] = $zz_conf['error_mail_parameters']; 
 		$mail['subject'] = '';
 		if (empty($zz_conf['mail_subject_prefix']))
-			$mail['subject'] = '['.$zz_conf['project'].'] ';
+			$mail['subject'] = '['.wrap_get_setting('project').'] ';
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
 		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$zz_setting['request_uri'];
@@ -294,10 +294,10 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	if (empty($page['lang'])) $page['lang'] = $zz_conf['language'];
 	$page['last_update'] = false;
 	$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
-		.$zz_conf['project'].'</a></strong> '.$zz_page['breadcrumbs_separator'].' '
+		.wrap_get_setting('project').'</a></strong> '.$zz_page['breadcrumbs_separator'].' '
 		.wrap_text($status['text']); 
 	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($status['text'])
-		.' ('.$zz_conf['project'].')'); 
+		.' ('.wrap_get_setting('project').')'); 
 	$page['h1'] = wrap_text($status['text']);
 	$page['error_description'] = sprintf(wrap_text($status['description']), 
 		$_SERVER['REQUEST_METHOD']);

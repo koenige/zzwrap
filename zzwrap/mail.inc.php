@@ -25,7 +25,7 @@
  *			string 'text', string 'html', array 'files'
  * @param array $list send mails to multiple recipients via a list
  * @global $zz_conf
- *		'error_mail_from', 'project', 'character_set', 'mail_subject_prefix'
+ *		'error_mail_from', 'character_set', 'mail_subject_prefix'
  * @global $zz_setting
  *		'local_access', bool 'show_local_mail' log mail or show mail
  * @return bool true: message was sent; false: message was not sent
@@ -66,7 +66,7 @@ function wrap_mail($mail, $list = []) {
 
 	// From
 	if (!isset($mail['headers']['From'])) {
-		$mail['headers']['From']['name'] = $zz_conf['project'];
+		$mail['headers']['From']['name'] = wrap_get_setting('project');
 		$mail['headers']['From']['e_mail'] = $zz_conf['error_mail_from'];
 	}
 	$mail['headers']['From'] = wrap_mail_name($mail['headers']['From']);
