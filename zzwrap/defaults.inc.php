@@ -30,10 +30,6 @@ function wrap_set_defaults() {
 	wrap_config('read');
 	if (file_exists($file = $zz_setting['inc'].'/config.inc.php'))
 		require_once $file;
-	if (empty($zz_setting['lib']))
-		$zz_setting['lib']	= $zz_setting['inc'].'/library';
-	if (empty($zz_setting['core']))
-		$zz_setting['core'] = __DIR__;
 	wrap_set_defaults_post_conf();
 
 	// module configs
@@ -468,8 +464,7 @@ function wrap_set_defaults_post_conf() {
 	}
 
 	// cms core
-	if (empty($zz_setting['core']))
-		$zz_setting['core']			= __DIR__;
+	$zz_setting['core']			= __DIR__;
 	
 	// zzform path
 	if (empty($zz_conf['dir']))
