@@ -38,6 +38,10 @@ function zzwrap() {
 
 	// establish database connection
 	wrap_db_connect();
+	if (empty($zz_conf['db_name'])) {
+		require_once __DIR__.'/install.inc.php';
+		wrap_install();
+	}
 	wrap_config('write');
 
 	// local modifications to SQL queries
