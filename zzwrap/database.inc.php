@@ -66,10 +66,22 @@ function wrap_db_connect() {
 	$found = false;
 	foreach ($zz_setting['db_password_files'] as $file) {
 		if (substr($file, 0, 1) !== '/') {
-			$file = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.inc.php';
+			$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.inc.php';
+			if (!file_exists($filename)) {
+				$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.json';
+				if (!file_exists($filename)) continue;
+				$data = json_encode(file_get_contents($filename), true);
+				$db_host = $data['db_host'];
+				$db_user = $data['db_user'];
+				$db_pwd = $data['db_pwd'];
+				$zz_conf['db_name'] = $data['db_name'];
+			}
+			include $filename;
+		} elseif (!file_exists($file)) {
+			continue;
+		} else {
+			include $file;
 		}
-		if (!file_exists($file)) continue;
-		include $file;
 		$found = true;
 		break;
 	}
