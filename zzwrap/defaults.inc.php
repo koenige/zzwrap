@@ -122,6 +122,8 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['cache_control_text'] = 3600; // 1 hour
 	$zz_setting['cache_control_file'] = 86400; // 1 day
 	$zz_setting['remote_ip'] = wrap_http_remote_ip();
+	$zz_setting['https_urls'][] = '/';
+	$zz_setting['local_https'] = true;
 
 // -------------------------------------------------------------------------
 // URLs
