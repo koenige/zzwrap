@@ -54,6 +54,12 @@ function wrap_db_connect() {
 	if ($zz_setting['local_access']) {
 		if (!empty($zz_conf['db_name_local'])) {
 			$zz_conf['db_name'] = $zz_conf['db_name_local'];
+		} else {
+			session_start();
+			if (!empty($_SESSION['db_name_local']) AND !empty($_SESSION['step']) AND $_SESSION['step'] === 'finish') {
+				$zz_conf['db_name'] = $_SESSION['db_name_local'];
+				session_destroy();
+			}
 		}
 		array_unshift($zz_setting['db_password_files'], $zz_setting['local_pwd']);
 	}
