@@ -291,7 +291,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	// -- 2. set page elements
 	
-	if (empty($page['lang'])) $page['lang'] = $zz_conf['language'];
+	if (empty($page['lang'])) $page['lang'] = $zz_setting['lang'];
 	$page['last_update'] = false;
 	$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
 		.wrap_get_setting('project').'</a></strong> '.$zz_page['breadcrumbs_separator'].' '

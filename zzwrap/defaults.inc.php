@@ -226,7 +226,8 @@ function wrap_set_defaults_pre_conf() {
 // Language, character set
 // -------------------------------------------------------------------------
 
-	$zz_conf['character_set'] = 'utf-8';
+	$zz_setting['lang']			= '';
+	$zz_conf['character_set']	= 'utf-8';
 
 }
 

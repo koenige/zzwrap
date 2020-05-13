@@ -35,14 +35,10 @@ function wrap_set_language() {
 	$zz_setting['language_in_url'] = false;
 	$zz_setting['language_redirect'] = false;
 
-	// page language, html lang attribute
-	wrap_init_language();
-
 	// check for language code in URL
 	if ($zz_conf['translations_of_fields']) {
 		// might change $zz_setting['lang'], 'base', 'language_in_url'
 		$zz_page['url'] = wrap_prepare_url($zz_page['url']);
-		$zz_conf['language'] = $zz_setting['lang'];
 	}
 
 	// single language website?
@@ -72,20 +68,6 @@ function wrap_set_language() {
 	wrap_cache_header('Cache-Control: private');
 
 	return true;
-}
-
-/**
- * Sets $zz_setting['lang'] if empty so far
- *
- */
-function wrap_init_language() {
-	global $zz_setting;
-	global $zz_conf;
-	if (isset($zz_setting['lang'])) return;
-	if (!empty($zz_conf['language']))
-		$zz_setting['lang']		= $zz_conf['language'];
-	else
-		$zz_setting['lang']		= false;
 }
 
 /**
@@ -198,7 +180,7 @@ function wrap_text($string, $target_language = '') {
 	if ($target_language)
 		$language = $target_language;
 	else
-		$language = !empty($zz_setting['lang']) ? $zz_setting['lang'] : $zz_conf['language'];
+		$language = $zz_setting['lang'];
 	if (isset($zz_conf['default_language_for'][$language]))
 		$language = $zz_conf['default_language_for'][$language];
 
