@@ -160,6 +160,9 @@ function wrap_set_defaults_pre_conf() {
 
 	// Forms: zzform upload module
 	$zz_conf['graphics_library'] = 'imagemagick';
+	
+	// tables from default module
+	$zz_setting['brick_default_tables'] = true;
 
 // -------------------------------------------------------------------------
 // Page
