@@ -70,13 +70,14 @@ function wrap_db_connect() {
 			if (!file_exists($filename)) {
 				$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.json';
 				if (!file_exists($filename)) continue;
-				$data = json_encode(file_get_contents($filename), true);
+				$data = json_decode(file_get_contents($filename), true);
 				$db_host = $data['db_host'];
 				$db_user = $data['db_user'];
 				$db_pwd = $data['db_pwd'];
 				$zz_conf['db_name'] = $data['db_name'];
+			} else {
+				include $filename;
 			}
-			include $filename;
 		} elseif (!file_exists($file)) {
 			continue;
 		} else {
