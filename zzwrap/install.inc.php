@@ -22,7 +22,7 @@ function wrap_install() {
 	wrap_include_ext_libraries();
 	$zz_setting['cache'] = false;
 	
-	session_start();
+	if (empty($_SESSION)) session_start();
 	$_SESSION['cms_install'] = true;
 	if (empty($_SESSION['step'])) $_SESSION['step'] = 1;
 
