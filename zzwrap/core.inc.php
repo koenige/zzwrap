@@ -2710,13 +2710,20 @@ function wrap_setting_key($key, $value) {
  * @return mixed
  */
 function wrap_setting_value($string) {
-	if (substr($string, 0, 1) == '\\') return substr($string, 1);
-	if (substr($string, 0, 1) == '[' AND substr($string, -1) == ']') {
+	switch (substr($string, 0, 1)) {
+	case '\\':
+		return substr($string, 1);
+	case '[':
+		if (!substr($string, -1) === ']') break;
 		$string = substr($string, 1, -1);
 		$strings = explode(',', $string);
 		foreach ($strings as $index => $string) {
 			$strings[$index] = trim($string);
 		}
+		return $strings;
+	case '?':
+		$string = substr($string, 1);
+		parse_str($string, $strings);
 		return $strings;
 	}
 	return $string;
