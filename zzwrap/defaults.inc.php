@@ -279,7 +279,7 @@ function wrap_config($mode) {
 		$sql = 'SELECT setting_key, setting_value
 			FROM /*_PREFIX_*/_settings ORDER BY setting_key';
 		$settings = wrap_db_fetch($sql, '_dummy_', 'key/value');
-		$new_config = json_encode($settings, JSON_PRETTY_PRINT);
+		$new_config = json_encode($settings, JSON_PRETTY_PRINT + JSON_NUMERIC_CHECK);
 		if ($new_config !== $existing_config)
 			file_put_contents($file, $new_config);
 		break;
