@@ -494,7 +494,17 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['local_pwd']))
 		$zz_setting['local_pwd'] = '/Users/pwd.inc';
 
-	if (empty($zz_setting['session_save_path']) AND is_dir($zz_conf['tmp_dir'])) {
+	if (!is_dir($zz_conf['tmp_dir'])) {
+		$success = wrap_mkdir($zz_conf['tmp_dir']);
+		if (!$success) {
+			wrap_error(sprintf('Temp directory %s does not exist.', $zz_conf['tmp_dir']));
+			$zz_conf['tmp_dir'] = false;
+			if ($dir = ini_get('upload_tmp_dir')) {
+				if ($dir AND is_dir($dir)) $zz_conf['tmp_dir'] = $dir;
+			}
+		}
+	}
+	if (empty($zz_setting['session_save_path']) AND $zz_conf['tmp_dir']) {
 		$zz_setting['session_save_path'] = $zz_conf['tmp_dir'].'/sessions';
 	}
 	
