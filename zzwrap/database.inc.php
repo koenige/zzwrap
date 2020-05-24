@@ -931,9 +931,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	global $zz_setting;
 	static $zz_sql;
 	static $set;
-	static $system_sql;
 	if (!isset($zz_sql)) $zz_sql = [];
-	if (!isset($system_sql)) $system_sql = wrap_system_sql();
 
 	// set variables
 	switch ($mode) {
@@ -946,7 +944,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		case 'core':
 			if (!empty($set['core'])) return true;
 			$set['core'] = true;
-			if (!empty($system_sql['core'])) $zz_sql += $system_sql['core'];
+			$zz_sql += wrap_system_sql('core');
 
 			$zz_sql['is_public'] = 'live = "yes"';
 
@@ -983,12 +981,12 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		case 'page':
 			if (!empty($set['page'])) return true;
 			$set['page'] = true;
-			if (!empty($system_sql['page'])) $zz_sql += $system_sql['page'];
+			$zz_sql += wrap_system_sql('page');
 			break;
 		case 'auth':
 			if (!empty($set['auth'])) return true;
 			$set['auth'] = true;
-			if (!empty($system_sql['auth'])) $zz_sql += $system_sql['auth'];
+			$zz_sql += wrap_system_sql('auth');
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = [$zz_setting['hostname']];
 
