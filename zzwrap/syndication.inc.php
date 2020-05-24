@@ -4,11 +4,11 @@
  * zzwrap
  * Syndication functions, Locking functions, Watchdog
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2019 Gustaf Mossakowski
+ * @copyright Copyright Â© 2012-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -197,6 +197,8 @@ function wrap_syndication_geocode($address) {
 		$add[0] .= ','.urlencode($address['state']);
 	}
 	$region = isset($address['country']) ? $address['country'] : '';
+	// virtual place?
+	if ($region === '--') return [];
 
 	// place is optional
 	// remove parts of place name that are already found in other keys
