@@ -28,6 +28,7 @@ function wrap_set_defaults() {
 	// configuration settings, defaults
 	wrap_set_defaults_pre_conf();
 	wrap_config('read');
+	wrap_config('read', $zz_setting['site']);
 	if (file_exists($file = $zz_setting['inc'].'/config.inc.php'))
 		require_once $file;
 	wrap_set_defaults_post_conf();
@@ -237,13 +238,14 @@ function wrap_set_defaults_pre_conf() {
  * read configuration from JSON file
  *
  * @param string $mode (read, write)
+ * @param string $site (optional)
  * @return void
  */
-function wrap_config($mode) {
+function wrap_config($mode, $site = '') {
 	global $zz_setting;
 	global $zz_conf;
 
-	$file = $zz_setting['inc'].'/config.json';
+	$file = $zz_setting['inc'].'/'.($site ? 'website-' : '').'config'.($site ? '-'.$site : '').'.json';
 	if (!file_exists($file)) {
 		if ($mode === 'read') return;
 		$existing_config = [];
@@ -276,9 +278,29 @@ function wrap_config($mode) {
 		}
 		break;
 	case 'write':
-		$sql = 'SELECT setting_key, setting_value
-			FROM /*_PREFIX_*/_settings ORDER BY setting_key';
+		$sql = 'SHOW TABLES';
+		$tables = wrap_db_fetch($sql, '_dummy_key_', 'single value');
+		if (in_array($zz_conf['prefix'].'websites', $tables)) {
+			$zz_setting['websites'] = true;
+
+			$sql = sprintf('SELECT website_id
+				FROM websites WHERE domain = "%s"', wrap_db_escape($site));
+			$website_id = wrap_db_fetch($sql, '', 'single value');
+			if (!$website_id) $website_id = 1;
+			else $zz_setting['website_id'] = $website_id;
+
+			$sql = sprintf('SELECT setting_key, setting_value
+				FROM /*_PREFIX_*/_settings
+				WHERE website_id = %d
+				ORDER BY setting_key', $website_id);
+		} else {
+			$zz_setting['websites'] = false;
+
+			$sql = 'SELECT setting_key, setting_value
+				FROM /*_PREFIX_*/_settings ORDER BY setting_key';
+		}
 		$settings = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		if (!$settings) break;
 		$new_config = json_encode($settings, JSON_PRETTY_PRINT + JSON_NUMERIC_CHECK);
 		if ($new_config !== $existing_config)
 			file_put_contents($file, $new_config);
