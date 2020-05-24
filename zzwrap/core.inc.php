@@ -2373,6 +2373,34 @@ function wrap_get_setting($key, $login_id = 0) {
 	return NULL;
 }
 
+/** 
+ * Merges Array recursively: replaces old with new keys, adds new keys
+ * 
+ * @param array $old			Old array
+ * @param array $new			New array
+ * @return array $merged		Merged array
+ * @see zz_array_merge
+ */
+function wrap_array_merge($old, $new) {
+	foreach ($new as $index => $value) {
+		if (is_array($value)) {
+			if (!empty($old[$index])) {
+				$old[$index] = wrap_array_merge($old[$index], $new[$index]);
+			} else
+				$old[$index] = $new[$index];
+		} else {
+			if (is_numeric($index) AND (!in_array($value, $old))) {
+				// numeric keys will be appended, if new
+				$old[] = $value;
+			} else {
+				// named keys will be replaced
+				$old[$index] = $value;
+			}
+		}
+	}
+	return $old;
+}
+
 /**
  * get list of ids and levels to show a hierarchical output
  *
