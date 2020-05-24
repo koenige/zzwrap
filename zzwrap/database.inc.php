@@ -1025,10 +1025,10 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 /**
  * read system SQL queries from system.sql file
  *
- * @param string $key (optional) return only queries for key
+ * @param string $subtree (optional) return only queries for key
  * @return array
  */
-function wrap_system_sql($key = '') {
+function wrap_system_sql($subtree = '') {
 	global $zz_setting;
 	static $data;
 
@@ -1062,7 +1062,7 @@ function wrap_system_sql($key = '') {
 		}
 	}
 
-	if ($key AND array_key_exists($key, $data)) return $data[$key];
+	if ($subtree AND array_key_exists($subtree, $data)) return $data[$subtree];
 	return $data;
 }
 
