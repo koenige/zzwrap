@@ -933,14 +933,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	static $set;
 	static $system_sql;
 	if (!isset($zz_sql)) $zz_sql = [];
-	if (!isset($system_sql)) {
-		$system_sql = [];
-		if (file_exists($file = $zz_setting['modules_dir'].'/default/zzwrap_sql/system.sql')) {
-			$system_sql = wrap_system_sql($file);
-		}
-		if (file_exists($file = $zz_setting['custom_wrap_sql_dir'].'/system.sql'))
-			$system_sql = wrap_array_merge($system_sql, wrap_system_sql($file));
-	}
+	if (!isset($system_sql)) $system_sql = wrap_system_sql();
 
 	// set variables
 	switch ($mode) {
@@ -1034,26 +1027,39 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 /**
  * read system SQL queries from system.sql file
  *
- * @param string $filename
  * @return array
  */
-function wrap_system_sql($filename) {
-	$lines = file($filename);
+function wrap_system_sql() {
+	global $zz_setting;
+
+	static $system_sql;
+	if (!empty($system_sql)) return $system_sql;
+
 	$data = [];
-	foreach ($lines as $line) {
-		if (substr($line, 0, 3) === '/**') continue;
-		if (substr($line, 0, 2) === ' *') continue;
-		if (substr($line, 0, 3) === ' */') continue;
-		$line = trim($line);
-		if (!$line) continue;
-		if (substr($line, 0, 3) === '-- ') {
-			$line = substr($line, 3);
-			$key = substr($line, 0, strpos($line, '_'));
-			$line = substr($line, strlen($key) + 1);
-			$subkey = substr($line, 0, strpos($line, ' '));
-			$data[$key][$subkey] = '';
-		} else {
-			$data[$key][$subkey] .= $line.' ';
+	$files = [];
+	if (file_exists($file = $zz_setting['modules_dir'].'/default/zzwrap_sql/system.sql')) {
+		$files[] = $file;
+	}
+	if (file_exists($file = $zz_setting['custom_wrap_sql_dir'].'/system.sql'))
+		$files[] = $file;
+
+	foreach ($files as $filename) {
+		$lines = file($filename);
+		foreach ($lines as $line) {
+			if (substr($line, 0, 3) === '/**') continue;
+			if (substr($line, 0, 2) === ' *') continue;
+			if (substr($line, 0, 3) === ' */') continue;
+			$line = trim($line);
+			if (!$line) continue;
+			if (substr($line, 0, 3) === '-- ') {
+				$line = substr($line, 3);
+				$key = substr($line, 0, strpos($line, '_'));
+				$line = substr($line, strlen($key) + 1);
+				$subkey = substr($line, 0, strpos($line, ' '));
+				$data[$key][$subkey] = '';
+			} else {
+				$data[$key][$subkey] .= $line.' ';
+			}
 		}
 	}
 	return $data;
