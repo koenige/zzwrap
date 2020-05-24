@@ -246,7 +246,7 @@ function wrap_config($mode, $site = '') {
 	global $zz_conf;
 
 	if ($site) {
-		$file = $zz_setting['log_dir'].'/config-'.$site.'.json';
+		$file = $zz_setting['log_dir'].'/config-'.str_replace('/', '-', $site).'.json';
 	} else {
 		$file = $zz_setting['inc'].'/config.json';
 	}
