@@ -1191,38 +1191,23 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 
 	if (empty($data[$table])) {
 		if (!$sql) {
-			switch ($table) {
-			case 'categories':
-				$sql = 'SELECT path, category_id
-					FROM categories ORDER BY path';
-				$sql_aliases = 'SELECT path, category_id, parameters
-					FROM categories
-					WHERE parameters LIKE "%alias=%"';
-				$aliases = wrap_db_fetch($sql_aliases, 'path');
-				break;
-			case 'languages':
-				$sql = 'SELECT iso_639_1, language_id
-					FROM languages WHERE website = "yes" ORDER BY iso_639_1';
-				break;
-			case 'filetypes':
-				$sql = 'SELECT filetype, filetype_id
-					FROM filetypes';
-				break;
-			default:
+			$queries = wrap_system_sql('ids');
+			if (array_key_exists($table, $queries)) {
+				$sql = $queries[$table];
+			} else {
 				wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
 				return [];
 			}
 		}
 		$data[$table] = wrap_db_fetch($sql, '_dummy_', 'key/value');
-		if (!empty($aliases)) {
-			switch ($table) {
-			case 'categories':
-				foreach ($aliases as $alias) {
-					parse_str($alias['parameters'], $parameters);
-					if (empty($parameters['alias'])) continue;
-					$data[$table][$parameters['alias']] = $alias['category_id'];
-				}
-				break;
+		$queries = wrap_system_sql('ids-aliases');
+		if (array_key_exists($table, $queries)) {
+			$sql_aliases = $queries[$table];
+			$aliases = wrap_db_fetch($sql_aliases, '_dummy_', 'key/value');
+			foreach ($aliases as $id => $alias) {
+				parse_str($alias, $parameters);
+				if (empty($parameters['alias'])) continue;
+				$data[$table][$parameters['alias']] = $id;
 			}
 		}
 	}
