@@ -1027,41 +1027,44 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 /**
  * read system SQL queries from system.sql file
  *
+ * @param string $key (optional) return only queries for key
  * @return array
  */
-function wrap_system_sql() {
+function wrap_system_sql($key = '') {
 	global $zz_setting;
+	static $data;
 
-	static $system_sql;
-	if (!empty($system_sql)) return $system_sql;
+	if (empty($data)) {
+		$data = [];
+		$files = [];
+		if (file_exists($file = $zz_setting['modules_dir'].'/default/zzwrap_sql/system.sql')) {
+			$files[] = $file;
+		}
+		if (file_exists($file = $zz_setting['custom_wrap_sql_dir'].'/system.sql'))
+			$files[] = $file;
 
-	$data = [];
-	$files = [];
-	if (file_exists($file = $zz_setting['modules_dir'].'/default/zzwrap_sql/system.sql')) {
-		$files[] = $file;
-	}
-	if (file_exists($file = $zz_setting['custom_wrap_sql_dir'].'/system.sql'))
-		$files[] = $file;
-
-	foreach ($files as $filename) {
-		$lines = file($filename);
-		foreach ($lines as $line) {
-			if (substr($line, 0, 3) === '/**') continue;
-			if (substr($line, 0, 2) === ' *') continue;
-			if (substr($line, 0, 3) === ' */') continue;
-			$line = trim($line);
-			if (!$line) continue;
-			if (substr($line, 0, 3) === '-- ') {
-				$line = substr($line, 3);
-				$key = substr($line, 0, strpos($line, '_'));
-				$line = substr($line, strlen($key) + 1);
-				$subkey = substr($line, 0, strpos($line, ' '));
-				$data[$key][$subkey] = '';
-			} else {
-				$data[$key][$subkey] .= $line.' ';
+		foreach ($files as $filename) {
+			$lines = file($filename);
+			foreach ($lines as $line) {
+				if (substr($line, 0, 3) === '/**') continue;
+				if (substr($line, 0, 2) === ' *') continue;
+				if (substr($line, 0, 3) === ' */') continue;
+				$line = trim($line);
+				if (!$line) continue;
+				if (substr($line, 0, 3) === '-- ') {
+					$line = substr($line, 3);
+					$key = substr($line, 0, strpos($line, '_'));
+					$line = substr($line, strlen($key) + 1);
+					$subkey = substr($line, 0, strpos($line, ' '));
+					$data[$key][$subkey] = '';
+				} else {
+					$data[$key][$subkey] .= $line.' ';
+				}
 			}
 		}
 	}
+
+	if ($key AND array_key_exists($key, $data)) return $data[$key];
 	return $data;
 }
 
