@@ -1056,6 +1056,7 @@ function wrap_system_sql($subtree = '') {
 					$subkey = substr($line, 0, strpos($line, ' '));
 					$data[$key][$subkey] = '';
 				} else {
+					$line = rtrim($line, ';');
 					$data[$key][$subkey] .= $line.' ';
 				}
 			}
