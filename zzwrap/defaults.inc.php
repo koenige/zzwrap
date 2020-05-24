@@ -245,7 +245,11 @@ function wrap_config($mode, $site = '') {
 	global $zz_setting;
 	global $zz_conf;
 
-	$file = $zz_setting['inc'].'/'.($site ? 'website-' : '').'config'.($site ? '-'.$site : '').'.json';
+	if ($site) {
+		$file = $zz_setting['log_dir'].'/config-'.$site.'.json';
+	} else {
+		$file = $zz_setting['inc'].'/config.json';
+	}
 	if (!file_exists($file)) {
 		if ($mode === 'read') return;
 		$existing_config = [];
