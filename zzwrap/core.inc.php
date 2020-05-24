@@ -2364,9 +2364,10 @@ function wrap_get_setting($key, $login_id = 0) {
 		return $zz_setting[$key];
 	}
 	$values = wrap_setting_read($key, $login_id);
-	if (array_key_exists($key, $values)) {
+	if ($login_id AND array_key_exists($key, $values)) {
 		return $values[$key];
 	}
+	// @deprecated
 	if (substr($key, -1) === '*') {
 		return $values;
 	}
