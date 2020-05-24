@@ -931,6 +931,16 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	global $zz_setting;
 	static $zz_sql;
 	static $set;
+	static $system_sql;
+	if (!isset($zz_sql)) $zz_sql = [];
+	if (!isset($system_sql)) {
+		$system_sql = [];
+		if (file_exists($file = $zz_setting['modules_dir'].'/default/zzwrap_sql/system.sql')) {
+			$system_sql = wrap_system_sql($file);
+		}
+		if (file_exists($file = $zz_setting['custom_wrap_sql_dir'].'/system.sql'))
+			$system_sql = wrap_array_merge($system_sql, wrap_system_sql($file));
+	}
 
 	// set variables
 	switch ($mode) {
@@ -943,29 +953,12 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		case 'core':
 			if (!empty($set['core'])) return true;
 			$set['core'] = true;
-			$zz_sql['pages'] = 'SELECT webpages.*
-				FROM /*_PREFIX_*/webpages webpages
-				WHERE webpages.identifier = _latin1"%s"';
-			
+			if (!empty($system_sql['core'])) $zz_sql += $system_sql['core'];
+
 			$zz_sql['is_public'] = 'live = "yes"';
 
 			$zz_sql['redirects_new_fieldname'] = 'new_url';
 			$zz_sql['redirects_old_fieldname'] = 'old_url';
-
-			$zz_sql['redirects'] = 'SELECT * FROM /*_PREFIX_*/redirects
-				WHERE old_url = _latin1"%s/"
-				OR old_url = _latin1"%s.html"
-				OR old_url = _latin1"%s"';
-
-			$zz_sql['redirects_*'] = 'SELECT * FROM /*_PREFIX_*/redirects
-				WHERE old_url = _latin1"%s*"';
-
-			$zz_sql['redirects*_'] = 'SELECT * FROM /*_PREFIX_*/redirects
-				WHERE old_url = _latin1"*%s"';
-				
-			$zz_sql['filetypes'] = 'SELECT CONCAT(mime_content_type, "/", mime_subtype)
-				FROM /*_PREFIX_*/filetypes
-				WHERE extension = _latin1"%s"';
 
 			$zz_sql['page_id']		= 'page_id';
 			$zz_sql['content']		= 'content';
@@ -997,35 +990,15 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		case 'page':
 			if (!empty($set['page'])) return true;
 			$set['page'] = true;
-			$zz_sql['breadcrumbs']	= '';
-			$zz_sql['menu']			= '';
-			$zz_sql['menu_level2']	= '';
-			$zz_sql['menu_level3']	= '';
-			$zz_sql['menu_level4']	= '';
-			$zz_sql['menu_hierarchy'] = 'SELECT mother_page_id FROM /*_PREFIX_*/webpages WHERE page_id = %d';
+			if (!empty($system_sql['page'])) $zz_sql += $system_sql['page'];
 			break;
 		case 'auth':
 			if (!empty($set['auth'])) return true;
 			$set['auth'] = true;
+			if (!empty($system_sql['auth'])) $zz_sql += $system_sql['auth'];
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = [$zz_setting['hostname']];
 
-			$zz_sql['logout'] = 'UPDATE /*_PREFIX_*/logins 
-				SET logged_in = "no"
-				WHERE login_id = %s';	// $_SESSION['login_id']
-			$zz_sql['last_click'] = 'UPDATE /*_PREFIX_*/logins 
-				SET logged_in = "yes", last_click = %s 
-				WHERE login_id = %s';
-			$zz_sql['login'] = 'SELECT password 
-				, username
-				, logins.login_id AS user_id
-				, logins.login_id
-				FROM /*_PREFIX_*/logins logins
-				WHERE active = "yes"
-				AND username = _latin1"%s"';
-			$zz_sql['last_masquerade'] = false;
-			$zz_sql['login_masquerade'] = false;
-			$zz_sql['login_settings'] = false;
 			$zz_sql['password'] = 'password';
 
 			break;
@@ -1056,6 +1029,34 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	default:
 		return false;	
 	}
+}
+
+/**
+ * read system SQL queries from system.sql file
+ *
+ * @param string $filename
+ * @return array
+ */
+function wrap_system_sql($filename) {
+	$lines = file($filename);
+	$data = [];
+	foreach ($lines as $line) {
+		if (substr($line, 0, 3) === '/**') continue;
+		if (substr($line, 0, 2) === ' *') continue;
+		if (substr($line, 0, 3) === ' */') continue;
+		$line = trim($line);
+		if (!$line) continue;
+		if (substr($line, 0, 3) === '-- ') {
+			$line = substr($line, 3);
+			$key = substr($line, 0, strpos($line, '_'));
+			$line = substr($line, strlen($key) + 1);
+			$subkey = substr($line, 0, strpos($line, ' '));
+			$data[$key][$subkey] = '';
+		} else {
+			$data[$key][$subkey] .= $line.' ';
+		}
+	}
+	return $data;
 }
 
 /**
