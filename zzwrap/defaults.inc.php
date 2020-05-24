@@ -4,11 +4,11 @@
  * zzwrap
  * Default variables, post config
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2020 Gustaf Mossakowski
+ * @copyright Copyright Â© 2008-2020 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -245,6 +245,43 @@ function wrap_config($mode, $site = '') {
 	global $zz_setting;
 	global $zz_conf;
 
+	$re_read_config = false;
+	if (!empty($zz_conf['db_connection']) AND $site AND empty($zz_setting['websites'])) {
+		// multiple websites on server?
+		// only possible to check after db connection was established
+		$sql = 'SHOW TABLES';
+		$tables = wrap_db_fetch($sql, '_dummy_key_', 'single value');
+		if (in_array($zz_conf['prefix'].'websites', $tables)) {
+			$zz_setting['websites'] = true;
+
+			$sql = sprintf('SELECT website_id
+				FROM websites WHERE domain = "%s"', wrap_db_escape($site));
+			$website_id = wrap_db_fetch($sql, '', 'single value');
+
+			if (!$website_id) {
+				// no website, but maybe itâ€™s a redirect hostname?
+				$sql = sprintf('SELECT website_id
+						, (SELECT setting_value FROM /*_PREFIX_*/_settings s
+						WHERE setting_key = "canonical_hostname"
+						AND /*_PREFIX_*/_settings.website_id = s.website_id) AS canonical_hostname
+					FROM /*_PREFIX_*/_settings
+					WHERE setting_key = "external_redirect_hostnames"
+					AND setting_value LIKE "[%%%s%%]"', wrap_db_escape($site));
+				$website = wrap_db_fetch($sql);
+				if ($website) {
+					// different site, read config for this siete
+					$website_id = $website['website_id'];
+					$site = $zz_setting['site'] = $website['canonical_hostname'];
+					$re_read_config = true;
+				}
+			}
+		} else {
+			$zz_setting['websites'] = false;
+		}
+	} else {
+		if (empty($zz_setting['websites'])) $zz_setting['websites'] = false;
+	}
+
 	if ($site) {
 		$file = $zz_setting['log_dir'].'/config-'.str_replace('/', '-', $site).'.json';
 	} else {
@@ -282,24 +319,14 @@ function wrap_config($mode, $site = '') {
 		}
 		break;
 	case 'write':
-		$sql = 'SHOW TABLES';
-		$tables = wrap_db_fetch($sql, '_dummy_key_', 'single value');
-		if (in_array($zz_conf['prefix'].'websites', $tables)) {
-			$zz_setting['websites'] = true;
-
-			$sql = sprintf('SELECT website_id
-				FROM websites WHERE domain = "%s"', wrap_db_escape($site));
-			$website_id = wrap_db_fetch($sql, '', 'single value');
-			if (!$website_id) $website_id = 1;
-			else $zz_setting['website_id'] = $website_id;
-
+		if (!empty($zz_setting['websites'])) {
+			if (empty($website_id)) $website_id = 1;
+			$zz_setting['website_id'] = $website_id;
 			$sql = sprintf('SELECT setting_key, setting_value
 				FROM /*_PREFIX_*/_settings
 				WHERE website_id = %d
 				ORDER BY setting_key', $website_id);
 		} else {
-			$zz_setting['websites'] = false;
-
 			$sql = 'SELECT setting_key, setting_value
 				FROM /*_PREFIX_*/_settings ORDER BY setting_key';
 		}
@@ -308,6 +335,8 @@ function wrap_config($mode, $site = '') {
 		$new_config = json_encode($settings, JSON_PRETTY_PRINT + JSON_NUMERIC_CHECK);
 		if ($new_config !== $existing_config)
 			file_put_contents($file, $new_config);
+		if ($re_read_config)
+			wrap_config('read', $site);
 		break;
 	}
 }
