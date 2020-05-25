@@ -260,18 +260,21 @@ function wrap_config($mode, $site = '') {
 
 			if (!$website_id) {
 				// no website, but maybe it’s a redirect hostname?
-				$sql = sprintf('SELECT website_id
-						, (SELECT setting_value FROM /*_PREFIX_*/_settings s
-						WHERE setting_key = "canonical_hostname"
-						AND /*_PREFIX_*/_settings.website_id = s.website_id) AS canonical_hostname
-					FROM /*_PREFIX_*/_settings
+				$sql = sprintf('SELECT website_id, domain
+					FROM /*_PREFIX_*/websites
+					LEFT JOIN /*_PREFIX_*/_settings USING (website_id)
 					WHERE setting_key = "external_redirect_hostnames"
 					AND setting_value LIKE "[%%%s%%]"', wrap_db_escape($site));
 				$website = wrap_db_fetch($sql);
+				if (!$website AND !empty($zz_setting['website_id_default'])) {
+					$sql = sprintf('SELECT website_id, domain
+						FROM websites WHERE website_id = %d', $zz_setting['website_id_default']);
+					$website = wrap_db_fetch($sql);
+				}
 				if ($website) {
-					// different site, read config for this siete
+					// different site, read config for this site
 					$website_id = $website['website_id'];
-					$site = $zz_setting['site'] = $website['canonical_hostname'];
+					$site = $zz_setting['site'] = $website['domain'];
 					$re_read_config = true;
 				}
 			}
