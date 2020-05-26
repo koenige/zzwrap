@@ -322,7 +322,7 @@ function wrap_config($mode, $site = '') {
 		}
 		break;
 	case 'write':
-		if (!empty($zz_setting['websites'])) {
+		if (!empty($zz_setting['multiple_websites'])) {
 			if (empty($website_id)) $website_id = 1;
 			$zz_setting['website_id'] = $website_id;
 			$sql = sprintf('SELECT setting_key, setting_value
