@@ -43,7 +43,8 @@ function zzwrap() {
 		wrap_install();
 	}
 	wrap_config('write');
-	wrap_config('write', $zz_setting['site']);
+	if (!empty($zz_setting['multiple_websites']))
+		wrap_config('write', $zz_setting['site']);
 
 	// local modifications to SQL queries
 	// may need db connection

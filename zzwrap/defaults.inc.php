@@ -28,7 +28,8 @@ function wrap_set_defaults() {
 	// configuration settings, defaults
 	wrap_set_defaults_pre_conf();
 	wrap_config('read');
-	wrap_config('read', $zz_setting['site']);
+	if (!empty($zz_setting['multiple_websites']))
+		wrap_config('read', $zz_setting['site']);
 	if (file_exists($file = $zz_setting['inc'].'/config.inc.php'))
 		require_once $file;
 	wrap_set_defaults_post_conf();
