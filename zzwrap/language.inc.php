@@ -648,8 +648,6 @@ function wrap_set_units() {
 	global $zz_conf;
 	global $zz_setting;
 	
-	// Attention: PHP < 5.4 just supports decimal_point and thousands_separator
-	// which are one byte long
 	if (!isset($zz_conf['decimal_point'])) {
 		switch ($zz_setting['lang']) {
 		case 'de':
@@ -671,7 +669,7 @@ function wrap_set_units() {
 		case 'es':
 		case 'pl':
 		case 'cs':
-			if (version_compare(PHP_VERSION, '5.4.0', '>=') AND $zz_conf['character_set'] === 'utf-8') {
+			if ($zz_conf['character_set'] === 'utf-8') {
 				$zz_conf['thousands_separator'] = "\xC2\xA0"; // non-breaking space
 			} else {
 				$zz_conf['thousands_separator'] = ' ';
