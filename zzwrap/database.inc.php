@@ -1204,11 +1204,13 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 		$queries = wrap_system_sql('ids-aliases');
 		if (array_key_exists($table, $queries)) {
 			$sql_aliases = $queries[$table];
-			$aliases = wrap_db_fetch($sql_aliases, '_dummy_', 'key/value');
-			foreach ($aliases as $id => $alias) {
-				parse_str($alias, $parameters);
-				if (empty($parameters['alias'])) continue;
-				$data[$table][$parameters['alias']] = $id;
+			if ($sql_aliases) {
+				$aliases = wrap_db_fetch($sql_aliases, '_dummy_', 'key/value');
+				foreach ($aliases as $id => $alias) {
+					parse_str($alias, $parameters);
+					if (empty($parameters['alias'])) continue;
+					$data[$table][$parameters['alias']] = $id;
+				}
 			}
 		}
 	}
