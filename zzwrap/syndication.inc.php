@@ -85,6 +85,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 			if (!empty($zz_setting['cache'])) {
 				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 			}
+			wrap_cache_revalidated($files[1]);
 			break;
 		case 302:
 		case 303:
