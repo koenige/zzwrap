@@ -2173,6 +2173,7 @@ function wrap_send_cache($age = 0) {
  * @return bool false: not fresh, true: cache is fresh
  */
 function wrap_cache_freshness($files, $age, $has_content = true) {
+	global $zz_setting;
 	// -1: cache will always considered to be fresh
 	if ($age === -1) return true;
 	$now = time();
@@ -2185,6 +2186,18 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 		}
 		if ($has_content AND filemtime($files[0]) > $now + $age) return true;
 	} else {
+		$host = substr($files[0], strlen($zz_setting['cache_dir']) + 1);
+		$host = substr($host, 0, strpos($host, '/'));
+		if ($host !== $zz_setting['hostname']) {
+			// remote access, check cache-control of remote server
+			$cache_control = wrap_cache_get_header($files[1], 'Cache-Control');
+			parse_str($cache_control, $cache_control);
+			if (!empty($cache_control['max-age']) AND $cache_control['max-age'] > $age) {
+				$age = $cache_control['max-age'];
+				$date = wrap_date(wrap_cache_get_header($files[1], 'Date'), 'rfc1123->timestamp');
+				if ($date + $age > $now) return true;
+			}					
+		}
 		// 0 or positive values: cache files will be checked
 		// check if X-Revalidated is set
 		$revalidated = wrap_cache_get_header($files[1], 'X-Revalidated');
