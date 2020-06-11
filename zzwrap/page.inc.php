@@ -851,11 +851,13 @@ function wrap_page_h1($page) {
  */
 function wrap_page_title($page) {
 	global $zz_page;
-	$pagetitle = strip_tags($page['title']);
-	if ($zz_page['url']['full']['path'] === '/')
+	if ($zz_page['url']['full']['path'] === '/') {
+		$pagetitle = strip_tags($zz_page['db'][wrap_sql('title')]);
 		$pagetitle = sprintf($zz_page['template_pagetitle_home'], $pagetitle, $page['project']);
-	else
+	} else {
+		$pagetitle = strip_tags($page['title']);
 		$pagetitle = sprintf($zz_page['template_pagetitle'], $pagetitle, $page['project']);
+	}
 	return $pagetitle;
 }
 
