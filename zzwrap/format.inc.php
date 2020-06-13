@@ -888,6 +888,7 @@ function wrap_typo_cleanup($text) {
 	$placeholder_open = false;
 	$quotation_marks_open_single = false;
 	$quotation_marks_open_double = false;
+	$is_url = false;
 
 	if (empty($zz_setting['quotation_marks']))
 		$zz_setting['quotation_marks'] = 'en';
@@ -942,6 +943,11 @@ function wrap_typo_cleanup($text) {
 			}
 			continue;
 		}
+		if ($is_url) {
+			if ($letter === "\n") $is_url = false;
+			$new_text .= $letter;
+			continue;
+		}
 		switch ($letter) {
 		case '<':
 			if (!in_array(mb_substr($text, $i + 1, 1), ['>', ' '])) $html_open = true;
@@ -963,12 +969,17 @@ function wrap_typo_cleanup($text) {
 			}
 			break;
 		case "'":
-			if ($quotation_marks_open_single) {
-				$letter = $qm_single_close;
-				$quotation_marks_open_single = false;
+			if (preg_match("/^\S'\S$/", mb_substr($text, $i - 1, 3))) {
+				// inside a word: apostrophe, not quotation mark
+				$letter = '’';
 			} else {
-				$letter = $qm_single_open;
-				$quotation_marks_open_single = true;
+				if ($quotation_marks_open_single) {
+					$letter = $qm_single_close;
+					$quotation_marks_open_single = false;
+				} else {
+					$letter = $qm_single_open;
+					$quotation_marks_open_single = true;
+				}
 			}
 			break;
 			break;
@@ -982,15 +993,20 @@ function wrap_typo_cleanup($text) {
 			break;
 		case '-':
 			if (preg_match('/^\S - \S$/', mb_substr($text, $i - 2, 5))) {
-				$letter = '–'; break;
-			}
-			if (preg_match('/^\d-\d$/', mb_substr($text, $i - 1, 3))) {
-				$letter = '–'; break;
+				$letter = '–';
+			} elseif (preg_match('/^\d-\d$/', mb_substr($text, $i - 1, 3))) {
+				$letter = '–';
 			}
 			break;
 		case '.':
-			if (preg_match('/^\.\.\.$/', mb_substr($text, $i, 3)))	{
-				$letter = '…'; $skip = 2; break;
+			if (preg_match('/^\.\.\.$/', mb_substr($text, $i, 3))) {
+				$letter = '…';
+				$skip = 2;
+			}
+			break;
+		case ':':
+			if (preg_match('/^]: $/', mb_substr($text, $i -1, 3))) {
+				$is_url = true;
 			}
 		default:
 			break;
