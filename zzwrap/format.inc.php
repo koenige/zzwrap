@@ -873,3 +873,129 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
 		return sprintf('%d:%02d', $data['hour'], $data['minute']);
 	}
 }
+
+/**
+ * do some automatic replacement for a better typography
+ *
+ * @param string $text
+ * @return string $text
+ */
+function wrap_typo_cleanup($text) {
+	if (!trim($text)) return $text;
+	$new_text = '';
+	$skip = 0;
+	$html_open = false;
+	$placeholder_open = false;
+	$quotation_marks_open_single = false;
+	$quotation_marks_open_double = false;
+
+	if (empty($zz_setting['quotation_marks']))
+		$zz_setting['quotation_marks'] = 'en';
+	switch ($zz_setting['quotation_marks']) {
+	case 'en':
+		$qm_double_open = '“';
+		$qm_double_close = '”';
+		$qm_single_open = '‘';
+		$qm_single_close = '’';
+		break;
+	case 'de':
+		$qm_double_open = '„';
+		$qm_double_close = '“';
+		$qm_single_open = '‚';
+		$qm_single_close = '‘';
+		break;
+	case 'de-guillemets':
+		$qm_double_open = '»';
+		$qm_double_close = '«';
+		$qm_single_open = '›';
+		$qm_single_close = '‹';
+		break;
+	case 'ch':
+	case 'fr':
+		$qm_double_open = '«';
+		$qm_double_close = '»';
+		$qm_single_open = '‹';
+		$qm_single_close = '›';
+		break;
+	}
+
+	for ($i = 0; $i < mb_strlen($text); $i++) {
+		$letter = mb_substr($text, $i, 1);
+		if ($skip) {
+			$skip--;
+			continue;
+		}
+		if ($html_open AND $letter !== '>') {
+			$new_text .= $letter;
+			continue;
+		}
+		if ($placeholder_open) {
+			if (mb_substr($text, $i, 6) === '%%%%%%') {
+				$new_text .= '%%%%%%';
+				$skip = 5;
+			} elseif (mb_substr($text, $i, 3) === '%%%') {
+				$new_text .= '%%%';
+				$skip = 2;
+				$placeholder_open = false;
+			} else {
+				$new_text .= $letter;
+			}
+			continue;
+		}
+		switch ($letter) {
+		case '<':
+			if (!in_array(mb_substr($text, $i + 1, 1), ['>', ' '])) $html_open = true;
+			break;
+		case '>':
+			if ($html_open) $html_open = false;
+			break;
+		case '%':
+			if (mb_substr($text, $i, 6) !== '%%%%%%' AND mb_substr($text, $i, 3) === '%%%')
+				$placeholder_open = !$placeholder_open;
+			break;
+		case '"':
+			if ($quotation_marks_open_double) {
+				$letter = $qm_double_close;
+				$quotation_marks_open_double = false;
+			} else {
+				$letter = $qm_double_open;
+				$quotation_marks_open_double = true;
+			}
+			break;
+		case "'":
+			if ($quotation_marks_open_single) {
+				$letter = $qm_single_close;
+				$quotation_marks_open_single = false;
+			} else {
+				$letter = $qm_single_open;
+				$quotation_marks_open_single = true;
+			}
+			break;
+			break;
+		case '´':
+			$letter = '’';
+			break;
+		case '`':
+			if (preg_match('/^\S`\S$/', mb_substr($text, $i - 1, 3))) {
+				$letter = '’';
+			}
+			break;
+		case '-':
+			if (preg_match('/^\S - \S$/', mb_substr($text, $i - 2, 5))) {
+				$letter = '–'; break;
+			}
+			if (preg_match('/^\d-\d$/', mb_substr($text, $i - 1, 3))) {
+				$letter = '–'; break;
+			}
+			break;
+		case '.':
+			if (preg_match('/^\.\.\.$/', mb_substr($text, $i, 3)))	{
+				$letter = '…'; $skip = 2; break;
+			}
+		default:
+			break;
+		}
+		$new_text .= $letter;
+	}
+	return $new_text;
+}
