@@ -292,3 +292,9 @@ qs	string	fbclid
 
 # access via server and Browser Chrome-Lighthouse
 404	all	/asset-manifest.json
+
+# ads, @see https://iabtechlab.com
+404	end	/ads.txt
+
+# authors behind website, @see http://humanstxt.org
+404	end	/humans.txt
