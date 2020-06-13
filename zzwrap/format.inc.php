@@ -986,6 +986,9 @@ function wrap_typo_cleanup($text, $lang = '') {
 			if (preg_match("/^\S'\S$/", mb_substr($text, $i - 1, 3))) {
 				// inside a word: apostrophe, not quotation mark
 				$letter = '’';
+			} elseif (!$quotation_marks_open_single AND preg_match("/^\S' $/", mb_substr($text, $i - 1, 3))) {
+				// at the end of a word without opening quotation mark: apostrophe, not quotation mark
+				$letter = '’';
 			} else {
 				if ($quotation_marks_open_single) {
 					$letter = $qm_single_close;
