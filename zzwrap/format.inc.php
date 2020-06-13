@@ -878,9 +878,12 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
  * do some automatic replacement for a better typography
  *
  * @param string $text
+ * @param string $lang ISO 2 letter code
  * @return string $text
  */
-function wrap_typo_cleanup($text) {
+function wrap_typo_cleanup($text, $lang = '') {
+	global $zz_setting;
+
 	if (!trim($text)) return $text;
 	$new_text = '';
 	$skip = 0;
@@ -890,15 +893,19 @@ function wrap_typo_cleanup($text) {
 	$quotation_marks_open_double = false;
 	$is_url = false;
 
-	if (empty($zz_setting['quotation_marks']))
-		$zz_setting['quotation_marks'] = 'en';
-	switch ($zz_setting['quotation_marks']) {
-	case 'en':
-		$qm_double_open = '“';
-		$qm_double_close = '”';
-		$qm_single_open = '‘';
-		$qm_single_close = '’';
-		break;
+	if (!$lang) {
+		if (!empty($zz_setting['default_source_language']))
+			$lang = $zz_setting['default_source_language'];
+		else
+			$lang = $zz_setting['lang'];
+	}
+	if (empty($zz_setting['quotation_marks'][$lang])) {
+		$quotation_marks_format = $lang;
+	} else {
+		$quotation_marks_format = $zz_setting['quotation_marks'][$lang];
+	}
+
+	switch ($quotation_marks_format) {
 	case 'de':
 		$qm_double_open = '„';
 		$qm_double_close = '“';
@@ -917,6 +924,13 @@ function wrap_typo_cleanup($text) {
 		$qm_double_close = '»';
 		$qm_single_open = '‹';
 		$qm_single_close = '›';
+		break;
+	default:
+	case 'en':
+		$qm_double_open = '“';
+		$qm_double_close = '”';
+		$qm_single_open = '‘';
+		$qm_single_close = '’';
 		break;
 	}
 
