@@ -2764,6 +2764,7 @@ function wrap_setting_value($string) {
 		}
 		return $strings;
 	case '?':
+	case '&':
 		$string = substr($string, 1);
 		parse_str($string, $strings);
 		return $strings;
