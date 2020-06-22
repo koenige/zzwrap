@@ -498,6 +498,9 @@ function wrap_errorpage_ignore($status, $string = false) {
 					return true;
 				}
 				break;
+			case 'request':
+				if (wrap_error_checkmatch($zz_setting['request_uri'], $line[2])) return true;
+				break;
 			case 'ip':
 				if (substr($zz_setting['remote_ip'], 0, (strlen($line[2]))) === $line[2]) {
 					return true;
@@ -604,7 +607,16 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	}
 	if ($external_request) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) {
-			if (strstr($referer['path'], '/../')) return false;
+			if (strstr($referer['path'], '../')) return false;
+			if ($referer['host'] === $zz_setting['hostname']
+				AND $referer['path'] !== $zz_page['url']['full']['path']
+				AND $referer['scheme'] !== 'https' AND in_array('/', $zz_setting['https_urls'])
+			) {
+				// it is no https redirect but from the same hostname and from a different path
+				// i. e. it is a forged referer, @see wrap_error_referer_local_https()
+				// but with a non-canonical hostname here
+				return false;
+			}
 			// if yes, return true, we don't know more about it
 			return true;
 		}

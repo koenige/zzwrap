@@ -83,7 +83,8 @@
 404	begin	/wp-admin/admin-post.php?swp_debug=load_options&swp_url=
 404	end	/wp-json/wp/v2/users
 404	end	/license.txt
-404	all	*/wp-config*
+404	request	*/wp-config*
+404	request	*/wp-includes/*
 
 # Joomla
 404	end	/administrator/index.php
