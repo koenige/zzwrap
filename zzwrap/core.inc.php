@@ -2583,7 +2583,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
 		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
 	}
-	return wrap_get_protected_url($url, $headers, 'GET', [], $username);
+	return wrap_get_protected_url($url, $headers, 'POST', [], $username);
 }
 
 /**
