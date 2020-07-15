@@ -1,0 +1,174 @@
+# transliteration of characters
+# first column: input character, second column: output character
+
+À	A
+Á	A
+Â	A
+Ã	A
+Å	A
+Ā	A
+Â	A
+Ą	A
+Ă	A
+
+à	a
+á	a
+â	a
+ã	a
+å	a
+ā	a
+â	a
+ą	a
+ă	a
+
+Ä	Ae
+Æ	Ae
+
+ä	ae
+æ	ae
+
+Ç	C
+Ć	C
+Č	C
+Ć	C
+
+ç	c
+ç	c
+č	c
+ć	c
+
+Ð	D
+Ď	D
+
+đ	d
+ď	d
+
+È	E
+É	E
+Ê	E
+Ë	E
+Ē	E
+Ę	E
+Ě	E
+
+è	e
+é	e
+ê	e
+ë	e
+ē	e
+ę	e
+ě	e
+
+Ğ	G
+ğ	g
+
+Ì	I
+Í	I
+Î	I
+Ï	I
+Ī	I
+İ	I
+
+ì	i
+í	i
+î	i
+ï	i
+ī	i
+ı	i
+
+Ł	L
+Ľ	L
+Ĺ	L
+
+ł	l
+ľ	l
+ĺ	l
+
+Ñ	N
+Ň	N
+Ń	N
+
+ñ	n
+ň	n
+ń	n
+
+Ò	O
+Ó	O
+Ô	O
+Õ	O
+Ő	O
+Ø	O
+
+ò	o
+ó	o
+ô	o
+õ	o
+ő	o
+ø	o
+
+Ö	Oe
+Œ	Oe
+
+ö	oe
+œ	oe
+
+Ŕ	R
+Ř	R
+
+ŕ	r
+ř	r
+
+ß	ss
+
+Ś	S
+Š	S
+Ş	S
+
+ś	s
+š	s
+ş	s
+
+Ť	T
+Ţ	T
+
+ť	t
+ţ	t
+
+Ù	U
+Ú	U
+Û	U
+Ū	U
+Ű	U
+Ů	U
+
+ù	u
+ú	u
+û	u
+ū	u
+ű	u
+ů	u
+
+Ü	Ue
+ü	ue
+
+Ý	Y
+Ÿ	Y
+
+ý	y
+ÿ	y
+
+Ź	Z
+Ž	Z
+Ż	Z
+
+ź	z
+ž	z
+ż	z
+
+/	-
+'	-
+-	-
+:	-
+–	-
+
+€	EUR
