@@ -34,6 +34,8 @@ function wrap_install() {
 
 	if ($page['text'] === true) {
 		return brick_format('%%% redirect 303 '.$_SERVER['REQUEST_URI'].' %%%');
+	} elseif ($page['text'] === false) {
+		return false;
 	}
 	
 	$page['status'] = 200;
@@ -53,15 +55,17 @@ function wrap_install_dbname() {
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (!empty($_POST['db_name_local'])) {
 			$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_POST['db_name_local']));
-			if (!$db) {
-				$sql = sprintf('CREATE DATABASE `%s`', wrap_db_escape($_POST['db_name_local']));
-				wrap_db_query($sql);
-				$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_POST['db_name_local']));
-				if (!$db) $out['error'] = sprintf(
-					'Unable to create database %s. Please check the database error log.'
-					, wrap_html_escape($_POST['db_name_local'])
-				);
+			if ($db) {
+				$zz_conf['db_name'] = $_POST['db_name_local'];
+				return false;
 			}
+			$sql = sprintf('CREATE DATABASE `%s`', wrap_db_escape($_POST['db_name_local']));
+			wrap_db_query($sql);
+			$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_POST['db_name_local']));
+			if (!$db) $out['error'] = sprintf(
+				'Unable to create database %s. Please check the database error log.'
+				, wrap_html_escape($_POST['db_name_local'])
+			);
 			$_SESSION['db_name_local'] = $_POST['db_name_local'];
 			wrap_install_module('zzform');
 			wrap_install_module('default');
