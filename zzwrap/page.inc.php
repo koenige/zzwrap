@@ -183,17 +183,7 @@ function wrap_template_file_per_folder($template, $folder) {
  */
 function wrap_create_id($id_title) {
 	$id_title = strtolower($id_title);
-	if (!preg_match('~^[a-z0-9_]*$~', $id_title)) {
-		$new_id = '';
-		for ($i = 0; $i < strlen($id_title); $i++) {
-			// 48-57 => 0-9; 97-122 => a-z
-			if (ord($id_title[$i]) > 122) continue;
-			if (ord($id_title[$i]) > 57 AND ord($id_title[$i]) < 97) continue;
-			if (ord($id_title[$i]) < 48) continue;
-			$new_id .= $id_title[$i];
-		}
-		$id_title = $new_id;
-	}
+	$id_title = wrap_filename($id_title);
 	if (is_numeric(substr($id_title, 0, 1))) {
 		// add a random letter, first letter must not be numeric
 		$id_title = 'n_'.$id_title;
