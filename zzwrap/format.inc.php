@@ -153,14 +153,14 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 			$_str .= $replacements[$ch];
 			continue;
 		}
-		switch ($ch) {
-		case array_key_exists($ch, $characters):
-			$_str .= $characters[$ch]; break;
-		case ' ':
-			$_str .= $spaceChar; break;
-		default:
-			if (preg_match('/[A-Za-z0-9]/u', $ch)) { $_str .= $ch; }
-			break;
+		if (array_key_exists(strval($ch), $characters)) {
+			$_str .= $characters[$ch];
+		} elseif ($ch === ' ') {
+			$_str .= $spaceChar;
+		} elseif (preg_match('/[A-Za-z0-9]/u', $ch)) {
+			$_str .= $ch;
+		} else {
+			continue;
 		}
 	}	 
 
