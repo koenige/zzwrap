@@ -1098,3 +1098,26 @@ function wrap_typo_cleanup($text, $lang = '') {
 	}
 	return $new_text;
 }
+
+/**
+ * return placeholder for formatting
+ *
+ * @param string $placeholder
+ * @return string
+ */
+function wrap_placeholder($placeholder) {
+	global $zz_setting;
+
+	switch ($placeholder) {
+	case 'mysql_date_format':
+		switch ($zz_setting['lang']) {
+			case 'de': return '%d.%m.%Y';
+			case 'en': return '%d/%m/%Y';
+			default: return '%Y-%m-%d';
+		}
+		break;
+	default:
+		wrap_error(sprintf('Placeholder %s not found.', wrap_html_escape($placeholder)));	
+		return '';
+	}
+}
