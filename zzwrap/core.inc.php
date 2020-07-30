@@ -2638,29 +2638,34 @@ function wrap_is_int($var) {
  * @return bool
  */
 function wrap_setting_write($key, $value, $login_id = 0) {
+	global $zz_conf;
+
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
 		if ($existing_setting[$key] === $value) return false;
-		$sql = 'UPDATE /*_PREFIX_*/%s_settings
-			SET setting_value = "%%s"
-			WHERE setting_key = "%%s"
-		';
+		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
+		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, $login_id ? 'logins' : '');
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 		$sql .= wrap_setting_login_id($login_id);
 	} elseif ($login_id) {
-		$sql = 'INSERT INTO /*_PREFIX_*/logins_settings
-			(setting_value, setting_key, login_id) VALUES ("%s", "%s", %s)
-		';
+		$sql = 'INSERT INTO /*_PREFIX_*/logins_settings (setting_value, setting_key, login_id) VALUES ("%s", "%s", %s)';
+		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $login_id);
 	} else {
-		$sql = 'INSERT INTO /*_PREFIX_*/_settings
-			(setting_value, setting_key) VALUES ("%s", "%s")
-		';
+		$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key) VALUES ("%s", "%s")';
+		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 	}
 	$result = wrap_db_query($sql);
-	if ($result) return true;
+	if ($result) {
+		$id = !empty($result['id']) ? $result['id'] : false;
+		if (file_exists($zz_conf['dir_inc'].'/database.inc.php')) {
+			require_once $zz_conf['dir_inc'].'/database.inc.php';
+			zz_log_sql($sql, (!empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['user']), $id);
+		}
+		return true;
+	}
 
 	wrap_error(sprintf(
 		wrap_text('Could not change setting. Key: %s, value: %s, login: %s'),
