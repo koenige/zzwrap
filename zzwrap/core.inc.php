@@ -2653,9 +2653,12 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $login_id);
 	} else {
-		$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key) VALUES ("%s", "%s")';
+		$cfg = wrap_setting_cfg();
+		$explanation = (in_array($key, array_keys($cfg)) AND !empty($cfg[$key]['description']))
+			? sprintf('"%s"', $cfg[$key]['description'])  : 'NULL';
+		$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation) VALUES ("%s", "%s", %s)';
 		$sql = wrap_db_prefix($sql);
-		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
+		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation);
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
@@ -2775,6 +2778,26 @@ function wrap_setting_value($string) {
 		return $strings;
 	}
 	return $string;
+}
+
+/**
+ * read default settings from .cfg files
+ *
+ * @return array
+ */
+function wrap_setting_cfg() {
+	global $zz_setting;
+	static $cfg;
+	if (!empty($cfg)) return $cfg;
+
+	$cfg_file_template = sprintf('%s/%%s/docs/sql/settings.cfg', $zz_setting['modules_dir']);
+	$cfg = [];
+	foreach ($zz_setting['modules'] as $module) {
+		$cfg_file = sprintf($cfg_file_template, $module);
+		if (!file_exists($cfg_file)) continue;
+		$cfg += parse_ini_file($cfg_file, true);
+	}
+	return $cfg;
 }
 
 /**
