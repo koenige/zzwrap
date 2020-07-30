@@ -34,7 +34,6 @@ function zzwrap() {
 	wrap_includes();
 	wrap_set_defaults();
 	wrap_includes_postconf();
-	wrap_tests();
 
 	// establish database connection
 	wrap_db_connect();
@@ -42,6 +41,8 @@ function zzwrap() {
 		require_once __DIR__.'/install.inc.php';
 		wrap_install();
 	}
+
+	wrap_tests();
 	wrap_config('write');
 	if (!empty($zz_setting['multiple_websites']))
 		wrap_config('write', $zz_setting['site']);
