@@ -982,6 +982,8 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($set['page'])) return true;
 			$set['page'] = true;
 			$zz_sql += wrap_system_sql('page');
+
+			$zz_sql['menu_table'] = '/*_PREFIX_*/webpages';
 			break;
 		case 'auth':
 			if (!empty($set['auth'])) return true;
