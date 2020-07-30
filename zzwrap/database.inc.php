@@ -55,11 +55,13 @@ function wrap_db_connect() {
 		if (!empty($zz_conf['db_name_local'])) {
 			$zz_conf['db_name'] = $zz_conf['db_name_local'];
 		} else {
-			session_start();
+			$zz_setting['authentication_possible'] = false;
+			wrap_session_start();
 			if (!empty($_SESSION['db_name_local']) AND !empty($_SESSION['step']) AND $_SESSION['step'] === 'finish') {
 				$zz_conf['db_name'] = $_SESSION['db_name_local'];
-				session_destroy();
+				wrap_session_stop();
 			}
+			session_write_close();
 		}
 		array_unshift($zz_setting['db_password_files'], $zz_setting['local_pwd']);
 	}
