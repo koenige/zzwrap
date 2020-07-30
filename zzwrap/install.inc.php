@@ -22,7 +22,7 @@ function wrap_install() {
 	wrap_include_ext_libraries();
 	$zz_setting['cache'] = false;
 	
-	if (empty($_SESSION)) session_start();
+	wrap_session_start();
 	$_SESSION['cms_install'] = true;
 	if (empty($_SESSION['step'])) $_SESSION['step'] = 1;
 
@@ -52,11 +52,15 @@ function wrap_install() {
  */
 function wrap_install_dbname() {
 	global $zz_conf;
+	global $zz_setting;
+
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (!empty($_POST['db_name_local'])) {
 			$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_POST['db_name_local']));
 			if ($db) {
 				$zz_conf['db_name'] = $_POST['db_name_local'];
+				$_SESSION['step'] = 2;
+				$_SESSION['db_name_local'] = $_POST['db_name_local'];
 				return false;
 			}
 			$sql = sprintf('CREATE DATABASE `%s`', wrap_db_escape($_POST['db_name_local']));
@@ -200,13 +204,8 @@ function wrap_install_finish() {
 	global $zz_setting;
 	wrap_install_zzform();
 
-	$values = [];
-	$values['action'] = 'insert';
-	$values['POST']['setting_key'] = 'zzform_db_name_local';
-	$values['POST']['setting_value'] = $_SESSION['db_name_local'];
-	$values['POST']['explanation'] = 'database name on local development server';
-	$ops = zzform_multi('settings', $values);
-	if ($ops['id']) {
+	$success = wrap_setting_write('zzform_db_name_local', $_SESSION['db_name_local']);
+	if ($success) {
 		$_SESSION['step'] = 'finish';
 		return brick_format('%%% redirect 303 '.$zz_setting['login_entryurl'].' %%%');
 	}
