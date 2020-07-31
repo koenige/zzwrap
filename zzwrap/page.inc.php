@@ -981,7 +981,8 @@ function wrap_htmlout_page($page) {
 	}
 	
 	$blocks = wrap_check_blocks($zz_page['template']);
-	if (in_array('breadcrumbs', $blocks)) {
+	if (in_array('breadcrumbs', $blocks)
+		AND empty($page['breadcrumbs']) OR is_array($page['breadcrumbs'])) {
 		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 	}
 
