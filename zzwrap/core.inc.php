@@ -2642,6 +2642,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
+		// @todo add support for keys that are arrays
 		if ($existing_setting[$key] === $value) return false;
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
 		$sql = wrap_db_prefix($sql);
