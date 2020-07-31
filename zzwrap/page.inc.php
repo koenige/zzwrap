@@ -927,8 +927,6 @@ function wrap_get_page() {
 	if (!empty($zz_page['db'][wrap_sql('author_id')]))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
 
-	$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
-	
 	return $page;
 }
 
@@ -980,6 +978,11 @@ function wrap_htmlout_page($page) {
 			$page['template'] .= '-page';
 		$tpl_file = wrap_template_file($page['template'], false);
 		if ($tpl_file) $zz_page['template'] = $page['template'];
+	}
+	
+	$blocks = wrap_check_blocks($zz_page['template']);
+	if (in_array('breadcrumbs', $blocks)) {
+		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
 	}
 
 	// bring together page output
@@ -1054,6 +1057,20 @@ function wrap_htmlout_page($page) {
 	}
 		
 	wrap_send_text($text, 'html', $page['status']);
+}
+
+/**
+ * check which block exist in template
+ *
+ * @param string $template name of template
+ * @return array
+ */
+function wrap_check_blocks($template) {
+	$file = wrap_template_file($template);
+	$file = file_get_contents($file);
+	$blocks = [];
+	if (strstr($file, '%%% page breadcrumbs')) $blocks[] = 'breadcrumbs';
+	return $blocks;
 }
 
 /**
