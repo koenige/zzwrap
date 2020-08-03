@@ -591,7 +591,7 @@ function wrap_check_redirects($page_url) {
 	if ($redir) return $redir;
 
 	// check full URL with query strings or ending for migration from a different CMS
-	$check = $url['full']['path'].(!empty($url['full']['query']) ? '?'.$url['full']['query'] : '');
+	$check = wrap_db_escape($url['full']['path'].(!empty($url['full']['query']) ? '?'.$url['full']['query'] : ''));
 	$check = wrap_db_escape($check);
 	$sql = sprintf(wrap_sql('redirects'), $check, $check, $check, $where_language);
 	$redir = wrap_db_fetch($sql);
