@@ -320,11 +320,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		$page['text']['text'] = wrap_template('http-error', [], 'error');
 	}
 
-	if (function_exists('wrap_htmlout_menu') AND $zz_conf['db_connection']) { 
-		// get menus, if function and database connection exist
-		$page = wrap_get_menu($page);
-	}
-	
 	// error pages have no last update
 	$page[wrap_sql('lastupdate')] = false;
 	if (!empty($zz_page['db'][wrap_sql('lastupdate')])) {

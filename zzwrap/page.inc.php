@@ -205,7 +205,9 @@ function wrap_create_id($id_title) {
  *
  * @param array $page
  * @return array
- *	$page['nav_db']: 'title', 'url', 'current_page', 'id', 'subtitle'
+ *   array 'nav_db': 'title', 'url', 'current_page', 'id', 'subtitle'
+ *   int current_navitem
+ *   string current_menu
  */
 function wrap_get_menu($page) {
 	global $zz_setting;
@@ -922,7 +924,6 @@ function wrap_get_page() {
 	$page['title']		= wrap_page_h1($page);
 	!empty($page['project']) OR $page['project'] = wrap_text(wrap_get_setting('project'));
 	$page['pagetitle']	= wrap_page_title($page);
-	$page				= wrap_get_menu($page);
 	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
 	if (!empty($zz_page['db'][wrap_sql('author_id')]))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
@@ -984,6 +985,10 @@ function wrap_htmlout_page($page) {
 	if (in_array('breadcrumbs', $blocks)
 		AND empty($page['breadcrumbs']) OR is_array($page['breadcrumbs'])) {
 		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
+	}
+	if (in_array('nav', $blocks) AND $zz_conf['db_connection']) {
+		// get menus, if database connection active
+		$page = wrap_get_menu($page);
 	}
 
 	// bring together page output
@@ -1071,6 +1076,7 @@ function wrap_check_blocks($template) {
 	$file = file_get_contents($file);
 	$blocks = [];
 	if (strstr($file, '%%% page breadcrumbs')) $blocks[] = 'breadcrumbs';
+	if (strstr($file, '%%% page nav')) $blocks[] = 'nav';
 	return $blocks;
 }
 
