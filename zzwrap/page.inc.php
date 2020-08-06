@@ -973,6 +973,10 @@ function wrap_htmlout_page($page) {
 	if (file_exists($zz_setting['custom'].'/zzbrick_page/_init.inc.php'))
 		require_once $zz_setting['custom'].'/zzbrick_page/_init.inc.php';
 
+	// bring together page output
+	// do not modify html, since this is a template
+	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
+
 	// Use different template if set in function or _init
 	if (!empty($page['template'])) {
 		if (substr($page['template'], -5) !== '-page')
@@ -989,18 +993,14 @@ function wrap_htmlout_page($page) {
 	if (in_array('nav', $blocks) AND $zz_conf['db_connection']) {
 		// get menus, if database connection active
 		$page = wrap_get_menu($page);
-	}
-
-	// bring together page output
-	// do not modify html, since this is a template
-	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
-
-	if (!empty($page['nav_db'])) {
-		$page['nav'] = wrap_htmlout_menu($page['nav_db']);
-		foreach (array_keys($page['nav_db']) AS $menu) {
-			$page['nav_'.$menu] = wrap_htmlout_menu($page['nav_db'], $menu);
+		if (!empty($page['nav_db'])) {
+			$page['nav'] = wrap_htmlout_menu($page['nav_db']);
+			foreach (array_keys($page['nav_db']) AS $menu) {
+				$page['nav_'.$menu] = wrap_htmlout_menu($page['nav_db'], $menu);
+			}
 		}
 	}
+
 	if (!is_array($page['text'])) $textblocks = ['text' => $page['text']];
 	else $textblocks = $page['text'];
 	unset($page['text']);
