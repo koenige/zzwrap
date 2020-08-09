@@ -579,11 +579,15 @@ function wrap_check_redirects($page_url) {
 
 	if (empty($zz_setting['check_redirects'])) return false;
 	$url = wrap_read_url($zz_page['url']);
-	$url['db'] = wrap_db_escape($url['db']);
 	$where_language = (!empty($_GET['lang']) AND !is_array($_GET['lang']))
-		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql('redirects_old_fieldname'), $url['db'], wrap_db_escape($_GET['lang']))
+		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql('redirects_old_fieldname')
+			, wrap_db_escape($url['db']), wrap_db_escape($_GET['lang']))
 		: '';
-	$sql = sprintf(wrap_sql('redirects'), '/'.$url['db'], '/'.$url['db'], '/'.$url['db'], $where_language);
+	$sql = sprintf(wrap_sql('redirects')
+		, '/'.wrap_db_escape($url['db'])
+		, '/'.wrap_db_escape($url['db'])
+		, '/'.wrap_db_escape($url['db']), $where_language
+	);
 	// not needed anymore, but set to false hinders from getting into a loop
 	// (wrap_db_fetch() will call wrap_quit() if table does not exist)
 	$zz_setting['check_redirects'] = false; 
@@ -591,7 +595,7 @@ function wrap_check_redirects($page_url) {
 	if ($redir) return $redir;
 
 	// check full URL with query strings or ending for migration from a different CMS
-	$check = wrap_db_escape($url['full']['path'].(!empty($url['full']['query']) ? '?'.$url['full']['query'] : ''));
+	$check = $url['full']['path'].(!empty($url['full']['query']) ? '?'.$url['full']['query'] : '');
 	$check = wrap_db_escape($check);
 	$sql = sprintf(wrap_sql('redirects'), $check, $check, $check, $where_language);
 	$redir = wrap_db_fetch($sql);
@@ -630,7 +634,7 @@ function wrap_check_redirects_placeholder($url, $position) {
 	}
 
 	while (!$found) {
-		$current_path = sprintf('/%s', $url['db']);
+		$current_path = sprintf('/%s', wrap_db_escape($url['db']));
 		$sql = sprintf(wrap_sql($r_query), $current_path);
 		$redir = wrap_db_fetch($sql);
 		if ($redir) break; // we have a result, get out of this loop!
