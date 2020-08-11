@@ -808,10 +808,14 @@ function wrap_page_last_update($page) {
  */
 function wrap_page_media($page) {
 	global $zz_page;
+
 	$media = !empty($page['media']) ? $page['media'] : [];
-	if (function_exists('wrap_get_media')) {
+	$func = false;
+	if (function_exists('wrap_get_media')) $func = 'wrap_get_media';
+	elseif (wrap_get_setting('zzwrap_media')) $func = 'mod_media_get';
+	if ($func) {
 		$page_id = $zz_page['db'][wrap_sql('page_id')];
-		$media = array_merge(wrap_get_media($page_id), $media);
+		$media = array_merge($func($page_id), $media);
 	}
 	return $media;
 }
