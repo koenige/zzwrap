@@ -694,7 +694,10 @@ function wrap_check_redirects_placeholder($url, $position) {
  * @return array $page
  */
 function wrap_check_redirect_from_cache($page, $url) {
-	$redirect_endings = ['%20', ')', '%5C', '%22', '%3E', '.'];
+	// %E2%80%8B = zero width space, sometimes added to URL from some systems
+	$redirect_endings = [
+		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B'
+	];
 	foreach ($redirect_endings as $ending) {
 		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
 		$url['path'] = substr($url['path'], 0, -strlen($ending));
@@ -1102,6 +1105,8 @@ function wrap_check_request() {
 	// check REQUEST_URI
 	// Base URL, allow it to be set manually (handle with care!)
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
+	$zz_setting['request_uri'] = wrap_percent_encode_non_ascii($zz_setting['request_uri']);
+	
 	if (empty($zz_page['url']['full'])) {
 		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$zz_setting['request_uri']);
 		if (empty($zz_page['url']['full']['path'])) {
@@ -1151,6 +1156,24 @@ function wrap_check_request() {
 		else
 			$zz_page['deep'] = '/';
 	}
+}
+
+/**
+ * sometimes, Apache decodes URL parts, e. g. %E2 is changed to a latin-1
+ * character, encode that again
+ *
+ * @param string $path
+ * @return string
+ */
+function wrap_percent_encode_non_ascii($path) {
+	$new_path = '';
+	for ($i = 0; $i < strlen($path); $i++) {
+		if (ord(substr($path, $i, 1)) < 128)
+			$new_path .= substr($path, $i, 1);
+		else
+			$new_path .= urlencode(substr($path, $i, 1)); 
+	}
+	return $new_path;
 }
 
 /**
