@@ -125,8 +125,13 @@ function wrap_template_file($template, $show_error = true) {
 	foreach ($zz_setting['modules'] as $module) {
 		if ($my_module AND $module !== $my_module) continue;
 		$tpl_file = wrap_template_file_per_folder($template, $zz_setting['modules_dir'].'/'.$module.'/templates');
-		if ($tpl_file) $found[] = $tpl_file;
+		if ($tpl_file) $found[$module] = $tpl_file;
 	}
+	// ignore default template if there’s another template from a module
+	if (count($found) === 2 AND array_key_exists('default', $found)) {
+		unset($found['default']);
+	}
+	
 	if (count($found) !== 1) {
 		if (!$show_error) return false;
 		global $zz_page;
@@ -142,7 +147,7 @@ function wrap_template_file($template, $show_error = true) {
 			wrap_quit(503, $error_msg);
 		}
 	} else {
-		$tpl_file = $found[0];
+		$tpl_file = reset($found);
 	}
 	return $tpl_file;
 }
