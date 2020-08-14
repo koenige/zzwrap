@@ -1081,11 +1081,24 @@ function wrap_htmlout_page($page) {
  * @return array
  */
 function wrap_check_blocks($template) {
+	static $includes;
+	if (empty($includes)) $includes = [];
+
 	$file = wrap_template_file($template);
 	$file = file_get_contents($file);
 	$blocks = [];
 	if (strstr($file, '%%% page breadcrumbs')) $blocks[] = 'breadcrumbs';
 	if (strstr($file, '%%% page nav')) $blocks[] = 'nav';
+	if ($block = strstr($file, '%%% include')) {
+		$block = substr($block, 11);
+		$block = trim(substr($block, 0, strpos($block, '%%%')));
+		if (in_array($block, $includes)) {
+			wrap_error(sprintf('Template %s includes itself', $block), E_USER_ERROR);
+		} else {
+			$includes[] = $block;
+			$blocks = array_merge($blocks, wrap_check_blocks($block));
+		}
+	}
 	return $blocks;
 }
 
