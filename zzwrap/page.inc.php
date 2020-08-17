@@ -958,6 +958,7 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 		// provide cache URL since internal URL might already be rewritten
 		wrap_cache_ressource('', '', $zz_setting['host_base'].$zz_setting['request_uri']);
 	}
+	wrap_log_uri($status);
 	header($header);
 	exit;
 }

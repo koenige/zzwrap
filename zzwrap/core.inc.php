@@ -716,12 +716,16 @@ function wrap_check_redirect_from_cache($page, $url) {
  * sends only notices if some update does not work because it's just for the
  * statistics
  *
+ * @param int $status
  * @return bool
  */
-function wrap_log_uri() {
+function wrap_log_uri($status = 0) {
 	global $zz_setting;
 	global $zz_page;
 	
+	if (!$status)
+		$status = !empty($zz_page['error_code']) ? $zz_page['error_code'] : 200;
+
 	if (wrap_get_setting('http_log')) {
 		$logdir = sprintf('%s/access/%s/%s'
 			, $zz_setting['log_dir']
@@ -731,7 +735,7 @@ function wrap_log_uri() {
 		wrap_mkdir($logdir);
 		$logfile = sprintf('%s/%s%s-access-%s.log'
 			, $logdir
-			, $zz_setting['site']
+			, str_replace('/', '-', $zz_setting['site'])
 			, $_SERVER['REQUEST_SCHEME'] === 'https' ? '-ssl' : ''
 			, date('Y-m-d', $_SERVER['REQUEST_TIME'])
 		);
@@ -744,7 +748,7 @@ function wrap_log_uri() {
 			, $_SERVER['REQUEST_METHOD']
 			, $_SERVER['REQUEST_URI']
 			, $_SERVER['SERVER_PROTOCOL']
-			, !empty($zz_page['error_code']) ? $zz_page['error_code'] : 200
+			, $status
 			, !empty($zz_page['content_length']) ? $zz_page['content_length'] : 0
 			, !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '-'
 			, $_SERVER['HTTP_USER_AGENT']
@@ -771,9 +775,6 @@ function wrap_log_uri() {
 	$last_modified = !empty($zz_page['last_modified'])
 		? '"'.wrap_date($zz_page['last_modified'], 'rfc1123->datetime').'"'
 		: 'NULL';
-	$status = !empty($zz_page['error_code'])
-		? $zz_page['error_code']
-		: 200;
 	$content_type = !empty($zz_page['content_type'])
 		? $zz_page['content_type']
 		: 'unknown';
@@ -950,6 +951,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	case 304:
 	case 412:
 	case 416:
+		wrap_log_uri($page['status']);
 		wrap_http_status_header($page['status']);
 		header('Content-Length: 0');
 		exit;
@@ -1728,6 +1730,7 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 			readfile($content['name']);
 		}
 	} else {
+		wrap_log_uri(206); // @todo log correct range content length
 		if (count($ranges) !== 1) {
 			$boundary = 'THIS_STRING_SEPARATES_'.md5(time());
 			header(sprintf('Content-Type: multipart/byteranges; boundary=%s', $boundary));
