@@ -721,6 +721,38 @@ function wrap_check_redirect_from_cache($page, $url) {
 function wrap_log_uri() {
 	global $zz_setting;
 	global $zz_page;
+	
+	if (wrap_get_setting('http_log')) {
+		$logdir = sprintf('%s/access/%s/%s'
+			, $zz_setting['log_dir']
+			, date('Y', $_SERVER['REQUEST_TIME'])
+			, date('m', $_SERVER['REQUEST_TIME'])
+		);
+		wrap_mkdir($logdir);
+		$logfile = sprintf('%s/%s%s-access-%s.log'
+			, $logdir
+			, $zz_setting['site']
+			, $_SERVER['REQUEST_SCHEME'] === 'https' ? '-ssl' : ''
+			, date('Y-m-d', $_SERVER['REQUEST_TIME'])
+		);
+		$line = sprintf(
+			'%s - %s [%s] "%s %s %s" %d %d "%s" "%s" %s'."\n"
+			, $zz_setting['remote_ip']
+			, !empty($_SESSION['username']) ? $_SESSION['username']
+				: (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '-')
+			, date('d/M/Y:H:i:s O', $_SERVER['REQUEST_TIME'])
+			, $_SERVER['REQUEST_METHOD']
+			, $_SERVER['REQUEST_URI']
+			, $_SERVER['SERVER_PROTOCOL']
+			, !empty($zz_page['error_code']) ? $zz_page['error_code'] : 200
+			, !empty($zz_page['content_length']) ? $zz_page['content_length'] : 0
+			, !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '-'
+			, $_SERVER['HTTP_USER_AGENT']
+			, $zz_setting['hostname']
+		);
+		error_log($line, 3, $logfile);
+	}
+
 	if (empty($zz_setting['uris_table'])) return false;
 	if (empty($zz_page['url'])) return false;
 
