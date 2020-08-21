@@ -485,6 +485,13 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		}
 		if ($protocol === 'https') {
+			// ignore verification on development server if target is
+			// development server, too
+			if ($zz_setting['local_access'] AND wrap_substr($url, 'https://'.$zz_setting['hostname'])) {
+				$old_curl_ignore_ssl_verifyresult
+					= empty($zz_setting['curl_ignore_ssl_verifyresult']) ? false : true;
+				$zz_setting['curl_ignore_ssl_verifyresult'] = true;
+			}
 			if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
 				// not recommended, mainly for debugging!
 				// only set this if you know what you are doing
@@ -494,6 +501,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 			}
+			if (isset($old_curl_ignore_ssl_verifyresult))
+				$zz_setting['curl_ignore_ssl_verifyresult'] = $old_curl_ignore_ssl_verifyresult;
 			// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
 			// so there should be currently no need to include an own PEM file
 			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
