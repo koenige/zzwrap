@@ -538,10 +538,21 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		}
 		curl_close($ch);
 		if (!$timeout_ignore) {
-			// separate headers from data
-			$headers = substr($data, 0, strpos($data, "\r\n\r\n"));
-			$headers = explode("\r\n", $headers);
-			$data = substr($data, strpos($data, "\r\n\r\n") + 4);
+			$lines = explode("\r\n", $data);
+			$headers = [];
+			$skip_empty = false;
+			foreach ($lines as $index => $line) {
+				unset($lines[$index]);
+				if (wrap_substr($line, 'HTTP/') AND wrap_substr($line, '100 Continue', 'end')) {
+					$skip_empty = true;
+					continue;
+				} elseif ($line) {
+					$skip_empty = false;
+				}
+				if (!$line AND !$skip_empty) break;
+				if ($line) $headers[] = $line;
+			}
+			$data = implode("\r\n", $lines);
 		} else {
 			$status = 200; // not necessarily true, but we don't want to wait
 			$headers = [];
