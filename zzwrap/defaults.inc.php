@@ -636,6 +636,7 @@ function wrap_set_defaults_post_conf() {
 		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home'
 	];
 	foreach ($deprecated_zz_page as $deprecated) {
+		if (empty($zz_page)) continue;
 		if (!array_key_exists($deprecated, $zz_page)) continue;
 		wrap_error(sprintf('@deprecated: $zz_page["%s"] is now $zz_setting["%s"]', $deprecated, $deprecated), E_USER_DEPRECATED);
 		$zz_setting[$deprecated] = $zz_page[$deprecated];
