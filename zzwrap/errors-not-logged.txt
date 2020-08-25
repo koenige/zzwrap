@@ -302,3 +302,6 @@ qs	string	fbclid
 
 # Script kiddies
 404	post	*xbshell*
+
+# Bot with severe problems parsing URLs
+404	ua	Mozilla/5.0 (compatible; Adsbot/3.1)
