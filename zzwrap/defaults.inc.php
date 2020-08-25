@@ -630,7 +630,6 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['template_pagetitle'] = '%1$s (%2$s)';
 	if (!isset($zz_setting['template_pagetitle_home']))
 		$zz_setting['template_pagetitle_home'] = '%1$s';
-	$zz_page['template_pagetitle'] = '%1$s | %2$s';
 
 	// @deprecated
 	$deprecated_zz_page = [
