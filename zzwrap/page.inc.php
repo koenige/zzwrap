@@ -688,7 +688,6 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
  * @return string HTML output, plain linear, of breadcrumbs
  */
  function wrap_htmlout_breadcrumbs($page_id, $brick_breadcrumbs) {
-	global $zz_page;
 	global $zz_setting;
 	
 	// get breadcrumbs from database
@@ -696,8 +695,6 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	if (!$breadcrumbs) return '';
 
 	// set default values
-	if (empty($zz_page['breadcrumbs_separator']))
-		$zz_page['breadcrumbs_separator'] = '&gt;';
 	$base = wrap_nav_base();
 
 	// if there are breadcrumbs returned from brick_format, remove the last
@@ -727,7 +724,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
 	if (!$formatted_breadcrumbs) return '';
-	return implode(' '.$zz_page['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
+	return implode(' '.$zz_setting['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
 }
 
 /**
@@ -852,12 +849,14 @@ function wrap_page_h1($page) {
  */
 function wrap_page_title($page) {
 	global $zz_page;
+	global $zz_setting;
+
 	if ($zz_page['url']['full']['path'] === '/') {
 		$pagetitle = strip_tags($zz_page['db'][wrap_sql('title')]);
-		$pagetitle = sprintf($zz_page['template_pagetitle_home'], $pagetitle, $page['project']);
+		$pagetitle = sprintf($zz_setting['template_pagetitle_home'], $pagetitle, $page['project']);
 	} else {
 		$pagetitle = strip_tags($page['title']);
-		$pagetitle = sprintf($zz_page['template_pagetitle'], $pagetitle, $page['project']);
+		$pagetitle = sprintf($zz_setting['template_pagetitle'], $pagetitle, $page['project']);
 	}
 	return $pagetitle;
 }

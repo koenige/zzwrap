@@ -83,7 +83,9 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	case E_USER_WARNING: // acceptable error, go on
 		$level = 'warning';
 		break;
-	case E_USER_NOTICE: // unimportant error only show in debug mode
+	case E_USER_NOTICE:
+	case E_USER_DEPRECATED:
+		// unimportant error only show in debug mode
 		$level = 'notice';
 		break;
 	}
@@ -294,7 +296,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	if (empty($page['lang'])) $page['lang'] = $zz_setting['lang'];
 	$page['last_update'] = false;
 	$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
-		.wrap_get_setting('project').'</a></strong> '.$zz_page['breadcrumbs_separator'].' '
+		.wrap_get_setting('project').'</a></strong> '.$zz_setting['breadcrumbs_separator'].' '
 		.wrap_text($status['text']); 
 	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($status['text'])
 		.' ('.wrap_get_setting('project').')'); 

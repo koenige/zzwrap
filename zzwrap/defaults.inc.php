@@ -578,6 +578,36 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['media_preview_size'] = 80;
 	
 	// -------------------------------------------------------------------------
+	// Error Logging
+	// -------------------------------------------------------------------------
+	
+	if (!isset($zz_conf['error_log']['error']))
+		$zz_conf['error_log']['error']	= ini_get('error_log');
+	
+	if (!isset($zz_conf['error_log']['warning']))
+		$zz_conf['error_log']['warning']	= ini_get('error_log');
+	
+	if (!isset($zz_conf['error_log']['notice']))
+		$zz_conf['error_log']['notice']	= ini_get('error_log');
+	
+	if (!isset($zz_conf['log_errors']))
+		$zz_conf['log_errors'] 			= ini_get('log_errors');
+	
+	if (!isset($zz_conf['log_errors_max_len']))
+		$zz_conf['log_errors_max_len'] 	= ini_get('log_errors_max_len');
+	
+	if (!isset($zz_conf['translate_log_encodings']))
+		$zz_conf['translate_log_encodings'] = [
+			'iso-8859-2' => 'iso-8859-1'
+		];
+	if (!isset($zz_conf['error_log_post']))
+		$zz_conf['error_log_post']	= false;
+	
+	if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_from']))
+		$zz_conf['error_mail_parameters'] = '-f '.$zz_conf['error_mail_from'];
+
+
+	// -------------------------------------------------------------------------
 	// Page
 	// -------------------------------------------------------------------------
 	
@@ -592,14 +622,25 @@ function wrap_set_defaults_post_conf() {
 		$zz_conf['translations_of_fields'] = false;
 	
 	// breadcrumbs
-	if (!isset($zz_page['breadcrumbs_separator']))
-		$zz_page['breadcrumbs_separator'] = '&gt;';
+	if (!isset($zz_setting['breadcrumbs_separator']))
+		$zz_setting['breadcrumbs_separator'] = '&gt;';
 	
 	// page title and project title
-	if (!isset($zz_page['template_pagetitle']))
-		$zz_page['template_pagetitle'] = '%1$s (%2$s)';
-	if (!isset($zz_page['template_pagetitle_home']))
-		$zz_page['template_pagetitle_home'] = '%1$s';
+	if (!isset($zz_setting['template_pagetitle']))
+		$zz_setting['template_pagetitle'] = '%1$s (%2$s)';
+	if (!isset($zz_setting['template_pagetitle_home']))
+		$zz_setting['template_pagetitle_home'] = '%1$s';
+	$zz_page['template_pagetitle'] = '%1$s | %2$s';
+
+	// @deprecated
+	$deprecated_zz_page = [
+		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home'
+	];
+	foreach ($deprecated_zz_page as $deprecated) {
+		if (!array_key_exists($deprecated, $zz_page)) continue;
+		wrap_error(sprintf('@deprecated: $zz_page["%s"] is now $zz_setting["%s"]', $deprecated, $deprecated), E_USER_DEPRECATED);
+		$zz_setting[$deprecated] = $zz_page[$deprecated];
+	}
 	
 	// allowed HTML rel attribute values
 	if (!isset($zz_setting['html_link_types'])) {
@@ -673,37 +714,7 @@ function wrap_set_defaults_post_conf() {
 		if (!isset($zz_conf['revisions_data_table']))
 			$zz_conf['revisions_data_table']	= '/*_PREFIX_*/_revisiondata';
 	}
-	
-	
-	// -------------------------------------------------------------------------
-	// Error Logging
-	// -------------------------------------------------------------------------
-	
-	if (!isset($zz_conf['error_log']['error']))
-		$zz_conf['error_log']['error']	= ini_get('error_log');
-	
-	if (!isset($zz_conf['error_log']['warning']))
-		$zz_conf['error_log']['warning']	= ini_get('error_log');
-	
-	if (!isset($zz_conf['error_log']['notice']))
-		$zz_conf['error_log']['notice']	= ini_get('error_log');
-	
-	if (!isset($zz_conf['log_errors']))
-		$zz_conf['log_errors'] 			= ini_get('log_errors');
-	
-	if (!isset($zz_conf['log_errors_max_len']))
-		$zz_conf['log_errors_max_len'] 	= ini_get('log_errors_max_len');
-	
-	if (!isset($zz_conf['translate_log_encodings']))
-		$zz_conf['translate_log_encodings'] = [
-			'iso-8859-2' => 'iso-8859-1'
-		];
-	if (!isset($zz_conf['error_log_post']))
-		$zz_conf['error_log_post']	= false;
-	
-	if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_from']))
-		$zz_conf['error_mail_parameters'] = '-f '.$zz_conf['error_mail_from'];
-	
+		
 	
 	// -------------------------------------------------------------------------
 	// Authentication
