@@ -969,13 +969,13 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 				$zz_sql['translation_matrix_breadcrumbs'] = '/*_PREFIX_*/webpages';
 
 				if (!empty($zz_setting['default_source_language'])) {
-					$zz_sql['translations'] = 'SELECT translation_id, translationfield_id, translation, field_id,
-					"'.$zz_setting['default_source_language'].'" AS source_language
-					FROM /*_PREFIX_*/_translations_%s translations
+					$zz_sql['translations'] = sprintf('SELECT translation_id, translationfield_id, translation, field_id,
+					"%s" AS source_language
+					FROM /*_PREFIX_*/_translations_%%s translations
 					LEFT JOIN /*_PREFIX_*/languages languages USING (language_id)
-					WHERE translationfield_id IN (%s) 
-						AND field_id IN (%s)
-						AND languages.iso_639_1 = "%s"';
+					WHERE translationfield_id IN (%%s) 
+						AND field_id IN (%%s)
+						AND languages.iso_639_1 = "%%s"', $zz_setting['default_source_language']);
 				}
 			}
 			
