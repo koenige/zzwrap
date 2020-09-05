@@ -614,6 +614,10 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 				// but with a non-canonical hostname here
 				return false;
 			}
+			if ($zz_page['url']['full'] === $referer) {
+				// made up hostname purportedly accessing from the same, non-existent URL
+				return false;
+			}
 			// if yes, return true, we don't know more about it
 			return true;
 		}
