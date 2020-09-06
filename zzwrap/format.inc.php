@@ -162,7 +162,7 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 		} else {
 			continue;
 		}
-	}	 
+	}
 
 	$_str = str_replace("{$spaceChar}{$spaceChar}", "{$spaceChar}",	$_str);
 	$_str = str_replace("{$spaceChar}-", '-',	$_str);
@@ -170,6 +170,8 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	if (substr($_str, -1) === $spaceChar) {
 		$_str = substr($_str, 0, -1);
 	}
+	// require at least one character
+	if (!$_str) $_str = $spaceChar;
 
 	wrap_set_encoding($zz_conf['character_set']);
 	return $_str;
