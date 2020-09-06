@@ -46,7 +46,9 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
-			$last_modified = filemtime($files[0]);
+			$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+			if (!$last_modified)
+				$last_modified = wrap_date(filemtime($files[0]), 'timestamp->rfc1123');
 			if ($fresh) {
 				$data = file_get_contents($files[0]);
 			} else {
