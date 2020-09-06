@@ -2860,6 +2860,11 @@ function wrap_setting_cfg() {
 		if (!file_exists($cfg_file)) continue;
 		$cfg += parse_ini_file($cfg_file, true);
 	}
+	foreach ($cfg as $index => $config) {
+		if (empty($config['description'])) continue;
+		if (is_array($config['description'])) continue;
+		$cfg[$index]['description'] = wrap_text($config['description']);
+	}
 	return $cfg;
 }
 
