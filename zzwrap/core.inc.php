@@ -751,7 +751,7 @@ function wrap_log_uri($status = 0) {
 			, $status
 			, !empty($zz_page['content_length']) ? $zz_page['content_length'] : 0
 			, !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '-'
-			, $_SERVER['HTTP_USER_AGENT']
+			, !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-'
 			, $zz_setting['hostname']
 		);
 		error_log($line, 3, $logfile);
