@@ -489,10 +489,13 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		if ($protocol === 'https') {
 			// ignore verification on development server if target is
 			// development server, too
-			if ($zz_setting['local_access'] AND wrap_substr($url, 'https://'.$zz_setting['hostname'])) {
-				$old_curl_ignore_ssl_verifyresult
-					= empty($zz_setting['curl_ignore_ssl_verifyresult']) ? false : true;
-				$zz_setting['curl_ignore_ssl_verifyresult'] = true;
+			if ($zz_setting['local_access']) {
+				$remote_url_parts = parse_url($url);
+				if (wrap_substr($remote_url_parts['host'], '.local', 'end')) {
+					$old_curl_ignore_ssl_verifyresult
+						= empty($zz_setting['curl_ignore_ssl_verifyresult']) ? false : true;
+					$zz_setting['curl_ignore_ssl_verifyresult'] = true;
+				}
 			}
 			if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
 				// not recommended, mainly for debugging!
