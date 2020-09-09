@@ -975,7 +975,7 @@ function wrap_htmlout_page($page) {
 	global $zz_conf;
 
 	// if globally dont_show_h1 is set, don't show it
-	if (!empty($zz_page['dont_show_h1'])) $page['dont_show_h1'] = true;
+	if (!empty($zz_setting['dont_show_h1'])) $page['dont_show_h1'] = true;
 
 	if (!isset($page['text'])) $page['text'] = '';
 	// init page
