@@ -1015,7 +1015,7 @@ function wrap_htmlout_page($page) {
 	unset($page['text']);
 	foreach ($textblocks as $position => $text) {
 		// add title to page, main text block
-		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND empty($zz_page['h1_via_template'])
+		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND empty($zz_setting['h1_via_template'])
 			AND $position === 'text') {
 			$text = "\n".markdown('# '.$page['title']."\n")."\n".$text;
 		}

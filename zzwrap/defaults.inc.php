@@ -634,7 +634,7 @@ function wrap_set_defaults_post_conf() {
 	// @deprecated
 	$deprecated_zz_page = [
 		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home',
-		'dont_show_h1'
+		'dont_show_h1', 'h1_via_template'
 	];
 	foreach ($deprecated_zz_page as $deprecated) {
 		if (empty($zz_page)) continue;
