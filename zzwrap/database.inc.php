@@ -1213,7 +1213,10 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 				foreach ($aliases as $id => $alias) {
 					parse_str($alias, $parameters);
 					if (empty($parameters['alias'])) continue;
-					$data[$table][$parameters['alias']] = $id;
+					// convert to string since PHP treats all integers
+					// from database as string, too
+					// and there are no calculations with IDs
+					$data[$table][$parameters['alias']] = strval($id);
 				}
 			}
 		}
