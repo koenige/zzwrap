@@ -201,7 +201,7 @@ function wrap_syndication_geocode($address) {
 	}
 	$region = isset($address['country']) ? $address['country'] : '';
 	// virtual place?
-	if ($region === '--') return [];
+	if ($region === '-' OR $region === '---') return [];
 
 	// place is optional
 	// remove parts of place name that are already found in other keys
