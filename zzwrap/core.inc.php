@@ -324,6 +324,16 @@ function wrap_look_for_file($url_path) {
 	$folders = !empty($zz_setting['modules']) ? $zz_setting['modules'] : [];
 	if ($zz_setting['active_theme']) array_unshift($folders, $zz_setting['active_theme']);
 
+	if ($zz_setting['active_theme'] AND !empty($zz_setting['icon_paths'])) {
+		if (in_array($url_path, $zz_setting['icon_paths'])) {
+			$file['name'] = sprintf('%s/%s%s', $zz_setting['themes_dir'], $zz_setting['active_theme'], $url_path);
+			if (file_exists($file['name'])) {
+				$file['etag_generate_md5'] = true;
+				wrap_file_send($file);
+			}
+		}
+	}
+
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (empty($zz_setting[$path.'_path'])) continue;

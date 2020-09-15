@@ -677,6 +677,11 @@ function wrap_set_defaults_post_conf() {
 			$zz_setting['files_path']
 		];
 	}
+	if (!isset($zz_setting['icon_paths'])) {
+		$zz_setting['icon_paths'] = ['/apple-touch-icon.png', '/favicon.ico', '/favicon.png'];
+	}
+	$zz_setting['dont_negotiate_language_paths'] =
+		array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['icon_paths']);
 	if (!isset($zz_setting['ignore_scheme_paths'])) {
 		$zz_setting['ignore_scheme_paths'] = [
 			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
