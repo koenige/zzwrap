@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.19, for osx10.13 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.21, for osx10.15 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8mb4
 -- ------------------------------------------------------
--- Server version	8.0.19
+-- Server version	8.0.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -93,11 +93,13 @@ DROP TABLE IF EXISTS `_settings`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_settings` (
   `setting_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `setting_key` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `setting_key` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `setting_value` varchar(750) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `explanation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `website_id` int unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`setting_id`),
-  UNIQUE KEY `setting_key` (`setting_key`)
+  UNIQUE KEY `setting_key_website_id` (`setting_key`,`website_id`),
+  KEY `website_id` (`website_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -313,7 +315,7 @@ CREATE TABLE `filetypes` (
   `extension` varchar(7) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`filetype_id`),
   UNIQUE KEY `filetype` (`filetype`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,7 +324,7 @@ CREATE TABLE `filetypes` (
 
 LOCK TABLES `filetypes` WRITE;
 /*!40000 ALTER TABLE `filetypes` DISABLE KEYS */;
-INSERT INTO `filetypes` VALUES (1,'jpeg','image','jpeg','JPEG Image','jpeg'),(2,'gif','image','gif','GIF Image','gif'),(3,'pdf','application','pdf','Portable Document Format','pdf'),(4,'txt','text','plain','Text File','txt'),(5,'html','text','html','Hypertext Markup Language','html'),(6,'tiff','image','tiff','TIFF Image','tif'),(7,'png','image','png','Portable Network Graphic','png'),(8,'rtf','text','rtf','Rich Text Format','rtf'),(9,'xls','application','vnd.ms-excel','MS Excel Document','xls'),(10,'3gp','video','3gpp','3GPP-Video','3gp'),(11,'zip','application','zip','ZIP Archive','zip'),(12,'doc','application','msword','MS Word Document','doc'),(14,'mdb','application','msaccess','MS Access Database','mdb'),(15,'dot','application','msword','MS Word Document Template','dot'),(16,'folder','example','x-folder',NULL,''),(17,'css','text','css','Cascading Stylesheets','css'),(18,'js','application','javascript','JavaScript','js');
+INSERT INTO `filetypes` VALUES (1,'jpeg','image','jpeg','JPEG Image','jpeg'),(2,'gif','image','gif','GIF Image','gif'),(3,'pdf','application','pdf','Portable Document Format','pdf'),(4,'txt','text','plain','Text File','txt'),(5,'html','text','html','Hypertext Markup Language','html'),(6,'tiff','image','tiff','TIFF Image','tif'),(7,'png','image','png','Portable Network Graphic','png'),(8,'rtf','text','rtf','Rich Text Format','rtf'),(9,'xls','application','vnd.ms-excel','MS Excel Document','xls'),(10,'3gp','video','3gpp','3GPP-Video','3gp'),(11,'zip','application','zip','ZIP Archive','zip'),(12,'doc','application','msword','MS Word Document','doc'),(14,'mdb','application','msaccess','MS Access Database','mdb'),(15,'dot','application','msword','MS Word Document Template','dot'),(16,'folder','example','x-folder',NULL,''),(17,'css','text','css','Cascading Stylesheets','css'),(18,'js','application','javascript','JavaScript','js'),(19,'youtube','application','octet-stream','YouTube Video','');
 /*!40000 ALTER TABLE `filetypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -417,6 +419,7 @@ CREATE TABLE `media` (
   `version` tinyint unsigned DEFAULT NULL,
   `width_px` mediumint unsigned DEFAULT NULL,
   `height_px` mediumint unsigned DEFAULT NULL,
+  `parameters` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
   KEY `filetype_id` (`filetype_id`),

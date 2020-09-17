@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.19, for osx10.13 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.21, for osx10.15 (x86_64)
 --
 -- Host: localhost    Database: zzproject_base_utf8mb4
 -- ------------------------------------------------------
--- Server version	8.0.19
+-- Server version	8.0.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -74,11 +74,13 @@ DROP TABLE IF EXISTS `_settings`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `_settings` (
   `setting_id` int unsigned NOT NULL AUTO_INCREMENT,
-  `setting_key` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `setting_key` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
   `setting_value` varchar(750) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `explanation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `website_id` int unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`setting_id`),
-  UNIQUE KEY `setting_key` (`setting_key`)
+  UNIQUE KEY `setting_key_website_id` (`setting_key`,`website_id`),
+  KEY `website_id` (`website_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -303,6 +305,7 @@ CREATE TABLE `media` (
   `version` tinyint unsigned DEFAULT NULL,
   `width_px` mediumint unsigned DEFAULT NULL,
   `height_px` mediumint unsigned DEFAULT NULL,
+  `parameters` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`medium_id`),
   KEY `filetype_id` (`filetype_id`),
