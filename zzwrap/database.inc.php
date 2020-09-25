@@ -44,13 +44,7 @@ function wrap_db_connect() {
 	// do we already have a connection?
 	if (!empty($zz_conf['db_connection'])) return true;
 	
-	// get connection details, files need to define
-	// $db_host, $db_user, $db_pwd, $zz_conf['db_name']
-	if (!isset($zz_setting['db_password_files']))
-		$zz_setting['db_password_files'] = [''];
-	elseif (!is_array($zz_setting['db_password_files']))
-		$zz_setting['db_password_files'] = [$zz_setting['db_password_files']];
-	
+	// local access: get local database name
 	if ($zz_setting['local_access']) {
 		if (!empty($zz_conf['db_name_local'])) {
 			$zz_conf['db_name'] = $zz_conf['db_name_local'];
@@ -63,41 +57,73 @@ function wrap_db_connect() {
 			}
 			session_write_close();
 		}
+	}
+	
+	// connect to database
+	$db = wrap_db_credentials();
+	if (empty($db['db_port'])) $db['db_port'] = NULL;
+	$zz_conf['db_connection'] = @mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
+	if (!$zz_conf['db_connection']) return false;
+
+	wrap_db_charset();
+	wrap_mysql_mode();
+	return true;
+}
+
+/**
+ * get connection details
+ * files need to define
+ * $db_host, $db_user, $db_pwd, $zz_conf['db_name']
+ *
+ * @return array
+ */
+function wrap_db_credentials() {
+	global $zz_setting;
+	global $zz_conf;
+
+	if (!isset($zz_setting['db_password_files']))
+		$zz_setting['db_password_files'] = [''];
+	elseif (!is_array($zz_setting['db_password_files']))
+		$zz_setting['db_password_files'] = [$zz_setting['db_password_files']];
+
+	if ($zz_setting['local_access']) {
 		array_unshift($zz_setting['db_password_files'], $zz_setting['local_pwd']);
 	}
+
 	$found = false;
+	$rewrite = false;
 	foreach ($zz_setting['db_password_files'] as $file) {
 		if (substr($file, 0, 1) !== '/') {
 			$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.inc.php';
 			if (!file_exists($filename)) {
 				$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.json';
 				if (!file_exists($filename)) continue;
-				$data = json_decode(file_get_contents($filename), true);
-				$db_host = $data['db_host'];
-				$db_user = $data['db_user'];
-				$db_pwd = $data['db_pwd'];
-				$zz_conf['db_name'] = $data['db_name'];
+				$db = json_decode(file_get_contents($filename), true);
+				$zz_conf['db_name'] = $db['db_name'];
 			} else {
 				include $filename;
+				$rewrite = true;
 			}
 		} elseif (!file_exists($file)) {
 			continue;
 		} else {
 			include $file;
+			$rewrite = true;
 		}
 		$found = true;
 		break;
 	}
 	if (!$found) wrap_error('No password file for database found.', E_USER_ERROR);
-	
-	// connect to database
-	if (empty($db_port)) $db_port = NULL;
-	$zz_conf['db_connection'] = @mysqli_connect($db_host, $db_user, $db_pwd, $zz_conf['db_name'], $db_port);
-	if (!$zz_conf['db_connection']) return false;
-
-	wrap_db_charset();
-	wrap_mysql_mode();
-	return true;
+	if ($rewrite) {
+		// $zz_conf['db_name'] should be set in pwd.inc.php
+		$db = [
+			'db_host' => $db_host,
+			'db_user' => $db_user,
+			'db_pwd' => $db_pwd,
+			'db_port' => isset($db_port) ? $db_port : false,
+		];	
+	}
+	return $db;
 }
 
 /**
