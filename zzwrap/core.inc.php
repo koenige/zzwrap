@@ -263,6 +263,8 @@ function wrap_look_for_page($zz_page) {
 			if (!wrap_rights('preview')) {
 				$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
 			}
+			if (!empty($zz_setting['multiple_websites']))
+				$sql = wrap_edit_sql($sql, 'WHERE', sprintf('website_id = %d', $zz_setting['website_id']));
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i])) {
 				// if not found, remove path parts from URL
