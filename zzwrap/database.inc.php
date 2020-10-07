@@ -80,6 +80,8 @@ function wrap_db_connect() {
 function wrap_db_credentials() {
 	global $zz_setting;
 	global $zz_conf;
+	static $db;
+	if (!empty($db)) return $db;
 
 	if (!isset($zz_setting['db_password_files']))
 		$zz_setting['db_password_files'] = [''];
