@@ -233,14 +233,12 @@ function wrap_session_cookietest_end($token) {
  * 
  * @param array $zz_page
  * @global array $zz_conf zz configuration variables
- * @global array $zz_setting
  * @return array $page
  */
 function wrap_look_for_page($zz_page) {
 	// no database connection or settings are missing
 	if (!wrap_sql('pages')) wrap_quit(503); 
 
-	global $zz_setting;
 	global $zz_conf;
 	$page = false;
 
@@ -263,8 +261,6 @@ function wrap_look_for_page($zz_page) {
 			if (!wrap_rights('preview')) {
 				$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
 			}
-			if (!empty($zz_setting['multiple_websites']))
-				$sql = wrap_edit_sql($sql, 'WHERE', sprintf('website_id = %d', $zz_setting['website_id']));
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i])) {
 				// if not found, remove path parts from URL

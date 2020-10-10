@@ -961,6 +961,8 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 	global $zz_setting;
 	static $zz_sql;
 	static $set;
+	static $modifications;
+	if (empty($modifications)) $modifications = [];
 	if (!isset($zz_sql)) $zz_sql = [];
 
 	// set variables
@@ -1034,7 +1036,20 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
 			$zz_sql['domain'] = [$zz_sql['domain']];
-
+		
+		if (!empty($zz_setting['multiple_websites'])) {
+			$modify_queries = [
+				'pages', 'redirects', 'redirects_*', 'redirects*_', 'breadcrumbs'
+			];
+			foreach ($modify_queries as $key) {
+				if (!in_array($key, $modifications) AND !empty($zz_sql[$key])) {
+					$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
+						, sprintf('website_id = %d', $zz_setting['website_id'])
+					);
+					$modifications[] = $key;
+				}
+			}
+		}
 		return true;
 	case 'add':
 		if (empty($zz_sql[$key])) {
