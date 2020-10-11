@@ -306,6 +306,29 @@ function wrap_look_for_page($zz_page) {
 }
 
 /**
+ * support some standard URLs if there’s no entry in webpages table for them
+ *
+ * @param array $url
+ * @return mixed false: nothing found, array: $page
+ */
+function wrap_well_known_url($url) {
+	global $zz_setting;
+
+	switch ($url['path']) {
+	case '/robots.txt':
+		$page['content_type'] = 'txt';
+		$page['text'] = '# robots.txt for '.$zz_setting['site'];
+		$page['status'] = 200;
+		return $page;
+	case '/.well-known/change-password':
+		if (empty($zz_setting['change_password_url'])) return false;
+		$page['text'] = '%%% redirect 303 '.$zz_setting['change_password_url'].' %%%';
+		return $page;
+	}
+	return false;
+}
+
+/**
  * check if there's a layout or behaviour file in one of the modules
  * then send it out
  *

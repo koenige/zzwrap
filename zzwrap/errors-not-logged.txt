@@ -308,3 +308,6 @@ qs	string	fbclid
 
 # looking for uploaded git repository information
 404	end	/.git/HEAD
+
+# .well-known URLs are normally not linked from a webpage
+404	begin	/.well-known

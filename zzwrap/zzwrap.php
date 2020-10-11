@@ -124,11 +124,16 @@ function zzwrap() {
 		}
 	}
 
-	// on error exit, after all files are included, check redirects
-	// Falls kein Eintrag in Datenbank, Umleitungen pruefen, ggf. 404 Fehler ausgeben.
+	// on error exit, after all files are included, check
+	// 1. well known URLs, 2. template files, 3. redirects
 	if (!$zz_page['db']) {
-		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
-		if (!$zz_page['tpl_file']) wrap_quit();
+		$well_known = wrap_well_known_url($zz_page['url']['full']);
+		if ($well_known) {
+			$zz_page['well_known'] = $well_known;
+		} else {
+			$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
+			if (!$zz_page['tpl_file']) wrap_quit();
+		}
 	}
 	
 	wrap_set_encoding($zz_conf['character_set']);
