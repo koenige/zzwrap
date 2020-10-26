@@ -989,10 +989,10 @@ function wrap_htmlout_page($page) {
 		if (substr($page['template'], -5) !== '-page')
 			$page['template'] .= '-page';
 		$tpl_file = wrap_template_file($page['template'], false);
-		if ($tpl_file) $zz_page['template'] = $page['template'];
+		if ($tpl_file) $zz_setting['template'] = $page['template'];
 	}
 	
-	$blocks = wrap_check_blocks($zz_page['template']);
+	$blocks = wrap_check_blocks($zz_setting['template']);
 	if (in_array('breadcrumbs', $blocks)
 		AND empty($page['breadcrumbs']) OR is_array($page['breadcrumbs'])) {
 		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
@@ -1049,7 +1049,7 @@ function wrap_htmlout_page($page) {
 		$page['text'] .= $zz_page['error_msg']."\n";
 	}
 
-	$text = wrap_template($zz_page['template'], $page);
+	$text = wrap_template($zz_setting['template'], $page);
 
 	// allow %%% notation on page with an escaping backslash
 	// but do not replace this in textareas because editing needs to be possible

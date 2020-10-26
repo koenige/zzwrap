@@ -15,10 +15,9 @@
 
 function wrap_install() {
 	global $zz_setting;
-	global $zz_page;
 	if (!$zz_setting['local_access']) return;
 
-	$zz_page['template'] = 'install-page';
+	$zz_setting['template'] = 'install-page';
 	wrap_include_ext_libraries();
 	$zz_setting['cache'] = false;
 	

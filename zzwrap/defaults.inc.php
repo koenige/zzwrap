@@ -634,7 +634,7 @@ function wrap_set_defaults_post_conf() {
 	// @deprecated
 	$deprecated_zz_page = [
 		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home',
-		'dont_show_h1', 'h1_via_template'
+		'dont_show_h1', 'h1_via_template', 'template'
 	];
 	foreach ($deprecated_zz_page as $deprecated) {
 		if (empty($zz_page)) continue;
@@ -660,8 +660,8 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['active_theme'])) $zz_setting['active_theme'] = '';
 	
 	// Page template
-	if (empty($zz_page['template'])) {
-		$zz_page['template'] = 'page';
+	if (empty($zz_setting['template'])) {
+		$zz_setting['template'] = 'page';
 	}
 	
 	// HTML paths, relative to DOCUMENT_ROOT

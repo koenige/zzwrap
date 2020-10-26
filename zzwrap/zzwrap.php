@@ -80,7 +80,7 @@ function zzwrap() {
 	// page offline?
 	if (wrap_get_setting('site_offline')) {
 		if ($tpl = wrap_get_setting('site_offline_template')) {
-			$zz_page['template'] = $tpl;
+			$zz_setting['template'] = $tpl;
 		}
 		wrap_quit(503, wrap_text('This page is currently offline.'));
 		exit;
