@@ -508,7 +508,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			}
 			if (isset($old_curl_ignore_ssl_verifyresult))
 				$zz_setting['curl_ignore_ssl_verifyresult'] = $old_curl_ignore_ssl_verifyresult;
-			// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
+			// Certficates are bundled with cURL from 7.10 onwards, PHP 5 requires at least 7.10
 			// so there should be currently no need to include an own PEM file
 			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
 		}
@@ -534,11 +534,11 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			$info = curl_getinfo($ch);
 			if ($info['download_content_length'] > $info['size_download']) {
 				wrap_error(sprintf(
-					'CURL incomplete download, URL %s: total %s, received %s'
+					'cURL incomplete download, URL %s: total %s, received %s'
 					, $url, $info['download_content_length'], $info['size_download']
 				));
 			} else {
-				wrap_error(sprintf('CURL error, URL %s: %s', $url, json_encode($info)));
+				wrap_error(sprintf('cURL error, URL %s: %s', $url, json_encode($info)));
 			}
 		}
 		curl_close($ch);
@@ -641,6 +641,7 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
 		if (!$locking_hash) {
 			file_put_contents($lockfile, $hash."\n");
 			if (trim(file_get_contents($lockfile)) === $hash) return false;
+			return true; // another process took over the lockfile
 		}
 		// 3. it's locked, so check if we overwrite the lock (no)
 		if (!$seconds) return true;
