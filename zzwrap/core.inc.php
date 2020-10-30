@@ -582,18 +582,36 @@ function wrap_glue_url($url) {
 	$base = !empty($zz_setting['base']) ? $zz_setting['base'] : '';
 	if (substr($base, -1) === '/') $base = substr($base, 0, -1);
 	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
-		$port = sprintf(':%s', $_SERVER['SERVER_PORT']);
+		$url['port'] = sprintf(':%s', $_SERVER['SERVER_PORT']);
 	} else {
-		$port = '';
+		$url['port'] = '';
 	}
 	if (!empty($url['path_forwarded']) AND wrap_substr($url['path'], $url['path_forwarded'])) {
 		$url['path'] = substr($url['path'], strlen($url['path_forwarded']));
 	}
 	// remove duplicate base
 	if (wrap_substr($url['path'], $base)) $base = '';
-	$full_url = $url['scheme'].'://'.$url['host'].$port.$base
-		.$url['path'].(!empty($url['query']) ? '?'.$url['query'] : '');
-	return $full_url;
+	$url['path'] = $base.$url['path'];
+	return wrap_build_url($url);
+}
+
+/**
+ * build a URL from parse_url() parts
+ *
+ * @param array
+ * @return string
+ */
+function wrap_build_url($parts) {
+	$url = $parts['scheme'].':'
+		.(!empty($parts['host']) ? '//' : '')
+		.(!empty($parts['user']) ? $parts['user']
+			.(!empty($parts['pass']) ? ':'.$parts['pass'] : '').'@' : '')
+		.(!empty($parts['host']) ? $parts['host'] : '')
+		.(!empty($parts['port']) ? ':'.$parts['port'] : '')
+		.(!empty($parts['path']) ? $parts['path'] : '')
+		.(!empty($parts['query']) ? '?'.$parts['query'] : '')
+		.(!empty($parts['fragment']) ? '#'.$parts['fragment'] : '');
+	return $url;
 }
 
 /**
