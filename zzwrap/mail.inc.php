@@ -280,9 +280,18 @@ function wrap_mail_log($mail, $additional_headers) {
 		.'To: '.$mail['to']."\n"
 		.'Subject: '.$mail['subject']."\n"
 		.$additional_headers."\n".$mail['message']
-		."\n\n".str_repeat('-', 77)."\n\n";
+		.wrap_mail_separator;
 	$text = str_replace("\r\n", "\n", $text);
 	file_put_contents($logfile, $text, FILE_APPEND | LOCK_EX);
+}
+
+/**
+ * set a separator for mails in mail log
+ *
+ * @return string
+ */
+function wrap_mail_separator() {
+	return "\n\n==>>".str_repeat('=', 69)."<<==\n\n";
 }
 
 /**
