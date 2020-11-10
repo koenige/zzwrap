@@ -643,6 +643,7 @@ function wrap_login_http_auth() {
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
 		header(sprintf('WWW-Authenticate: Basic realm="%s"', wrap_get_setting('project')));
 		wrap_http_status_header(401);
+		wrap_log_uri(401);
 		exit;
 	}
 	if (empty($_SERVER['PHP_AUTH_USER'])) return false;
