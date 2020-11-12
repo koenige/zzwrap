@@ -1028,6 +1028,9 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 			break;
 		default:
+			if (!empty($set[$key])) return true;
+			$set[$key] = true;
+			$zz_sql += wrap_system_sql($key);
 			break;
 		}
 		if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php')
