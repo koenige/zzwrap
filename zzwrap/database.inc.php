@@ -1042,7 +1042,8 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		
 		if (!empty($zz_setting['multiple_websites'])) {
 			$modify_queries = [
-				'pages', 'redirects', 'redirects_*', 'redirects*_', 'breadcrumbs'
+				'pages', 'redirects', 'redirects_*', 'redirects*_', 'breadcrumbs',
+				'menu'
 			];
 			foreach ($modify_queries as $key) {
 				if (!in_array($key, $modifications) AND !empty($zz_sql[$key])) {
