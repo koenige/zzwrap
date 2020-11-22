@@ -775,7 +775,7 @@ function wrap_log_uri($status = 0) {
 	if (!$status)
 		$status = !empty($zz_page['error_code']) ? $zz_page['error_code'] : 200;
 
-	if (wrap_get_setting('http_log')) {
+	if (!empty($zz_setting['http_log'])) {
 		$logdir = sprintf('%s/access/%s/%s'
 			, $zz_setting['log_dir']
 			, date('Y', $_SERVER['REQUEST_TIME'])
