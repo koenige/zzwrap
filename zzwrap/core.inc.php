@@ -298,11 +298,36 @@ function wrap_look_for_page($zz_page) {
 	asort($loops);
 	$i = key($loops);
 	$page = $page[$i];
+	if (!empty($page['parameters'])) wrap_page_parameters($page['parameters']);
 	if (!$page) return false;
 
 	$page['parameter'] = $parameter[$i];
 	$page['url'] = $url[$i];
 	return $page;
+}
+
+/**
+ * add page parameters to settings
+ *
+ * whitelist of possible parameters is generated from settings.cfg in modules
+ * setting needs page_parameter = 1
+ * @param string $params
+ * @global array $zz_setting
+ * @return bool
+ */
+function wrap_page_parameters($params) {
+	global $zz_setting;
+	
+	parse_str($params, $params);
+	if (!$params) return false;
+	$cfg = wrap_setting_cfg();
+	
+	foreach ($params as $key => $value) {
+		if (!array_key_exists($key, $cfg)) continue;
+		if (empty($cfg[$key]['page_parameter'])) continue;
+		$zz_setting[$key] = $value; 
+	}
+	return true;
 }
 
 /**
