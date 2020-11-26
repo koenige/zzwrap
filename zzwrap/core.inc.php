@@ -1435,7 +1435,9 @@ function wrap_file_send($file) {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
-	$suffix = substr($file['name'], strrpos($file['name'], ".") +1);
+	$suffix = substr($file['name'], strrpos($file['name'], '.') +1);
+	if (!wrap_substr($file['send_as'], '.'.$suffix, 'end'))
+		$file['send_as'] .= '.'.$suffix;
 	if (!isset($file['caching'])) $file['caching'] = true;
 
 	// Accept-Ranges HTTP header
@@ -1558,97 +1560,23 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	header_remove('Accept-Ranges');
 
 	// Content-Type HTTP header
-	// Content-Disposition HTTP header
-	$filename = '';
-	$content_disposition = 'attachment';
-	switch ($type) {
-	case 'html':
-		$zz_page['content_type'] = 'text/html';
-		$zz_page['character_set'] = $zz_conf['character_set'];
-		break;
-	case 'json':
-		$zz_page['content_type'] = 'application/json';
-		$zz_page['character_set'] = 'utf-8';
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.json';
-		break;
-	case 'jsonl':
-		$zz_page['content_type'] = 'application/json';
-		$zz_page['character_set'] = 'utf-8';
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.jsonl';
-		break;
-	case 'geojson':
-		$zz_page['content_type'] = 'application/javascript'; // geo+json currently not widely supported as of 2018
-		$zz_page['character_set'] = 'utf-8';
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.geojson';
-		break;
-	case 'js':
-		$zz_page['content_type'] = 'application/javascript';
-		$zz_page['character_set'] = $zz_conf['character_set'];
-		break;
-	case 'kml':
-		$zz_page['content_type'] = 'application/vnd.google-earth.kml+xml';
-		$zz_page['character_set'] = 'utf-8';
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.kml';
-		break;
-	case 'mediarss':
-		$zz_page['content_type'] = 'application/xhtml+xml';
-		$zz_page['character_set'] = 'utf-8';
-		break;
-	case 'xml':
-		$zz_page['content_type'] = 'application/xml';
-		$zz_page['character_set'] = $zz_conf['character_set'];
-		break;
-	case 'txt':
-		$zz_page['content_type'] = 'text/plain';
-		$zz_page['character_set'] = $zz_conf['character_set'];
-		break;
-	case 'csv':
-		if (!empty($_SERVER['HTTP_USER_AGENT']) 
-			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
-		{
-			wrap_cache_header('Cache-Control: max-age=1'); // in seconds
-			wrap_cache_header('Pragma: public');
+	$filetype_cfg = wrap_filetypes($type);
+	if ($filetype_cfg) {
+		$zz_page['content_type'] = $filetype_cfg['mime'][0];
+		$mime = explode('/', $zz_page['content_type']);
+		if (in_array($mime[0], ['text', 'application'])) {
+			if (!empty($filetype_cfg['encoding'])) {
+				$zz_page['character_set'] = $filetype_cfg['encoding'];
+			} elseif (!empty($headers['character_set'])) {
+				$zz_page['character_set'] = $headers['character_set'];
+			} else {
+				$zz_page['character_set'] = $zz_conf['character_set'];
+			}
+			if ($zz_page['character_set'] === 'utf-16le') {
+				// Add BOM, little endian
+				$text = chr(255).chr(254).$text;
+			}
 		}
-		$zz_page['content_type'] = 'text/csv';
-		$zz_page['character_set'] = !empty($headers['character_set']) ? $headers['character_set'] : $zz_conf['character_set'];
-		if ($zz_page['character_set'] === 'utf-16le') {
-			// Add BOM, little endian
-			$text = chr(255).chr(254).$text;
-		}
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.csv';
-		break;
-	case 'css':
-		$zz_page['content_type'] = 'text/css';
-		$zz_page['character_set'] = $zz_conf['character_set'];
-		break;
-	case 'ics':
-		$zz_page['content_type'] = 'text/calendar';
-		$zz_page['character_set'] = 'utf-8';
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.ics';
-		break;
-	case 'pgn':
-		$zz_page['content_type'] = 'application/x-chess-pgn';
-		$zz_page['character_set'] = $zz_conf['character_set']; // utf-8 and latin1 possible
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.pgn';
-		break;
-	case 'png':
-		$zz_page['content_type'] = 'image/png';
-		$filename = isset($headers['filename']) ? $headers['filename'] : 'download.png';
-		$content_disposition = 'inline';
-		break;
-	default:
-		break;
-	}
-
-	// Content-Length HTTP header
-	// might be overwritten later
-	$zz_page['content_length'] = strlen($text);
-	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
-
-	if ($filename) {
-		wrap_http_content_disposition($content_disposition, $filename);
-	}
-	if (!empty($zz_page['content_type'])) {
 		if (!empty($zz_page['character_set'])) {
 			wrap_cache_header(sprintf('Content-Type: %s; charset=%s', $zz_page['content_type'], 
 				$zz_page['character_set']));
@@ -1656,6 +1584,27 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 			wrap_cache_header(sprintf('Content-Type: %s', $zz_page['content_type']));
 		}
 	}
+
+	// Content-Disposition HTTP header
+	if (!empty($filetype_cfg['content_disposition'])) {
+		wrap_http_content_disposition(
+			$filetype_cfg['content_disposition'],
+			isset($headers['filename']) ? $headers['filename'] : 'download.'.$filetype_cfg['extension'][0]
+		);
+	}
+	if ($type === 'csv') {
+		if (!empty($_SERVER['HTTP_USER_AGENT']) 
+			AND strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE'))
+		{
+			wrap_cache_header('Cache-Control: max-age=1'); // in seconds
+			wrap_cache_header('Pragma: public');
+		}
+	}
+
+	// Content-Length HTTP header
+	// might be overwritten later
+	$zz_page['content_length'] = strlen($text);
+	wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 
 	// ETag HTTP header
 	// check whether content is identical to previously sent content
