@@ -2956,3 +2956,118 @@ function wrap_unlink_recursive($folder) {
 	}
 	rmdir($folder);
 }
+
+/**
+ * check for files in modules and custom folders, start with default folder
+ *
+ * @param string $tpl template for filename with two placeholders
+ * @param string $order modules/custom or custom/modules
+ * @return array
+ */
+function wrap_collect_files($filename, $order = 'custom/modules') {
+	global $zz_setting;
+
+	$files = [];
+	// check modules (default always is first module)
+	foreach ($zz_setting['modules'] as $module) {
+		// disable default module?
+		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
+			continue;
+		$file = sprintf('%s/%s/%s/%s', $zz_setting['modules_dir'], $module, $module, $filename);
+		if (file_exists($file)) $files[] = $file;
+	}
+
+	// check custom folder
+	$file = sprintf('%s/%s', $zz_setting['custom_wrap_dir'], $filename);
+	if (file_exists($file)) {
+		if ($order === 'custom/modules') {
+			array_unshift($files, $file);
+		} else {
+			$files[] = $file;
+		}
+	}
+
+	return $files;
+}
+
+/**
+ * list filetypes
+ *
+ * @param string $filetype read configuration values for this filetype
+ * @param string $action (optional, default 'read', 'write')
+ * @return 
+ */
+function wrap_filetypes($filetype = false, $action = 'read') {
+	global $zz_setting;
+	static $filetypes;
+	
+	if (empty($filetypes)) {
+		$filetypes = [];
+		$files = wrap_collect_files('filetypes.cfg', 'modules/custom');
+		foreach ($files as $filename) {
+			$filetypes = wrap_filetypes_add($filename, $filetypes);
+		}
+	}
+
+	switch ($action) {
+	case 'read':
+		if (!$filetype) return $filetypes;
+		if (!array_key_exists($filetype, $filetypes)) return [];
+		return $filetypes[$filetype];
+	case 'write':
+		// @todo not yet supported
+		break;
+	}
+}
+
+/**
+ * add content of file to filetypes configuration
+ *
+ * @param string $filename
+ * @param array $filetypes
+ * @return array
+ */
+function wrap_filetypes_add($filename, $filetypes) {
+	$new_filetypes = parse_ini_file($filename, true);
+	$new_filetypes = wrap_filetypes_normalize($new_filetypes);
+	foreach ($new_filetypes as $filetype => $definition) {
+		// add or overwrite existing definitions
+		$filetypes[$filetype] = $definition;
+	}
+	return $filetypes;
+}
+
+/**
+ * set some values for filetypes array, allow shortcuts in definition
+ *
+ * @param array $filetypes
+ * @return array $filetypes
+ *		indexed by string type
+ *		string 'description'
+ *		array 'mime'
+ *		array 'extension'
+ *		bool 'thumbnail'
+ *		bool 'multipage'
+ */
+function wrap_filetypes_normalize($filetypes) {
+	foreach ($filetypes as $type => $values) {
+		$filetypes[$type]['filetype'] = $type;
+		if (empty($values['mime'])) {
+			$filetypes[$type]['mime'][0] = 'application/octet-stream';
+		} elseif (!is_array($values['mime'])) {
+			$filetypes[$type]['mime'] = [0 => $values['mime']];
+		}
+		if (empty($values['extension'])) {
+			$filetypes[$type]['extension'][0] = $type;
+		} elseif (!is_array($values['extension'])) {
+			$filetypes[$type]['extension'] = [0 => $values['extension']];
+		}
+		if (!array_key_exists('thumbnail', $values)) {
+			 $filetypes[$type]['thumbnail'] = 0;
+		}
+		if (!array_key_exists('multipage', $values)) {
+			 $filetypes[$type]['multipage'] = 0;
+		}
+	}
+	return $filetypes;
+}
