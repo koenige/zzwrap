@@ -150,6 +150,7 @@
 404	ua	Mozilla/5.0 (compatible;Webintegration Jobroboter WebSpider/7;+http://www.webintegration.at)
 404	ua	Mozilla/5.0 (compatible;picmole/1.0 +http://www.picmole.com)
 404	ua	Mozilla/5.0 (compatible; heritrix/3.1.1 +http://www.mixdata.com)
+404	ua	arquivo-web-crawler (compatible; heritrix/3.4.0-20200304 +http://arquivo.pt)
 
 # Facebook is broken as well
 404	ua	facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
