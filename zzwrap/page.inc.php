@@ -1031,6 +1031,8 @@ function wrap_htmlout_page($page) {
 		} else {
 			$page[$position] = $output['text'];
 		}
+		if (isset($output['media']) AND $output['media'] !== [])
+			$page['media'] = $output['media'];
 	}
 	if (!empty($page['text']) AND is_array($page['text'])) {
 		// positions?
