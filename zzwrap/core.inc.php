@@ -1409,7 +1409,8 @@ function wrap_check_http_request_method() {
  *		'error_code' => HTTP error code to send in case of file not found error
  *		'error_msg' => additional error message that appears on error page,
  *		'etag_generate_md5' => creates 'etag' if not send with MD5,
- *		'caching' => bool; defaults to true, false = no caching allowed
+ *		'caching' => bool; defaults to true, false = no caching allowed,
+ *		'ext' => use this extension, do not try to determine it from file ending
  * @global array $zz_conf
  * @todo send pragma public header only if browser that is affected by this bug
  * @todo implement Ranges for bytes
@@ -1435,7 +1436,7 @@ function wrap_file_send($file) {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
-	$suffix = substr($file['name'], strrpos($file['name'], '.') +1);
+	$suffix = !empty($file['ext']) ? $file['ext'] : wrap_file_extension($file['name']);
 	if (!wrap_substr($file['send_as'], '.'.$suffix, 'end'))
 		$file['send_as'] .= '.'.$suffix;
 	if (!isset($file['caching'])) $file['caching'] = true;
