@@ -2871,24 +2871,35 @@ function wrap_setting_value($string) {
 /**
  * read default settings from .cfg files
  *
+ * @param string $single_module (optional)
  * @return array
  */
-function wrap_setting_cfg() {
+function wrap_setting_cfg($single_module = false) {
 	global $zz_setting;
 	static $cfg;
-	if (!empty($cfg)) return $cfg;
+	if ($single_module) {
+		if (!empty($single_cfg[$single_module]))
+			return $single_cfg[$single_module];
+	} elseif (!empty($cfg)) {
+		return $cfg;
+	}
 
 	$cfg_file_template = sprintf('%s/%%s/docs/sql/settings.cfg', $zz_setting['modules_dir']);
 	$cfg = [];
 	foreach ($zz_setting['modules'] as $module) {
 		$cfg_file = sprintf($cfg_file_template, $module);
 		if (!file_exists($cfg_file)) continue;
-		$cfg += parse_ini_file($cfg_file, true);
+		$single_cfg[$module] = parse_ini_file($cfg_file, true);
+		foreach ($single_cfg[$module] as $index => $config) {
+			if (empty($config['description'])) continue;
+			if (is_array($config['description'])) continue;
+			$single_cfg[$module][$index]['description'] = wrap_text($config['description']);
+		}
+		$cfg += $single_cfg;
 	}
-	foreach ($cfg as $index => $config) {
-		if (empty($config['description'])) continue;
-		if (is_array($config['description'])) continue;
-		$cfg[$index]['description'] = wrap_text($config['description']);
+	if ($single_module) {
+		if (!array_key_exists($single_module, $single_cfg)) return [];
+		return $single_cfg[$single_module];
 	}
 	return $cfg;
 }
