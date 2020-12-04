@@ -962,6 +962,18 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 }
 
 /**
+ * Redirects after something was POSTed
+ * 
+ * @param string $url (default = own URL)
+ */
+function wrap_redirect_change($url = false) {
+	global $zz_setting;
+	if (!$url)
+		$url = $zz_setting['host_base'].$zz_setting['request_uri'];
+	return wrap_redirect($url, 303, true);
+}
+
+/**
  * Outputs a HTML page from a %%%-template
  * 
  * allow %%% page ... %%%-syntax
