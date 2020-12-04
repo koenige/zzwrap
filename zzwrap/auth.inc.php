@@ -543,7 +543,7 @@ function cms_login_redirect($url, $querystring = []) {
 		else
 			$url .= '?no-cookie';
 	}
-	wrap_redirect($zz_setting['host_base'].$url, 303, false);
+	wrap_redirect_change($url);
 	exit;
 }
 

@@ -33,7 +33,7 @@ function wrap_install() {
 	}
 
 	if ($page['text'] === true) {
-		return brick_format('%%% redirect 303 '.$_SERVER['REQUEST_URI'].' %%%');
+		return wrap_redirect_change();
 	} elseif ($page['text'] === false) {
 		return false;
 	}
@@ -299,6 +299,6 @@ function wrap_install_finish() {
 	$success = wrap_setting_write('zzform_db_name_local', $_SESSION['db_name_local']);
 	if ($success) {
 		$_SESSION['step'] = 'finish';
-		return brick_format('%%% redirect 303 '.$zz_setting['login_entryurl'].' %%%');
+		return wrap_redirect_change($zz_setting['login_entryurl']);
 	}
 }
