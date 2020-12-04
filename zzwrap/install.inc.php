@@ -193,16 +193,21 @@ function wrap_install_settings() {
 /**
  * show settings on a page
  *
+ * @param string $module (optional)
  * @return string
  */
-function wrap_install_settings_page() {
-	$cfg = wrap_setting_cfg();
+function wrap_install_settings_page($module = false) {
+	$cfg = wrap_setting_cfg($module);
 	$data = [];
+	$found = false;
 	foreach ($cfg as $key => $line) {
+		if (!empty($line['required']) OR !empty($line['install'])) $found = true;
 		$line['id'] = str_replace('[', '%5B', $key);
 		if (empty($line['type'])) $line['type'] = 'text';
 		$data[] = $line + ['key' => $key, $line['type'] => 1];
 	}
+	if (!$found) return false;
+	if ($module) $data['module'] = $module;
 	return wrap_template('install-settings', $data);
 }
 
