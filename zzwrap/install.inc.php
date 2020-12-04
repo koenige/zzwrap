@@ -141,7 +141,8 @@ function wrap_install_zzform() {
 		'host' => $zz_setting['hostname'],
 		'path' => $zz_setting['request_uri']
 	];
-	$db = mysqli_select_db($zz_conf['db_connection'], $_SESSION['db_name_local']);
+	if (!empty($_SESSION['db_name_local']))
+		$db = mysqli_select_db($zz_conf['db_connection'], $_SESSION['db_name_local']);
 	return;
 }
 
