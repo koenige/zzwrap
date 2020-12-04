@@ -118,6 +118,7 @@ function wrap_install_module($module) {
 		if ($success)
 			zz_log_sql($query, 'Crew droid Robot 571');
 	}
+	wrap_setting_write('mod_'.$module.'_install_date', date('Y-m-d H:i:s'));
 	return true;
 }
 
