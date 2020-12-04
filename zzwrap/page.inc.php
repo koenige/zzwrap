@@ -970,6 +970,8 @@ function wrap_redirect_change($url = false) {
 	global $zz_setting;
 	if (!$url)
 		$url = $zz_setting['host_base'].$zz_setting['request_uri'];
+	if (substr($url, 0, 1) === '/')
+		$url = $zz_setting['host_base'].$url;
 	return wrap_redirect($url, 303, true);
 }
 
