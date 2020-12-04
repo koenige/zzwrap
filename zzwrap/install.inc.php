@@ -178,42 +178,24 @@ function wrap_install_user() {
  * @return mixed
  */
 function wrap_install_settings() {
-	global $zz_setting;
-	global $zz_conf;
 	wrap_install_zzform();
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-		// write settings
-		foreach ($_POST as $key => $value) {
-			if (!$value) continue;
-			$key = str_replace('%5B', '[', $key);
-			wrap_setting_write($key, $value);
-		}
-		// mk_dir folders
-		$configs = ['zz_setting', 'zz_conf'];
-		foreach ($configs as $config) {
-			foreach ($$config as $key => $value) {
-				if (!wrap_substr($key, '_dir', 'end')
-					AND !wrap_substr($key, '_folder', 'end')) continue;
-				if (file_exists($value)) continue;
-				wrap_mkdir($value);
-			}
-		}
-		$folders = [
-			'_inc/custom/zzbrick_forms', '_inc/custom/zzbrick_make', 
-			'_inc/custom/zzbrick_page', '_inc/custom/zzbrick_request', 
-			'_inc/custom/zzbrick_request_get', '_inc/custom/zzbrick_tables', 
-			'_inc/custom/zzform', 'docs/data', 'docs/examples',
-			'docs/screenshots', 'docs/sql', 'docs/templates', 'docs/todo'
-		];
-		foreach ($folders as $folder) {
-			$folder = $zz_setting['cms_dir'].'/'.$folder;
-			if (file_exists($folder)) continue;
-			wrap_mkdir($folder);
-		}
+		wrap_install_settings_write();
+		wrap_install_settings_folders();
 		$_SESSION['step'] = 4;
 		return true;
 	}
+	$page['text'] = wrap_install_settings_page();
+	return $page;
+}
+
+/**
+ * show settings on a page
+ *
+ * @return string
+ */
+function wrap_install_settings_page() {
 	$cfg = wrap_setting_cfg();
 	$data = [];
 	foreach ($cfg as $key => $line) {
@@ -221,8 +203,56 @@ function wrap_install_settings() {
 		if (empty($line['type'])) $line['type'] = 'text';
 		$data[] = $line + ['key' => $key, $line['type'] => 1];
 	}
-	$page['text'] = wrap_template('install-settings', $data);
-	return $page;
+	return wrap_template('install-settings', $data);
+}
+
+/**
+ * write posted settings
+ *
+ * @param void
+ * @return bool
+ */
+function wrap_install_settings_write() {
+	foreach ($_POST as $key => $value) {
+		if (!$value) continue;
+		$key = str_replace('%5B', '[', $key);
+		wrap_setting_write($key, $value);
+	}
+	return true;
+}
+
+/**
+ * create folders for CMS
+ *
+ * @param void
+ * @return bool
+ */
+function wrap_install_settings_folders() {
+	global $zz_setting;
+	global $zz_conf;
+
+	$configs = ['zz_setting', 'zz_conf'];
+	foreach ($configs as $config) {
+		foreach ($$config as $key => $value) {
+			if (!wrap_substr($key, '_dir', 'end')
+				AND !wrap_substr($key, '_folder', 'end')) continue;
+			if (file_exists($value)) continue;
+			wrap_mkdir($value);
+		}
+	}
+	$folders = [
+		'_inc/custom/zzbrick_forms', '_inc/custom/zzbrick_make', 
+		'_inc/custom/zzbrick_page', '_inc/custom/zzbrick_request', 
+		'_inc/custom/zzbrick_request_get', '_inc/custom/zzbrick_tables', 
+		'_inc/custom/zzform', 'docs/data', 'docs/examples',
+		'docs/screenshots', 'docs/sql', 'docs/templates', 'docs/todo'
+	];
+	foreach ($folders as $folder) {
+		$folder = $zz_setting['cms_dir'].'/'.$folder;
+		if (file_exists($folder)) continue;
+		wrap_mkdir($folder);
+	}
+	return true;
 }
 
 /**
