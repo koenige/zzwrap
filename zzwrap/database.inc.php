@@ -1292,7 +1292,8 @@ function wrap_filetype_id($filetype, $action = 'read') {
  *
  * @param string $table
  * @param string $identifier
- * @param string $action (optional, default 'read', 'list', 'write')
+ * @param string $action (optional, default 'read', 'list', 'write', 'check')
+ *		check does not log an error if ID is not found
  * @param string $value (optional, for 'write')
  * @param string $sql (optional, SQL query)
  * @return mixed
@@ -1332,9 +1333,13 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 	case 'write':
 		$data[$table][$identifier] = $value;
 		return $value;
+	case 'check':
 	case 'read':
 		if (!array_key_exists($identifier, $data[$table])) {
-			wrap_error(sprintf('ID value for table `%s`, key `%s` not found.', $table, $identifier));
+			if ($action === 'read')
+				wrap_error(sprintf(
+					'ID value for table `%s`, key `%s` not found.', $table, $identifier
+				));
 			return false;
 		}
 		return $data[$table][$identifier];
