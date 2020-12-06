@@ -2894,7 +2894,7 @@ function wrap_setting_cfg($single_module = false) {
 			if (is_array($config['description'])) continue;
 			$single_cfg[$module][$index]['description'] = wrap_text($config['description']);
 		}
-		$cfg += $single_cfg;
+		$cfg += $single_cfg[$module];
 	}
 	if ($single_module) {
 		if (!array_key_exists($single_module, $single_cfg)) return [];
