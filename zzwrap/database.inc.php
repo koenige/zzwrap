@@ -1047,9 +1047,18 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			];
 			foreach ($modify_queries as $key) {
 				if (!in_array($key, $modifications) AND !empty($zz_sql[$key])) {
-					$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
-						, sprintf('website_id = %d', $zz_setting['website_id'])
-					);
+					if (isset($zz_sql[$key.'_websites_where'])) {
+						// allow local modifications, e. g. menu_websites_where
+						if ($zz_sql[$key.'_websites_where']) {
+							$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
+								, $zz_sql[$key.'_websites_where']
+							);
+						}
+					} else {
+						$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
+							, sprintf('website_id = %d', $zz_setting['website_id'])
+						);
+					}
 					$modifications[] = $key;
 				}
 			}
