@@ -312,3 +312,6 @@ qs	string	fbclid
 
 # .well-known URLs are normally not linked from a webpage
 404	begin	/.well-known
+
+# some guys from Tallin looking for unprotected environment variables
+404	end	/.env
