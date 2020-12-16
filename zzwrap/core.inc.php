@@ -2955,9 +2955,10 @@ function wrap_collect_files($filename, $order = 'custom/modules') {
  *
  * @param string $filetype read configuration values for this filetype
  * @param string $action (optional, default 'read', 'write')
+ * @param array $definition new definition
  * @return 
  */
-function wrap_filetypes($filetype = false, $action = 'read') {
+function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 	global $zz_setting;
 	static $filetypes;
 	
@@ -2976,6 +2977,33 @@ function wrap_filetypes($filetype = false, $action = 'read') {
 		return $filetypes[$filetype];
 	case 'write':
 		// @todo not yet supported
+		break;
+	case 'merge':
+		if (!array_key_exists($filetype, $filetypes)) {
+			$definition = wrap_filetypes_normalize([$filetype => $definition]);
+			$filetypes[$filetype] = reset($definition);
+		} else {
+			$old = $filetypes[$filetype];
+			foreach ($definition as $key => $value) {
+				if ($key === 'filetype') continue; // never changes
+				if (empty($filetypes[$filetype][$key])) {
+				// add
+					$filetypes[$filetype][$key] = $value;
+				} elseif (is_array($filetypes[$filetype][$key])) {
+				// merge, prepend new values at the beginning
+					if (!is_array($value)) $value = [$value];
+					$value = array_reverse($value);
+					foreach ($value as $item) {
+						array_unshift($filetypes[$filetype][$key], $item);
+					}
+					$filetypes[$filetype][$key] = array_unique($filetypes[$filetype][$key]);
+					$filetypes[$filetype][$key] = array_values($filetypes[$filetype][$key]);
+				} else {
+				// overwrite
+					$filetypes[$filetype][$key] = $value;
+				}
+			}
+		}
 		break;
 	}
 }
