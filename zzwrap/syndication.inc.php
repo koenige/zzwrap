@@ -541,7 +541,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				wrap_error(sprintf('cURL error, URL %s: %s', $url, json_encode($info)));
 			}
 		}
-		curl_close($ch);
+		curl_close($ch); // @deprecated in php8 (has no effect anymore)
 		if (!$timeout_ignore) {
 			$lines = explode("\r\n", $data);
 			$headers = [];
