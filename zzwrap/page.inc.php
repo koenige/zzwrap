@@ -965,12 +965,20 @@ function wrap_redirect($location, $status = 302, $cache = true) {
  * Redirects after something was POSTed
  * 
  * @param string $url (default = own URL)
+ * 		shortcuts allowed: starting / = own server; ? = append query string
+ *		# = append anchor
  */
 function wrap_redirect_change($url = false) {
 	global $zz_setting;
 	if (!$url)
 		$url = $zz_setting['host_base'].$zz_setting['request_uri'];
-	if (substr($url, 0, 1) === '/')
+	if (substr($url, 0, 1) === '#')
+		$url = $zz_setting['host_base'].$zz_setting['request_uri'].$url;
+	elseif (substr($url, 0, 1) === '?') {
+		$request_uri = $zz_setting['request_uri'];
+		if (strstr($request_uri, '?')) $url = '&'.substr($url, 1);
+		$url = $zz_setting['host_base'].$request_uri.$url;
+	} elseif (substr($url, 0, 1) === '/')
 		$url = $zz_setting['host_base'].$url;
 	return wrap_redirect($url, 303, true);
 }
