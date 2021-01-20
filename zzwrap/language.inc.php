@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018, 2020-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -491,14 +491,15 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 			}
 			foreach ($tl_ids as $tl_id) {
 				if (isset($data[$tl_id][$field_name])) {
-					// only save fields that already existed beforehands
-					$data[$tl_id][$field_name] = $tl['translation'];
-					$translated_fields++;
 					if (!empty($tl['source_language'])) {
 						// language information if inside query, otherwise existing information
 						// in $data will be left as is
 						$data[$tl_id]['wrap_source_language'][$field_name] = $tl['source_language'];
+						$data[$tl_id]['wrap_source_content'][$field_name] = $data[$tl_id][$field_name];
 					}
+					// only save fields that already existed beforehands
+					$data[$tl_id][$field_name] = $tl['translation'];
+					$translated_fields++;
 				} else {
 					// ok, we do not care about this field, so don't count on it
 					$all_fields_to_translate--;
