@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -187,6 +187,7 @@ function wrap_mail_headers($mail) {
  * @return string
  */
 function wrap_mail_name($name) {
+	global $zz_conf;
 	if (!is_array($name)) {
 		// add brackets, there are checks that think brackets
 		// show that a mail is less likely to be junk
@@ -215,7 +216,8 @@ function wrap_mail_name($name) {
 		$name['name'] = str_replace("\r", "", $name['name']);
 		// patterns that are allowed for atom
 		$pattern_unquoted = "/^[a-z0-9 \t!#$%&'*+\-^?=~{|}_`\/]*$/i";
-		$name['name'] = mb_encode_mimeheader($name['name']);
+		// do not add line break (or preg_match would not work for long lines)
+		$name['name'] = mb_encode_mimeheader($name['name'], $zz_conf['character_set'], $zz_conf['character_set'], "");
 		if (!preg_match($pattern_unquoted, $name['name'])) {
 			// alternatively use quoted-string
 			// @todo: allow quoted-pair
