@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -940,6 +940,44 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
 	case 'H:i':
 		return sprintf('%d:%02d', $data['hour'], $data['minute']);
 	}
+}
+
+/**
+ * return weekday abbreviation for a given day of the week starting with Sunday = 1
+ *
+ * @param string $day
+ * @param string $lang (optional, uses $zz_setting['lang'] as default)
+ * @return string
+ */
+function wrap_weekday($day, $lang = '') {
+	switch ($day) {
+		case 1: return wrap_text('Sun', $lang);
+		case 2: return wrap_text('Mon', $lang);
+		case 3: return wrap_text('Tue', $lang);
+		case 4: return wrap_text('Wed', $lang);
+		case 5: return wrap_text('Thu', $lang);
+		case 6: return wrap_text('Fri', $lang);
+		case 7: return wrap_text('Sat', $lang);
+	}
+	return $day;
+}
+
+/**
+ * replace weekday abbreviations for a data list and certain field names
+ *
+ * @param array $data data indexed by ID
+ * @param array $fields list with name of fields
+ * @param string $lang (optional, uses $zz_setting['lang'] as default)
+ * @return array
+ */
+function wrap_weekdays($data, $fields, $lang) {
+	foreach ($data as $id => $line) {
+		foreach ($fields as $field) {
+			if (!array_key_exists($field, $data[$id])) continue;
+			$data[$id][$field] = wrap_weekday($line[$field], $lang);
+		}
+	}
+	return $data;
 }
 
 /**
