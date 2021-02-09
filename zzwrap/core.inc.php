@@ -9,7 +9,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2724,6 +2724,7 @@ function wrap_is_int($var) {
  */
 function wrap_setting_write($key, $value, $login_id = 0) {
 	global $zz_conf;
+	global $zz_setting;
 
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
@@ -2754,6 +2755,8 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 			require_once $zz_conf['dir_inc'].'/database.inc.php';
 			zz_log_sql($sql, (!empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['user']), $id);
 		}
+		// activate setting
+		if (!$login_id) $zz_setting[$key] = $value;
 		return true;
 	}
 
