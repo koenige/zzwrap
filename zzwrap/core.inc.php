@@ -2756,7 +2756,9 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 			zz_log_sql($sql, (!empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['user']), $id);
 		}
 		// activate setting
-		if (!$login_id) $zz_setting[$key] = $value;
+		if (!$login_id) {
+			$zz_setting += wrap_setting_key($key, $value);
+		}
 		return true;
 	}
 
