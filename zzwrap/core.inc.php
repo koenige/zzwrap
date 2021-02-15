@@ -809,7 +809,7 @@ function wrap_log_uri($status = 0) {
 		$logfile = sprintf('%s/%s%s-access-%s.log'
 			, $logdir
 			, str_replace('/', '-', $zz_setting['site'])
-			, $_SERVER['REQUEST_SCHEME'] === 'https' ? '-ssl' : ''
+			, (isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') ? '-ssl' : ''
 			, date('Y-m-d', $_SERVER['REQUEST_TIME'])
 		);
 		$line = sprintf(
