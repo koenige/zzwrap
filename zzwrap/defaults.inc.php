@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -180,11 +180,11 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['brick_fulltextformat'] = 'markdown';
 	// functions that might be used for formatting (zzbrick)
 	$zz_setting['brick_formatting_functions'] = [
-		'markdown', 'wrap_date', 'rawurlencode', 'wordwrap', 'nl2br',
-		'htmlspecialchars', 'wrap_html_escape', 'wrap_latitude',
-		'wrap_longitude', 'wrap_number', 'ucfirst', 'wrap_time', 'wrap_bytes',
-		'wrap_duration', 'strip_tags', 'strtoupper', 'strtolower', 'wrap_money',
-		'quoted_printable_encode'
+		'markdown', 'markdown_inline', 'markdown_attribute', 'wrap_date',
+		'rawurlencode', 'wordwrap', 'nl2br', 'htmlspecialchars',
+		'wrap_html_escape', 'wrap_latitude', 'wrap_longitude', 'wrap_number',
+		'ucfirst', 'wrap_time', 'wrap_bytes', 'wrap_duration', 'strip_tags',
+		'strtoupper', 'strtolower', 'wrap_money', 'quoted_printable_encode'
 	];
 
 	if (!$zz_setting['local_access']) {
