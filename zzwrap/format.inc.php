@@ -1141,6 +1141,16 @@ function wrap_typo_cleanup($text, $lang = '') {
 			}
 			$letter = '!';
 			break;
+		case '[':
+			if (preg_match('/\[.+?]\(.+?\)/', mb_substr($text, $i), $matches)) {
+				if (!empty($matches[0])) {
+					$skip = mb_strlen($matches[0]) -1;
+					$letter = $matches[0];
+					break;
+				}
+			}
+			$letter = '[';
+			break;
 		default:
 			break;
 		}
