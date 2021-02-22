@@ -198,6 +198,7 @@ function wrap_set_defaults_pre_conf() {
 	$zz_conf['prefix']			= ''; // prefix for all database tables
 	$zz_conf['logging']			= true;
 	$zz_conf['logging_id']		= true;
+	$zz_conf['replace_div']		= 'zzform';
 	$zz_setting['unwanted_mysql_modes'] = [
 		'NO_ZERO_IN_DATE'
 	];
