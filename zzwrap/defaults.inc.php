@@ -438,7 +438,7 @@ function wrap_set_defaults_post_conf() {
 	// makes it easier for some things
 	if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1'
 		OR $_SERVER['REMOTE_ADDR'] === '::1'
-		OR $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR']) {
+		OR (!empty($_SERVER['SERVER_ADDR']) AND $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR'])) {
 		// don't set https to false, just allow non-https connections
 		$zz_setting['ignore_scheme'] = true; 
 	}
