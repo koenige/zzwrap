@@ -263,10 +263,19 @@ function wrap_look_for_page($zz_page) {
 			}
 			$page[$i] = wrap_db_fetch($sql);
 			if (empty($page[$i])) {
-				list($my_url, $parameter[$i]) = wrap_url_cut($my_url, $parameter[$i]);
+				list($my_url, $parameter[$i], $end_params) = wrap_url_cut($my_url, $parameter[$i]);
 				if (!$my_url) break;
 			} else {
 				// something was found, get out of here
+				if ($end_params) {
+					// remove used parameters behind asterisk
+					$parameter[$i] = array_reverse($parameter[$i]);
+					foreach ($end_params as $index => $value) {
+						if ($parameter[$i][$index] === $value) // check not needed, equal anyways
+							unset($parameter[$i][$index]);
+					}
+					$parameter[$i] = array_reverse($parameter[$i]);
+				}
 				// but get placeholders as parameters as well!
 				if (!empty($leftovers[$i])) {
 					$new = $leftovers[$i];
@@ -315,12 +324,13 @@ function wrap_look_for_page($zz_page) {
  */
 function wrap_url_cut($my_url, $params) {
 	static $asterisk_middle;
+	$end_params = [];
 
 	if (!empty($asterisk_middle)) {
 		// go from /db/persons*/participations to /db/persons*
 		$my_url = substr($my_url, 0, strrpos($my_url, '*') + 1);
 		$asterisk_middle = false;
-		return [$my_url, $params];
+		return [$my_url, $params, $end_params];
 	}
 	if ($params) {
 		$my_url = substr($my_url, 0, -1); // remove '*'
@@ -330,9 +340,9 @@ function wrap_url_cut($my_url, $params) {
 		$my_url = substr($my_url, 0, $pos).'*';
 		if (count($params) > 1 AND empty($asterisk_middle)) {
 			// go from /db/persons/first.last* to  /db/persons*/participations
-			$my_params = $params;
-			array_shift($my_params);
-			$my_url .= '/'.implode('/', $my_params);
+			$end_params = $params;
+			array_shift($end_params);
+			$my_url .= '/'.implode('/', $end_params);
 			$asterisk_middle = true;
 		}
 	} elseif (($my_url OR $my_url === '0' OR $my_url === 0) AND substr($my_url, 0, 1) !== '_') {
@@ -341,7 +351,7 @@ function wrap_url_cut($my_url, $params) {
 	} else {
 		$my_url = false;
 	}
-	return [$my_url, $params];
+	return [$my_url, $params, $end_params];
 }
 
 /**
