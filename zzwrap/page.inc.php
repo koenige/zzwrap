@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -654,6 +654,10 @@ function wrap_get_breadcrumbs($page_id) {
 
 	// get all breadcrumbs recursively
 	$breadcrumbs = wrap_get_breadcrumbs_recursive($page_id, $pages);
+	foreach ($breadcrumbs as $index => $breadcrumb) {
+		if (!$index) continue;
+		if (strstr($breadcrumb['url_path'], '*')) unset($breadcrumbs[$index]);
+	}
 	// sort breadcrumbs in descending order
 	krsort($breadcrumbs);
 	// finished!
