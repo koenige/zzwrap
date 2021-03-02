@@ -267,7 +267,7 @@ function wrap_look_for_page($zz_page) {
 				if (!$my_url) break;
 			} else {
 				// something was found, get out of here
-				if ($end_params) {
+				if (!empty($end_params)) {
 					// remove used parameters behind asterisk
 					$parameter[$i] = array_reverse($parameter[$i]);
 					foreach ($end_params as $index => $value) {
@@ -2805,7 +2805,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		}
 		// activate setting
 		if (!$login_id) {
-			$zz_setting += wrap_setting_key($key, $value);
+			$zz_setting = wrap_array_merge($zz_setting, wrap_setting_key($key, $value));
 		}
 		return true;
 	}
@@ -2954,6 +2954,39 @@ function wrap_setting_cfg($single_module = false) {
 		return $single_cfg[$single_module];
 	}
 	return $cfg;
+}
+
+/**
+ * get URL path of a page depending on a brick, write as setting
+ *
+ * @param string $setting_key
+ * @param string $brick
+ * @param array $params (optional)
+ * @return bool
+ */
+function wrap_setting_path($setting_key, $brick, $params = []) {
+	static $tries;
+	if (empty($tries)) $tries = [];
+	if (in_array($setting_key, $tries)) return false; // do not try more than once per request
+	$tries[] = $setting_key;
+	
+	$path = '';
+	if (!empty($params)) {
+		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
+			FROM webpages
+			WHERE content LIKE "%\%\%\% '.$brick.' * '.http_build_query($params).' %\%\%%"';
+		$path = wrap_db_fetch($sql, '', 'single value');
+	}
+	if (!$path) {
+		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
+			FROM webpages
+			WHERE content LIKE "%\%\%\% '.$brick.' * \%\%\%%"';
+		$path = wrap_db_fetch($sql, '', 'single value');
+	}
+	if (!$path) return false;
+	$path = str_replace('*', '/%s', $path);
+	wrap_setting_write($setting_key, $path);
+	return true;
 }
 
 /**
