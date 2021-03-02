@@ -280,7 +280,7 @@ function wrap_look_for_page($zz_page) {
 				if (!empty($leftovers[$i])) {
 					$new = $leftovers[$i];
 					foreach ($parameter[$i] as $key => $value) {
-						$new[$key] = $value;
+						$new[] = $value;
 					}
 					$parameter[$i] = $new;
 				}
