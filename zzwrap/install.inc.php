@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -97,7 +97,7 @@ function wrap_install_module($module) {
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/database.inc.php';
 	
-	$dir = $zz_setting['modules_dir'].'/'.$module.'/docs/sql';
+	$dir = $zz_setting['modules_dir'].'/'.$module.'/configuration';
 	$file = $dir.'/install.sql';
 	if (!file_exists($file)) return false;
 	$lines = file($file);
@@ -249,8 +249,8 @@ function wrap_install_settings_folders() {
 		'_inc/custom/zzbrick_forms', '_inc/custom/zzbrick_make', 
 		'_inc/custom/zzbrick_page', '_inc/custom/zzbrick_request', 
 		'_inc/custom/zzbrick_request_get', '_inc/custom/zzbrick_tables', 
-		'_inc/custom/zzform', 'docs/data', 'docs/examples',
-		'docs/screenshots', 'docs/sql', 'docs/templates', 'docs/todo'
+		'_inc/custom/zzform', 'configuration', 'docs/data', 'docs/examples',
+		'docs/screenshots', 'docs/templates', 'docs/todo'
 	];
 	foreach ($folders as $folder) {
 		$folder = $zz_setting['cms_dir'].'/'.$folder;
