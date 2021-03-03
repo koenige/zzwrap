@@ -3020,7 +3020,7 @@ function wrap_collect_files($filename, $order = 'custom/modules') {
 		// disable default module?
 		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
-		$file = sprintf('%s/%s/%s/%s', $zz_setting['modules_dir'], $module, $module, $filename);
+		$file = sprintf('%s/%s/configuration/%s', $zz_setting['modules_dir'], $module, $filename);
 		if (file_exists($file)) $files[] = $file;
 	}
 
