@@ -8,10 +8,35 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
+
+/**
+ * check access for a certain area
+ *
+ * @string $area
+ * @return bool true: access granted
+ */
+function wrap_access($area) {
+	static $config;
+	if (empty($config))
+		$config = wrap_cfg_files('access');
+
+	// @todo read settings from database
+
+	// no access rights function: allow everything	
+	if (!function_exists('brick_access_rights')) return true;
+	
+	// are there access rights? no: = no access!
+	if (empty($config[$area]['group'])) return false;
+
+	// check if access rights are met
+	$access = brick_access_rights($config[$area]['group']);
+	if (!$access) return true;
+	return false;
+}
 
 /**
  * checks or sets rights
@@ -23,7 +48,6 @@
  * @param string $value (optional): in combination with set, sets value to right
  */
 function wrap_rights($right, $mode = 'get', $value = NULL) {
-	global $zz_conf;
 	static $rights;
 	switch ($mode) {
 	case 'get':
