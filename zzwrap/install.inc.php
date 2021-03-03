@@ -197,7 +197,7 @@ function wrap_install_settings() {
  * @return string
  */
 function wrap_install_settings_page($module = false) {
-	$cfg = wrap_setting_cfg($module);
+	$cfg = wrap_cfg_files('settings', $module);
 	$data = [];
 	$found = false;
 	foreach ($cfg as $key => $line) {
