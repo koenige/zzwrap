@@ -946,8 +946,9 @@ function wrap_log_uri($status = 0) {
 			last_access, last_update) VALUES ("%s", "%s", 
 			"%s", %s, "%s", %s, %d, %d, %s, %s, 1, NOW(), NOW(), NOW())';
 		$sql = sprintf($sql,
-			$scheme, $host, $path, $query, $content_type, $encoding,
-			$zz_page['content_length'], $status, $etag, $last_modified
+			$scheme, $host, $path, $query, $content_type, $encoding
+			, (!empty($zz_page['content_length']) ? $zz_page['content_length'] : 0)
+			, $status, $etag, $last_modified
 		);
 		wrap_db_query($sql, E_USER_NOTICE);
 	} elseif (strlen($path) >= 128) {
