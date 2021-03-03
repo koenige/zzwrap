@@ -2937,11 +2937,9 @@ function wrap_setting_cfg($single_module = false) {
 		return $cfg;
 	}
 
-	$cfg_file_template = sprintf('%s/%%s/configuration/settings.cfg', $zz_setting['modules_dir']);
+	$files = wrap_collect_files('settings.cfg', 'modules/custom');
 	$cfg = [];
-	foreach ($zz_setting['modules'] as $module) {
-		$cfg_file = sprintf($cfg_file_template, $module);
-		if (!file_exists($cfg_file)) continue;
+	foreach ($files as $module => $cfg_file) {
 		$single_cfg[$module] = parse_ini_file($cfg_file, true);
 		foreach ($single_cfg[$module] as $index => $config) {
 			if (empty($config['description'])) continue;
@@ -3021,7 +3019,7 @@ function wrap_collect_files($filename, $order = 'custom/modules') {
 		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
 		$file = sprintf('%s/%s/configuration/%s', $zz_setting['modules_dir'], $module, $filename);
-		if (file_exists($file)) $files[] = $file;
+		if (file_exists($file)) $files[$module] = $file;
 	}
 
 	// check custom folder
