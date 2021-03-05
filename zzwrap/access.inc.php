@@ -34,8 +34,8 @@ function wrap_access($area) {
 
 	// check if access rights are met
 	$access = brick_access_rights($config[$area]['group']);
-	if (!$access) return true;
-	return false;
+	if (!$access) return false;
+	return true;
 }
 
 /**
