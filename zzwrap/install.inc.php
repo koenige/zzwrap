@@ -71,8 +71,8 @@ function wrap_install_dbname() {
 				, wrap_html_escape($_POST['db_name_local'])
 			);
 			$_SESSION['db_name_local'] = $_POST['db_name_local'];
-			wrap_install_module('zzform');
 			wrap_install_module('default');
+			wrap_install_module('zzform');
 			foreach ($zz_setting['modules'] as $module) {
 				if (in_array($module, ['zzform', 'default'])) continue;
 				wrap_install_module($module);
