@@ -1095,7 +1095,7 @@ function wrap_system_sql($subtree = '') {
 	if (empty($data)) {
 		$data = [];
 		$files = [];
-		if (file_exists($file = $zz_setting['modules_dir'].'/default/zzwrap_sql/system.sql')) {
+		if (file_exists($file = $zz_setting['modules_dir'].'/default/configuration/system.sql')) {
 			$files[] = $file;
 		}
 		if (file_exists($file = $zz_setting['custom_wrap_sql_dir'].'/system.sql'))
