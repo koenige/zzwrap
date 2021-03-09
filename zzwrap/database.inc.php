@@ -1083,6 +1083,48 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 }
 
 /**
+ * read a .sql file
+ *
+ * @param string $filename
+ * @param string $key_separator (optional) if set, cut key and overwrite
+ *		existing queries, otherwise: list all queries from all files
+ * @return array lines, grouped
+ */
+function wrap_sql_file($filename, $key_separator = '') {
+	$data = [];
+	$lines = file($filename);
+	foreach ($lines as $line) {
+		if (substr($line, 0, 3) === '/**') continue;
+		if (substr($line, 0, 2) === ' *') continue;
+		if (substr($line, 0, 3) === ' */') continue;
+		$line = trim($line);
+		if (!$line) continue;
+		if (substr($line, 0, 3) === '-- ') {
+			$line = substr($line, 3);
+			if ($key_separator) {
+				$key = substr($line, 0, strpos($line, '_'));
+				$line = substr($line, strlen($key) + 1);
+				$subkey = substr($line, 0, strpos($line, ' '));
+				$data[$key][$subkey] = '';
+			} else {
+				$key = substr($line, 0, strpos($line, ' '));
+				$index[$key] = 0;
+				$data[$key][$index[$key]] = '';
+			}
+		} else {
+			if ($key_separator) {
+				$line = rtrim($line, ';');
+				$data[$key][$subkey] .= $line.' ';
+			} else {
+				$data[$key][$index[$key]] .= rtrim($line, ';').' ';
+				if (substr($line, -1) === ';') $index[$key]++;
+			}
+		}
+	}
+	return $data;
+}
+
+/**
  * read system SQL queries from system.sql file
  *
  * @param string $subtree (optional) return only queries for key
@@ -1097,24 +1139,7 @@ function wrap_system_sql($subtree = '') {
 		$files = wrap_collect_files('system.sql', 'modules/custom');
 		
 		foreach ($files as $filename) {
-			$lines = file($filename);
-			foreach ($lines as $line) {
-				if (substr($line, 0, 3) === '/**') continue;
-				if (substr($line, 0, 2) === ' *') continue;
-				if (substr($line, 0, 3) === ' */') continue;
-				$line = trim($line);
-				if (!$line) continue;
-				if (substr($line, 0, 3) === '-- ') {
-					$line = substr($line, 3);
-					$key = substr($line, 0, strpos($line, '_'));
-					$line = substr($line, strlen($key) + 1);
-					$subkey = substr($line, 0, strpos($line, ' '));
-					$data[$key][$subkey] = '';
-				} else {
-					$line = rtrim($line, ';');
-					$data[$key][$subkey] .= $line.' ';
-				}
-			}
+			$data = wrap_array_merge($data, wrap_sql_file($filename, '_'));
 		}
 		$data = wrap_system_sql_placeholders($data);
 	}
