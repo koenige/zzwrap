@@ -71,6 +71,7 @@ function wrap_install_dbname() {
 				, wrap_html_escape($_POST['db_name_local'])
 			);
 			$_SESSION['db_name_local'] = $_POST['db_name_local'];
+			wrap_sql_ignores();
 			wrap_install_module('default');
 			wrap_install_module('zzform');
 			foreach ($zz_setting['modules'] as $module) {
@@ -100,23 +101,14 @@ function wrap_install_module($module) {
 	$dir = $zz_setting['modules_dir'].'/'.$module.'/configuration';
 	$file = $dir.'/install.sql';
 	if (!file_exists($file)) return false;
-	$lines = file($file);
-	$index = 0;
-	$queries = [];
-	foreach ($lines as $line) {
-		if (substr($line, 0, 3) === '/**') continue;
-		if (substr($line, 0, 2) === ' *') continue;
-		if (substr($line, 0, 3) === ' */') continue;
-		$line = trim($line);
-		if (!$line) continue;
-		$queries[$index][] = $line;
-		if (substr($line, -1) === ';') $index++;
-	}
-	foreach ($queries as $index => $query) {
-		$query = implode(' ', $query);
-		$success = wrap_db_query($query);
-		if ($success)
-			zz_log_sql($query, 'Crew droid Robot 571');
+	$queries = wrap_sql_file($file);
+	foreach ($queries as $table => $queries_per_table) {
+		if (wrap_sql_ignores($module, $table)) continue;
+		foreach ($queries_per_table as $index => $query) {
+			$success = wrap_db_query($query);
+			if ($success)
+				zz_log_sql($query, 'Crew droid Robot 571');
+		}
 	}
 	wrap_setting_write('mod_'.$module.'_install_date', date('Y-m-d H:i:s'));
 	return true;
