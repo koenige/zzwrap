@@ -1132,6 +1132,36 @@ function wrap_sql_file($filename, $key_separator = '') {
 }
 
 /**
+ * install: read ignore list per module
+ *
+ * @param string $module (optional)
+ * @param string $table (optional)
+ * @return bool true: please ignore
+ */
+function wrap_sql_ignores($module = '', $table = '') {
+	static $ignores;
+	
+	if ($module and $table) {
+		if (empty($ignores)) return false;
+		if (!array_key_exists($module, $ignores)) return false;
+		if (empty($ignores[$module][$table])) return false;
+		return true;
+	}
+	
+	if (!empty($ignores)) return false;
+	$files = wrap_collect_files('install-ignore.sql');
+	$data = [];
+	foreach ($files as $filename) {
+		$data = array_merge($data, wrap_sql_file($filename));
+	}
+	foreach (array_keys($data) as $key) {
+		$key = explode('.', $key);
+		$ignores[$key[0]][$key[1]] = true;
+	}
+	return false;
+}
+
+/**
  * read system SQL queries from system.sql file
  *
  * @param string $subtree (optional) return only queries for key
