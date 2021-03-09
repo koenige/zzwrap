@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1094,10 +1094,10 @@ function wrap_sql_file($filename, $key_separator = '') {
 	$data = [];
 	$lines = file($filename);
 	foreach ($lines as $line) {
-		if (substr($line, 0, 3) === '/**') continue;
-		if (substr($line, 0, 2) === ' *') continue;
-		if (substr($line, 0, 3) === ' */') continue;
 		$line = trim($line);
+		if (substr($line, 0, 3) === '/**') continue;
+		if (substr($line, 0, 1) === '*') continue;
+		if (substr($line, 0, 2) === '*/') continue;
 		if (!$line) continue;
 		if (substr($line, 0, 3) === '-- ') {
 			$line = substr($line, 3);
@@ -1112,10 +1112,17 @@ function wrap_sql_file($filename, $key_separator = '') {
 				$data[$key][$index[$key]] = '';
 			}
 		} else {
+			if (empty($key)) {
+				$key = 'file';
+				$index[$key] = 0;
+			}
 			if ($key_separator) {
 				$line = rtrim($line, ';');
 				$data[$key][$subkey] .= $line.' ';
 			} else {
+				if (empty($data[$key][$index[$key]])) {
+					$data[$key][$index[$key]] = '';
+				}
 				$data[$key][$index[$key]] .= rtrim($line, ';').' ';
 				if (substr($line, -1) === ';') $index[$key]++;
 			}
