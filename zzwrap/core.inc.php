@@ -3024,7 +3024,7 @@ function wrap_collect_files($filename, $order = 'custom/modules') {
 	}
 
 	// check custom folder
-	$file = sprintf('%s/%s', $zz_setting['custom_wrap_dir'], $filename);
+	$file = sprintf('%s/%s', $zz_setting['custom'].'/configuration', $filename);
 	if (file_exists($file)) {
 		if ($order === 'custom/modules') {
 			array_unshift($files, $file);
