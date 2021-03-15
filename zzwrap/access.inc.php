@@ -20,6 +20,7 @@
  * @return bool true: access granted
  */
 function wrap_access($area) {
+	global $zz_conf;
 	static $config;
 	if (empty($config))
 		$config = wrap_cfg_files('access');
@@ -28,6 +29,11 @@ function wrap_access($area) {
 
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) return true;
+	
+	// zzform multi?
+	// @todo access rights for local users can be overwritten
+	// if user has access to webpages table and can write bricks
+	if (!empty($zz_conf['multi'])) return true;
 	
 	// are there access rights? no: = no access!
 	if (empty($config[$area]['group'])) return false;
