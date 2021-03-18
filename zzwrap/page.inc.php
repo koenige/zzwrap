@@ -5,7 +5,7 @@
  * Standard page functions (menu, breadcrumbs, authors, page)
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  *	wrap_template()
  *	wrap_get_menu()					-- gets menu from database
@@ -1097,7 +1097,16 @@ function wrap_htmlout_page($page) {
 	} else {
 		$text = str_replace('%\%\%', '%%%', $text);
 	}
-		
+	if (!empty($page['send_as_json'])) {
+		$output = [
+			'html' => $text,
+			'title' => $page['title'],
+			'url' => $page['url']
+		];
+		wrap_send_text(json_encode($output), 'json', $page['status']);
+		exit;
+	}
+
 	wrap_send_text($text, 'html', $page['status']);
 }
 
