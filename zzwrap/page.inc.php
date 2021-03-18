@@ -1100,7 +1100,7 @@ function wrap_htmlout_page($page) {
 	if (!empty($page['send_as_json'])) {
 		$output = [
 			'html' => $text,
-			'title' => $page['title'],
+			'title' => $page['pagetitle'],
 			'url' => $page['url']
 		];
 		wrap_send_text(json_encode($output), 'json', $page['status']);
