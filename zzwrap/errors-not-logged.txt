@@ -306,6 +306,7 @@ qs	string	fbclid
 
 # Bot with severe problems parsing URLs
 404	ua	Mozilla/5.0 (compatible; Adsbot/3.1)
+404	ua	Mozilla/5.0 (compatible; Adsbot/3.1; +https://seostar.co/robot/)
 
 # looking for uploaded git repository information
 404	end	/.git/HEAD
