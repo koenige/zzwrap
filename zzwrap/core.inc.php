@@ -1673,7 +1673,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 
 	// send all headers
 	wrap_cache_header();
-	if (!empty($zz_setting['cache'])) {
+	if (!empty($zz_setting['cache']) AND !isset($_GET['nocache'])) {
 		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_text']));
 	} else {
 		wrap_cache_header_default('Cache-Control: max-age=0');
