@@ -327,7 +327,7 @@ function wrap_date($date, $format = false) {
 			AND substr($begin, 7) === '-00'
 			AND substr($begin, 4) !== '-00-00') {
 			// 2004-03-00 2004-04-00 = 03-04.2004
-			$output = substr($begin, 5, 2).$bis
+			$output = wrap_date_format('0000'.substr($begin, 4), $set, $type).$bis
 				.wrap_date_format($end, $set, $type);
 		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 			AND substr($begin, 7) !== '-00') {
