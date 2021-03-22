@@ -2932,28 +2932,28 @@ function wrap_cfg_files($type, $single_module = false) {
 	global $zz_setting;
 	static $cfg;
 	if ($single_module) {
-		if (!empty($single_cfg[$single_module]))
-			return $single_cfg[$single_module];
-	} elseif (!empty($cfg)) {
-		return $cfg;
+		if (!empty($single_cfg[$type][$single_module]))
+			return $single_cfg[$type][$single_module];
+	} elseif (!empty($cfg[$type])) {
+		return $cfg[$type];
 	}
 
 	$files = wrap_collect_files($type.'.cfg', 'modules/custom');
-	$cfg = [];
+	$cfg[$type] = [];
 	foreach ($files as $module => $cfg_file) {
-		$single_cfg[$module] = parse_ini_file($cfg_file, true);
-		foreach ($single_cfg[$module] as $index => $config) {
+		$single_cfg[$type][$module] = parse_ini_file($cfg_file, true);
+		foreach ($single_cfg[$type][$module] as $index => $config) {
 			if (empty($config['description'])) continue;
 			if (is_array($config['description'])) continue;
-			$single_cfg[$module][$index]['description'] = wrap_text($config['description']);
+			$single_cfg[$type][$module][$index]['description'] = wrap_text($config['description']);
 		}
-		$cfg += $single_cfg[$module];
+		$cfg[$type] += $single_cfg[$type][$module];
 	}
 	if ($single_module) {
-		if (!array_key_exists($single_module, $single_cfg)) return [];
-		return $single_cfg[$single_module];
+		if (!array_key_exists($single_module, $single_cfg[$type])) return [];
+		return $single_cfg[$type][$single_module];
 	}
-	return $cfg;
+	return $cfg[$type];
 }
 
 /**
