@@ -1182,3 +1182,22 @@ function wrap_placeholder($placeholder) {
 		return '';
 	}
 }
+
+/**
+ * add quotes as necessary for .cfg files
+ *
+ * @param string $string
+ * @return string
+ */
+function wrap_cfg_quote($string) {
+	$quote = false;
+	$quoted_strings = [
+		'(', ')', "\n", "\r", "'", "no", "yes", " "
+	];
+	$string = trim($string);
+	foreach ($quoted_strings as $quoted) {
+		if (!strpos($string, $quoted)) continue;
+		return sprintf('"%s"', $string);
+	}
+	return $string;
+}
