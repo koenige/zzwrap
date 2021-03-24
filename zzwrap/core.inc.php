@@ -3007,10 +3007,11 @@ function wrap_unlink_recursive($folder) {
  * check for files in modules and custom folders, start with default folder
  *
  * @param string $tpl template for filename with two placeholders
- * @param string $order modules/custom or custom/modules
+ * @param string $order (optional) modules/custom or custom/modules
+ * @param string $path (optional) where to look for content
  * @return array
  */
-function wrap_collect_files($filename, $order = 'custom/modules') {
+function wrap_collect_files($filename, $order = 'custom/modules', $path = 'configuration') {
 	global $zz_setting;
 
 	$files = [];
@@ -3019,7 +3020,7 @@ function wrap_collect_files($filename, $order = 'custom/modules') {
 		// disable default module?
 		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
-		$file = sprintf('%s/%s/configuration/%s', $zz_setting['modules_dir'], $module, $filename);
+		$file = sprintf('%s/%s/%s/%s', $zz_setting['modules_dir'], $module, $path, $filename);
 		if (file_exists($file)) $files[$module] = $file;
 	}
 
