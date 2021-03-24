@@ -185,7 +185,7 @@ function wrap_set_defaults_pre_conf() {
 		'wrap_html_escape', 'wrap_latitude', 'wrap_longitude', 'wrap_number',
 		'ucfirst', 'wrap_time', 'wrap_bytes', 'wrap_duration', 'strip_tags',
 		'strtoupper', 'strtolower', 'wrap_money', 'quoted_printable_encode',
-		'wrap_cfg_quote'
+		'wrap_bearing', 'wrap_cfg_quote', 'wrap_meters'
 	];
 
 	if (!$zz_setting['local_access']) {
