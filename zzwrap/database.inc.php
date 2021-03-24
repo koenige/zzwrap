@@ -5,7 +5,7 @@
  * Database functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  *	Database functions
  *	- wrap_db_connect()
@@ -1397,7 +1397,12 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 					// convert to string since PHP treats all integers
 					// from database as string, too
 					// and there are no calculations with IDs
-					$data[$table][$parameters['alias']] = strval($id);
+					if (!is_array($parameters['alias'])) {
+						$parameters['alias'] = [$parameters['alias']]; 
+					}
+					foreach ($parameters['alias'] as $my_alias) {
+						$data[$table][$my_alias] = strval($id);
+					}
 				}
 			}
 		}
