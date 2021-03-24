@@ -1233,6 +1233,14 @@ function wrap_system_sql_placeholders($data) {
 							break;
 						}
 						if ($val) $part[0] = $val;
+						else {
+							// no value available
+							wrap_error(sprintf(
+								'Unable to replace placeholder %s (%s)'
+								, $placeholder, implode(': ', $part[0])
+							));
+							$part[0] = 0;
+						}
 						$query .= implode('', $part);
 					}
 					$data[$subtree][$key] = $query;
