@@ -127,8 +127,7 @@ function wrap_set_defaults_pre_conf() {
 // URLs
 // -------------------------------------------------------------------------
 
-	$zz_setting['homepage_url']	= '/';
-	$zz_setting['login_entryurl'] = '/';
+	$zz_setting['base_path'] = '';
 
 // -------------------------------------------------------------------------
 // Paths
@@ -223,8 +222,6 @@ function wrap_set_defaults_pre_conf() {
 // Authentication
 // -------------------------------------------------------------------------
 
-	$zz_setting['login_url']	= '/login/';
-	$zz_setting['logout_url']	= '/logout/';
 	// minutes until you will be logged out automatically while inactive
 	$zz_setting['logout_inactive_after'] = 30;
 
@@ -666,13 +663,27 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['template'] = 'page';
 	}
 	
+	// -------------------------------------------------------------------------
+	// URLs
+	// -------------------------------------------------------------------------
+
+	if (empty($zz_setting['homepage_url']))
+		$zz_setting['homepage_url']	= $zz_setting['base_path'].'/';
+	if (empty($zz_setting['login_url']))
+		$zz_setting['login_url']	= $zz_setting['base_path'].'/login/';
+	if (empty($zz_setting['logout_url']))
+		$zz_setting['logout_url']	= $zz_setting['base_path'].'/logout/';
+	if (empty($zz_setting['login_entryurl']))
+		$zz_setting['login_entryurl'] = $zz_setting['base_path'].'/';
+
+
 	// HTML paths, relative to DOCUMENT_ROOT
 	if (empty($zz_setting['layout_path']))
-		$zz_setting['layout_path'] = '/_layout';
+		$zz_setting['layout_path'] = $zz_setting['base_path'].'/_layout';
 	if (empty($zz_setting['behaviour_path']))
-		$zz_setting['behaviour_path'] = '/_behaviour';
+		$zz_setting['behaviour_path'] = $zz_setting['base_path'].'/_behaviour';
 	if (empty($zz_setting['files_path']))
-		$zz_setting['files_path'] = '/files';
+		$zz_setting['files_path'] = $zz_setting['base_path'].'/files';
 	if (!isset($zz_setting['dont_negotiate_language_paths'])) {
 		$zz_setting['dont_negotiate_language_paths'] = [
 			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
@@ -680,7 +691,11 @@ function wrap_set_defaults_post_conf() {
 		];
 	}
 	if (!isset($zz_setting['icon_paths'])) {
-		$zz_setting['icon_paths'] = ['/apple-touch-icon.png', '/favicon.ico', '/favicon.png'];
+		$zz_setting['icon_paths'] = [
+			$zz_setting['base_path'].'/apple-touch-icon.png',
+			$zz_setting['base_path'].'/favicon.ico',
+			$zz_setting['base_path'].'/favicon.png'
+		];
 	}
 	$zz_setting['dont_negotiate_language_paths'] =
 		array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['icon_paths']);
