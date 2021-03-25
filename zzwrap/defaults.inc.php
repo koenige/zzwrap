@@ -400,6 +400,58 @@ function wrap_set_defaults_post_conf() {
 			$zz_setting['http']['not_allowed'] = ['TRACE', 'CONNECT'];
 		}
 	}
+
+	// -------------------------------------------------------------------------
+	// URLs
+	// -------------------------------------------------------------------------
+
+	if (empty($zz_setting['homepage_url']))
+		$zz_setting['homepage_url']	= $zz_setting['base_path'].'/';
+	if (empty($zz_setting['login_url']))
+		$zz_setting['login_url']	= $zz_setting['base_path'].'/login/';
+	if (empty($zz_setting['logout_url']))
+		$zz_setting['logout_url']	= $zz_setting['base_path'].'/logout/';
+	if (empty($zz_setting['login_entryurl']))
+		$zz_setting['login_entryurl'] = $zz_setting['base_path'].'/';
+
+
+	// HTML paths, relative to DOCUMENT_ROOT
+	if (empty($zz_setting['layout_path']))
+		$zz_setting['layout_path'] = $zz_setting['base_path'].'/_layout';
+	if (empty($zz_setting['behaviour_path']))
+		$zz_setting['behaviour_path'] = $zz_setting['base_path'].'/_behaviour';
+	if (empty($zz_setting['files_path']))
+		$zz_setting['files_path'] = $zz_setting['base_path'].'/files';
+	if (!isset($zz_setting['dont_negotiate_language_paths'])) {
+		$zz_setting['dont_negotiate_language_paths'] = [
+			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
+			$zz_setting['files_path'], '/robots.txt'
+		];
+	}
+	if (!isset($zz_setting['icon_paths'])) {
+		$zz_setting['icon_paths'] = [
+			$zz_setting['base_path'].'/apple-touch-icon.png',
+			$zz_setting['base_path'].'/favicon.ico',
+			$zz_setting['base_path'].'/favicon.png'
+		];
+	}
+	$zz_setting['dont_negotiate_language_paths'] =
+		array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['icon_paths']);
+	if (isset($zz_setting['extra_dont_negotiate_language_paths'])) {
+		$zz_setting['dont_negotiate_language_paths'] =
+			array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['extra_dont_negotiate_language_paths']);
+	}
+	if (!isset($zz_setting['ignore_scheme_paths'])) {
+		$zz_setting['ignore_scheme_paths'] = [
+			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
+			$zz_setting['files_path']
+		];
+	}
+
+	// zzform: local zzform-colours.css?		
+	if (!isset($zz_setting['zzform_colours'])) {
+		$zz_setting['zzform_colours'] = true;
+	}
 	
 	// -------------------------------------------------------------------------
 	// HTTP, Hostname, Access via HTTPS or not
@@ -661,58 +713,6 @@ function wrap_set_defaults_post_conf() {
 	// Page template
 	if (empty($zz_setting['template'])) {
 		$zz_setting['template'] = 'page';
-	}
-	
-	// -------------------------------------------------------------------------
-	// URLs
-	// -------------------------------------------------------------------------
-
-	if (empty($zz_setting['homepage_url']))
-		$zz_setting['homepage_url']	= $zz_setting['base_path'].'/';
-	if (empty($zz_setting['login_url']))
-		$zz_setting['login_url']	= $zz_setting['base_path'].'/login/';
-	if (empty($zz_setting['logout_url']))
-		$zz_setting['logout_url']	= $zz_setting['base_path'].'/logout/';
-	if (empty($zz_setting['login_entryurl']))
-		$zz_setting['login_entryurl'] = $zz_setting['base_path'].'/';
-
-
-	// HTML paths, relative to DOCUMENT_ROOT
-	if (empty($zz_setting['layout_path']))
-		$zz_setting['layout_path'] = $zz_setting['base_path'].'/_layout';
-	if (empty($zz_setting['behaviour_path']))
-		$zz_setting['behaviour_path'] = $zz_setting['base_path'].'/_behaviour';
-	if (empty($zz_setting['files_path']))
-		$zz_setting['files_path'] = $zz_setting['base_path'].'/files';
-	if (!isset($zz_setting['dont_negotiate_language_paths'])) {
-		$zz_setting['dont_negotiate_language_paths'] = [
-			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
-			$zz_setting['files_path'], '/robots.txt'
-		];
-	}
-	if (!isset($zz_setting['icon_paths'])) {
-		$zz_setting['icon_paths'] = [
-			$zz_setting['base_path'].'/apple-touch-icon.png',
-			$zz_setting['base_path'].'/favicon.ico',
-			$zz_setting['base_path'].'/favicon.png'
-		];
-	}
-	$zz_setting['dont_negotiate_language_paths'] =
-		array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['icon_paths']);
-	if (isset($zz_setting['extra_dont_negotiate_language_paths'])) {
-		$zz_setting['dont_negotiate_language_paths'] =
-			array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['extra_dont_negotiate_language_paths']);
-	}
-	if (!isset($zz_setting['ignore_scheme_paths'])) {
-		$zz_setting['ignore_scheme_paths'] = [
-			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
-			$zz_setting['files_path']
-		];
-	}
-
-	// zzform: local zzform-colours.css?		
-	if (!isset($zz_setting['zzform_colours'])) {
-		$zz_setting['zzform_colours'] = true;
 	}
 
 	// -------------------------------------------------------------------------
