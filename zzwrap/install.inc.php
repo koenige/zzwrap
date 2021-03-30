@@ -460,7 +460,7 @@ function wrap_install_cfg($table) {
 			echo wrap_print($values);
 			exit;
 		}
-		$ids[$ops['id']] = $values['POST']['identifier'];
+		$ids[$ops['id']] = $identifier;
 	}
 	return $ids;
 }
