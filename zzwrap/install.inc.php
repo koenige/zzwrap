@@ -408,28 +408,31 @@ function wrap_install_cfg($table) {
 			}
 			
 			// assign values
-			if (in_array($key, $fields)) {
-				if (is_array($value)) {
+			if (is_array($value) AND (in_array($key, $fields) OR in_array($key.'_id', $fields))) {
+				if (in_array($key, $fields)) {
 					$index = array_search($key, $fields);
-					if (!array_key_exists($index, $tables)) {
-						echo wrap_print($key);
-						echo wrap_print($value);
-						echo 'Error in table definition';
-						exit;
-					}
-					foreach ($value as $subkey => $subval) {
-						if (!in_array($subkey, $subkeys[$tables[$index]])) {
-							$subkeys[$tables[$index]][] = $subkey;
-						}
-						$subindex = array_search($subkey, $subkeys[$tables[$index]]);
-						$values['POST'][$tables[$index]][$subindex][$key] = $subval;
-						if (!empty($keys[$tables[$index]])) {
-							$values['POST'][$tables[$index]][$subindex][$keys[$tables[$index]]] = $subkey.' ';
-						}
-					}
 				} else {
-					$values['POST'][$key] = $value;
+					$index = array_search($key.'_id', $fields);
+					$key .= '_id';
 				}
+				if (!array_key_exists($index, $tables)) {
+					echo wrap_print($key);
+					echo wrap_print($value);
+					echo 'Error in table definition';
+					exit;
+				}
+				foreach ($value as $subkey => $subval) {
+					if (!in_array($subkey, $subkeys[$tables[$index]])) {
+						$subkeys[$tables[$index]][] = $subkey;
+					}
+					$subindex = array_search($subkey, $subkeys[$tables[$index]]);
+					$values['POST'][$tables[$index]][$subindex][$key] = $subval;
+					if (!empty($keys[$tables[$index]])) {
+						$values['POST'][$tables[$index]][$subindex][$keys[$tables[$index]]] = $subkey.' ';
+					}
+				}
+			} elseif (in_array($key, $fields)) {
+				$values['POST'][$key] = $value;
 			} elseif (in_array($key.'_id', $fields)) {
 				$values['POST'][$key.'_id'] = $value.' ';
 				if (is_int($value))
