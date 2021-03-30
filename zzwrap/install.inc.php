@@ -15,6 +15,7 @@
 
 function wrap_install() {
 	global $zz_setting;
+	global $zz_conf;
 	if (!$zz_setting['local_access']) return;
 
 	$zz_setting['template'] = 'install-page';
@@ -24,12 +25,24 @@ function wrap_install() {
 	wrap_session_start();
 	$_SESSION['cms_install'] = true;
 	if (empty($_SESSION['step'])) $_SESSION['step'] = 1;
+	elseif (empty($_SESSION['db_name_local'])) $_SESSION['step'] = 1;
+	else {
+		$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_SESSION['db_name_local']));
+		if (!$db) $_SESSION['step'] = 1;
+	}
+
+	$files = wrap_collect_files('install.inc.php', 'modules/custom', 'install');
+	foreach ($files as $module => $file) {
+		require_once $file;
+		$_SESSION['module_install'][$module] = $module;
+	}
 
 	switch ($_SESSION['step']) {
 		case 1: $page['text'] = wrap_install_dbname(); break;
 		case 2: $page['text'] = wrap_install_user(); break;
 		case 3: $page['text'] = wrap_install_settings(); break;
-		case 4: $page['text'] = wrap_install_remote_db(); break;
+		case 4: $page['text'] = wrap_install_modules(); break;
+		case 5: $page['text'] = wrap_install_remote_db(); break;
 	}
 
 	if ($page['text'] === true) {
@@ -126,7 +139,8 @@ function wrap_install_zzform() {
 	global $zz_setting;
 	require_once $zz_conf['dir'].'/zzform.php';
 
-	$zz_setting['brick_default_tables'] = true;
+	if (!isset($zz_setting['brick_default_tables']))
+		$zz_setting['brick_default_tables'] = true;
 	$zz_conf['user'] = 'Crew droid Robot 571';
 	$zz_page['url']['full'] = [
 		'scheme' => $zz_setting['protocol'],
@@ -145,18 +159,24 @@ function wrap_install_zzform() {
  * @return mixed
  */
 function wrap_install_user() {
+	global $zz_setting;
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_zzform();
 		$values = [];
 		$values['action'] = 'insert';
 		$values['POST']['username'] = $_POST['username'];
-		$values['POST']['login_rights'] = 'admin';
+		if (empty($zz_setting['install_without_login_rights']))
+			$values['POST']['login_rights'] = 'admin';
 		$values['POST']['password'] = $_POST['password'];
 		$values['POST']['password_change'] = 'no';
 		$ops = zzform_multi('logins', $values);
 		if ($ops['id']) {
 			$_SESSION['step'] = 3;
 			return true;
+		} else {
+			echo wrap_print($values);
+			echo wrap_print($ops);
+			exit;
 		}
 	}
 	$page['text'] = wrap_template('install-user');
@@ -175,6 +195,7 @@ function wrap_install_settings() {
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_settings_write();
 		wrap_install_settings_folders();
+		wrap_config('write');
 		$_SESSION['step'] = 4;
 		return true;
 	}
@@ -253,6 +274,34 @@ function wrap_install_settings_folders() {
 }
 
 /**
+ * look for module specific install scripts in module folders
+ *
+ * @param void
+ * @return mixed
+ */
+function wrap_install_modules() {
+	if (empty($_SESSION['module_install'])) {
+		$_SESSION['step'] = 5;
+		return true;
+	}
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+		foreach ($_SESSION['module_install'] as $module) {
+			$function = sprintf('mf_%s_install', $module);
+			if (function_exists($function))
+				$function();
+		}
+		exit;
+		$_SESSION['step'] = 4;
+		return true;
+	}
+	foreach ($_SESSION['module_install'] as $module) {
+		$data['modules'][] = ['module' => $module]; 
+	}
+	$page['text'] = wrap_template('install-modules', $data);
+	return $page;
+}
+
+/**
  * ask for remote database credentials, write to .json script
  *
  * @param void
@@ -293,4 +342,122 @@ function wrap_install_finish() {
 		$_SESSION['step'] = 'finish';
 		return wrap_redirect_change($zz_setting['login_entryurl']);
 	}
+}
+
+/**
+ * insert content into database table(s) depending on content of .cfg file
+ *
+ * @param string $table name of table
+ * @return array IDs
+ */
+function wrap_install_cfg($table) {
+	global $zz_setting;
+
+	$ids = [];
+
+	// read definitions
+	$data = wrap_cfg_files($table);
+	$fields = !empty($data['_table_definition']['fields']) ? $data['_table_definition']['fields'] : [];
+	$tables = [];
+	foreach ($fields as $index => $field) {
+		if (!strstr($field, '.')) continue;
+		$field = explode('.', $field);
+		$tables[$index] = $field[0];
+		$fields[$index] = $field[1];
+	}
+
+	$removes = !empty($data['_table_definition']['remove']) ? $data['_table_definition']['remove'] : [];
+	$prefixes = !empty($data['_table_definition']['prefix']) ? $data['_table_definition']['prefix'] : [];
+	$replaces = !empty($data['_table_definition']['replace']) ? $data['_table_definition']['replace'] : [];
+	$keys = !empty($data['_table_definition']['keys']) ? $data['_table_definition']['keys'] : [];
+	$hierarchy = !empty($data['_table_definition']['hierarchy_field']) ? $data['_table_definition']['hierarchy_field'] : false;
+	$hierarchy_source = !empty($data['_table_definition']['hierarchy_source']) ? $data['_table_definition']['hierarchy_source'] : false;
+	unset($data['_table_definition']);
+
+	$subkeys = []; // for use with subtables
+	foreach ($tables as $my_table) {
+		$subkeys[$my_table] = [];
+	}
+
+	// interpret lines
+	foreach ($data as $identifier => $line) {
+		$line['identifier'] = $identifier;
+		$values = [];
+		$values['action'] = 'insert';
+		foreach ($line as $key => $value) {
+			// change values
+			if (array_key_exists($key, $replaces)) {
+				// 1. replace part of the value
+				$replace = explode(' ', $replaces[$key]);
+				if (!empty($zz_setting[$replace[0]])) {
+					if ($value === $replace[1]) $value = $replace[2];
+				}
+			}
+			if (array_key_exists($key, $prefixes)) {
+				// 2. prefix value
+				if (!empty($zz_setting[$prefixes[$key]]))
+					$value = $zz_setting[$prefixes[$key]].$value;
+				else
+					$value = $prefixes[$key].$value;
+			}
+			if (array_key_exists($key, $removes)) {
+				// 3. remove part of the value
+				$remove = explode(' ', $removes[$key]);
+				if (!empty($zz_setting[$remove[0]]))
+					$value = str_replace($remove[1], '', $value);
+			}
+			
+			// assign values
+			if (in_array($key, $fields)) {
+				if (is_array($value)) {
+					$index = array_search($key, $fields);
+					if (!array_key_exists($index, $tables)) {
+						echo wrap_print($key);
+						echo wrap_print($value);
+						echo 'Error in table definition';
+						exit;
+					}
+					foreach ($value as $subkey => $subval) {
+						if (!in_array($subkey, $subkeys[$tables[$index]])) {
+							$subkeys[$tables[$index]][] = $subkey;
+						}
+						$subindex = array_search($subkey, $subkeys[$tables[$index]]);
+						$values['POST'][$tables[$index]][$subindex][$key] = $subval;
+						if (!empty($keys[$tables[$index]])) {
+							$values['POST'][$tables[$index]][$subindex][$keys[$tables[$index]]] = $subkey.' ';
+						}
+					}
+				} else {
+					$values['POST'][$key] = $value;
+				}
+			} elseif (in_array($key.'_id', $fields)) {
+				$values['POST'][$key.'_id'] = $value.' ';
+				if (is_int($value))
+					$values['ids'][] = $key.'_id';
+			} elseif (is_array($value)) {
+				foreach ($value as $subkey => $subvalue)
+					$values['POST']['parameters'][] = sprintf('%s[%s]=%s', $key, $subkey, $subvalue);
+			} else {
+				$values['POST']['parameters'][] = sprintf('%s=%s', $key, $value);
+			}
+		}
+		// hierarchy?
+		if ($hierarchy AND $hierarchy_source) {
+			$hierarchy_value = explode('/', $line[$hierarchy_source]);
+			array_pop($hierarchy_value);
+			if ($hierarchy_value)
+				$values['POST'][$hierarchy] = implode('/', $hierarchy_value);
+		}
+		if (!empty($values['POST']['parameters']))
+			$values['POST']['parameters'] = implode('&', $values['POST']['parameters']);
+
+		$ops = zzform_multi($table, $values);
+		if (!$ops['id']) {
+			echo wrap_print($ops);
+			echo wrap_print($values);
+			exit;
+		}
+		$ids[$ops['id']] = $values['POST']['identifier'];
+	}
+	return $ids;
 }
