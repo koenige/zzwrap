@@ -1192,11 +1192,11 @@ function wrap_placeholder($placeholder) {
 function wrap_cfg_quote($string) {
 	$quote = false;
 	$quoted_strings = [
-		'(', ')', "\n", "\r", "'", "no", "yes", " "
+		'(', ')', "\n", "\r", "'", "no", "yes", " ", "none"
 	];
 	$string = trim($string);
 	foreach ($quoted_strings as $quoted) {
-		if (!strpos($string, $quoted)) continue;
+		if (!stristr($string, $quoted)) continue;
 		return sprintf('"%s"', $string);
 	}
 	return $string;
