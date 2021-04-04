@@ -368,6 +368,7 @@ function wrap_install_cfg($table) {
 
 	$removes = !empty($data['_table_definition']['remove']) ? $data['_table_definition']['remove'] : [];
 	$prefixes = !empty($data['_table_definition']['prefix']) ? $data['_table_definition']['prefix'] : [];
+	$no_prefixes_if_start = !empty($data['_table_definition']['no_prefix_if_begin']) ? $data['_table_definition']['no_prefix_if_begin'] : [];
 	$replaces = !empty($data['_table_definition']['replace']) ? $data['_table_definition']['replace'] : [];
 	$keys = !empty($data['_table_definition']['keys']) ? $data['_table_definition']['keys'] : [];
 	$hierarchy = !empty($data['_table_definition']['hierarchy_field']) ? $data['_table_definition']['hierarchy_field'] : false;
@@ -395,10 +396,17 @@ function wrap_install_cfg($table) {
 			}
 			if (array_key_exists($key, $prefixes)) {
 				// 2. prefix value
-				if (!empty($zz_setting[$prefixes[$key]]))
-					$value = $zz_setting[$prefixes[$key]].$value;
-				else
-					$value = $prefixes[$key].$value;
+				$add_prefix = true;
+				if (array_key_exists($key, $no_prefixes_if_start)) {
+					if (wrap_substr($value, $no_prefixes_if_start[$key]))
+						$add_prefix = false;
+				}
+				if ($add_prefix) {
+					if (!empty($zz_setting[$prefixes[$key]]))
+						$value = $zz_setting[$prefixes[$key]].$value;
+					else
+						$value = $prefixes[$key].$value;
+				}
 			}
 			if (array_key_exists($key, $removes)) {
 				// 3. remove part of the value
