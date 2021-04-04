@@ -17,6 +17,7 @@ function wrap_install() {
 	global $zz_setting;
 	global $zz_conf;
 	if (!$zz_setting['local_access']) return;
+	$zz_conf['user'] = 'Crew droid Robot 571';
 
 	$zz_setting['template'] = 'install-page';
 	wrap_include_ext_libraries();
@@ -46,7 +47,7 @@ function wrap_install() {
 	}
 
 	if ($page['text'] === true) {
-		return wrap_redirect_change();
+		return wrap_redirect_change($zz_setting['homepage_url']);
 	} elseif ($page['text'] === false) {
 		return false;
 	}
@@ -141,7 +142,6 @@ function wrap_install_zzform() {
 
 	if (!isset($zz_setting['brick_default_tables']))
 		$zz_setting['brick_default_tables'] = true;
-	$zz_conf['user'] = 'Crew droid Robot 571';
 	$zz_page['url']['full'] = [
 		'scheme' => $zz_setting['protocol'],
 		'host' => $zz_setting['hostname'],
@@ -290,8 +290,7 @@ function wrap_install_modules() {
 			if (function_exists($function))
 				$function();
 		}
-		exit;
-		$_SESSION['step'] = 4;
+		$_SESSION['step'] = 5;
 		return true;
 	}
 	foreach ($_SESSION['module_install'] as $module) {
