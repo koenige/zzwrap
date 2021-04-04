@@ -411,8 +411,10 @@ function wrap_install_cfg($table) {
 			if (array_key_exists($key, $removes)) {
 				// 3. remove part of the value
 				$remove = explode(' ', $removes[$key]);
-				if (!empty($zz_setting[$remove[0]]))
-					$value = str_replace($remove[1], '', $value);
+				$remove_key = array_shift($remove);
+				$remove = implode(' ', $remove);
+				if (!empty($zz_setting[$remove_key]))
+					$value = str_replace($remove, '', $value);
 			}
 			
 			// assign values
