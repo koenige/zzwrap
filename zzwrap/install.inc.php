@@ -435,7 +435,8 @@ function wrap_install_cfg($table) {
 				$values['POST'][$key] = $value;
 			} elseif (in_array($key.'_id', $fields)) {
 				$values['POST'][$key.'_id'] = $value.' ';
-				if (is_int($value))
+				// is integer or integer cast as string?
+				if (intval($value).'' === $value.'')
 					$values['ids'][] = $key.'_id';
 			} elseif (is_array($value)) {
 				foreach ($value as $subkey => $subvalue)
