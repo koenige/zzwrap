@@ -47,7 +47,7 @@ function wrap_install() {
 	}
 
 	if ($page['text'] === true) {
-		return wrap_redirect_change($zz_setting['homepage_url']);
+		return wrap_redirect_change();
 	} elseif ($page['text'] === false) {
 		return false;
 	}
