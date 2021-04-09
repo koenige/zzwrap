@@ -592,7 +592,7 @@ function wrap_check_canonical_ending($ending, $url) {
 	if ($url['full']['path'] === '/') return $url;
 	if ($ending === 'ignore') return $url;
 	$new = false;
-	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E'];
+	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0'];
 	foreach ($possible_endings as $p_ending) {
 		if (!wrap_substr($url['full']['path'], $p_ending, 'end')) continue;
 		if ($p_ending === $ending) return $url;
@@ -629,7 +629,7 @@ function wrap_read_url($url) {
 	if (substr($url['db'], 0, 1) === '/') {
 		$url['db'] = substr($url['db'], 1);
 	}
-	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E'];
+	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0'];
 	foreach ($possible_endings as $p_ending) {
 		if (substr($url['db'], -strlen($p_ending)) !== $p_ending) continue;
 		$url['db'] = substr($url['db'], 0, -strlen($p_ending));
@@ -817,7 +817,7 @@ function wrap_check_redirects_placeholder($url, $position) {
 function wrap_check_redirect_from_cache($page, $url) {
 	// %E2%80%8B = zero width space, sometimes added to URL from some systems
 	$redirect_endings = [
-		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B'
+		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B', '%C2%A0'
 	];
 	foreach ($redirect_endings as $ending) {
 		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
