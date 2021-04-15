@@ -355,7 +355,7 @@ function wrap_install_cfg($table) {
 	$ids = [];
 
 	// read definitions
-	$data = wrap_cfg_files($table);
+	$data = wrap_cfg_files('install-'.$table);
 	$fields = !empty($data['_table_definition']['fields']) ? $data['_table_definition']['fields'] : [];
 	$tables = [];
 	foreach ($fields as $index => $field) {
