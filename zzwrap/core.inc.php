@@ -2503,6 +2503,7 @@ function wrap_substr($string, $substring, $mode = 'begin') {
  * @return mixed $setting (if not found, returns NULL)
  */
 function wrap_get_setting($key, $login_id = 0) {
+	static $cfg;
 	if (function_exists('my_get_setting')) {
 		return my_get_setting($key, $login_id);
 	}
@@ -2513,6 +2514,14 @@ function wrap_get_setting($key, $login_id = 0) {
 	$values = wrap_setting_read($key, $login_id);
 	if ($login_id AND array_key_exists($key, $values)) {
 		return $values[$key];
+	}
+	// default value set in one of the current settings.cfg files?
+	if (empty($cfg)) {
+		$cfg = wrap_cfg_files('settings');
+	}
+	if (!empty($cfg[$key]['default'])) {
+		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
+		return $tmp_setting[$key];
 	}
 	// @deprecated
 	if (substr($key, -1) === '*') {
