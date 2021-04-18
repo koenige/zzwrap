@@ -262,15 +262,15 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// -- 1. check what kind of error page it is
 	// if wanted, check if mod_rewrite works
 	if (!empty($zz_setting['mod_rewrite_error']) 
-		AND $_SERVER['SCRIPT_NAME'] != '/_scripts/main.php') {
+		AND $_SERVER['SCRIPT_NAME'] !== '/_scripts/main.php') {
 		if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1))) {
 			wrap_error('mod_rewrite does not work as expected: '
 				.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
-			$_GET['code'] = 503;
+			$page['status'] = 503;
 		}
 	}
 	
-	if (!empty($_GET['code'])) {
+	if (empty($page['status']) AND !empty($_GET['code'])) {
 		// get 'code' if main.php is directly accessed as an error page
 		$page['status'] = $_GET['code'];
 	} elseif (empty($page['status'])) {
