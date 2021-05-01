@@ -151,6 +151,7 @@
 404	ua	Mozilla/5.0 (compatible;picmole/1.0 +http://www.picmole.com)
 404	ua	Mozilla/5.0 (compatible; heritrix/3.1.1 +http://www.mixdata.com)
 404	ua	arquivo-web-crawler (compatible; heritrix/3.4.0-20200304 +http://arquivo.pt)
+404	ua	Mozilla/5.0 (compatible; heritrix/3.4.0-SNAPSHOT-2021-01-14T20:13:18Z +https://www.fim.uni-passau.de/data-science/forschung/open-search)
 
 # Facebook is broken as well
 404	ua	facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
@@ -310,9 +311,17 @@ qs	string	fbclid
 
 # looking for uploaded git repository information
 404	end	/.git/HEAD
+404	end	/.git/INDEX
+404	end	/.git/config
 
 # .well-known URLs are normally not linked from a webpage
 404	begin	/.well-known
 
 # some guys from Tallin looking for unprotected environment variables
 404	end	/.env
+
+# Sypex Dumper
+404	end	/sxd.js
+
+# Laravel Health Panel
+404	end	/laravel/_ignition/health-check/
