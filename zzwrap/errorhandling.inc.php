@@ -271,8 +271,11 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	
 	if (empty($page['status']) AND !empty($_GET['code'])) {
-		// get 'code' if main.php is directly accessed as an error page
-		$page['status'] = $_GET['code'];
+		if (wrap_substr($_SERVER['REQUEST_URI'], '/_scripts/main.php?code='))
+			$page['status'] = 404;
+		else
+			// get 'code' if main.php is directly accessed as an error page
+			$page['status'] = $_GET['code'];
 	} elseif (empty($page['status'])) {
 		// default error code
 		$page['status'] = 404;
