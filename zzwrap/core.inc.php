@@ -2329,6 +2329,9 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 			if (!empty($cache_control['max-age']) AND $cache_control['max-age'] > $age) {
 				$age = $cache_control['max-age'];
 				$date = wrap_date(wrap_cache_get_header($files[1], 'Date'), 'rfc1123->timestamp');
+				// sometimes, Date header is missing in cache file (why?)
+				// then get new data
+				if (!$date) return false;
 				if ($date + $age > $now) return true;
 			}					
 		}
