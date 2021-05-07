@@ -427,7 +427,7 @@ function wrap_date_format($date, $set, $type = 'standard') {
 function wrap_print($array, $color = 'FFF', $html = true) {
 	if ($html) {
 		$out = '<pre style="text-align: left; background-color: #'.$color
-			.'; position: relative; z-index: 10;" class="fullarray">';
+			.'; position: relative; z-index: 10; white-space: pre-wrap;" class="fullarray">';
 	} else {
 		$out = '';
 	}
