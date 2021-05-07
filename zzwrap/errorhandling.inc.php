@@ -37,6 +37,8 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	static $collect_messages;
 	static $collect_error_type;
 
+	wrap_include_ext_libraries(); // for mail template, maybe zzbrick is used
+
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
 		$collect_messages = [];
