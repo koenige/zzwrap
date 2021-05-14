@@ -1021,6 +1021,17 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	global $zz_setting;
 	global $zz_page;
 
+	if (!empty($zz_setting['canonical_hostname'])) {
+		$hostname = $zz_setting['hostname'];
+		if (wrap_substr($hostname, '.local', 'end')) $hostname = substr($hostname, 0, -6);
+		if ($hostname !== $zz_setting['canonical_hostname']) {
+			// fix links on error page to real destinations
+			$zz_setting['host_base'] = $zz_setting['base']
+				= $zz_setting['protocol'].'://'.$zz_setting['canonical_hostname'];
+			$zz_setting['homepage_url'] = $zz_setting['host_base'].$zz_setting['homepage_url'];
+		}
+	}
+
 	$page['status'] = $statuscode;
 	if ($statuscode === 404) {
 		$redir = wrap_check_redirects($zz_page['url']);
