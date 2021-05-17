@@ -228,6 +228,29 @@ function wrap_session_cookietest_end($token) {
  */
 
 /**
+ * expand URL (default = own URL)
+ * shortcuts allowed: starting / = own server; ? = append query string
+ * # = append anchor
+ *
+ * @param string $url
+ * @return string
+ */
+function wrap_url_expand($url = false) {
+	global $zz_setting;
+	if (!$url)
+		$url = $zz_setting['host_base'].$zz_setting['request_uri'];
+	if (substr($url, 0, 1) === '#')
+		$url = $zz_setting['host_base'].$zz_setting['request_uri'].$url;
+	elseif (substr($url, 0, 1) === '?') {
+		$request_uri = $zz_setting['request_uri'];
+		if (strstr($request_uri, '?')) $url = '&'.substr($url, 1);
+		$url = $zz_setting['host_base'].$request_uri.$url;
+	} elseif (substr($url, 0, 1) === '/')
+		$url = $zz_setting['host_base'].$url;
+	return $url;
+}
+
+/**
  * Tests whether URL is in database (or a part of it ending with *), or a part 
  * of it with placeholders
  * 
