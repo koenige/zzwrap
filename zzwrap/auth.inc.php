@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -947,7 +947,7 @@ function wrap_sso_login($login_url, $dest_url = '/') {
 	$url = sprintf('%s?username=%s&token=%s&url=%s', 
 		$login_url, $_SESSION['username'], $token, urlencode($dest_url)
 	);
-	return brick_format('%%% redirect 307 '.$url.' %%%');
+	return wrap_redirect($url, 307, false);
 }
 
 /**

@@ -190,8 +190,7 @@ function wrap_session_cookietest_start($token) {
 	} else {
 		$url['query'] .= '&no-cookie';
 	}
-	$url = wrap_glue_url($url);
-	return brick_format('%%% redirect '.$url.' %%%');
+	return wrap_redirect(wrap_glue_url($url), 302, false);
 }
 
 /**
@@ -211,7 +210,7 @@ function wrap_session_cookietest_end($token) {
 	$url['query'] = http_build_query($query);
 	$data['url'] = wrap_glue_url($url);
 	if (!empty($_SESSION[$token])) {
-		return brick_format('%%% redirect '.$data['url'].' %%%');
+		return wrap_redirect($data['url'], 302, false);
 	}
 	// return cookie missing message
 	$page['dont_show_h1'] = true;
