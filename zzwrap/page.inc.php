@@ -950,11 +950,11 @@ function wrap_get_page() {
  * @param int $status (defaults to 302)
  * @param bool $cache cache redirect, defaults to true
  */
-function wrap_redirect($location, $status = 302, $cache = true) {
+function wrap_redirect($location = false, $status = 302, $cache = true) {
 	global $zz_setting;
 
 	wrap_http_status_header($status);
-	$header = sprintf('Location: %s', $location);
+	$header = sprintf('Location: %s', wrap_url_expand($location));
 	$zz_setting['headers'][] = $header;
 	if ($cache AND !empty($zz_setting['cache'])
 		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
@@ -967,13 +967,14 @@ function wrap_redirect($location, $status = 302, $cache = true) {
 }
 
 /**
- * Redirects after something was POSTed
- * 
- * @param string $url (default = own URL)
- * 		shortcuts allowed: starting / = own server; ? = append query string
- *		# = append anchor
+ * expand URL (default = own URL)
+ * shortcuts allowed: starting / = own server; ? = append query string
+ * # = append anchor
+ *
+ * @param string $url
+ * @return string
  */
-function wrap_redirect_change($url = false) {
+function wrap_url_expand($url = false) {
 	global $zz_setting;
 	if (!$url)
 		$url = $zz_setting['host_base'].$zz_setting['request_uri'];
@@ -985,6 +986,15 @@ function wrap_redirect_change($url = false) {
 		$url = $zz_setting['host_base'].$request_uri.$url;
 	} elseif (substr($url, 0, 1) === '/')
 		$url = $zz_setting['host_base'].$url;
+	return $url;
+}
+
+/**
+ * Redirects after something was POSTed
+ * 
+ * @param string $url (default = own URL)
+ */
+function wrap_redirect_change($url = false) {
 	return wrap_redirect($url, 303, true);
 }
 
