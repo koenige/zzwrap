@@ -441,7 +441,10 @@ function wrap_look_for_file($url_path) {
 
 	if ($zz_setting['active_theme'] AND !empty($zz_setting['icon_paths'])) {
 		if (in_array($url_path, $zz_setting['icon_paths'])) {
-			$file['name'] = sprintf('%s/%s%s', $zz_setting['themes_dir'], $zz_setting['active_theme'], $url_path);
+			$path = $url_path;
+			if (wrap_substr($path, $zz_setting['base_path']))
+				$path = substr($path, strlen($zz_setting['base_path']));
+			$file['name'] = sprintf('%s/%s%s', $zz_setting['themes_dir'], $zz_setting['active_theme'], $path);
 			if (file_exists($file['name'])) {
 				$file['etag_generate_md5'] = true;
 				wrap_file_send($file);
