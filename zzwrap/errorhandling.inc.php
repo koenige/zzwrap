@@ -32,7 +32,6 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
-	static $post_errors_logged;
 	static $collect;
 	static $collect_messages;
 	static $collect_error_type;
@@ -111,35 +110,14 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	$log_output = strip_tags($log_output);
 	$log_output = trim(html_entity_decode($log_output, ENT_QUOTES, $log_encoding));
 
-	$user = !empty($_SESSION['username']) ? $_SESSION['username'] : '';
-	if (!$user AND !empty($zz_conf['user'])) $user = $zz_conf['user'];
-
 	if (!isset($settings['log_post_data'])) $settings['log_post_data'] = true;
 	if (empty($_POST)) $settings['log_post_data'] = false;
 	elseif (!$zz_conf['error_log_post']) $settings['log_post_data'] = false;
-	elseif ($post_errors_logged) $settings['log_post_data'] = false;
 
 	// reformat log output
 	if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
-		$error_line = '['.date('d-M-Y H:i:s').'] zzwrap '.ucfirst($level).': '
-			.(!empty($settings['logfile']) ? $settings['logfile'].' ' : '')
-			.preg_replace("/\s+/", " ", $log_output);
-		$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
-			- (strlen($user)+4)).' ['.$user."]\n";
-		error_log($error_line, 3, $zz_conf['error_log'][$level]);
-		if ($settings['log_post_data']) {
-			$error_line = '['.date('d-M-Y H:i:s').'] zzwrap Notice: POST';
-			if (function_exists('json_encode')) {
-				$error_line .= '[json] '.json_encode($_POST);
-			} else {
-				$error_line .= ' '.serialize($_POST);
-			}
-			$error_line = substr($error_line, 0, $zz_conf['log_errors_max_len'] 
-				- (strlen($user)+4)).' ['.$user."]\n";
-			error_log($error_line, 3, $zz_conf['error_log'][$level]);
-			// Log POST output only once per request
-			$post_errors_logged = true;
-		}
+		wrap_log('zzwrap', $level, (!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output);
+		if ($settings['log_post_data']) wrap_log('zzwrap', 'postdata');
 	}
 		
 	if (!empty($zz_conf['debug']))
@@ -176,7 +154,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			$foot .= "\nBrowser: ".(!empty($_SERVER['HTTP_USER_AGENT']) 
 				? $_SERVER['HTTP_USER_AGENT'] : wrap_text('unknown'));	
 		// add user name to mail message if there is one
-		if ($user) $foot .= "\n".wrap_text('User').': '.$user;
+		if ($user = wrap_user()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
 		if ($foot) $msg .= "\n\n-- ".$foot;
 
 		$mail['to'] = $zz_conf['error_mail_to'];
@@ -724,4 +702,49 @@ function wrap_error_url_decode($url) {
 		if ($i > 10) break;
 	}
 	return preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_all_decode', $url);
+}
+
+/**
+ * format a line for logfile
+ *
+ * @param string $module
+ * @param string $level
+ * @param string $line (optional)
+ * @param string $file (optional)
+ * @return string
+ */
+function wrap_log($module, $level = 'notice', $line = '', $file = false) {
+	global $zz_conf;
+	static $postdata;
+	if ($level === 'postdata' AND !$line) {
+		if (!empty($postdata)) return false;
+		$line = sprintf('POST[json] %s', json_encode($_POST));
+		$level = 'notice';
+		$postdata = true; // just log POST data once per request
+	}
+
+	$user = wrap_user();
+	$line = sprintf('[%s] %s %s: %s'
+		, date('d-M-Y H:i:s')
+		, $module
+		, ucfirst($level)
+		, preg_replace("/\s+/", " ", $line) 
+	);
+	$line = substr($line, 0, $zz_conf['log_errors_max_len'] - (strlen($user) + 4));
+	$line .= sprintf(" [%s]\n", $user);
+	if (!$file) $file = $zz_conf['error_log'][$level];
+	error_log($line, 3, $file);
+	return true;
+}
+
+/**
+ * read username, either from SESSION or from $zz_conf
+ *
+ * @return string
+ */
+function wrap_user() {
+	global $zz_conf;
+	if (!empty($_SESSION['username'])) return $_SESSION['username'];
+	if (!empty($zz_conf['user'])) return $zz_conf['user'];
+	return '';
 }
