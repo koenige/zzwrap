@@ -5,10 +5,10 @@
  * Syndication functions, Locking functions, Watchdog
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -414,7 +414,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		// e. g. IF_NONE_MATCH, so we'll always try to get the data
 		// do not log error here
 		$content = false;
-		if ($method === 'POST') {
+		if (in_array($method, ['POST', 'PATCH'])) {
 			$headers_to_send[] = 'Content-Type: application/x-www-form-urlencoded';
 			$content = wrap_syndication_http_post($data_to_send);
 		}
@@ -460,8 +460,11 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_USERAGENT, 
-			'Mozilla/5.0 (compatible; Zugzwang Project; +http://www.zugzwang.org/)'
+			'Zugzwang Project; +https://www.zugzwang.org/'
 		);
+		if (in_array($method, ['DELETE', 'PATCH', 'PUT'])) {
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+		}
 		if ($headers_to_send) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
 			if (in_array('X-Timeout-Ignore: 1', $headers_to_send)) {
@@ -476,7 +479,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		if (!$timeout_ignore AND !empty($zz_setting['syndication_timeout_ms'])) {
 			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['syndication_timeout_ms']);
 		}
-		if ($method === 'POST') {
+		if (in_array($method, ['POST', 'PATCH'])) {
 			curl_setopt($ch, CURLOPT_POST, true);
 			if (!empty($data_to_send)) {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, wrap_syndication_http_post($data_to_send));
