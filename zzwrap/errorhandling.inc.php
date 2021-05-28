@@ -732,7 +732,13 @@ function wrap_log($module, $level = 'notice', $line = '', $file = false) {
 	);
 	$line = substr($line, 0, $zz_conf['log_errors_max_len'] - (strlen($user) + 4));
 	$line .= sprintf(" [%s]\n", $user);
-	if (!$file) $file = $zz_conf['error_log'][$level];
+	if (!$file) {
+		if (in_array($module, ['zzform', 'zzwrap'])
+			AND array_key_exists($level, $zz_conf['error_log']))
+			$file = $zz_conf['error_log'][$level];
+		else
+			$file = sprintf('%s/%s.log', $zz_setting['log_dir'], $module);
+	}
 	error_log($line, 3, $file);
 	return true;
 }
