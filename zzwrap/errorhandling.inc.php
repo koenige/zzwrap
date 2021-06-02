@@ -715,6 +715,7 @@ function wrap_error_url_decode($url) {
  */
 function wrap_log($module, $level = 'notice', $line = '', $file = false) {
 	global $zz_conf;
+	global $zz_setting;
 	static $postdata;
 	if ($level === 'postdata' AND !$line) {
 		if (!empty($postdata)) return false;
@@ -736,20 +737,25 @@ function wrap_log($module, $level = 'notice', $line = '', $file = false) {
 		if (in_array($module, ['zzform', 'zzwrap'])
 			AND array_key_exists($level, $zz_conf['error_log']))
 			$file = $zz_conf['error_log'][$level];
-		else
+		else {
 			$file = sprintf('%s/%s.log', $zz_setting['log_dir'], $module);
+			wrap_mkdir(dirname($file));
+		}
 	}
 	error_log($line, 3, $file);
 	return true;
 }
 
 /**
- * read username, either from SESSION or from $zz_conf
+ * read username
+ * either from setting log_username, SESSION or from $zz_conf
  *
  * @return string
  */
 function wrap_user() {
 	global $zz_conf;
+	global $zz_setting;
+	if (!empty($zz_setting['log_username'])) return $zz_setting['log_username'];
 	if (!empty($_SESSION['username'])) return $_SESSION['username'];
 	if (!empty($zz_conf['user'])) return $zz_conf['user'];
 	return '';
