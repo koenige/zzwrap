@@ -92,7 +92,7 @@ function wrap_session_start() {
 	if ($zz_setting['authentication_possible'] AND wrap_authenticate_url()) {
 		$session_error = error_get_last();
 		if ($last_error != $session_error
-			AND wrap_substr($session_error['message'], 'session_start()')) {
+			AND str_starts_with($session_error['message'], 'session_start()')) {
 			wrap_error('Session start not possible: '.json_encode($session_error));
 			wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 		}
@@ -442,7 +442,7 @@ function wrap_look_for_file($url_path) {
 	if ($zz_setting['active_theme'] AND !empty($zz_setting['icon_paths'])) {
 		if (in_array($url_path, $zz_setting['icon_paths'])) {
 			$path = $url_path;
-			if (wrap_substr($path, $zz_setting['base_path']))
+			if (str_starts_with($path, $zz_setting['base_path']))
 				$path = substr($path, strlen($zz_setting['base_path']));
 			$file['name'] = sprintf('%s/%s%s', $zz_setting['themes_dir'], $zz_setting['active_theme'], $path);
 			if (file_exists($file['name'])) {
@@ -455,7 +455,7 @@ function wrap_look_for_file($url_path) {
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (empty($zz_setting[$path.'_path'])) continue;
-		if (!wrap_substr($url_path, $zz_setting[$path.'_path'])) continue;
+		if (!str_starts_with($url_path, $zz_setting[$path.'_path'])) continue;
 		$url_folders = explode('/', substr($url_path, strlen($zz_setting[$path.'_path'])));
 		if (count($url_folders) < 2) continue;
 		if (!in_array($url_folders[1], $folders)) continue;
@@ -619,7 +619,7 @@ function wrap_check_canonical_ending($ending, $url) {
 	$new = false;
 	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0'];
 	foreach ($possible_endings as $p_ending) {
-		if (!wrap_substr($url['full']['path'], $p_ending, 'end')) continue;
+		if (!str_ends_with($url['full']['path'], $p_ending)) continue;
 		if ($p_ending === $ending) return $url;
 		$url['full']['path'] = substr($url['full']['path'], 0, -strlen($p_ending));
 		$new = true;
@@ -683,11 +683,11 @@ function wrap_glue_url($url) {
 	} else {
 		$url['port'] = '';
 	}
-	if (!empty($url['path_forwarded']) AND wrap_substr($url['path'], $url['path_forwarded'])) {
+	if (!empty($url['path_forwarded']) AND str_starts_with($url['path'], $url['path_forwarded'])) {
 		$url['path'] = substr($url['path'], strlen($url['path_forwarded']));
 	}
 	// remove duplicate base
-	if (wrap_substr($url['path'], $base)) $base = '';
+	if (str_starts_with($url['path'], $base)) $base = '';
 	$url['path'] = $base.$url['path'];
 	return wrap_build_url($url);
 }
@@ -908,7 +908,7 @@ function wrap_log_uri($status = 0) {
 
 	$scheme = $zz_page['url']['full']['scheme'];
 	$host = $zz_page['url']['full']['host'];
-	$base = wrap_substr($_SERVER['REQUEST_URI'], $zz_setting['base']) ? $zz_setting['base'] : '';
+	$base = str_starts_with($_SERVER['REQUEST_URI'], $zz_setting['base']) ? $zz_setting['base'] : '';
 	$path = $base.wrap_db_escape($zz_page['url']['full']['path']);
 	$query = !empty($zz_page['url']['full']['query'])
 		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
@@ -1048,7 +1048,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 
 	if (!empty($zz_setting['canonical_hostname'])) {
 		$hostname = $zz_setting['hostname'];
-		if (wrap_substr($hostname, '.local', 'end')) $hostname = substr($hostname, 0, -6);
+		if (str_ends_with($hostname, '.local')) $hostname = substr($hostname, 0, -6);
 		if ($hostname !== $zz_setting['canonical_hostname']) {
 			// fix links on error page to real destinations
 			$zz_setting['host_base'] = $zz_setting['base']
@@ -1140,7 +1140,7 @@ function wrap_http_status_header($code) {
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
-	if (wrap_substr(php_sapi_name(), 'cgi')) $protocol = 'Status:';
+	if (str_starts_with(php_sapi_name(), 'cgi')) $protocol = 'Status:';
 	
 	if ($protocol === 'HTTP/1.0' AND in_array($code, [302, 303, 307])) {
 		header($protocol.' 302 Moved Temporarily');
@@ -1173,9 +1173,9 @@ function wrap_http_status_list($code) {
 	$pos[2] = 'description';
 	$codes_from_file = file($zz_setting['core'].'/http-statuscodes.txt');
 	foreach ($codes_from_file as $line) {
-		if (wrap_substr($line, '#')) continue;	// Lines with # will be ignored
+		if (str_starts_with($line, '#')) continue;	// Lines with # will be ignored
 		elseif (!trim($line)) continue;				// empty lines will be ignored
-		if (!wrap_substr($line, $code.'')) continue;
+		if (!str_starts_with($line, $code.'')) continue;
 		$values = explode("\t", trim($line));
 		$i = 0;
 		$code = '';
@@ -1231,7 +1231,7 @@ function wrap_check_https($zz_page, $zz_setting) {
 	// if it doesn't matter, get out of here
 	if ($zz_setting['ignore_scheme']) return true;
 	foreach ($zz_setting['ignore_scheme_paths'] as $path) {
-		if (wrap_substr($_SERVER['REQUEST_URI'], $path)) return true;
+		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
 	}
 
 	// change from http to https or vice versa
@@ -1318,7 +1318,7 @@ function wrap_check_request() {
 			if ($zz_setting['local_access'] AND substr($forwarded_host, -6) === '.local') {
 				$forwarded_host = substr($forwarded_host, 0, -6);
 			}
-			if (wrap_substr($zz_page['url']['full']['path'], $forwarded_host)) {
+			if (str_starts_with($zz_page['url']['full']['path'], $forwarded_host)) {
 				$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
 				$zz_setting['request_uri'] = substr($zz_setting['request_uri'], strlen($forwarded_host));
 			}
@@ -1521,7 +1521,7 @@ function wrap_file_send($file) {
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$suffix = !empty($file['ext']) ? $file['ext'] : wrap_file_extension($file['name']);
-	if (!wrap_substr($file['send_as'], '.'.$suffix, 'end'))
+	if (!str_ends_with($file['send_as'], '.'.$suffix))
 		$file['send_as'] .= '.'.$suffix;
 	if (!isset($file['caching'])) $file['caching'] = true;
 
@@ -2091,7 +2091,7 @@ function wrap_cache_revalidated($file) {
 	$headers = file_get_contents($file);
 	$headers = explode("\r\n", $headers);
 	foreach ($headers as $index => $header) {
-		if (wrap_substr($header, 'X-Revalidated: '))
+		if (str_starts_with($header, 'X-Revalidated: '))
 			unset($headers[$index]);
 	}
 	$headers[] = sprintf('X-Revalidated: %s', wrap_date(time(), 'timestamp->rfc1123'));
@@ -2521,6 +2521,7 @@ function wrap_return_bytes($val) {
  * @param string $substring = this must be beginning of string
  * @param string $mode: begin: check from begin; end: check from end
  * @param bool true: first letters of $string match $substring
+ * @deprecated, use str_starts_with(), str_ends_with()
  */
 function wrap_substr($string, $substring, $mode = 'begin') {
 	switch ($mode) {
@@ -2532,6 +2533,25 @@ function wrap_substr($string, $substring, $mode = 'begin') {
 		break;
 	}
 	return false;
+}
+
+// @deprecated PHP7 compatibility
+// source: Laravel Framework
+// https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) {
+        return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+if (!function_exists('str_ends_with')) {
+    function str_ends_with($haystack, $needle) {
+        return $needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
+    }
+}
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) {
+        return $needle !== '' && mb_strpos($haystack, $needle) !== false;
+    }
 }
 
 /**

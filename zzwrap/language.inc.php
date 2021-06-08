@@ -47,7 +47,7 @@ function wrap_set_language() {
 	// Content Negotiation for language?
 	if (empty($zz_setting['negotiate_language'])) return true;
 	foreach ($zz_setting['dont_negotiate_language_paths'] as $path) {
-		if (wrap_substr($_SERVER['REQUEST_URI'], $path)) return true;
+		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
 	}
 	// language is already in URL?
 	if ($zz_setting['language_in_url']) return true;

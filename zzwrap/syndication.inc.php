@@ -442,7 +442,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			$status = 503;
 		}
 		foreach ($headers as $header) {
-			if (wrap_substr($header, 'HTTP/')) {
+			if (str_starts_with($header, 'HTTP/')) {
 				$status = explode(' ', $header);
 				$status = intval($status[1]);
 			}
@@ -494,7 +494,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			// development server, too
 			if ($zz_setting['local_access']) {
 				$remote_url_parts = parse_url($url);
-				if (wrap_substr($remote_url_parts['host'], '.local', 'end')) {
+				if (str_ends_with($remote_url_parts['host'], '.local')) {
 					$old_curl_ignore_ssl_verifyresult
 						= empty($zz_setting['curl_ignore_ssl_verifyresult']) ? false : true;
 					$zz_setting['curl_ignore_ssl_verifyresult'] = true;
@@ -551,7 +551,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			$skip_empty = false;
 			foreach ($lines as $index => $line) {
 				unset($lines[$index]);
-				if (wrap_substr($line, 'HTTP/') AND wrap_substr($line, '100 Continue', 'end')) {
+				if (str_starts_with($line, 'HTTP/') AND str_ends_with($line, '100 Continue')) {
 					$skip_empty = true;
 					continue;
 				} elseif ($line) {
@@ -732,8 +732,8 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	$logfile = $zz_setting['log_dir'].'/watchdog.log';
 	if (!file_exists($logfile)) touch($logfile);
 
-	if (wrap_substr($source, 'http://')
-		OR wrap_substr($source, 'https://')) {
+	if (str_starts_with($source, 'http://')
+		OR str_starts_with($source, 'https://')) {
 		$source = str_replace('.local', '', $source);
 		$data = wrap_syndication_get($source, 'file');
 		if (empty($data['_']['filename'])) return false;
@@ -779,7 +779,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	}
 	
 	// do something
-	if (wrap_substr($destination, 'ftp://')) {
+	if (str_starts_with($destination, 'ftp://')) {
 		$url = parse_url($destination);
 		$ftp_stream = ftp_connect($url['host'], !empty($url['port']) ? $url['port'] : 21);
 		if (!$ftp_stream) {

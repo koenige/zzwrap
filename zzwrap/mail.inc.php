@@ -99,7 +99,7 @@ function wrap_mail($mail, $list = []) {
 	}
 
 	// Signature? Only for plain text mails
-	if (empty($mail['multipart']) AND wrap_substr($mail['headers']['Content-Type'], 'text/plain')) {
+	if (empty($mail['multipart']) AND str_starts_with($mail['headers']['Content-Type'], 'text/plain')) {
 		if (!empty($zz_setting['mail_with_signature']) AND wrap_template_file('signature-mail', false)) {
 			$mail['message'] .= "\r\n".wrap_template('signature-mail');
 		}
@@ -125,7 +125,7 @@ function wrap_mail($mail, $list = []) {
 	} else {
 		// hinder Outlook to mess with the line breaks
 		// https://support.microsoft.com/en-au/help/287816/line-breaks-are-removed-in-posts-made-in-plain-text-format-in-outlook
-		if (wrap_substr($mail['headers']['Content-Type'], 'text/plain')) {
+		if (str_starts_with($mail['headers']['Content-Type'], 'text/plain')) {
 			$mail['message'] = str_replace("\n", "\t\n", $mail['message']);
 			$mail['message'] = str_replace("\r\t\n", "\t\r\n", $mail['message']);
 		}

@@ -302,7 +302,7 @@ function wrap_config($mode, $site = '') {
 		$existing_config = json_decode($existing_config, true);
 		if (!$existing_config) return;
 		foreach ($existing_config as $skey => $value) {
-			if (wrap_substr($skey, 'zzform_')) {
+			if (str_starts_with($skey, 'zzform_')) {
 				$skey = substr($skey, 7);
 				$var = 'zz_conf';
 			} else {
@@ -825,7 +825,7 @@ function wrap_tests() {
 function wrap_is_dav_url() {
 	global $zz_setting;
 	if (empty($zz_setting['dav_url'])) return false;
-	// no wrap_substr() here, function is not yet loaded
+	// no str_starts_with() here, function is not yet loaded
 	if (substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['dav_url'])) === $zz_setting['dav_url']) {
 		return true;
 	}

@@ -252,8 +252,8 @@ function wrap_install_settings_folders() {
 	$configs = ['zz_setting', 'zz_conf'];
 	foreach ($configs as $config) {
 		foreach ($$config as $key => $value) {
-			if (!wrap_substr($key, '_dir', 'end')
-				AND !wrap_substr($key, '_folder', 'end')) continue;
+			if (!str_ends_with($key, '_dir')
+				AND !str_ends_with($key, '_folder')) continue;
 			if (file_exists($value)) continue;
 			wrap_mkdir($value);
 		}
@@ -397,7 +397,7 @@ function wrap_install_cfg($table) {
 				// 2. prefix value
 				$add_prefix = true;
 				if (array_key_exists($key, $no_prefixes_if_start)) {
-					if (wrap_substr($value, $no_prefixes_if_start[$key]))
+					if (str_starts_with($value, $no_prefixes_if_start[$key]))
 						$add_prefix = false;
 				}
 				if ($add_prefix) {

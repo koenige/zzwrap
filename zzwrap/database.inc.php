@@ -202,7 +202,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	if (!$zz_conf['db_connection']) return false;
 	$sql = trim($sql);
 	
-	if (wrap_substr($sql, 'SET NAMES ')) {
+	if (str_starts_with($sql, 'SET NAMES ')) {
 		$charset = trim(substr($sql, 10));
 		return wrap_db_charset($charset);
 	}
@@ -351,7 +351,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]] = $line;
 				}
 			}
-		} elseif (wrap_substr($format, 'list ')) {
+		} elseif (str_starts_with($format, 'list ')) {
 			$listkey = substr($format, 5);
 			$listkey = explode(' ', $listkey);
 			if (count($listkey) < count($id_field_name)) {
@@ -649,12 +649,12 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
  *		array $tokens list of fields if in list mode
  */
 function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
-	if (wrap_substr(trim($sql), 'SHOW') AND $n_part === 'LIMIT') {
+	if (str_starts_with(trim($sql), 'SHOW') AND $n_part === 'LIMIT') {
 	// LIMIT, WHERE etc. is only allowed with SHOW
 	// not allowed e. g. for SHOW DATABASES(), SHOW TABLES FROM ...
 		return $sql;
 	}
-	if (wrap_substr(trim($sql), 'SHOW DATABASES') AND $n_part === 'WHERE') {
+	if (str_starts_with(trim($sql), 'SHOW DATABASES') AND $n_part === 'WHERE') {
 		// this is impossible and will automatically trigger an error
 		return false; 
 		// @todo implement LIKE here.
@@ -1427,7 +1427,7 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 		if (!$identifier) return $data[$table];
 		$my_data = [];
 		foreach ($data[$table] as $key => $value) {
-			if (wrap_substr($key, $identifier)) $my_data[$key] = $value;
+			if (str_starts_with($key, $identifier)) $my_data[$key] = $value;
 		}
 		return $my_data;
 	default:

@@ -251,7 +251,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 	
 	if (empty($page['status']) AND !empty($_GET['code'])) {
-		if (wrap_substr($_SERVER['REQUEST_URI'], '/_scripts/main.php?code='))
+		if (str_starts_with($_SERVER['REQUEST_URI'], '/_scripts/main.php?code='))
 			$page['status'] = 404;
 		else
 			// get 'code' if main.php is directly accessed as an error page
@@ -260,7 +260,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 		// default error code
 		$page['status'] = 404;
 	}
-	if ($page['status'] == 404 AND wrap_substr($_SERVER['REQUEST_URI'], 'http://')) {
+	if ($page['status'] == 404 AND str_starts_with($_SERVER['REQUEST_URI'], 'http://')) {
 		// probably badly designed robot, away with it
 		$page['status'] = 400;
 	}
@@ -402,7 +402,7 @@ function wrap_errorpage_log($status, $page) {
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 500:
-		if (!wrap_substr($_SERVER['SERVER_PROTOCOL'], 'HTTP')) {
+		if (!str_starts_with($_SERVER['SERVER_PROTOCOL'], 'HTTP')) {
 			$msg .= sprintf(
 				wrap_text('Unsupported server protocol (%s)'),
 				wrap_html_escape($_SERVER['SERVER_PROTOCOL'])

@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2020 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -59,7 +59,7 @@ function zzwrap() {
 	// only if accessed without rewriting, 'code' may be used as a query string
 	// from different functions as well
 	if (!empty($_GET['code'])
-		AND wrap_substr($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])) {
+		AND str_starts_with($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])) {
 		wrap_errorpage([], $zz_page);
 		exit;
 	}

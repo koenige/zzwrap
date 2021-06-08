@@ -94,7 +94,7 @@ function wrap_detect_encoding($data) {
  */
 function wrap_set_encoding($character_encoding) {
 	// note: mb_-functions obiously cannot tell Latin1 from other Latin encodings!
-	$iso = wrap_substr($character_encoding, 'iso-8859-') ? strtoupper($character_encoding) : 'ISO-8859-1';
+	$iso = str_starts_with($character_encoding, 'iso-8859-') ? strtoupper($character_encoding) : 'ISO-8859-1';
 	mb_detect_order('UTF-8, '.$iso.', UTF-7, EUC-JP, SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP');
 	switch ($character_encoding) {
 	case 'utf-8':
