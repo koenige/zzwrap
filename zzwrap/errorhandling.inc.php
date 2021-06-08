@@ -172,8 +172,15 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		break;
 	case 'output':
 		if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
+		if (str_starts_with($msg, 'JSON ')) {
+			$msg = json_decode(substr($msg, 5));
+			$msg = json_encode($msg, JSON_PRETTY_PRINT);
+			$msg = sprintf('<pre>%s</pre>', wrap_html_escape($msg));
+		} else {
+			$msg = wrap_html_escape($msg);
+		}
 		$zz_page['error_msg'] .= '<p class="error">'
-			.str_replace("\n", "<br>", wrap_html_escape($msg)).'</p>';
+			.str_replace("\n", "<br>", $msg).'</p>';
 		break;
 	default:
 		break;
