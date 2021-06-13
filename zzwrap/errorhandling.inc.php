@@ -730,6 +730,15 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		$postdata = true; // just log POST data once per request
 	}
 
+	if (!$module) {
+		if (!empty($zz_setting['active_module_for_log']))
+			$module = $zz_setting['active_module_for_log'];
+		elseif (!empty($zz_setting['active_module']))
+			$module = $zz_setting['active_module'];
+		else
+			$module = 'custom';
+	}
+
 	$user = wrap_user();
 	$line = sprintf('[%s] %s %s: %s'
 		, date('d-M-Y H:i:s')
