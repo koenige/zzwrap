@@ -715,7 +715,7 @@ function wrap_error_url_decode($url) {
  * format a line for logfile
  *
  * @param string $line 
- * @param string $level (optional)
+ * @param mixed $level (optional)
  * @param string $module (optional)
  * @param string $file (optional)
  * @return string
@@ -728,6 +728,13 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		if (!empty($postdata)) return false;
 		$line = sprintf('POST[json] %s', json_encode($_POST));
 		$postdata = true; // just log POST data once per request
+	}
+
+	switch ($level) {
+		case E_USER_ERROR: $level = 'error'; break;
+		case E_USER_WARNING: $level = 'warning'; break;
+		case E_USER_NOTICE: $level = 'notice'; break;
+		case E_USER_DEPRECATED: $level = 'deprecated'; break;
 	}
 
 	if (!$module) {
