@@ -738,12 +738,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	}
 
 	if (!$module) {
-		if (!empty($zz_setting['active_module_for_log']))
-			$module = $zz_setting['active_module_for_log'];
-		elseif (!empty($zz_setting['active_module']))
-			$module = $zz_setting['active_module'];
-		else
-			$module = 'custom';
+		$module = !empty($zz_setting['active_module']) ? $zz_setting['active_module'] : 'custom';
 	}
 
 	$user = wrap_user();
@@ -760,6 +755,8 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 			AND array_key_exists($level, $zz_conf['error_log']))
 			$file = $zz_conf['error_log'][$level];
 		else {
+			if (!empty($zz_setting['active_module_for_log']))
+				$module = $zz_setting['active_module_for_log'];
 			$file = sprintf('%s/%s.log', $zz_setting['log_dir'], $module);
 			wrap_mkdir(dirname($file));
 		}
