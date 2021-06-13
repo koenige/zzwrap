@@ -116,8 +116,8 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	// reformat log output
 	if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
-		wrap_log('zzwrap', $level, (!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output);
-		if ($settings['log_post_data']) wrap_log('zzwrap', 'postdata');
+		wrap_log((!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output, $level, 'zzwrap');
+		if ($settings['log_post_data']) wrap_log('postdata', 'notice', 'zzwrap');
 	}
 		
 	if (!empty($zz_conf['debug']))
@@ -714,20 +714,19 @@ function wrap_error_url_decode($url) {
 /**
  * format a line for logfile
  *
- * @param string $module
- * @param string $level
- * @param string $line (optional)
+ * @param string $line 
+ * @param string $level (optional)
+ * @param string $module (optional)
  * @param string $file (optional)
  * @return string
  */
-function wrap_log($module, $level = 'notice', $line = '', $file = false) {
+function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	global $zz_conf;
 	global $zz_setting;
 	static $postdata;
-	if ($level === 'postdata' AND !$line) {
+	if ($line === 'postdata') {
 		if (!empty($postdata)) return false;
 		$line = sprintf('POST[json] %s', json_encode($_POST));
-		$level = 'notice';
 		$postdata = true; // just log POST data once per request
 	}
 
