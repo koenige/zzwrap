@@ -1,11 +1,11 @@
 # zzwrap
 # URLs or parts of URLs for which errors shall not be logged
 #
-# Part of »Zugzwang Project«
+# Part of Â»Zugzwang ProjectÂ«
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2012-2021 Gustaf Mossakowski
+# @copyright Copyright Â© 2012-2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 # 
 # begin = check if begin of string is identical; end = check end; all: check full
@@ -291,7 +291,7 @@ qs	string	fbclid
 404	end	/user/register/?element_parents=account/mail/%23value&ajax_form=1&_wrapper_format=drupal_ajax
 
 # just generating 404s on purpose
-404	all	/th1s_1s_a_4o4.html
+404	end	/th1s_1s_a_4o4.html
 
 # access via server and Browser Chrome-Lighthouse
 404	all	/asset-manifest.json
@@ -329,3 +329,9 @@ qs	string	fbclid
 
 # Laravel Health Panel
 404	end	/laravel/_ignition/health-check/
+
+# Looking for forgotten archives
+404	end	/dump/archive.zip
+
+# we are looking for real problems on websites only, not scriptâ€™s problems
+404	ua	Go-http-client/1.1
