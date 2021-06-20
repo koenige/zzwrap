@@ -584,7 +584,7 @@ function wrap_money_format($number, $format = false) {
  * Escapes unvalidated strings for HTML values (< > & " ')
  *
  * @param string $string
- * @return string $string
+ * @return string
  * @global array $zz_conf
  */
 function wrap_html_escape($string) {
@@ -598,6 +598,33 @@ function wrap_html_escape($string) {
 	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
 	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
 	return $new_string;
+}
+
+/**
+ * Escapes strings for JavaScript, replaces new lines with \n plus other special
+ * characters
+ *
+ * backslash, Horizontal Tabulator, Vertical Tabulator, Form Feed, New Line,
+ * Carriage Return, Nul char are replaced, Backspace \b not supported,
+ * @param string $string
+ * @return string
+ */
+function wrap_js_escape($string) {
+	$string = addcslashes($string, "\\\v\t\f\n\r\0'\"");
+	return $string;
+}
+
+/**
+ * Escapes strings for JavaScript, replaces new lines with <br>\n plus other 
+ * special characters
+ *
+ * @param string $string
+ * @return string
+ */
+function wrap_js_nl2br($string) {
+	$string = nl2br($string, false);
+	$string = wrap_js_escape($string);
+	return $string;
 }
 
 /**
