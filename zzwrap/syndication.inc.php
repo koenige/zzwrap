@@ -192,7 +192,15 @@ function wrap_syndication_geocode($address) {
 		$add[0] = trim(urlencode($address['postal_code'])).($add[0] ? '+' : '').$add[0];
 	}
 	if (!empty($address['street_name'])) {
-		$add[0] = urlencode($address['street_name']
+		$street = explode("\n", $address['street_name']);
+		if (count($street) > 1) {
+			foreach ($street as $index => $line) {
+				if (str_starts_with($line, 'c/o')) unset($street[$index]); // no use for geocoding
+				if (str_starts_with($line, '℅')) unset($street[$index]); // no use for geocoding
+				if (str_starts_with($line, 'OT ')) unset($street[$index]);  // geocoders do not know German Ortsteil
+			}
+		}
+		$add[0] = urlencode(implode("\n", $street)
 			.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
 			.($add[0] ? ',' : '').$add[0];
 	}
