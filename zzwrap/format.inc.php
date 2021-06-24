@@ -1187,22 +1187,23 @@ function wrap_typo_cleanup($text, $lang = '') {
 
 	// non-breaking spaces
 	$nbsp = ' '; // this is not a space but a non-breaking space
-	$cfg = wrap_cfg_files('nbsp');
-	$abbreviations = sprintf('abbreviations[%s]', $zz_setting['lang']);
-	if (!empty($cfg[$abbreviations])) {
-		foreach ($cfg[$abbreviations] as $abbr => $explanation) {
-			if (!stristr($new_text, $abbr)) continue;
-			// @todo: \W*…\W*
-			// @todo: support ucfirst() for abbreviations at beginning of sentence
-			$pattern = sprintf('/%s/', $abbr); 
-			$replace = str_replace(" ", $nbsp, $abbr);
-			$new_text = preg_replace($pattern, $replace, $new_text);
+	$cfg = wrap_cfg_files('nbsp-'.$lang);
+	if ($cfg) {
+		if (!empty($cfg['abbreviations'])) {
+			foreach ($cfg['abbreviations'] as $abbr => $explanation) {
+				if (!stristr($new_text, $abbr)) continue;
+				// @todo: \W*…\W*
+				// @todo: support ucfirst() for abbreviations at beginning of sentence
+				$pattern = sprintf('/%s/', $abbr); 
+				$replace = str_replace(" ", $nbsp, $abbr);
+				$new_text = preg_replace($pattern, $replace, $new_text);
+			}
 		}
-	}
-	// @todo add missing spaces in abbreviations
-	// @todo support units
+		// @todo add missing spaces in abbreviations
+		// @todo support units
 
-	// @todo somewhere else, allow to replace these abbreviations with abbr title="" for output
+		// @todo somewhere else, allow to replace these abbreviations with abbr title="" for output
+	}
 
 	return $new_text;
 }
