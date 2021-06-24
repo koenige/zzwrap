@@ -191,13 +191,26 @@ function wrap_syndication_geocode($address) {
 	if (!empty($address['postal_code'])) {
 		$add[0] = trim(urlencode($address['postal_code'])).($add[0] ? '+' : '').$add[0];
 	}
+	$is_postbox = false;
 	if (!empty($address['street_name'])) {
 		$street = explode("\n", $address['street_name']);
-		if (count($street) > 1) {
-			foreach ($street as $index => $line) {
-				if (str_starts_with($line, 'c/o')) unset($street[$index]); // no use for geocoding
-				if (str_starts_with($line, '℅')) unset($street[$index]); // no use for geocoding
-				if (str_starts_with($line, 'OT ')) unset($street[$index]);  // geocoders do not know German Ortsteil
+		$postbox_strings = [
+			'Postfach ', 'PF ', 'P.O.Box ', 'P.O. Box '
+		];
+		foreach ($street as $index => $line) {
+			if (count($street) > 1) {
+				// do not remove if this is single information about street
+				// geocoders do not know German Ortsteil
+				if (str_starts_with($line, 'OT ')) unset($street[$index]);
+			}
+			// care of: no use for geocoding
+			if (str_starts_with($line, 'c/o')) unset($street[$index]); 
+			if (str_starts_with($line, '℅')) unset($street[$index]);
+			// geocoders do not know postbox
+			foreach ($postbox_strings as $postbox_string) {
+				if (!str_starts_with($line, $postbox_string)) continue;
+				unset($street[$index]); 
+				$is_postbox = true; // never change postal_code
 			}
 		}
 		$add[0] = urlencode(implode("\n", $street)
@@ -327,6 +340,7 @@ function wrap_syndication_geocode($address) {
 						if ($gc['region'] !== $component['short_name']) continue 2;
 					}
 				}
+				if ($is_postbox) $postal_code = '';
 				$results[] = [
 					'longitude' => $coord['geometry']['location']['lng'], 
 					'latitude' => $coord['geometry']['location']['lat'],
@@ -348,6 +362,7 @@ function wrap_syndication_geocode($address) {
 				array_pop($display); // country
 				$postal_code = array_pop($display);
 				if (!preg_match('~[0-9]+~', $postal_code)) $postal_code = '';
+				if ($is_postbox) $postal_code = '';
 				$results[] = [
 					'longitude' => $coord['lon'], 
 					'latitude' => $coord['lat'],
