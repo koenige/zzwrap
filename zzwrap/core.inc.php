@@ -3028,15 +3028,22 @@ function wrap_cfg_files($type, $single_module = false) {
  * get URL path of a page depending on a brick, write as setting
  *
  * @param string $setting_key
- * @param string $brick
+ * @param string $brick (optional, read from settings.cfg)
  * @param array $params (optional)
  * @return bool
  */
-function wrap_setting_path($setting_key, $brick, $params = []) {
+function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	static $tries;
 	if (empty($tries)) $tries = [];
 	if (in_array($setting_key, $tries)) return false; // do not try more than once per request
 	$tries[] = $setting_key;
+	
+	if (!$brick) {
+		// get it from settings.cfg
+		$cfg = wrap_cfg_files('settings');
+		if (empty($cfg[$setting_key]['brick'])) return false;
+		$brick = $cfg[$setting_key]['brick'];
+	}
 	
 	$path = '';
 	if (!empty($params)) {
