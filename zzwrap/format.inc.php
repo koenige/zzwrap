@@ -831,7 +831,7 @@ function wrap_hex2chars($string) {
  * @return string
  */
 function wrap_punycode_encode($string) {
-	return wrap_punycode($string, 'encode');
+	return idn_to_ascii($string);
 }
 
 /**
@@ -846,44 +846,12 @@ function wrap_punycode_decode($string) {
 	$host = explode('.', $url['host']);
 	foreach ($host as $index => $part) {
 		if (substr($part, 0, 4) !== 'xn--') continue;
-		$host[$index] = wrap_punycode($part, 'decode');
+		$host[$index] = idn_to_utf8($part);
 	}
 	$url['host_new'] = implode('.', $host);
 	if ($url['host_new'] === $url['host']) return $string;
 	$string = str_replace($url['host'], $url['host_new'], $string);
 	return $string;
-}
-
-/**
- * encode / decode punycode
- *
- * @param string $string
- * @param string $action encode, decode
- * @return string
- */
-function wrap_punycode($string, $action) {
-	global $zz_setting;
-	global $zz_conf;
-
-	$punycode_lib = $zz_setting['lib'].'/idnaconvert/src/IdnaConvert.php';
-	if (!file_exists($punycode_lib)) return $string;
-
-	require_once $punycode_lib;
-	require_once $zz_setting['lib'].'/idnaconvert/src/PunycodeInterface.php';
-	require_once $zz_setting['lib'].'/idnaconvert/src/Punycode.php';
-	require_once $zz_setting['lib'].'/idnaconvert/src/NamePrepDataInterface.php';
-	require_once $zz_setting['lib'].'/idnaconvert/src/NamePrepData.php';
-	require_once $zz_setting['lib'].'/idnaconvert/src/UnicodeTranscoderInterface.php';
-	require_once $zz_setting['lib'].'/idnaconvert/src/UnicodeTranscoder.php';
-	
-	$IDN = new Algo26\IdnaConvert\IdnaConvert();
-	if ($action === 'encode') {
-		if ($zz_conf['character_set'] !== 'utf-8') {
-			$string = iconv($zz_conf['character_set'], 'utf-8', $string);
-		}
-		return $IDN->encode($string);
-	}
-	return $IDN->decode($string);
 }
 
 /**
