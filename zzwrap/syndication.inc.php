@@ -204,8 +204,9 @@ function wrap_syndication_geocode($address) {
 				if (str_starts_with($line, 'OT ')) unset($street[$index]);
 			}
 			// care of: no use for geocoding
-			if (str_starts_with($line, 'c/o')) unset($street[$index]); 
+			if (str_starts_with($line, 'c/o')) unset($street[$index]);
 			if (str_starts_with($line, '℅')) unset($street[$index]);
+			if (str_starts_with($line, 'p. Adr.')) unset($street[$index]);
 			// geocoders do not know postbox
 			foreach ($postbox_strings as $postbox_string) {
 				if (!str_starts_with($line, $postbox_string)) continue;
