@@ -1194,7 +1194,7 @@ function wrap_typo_cleanup($text, $lang = '') {
 				if (!stristr($new_text, $abbr)) continue;
 				// @todo: \W*…\W*
 				// @todo: support ucfirst() for abbreviations at beginning of sentence
-				$pattern = sprintf('/%s/', $abbr); 
+				$pattern = sprintf('/%s/', str_replace('.', '\.', $abbr)); 
 				$replace = str_replace(" ", $nbsp, $abbr);
 				$new_text = preg_replace($pattern, $replace, $new_text);
 			}
