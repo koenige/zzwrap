@@ -2781,6 +2781,16 @@ function wrap_trigger_url($url) {
  * @return array from wrap_syndication_retrieve_via_http()
  */
 function wrap_trigger_protected_url($url, $username = false, $send_lock = true) {
+	global $zz_setting;
+	if (!$username and !empty($zz_setting['log_username']))
+		$username = $zz_setting['log_username'];
+	if (!empty($zz_setting['log_trigger'])) {
+		$logfile = $zz_setting['log_trigger'] === true ? '' : $zz_setting['log_trigger'];
+		wrap_log(
+			sprintf('trigger URL %s %s -> %s', date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']), $zz_setting['request_uri'], $url)
+			, E_USER_NOTICE, $logfile
+		);
+	}
 	$headers[] = 'X-Timeout-Ignore: 1';
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
 		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
