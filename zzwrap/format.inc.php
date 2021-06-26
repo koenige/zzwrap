@@ -54,8 +54,10 @@ function wrap_convert_string($data, $encoding = false) {
 		$data = mb_convert_encoding($data, $encoding, $detected_encoding);
 	} else {
 		if ($detected_encoding === 'UTF-8') {
-			if (substr($data[0], 0, 3) === "\xEF\xBB\xBF") { // UTF8_BOM
-				$data[0] = substr($data[0], 3);
+			reset($data);
+			$first = key($data);
+			if (substr($data[$first], 0, 3) === "\xEF\xBB\xBF") { // UTF8_BOM
+				$data[$first] = substr($data[$first], 3);
 			}
 		}
 		foreach ($data as $index => $line) {
