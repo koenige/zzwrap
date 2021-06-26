@@ -755,9 +755,9 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 			AND array_key_exists($level, $zz_conf['error_log']))
 			$file = $zz_conf['error_log'][$level];
 		else {
-			if (!empty($zz_setting['active_module_for_log']))
-				$module = $zz_setting['active_module_for_log'];
-			$file = sprintf('%s/%s.log', $zz_setting['log_dir'], $module);
+			$log_filename = !empty($zz_setting['log_filename'])
+				? $module.'/'.$zz_setting['log_filename'] : $module;
+			$file = sprintf('%s/%s.log', $zz_setting['log_dir'], $log_filename);
 			wrap_mkdir(dirname($file));
 		}
 	}
