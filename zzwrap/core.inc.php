@@ -2582,6 +2582,10 @@ function wrap_get_setting($key, $login_id = 0) {
 		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
 		return $tmp_setting[$key];
 	}
+	if (!empty($cfg[$key]['brick'])) {
+		$path = wrap_setting_path($key, $cfg[$key]['brick']);
+		if ($path) return $zz_setting[$key];
+	}
 	// @deprecated
 	if (substr($key, -1) === '*') {
 		return $values;
@@ -3067,6 +3071,13 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 			FROM webpages
 			WHERE content LIKE "%\%\%\% '.$brick.' * \%\%\%%"';
 		$path = wrap_db_fetch($sql, '', 'single value');
+		if (!$path) {
+			// try without asterisk
+			$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
+				FROM webpages
+				WHERE content LIKE "%\%\%\% '.$brick.' \%\%\%%"';
+			$path = wrap_db_fetch($sql, '', 'single value');
+		}
 	}
 	if (!$path) return false;
 	$path = str_replace('*', '/%s', $path);
