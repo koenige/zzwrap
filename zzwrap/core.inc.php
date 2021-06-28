@@ -416,8 +416,8 @@ function wrap_well_known_url($url) {
 		$page['status'] = 200;
 		return $page;
 	case '/.well-known/change-password':
-		if (empty($zz_setting['change_password_url'])) return false;
-		wrap_redirect_change($zz_setting['change_password_url']);
+		if (!$path = wrap_get_setting('change_password_url')) return false;
+		wrap_redirect_change($path);
 	}
 	return false;
 }
