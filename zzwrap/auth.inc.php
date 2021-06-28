@@ -408,7 +408,7 @@ function cms_login($params, $settings = []) {
 				$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
 		} else {
 			// Hooray! User has been logged in
-			if (!empty($_SESSION['change_password']) AND !empty($zz_setting['change_password_url'])) {
+			if (!empty($_SESSION['change_password']) AND wrap_get_setting('change_password_url')) {
 			// if password has to be changed, redirect to password change page
 				if ($url) $url = '?url='.urlencode($url);
 				if (is_array($zz_setting['change_password_url'])) {
