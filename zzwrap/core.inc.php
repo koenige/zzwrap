@@ -1051,7 +1051,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		if (str_ends_with($hostname, '.local')) $hostname = substr($hostname, 0, -6);
 		if ($hostname !== $zz_setting['canonical_hostname']) {
 			// fix links on error page to real destinations
-			$zz_setting['host_base'] = $zz_setting['base']
+			$zz_setting['host_base']
 				= $zz_setting['protocol'].'://'.$zz_setting['canonical_hostname'];
 			$zz_setting['homepage_url'] = $zz_setting['host_base'].$zz_setting['homepage_url'];
 		}
@@ -1078,7 +1078,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 			if (is_array($page['redirect']) AND array_key_exists('languagelink', $page['redirect'])) {
 				$old_base = $zz_setting['base'];
 				if (!empty($zz_setting['language_in_url'])
-					AND substr($zz_setting['base'], -3) === '/'.$zz_setting['lang']) {
+					AND str_ends_with($zz_setting['base'], '/'.$zz_setting['lang'])) {
 					$zz_setting['base'] = substr($zz_setting['base'], 0, -3);
 				}
 				if ($page['redirect']['languagelink']) {
