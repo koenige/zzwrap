@@ -440,6 +440,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		$content = false;
 		if (in_array($method, ['POST', 'PATCH'])) {
 			$headers_to_send[] = 'Content-Type: application/x-www-form-urlencoded';
+			// do not send Expect: 100-continue with POST
+			$headers_to_send[] = 'Expect:';
 			$content = wrap_syndication_http_post($data_to_send);
 		}
 		if ($pwd) {
