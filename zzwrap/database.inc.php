@@ -525,8 +525,6 @@ function wrap_db_children($data, $sql, $key_field_name = false, $hierarchy_field
 					? $data['level'][$hierarchy_id] + 1 : 1;
 				foreach ($my_ids as $this_id => $this_data) {
 					if ($key_field_name) {
-						unset($this_data[$hierarchy_field_name]);
-						unset($my_ids[$this_id][$hierarchy_field_name]);
 						$key_id = $this_id;
 					} else {
 						$key_id = $this_data;
