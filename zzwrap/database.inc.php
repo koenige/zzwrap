@@ -453,12 +453,12 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
  * @param array $data Array with records from database, indexed on ID
  * @param string $sql SQL query to get child records for each selected record
  * @param string $key_field_name optional: Fieldname of primary key
- * @param string $mode optional: flat = without hierarchy, hierarchy = with.
+ * @param string $hierarchy_field_name optional: none = without hierarchy, otherwise with.
  * @return array with queried database content or just the IDs
  *		if mode is set to hierarchy, you'll get a hierarchical list in 'level'
  *		with ID as key and the level (0, 1, 2, ..., n) as value
  */
-function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') {
+function wrap_db_children($data, $sql, $key_field_name = false, $hierarchy_field_name = '') {
 	if (!is_array($data)) $data = [$data]; // allow single ID
 	// get all IDs that were submitted to the function
 	if ($key_field_name)
@@ -466,24 +466,13 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 	else
 		$ids = $data;
 	
-	$hierarchy_field_name = '';	
-	switch ($mode) {
-	case 'flat': break;
-	case 'hierarchy': break;
-	default:
-		$hierarchy_field_name = $mode;
-		$mode = 'hierarchy2';
+	if ($hierarchy_field_name) {
 		if (!$key_field_name) {
 			$field_names = wrap_edit_sql($sql, 'SELECT', '', 'list');
 			$first_field_name = $field_names[0]['field_name'];
 		}
 		$sql = wrap_edit_sql($sql, 'SELECT', $hierarchy_field_name);
-		break;
-	}
-		
-	switch ($mode) {
-	case 'hierarchy':
-	case 'hierarchy2':
+
 		$old_data = $data;
 		unset($data);
 		$data[0] = $old_data; // 0 is the top hierarchy, means nothing stands above this
@@ -498,32 +487,18 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 	// as long as we have IDs in the pool, check if the current ID has child records
 	$used_ids = [];
 	while ($ids) {
-		switch ($mode) {
-		case 'hierarchy':
-			$my_id = array_shift($ids);
-			if (!trim($my_id)) continue 2;
-			if (in_array($my_id, $used_ids)) {
-				continue 2; // avoid infinite recursion
+		// take current ID from $ids
+		foreach ($ids as $id) {
+			// avoid infinite recursion
+			if (in_array($id, $used_ids)) {
+				$key = array_search($id, $ids);
+				unset($ids[$key]);
 			} else {
-				$used_ids[] = $my_id;
+				$used_ids[] = $id;
 			}
-			break;
-		case 'hierarchy2':
-		case 'flat':
-			// take current ID from $ids
-			foreach ($ids as $id) {
-				// avoid infinite recursion
-				if (in_array($id, $used_ids)) {
-					$key = array_search($id, $ids);
-					unset($ids[$key]);
-				} else {
-					$used_ids[] = $id;
-				}
-			}
-			if (!$ids) continue 2;
-			$my_id = implode(',', $ids);
-			break;
 		}
+		if (!$ids) break;
+		$my_id = implode(',', $ids);
 
 		if ($key_field_name) {
 			// get ID and full record as specified in SQL query
@@ -542,8 +517,7 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 		}
 		if (!$my_data) continue;
 		
-		switch ($mode) {
-		case 'hierarchy2':
+		if ($hierarchy_field_name) {
 			$ids = [];
 			foreach ($my_data as $hierarchy_id => $my_ids) {
 				$levels = [];
@@ -574,48 +548,15 @@ function wrap_db_children($data, $sql, $key_field_name = false, $mode = 'flat') 
 						+ $flat_data + array_slice($data['flat'], $pos, NULL, true);
 				}
 			}
-			break;
-		case 'hierarchy':
-			if (isset($data['level'][$my_id]))
-				$my_level = $data['level'][$my_id] + 1;
-			else
-				$my_level = 1;
-			$level = [];
-			foreach (array_keys($my_data) AS $id) {
-				$level[$id] = $my_level;
-			}
-			$pos = array_search($my_id, array_keys($data['level']))+1;
-			$data['level'] = array_slice($data['level'], 0, $pos, true)
-				+ $level + array_slice($data['level'], $pos, NULL, true);
-			if ($key_field_name) {
-				$flat_data = $my_data;
-				foreach (array_keys($flat_data) as $level_data_id) {
-					$flat_data[$level_data_id]['_level'] = $my_level;
-				}
-				$data['flat'] = array_slice($data['flat'], 0, $pos, true)
-					+ $flat_data + array_slice($data['flat'], $pos, NULL, true);
-			}
-
-			// append new records to $data-Array
-			if (empty($data[$my_id])) $data[$my_id] = [];
-			$data[$my_id] += $my_data;
-			// append new IDs to $ids-Array
-			$ids = array_merge($ids, array_keys($my_data));
-			$data['ids'] = array_merge($data['ids'], array_keys($my_data));
-			break;
-		case 'flat':
+		} else {
 			// append new records to $data-Array
 			$data += $my_data;
 			// put new IDs into $ids-Array
 			$ids = array_keys($my_data);
-			break;
 		}
 	}
-	switch ($mode) {
-	case 'hierarchy':
-	case 'hierarchy2':
+	if ($hierarchy_field_name) {
 		sort($data['ids']);
-		break;
 	}
 	return $data;
 }
