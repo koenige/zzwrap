@@ -336,3 +336,6 @@ qs	string	fbclid
 
 # we are looking for real problems on websites only, not script’s problems
 404	ua	Go-http-client/1.1
+
+# webcal-URL problems from a bot, using google.com/?url={site}&yahoo.com as referer
+404	referer	*&yahoo.com
