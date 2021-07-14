@@ -1504,7 +1504,10 @@ function wrap_file_send($file) {
 	global $zz_page;
 	global $zz_setting;
 
-	if (is_dir($file['name'])) return false;
+	if (is_dir($file['name'])) {
+		if (!empty($zz_setting['cache'])) wrap_cache_delete(404);
+		return false;
+	}
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
@@ -1514,6 +1517,7 @@ function wrap_file_send($file) {
 			wrap_quit($file['error_code']);
 		}
 		wrap_file_cleanup($file);
+		if (!empty($zz_setting['cache'])) wrap_cache_delete(404);
 		return false;
 	}
 	if (!empty($zz_page['url']['redirect'])) {
@@ -1591,6 +1595,13 @@ function wrap_file_send($file) {
 	wrap_cache_header();
 	if ($file['caching'])
 		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_file']));
+
+	// Caching?
+	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in']) AND empty($_POST)) {
+		wrap_cache_header('X-Local-Filename: '.$file['name']);
+		wrap_cache_ressource();
+	}
+
 	wrap_send_ressource('file', $file);
 }
 
@@ -1779,6 +1790,9 @@ function wrap_http_content_disposition($type, $filename) {
 function wrap_send_ressource($type, $content, $etag_header = []) {
 	global $zz_setting;
 	global $zz_page;
+
+	// remove internal headers
+	header_remove('X-Local-Filename');
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
@@ -2279,6 +2293,10 @@ function wrap_send_cache($age = 0) {
 	// $files[0] might not exist (redirect!)
 	if (!file_exists($files[1])) return false;
 	$has_content = file_exists($files[0]);
+	if (!$has_content AND $filename = wrap_cache_get_header($files[1], 'X-Local-Filename')) {
+		$has_content = true;
+		$files[0] = $filename;
+	}
 
 	if ($age) {
 		// return cached files if they're still fresh enough
