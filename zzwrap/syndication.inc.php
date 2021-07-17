@@ -553,10 +553,14 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			$status = 200;
 		} else {
 			if (!$status) {
+				$curl_error = curl_error($ch);
+				$syndication_error_code = $zz_setting['syndication_error_code'];
+				if (str_starts_with($curl_error, 'Could not resolve host:'))
+					$syndication_error_code = E_USER_NOTICE;
 				wrap_error(sprintf(
 					'Syndication from URL %s failed. Reason: %s',
-					$url, curl_error($ch)
-				), $zz_setting['syndication_error_code']);
+					$url, $curl_error
+				), $syndication_error_code);
 			}
 		}
 		if ($status === 200 AND !$data AND !$timeout_ignore) {
