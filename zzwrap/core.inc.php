@@ -242,7 +242,16 @@ function wrap_url_expand($url = false) {
 		$url = $zz_setting['host_base'].$zz_setting['request_uri'].$url;
 	elseif (substr($url, 0, 1) === '?') {
 		$request_uri = $zz_setting['request_uri'];
-		if (strstr($request_uri, '?')) $url = '&'.substr($url, 1);
+		if (strstr($request_uri, '?')) {
+			$qs = parse_url($request_uri, PHP_URL_QUERY);
+			parse_str($qs, $qs);
+			$qs_append = parse_url('http://www.example.com/'.$url, PHP_URL_QUERY);
+			parse_str($qs_append, $qs_append);
+			$qs = array_merge($qs, $qs_append);
+			// + 1 = keep the ?
+			$request_uri = substr($request_uri, 0, strrpos($request_uri, '?') + 1).http_build_query($qs);
+			$url = '';
+		}
 		$url = $zz_setting['host_base'].$request_uri.$url;
 	} elseif (substr($url, 0, 1) === '/')
 		$url = $zz_setting['host_base'].$url;
