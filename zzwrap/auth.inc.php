@@ -5,7 +5,7 @@
  * Authentication functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  *	- wrap_auth()
  *		- wrap_authenticate_url()
@@ -590,7 +590,8 @@ function wrap_login($login) {
  * @return array $data
  */
 function wrap_login_db($login) {
-	$sql = sprintf(wrap_sql('login'), wrap_db_escape($login['username']));
+	$sql = wrap_get_setting('login_with_contact_id') ? wrap_sql('login_contact') : wrap_sql('login');
+	$sql = sprintf($sql, wrap_db_escape($login['username']));
 	$data = wrap_db_fetch($sql);
 	if (!$data) return [];
 
@@ -862,7 +863,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		$string = $tokens[$username];
 	} else {
 		// get password, even if it is empty
-		$sql = wrap_sql('login');
+		$sql = wrap_get_setting('login_with_contact_id') ? wrap_sql('login_contact') : wrap_sql('login');
 		$sql = sprintf($sql, $username);
 		$userdata = wrap_db_fetch($sql);
 		if (!$userdata AND $sql = wrap_sql('login_foreign')) {
