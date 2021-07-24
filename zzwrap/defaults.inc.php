@@ -735,13 +735,6 @@ function wrap_set_defaults_post_conf() {
 	
 	if (!empty($zz_conf['translations_of_fields']) AND empty($zz_conf['translations_table']))
 		$zz_conf['translations_table']  = '/*_PREFIX_*/_translationfields';
-
-	if (!empty($zz_conf['revisions'])) {
-		if (!isset($zz_conf['revisions_table']))
-			$zz_conf['revisions_table']	= '/*_PREFIX_*/_revisions';
-		if (!isset($zz_conf['revisions_data_table']))
-			$zz_conf['revisions_data_table']	= '/*_PREFIX_*/_revisiondata';
-	}
 		
 	
 	// -------------------------------------------------------------------------
