@@ -1166,6 +1166,19 @@ function wrap_sql_ignores($module = '', $table = '') {
 }
 
 /**
+ * get login query depending on setting
+ *
+ * @return string
+ */
+function wrap_sql_login() {
+	if (wrap_get_setting('login_with_email'))
+		return wrap_sql('login_email');
+	if (wrap_get_setting('login_with_contact_id'))
+		return wrap_sql('login_contact');
+	return wrap_sql('login');
+}
+
+/**
  * read system SQL queries from system.sql file
  *
  * @param string $subtree (optional) return only queries for key

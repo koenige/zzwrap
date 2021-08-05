@@ -590,8 +590,7 @@ function wrap_login($login) {
  * @return array $data
  */
 function wrap_login_db($login) {
-	$sql = wrap_get_setting('login_with_contact_id') ? wrap_sql('login_contact') : wrap_sql('login');
-	$sql = sprintf($sql, wrap_db_escape($login['username']));
+	$sql = sprintf(wrap_sql_login(), wrap_db_escape($login['username']));
 	$data = wrap_db_fetch($sql);
 	if (!$data) return [];
 
@@ -863,8 +862,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		$string = $tokens[$username];
 	} else {
 		// get password, even if it is empty
-		$sql = wrap_get_setting('login_with_contact_id') ? wrap_sql('login_contact') : wrap_sql('login');
-		$sql = sprintf($sql, $username);
+		$sql = sprintf(wrap_sql_login(), $username);
 		$userdata = wrap_db_fetch($sql);
 		if (!$userdata AND $sql = wrap_sql('login_foreign')) {
 			if (array_key_exists('login_foreign_ids', $zz_setting)) {
