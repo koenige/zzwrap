@@ -342,6 +342,20 @@ function wrap_mail_phpmailer($msg, $list) {
 		case 'MIME-Version':
 		case 'Content-Transfer-Encoding':
 			break;
+		case 'Bcc':
+		case 'BCC':
+			list($this_mail, $this_name) = wrap_mail_split($field_body);
+			$mail->addBCC($this_mail, $this_name);
+			break;
+		case 'Cc':
+		case 'CC':
+			list($this_mail, $this_name) = wrap_mail_split($field_body);
+			$mail->addCC($this_mail, $this_name);
+			break;
+		case 'Reply-To':
+			list($this_mail, $this_name) = wrap_mail_split($field_body);
+			$mail->addReplyTo($this_mail, $this_name);
+			break;
 		default:
 			$mail->addCustomHeader($field_name, $field_body);
 			break;
