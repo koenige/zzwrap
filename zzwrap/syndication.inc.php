@@ -478,7 +478,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		$protocol = substr($url, 0, strpos($url, ':'));
 		$ch = curl_init();
 		if ($zz_conf['debug']) {
-			$f = fopen($zz_conf['tmp_dir'].'/curl-request-'.time().'.txt', 'w');
+			$f = fopen($zz_setting['tmp_dir'].'/curl-request-'.time().'.txt', 'w');
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
 			curl_setopt($ch, CURLOPT_STDERR, $f);
 		}

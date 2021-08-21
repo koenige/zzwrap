@@ -5,7 +5,7 @@
  * Default variables, post config
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2008-2021 Gustaf Mossakowski
@@ -145,7 +145,7 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['media_folder']	= $zz_setting['cms_dir'].'/files';
 
 	// Forms: zzform upload module
-	$zz_conf['tmp_dir']			= $zz_setting['cms_dir'].'/_temp';
+	$zz_setting['tmp_dir']		= $zz_setting['cms_dir'].'/_temp';
 	$zz_conf['backup']			= true;
 	$zz_conf['backup_dir']		= $zz_setting['cms_dir'].'/_backup';
 
@@ -605,18 +605,18 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['local_pwd']))
 		$zz_setting['local_pwd'] = '/Users/pwd.inc';
 
-	if (!is_dir($zz_conf['tmp_dir'])) {
-		$success = wrap_mkdir($zz_conf['tmp_dir']);
+	if (!is_dir($zz_setting['tmp_dir'])) {
+		$success = wrap_mkdir($zz_setting['tmp_dir']);
 		if (!$success) {
-			wrap_error(sprintf('Temp directory %s does not exist.', $zz_conf['tmp_dir']));
-			$zz_conf['tmp_dir'] = false;
+			wrap_error(sprintf('Temp directory %s does not exist.', $zz_setting['tmp_dir']));
+			$zz_setting['tmp_dir'] = false;
 			if ($dir = ini_get('upload_tmp_dir')) {
-				if ($dir AND is_dir($dir)) $zz_conf['tmp_dir'] = $dir;
+				if ($dir AND is_dir($dir)) $zz_setting['tmp_dir'] = $dir;
 			}
 		}
 	}
-	if (empty($zz_setting['session_save_path']) AND $zz_conf['tmp_dir']) {
-		$zz_setting['session_save_path'] = $zz_conf['tmp_dir'].'/sessions';
+	if (empty($zz_setting['session_save_path']) AND $zz_setting['tmp_dir']) {
+		$zz_setting['session_save_path'] = $zz_setting['tmp_dir'].'/sessions';
 	}
 	
 	// cainfo
