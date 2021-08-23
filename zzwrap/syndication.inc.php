@@ -157,7 +157,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 	}
 }
 
-function wrap_syndication_errors($errno, $errstr, $errfile, $errline, $errcontext) {
+function wrap_syndication_errors($errno, $errstr, $errfile = '', $errline = 0, $errcontext = []) {
 	// just catch the error, don't do anything
 	return;
 }
@@ -847,7 +847,14 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			return false;
 		}
 		ftp_pasv($ftp_stream, true);
-		ftp_put($ftp_stream, basename($url['path']), $source_file, FTP_BINARY);
+		$upload = ftp_put($ftp_stream, basename($url['path']), $source_file, FTP_BINARY);
+		if (!$upload) {
+			wrap_error(sprintf(
+				'FTP: Upload local file %s to remote file %s failed',
+				$source_file, basename($url['path'])
+			));
+			return false;
+		}
 		ftp_close($ftp_stream);
 	} else {
 		wrap_mkdir(dirname($destination));
