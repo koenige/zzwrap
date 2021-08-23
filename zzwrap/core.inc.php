@@ -6,7 +6,7 @@
  * communication, send ressources), caching + common functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2021 Gustaf Mossakowski
@@ -2075,7 +2075,7 @@ function wrap_cache_header($header = false) {
 		header($line);
 		if (strstr($line, ': ')) {
 			$header_parts = explode(': ', $line);
-			$zz_setting['headers'][$header_parts[0]] = $line;
+			$zz_setting['headers'][strtolower($header_parts[0])] = $line;
 		} else {
 			$zz_setting['headers'][] = $line;
 		}
@@ -2092,7 +2092,7 @@ function wrap_cache_header($header = false) {
 function wrap_cache_header_default($header) {
 	global $zz_setting;
 	$parts = explode(': ', $header);
-	if (!empty($zz_setting['headers'][$parts[0]])) return false;
+	if (!empty($zz_setting['headers'][strtolower($parts[0])])) return false;
 	
 	$headers = headers_list();
 	foreach ($headers as $line) {
@@ -2436,13 +2436,14 @@ function wrap_cache_send_if_newer($datetime) {
  * get header value from cache file
  *
  * @param string $file filename
- * @param string $type name of header
+ * @param string $type name of header (is case insensitive)
  * @param bool $send send headers or not
  * @return string $value
  */
 function wrap_cache_get_header($file, $type, $send = false) {
 	static $sent;
 	global $zz_page;
+	$type = strtolower($type);
 	$headers = file_get_contents($file);
 	if (substr($headers, 0, 2) === '["') {
 		// @deprecated: used JSON format instead of plain text for headers
@@ -2457,11 +2458,11 @@ function wrap_cache_get_header($file, $type, $send = false) {
 	}
 	$value = '';
 	foreach ($headers as $header) {
-		$req_header = substr($header, 0, strpos($header, ': '));
+		$req_header = strtolower(substr($header, 0, strpos($header, ': ')));
 		$req_value = trim(substr($header, strpos($header, ': ')+1));
 		if (!$sent AND $send) {
 			header($header);
-			$zz_page[str_replace('-', '_', strtolower($req_header))] = $req_value;
+			$zz_page[str_replace('-', '_', $req_header)] = $req_value;
 		}
 		if ($req_header === $type) {
 			// check if respond with 304
