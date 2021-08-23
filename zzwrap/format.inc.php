@@ -797,7 +797,7 @@ function wrap_normalize($input) {
 		$handle = fopen($file, 'r');
 		while (!feof($handle)) {
 			$line = fgetcsv($handle, 256, "\t");
-			if (!$line[0]) continue;
+			if (empty($line[0])) continue;
 			if (substr($line[0], 0, 1) === '#') continue;
 			$replacements[wrap_hex2chars($line[0])] = wrap_hex2chars($line[3]);
 		}
