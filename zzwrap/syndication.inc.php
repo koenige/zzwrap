@@ -753,8 +753,9 @@ function wrap_lock_file($realm) {
  *		bool 'log_destination' logs destination as well (in case the same file
  *			has to be put to multiple destinations)
  * @param bool $delete delete source file?
- * @return bool true: destination file exists (or was unchanged), false: either
- *		an error occured or source file does not exist, nothing was transfered
+ * @return bool true: file was moved to destination, false: either
+ *		an error occured or source file does not exist or source file is equal
+ *		to destination, nothing was transfered
  */
 function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	global $zz_setting;
@@ -799,7 +800,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		}
 		if ($file[1] === $my['sha1']) {
 			// file was not changed, do nothing
-			return true;
+			return false;
 		}
 		$remove = $index;
 		break;
