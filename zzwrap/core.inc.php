@@ -3132,7 +3132,7 @@ function wrap_path($area, $value) {
 	$check = false;
 	if (strstr($area, '[')) {
 		$keys = explode('[', $area);
-		$keys[1] = rtrim($keys, ']');
+		$keys[1] = rtrim($keys[1], ']');
 		$keys[0] = sprintf('%s_path', $keys[0]);
 		$setting = sprintf('%s[%s]', $keys[0], $keys[1]);
 		if (empty($zz_setting[$keys[0]][$keys[1]])) $check = true;
