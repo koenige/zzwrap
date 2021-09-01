@@ -3114,6 +3114,45 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 }
 
 /**
+ * get a path based on a setting, check for access
+ *
+ * e. g. for 'default_masquerade' get path from 'default_masquerade_path'
+ * for 'activities_profile[usergroup]' use 'activities_profile_path[usergroup]'
+ * @param string $area
+ * @param string $value
+ * @return string
+ */
+function wrap_path($area, $value) {
+	global $zz_setting;
+
+	// check rights
+	if (!wrap_access($area)) return false;
+
+	// add _path to setting, check if it exists
+	$check = false;
+	if (strstr($area, '[')) {
+		$keys = explode('[', $area);
+		$keys[1] = rtrim($keys, ']');
+		$keys[0] = sprintf('%s_path', $keys[0]);
+		$setting = sprintf('%s[%s]', $keys[0], $keys[1]);
+		if (empty($zz_setting[$keys[0]][$keys[1]])) $check = true;
+	} else {
+		$setting = sprintf('%s_path', $area);
+		if (empty($zz_setting[$setting])) $check = true;
+	}
+
+	if ($check) {
+		$success = wrap_setting_path($setting);
+		if (!$success) return false;
+	}
+	if (!empty($keys))
+		$this_setting = $zz_setting[$keys[0]][$keys[1]];
+	else
+		$this_setting = $zz_setting[$setting];
+	return sprintf($zz_setting['base'].$this_setting, $value);
+}
+
+/**
  * recursively delete folders
  *
  * @param string $folder
