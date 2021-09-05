@@ -106,6 +106,7 @@ function wrap_session_start() {
  * @return bool
  */
 function wrap_session_stop() {
+	global $zz_setting;
 	$sql = false;
 	$sql_mask = false;
 
@@ -134,11 +135,31 @@ function wrap_session_stop() {
 	$_SESSION = [];
 	// If it's desired to kill the session, also delete the session cookie.
 	// Note: This will destroy the session, and not just the session data!
-	if (ini_get("session.use_cookies")) {
+	if (ini_get('session.use_cookies')) {
 		$params = session_get_cookie_params();
-		setcookie(session_name(), '', time() - 42000, $params["path"],
-	        $params["domain"], $params["secure"], $params["httponly"]
-		);
+		// check if this is www.example.com and there might be session
+		// coookies from example.com, remove these sessions, too
+		$domains[0] = $params['domain'];
+		$subdomain_dots = str_ends_with($domains[0], '.local') ? 2 : 1;
+		$i = 0;
+		while (substr_count($domains[$i], '.') > $subdomain_dots) {
+			$i++;
+			$domains[$i] = explode('.', $domains[$i-1]);
+			array_shift($domains[$i]);
+			$domains[$i] = implode('.', $domains[$i]);
+		}
+		foreach ($domains as $domain) {
+			$params['domain'] = $domain;
+			if (version_compare(PHP_VERSION, '7.3.0') >= 1) {
+				unset($params['lifetime']);
+				$params['expires'] = time() - 42000;
+				setcookie(session_name(), '', $params);
+			} else {
+				setcookie(session_name(), '', time() - 42000, $params['path'],
+					$params['domain'], $params['secure'], isset($params['httponly'])
+				);
+			}
+		}
 	}
 	session_destroy();
 	if ($sql) wrap_db_query($sql, E_USER_NOTICE);
