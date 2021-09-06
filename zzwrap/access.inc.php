@@ -21,6 +21,7 @@
  */
 function wrap_access($area) {
 	global $zz_conf;
+	global $zz_setting;
 	static $config;
 	if (empty($config))
 		$config = wrap_cfg_files('access');
@@ -38,12 +39,15 @@ function wrap_access($area) {
 	// are there access rights? no: = no access!
 	if (empty($config[$area]['group'])) return false;
 
-	// directly given access via session?
-	if (!empty($_SESSION['no_access'])) {
-		if (in_array($area, $_SESSION['no_access'])) return false;
-	}
-	if (!empty($_SESSION['access'])) {
-		if (in_array($area, $_SESSION['access'])) return true;
+	// directly given access via session or setting?
+	$keys = ['zz_setting', '_SESSION'];
+	foreach ($keys as $key) {
+		if (!empty($$key['no_access'])) {
+			if (in_array($area, $$key['no_access'])) return false;
+		}
+		if (!empty($$key['access'])) {
+			if (in_array($area, $$key['access'])) return true;
+		}
 	}
 
 	// check if access rights are met
