@@ -38,6 +38,14 @@ function wrap_access($area) {
 	// are there access rights? no: = no access!
 	if (empty($config[$area]['group'])) return false;
 
+	// directly given access via session?
+	if (!empty($_SESSION['no_access'])) {
+		if (in_array($area, $_SESSION['no_access'])) return false;
+	}
+	if (!empty($_SESSION['access'])) {
+		if (in_array($area, $_SESSION['access'])) return true;
+	}
+
 	// check if access rights are met
 	$access = brick_access_rights($config[$area]['group']);
 	if (!$access) return false;
