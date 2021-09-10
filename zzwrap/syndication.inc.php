@@ -769,6 +769,25 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		$data = wrap_syndication_get($source, 'file');
 		if (empty($data['_']['filename'])) return false;
 		$source_file = $data['_']['filename'];
+	} elseif (str_starts_with($source, 'brick ')) {
+		$source_file = $zz_setting['tmp_dir'].'/'.str_replace(' ', '/', $source);
+		$filename = basename($source_file);
+		if (!strstr($filename, '.')) $source_file .= '.html';
+		if (!file_exists($source_file)) {
+			wrap_mkdir(dirname($source_file));
+		} else {
+			// equal?
+			if (filemtime($source_file) === time()) return false;
+		} 
+		$content = brick_format('%%% request '.substr($source, 6).' %%%');
+		if (!$content) return false;
+		if (!file_exists($source_file)) {
+			$stale = true;
+		} else {
+			$stale = md5_file($source_file) === md5($content['text']) ? false : true;
+		}
+		if (!$stale) return false;
+		file_put_contents($source_file, $content['text']);
 	} else {
 		$source_file = $source;
 	}
