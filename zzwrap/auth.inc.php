@@ -956,6 +956,9 @@ function wrap_sso_login($login_url, $dest_url = '/') {
  */
 function wrap_login_request($request, $login) {
 	global $zz_conf;
+	global $zz_setting;
+
+	$zz_conf['url_self'] = $zz_setting['request_uri'];
 	unset($_GET['request']); // not needed anymore, remove because of zzform's request
 	$return = [];
 	$page['query_strings'] = ['request'];
