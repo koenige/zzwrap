@@ -442,7 +442,6 @@ function cms_login($params, $settings = []) {
 		$loginform['logout'] = false;
 	}
 	$loginform['no_cookie'] = isset($_GET['no-cookie']) ? true : false;
-	$loginform['logout_inactive_after'] = $zz_setting['logout_inactive_after'];
 
 	$params = [];
 	if (!empty($url)) {
