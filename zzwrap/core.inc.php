@@ -3096,6 +3096,7 @@ function wrap_cfg_files($type, $single_module = false) {
  * @return bool
  */
 function wrap_setting_path($setting_key, $brick = '', $params = []) {
+	global $zz_setting;
 	static $tries;
 	if (empty($tries)) $tries = [];
 	if (in_array($setting_key, $tries)) return false; // do not try more than once per request
@@ -3109,22 +3110,24 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	}
 	
 	$path = '';
+	$website_sql = sprintf(' AND website_id = %d', $zz_setting['website_id']);
 	if (!empty($params)) {
 		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 			FROM webpages
-			WHERE content LIKE "%\%\%\% '.$brick.' * '.http_build_query($params).' %\%\%%"';
+			WHERE content LIKE "%\%\%\% '.$brick.' * '.http_build_query($params).' %\%\%%"
+		'.$website_sql;
 		$path = wrap_db_fetch($sql, '', 'single value');
 	}
 	if (!$path) {
 		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 			FROM webpages
-			WHERE content LIKE "%\%\%\% '.$brick.' * \%\%\%%"';
+			WHERE content LIKE "%\%\%\% '.$brick.' * \%\%\%%"'.$website_sql;
 		$path = wrap_db_fetch($sql, '', 'single value');
 		if (!$path) {
 			// try without asterisk
 			$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 				FROM webpages
-				WHERE content LIKE "%\%\%\% '.$brick.' \%\%\%%"';
+				WHERE content LIKE "%\%\%\% '.$brick.' \%\%\%%"'.$website_sql;
 			$path = wrap_db_fetch($sql, '', 'single value');
 		}
 	}
