@@ -3110,7 +3110,10 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	}
 	
 	$path = '';
-	$website_sql = sprintf(' AND website_id = %d', $zz_setting['website_id']);
+	if (!empty($zz_setting['website_id']))
+		$website_sql = sprintf(' AND website_id = %d', $zz_setting['website_id']);
+	else
+		$website_sql = '';
 	if (!empty($params)) {
 		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 			FROM webpages
