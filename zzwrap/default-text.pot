@@ -2,10 +2,10 @@
 # Default translations template
 #
 # Part of »Zugzwang Project«
-# http://www.zugzwang.org/projects/zzwrap
+# https://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -406,6 +406,66 @@ msgstr ""
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "NNW North-northwest"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "%d years"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "1 year"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "%d weeks"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "1 week"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "%d days"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "1 day"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "%d hours"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "1 hour"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "%d minutes"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "1 minute"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "%d seconds"
+msgstr ""
+
+# duration
+#: library/zzwrap/format.inc.php
+msgid "1 second"
 msgstr ""
 
 # Weekdays, abbreviated
