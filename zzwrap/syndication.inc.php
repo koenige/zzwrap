@@ -655,10 +655,12 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
 	$lockfile = wrap_lock_file($realm);
 	$hash = wrap_lock_hash();
 	$time = time();
+	$newly_created = false;
 	if (!file_exists($lockfile)) {
 		// lockfile should always exist, here for first call, a non-existent
 		// lockfile prolongs waiting time
 		file_put_contents($lockfile, $hash."\n");
+		$newly_created = true;
 	}
 	$last_touched = filemtime($lockfile);
 	$locking_hash = trim(file_get_contents($lockfile));
@@ -682,6 +684,7 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
 		if ($time - $seconds < $last_touched) return true;
 		break;
 	case 'wait':
+		if ($newly_created) return false;
 		if ($time - $seconds - 1 < $last_touched) return true;
 		break;
 	}
