@@ -54,6 +54,11 @@ msgstr ""
 msgid "Temporarily, a login is not possible."
 msgstr ""
 
+# access
+#: library/zzwrap/core.inc.php
+msgid "Access to this website for your IP address is restricted."
+msgstr ""
+
 # HTTP Status Code 300
 #: library/zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"

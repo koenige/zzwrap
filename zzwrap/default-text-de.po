@@ -54,6 +54,11 @@ msgstr "Bitte besorgen Sie sich einen neuen."
 msgid "Temporarily, a login is not possible."
 msgstr "Vorübergehend ist keine Anmeldung möglich."
 
+# access
+#: library/zzwrap/core.inc.php
+msgid "Access to this website for your IP address is restricted."
+msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
+
 # HTTP Status Code 300
 #: library/zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"
