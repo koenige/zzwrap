@@ -5,7 +5,7 @@
  * Main function
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2021 Gustaf Mossakowski
@@ -33,6 +33,7 @@ function zzwrap() {
 
 	wrap_includes();
 	wrap_set_defaults();
+	wrap_restrict_ip();
 	wrap_includes_postconf();
 
 	// establish database connection

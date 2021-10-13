@@ -1247,6 +1247,20 @@ function wrap_http_remote_ip() {
 }
 
 /**
+ * restrict access to website per IP
+ *
+ * @return void
+ */
+function wrap_restrict_ip() {
+	global $zz_setting;
+	if (empty($zz_setting['access_restricted_ips'])) return;
+	if (!in_array($zz_setting['remote_ip'], $zz_setting['access_restricted_ips'])) return;
+	if (str_starts_with($zz_setting['request_uri'], $zz_setting['layout_path'])) return;
+	if (str_starts_with($zz_setting['request_uri'], $zz_setting['behaviour_path'])) return;
+	wrap_quit(403, wrap_text('Access to this website for your IP address is restricted.'));
+}
+
+/**
  * Checks if HTTP request should be HTTPS request instead and vice versa
  * 
  * Function will redirect request to the same URL except for the scheme part
