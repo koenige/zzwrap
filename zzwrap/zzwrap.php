@@ -35,6 +35,7 @@ function zzwrap() {
 	wrap_set_defaults();
 	wrap_restrict_ip();
 	wrap_includes_postconf();
+	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
 
 	// establish database connection
 	wrap_db_connect();
