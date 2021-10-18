@@ -266,11 +266,15 @@ function wrap_mail_valid($e_mail) {
  * log mail in mail.log
  *
  * @param array $mail
+ * @param array $additional_headers
+ * @param string $logfile (optional)
  * @return void
  */
-function wrap_mail_log($mail, $additional_headers) {
+function wrap_mail_log($mail, $additional_headers, $logfile = '') {
 	global $zz_setting;
-	$logfile = $zz_setting['log_dir'].'/mail.log';
+	if (!$logfile) $logfile = 'mail.log';
+	$logfile = $zz_setting['log_dir'].'/'.$logfile;
+	wrap_mkdir(dirname($logfile));
 	if (!file_exists($logfile)) touch($logfile);
 	
 	$text = 'Date: '.wrap_date(time(), 'timestamp->rfc1123')."\n"
