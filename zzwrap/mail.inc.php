@@ -98,13 +98,6 @@ function wrap_mail($mail, $list = []) {
 		$additional_headers .= $field_name.': '.$field_body.$zz_setting['mail_header_eol'];
 	}
 
-	// Signature? Only for plain text mails
-	if (empty($mail['multipart']) AND str_starts_with($mail['headers']['Content-Type'], 'text/plain')) {
-		if (!empty($zz_setting['mail_with_signature']) AND wrap_template_file('signature-mail', false)) {
-			$mail['message'] .= "\r\n".wrap_template('signature-mail');
-		}
-	}
-
 	// Additional parameters
 	if (!isset($mail['parameters'])) $mail['parameters'] = '';
 
@@ -131,8 +124,10 @@ function wrap_mail($mail, $list = []) {
 		}
 		// if real server, send mail
 		if (wrap_get_setting('use_library_phpmailer')) {
+			$mail = wrap_mail_signature($mail);
 			$success = wrap_mail_phpmailer($mail, $list);
 		} else {
+			$mail = wrap_mail_signature($mail);
 			$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 		}
 		if (!$success) {
@@ -415,4 +410,23 @@ function wrap_mail_split($address) {
 	$e_mail = ltrim($e_mail, '<');
 	$name = trim($name, '"');
 	return [$e_mail, $name];
+}
+
+/**
+ * signature? only for plain text mails
+ *
+ * @param array $mail
+ * @return array
+ */
+function wrap_mail_signature($mail) {
+	global $zz_setting;
+	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php'; // for error mails necessary
+
+	if (!empty($mail['multipart'])) return $mail;
+	if (!str_starts_with($mail['headers']['Content-Type'], 'text/plain')) return $mail;
+	if (empty($zz_setting['mail_with_signature'])) return $mail;
+	if (!wrap_template_file('signature-mail', false)) return $mail;
+
+	$mail['message'] .= "\r\n".wrap_template('signature-mail');
+	return $mail;
 }
