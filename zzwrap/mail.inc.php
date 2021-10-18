@@ -123,7 +123,9 @@ function wrap_mail($mail, $list = []) {
 			$mail['message'] = str_replace("\r\t\n", "\t\r\n", $mail['message']);
 		}
 		// if real server, send mail
-		if (wrap_get_setting('use_library_phpmailer')) {
+		if (!empty($mail['queue'])) {
+			$success = wrap_mail_queue_add($mail, $additional_headers);
+		} elseif (wrap_get_setting('use_library_phpmailer')) {
 			$mail = wrap_mail_signature($mail);
 			$success = wrap_mail_phpmailer($mail, $list);
 		} else {
@@ -433,4 +435,73 @@ function wrap_mail_signature($mail) {
 
 	$mail['message'] .= "\r\n".wrap_template('signature-mail');
 	return $mail;
+}
+
+/**
+ * add mail to mail queue
+ *
+ * @param array $mail
+ * @param array $additional_headers
+ * @return bool
+ */
+function wrap_mail_queue_add($mail, $additional_headers) {
+	global $zz_setting;
+	list($to_mail, $to_name) = wrap_mail_split($mail['to']);
+	wrap_mail_log($mail, $additional_headers, sprintf('mailqueue/%s@%s.log', $to_mail, date('Y-m-d H-i-s')));
+	return true;
+}
+
+/**
+ * check if there are mails in the mail queue to send
+ *
+ * @return bool
+ */
+function wrap_mail_queue_send() {
+	global $zz_setting;
+	global $zz_conf;
+
+	$old_mail_subject_prefix = $zz_conf['mail_subject_prefix'] ?? false;
+	$zz_conf['mail_subject_prefix'] = false;
+
+	$queue_dir = $zz_setting['log_dir'].'/mailqueue';
+	if (!file_exists($queue_dir)) return false;
+	if (!is_dir($queue_dir)) return false;
+	$headers = ['To', 'Subject', 'From'];
+
+	$mail = [];
+	$mail['message'] = '';
+	$used_logfiles = [];
+	$logfiles = scandir($queue_dir);
+	foreach ($logfiles as $logfile) {
+		if (str_starts_with($logfile, '.')) continue;
+		if (!str_ends_with($logfile, '.log')) continue;
+		$logdata = explode('@', substr($logfile, 0, -4));
+		if (count($logdata) !== 3) continue; // not a logfile
+		if (strtotime($logdata[2]) + wrap_get_setting('error_mail_delay_seconds') >= time()) continue;
+		$mail['message'] .= file_get_contents($queue_dir.'/'.$logfile);
+		$used_logfiles[] = $queue_dir.'/'.$logfile;
+	}
+	if (!$mail['message']) return;
+
+	$lines = explode("\n", $mail['message']);
+	foreach ($lines as $line) {
+		foreach ($headers as $header) {
+			if (str_starts_with($line, $header.': ')) {
+				$mail[strtolower($header)] = substr($line, strlen($header.': '));
+			}
+		}
+		$complete = true;
+		foreach ($headers as $header) {
+			if (array_key_exists(strtolower($header), $mail)) continue;
+			$complete = false;
+			break;
+		}
+		if ($complete) break;
+	}
+	$mail['message'] = str_replace(wrap_mail_separator(), "\n\n", $mail['message']);
+	$success = wrap_mail($mail);
+	if ($success) {
+		foreach ($used_logfiles as $logfile) unlink($logfile);
+	}
+	$zz_conf['mail_subject_prefix'] = $old_mail_subject_prefix;
 }
