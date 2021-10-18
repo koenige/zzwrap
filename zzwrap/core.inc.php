@@ -403,6 +403,8 @@ function wrap_url_cut($my_url, $params) {
 	} else {
 		$my_url = false;
 	}
+	// if URL already contains *, return with 404 if not found, no placeholders possible
+	if (strstr($my_url, '**/')) $my_url = false;
 	return [$my_url, $params, $end_params];
 }
 
