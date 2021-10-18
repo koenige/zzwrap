@@ -5,7 +5,7 @@
  * Error handling
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2021 Gustaf Mossakowski
@@ -168,6 +168,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
 		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$zz_setting['request_uri'];
 		$mail['headers']['X-Originating-Datetime'] = date('Y-m-d H:i:s');
+		$mail['queue'] = true;
 		wrap_mail($mail);
 		break;
 	case 'output':
