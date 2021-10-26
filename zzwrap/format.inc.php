@@ -5,7 +5,7 @@
  * Formatting functions for strings
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * wrap_convert_string()
  *	wrap_mailto()
@@ -524,7 +524,7 @@ function wrap_number($number, $format = false) {
 	case 'simple':
 	case 'simple-hidezero':
 		if (strstr($number, '.')) {
-			if ($format === 'simple-hidezero' AND (substr($number, -3) === '.00' OR substr($number, -4) === '.000')) {
+			if ($format === 'simple-hidezero' AND (str_ends_with($number, '.0') OR str_ends_with($number, '.00') OR str_ends_with($number, '.000'))) {
 				$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
 			} else {
 				$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
