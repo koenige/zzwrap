@@ -463,9 +463,6 @@ function wrap_mail_queue_send() {
 	$lock = wrap_lock('mailqueue', 'sequential', 60);
 	if ($lock) return;
 
-	$old_mail_subject_prefix = $zz_conf['mail_subject_prefix'] ?? false;
-	$zz_conf['mail_subject_prefix'] = false;
-
 	$queue_dir = $zz_setting['log_dir'].'/mailqueue';
 	if (!file_exists($queue_dir)) return wrap_mail_queue_return();
 	if (!is_dir($queue_dir)) return wrap_mail_queue_return();
@@ -486,6 +483,8 @@ function wrap_mail_queue_send() {
 	}
 	if (!$mail['message']) return wrap_mail_queue_return();
 
+	$old_mail_subject_prefix = $zz_conf['mail_subject_prefix'] ?? false;
+	$zz_conf['mail_subject_prefix'] = false;
 	$lines = explode("\n", $mail['message']);
 	foreach ($lines as $line) {
 		foreach ($headers as $header) {
