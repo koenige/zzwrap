@@ -180,7 +180,10 @@ function wrap_mail_headers($mail) {
 /**
  * Combine Name and e-mail address for mail header
  *
- * @param array $name
+ * possible input: string single mail address, list of mail addresses separated
+ * by comma; array with keys name (optional), e_mail
+ * it is not possible to input a list of mail addresses combined with names
+ * @param mixed $name
  * @return string
  */
 function wrap_mail_name($name) {
@@ -372,7 +375,15 @@ function wrap_mail_phpmailer($msg, $list) {
 		} else {
 			$mail->Body = $item['message'];
 		}
-		$to = explode(',', wrap_mail_name($item['to']));
+		$to = wrap_mail_name($item['to']);
+		if (substr_count($to, '@') > 1)
+			// @todo make sure beforehands, that there is no input like
+			// "last name, first name <test@example.org>, second@example.org"
+			// this would not work with wrap_mail_name()
+			// names with @ characters are not allowed, too
+			$to = explode(',', $to);
+		else
+			$to = [$to];
 		foreach ($to as $recipient) {
 			list($to_mail, $to_name) = wrap_mail_split($recipient);
 			$mail->addAddress($to_mail, $to_name); 
