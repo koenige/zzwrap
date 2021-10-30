@@ -2627,12 +2627,9 @@ if (!function_exists('str_contains')) {
  * @return mixed $setting (if not found, returns NULL)
  */
 function wrap_get_setting($key, $login_id = 0) {
-	global $zz_conf;
-	static $cfg;
-	if (function_exists('my_get_setting')) {
-		return my_get_setting($key, $login_id);
-	}
 	global $zz_setting;
+	global $zz_conf;
+
 	if (isset($zz_setting[$key]) AND !$login_id) {
 		return $zz_setting[$key];
 	}
@@ -2644,9 +2641,7 @@ function wrap_get_setting($key, $login_id = 0) {
 		}
 	}
 	// default value set in one of the current settings.cfg files?
-	if (empty($cfg)) {
-		$cfg = wrap_cfg_files('settings');
-	}
+	$cfg = wrap_cfg_files('settings');
 	if (!empty($cfg[$key]['default'])) {
 		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
 		return $tmp_setting[$key];
@@ -3081,22 +3076,43 @@ function wrap_setting_value($string) {
  */
 function wrap_cfg_files($type, $single_module = false) {
 	global $zz_setting;
+	global $zz_conf;
 	static $cfg;
+	static $single_cfg;
+	static $translated;
+
+	// check if wrap_cfg_files() was called without database connection
+	// then translate all config variables read so far
+	if (!$translated AND !empty($zz_conf['db_connection']) AND !empty($cfg)) {
+		foreach (array_keys($cfg) as $this_type) {
+			wrap_cfg_translate($cfg[$this_type]);
+		}
+		foreach ($single_cfg as $this_type => $this_config) {
+			foreach (array_keys($this_config) as $this_module) {
+				wrap_cfg_translate($single_cfg[$this_type][$this_module]);
+			}
+		}
+		$translated = true;
+	}
+	
+	// return existing values
 	if ($single_module) {
-		if (!empty($single_cfg[$type][$single_module]))
+		if (!empty($single_cfg[$type][$single_module])) {
 			return $single_cfg[$type][$single_module];
+		}
 	} elseif (!empty($cfg[$type])) {
 		return $cfg[$type];
 	}
 
+	// get data
 	$files = wrap_collect_files($type.'.cfg', 'modules/custom');
 	$cfg[$type] = [];
 	foreach ($files as $module => $cfg_file) {
 		$single_cfg[$type][$module] = parse_ini_file($cfg_file, true);
-		foreach ($single_cfg[$type][$module] as $index => $config) {
-			if (empty($config['description'])) continue;
-			if (is_array($config['description'])) continue;
-			$single_cfg[$type][$module][$index]['description'] = wrap_text($config['description']);
+		// might be called before database connection exists
+		if (!empty($zz_conf['db_connection'])) {
+			wrap_cfg_translate($single_cfg[$type][$module]);
+			$translated = true;
 		}
 		$cfg[$type] += $single_cfg[$type][$module];
 	}
@@ -3105,6 +3121,21 @@ function wrap_cfg_files($type, $single_module = false) {
 		return $single_cfg[$type][$single_module];
 	}
 	return $cfg[$type];
+}
+
+/**
+ * translate description per config
+ *
+ * @param array $cfg
+ * @return array
+ */
+function wrap_cfg_translate(&$cfg) {
+	foreach ($cfg as $index => $config) {
+		if (empty($config['description'])) continue;
+		if (is_array($config['description'])) continue;
+		$cfg[$index]['description'] = wrap_text($config['description']);
+	}
+	return $cfg;
 }
 
 /**
