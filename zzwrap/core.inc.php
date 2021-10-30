@@ -2627,6 +2627,7 @@ if (!function_exists('str_contains')) {
  * @return mixed $setting (if not found, returns NULL)
  */
 function wrap_get_setting($key, $login_id = 0) {
+	global $zz_conf;
 	static $cfg;
 	if (function_exists('my_get_setting')) {
 		return my_get_setting($key, $login_id);
@@ -2635,9 +2636,12 @@ function wrap_get_setting($key, $login_id = 0) {
 	if (isset($zz_setting[$key]) AND !$login_id) {
 		return $zz_setting[$key];
 	}
-	$values = wrap_setting_read($key, $login_id);
-	if ($login_id AND array_key_exists($key, $values)) {
-		return $values[$key];
+	// read setting from database
+	if (!empty($zz_conf['db_connection'])) {
+		$values = wrap_setting_read($key, $login_id);
+		if ($login_id AND array_key_exists($key, $values)) {
+			return $values[$key];
+		}
 	}
 	// default value set in one of the current settings.cfg files?
 	if (empty($cfg)) {
@@ -2647,7 +2651,7 @@ function wrap_get_setting($key, $login_id = 0) {
 		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
 		return $tmp_setting[$key];
 	}
-	if (!empty($cfg[$key]['brick'])) {
+	if (!empty($zz_conf['db_connection']) AND !empty($cfg[$key]['brick'])) {
 		$path = wrap_setting_path($key, $cfg[$key]['brick']);
 		if ($path) return $zz_setting[$key];
 	}
