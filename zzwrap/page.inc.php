@@ -963,6 +963,7 @@ function wrap_redirect($location = false, $status = 302, $cache = true) {
 		wrap_cache_ressource('', '', $zz_setting['host_base'].$zz_setting['request_uri']);
 	}
 	wrap_log_uri($status);
+	wrap_cache_header();
 	header($header);
 	exit;
 }
