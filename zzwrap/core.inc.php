@@ -2106,6 +2106,13 @@ function wrap_cache_header($header = false) {
 		header_remove('X-Powered-By');
 		header_remove('Server');
 		$headers = $zz_setting['extra_http_headers'];
+		if (empty($_SERVER['HTTPS'])) {
+			header_remove('Strict-Transport-Security'); // only for https
+			foreach ($headers as $index => $header) {
+				if (str_starts_with($header, 'Strict-Transport-Security'))
+					unset($headers[$index]);
+			}
+		}
 	}
 
 	foreach ($headers as $line) {
