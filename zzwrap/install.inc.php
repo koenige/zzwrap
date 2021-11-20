@@ -119,6 +119,11 @@ function wrap_install_module($module) {
 	foreach ($queries as $table => $queries_per_table) {
 		if (wrap_sql_ignores($module, $table)) continue;
 		foreach ($queries_per_table as $index => $query) {
+			// install already in logging table?
+			$sql = 'SELECT log_id FROM %s WHERE query = "%s"';
+			$sql = sprintf($sql, $zz_conf['logging_table'], wrap_db_escape($query));
+			$record = wrap_db_fetch($sql);
+			if ($record) continue;
 			$success = wrap_db_query($query);
 			if ($success)
 				zz_log_sql($query, 'Crew droid Robot 571');
