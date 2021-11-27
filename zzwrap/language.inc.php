@@ -304,7 +304,6 @@ function wrap_text_include($file) {
  *			is assumed to carry the ID!
  * @param mixed $matrix (string) name of database.table, translates all fields
  * 			that allow translation, write back to $data[$id][$field_name]
- *			(array) 'wrap_table' => name of database.table
  *			example: ['maincategory' => 'categories.category'] writes value
  *			from table categories, field category to resulting field maincategory
  *			(add index main_category_id as $foreign_key_field_name)
@@ -342,14 +341,6 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		}
 	}
 
-	// check which of the fields of the table might have translations
-	$sql_tt = 'SELECT translationfield_id, %s AS field_key, field_type
-		FROM '.$zz_conf['translations_table'].'
-		WHERE db_name = "%s" AND table_name = "%s"';
-	$sql_ttf = 'SELECT translationfield_id, %s AS field_key, field_type
-		FROM '.$zz_conf['translations_table'].'
-		WHERE db_name = "%s" AND table_name = "%s" AND field_name = "%s"';
-
 	// check the matrix and fill in the blanks
 	// cross check against database
 	if (!is_array($matrix)) {
@@ -363,12 +354,6 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 			$matrix = [0 => $matrix];
 		}
 	}
-	$database = '';
-	$table = '';
-	if (!empty($matrix['wrap_table'])) {
-		list($database, $table) = wrap_translate_get_table_db($matrix['wrap_table']);
-		unset($matrix['wrap_table']);
-	}
 	$old_matrix = $matrix;
 	$matrix = [];
 	foreach ($old_matrix as $key => $field) {
@@ -376,27 +361,13 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// database name is optional, so add it here for all cases
 		if (substr_count($field, '.') === 1) $field = $zz_conf['db_name'].'.'.$field;
 		if (is_numeric($key)) {
-		// numeric key: CMS.seiten.titel, CMS.seiten.*
-			if (substr($field, -2) === '.*') {
-				// wildcard: all fields that are possible will be translated
-				if (!$database) {
-					list($database, $table) = wrap_translate_get_table_db(substr($field, 0, -2));
-				}
-				$sql = sprintf($sql_tt, 'field_name', $database, $table);
-			} else {
-				// we have a selection of fields to be translated
-				$names = explode('.', $field);
-				$sql = sprintf($sql_ttf, 'field_name', $names[0], $names[1], $names[2]);
-			}
-			if ($mydata = wrap_db_fetch($sql, ['field_type', 'translationfield_id'])) {
-				$matrix += $mydata;
-			}
+			// numeric key: CMS.seiten.titel, CMS.seiten.*
+			$field_list = wrap_translate_field_list('field_name', $field);
+			if ($field_list) $matrix += $field_list;
 		} else {
 		// alpha key: title => CMS.seiten.titel or seiten.titel
-			$names = explode('.', $field);
-			$sql = sprintf($sql_ttf, '"'.$key.'"', $names[0], $names[1], $names[2]);
-			$fields = wrap_db_fetch($sql, ['field_type', 'translationfield_id']);
-			$matrix = array_merge_recursive($matrix, $fields);
+			$field_list = wrap_translate_field_list('"'.$key.'"', $field);
+			$matrix = array_merge_recursive($matrix, $field_list);
 		}
 	}
 
@@ -533,19 +504,34 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	// as span lang="de" or div lang="de" etc.
 }
 
-function wrap_translate_get_table_db($table_db_name) {
+/**
+ * check which of the fields of the table might have translations
+ *
+ * @param string $field_key
+ * @param string $db_field (database.table.field, field might be *)
+ * @return array
+ */
+function wrap_translate_field_list($field_key, $db_field) {
 	global $zz_conf;
-	
-	$table_db_name = wrap_db_prefix($table_db_name);
-	if (strstr($table_db_name, '.')) {
-		$table_db_name = explode('.', $table_db_name);
-		$database = $table_db_name[0];
-		$table = $table_db_name[1];
+	static $data;
+	$key = sprintf('%s/%s', $field_key, $db_field);
+	if (isset($data[$key])) return $data[$key];
+
+	$field = explode('.', $db_field);
+	if (end($field) === '*') {
+		array_pop($field);
+		$sql = 'SELECT translationfield_id, %s AS field_key, field_type
+			FROM %s
+			WHERE db_name = "%%s" AND table_name = "%%s"';
 	} else {
-		$database = $zz_conf['db_name'];
-		$table = $table_db_name;
+		$sql = 'SELECT translationfield_id, %s AS field_key, field_type
+			FROM %s
+			WHERE db_name = "%%s" AND table_name = "%%s" AND field_name = "%%s"';
 	}
-	return [$database, $table];
+	$sql = sprintf($sql, $field_key, $zz_conf['translations_table']);
+	$sql = vsprintf($sql, $field);
+	$data[$key] = wrap_db_fetch($sql, ['field_type', 'translationfield_id']);
+	return $data[$key];
 }
 
 /** 
