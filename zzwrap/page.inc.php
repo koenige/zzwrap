@@ -1068,6 +1068,7 @@ function wrap_htmlout_page($page) {
 		$page['text'] .= $zz_page['error_msg']."\n";
 	}
 
+	$page = wrap_page_replace($page);
 	$text = wrap_template($zz_setting['template'], $page);
 
 	// allow %%% notation on page with an escaping backslash
@@ -1232,4 +1233,18 @@ function wrap_page_format_files() {
 			}
 		}
 	}
+}
+
+/**
+ * last revision of page content before it will be put into page template
+ * with custom function
+ *
+ * @param array $page
+ * @return array
+ */
+function wrap_page_replace($page) {
+	if ($function = wrap_get_setting('page_replace_function') AND function_exists($function)) {
+		$page = $function($page);
+	}
+	return $page;
 }
