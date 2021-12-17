@@ -286,9 +286,13 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	if (empty($page['lang'])) $page['lang'] = $zz_setting['lang'];
 	$page['last_update'] = false;
-	$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
-		.wrap_get_setting('project').'</a></strong> '.$zz_setting['breadcrumbs_separator'].' '
-		.wrap_text($status['text']); 
+	if (empty($zz_setting['error_breadcrumbs_without_homepage_url'])) {
+		$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
+			.wrap_get_setting('project').'</a></strong> '.$zz_setting['breadcrumbs_separator'].' ';
+	} else {
+		$page['breadcrumbs'] = '';
+	}
+	$page['breadcrumbs'] .= wrap_text($status['text']); 
 	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($status['text'])
 		.' ('.wrap_get_setting('project').')'); 
 	$page['h1'] = wrap_text($status['text']);
