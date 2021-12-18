@@ -1239,9 +1239,9 @@ function wrap_system_sql_placeholders($data) {
 						switch ($placeholder) {
 						case 'ID':
 							if (count($part[0]) === 3 AND $part[0][1] === 'setting') {
-								$val = wrap_id($part[0][0], $zz_setting[$part[0][2]]);
+								$val = wrap_id($part[0][0], $zz_setting[$part[0][2]], 'check');
 							} else {
-								$val = wrap_id($part[0][0], $part[0][1]);
+								$val = wrap_id($part[0][0], $part[0][1], 'check');
 							}
 							break;
 						case 'SETTING':
@@ -1251,11 +1251,13 @@ function wrap_system_sql_placeholders($data) {
 						}
 						if ($val) $part[0] = $val;
 						else {
-							// no value available
-							wrap_error(sprintf(
-								'Unable to replace placeholder %s (%s)'
-								, $placeholder, implode(': ', $part[0])
-							));
+							if ($placeholder === 'SETTING') {
+								// no value available
+								wrap_error(sprintf(
+									'Unable to replace placeholder %s (%s)'
+									, $placeholder, implode(': ', $part[0])
+								));
+							} // do not log if ID is missing
 							$part[0] = 0;
 						}
 						$query .= implode('', $part);
