@@ -339,3 +339,6 @@ qs	string	fbclid
 
 # webcal-URL problems from a bot, using google.com/?url={site}&yahoo.com as referer
 404	referer	*&yahoo.com
+
+# Movable Type vulnerability
+404	end	/mt/mt-xmlrpc.cgi
