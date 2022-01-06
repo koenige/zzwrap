@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -57,6 +57,7 @@ function wrap_db_connect() {
 			}
 			session_write_close();
 		}
+		if (empty($zz_conf['db_name'])) return false;
 	}
 	
 	// connect to database
