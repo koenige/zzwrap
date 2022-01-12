@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1063,6 +1063,11 @@ function wrap_typo_cleanup($text, $lang = '') {
 		if ($is_url) {
 			if ($letter === "\n") $is_url = false;
 			$new_text .= $letter;
+			continue;
+		}
+		if ($letter === '<' AND mb_substr($text, $i, 7) === '<script') {
+			$skip = strpos($text, '</script>', $i) - $i + 9;
+			$new_text .= mb_substr($text, $i, $skip);
 			continue;
 		}
 		switch ($letter) {
