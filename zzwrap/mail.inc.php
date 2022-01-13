@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -334,6 +334,7 @@ function wrap_mail_phpmailer($msg, $list) {
 		}
 	}
 	foreach ($msg['headers'] as $field_name => $field_body) {
+		if (!$field_body) continue;
 		switch ($field_name) {
 		case 'From':
 			list($from_mail, $from_name) = wrap_mail_split($field_body);
