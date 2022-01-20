@@ -4,11 +4,11 @@
  * zzwrap
  * Mail functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2022 Gustaf Mossakowski
+ * @copyright Copyright Â© 2012-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -62,7 +62,6 @@ function wrap_mail($mail, $list = []) {
 	// Subject
 	if (!empty($zz_conf['mail_subject_prefix']))
 		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
-	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', $zz_setting['mail_header_eol']);
 
 	// From
 	if (!isset($mail['headers']['From'])) {
@@ -130,7 +129,7 @@ function wrap_mail($mail, $list = []) {
 			$success = wrap_mail_phpmailer($mail, $list);
 		} else {
 			$mail = wrap_mail_signature($mail);
-			$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+			$success = wrap_mail_php($mail, $additional_headers);
 		}
 		if (!$success) {
 			wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
@@ -298,6 +297,21 @@ function wrap_mail_log($mail, $additional_headers, $logfile = '') {
  */
 function wrap_mail_separator() {
 	return "\n\n==>>".str_repeat('=', 69)."<<==\n\n";
+}
+
+/**
+ * use phpâ€™s mail() function to send mails
+ *
+ * @param array $mail
+ * @param array $additional_headers
+ * @return bool
+ */
+function wrap_mail_php($mail, $additional_headers) {
+	global $zz_setting;
+
+	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', $zz_setting['mail_header_eol']);
+	$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
+	return $success;
 }
 
 /**
