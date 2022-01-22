@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -292,7 +292,7 @@ function wrap_look_for_page($zz_page) {
 	if (!wrap_sql('pages')) wrap_quit(503); 
 
 	global $zz_conf;
-	$page = false;
+	$page = [];
 
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
