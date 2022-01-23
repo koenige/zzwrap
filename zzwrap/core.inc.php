@@ -3174,20 +3174,20 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 		$website_sql = '';
 	if (!empty($params)) {
 		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-			FROM webpages
+			FROM /*_PREFIX_*/webpages
 			WHERE content LIKE "%\%\%\% '.$brick.' * '.http_build_query($params).' %\%\%%"
 		'.$website_sql;
 		$path = wrap_db_fetch($sql, '', 'single value');
 	}
 	if (!$path) {
 		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-			FROM webpages
+			FROM /*_PREFIX_*/webpages
 			WHERE content LIKE "%\%\%\% '.$brick.' * \%\%\%%"'.$website_sql;
 		$path = wrap_db_fetch($sql, '', 'single value');
 		if (!$path) {
 			// try without asterisk
 			$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-				FROM webpages
+				FROM /*_PREFIX_*/webpages
 				WHERE content LIKE "%\%\%\% '.$brick.' \%\%\%%"'.$website_sql;
 			$path = wrap_db_fetch($sql, '', 'single value');
 		}
