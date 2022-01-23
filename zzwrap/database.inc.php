@@ -65,6 +65,7 @@ function wrap_db_connect() {
 	if (empty($db['db_port'])) $db['db_port'] = NULL;
 	$zz_conf['db_connection'] = @mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
 	if (!$zz_conf['db_connection']) return false;
+	mysqli_report(MYSQLI_REPORT_OFF);
 
 	wrap_db_charset();
 	wrap_mysql_mode();
