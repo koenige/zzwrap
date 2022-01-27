@@ -1066,7 +1066,7 @@ function wrap_typo_cleanup($text, $lang = '') {
 			continue;
 		}
 		if ($letter === '<' AND mb_substr($text, $i, 7) === '<script') {
-			$skip = strpos($text, '</script>', $i) - $i + 9;
+			$skip = strpos($text, '</script>', $i) - $i + 8;
 			$new_text .= mb_substr($text, $i, $skip);
 			continue;
 		}
