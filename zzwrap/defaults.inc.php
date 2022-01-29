@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -433,7 +433,8 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['icon_paths'] = [
 			$zz_setting['base_path'].'/apple-touch-icon.png',
 			$zz_setting['base_path'].'/favicon.ico',
-			$zz_setting['base_path'].'/favicon.png'
+			$zz_setting['base_path'].'/favicon.png',
+			$zz_setting['base_path'].'/opengraph.png'
 		];
 	}
 	$zz_setting['dont_negotiate_language_paths'] =
