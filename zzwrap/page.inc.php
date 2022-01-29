@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1083,6 +1083,7 @@ function wrap_htmlout_page($page) {
 	}
 
 	$page = wrap_page_replace($page);
+	$page = brick_head_format($page, $zz_setting, true);
 	$text = wrap_template($zz_setting['template'], $page);
 
 	// allow %%% notation on page with an escaping backslash
