@@ -77,15 +77,6 @@ function wrap_template($template, $data = [], $mode = false) {
 	// restore old setting regarding text formatting
 	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
 
-	// head?
-	if (is_array($page['text']) AND in_array('head', array_keys($page['text']))) {
-		$zz_setting['page_head'][] = $page['text']['head'];
-		unset($page['text']['head']);
-		if (count($page['text']) === 1 AND !empty($page['text']['text'])) {
-			$page['text'] = $page['text']['text'];
-		}
-	}
-
 	// get rid of if / else text that will be put to hidden
 	if (is_array($page['text']) AND count($page['text']) === 2 
 		AND in_array('_hidden_', array_keys($page['text']))
@@ -1077,11 +1068,6 @@ function wrap_htmlout_page($page) {
 		$page['text'] .= $zz_page['error_msg']."\n";
 	}
 	
-	if (!empty($zz_setting['page_head'])) {
-		if (empty($page['head'])) $page['head'] = '';
-		$page['head'] .= rtrim(implode("\n\t", $zz_setting['page_head']));
-	}
-
 	$page = wrap_page_replace($page);
 	$page = brick_head_format($page, $zz_setting, true);
 	$text = wrap_template($zz_setting['template'], $page);
