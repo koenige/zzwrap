@@ -996,6 +996,9 @@ function wrap_htmlout_page($page) {
 	// init page
 	if (file_exists($zz_setting['custom'].'/zzbrick_page/_init.inc.php'))
 		require_once $zz_setting['custom'].'/zzbrick_page/_init.inc.php';
+	if (empty($page['description'])) {
+		$page['description'] = $zz_page['db']['description'] ?? '';
+	}
 
 	// bring together page output
 	// do not modify html, since this is a template
