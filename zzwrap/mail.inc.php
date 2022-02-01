@@ -558,7 +558,15 @@ function wrap_mail_reply_to($headers) {
 	$e_mail = wrap_get_setting('own_e_mail');
 	if (!$e_mail)
 		wrap_error('System’s E-Mail address not set (setting `own_e_mail`).', E_USER_ERROR);
-	if ($headers['From']['e_mail'] === $e_mail) return $headers;
+
+	if (!is_array($headers['From'])) {
+		$from = [];
+		list($from['e_mail'], $from['name']) = wrap_mail_split($headers['From']);
+	} else {
+		$from = $headers['From'];
+	}
+	if ($from['e_mail'] === $e_mail) return $headers;
+	$headers['From'] = $from;
 	if (empty($headers['Reply-To'])) {
 		$headers['Reply-To']['e_mail'] = $headers['From']['e_mail'];
 		$headers['Reply-To']['name'] = $headers['From']['name'];
