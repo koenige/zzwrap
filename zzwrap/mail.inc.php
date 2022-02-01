@@ -5,7 +5,7 @@
  * Mail functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2012-2022 Gustaf Mossakowski
@@ -68,6 +68,8 @@ function wrap_mail($mail, $list = []) {
 		$mail['headers']['From']['name'] = wrap_get_setting('project');
 		$mail['headers']['From']['e_mail'] = $zz_conf['error_mail_from'];
 	}
+	// From as Reply-To?
+	$mail['headers'] = wrap_mail_reply_to($mail['headers']);
 	$mail['headers']['From'] = wrap_mail_name($mail['headers']['From']);
 	
 	// Reply-To
@@ -541,4 +543,26 @@ function wrap_mail_queue_send() {
  */
 function wrap_mail_queue_return() {
 	wrap_unlock('mailqueue');
+}
+
+/**
+ * use From: address as Reply-To: address, set From: to mailbox address
+ * for use with phpmailer and e. g. Exchange Online (which does not permit
+ * sending from random addresses)
+ *
+ * @param array $headers
+ * @return array
+ */
+function wrap_mail_reply_to($headers) {
+	if (!wrap_get_setting('mail_reply_to')) return $headers;
+	$e_mail = wrap_get_setting('own_e_mail');
+	if (!$e_mail)
+		wrap_error('System’s E-Mail address not set (setting `own_e_mail`).', E_USER_ERROR);
+	if ($headers['From']['e_mail'] === $e_mail) return $headers;
+	if (empty($headers['Reply-To'])) {
+		$headers['Reply-To']['e_mail'] = $headers['From']['e_mail'];
+		$headers['Reply-To']['name'] = $headers['From']['name'];
+	}
+	$headers['From']['e_mail'] = $e_mail;
+	return $headers;
 }
