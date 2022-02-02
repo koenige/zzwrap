@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -129,13 +129,7 @@ function zzwrap() {
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
 	if (!$zz_page['db']) {
-		$well_known = wrap_well_known_url($zz_page['url']['full']);
-		if ($well_known) {
-			$zz_page['well_known'] = $well_known;
-		} else {
-			$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
-			if (!$zz_page['tpl_file']) wrap_quit();
-		}
+		$zz_page = wrap_ressource_by_url($zz_page);
 	}
 	
 	wrap_set_encoding($zz_conf['character_set']);
@@ -176,4 +170,22 @@ function wrap_includes_postconf() {
 	if ($zz_setting['authentication_possible']) {
 		require_once __DIR__.'/auth.inc.php';
 	}
+}
+
+/**
+ * if page is not found, after all files are included,
+ * check 1. well known URLs, 2. template files, 3. redirects
+ *
+ * @param array $zz_page
+ * @return array
+ */
+function wrap_ressource_by_url($zz_page) {
+	$well_known = wrap_well_known_url($zz_page['url']['full']);
+	if ($well_known) {
+		$zz_page['well_known'] = $well_known;
+	} else {
+		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
+		if (!$zz_page['tpl_file']) wrap_quit();
+	}
+	return $zz_page;
 }
