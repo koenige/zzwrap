@@ -1078,6 +1078,11 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	global $zz_setting;
 	global $zz_page;
 
+	// for pages matching every URL, check if there’s a ressource somewhere else
+	if (!empty($zz_page['db']['identifier']) AND $zz_page['db']['identifier'] === '/*') {
+		$zz_page = wrap_ressource_by_url($zz_page);
+	}
+
 	if (!empty($zz_setting['canonical_hostname'])) {
 		$hostname = $zz_setting['hostname'];
 		if (str_ends_with($hostname, '.local')) $hostname = substr($hostname, 0, -6);
