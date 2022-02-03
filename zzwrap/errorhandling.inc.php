@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -663,6 +663,11 @@ function wrap_error_referer_local_redirect($referer_host) {
 
 	// missing www. redirect
 	if (strtolower('www.'.$referer_host) === strtolower($zz_setting['hostname']))
+		return true;
+
+	// canonical host name e. g. starts with www., access is from and to
+	// server without www. = referer is wrong
+	if (!empty($zz_setting['canonical_hostname']) AND strtolower($referer_host) === strtolower($zz_setting['hostname']))
 		return true;
 
 	// IP redirect
