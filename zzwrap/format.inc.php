@@ -833,6 +833,13 @@ function wrap_hex2chars($string) {
  * @return string
  */
 function wrap_punycode_encode($string) {
+	if (!function_exists('idn_to_ascii')) {
+		wrap_error(sprintf(
+			'Need function `idn_to_ascii` to check value %s, but it does not exist.'
+			, $string
+		));
+		return $string;
+	}
 	return idn_to_ascii($string);
 }
 
