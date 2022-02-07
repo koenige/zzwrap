@@ -1080,7 +1080,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 
 	// for pages matching every URL, check if there’s a ressource somewhere else
 	if (!empty($zz_page['db']['identifier']) AND $zz_page['db']['identifier'] === '/*') {
-		$zz_page = wrap_ressource_by_url($zz_page);
+		$zz_page = wrap_ressource_by_url($zz_page, false);
 	}
 
 	if (!empty($zz_setting['canonical_hostname'])) {

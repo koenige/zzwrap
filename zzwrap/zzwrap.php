@@ -177,15 +177,16 @@ function wrap_includes_postconf() {
  * check 1. well known URLs, 2. template files, 3. redirects
  *
  * @param array $zz_page
+ * @param bool $quit (optional) true: call wrap_quit(), false: just return
  * @return array
  */
-function wrap_ressource_by_url($zz_page) {
+function wrap_ressource_by_url($zz_page, $quit = true) {
 	$well_known = wrap_well_known_url($zz_page['url']['full']);
 	if ($well_known) {
 		$zz_page['well_known'] = $well_known;
 	} else {
 		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
-		if (!$zz_page['tpl_file']) wrap_quit();
+		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
 	}
 	return $zz_page;
 }
