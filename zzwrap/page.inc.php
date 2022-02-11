@@ -250,7 +250,7 @@ function wrap_get_menu($page) {
 			if (empty($item['class'])) $item['class'] = [];
 			elseif (!is_array($item['class'])) $item['class'] = [$item['class']];
 			// add base_url for non-http links
-			if (substr($item['url'], 0, 1) === '/') 
+			if ($item['url'] AND substr($item['url'], 0, 1) === '/') 
 				$menu[$id][$nav_id]['url'] = $base.$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
@@ -280,7 +280,7 @@ function wrap_get_menu($page) {
 					$menu[$id][$nav_id]['below'] = false;
 				} else {
 					$menu[$id][$nav_id]['below']
-						= (substr($zz_setting['request_uri'], 0, strlen($item['url'])) === $item['url']) ? true
+						= (substr($zz_setting['request_uri'], 0, ($item['url'] ? strlen($item['url']) : 0)) === $item['url']) ? true
 						: (in_array($item[wrap_sql('page_id')], $hierarchy) ? true : false);
 				}
 			}
@@ -395,8 +395,8 @@ function wrap_get_menu_webpages() {
  * @return array $menu[$menu_key]
  */
 function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
-	if (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
-		AND substr($line['url'], -6) !== '*.html') {
+	if (!$line['url'] OR (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
+		AND substr($line['url'], -6) !== '*.html')) {
 		if ($id === 'page_id') $id = wrap_sql('page_id');
 		$menu[$menu_key][$line[$id]] = $line;
 		return $menu[$menu_key];
