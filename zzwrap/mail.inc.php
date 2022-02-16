@@ -324,8 +324,7 @@ function wrap_mail_php($mail, $additional_headers) {
  * @return bool
  */
 function wrap_mail_phpmailer($msg, $list) {
-	global $zz_setting;
-	require_once $zz_setting['modules_dir'].'/default/libraries/phpmailer.inc.php';
+	wrap_include_files('libraries/phpmailer', 'default');
 	
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
 	$mail->isSMTP();  
@@ -473,7 +472,6 @@ function wrap_mail_signature($mail) {
  * @return bool
  */
 function wrap_mail_queue_add($mail, $additional_headers) {
-	global $zz_setting;
 	list($to_mail, $to_name) = wrap_mail_split($mail['to']);
 	wrap_mail_log($mail, $additional_headers, sprintf('mailqueue/%s@%s.log', $to_mail, date('Y-m-d H-i-s')));
 	return true;

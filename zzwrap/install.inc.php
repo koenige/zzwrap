@@ -112,10 +112,9 @@ function wrap_install_module($module) {
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/database.inc.php';
 	
-	$dir = $zz_setting['modules_dir'].'/'.$module.'/configuration';
-	$file = $dir.'/install.sql';
-	if (!file_exists($file)) return false;
-	$queries = wrap_sql_file($file);
+	$files = wrap_collect_files('configuration/install.sql', $module);
+	if (!$files) return false;
+	$queries = wrap_sql_file($files[$module]);
 	foreach ($queries as $table => $queries_per_table) {
 		if (wrap_sql_ignores($module, $table)) continue;
 		foreach ($queries_per_table as $index => $query) {

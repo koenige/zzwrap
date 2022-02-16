@@ -1212,18 +1212,16 @@ function wrap_page_format_files() {
 	if (empty($included)) {
 		$included = [];
 		$included[] = 'custom';
-		if (file_exists($zz_setting['custom_wrap_dir'].'/format.inc.php')) {
-			require_once $zz_setting['custom_wrap_dir'].'/format.inc.php';
-			// @todo add brick_formatting_functions_prefix
-		}
+		wrap_include_files('format', 'custom');
+		// @todo add brick_formatting_functions_prefix
 		// @todo add functions from zzwrap/format.inc.php
 	}
 	if (!empty($zz_setting['active_module'])) {
 		if (!in_array($zz_setting['active_module'], $included)) {
-			$format_file = $zz_setting['modules_dir'].'/'.$zz_setting['active_module'].'/'.$zz_setting['active_module'].'/format.inc.php';
-			if (file_exists($format_file)) {
+			$format_file = wrap_collect_files('format', 'active');
+			if ($format_file) {
 				$existing_functions = get_defined_functions();
-				require_once $format_file;
+				require_once $format_file[$zz_setting['active_module']];
 				$included[] = $zz_setting['active_module'];
 				$new_existing_functions = get_defined_functions();
 				$new_functions = array_diff($new_existing_functions['user'], $existing_functions['user']);

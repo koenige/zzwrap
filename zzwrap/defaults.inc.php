@@ -35,13 +35,7 @@ function wrap_set_defaults() {
 	wrap_set_defaults_post_conf();
 
 	// module configs
-	$module_config_included = false;
-	foreach ($zz_setting['modules'] as $module) {
-		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/config.inc.php')) {
-			require_once $file;
-			$module_config_included = true;
-		}
-	}
+	$module_config_included = wrap_include_files('./config', 'modules');
 	// module config will overwrite standard config
 	// so make it possible to overwrite module config
 	if ($module_config_included AND file_exists($file = $zz_setting['inc'].'/config-modules.inc.php'))
