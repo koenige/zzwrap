@@ -140,7 +140,7 @@ function wrap_includes() {
 	require_once __DIR__.'/page.inc.php';
 	require_once __DIR__.'/format.inc.php';
 	require_once __DIR__.'/defaults.inc.php';
-	require_once __DIR__.'/includes.inc.php';
+	require_once __DIR__.'/files.inc.php';
 }
 
 /**
