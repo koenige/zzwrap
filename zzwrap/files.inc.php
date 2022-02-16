@@ -18,12 +18,14 @@
  *
  * @param string $file name of file, with path, unless in standard folder, without .inc.php
  * @param array $paths custom/modules, modules/custom, custom or name of module
- * @return void
+ * @return array list of included files
  */
 function wrap_include_files($filename, $paths = 'custom/modules') {
 	global $zz_setting;
 	$files = wrap_collect_files($filename, $paths);
+	if (!$files) return false;
 	foreach ($files as $file) include_once $file;
+	return $files;
 }
 
 /**
