@@ -66,14 +66,7 @@ function zzwrap() {
 		exit;
 	}
 	
-	if (file_exists($file = $zz_setting['custom_wrap_dir'].'/_functions.inc.php')) {
-		require_once $file;
-	}
-	foreach ($zz_setting['modules'] as $module) {
-		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/'.$module.'/_functions.inc.php')) {
-			require_once $file;
-		}
-	}
+	wrap_include_files('_functions');
 
 	// do not check if database connection is established until now
 	// to avoid infinite recursion due to calling the error page
@@ -96,13 +89,7 @@ function zzwrap() {
 	$zz_page['db'] = wrap_look_for_page($zz_page);
 
 	// Functions which might be executed always, before possible login
-	if (file_exists($zz_setting['custom_wrap_dir'].'/start.inc.php'))
-		require_once $zz_setting['custom_wrap_dir'].'/start.inc.php';
-	foreach ($zz_setting['modules'] as $module) {
-		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/'.$module.'/start.inc.php')) {
-			require_once $file;
-		}
-	}
+	wrap_include_files('start');
 	
 	if ($zz_setting['authentication_possible']) {
 		wrap_auth();
@@ -118,13 +105,7 @@ function zzwrap() {
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
 	wrap_include_ext_libraries();
 
-	if (file_exists($zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php'))
-		require_once $zz_setting['custom_wrap_dir'].'/_settings_post_login.inc.php';
-	foreach ($zz_setting['modules'] as $module) {
-		if (file_exists($file = $zz_setting['modules_dir'].'/'.$module.'/'.$module.'/_settings_post_login.inc.php')) {
-			require_once $file;
-		}
-	}
+	wrap_include_files('_settings_post_login');
 
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
@@ -159,6 +140,7 @@ function wrap_includes() {
 	require_once __DIR__.'/page.inc.php';
 	require_once __DIR__.'/format.inc.php';
 	require_once __DIR__.'/defaults.inc.php';
+	require_once __DIR__.'/includes.inc.php';
 }
 
 /**
