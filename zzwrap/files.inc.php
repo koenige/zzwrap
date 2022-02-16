@@ -58,6 +58,16 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		// only look into modules
 		$modules = $zz_setting['modules'];
 		break;
+	case 'custom/active':
+	case 'active/custom':
+		$custom = true;
+		if (!empty($zz_setting['active_module']))
+			$modules = [$zz_setting['active_module']];
+		break;
+	case 'active':
+		if (empty($zz_setting['active_module'])) return [];
+		$modules = [$zz_setting['active_module']];
+		break;
 	default:
 		// only look into single module folder
 		$modules = [$search];
@@ -89,7 +99,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		$this_path = $path ? $path : 'zzwrap';
 		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
 		if (file_exists($file)) {
-			if ($search === 'custom/modules') {
+			if (str_starts_with($search, 'custom/')) {
 				array_unshift($files, $file);
 			} else {
 				$files[] = $file;
