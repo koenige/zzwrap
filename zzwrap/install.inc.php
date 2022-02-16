@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -32,7 +32,7 @@ function wrap_install() {
 		if (!$db) $_SESSION['step'] = 1;
 	}
 
-	$files = wrap_collect_files('install.inc.php', 'modules/custom', 'install');
+	$files = wrap_collect_files('install/install', 'modules/custom');
 	foreach ($files as $module => $file) {
 		require_once $file;
 		$_SESSION['module_install'][$module] = $module;

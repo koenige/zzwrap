@@ -1155,7 +1155,7 @@ function wrap_sql_ignores($module = '', $table = '') {
 	}
 	
 	if (!empty($ignores)) return false;
-	$files = wrap_collect_files('install-ignore.sql');
+	$files = wrap_collect_files('configuration/install-ignore.sql');
 	$data = [];
 	foreach ($files as $filename) {
 		$data = array_merge($data, wrap_sql_file($filename));
@@ -1192,7 +1192,7 @@ function wrap_system_sql($subtree = '') {
 
 	if (empty($data)) {
 		$data = [];
-		$files = wrap_collect_files('system.sql', 'modules/custom');
+		$files = wrap_collect_files('configuration/system.sql', 'modules/custom');
 		
 		foreach ($files as $filename) {
 			$data = wrap_array_merge($data, wrap_sql_file($filename, '_'));

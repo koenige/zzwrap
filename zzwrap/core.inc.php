@@ -3117,7 +3117,7 @@ function wrap_cfg_files($type, $single_module = false) {
 	}
 
 	// get data
-	$files = wrap_collect_files($type.'.cfg', 'modules/custom');
+	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/custom');
 	$cfg[$type] = [];
 	foreach ($files as $module => $cfg_file) {
 		$single_cfg[$type][$module] = parse_ini_file($cfg_file, true);
@@ -3257,33 +3257,71 @@ function wrap_unlink_recursive($folder) {
 }
 
 /**
- * check for files in modules and custom folders, start with default folder
+ * check for files in modules and custom folders
+ * allow to define order of files (custom/modules); search just custom folder,
+ * just modules folders or single module
  *
- * @param string $tpl template for filename with two placeholders
- * @param string $order (optional) modules/custom or custom/modules
- * @param string $path (optional) where to look for content
+ * @param string $filename filename to look for, may include path, may omit .inc.php
+ * @param string $search where to look for files: custom folder, modules etc.
  * @return array
  */
-function wrap_collect_files($filename, $order = 'custom/modules', $path = 'configuration') {
+function wrap_collect_files($filename, $search = 'custom/modules') {
 	global $zz_setting;
 
+	$modules = [];
+	$custom = false;
 	$files = [];
+
+	switch ($search) {
+	case 'custom/modules':
+	case 'modules/custom':
+		$modules = $zz_setting['modules'];
+		$custom = true;
+		break;
+	case 'custom':
+		// only look into custom folder
+		$custom = true;
+		break;
+	case 'modules':
+		// only look into modules
+		$modules = $zz_setting['modules'];
+		break;
+	default:
+		// only look into single module folder
+		$modules = [$search];
+		break;
+	}
+	
+	// has filename path in it?
+	if (strpos($filename, '/')) {
+		$path = dirname($filename);
+		$filename = basename($filename);
+	} else {
+		$path = '';
+	}
+	// no file extension given? add .inc.php
+	if (!strpos($filename, '.')) $filename = sprintf('%s.inc.php', $filename);
+
 	// check modules (default always is first module)
-	foreach ($zz_setting['modules'] as $module) {
+	foreach ($modules as $module) {
+		$this_path = $path ? $path : $module;
 		// disable default module?
 		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
-		$file = sprintf('%s/%s/%s/%s', $zz_setting['modules_dir'], $module, $path, $filename);
+		$file = sprintf('%s/%s/%s/%s', $zz_setting['modules_dir'], $module, $this_path, $filename);
 		if (file_exists($file)) $files[$module] = $file;
 	}
 
-	// check custom folder
-	$file = sprintf('%s/%s', $zz_setting['custom'].'/configuration', $filename);
-	if (file_exists($file)) {
-		if ($order === 'custom/modules') {
-			array_unshift($files, $file);
-		} else {
-			$files[] = $file;
+	if ($custom) {
+		// check custom folder
+		$this_path = $path ? $path : 'zzwrap';
+		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
+		if (file_exists($file)) {
+			if ($search === 'custom/modules') {
+				array_unshift($files, $file);
+			} else {
+				$files[] = $file;
+			}
 		}
 	}
 
@@ -3304,7 +3342,7 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 	
 	if (empty($filetypes)) {
 		$filetypes = [];
-		$files = wrap_collect_files('filetypes.cfg', 'modules/custom');
+		$files = wrap_collect_files('configuration/filetypes.cfg', 'modules/custom');
 		foreach ($files as $filename) {
 			$filetypes = wrap_filetypes_add($filename, $filetypes);
 		}
