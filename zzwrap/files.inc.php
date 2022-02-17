@@ -22,6 +22,9 @@
  */
 function wrap_include_files($filename, $paths = 'custom/modules') {
 	global $zz_setting;
+	global $zz_conf;	// all globals also for included files
+	global $zz_page;
+
 	$files = wrap_collect_files($filename, $paths);
 	if (!$files) return false;
 	foreach ($files as $file) include_once $file;
