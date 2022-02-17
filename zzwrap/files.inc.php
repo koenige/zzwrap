@@ -144,3 +144,22 @@ function wrap_include_ext_libraries() {
 	$included = true;
 	return true;
 }
+
+/*
+ * --------------------------------------------------------------------
+ * Modules
+ * --------------------------------------------------------------------
+ */
+
+/**
+ * make a module active_module
+ *
+ * @param string $module
+ * @return void
+ */
+function wrap_module_activate($module) {
+	global $zz_setting;
+	if (empty($zz_setting['active_module']))
+		$zz_setting['active_module'] = $module;
+	wrap_include_files('functions', $module);
+}
