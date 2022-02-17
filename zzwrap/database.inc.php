@@ -1039,8 +1039,9 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql += wrap_system_sql($key);
 			break;
 		}
-		if (!empty($zz_conf['db_connection']))
-			wrap_include_files('zzwrap_sql/sql-'.$key, 'custom');
+		if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php')
+			AND !empty($zz_conf['db_connection']))
+			require_once $zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php';
 
 		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
 			$zz_sql['domain'] = [$zz_sql['domain']];
