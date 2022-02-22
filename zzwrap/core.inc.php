@@ -3085,6 +3085,8 @@ function wrap_cfg_files($type, $single_module = false) {
 	$cfg[$type] = [];
 	foreach ($files as $module => $cfg_file) {
 		$single_cfg[$type][$module] = parse_ini_file($cfg_file, true);
+		foreach (array_keys($single_cfg[$type][$module]) as $index)
+			$single_cfg[$type][$module][$index]['module'] = $module;
 		// might be called before database connection exists
 		if (!empty($zz_conf['db_connection'])) {
 			wrap_cfg_translate($single_cfg[$type][$module]);
