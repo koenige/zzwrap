@@ -5,10 +5,10 @@
  * Access and authorization functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -23,10 +23,9 @@ function wrap_access($area) {
 	global $zz_conf;
 	global $zz_setting;
 	static $config;
-	if (empty($config))
-		$config = wrap_cfg_files('access');
-
-	// @todo read settings from database
+	static $usergroups;
+	if (empty($config)) $config = wrap_cfg_files('access');
+	if (empty($usergroups)) $usergroups = [];
 
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) return true;
@@ -35,9 +34,20 @@ function wrap_access($area) {
 	// @todo access rights for local users can be overwritten
 	// if user has access to webpages table and can write bricks
 	if (!empty($zz_conf['multi'])) return true;
+
+	// read settings from database
+	if (in_array('activities', $zz_setting['modules']) AND !array_key_exists($area, $usergroups)) {
+		$sql = 'SELECT usergroup_id, usergroup
+			FROM usergroups
+			LEFT JOIN access_usergroups USING (usergroup_id)
+			LEFT JOIN access USING (access_id)
+			WHERE access.access_key = "%s"';
+		$sql = sprintf($sql, wrap_db_escape($area));
+		$usergroups[$area] = wrap_db_fetch($sql, 'usergroup_id', 'key/value');
+	}
 	
 	// are there access rights? no: = no access!
-	if (empty($config[$area]['group'])) return false;
+	if (empty($usergroups[$area]) AND empty($config[$area]['group'])) return false;
 
 	// directly given access via session or setting?
 	$keys = ['zz_setting', '_SESSION'];
@@ -51,7 +61,14 @@ function wrap_access($area) {
 	}
 
 	// check if access rights are met
-	$access = brick_access_rights($config[$area]['group']);
+	if (!empty($usergroups[$area])) {
+		foreach ($usergroups[$area] as $usergroup) {
+			$access = brick_access_rights($usergroup);
+			if ($access) break;
+		}
+	} else {
+		$access = brick_access_rights($config[$area]['group']);
+	}
 	if (!$access) return false;
 	return true;
 }
