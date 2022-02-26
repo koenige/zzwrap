@@ -57,7 +57,6 @@ function wrap_db_connect() {
 			}
 			session_write_close();
 		}
-		if (empty($zz_conf['db_name'])) return false;
 	}
 	
 	// connect to database
