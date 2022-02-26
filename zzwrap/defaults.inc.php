@@ -317,6 +317,8 @@ function wrap_config($mode, $site = '') {
 		}
 		break;
 	case 'write':
+		if (!wrap_database_table_check('_settings', true)) break;
+		
 		if (!empty($zz_setting['multiple_websites'])) {
 			if (empty($website_id)) $website_id = 1;
 			$zz_setting['website_id'] = $website_id;

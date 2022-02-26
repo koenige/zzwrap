@@ -111,6 +111,8 @@ function wrap_install_module($module) {
 	global $zz_setting;
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/database.inc.php';
+
+	$logging_table = wrap_database_table_check($zz_conf['logging_table'], true);
 	
 	$files = wrap_collect_files('configuration/install.sql', $module);
 	if (!$files) return false;
@@ -119,10 +121,12 @@ function wrap_install_module($module) {
 		if (wrap_sql_ignores($module, $table)) continue;
 		foreach ($queries_per_table as $index => $query) {
 			// install already in logging table?
-			$sql = 'SELECT log_id FROM %s WHERE query = "%s"';
-			$sql = sprintf($sql, $zz_conf['logging_table'], wrap_db_escape($query));
-			$record = wrap_db_fetch($sql);
-			if ($record) continue;
+			if ($logging_table) {
+				$sql = 'SELECT log_id FROM %s WHERE query = "%s"';
+				$sql = sprintf($sql, $zz_conf['logging_table'], wrap_db_escape($query));
+				$record = wrap_db_fetch($sql);
+				if ($record) continue;
+			}
 			$success = wrap_db_query($query);
 			if ($success)
 				zz_log_sql($query, 'Crew droid Robot 571');

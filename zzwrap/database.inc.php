@@ -1395,6 +1395,8 @@ function wrap_filetype_id($filetype, $action = 'read') {
 function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') {
 	static $data;
 
+	if (!wrap_database_table_check('categories', true)) return [];
+
 	if (empty($data[$table])) {
 		if (!$sql) {
 			$queries = wrap_system_sql('ids');
@@ -1452,4 +1454,29 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 	default:
 		return false;
 	}
+}
+
+/**
+ * check if a database table exists
+ * first check, if there is a database connection
+ * then check table
+ *
+ * @param string $table
+ * @param bool $only_if_install (optional) only check if CMS install is active
+ * @return bool true: exists (or go on with code, won’t check)
+ */
+function wrap_database_table_check($table, $only_if_install = false) {
+	if ($only_if_install AND empty($_SESSION['cms_install'])) return true;
+	if (str_starts_with($table, '/*_PREFIX_*/'))
+		$table = substr($table, strlen('/*_PREFIX_*/'));
+	
+	$sql = 'SELECT DATABASE()';
+	$database = wrap_db_fetch($sql, '', 'single value');
+	if (!$database) return false;
+	
+	$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/%s"';
+	$sql = sprintf($sql, $table);
+	$table_exists = wrap_db_fetch($sql);
+	if (!$table_exists) return false;
+	return true;
 }

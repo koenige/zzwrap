@@ -2957,11 +2957,9 @@ function wrap_setting_read($key, $login_id = 0) {
 			return $settings[$login_id][$key];
 
 	if (!$login_id AND !$setting_table) {
-		$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/_settings"';
-		$setting_table = wrap_db_fetch($sql);
+		$setting_table = wrap_database_table_check('_settings');
 	} elseif ($login_id AND !$login_setting_table) {
-		$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/logins_settings"';
-		$login_setting_table = wrap_db_fetch($sql);
+		$login_setting_table = wrap_database_table_check('logins_settings');
 	}
 	if (!$setting_table) return [];
 	$sql = 'SELECT setting_key, setting_value
