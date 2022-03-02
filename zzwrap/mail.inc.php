@@ -151,6 +151,7 @@ function wrap_mail($mail, $list = []) {
  * empty line stops searching, unknown header as well
  * syntax: Header: Value
  *
+ * important: never send a user generated e-mail without an introductory text!
  * @param array $mail
  * @return array
  */
@@ -165,7 +166,7 @@ function wrap_mail_headers($mail) {
 			unset($lines[$index]);
 			break;
 		}
-		if (!preg_match('~([A-Za-z-]+): (.*)~', $line, $matches)) break;
+		if (!preg_match('~^([A-Za-z-]+): (.*)~', $line, $matches)) break;
 		if (!in_array($matches[1], $headers) AND substr($matches[1], 0, 2) !== 'X-') break;
 		if (in_array($matches[1], ['To', 'Subject'])) {
 			$mail[strtolower($matches[1])] = trim($matches[2]);
