@@ -92,9 +92,11 @@ function wrap_set_defaults_pre_conf() {
 
 	// get site name without www. and .local
 	$zz_setting['site'] = $zz_setting['hostname'];
-	if (substr($zz_setting['site'], 0, 4) === 'www.')
+	if (str_starts_with($zz_setting['site'], 'www.'))
 		$zz_setting['site'] = substr($zz_setting['site'], 4);
-	if ($zz_setting['local_access'])
+	if (str_starts_with($zz_setting['site'], 'dev.'))
+		$zz_setting['site'] = substr($zz_setting['site'], 4);
+	if ($zz_setting['local_access'] AND str_ends_with($zz_setting['site'], '.local'))
 		$zz_setting['site'] = substr($zz_setting['site'], 0, -6);
 
 	// base URL, e. g. for languages
@@ -179,7 +181,7 @@ function wrap_set_defaults_pre_conf() {
 		'ucfirst', 'wrap_time', 'wrap_bytes', 'wrap_duration', 'strip_tags',
 		'strtoupper', 'strtolower', 'wrap_money', 'quoted_printable_encode',
 		'wrap_bearing', 'wrap_cfg_quote', 'wrap_meters', 'wrap_js_escape',
-		'wrap_js_nl2br'
+		'wrap_js_nl2br', 'wrap_percent', 'wrap_punycode_decode'
 	];
 
 	if (!$zz_setting['local_access']) {
