@@ -119,6 +119,13 @@ function wrap_install_module($module) {
 	$queries = wrap_sql_file($files[$module]);
 	foreach ($queries as $table => $queries_per_table) {
 		if (wrap_sql_ignores($module, $table)) continue;
+		if (str_starts_with($table, 'query ')) {
+			// -- query SHOW TABLES LIKE `bla` -- with single value as result
+			// true (or value) or false
+			$sql = substr($table, 6);
+			$result = wrap_db_fetch($sql, '', 'single value');
+			if (!$result) continue;
+		}
 		foreach ($queries_per_table as $index => $query) {
 			// install already in logging table?
 			if ($logging_table) {

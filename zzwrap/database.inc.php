@@ -1113,6 +1113,7 @@ function wrap_sql_file($filename, $key_separator = '') {
 				$data[$key][$subkey] = '';
 			} else {
 				$key = substr($line, 0, strpos($line, ' '));
+				if ($key === 'query') $key = rtrim($line, ' --');
 				$index[$key] = 0;
 				$data[$key][$index[$key]] = '';
 			}
