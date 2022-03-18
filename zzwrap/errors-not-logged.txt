@@ -5,7 +5,7 @@
 # http://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2012-2021 Gustaf Mossakowski
+# @copyright Copyright © 2012-2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 # 
 # begin = check if begin of string is identical; end = check end; all: check full
@@ -299,6 +299,7 @@ qs	string	fbclid
 
 # ads, @see https://iabtechlab.com
 404	end	/ads.txt
+404	end	/app-ads.txt
 
 # authors behind website, @see http://humanstxt.org
 404	end	/humans.txt
@@ -342,3 +343,6 @@ qs	string	fbclid
 
 # Movable Type vulnerability
 404	end	/mt/mt-xmlrpc.cgi
+
+# Microsoft Exchange
+404	end	/autodiscover/autodiscover.xml
