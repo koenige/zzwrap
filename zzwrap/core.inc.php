@@ -3173,10 +3173,10 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * e. g. for 'default_masquerade' get path from 'default_masquerade_path'
  * for 'activities_profile[usergroup]' use 'activities_profile_path[usergroup]'
  * @param string $area
- * @param string $value
+ * @param string $value (optional)
  * @return string
  */
-function wrap_path($area, $value) {
+function wrap_path($area, $value = '') {
 	global $zz_setting;
 
 	// check rights
