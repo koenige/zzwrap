@@ -855,6 +855,10 @@ function wrap_punycode_decode($string) {
 	$host = explode('.', $url['host']);
 	foreach ($host as $index => $part) {
 		if (substr($part, 0, 4) !== 'xn--') continue;
+		if (!function_exists('idn_to_utf8')) {
+			wrap_error('missing function `idn_to_utf8`', E_USER_NOTICE);
+			continue;
+		}
 		$host[$index] = idn_to_utf8($part);
 	}
 	$url['host_new'] = implode('.', $host);
