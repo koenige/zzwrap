@@ -234,13 +234,13 @@ function wrap_mail_name($name) {
 }
 
 /**
- * check a single e-mail address if it's valid
+ * check a single e-mail address if it’s valid
  *
  * @param string $e_mail
- * @return string $e_mail if it's correct, empty string if address is invalid
+ * @param bool $mail_check_mx (default true, false: do not check MX record)
+ * @return string $e_mail if it’s correct, empty string if address is invalid
  */
-function wrap_mail_valid($e_mail) {
-	global $zz_setting;
+function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	// remove <>-brackets around address
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); 
@@ -251,7 +251,7 @@ function wrap_mail_valid($e_mail) {
 	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
 
 	// check if hostname has MX record
-	if (empty($zz_setting['mail_dont_check_mx'])) {
+	if ($mail_check_mx AND !wrap_get_setting('mail_dont_check_mx')) {
 		$host = explode('@', $e_mail);
 		if (count($host) !== 2) return false;
 		// trailing dot to get a FQDN
