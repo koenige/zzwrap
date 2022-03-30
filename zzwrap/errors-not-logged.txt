@@ -282,6 +282,9 @@ qs	string	author
 # Facebook Click Identifier (for tracking)
 qs	string	fbclid
 
+# Microsoft Click ID (for tracking)
+qs	string	msclkid
+
 # looking for a blog
 404	all	/blog/
 
