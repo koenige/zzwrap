@@ -25,9 +25,10 @@
  *			string 'text', string 'html', array 'files'
  * @param array $list send mails to multiple recipients via a list
  * @global $zz_conf
- *		'error_mail_from', 'character_set', 'mail_subject_prefix'
+ *		'error_mail_from', 'character_set'
  * @global $zz_setting
- *		'local_access', bool 'show_local_mail' log mail or show mail
+ *		'local_access', bool 'show_local_mail' log mail or show mail,
+ *		'mail_subject_prefix'
  * @return bool true: message was sent; false: message was not sent
  */
 function wrap_mail($mail, $list = []) {
@@ -60,8 +61,8 @@ function wrap_mail($mail, $list = []) {
 	$mail['to'] = wrap_mail_name($mail['to']);
 
 	// Subject
-	if (!empty($zz_conf['mail_subject_prefix']))
-		$mail['subject'] = $zz_conf['mail_subject_prefix'].' '.$mail['subject'];
+	if (!empty($zz_setting['mail_subject_prefix']))
+		$mail['subject'] = $zz_setting['mail_subject_prefix'].' '.$mail['subject'];
 
 	// From
 	if (!isset($mail['headers']['From'])) {
@@ -510,8 +511,8 @@ function wrap_mail_queue_send() {
 	}
 	if (!$mail['message']) return wrap_mail_queue_return();
 
-	$old_mail_subject_prefix = $zz_conf['mail_subject_prefix'] ?? false;
-	$zz_conf['mail_subject_prefix'] = false;
+	$old_mail_subject_prefix = $zz_setting['mail_subject_prefix'] ?? false;
+	$zz_setting['mail_subject_prefix'] = false;
 	$lines = explode("\n", $mail['message']);
 	foreach ($lines as $line) {
 		foreach ($headers as $header) {
@@ -532,7 +533,7 @@ function wrap_mail_queue_send() {
 	if ($success) {
 		foreach ($used_logfiles as $logfile) unlink($logfile);
 	}
-	$zz_conf['mail_subject_prefix'] = $old_mail_subject_prefix;
+	$zz_setting['mail_subject_prefix'] = $old_mail_subject_prefix;
 	return wrap_mail_queue_return();
 }
 

@@ -162,7 +162,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		if (!empty($zz_conf['error_mail_parameters']))
 			$mail['parameters'] = $zz_conf['error_mail_parameters']; 
 		$mail['subject'] = '';
-		if (empty($zz_conf['mail_subject_prefix']))
+		if (empty($zz_setting['mail_subject_prefix']))
 			$mail['subject'] = '['.wrap_get_setting('project').'] ';
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
