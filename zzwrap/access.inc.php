@@ -36,7 +36,10 @@ function wrap_access($area) {
 	if (!empty($zz_conf['multi'])) return true;
 
 	// read settings from database
-	if (in_array('activities', $zz_setting['modules']) AND !array_key_exists($area, $usergroups)) {
+	if (in_array('activities', $zz_setting['modules'])
+		AND !array_key_exists($area, $usergroups)
+		AND wrap_get_setting('mod_activities_install_date')
+	) {
 		$sql = 'SELECT usergroup_id, usergroup
 			FROM usergroups
 			LEFT JOIN access_usergroups USING (usergroup_id)
