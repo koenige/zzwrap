@@ -73,7 +73,7 @@ function zzwrap() {
 	wrap_check_db_connection();
 	
 	// page offline?
-	if (wrap_get_setting('site_offline')) {
+	if (!empty($zz_setting['site_offline'])) {
 		if ($tpl = wrap_get_setting('site_offline_template')) {
 			$zz_setting['template'] = $tpl;
 		}
