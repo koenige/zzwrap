@@ -1160,9 +1160,14 @@ function wrap_random_hash($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi
  *		array data of next record
  */
 function wrap_get_prevnext($records, $record_id, $endless = true) {
+	// remove non-numerical record indexes
+	foreach (array_keys($records) as $index) {
+		if (is_int($index)) continue;
+		unset($records[$index]);
+	}
 	$keys = array_keys($records);
 	$pos = array_search($record_id, $keys);
-	if ($pos === false) return [0 => false, 1 => false];
+	if ($pos === false) return [0 => [], 1 => []];
 	$prev = $pos - 1;
 	if ($prev >= 0) {
 		$return[0] = $records[$keys[$prev]];
