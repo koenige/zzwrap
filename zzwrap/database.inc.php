@@ -323,7 +323,7 @@ function wrap_db_error_no() {
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_type = E_USER_ERROR) {
 	global $zz_conf;
-	if (!$zz_conf['db_connection']) return [];
+	if (empty($zz_conf['db_connection'])) return [];
 	
 	$result = wrap_db_query($sql, $error_type);
 	if (!$result) return NULL;
