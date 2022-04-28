@@ -2505,6 +2505,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 	global $zz_setting;
 
 	if (!$url) {
+		if (empty($zz_page['url'])) return false;
 		$url = $zz_page['url']['full'];
 		$base = $zz_setting['base'];
 		if ($base === '/') $base = '';
