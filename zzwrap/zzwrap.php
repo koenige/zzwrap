@@ -163,12 +163,15 @@ function wrap_includes_postconf() {
  * @return array
  */
 function wrap_ressource_by_url($zz_page, $quit = true) {
+	global $zz_setting;
 	$well_known = wrap_well_known_url($zz_page['url']['full']);
 	if ($well_known) {
 		$zz_page['well_known'] = $well_known;
 	} else {
 		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
 		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
+		if (!empty($_GET['lang']) AND in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list'))))
+			$zz_setting['lang'] = $_GET['lang'];
 	}
 	return $zz_page;
 }
