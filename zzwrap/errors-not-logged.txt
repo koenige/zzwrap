@@ -253,6 +253,9 @@ qs	string	utm_content
 404	referer	http://www.example.com
 404	referer	http://www.example.com/
 
+# and if someone has set up a local machine, we do not care
+404	referer	http://localhost/
+
 # elFinder
 404	all	/scripts/elfinder/connectors/php/connector.php
 404	end	/elfinder.html
