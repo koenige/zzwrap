@@ -670,12 +670,26 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 	// UNION: treat queries separate
 	if (strstr($sql, ' UNION SELECT ')) {
 		$sqls = explode(' UNION SELECT ', $sql);
-		foreach ($sqls as $index => $single_sql) {
-			if ($index) $single_sql = ' SELECT '.$single_sql;
-			$sqls[$index] = trim(wrap_edit_sql($single_sql, $n_part, $values, $mode));
+		// UNION SELECT may be inside quotation marks: go backwards through partial
+		// queries, count quotation marks; if uneven, there is a quotation mark
+		// not closed, so append query to previous query
+		// take escaped quotation marks (\") into account
+		$i = count($sqls) - 1;
+		while ($i) {
+			$marks = substr_count($sqls[$i], '"') - substr_count($sqls[$i], '\"');
+			if ($marks & 1) {
+				$sqls[$i - 1] .= $sqls[$i];
+				unset($sqls[$i]);
+			}
+			$i--;
 		}
-		$sql = implode(' UNION ', $sqls);
-		return $sql;
+		if (count($sqls) > 1) {
+			foreach ($sqls as $index => $single_sql) {
+				if ($index) $single_sql = ' SELECT '.$single_sql;
+				$sqls[$index] = trim(wrap_edit_sql($single_sql, $n_part, $values, $mode));
+			}
+			$sql = implode(' UNION ', $sqls);
+		}
 	}
 
 	// SQL statements in descending order
