@@ -1214,7 +1214,17 @@ function wrap_system_sql($subtree) {
 	}
 
 	if (!array_key_exists($subtree, $data)) return NULL;
+	$separate = [];
+	if ($subtree === 'ids') {
+		foreach ($data[$subtree] as $key => $query) {
+			if (!strstr($query, '/*_ID')) continue;
+			$separate[$key] = $query;
+			unset($data[$subtree][$key]);
+		}
+	}
 	$data[$subtree] = wrap_system_sql_placeholders($data[$subtree]);
+	if ($separate)
+		$data[$subtree] += wrap_system_sql_placeholders($separate);
 	return $data[$subtree];
 }
 
