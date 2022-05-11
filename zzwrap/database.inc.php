@@ -669,20 +669,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 
 	// UNION: treat queries separate
 	if (strstr($sql, ' UNION SELECT ')) {
-		$sqls = explode(' UNION SELECT ', $sql);
-		// UNION SELECT may be inside quotation marks: go backwards through partial
-		// queries, count quotation marks; if uneven, there is a quotation mark
-		// not closed, so append query to previous query
-		// take escaped quotation marks (\") into account
-		$i = count($sqls) - 1;
-		while ($i) {
-			$marks = substr_count($sqls[$i], '"') - substr_count($sqls[$i], '\"');
-			if ($marks & 1) {
-				$sqls[$i - 1] .= $sqls[$i];
-				unset($sqls[$i]);
-			}
-			$i--;
-		}
+		$sqls = wrap_edit_sql_statement($sql, 'UNION SELECT');
 		if (count($sqls) > 1) {
 			foreach ($sqls as $index => $single_sql) {
 				if ($index) $single_sql = ' SELECT '.$single_sql;
@@ -703,7 +690,7 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		$sql = str_replace(')'.$statement.'(', ') '.$statement.' (', $sql);
 		$sql = str_replace(' '.$statement.'(', ' '.$statement.' (', $sql);
 		// check for statements
-		$explodes = explode(' '.$statement.' ', $sql);
+		$explodes = wrap_edit_sql_statement($sql, $statement);
 		if (count($explodes) > 1) {
 			if ($statement === 'JOIN') {
 				$o_parts[$statement][1] = array_shift($explodes);
@@ -956,6 +943,31 @@ function wrap_edit_sql_fieldnames($fields) {
 		$fields[$index] = $value;
 	}
 	return $fields;
+}
+
+/**
+ * get SQL statement and following code from query
+ *
+ * SQL statement may be inside quotation marks: go backwards through partial
+ * queries, count quotation marks; if uneven, there is a quotation mark
+ * not closed, so append query to previous query
+ * take escaped quotation marks (\") into account
+ * @param string $sql
+ * @param string $statement
+ * @return array
+ */
+function wrap_edit_sql_statement($sql, $statement) {
+	$queries = explode(' '.$statement.' ', $sql);
+	$i = count($queries) - 1;
+	while ($i) {
+		$marks = substr_count($queries[$i], '"') - substr_count($queries[$i], '\"');
+		if ($marks & 1) {
+			$queries[$i - 1] .= $queries[$i];
+			unset($queries[$i]);
+		}
+		$i--;
+	}
+	return $queries;
 }
 
 /**
