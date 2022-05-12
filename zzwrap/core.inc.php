@@ -2962,7 +2962,7 @@ function wrap_setting_read($key, $login_id = 0) {
 	if (!$login_id AND !$setting_table) {
 		$setting_table = wrap_database_table_check('_settings');
 	} elseif ($login_id AND !$login_setting_table) {
-		$login_setting_table = wrap_database_table_check('logins_settings');
+		$setting_table = wrap_database_table_check('logins_settings');
 	}
 	if (!$setting_table) return [];
 	$sql = 'SELECT setting_key, setting_value
