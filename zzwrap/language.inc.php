@@ -5,10 +5,10 @@
  * Language and internationalization functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018, 2020-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018, 2020-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -730,9 +730,7 @@ function wrap_po_parse($file) {
 			}
 		}
 		if (!$plurals) {
-			if (!$chunk['msgstr']) {
-				$text[$scope][$chunk['msgid']] = $chunk['msgid'];
-			} else {
+			if ($chunk['msgstr']) {
 				$text[$scope][$chunk['msgid']] = $chunk['msgstr'];
 			}
 		} else {
