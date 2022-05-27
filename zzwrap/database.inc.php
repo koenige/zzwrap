@@ -1459,6 +1459,13 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 					}
 					foreach ($parameters['alias'] as $my_alias) {
 						$data[$table][$my_alias] = strval($id);
+						$identifier_prefix = array_search($id, $data[$table]);
+						foreach ($data[$table] as $identifier => $value) {
+							if (!str_starts_with($identifier, $identifier_prefix.'/')) continue;
+							$new_identifier = $my_alias.substr($identifier, strlen($identifier_prefix));
+							if (array_key_exists($new_identifier, $data[$table])) continue;
+							$data[$table][$new_identifier] = $value;
+						}
 					}
 				}
 			}
