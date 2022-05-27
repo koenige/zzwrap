@@ -3177,13 +3177,14 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * for 'activities_profile[usergroup]' use 'activities_profile_path[usergroup]'
  * @param string $area
  * @param string $value (optional)
+ * @param bool $check_rights (optional)
  * @return string
  */
-function wrap_path($area, $value = '') {
+function wrap_path($area, $value = '', $check_rights = true) {
 	global $zz_setting;
 
 	// check rights
-	if (!wrap_access($area)) return false;
+	if ($check_rights AND !wrap_access($area)) return false;
 
 	// add _path to setting, check if it exists
 	$check = false;
