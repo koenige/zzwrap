@@ -580,6 +580,11 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['themes_dir'])) {
 		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
 	}
+	
+	if (!empty($zz_setting['cache_dir'])) {
+		$zz_setting['cache_dir_zz'] = empty($zz_setting['cache_directories'])
+			? $zz_setting['cache_dir'] : $zz_setting['cache_dir'].'/d';
+	}
 
 	// cms core
 	$zz_setting['core']			= __DIR__;

@@ -2030,7 +2030,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	global $zz_setting;
 	$host = wrap_cache_filename('domain', $url);
 	if (!file_exists($host)) {
-		$success = mkdir($host);
+		$success = wrap_mkdir($host);
 		if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
 	}
 	$doc = wrap_cache_filename('url', $url);
@@ -2045,6 +2045,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 			return false;
 		}
 	}
+	wrap_mkdir(dirname($head));
 	// save document
 	if ($text) {
 		file_put_contents($doc, $text);
@@ -2398,7 +2399,7 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 		}
 		if ($has_content AND filemtime($files[0]) > $now + $age) return true;
 	} else {
-		$host = substr($files[0], strlen($zz_setting['cache_dir']) + 1);
+		$host = substr($files[0], strlen($zz_setting['cache_dir_zz']) + 1);
 		$host = substr($host, 0, strpos($host, '/'));
 		if ($host !== $zz_setting['hostname']) {
 			// remote access, check cache-control of remote server
@@ -2497,7 +2498,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
  * @param string $type (optional) default: 'url'; 'headers', 'domain'
  * @param string $url (optional) URL to cache, if not set, internal URL will be used
  * @global array $zz_page ($zz_page['url']['full'])
- * @global array $zz_setting 'cache_dir'
+ * @global array $zz_setting 'cache_dir_zz'
  * @return string filename
  */
 function wrap_cache_filename($type = 'url', $url = '') {
@@ -2513,7 +2514,8 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$url = parse_url($url);
 		$base = '';
 	}
-	$file = $zz_setting['cache_dir'].'/'.urlencode($url['host']);
+	$file = $zz_setting['cache_dir_zz'];
+	$file .= '/'.urlencode($url['host']);
 	if ($type === 'domain') return $file;
 
 	if (!empty($url['query'])) {
@@ -2522,10 +2524,14 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$url['query'] = str_replace('%5D', ']', $url['query']);
 	}
 	if (!empty($zz_setting['cache_directories'])) {
+		$url['path'] = explode('/', $url['path']);
+		foreach ($url['path'] as $index => $path) {
+			$url['path'][$index] = urlencode($path);
+		}
+		$url['path'] = implode('/', $url['path']);
 		$file .= $base.$url['path'];
 		if (str_ends_with($file, '/'))
 			$file .= 'index';
-		wrap_mkdir(dirname($file));
 	} else {
 		$file .= '/'.urlencode($base.$url['path']);
 	}
@@ -2744,7 +2750,7 @@ function wrap_mkdir($folder) {
 
 	// get rid of .. and .
 	foreach ($subfolders as $index => $subfolder) {
-		if (!$subfolder) continue;
+		if ($subfolder === '') continue;
 		if ($subfolder === '..') {
 			unset($subfolders[$index]);
 			unset($subfolders[$index - 1]);
@@ -2759,7 +2765,7 @@ function wrap_mkdir($folder) {
 	$subfolders = array_values($subfolders);
 
 	foreach ($subfolders as $index => $subfolder) {
-		if (!$subfolder) continue;
+		if ($subfolder === '') continue;
 		$current_folder .= '/'.$subfolder;
 		if (!empty($basefolders[$index]) AND $basefolders[$index] === $subfolder) {
 			// it's in open_basedir, so folder should exist and we cannot
