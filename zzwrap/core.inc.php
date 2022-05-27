@@ -2520,9 +2520,16 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		// [ and ] are equal to %5B and %5D, so replace them
 		$url['query'] = str_replace('%5B', '[', $url['query']);
 		$url['query'] = str_replace('%5D', ']', $url['query']);
-		$url['path'] .= '?'.$url['query'];
 	}
-	$file .= '/'.urlencode($base.$url['path']);
+	if (!empty($zz_setting['cache_directories'])) {
+		$file .= $base.$url['path'];
+		if (str_ends_with($file, '/'))
+			$file .= 'index';
+		wrap_mkdir(dirname($file));
+	} else {
+		$file .= '/'.urlencode($base.$url['path']);
+	}
+	if (!empty($url['query'])) $file .= urlencode('?'.$url['query']);
 	if ($type === 'url') return $file;
 
 	$file .= '.headers';
