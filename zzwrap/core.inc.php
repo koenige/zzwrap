@@ -2050,7 +2050,8 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	if ($text) {
 		file_put_contents($doc, $text);
 	} elseif (file_exists($doc)) {
-		unlink($doc);
+		if (is_dir($doc)) rmdir($doc);
+		else unlink($doc);
 	}
 	// save headers
 	// without '-gz'
