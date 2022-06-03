@@ -1433,43 +1433,8 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 	if (!wrap_database_table_check('categories', true)) return [];
 
 	if (empty($data[$table])) {
-		if (!$sql) {
-			$queries = wrap_system_sql('ids');
-			if (array_key_exists($table, $queries)) {
-				$sql = $queries[$table];
-			} else {
-				wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
-				return [];
-			}
-		}
-		$data[$table] = wrap_db_fetch($sql, '_dummy_', 'key/value');
-		$queries = wrap_system_sql('ids-aliases');
-		if (array_key_exists($table, $queries)) {
-			$sql_aliases = $queries[$table];
-			if ($sql_aliases) {
-				$aliases = wrap_db_fetch($sql_aliases, '_dummy_', 'key/value');
-				foreach ($aliases as $id => $alias) {
-					parse_str($alias, $parameters);
-					if (empty($parameters['alias'])) continue;
-					// convert to string since PHP treats all integers
-					// from database as string, too
-					// and there are no calculations with IDs
-					if (!is_array($parameters['alias'])) {
-						$parameters['alias'] = [$parameters['alias']]; 
-					}
-					foreach ($parameters['alias'] as $my_alias) {
-						$data[$table][$my_alias] = strval($id);
-						$identifier_prefix = array_search($id, $data[$table]);
-						foreach ($data[$table] as $identifier => $value) {
-							if (!str_starts_with($identifier, $identifier_prefix.'/')) continue;
-							$new_identifier = $my_alias.substr($identifier, strlen($identifier_prefix));
-							if (array_key_exists($new_identifier, $data[$table])) continue;
-							$data[$table][$new_identifier] = $value;
-						}
-					}
-				}
-			}
-		}
+		$data[$table] = wrap_id_read($table, $sql);
+		if (!$data[$table]) return [];
 	}
 
 	switch ($action) {
@@ -1496,6 +1461,54 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 	default:
 		return false;
 	}
+}
+
+/**
+ * read IDs and aliases for table
+ *
+ * @param string $table
+ * @param string $sql
+ * @return array
+ */
+function wrap_id_read($table, $sql) {
+	if (!$sql) {
+		$queries = wrap_system_sql('ids');
+		if (array_key_exists($table, $queries)) {
+			$sql = $queries[$table];
+		} else {
+			wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
+			return [];
+		}
+	}
+	$data = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	$queries = wrap_system_sql('ids-aliases');
+	if (!array_key_exists($table, $queries)) return $data;
+
+	$sql_aliases = $queries[$table];
+	if (!$sql_aliases) return $data;
+
+	$aliases = wrap_db_fetch($sql_aliases, '_dummy_', 'key/value');
+	foreach ($aliases as $id => $alias) {
+		parse_str($alias, $parameters);
+		if (empty($parameters['alias'])) continue;
+		// convert to string since PHP treats all integers
+		// from database as string, too
+		// and there are no calculations with IDs
+		if (!is_array($parameters['alias'])) {
+			$parameters['alias'] = [$parameters['alias']]; 
+		}
+		foreach ($parameters['alias'] as $my_alias) {
+			$data[$my_alias] = strval($id);
+			$identifier_prefix = array_search($id, $data);
+			foreach ($data as $identifier => $value) {
+				if (!str_starts_with($identifier, $identifier_prefix.'/')) continue;
+				$new_identifier = $my_alias.substr($identifier, strlen($identifier_prefix));
+				if (array_key_exists($new_identifier, $data)) continue;
+				$data[$new_identifier] = $value;
+			}
+		}
+	}
+	return $data;
 }
 
 /**
