@@ -1082,6 +1082,9 @@ function wrap_htmlout_page($page) {
 		$i = 0;
 		foreach (array_keys($text) as $index) {
 			if ($i & 1) {
+				// allow to remove escaping if wanted
+				if (strstr($text[$index], 'data-noescape="1"'))
+					$text[$index] = str_replace('%\%\%', '%%%', $text[$index]);
 				$text[$index] = '<textarea'.$text[$index].'</textarea';
 			} else {
 				$text[$index] = str_replace('%\%\%', '%%%', $text[$index]);
