@@ -486,14 +486,14 @@ function wrap_mail_queue_add($mail, $additional_headers) {
  */
 function wrap_mail_queue_send() {
 	global $zz_setting;
-	global $zz_conf;
 	require_once $zz_setting['core'].'/syndication.inc.php';
-	$lock = wrap_lock('mailqueue', 'sequential', 60);
+	// lock will unlock automatically, not manually, to just get error mails every n seconds
+	$lock = wrap_lock('mailqueue', 'sequential', wrap_get_setting('error_mail_delay_seconds'));
 	if ($lock) return;
 
 	$queue_dir = $zz_setting['log_dir'].'/mailqueue';
-	if (!file_exists($queue_dir)) return wrap_mail_queue_return();
-	if (!is_dir($queue_dir)) return wrap_mail_queue_return();
+	if (!file_exists($queue_dir)) return false;
+	if (!is_dir($queue_dir)) return false;
 	$headers = ['To', 'Subject', 'From'];
 
 	$mail = [];
@@ -509,7 +509,7 @@ function wrap_mail_queue_send() {
 		$mail['message'] .= file_get_contents($queue_dir.'/'.$logfile);
 		$used_logfiles[] = $queue_dir.'/'.$logfile;
 	}
-	if (!$mail['message']) return wrap_mail_queue_return();
+	if (!$mail['message']) return false;
 
 	$old_mail_subject_prefix = $zz_setting['mail_subject_prefix'] ?? false;
 	$zz_setting['mail_subject_prefix'] = false;
@@ -534,15 +534,9 @@ function wrap_mail_queue_send() {
 		foreach ($used_logfiles as $logfile) unlink($logfile);
 	}
 	$zz_setting['mail_subject_prefix'] = $old_mail_subject_prefix;
-	return wrap_mail_queue_return();
-}
-
-/**
- * unlock mail queue lock before returning
- *
- */
-function wrap_mail_queue_return() {
-	wrap_unlock('mailqueue');
+	unset($zz_setting['url_parameter']); // needs to be set later on
+	
+	return false;
 }
 
 /**
