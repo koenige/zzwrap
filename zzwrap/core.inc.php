@@ -2635,7 +2635,7 @@ function wrap_get_setting($key, $login_id = 0) {
 		return $zz_setting[$key];
 	}
 	// read setting from database
-	if (!empty($zz_conf['db_connection'])) {
+	if (!empty($zz_conf['db_connection']) AND $login_id) {
 		$values = wrap_setting_read($key, $login_id);
 		if ($login_id AND array_key_exists($key, $values)) {
 			return $values[$key];
@@ -2650,10 +2650,6 @@ function wrap_get_setting($key, $login_id = 0) {
 	if (!empty($zz_conf['db_connection']) AND !empty($cfg[$key]['brick'])) {
 		$path = wrap_setting_path($key, $cfg[$key]['brick']);
 		if ($path) return $zz_setting[$key];
-	}
-	// @deprecated
-	if (substr($key, -1) === '*') {
-		return $values;
 	}
 	return NULL;
 }
