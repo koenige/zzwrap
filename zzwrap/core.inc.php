@@ -2050,8 +2050,9 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	if ($text) {
 		file_put_contents($doc, $text);
 	} elseif (file_exists($doc)) {
-		if (is_dir($doc)) rmdir($doc);
-		else unlink($doc);
+		// here: only remove $doc if this was a URL with an old cache file
+		// directory = no, this is just a redirect to a URL with trailing slash
+		if (!is_dir($doc)) unlink($doc);
 	}
 	// save headers
 	// without '-gz'
