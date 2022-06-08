@@ -2155,8 +2155,10 @@ function wrap_cache_delete($status, $url = false) {
 	if (file_exists($doc)) {
 		// might be directory, if there was a URL ending example/
 		// and now example, redirecting to example/, is also removed
-		if (is_dir($doc)) rmdir($doc);
-		else unlink($doc);
+		if (is_dir($doc)) {
+			$files = scandir($doc);
+			if (count($files) <= 2) rmdir($doc); // ., ..
+		} else unlink($doc);
 	}
 	return true;
 }
