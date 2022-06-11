@@ -110,8 +110,17 @@ function wrap_db_credentials() {
 		} elseif (!file_exists($file)) {
 			continue;
 		} else {
-			include $file;
-			$rewrite = true;
+			if (str_ends_with($file, '.json')) {
+				$db = json_decode(file_get_contents($file), true);
+				if (!empty($db['db_name'])) {
+					$zz_conf['db_name'] = $db['db_name'];
+					if ($file === $zz_setting['local_pwd'])
+						$zz_conf['db_name_local'] = $db['db_name'];
+				}
+			} else {
+				include $file;
+				$rewrite = true;
+			}
 		}
 		$found = true;
 		break;
