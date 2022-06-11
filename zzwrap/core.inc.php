@@ -534,7 +534,11 @@ function wrap_check_canonical($zz_page, $page) {
 	// canonical hostname?
 	if (!empty($zz_setting['canonical_hostname'])) {
 		if (!empty($zz_setting['local_access'])) {
-			$canonical = $zz_setting['canonical_hostname'].'.local';
+			if (str_starts_with($zz_setting['hostname'], 'dev.')) {
+				$canonical = 'dev.'.$zz_setting['canonical_hostname'];
+			} else {
+				$canonical = $zz_setting['canonical_hostname'].'.local';
+			}
 		} else {
 			$canonical = $zz_setting['canonical_hostname'];
 		}
@@ -1050,6 +1054,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	if (!empty($zz_setting['canonical_hostname'])) {
 		$hostname = $zz_setting['hostname'];
 		if (str_ends_with($hostname, '.local')) $hostname = substr($hostname, 0, -6);
+		elseif (str_starts_with($hostname, 'dev.')) $hostname = substr($hostname, 4);
 		if ($hostname !== $zz_setting['canonical_hostname']) {
 			// fix links on error page to real destinations
 			$zz_setting['host_base']
@@ -1332,6 +1337,8 @@ function wrap_check_request() {
 			$forwarded_host = '/'.$_SERVER['HTTP_X_FORWARDED_HOST'];
 			if ($zz_setting['local_access'] AND substr($forwarded_host, -6) === '.local') {
 				$forwarded_host = substr($forwarded_host, 0, -6);
+			} elseif ($zz_setting['local_access'] AND str_starts_with($forwarded_host, 'dev.')) {
+				$forwarded_host = substr($forwarded_host, 4);
 			}
 			if (str_starts_with($zz_page['url']['full']['path'], $forwarded_host)) {
 				$zz_page['url']['full']['path_forwarded'] = $forwarded_host;

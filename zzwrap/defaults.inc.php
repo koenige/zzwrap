@@ -87,17 +87,20 @@ function wrap_set_defaults_pre_conf() {
 	// make hostname lowercase to avoid duplicating caches
 	$zz_setting['hostname'] = strtolower($zz_setting['hostname']);
 
-	// check if it's a local development server
-	$zz_setting['local_access'] = (substr($zz_setting['hostname'], -6) === '.local') ? true : false;
-
+	// check if it’s a local development server
 	// get site name without www. and .local
+	$zz_setting['local_access'] = false;
 	$zz_setting['site'] = $zz_setting['hostname'];
 	if (str_starts_with($zz_setting['site'], 'www.'))
 		$zz_setting['site'] = substr($zz_setting['site'], 4);
-	if (str_starts_with($zz_setting['site'], 'dev.'))
+	if (str_starts_with($zz_setting['site'], 'dev.')) {
 		$zz_setting['site'] = substr($zz_setting['site'], 4);
-	if ($zz_setting['local_access'] AND str_ends_with($zz_setting['site'], '.local'))
+		$zz_setting['local_access'] = true;
+	}
+	if (str_ends_with($zz_setting['site'], '.local')) {
 		$zz_setting['site'] = substr($zz_setting['site'], 0, -6);
+		$zz_setting['local_access'] = true;
+	}
 
 	// base URL, e. g. for languages
 	$zz_setting['base'] = '';

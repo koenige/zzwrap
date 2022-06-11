@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -520,7 +520,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			// development server, too
 			if ($zz_setting['local_access']) {
 				$remote_url_parts = parse_url($url);
-				if (str_ends_with($remote_url_parts['host'], '.local')) {
+				if (str_ends_with($remote_url_parts['host'], '.local')
+				    OR str_starts_with($remote_url_parts['host'], 'dev.')) {
 					$old_curl_ignore_ssl_verifyresult
 						= empty($zz_setting['curl_ignore_ssl_verifyresult']) ? false : true;
 					$zz_setting['curl_ignore_ssl_verifyresult'] = true;
@@ -769,6 +770,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	if (str_starts_with($source, 'http://')
 		OR str_starts_with($source, 'https://')) {
 		$source = str_replace('.local', '', $source);
+		$source = str_replace('://dev.', '://', $source);
 		$data = wrap_syndication_get($source, 'file');
 		if (empty($data['_']['filename'])) return false;
 		$source_file = $data['_']['filename'];
