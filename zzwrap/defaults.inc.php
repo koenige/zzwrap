@@ -548,13 +548,9 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['custom_wrap_sql_dir']))	
 		$zz_setting['custom_wrap_sql_dir'] = $zz_setting['custom'].'/zzwrap_sql';
 
-	// customized sql queries, db connection
+	// customized access rights checks
 	if (empty($zz_setting['custom_rights_dir']))	
 		$zz_setting['custom_rights_dir'] = $zz_setting['custom'].'/zzbrick_rights';
-	
-	// customized sql queries, db connection
-	if (empty($zz_setting['custom_wrap_template_dir']))	
-		$zz_setting['custom_wrap_template_dir'] = $zz_setting['inc'].'/templates';
 	
 	// modules
 	if (empty($zz_setting['modules_dir'])) {

@@ -45,7 +45,7 @@ function wrap_template($template, $data = [], $mode = false) {
 		foreach (array_keys($template) as $no) {
 			$template[$no] .= "\n";
 		}
-	} elseif (substr($template, 0, 1) === '/' AND file_exists($template)) {
+	} elseif (str_starts_with($template, '/') AND file_exists($template)) {
 		$tpl_file = $template;
 		$current_template = $template;
 		$template = file($tpl_file);
@@ -125,7 +125,16 @@ function wrap_template_file($template, $show_error = true) {
 	$found = [];
 	foreach ($zz_setting['modules'] as $module) {
 		if ($my_module AND $module !== $my_module) continue;
-		$tpl_file = wrap_template_file_per_folder($template, $zz_setting['modules_dir'].'/'.$module.'/templates');
+		$pathinfo = pathinfo($template);
+		if (!empty($pathinfo['dirname'])
+			AND in_array($pathinfo['dirname'], ['layout', 'behaviour'])
+			AND !empty($pathinfo['extension'])
+		) {
+			// has path and extension = separate file, other folder
+			$tpl_file = sprintf('%s/%s/%s', $zz_setting['modules_dir'], $module, $template);
+		} else {
+			$tpl_file = wrap_template_file_per_folder($template, $zz_setting['modules_dir'].'/'.$module.'/templates');
+		}
 		if ($tpl_file) $found[$module] = $tpl_file;
 	}
 	// ignore default template if there’s another template from a module
