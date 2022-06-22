@@ -108,7 +108,7 @@ function wrap_template_file($template, $show_error = true) {
 		if ($tpl_file) return $tpl_file;
 	}
 	
-	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['custom_wrap_template_dir']);
+	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/templates');
 	if ($tpl_file) return $tpl_file;
 
 	// check if there's a module template
