@@ -2653,9 +2653,15 @@ function wrap_get_setting($key, $login_id = 0) {
 	if (!empty($cfg[$key]['default'])) {
 		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
 		return $tmp_setting[$key];
-	} elseif (!empty($cfg[$key]['default_from_setting'])
-		AND array_key_exists($cfg[$key]['default_from_setting'], $zz_setting)) {
-		return $zz_setting[$cfg[$key]['default_from_setting']];
+	} elseif (!empty($cfg[$key]['default_from_setting'])) {
+		if (str_starts_with($cfg[$key]['default_from_setting'], 'zzform_')) {
+			$default_setting_key = substr($cfg[$key]['default_from_setting'], 7);
+			if (array_key_exists($default_setting_key, $zz_conf)) {
+				return $zz_conf[$default_setting_key];
+			}
+		} elseif (array_key_exists($cfg[$key]['default_from_setting'], $zz_setting)) {
+			return $zz_setting[$cfg[$key]['default_from_setting']];
+		}
 	}
 	if (!empty($zz_conf['db_connection']) AND !empty($cfg[$key]['brick'])) {
 		$path = wrap_setting_path($key, $cfg[$key]['brick']);
