@@ -1690,7 +1690,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 			} elseif (!empty($headers['character_set'])) {
 				$zz_page['character_set'] = $headers['character_set'];
 			} else {
-				$zz_page['character_set'] = $zz_conf['character_set'];
+				$zz_page['character_set'] = $zz_setting['character_set'];
 			}
 			if ($zz_page['character_set'] === 'utf-16le') {
 				// Add BOM, little endian
@@ -1776,18 +1776,18 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
  *
  * @param string $type 'inline' or 'attachment'
  * @param string $filename
- * @global $zz_conf
+ * @global $zz_setting
  * @return void
  */
 function wrap_http_content_disposition($type, $filename) {
-	global $zz_conf;
+	global $zz_setting;
 
 	// no double quotes in filenames
 	$filename = str_replace('"', '', $filename);
 	// RFC 2616: filename must consist of all ASCII characters
 	// RFC 5987: filename* may be sent with UTF-8 encoding
 	$filename_ascii = $filename;
-	if ($zz_conf['character_set'] === 'utf-8') {
+	if ($zz_setting['character_set'] === 'utf-8') {
 		$filename_ascii = utf8_decode($filename_ascii);
 	} else {
 		// @todo use iconv for encodings different from latin1

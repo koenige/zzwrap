@@ -918,7 +918,7 @@ function wrap_get_page() {
 		$page['text'] = wrap_template($zz_page['tpl_file'], $zz_conf + $zz_setting);
 		if (!$page['text']) wrap_quit(404);
 		$page['content_type'] = wrap_file_extension($zz_page['tpl_file']);
-		$zz_conf['character_set'] = wrap_detect_encoding($page['text']);
+		$zz_setting['character_set'] = wrap_detect_encoding($page['text']);
 		$page['status'] = 200;
 		$page['query_strings'][] = 'v';
 		$page['query_strings'][] = 'nocache';

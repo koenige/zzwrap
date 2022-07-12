@@ -113,7 +113,7 @@ function zzwrap() {
 		$zz_page = wrap_ressource_by_url($zz_page);
 	}
 	
-	wrap_set_encoding($zz_conf['character_set']);
+	wrap_set_encoding($zz_setting['character_set']);
 	wrap_translate_page();
 	wrap_set_units();
 	if (!empty($_SESSION['logged_in'])) session_write_close();

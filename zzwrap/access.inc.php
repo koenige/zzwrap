@@ -141,8 +141,6 @@ function wrap_check_hash($string, $hash, $error_msg = '', $key = 'secret_key') {
  * @todo support other character encodings as utf-8 and iso-8859-1
  */
 function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
-	global $zz_conf;
-
 	$secret_key = wrap_get_setting($key);
 	$minutes_valid = wrap_get_setting($key.'_validity_in_minutes');
 	if ($minutes_valid) {
@@ -152,7 +150,7 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
 		$secret_key .= $timeframe_start;
 	}
 	$secret = $string.$secret_key;
-	if ($zz_conf['character_set'] !== 'utf-8') $secret = utf8_encode($secret);
+	if (wrap_get_setting('character_set') !== 'utf-8') $secret = utf8_encode($secret);
 	$hash = sha1($secret);
 	$hash = wrap_base_convert($hash, 16, 62);
 	return $hash;

@@ -91,7 +91,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		break;
 	}
 
-	$log_encoding = $zz_conf['character_set'];
+	$log_encoding = $zz_setting['character_set'];
 	// PHP does not support all encodings
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
@@ -357,7 +357,7 @@ function wrap_errorpage_log($status, $page) {
 		if ($ignore) return false;
 	}
 	
-	$log_encoding = $zz_conf['character_set'];
+	$log_encoding = $zz_setting['character_set'];
 	// PHP does not support all encodings
 	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
 		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];

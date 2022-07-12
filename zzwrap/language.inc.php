@@ -172,7 +172,7 @@ function wrap_text($string, $target_language = '') {
 	static $module_text;
 	
 	if (!$string) return $string;
-	if ($zz_conf['character_set'] !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true)) {
+	if ($zz_setting['character_set'] !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true)) {
 		$string = wrap_text_recode($string, 'utf-8');
 	}
 
@@ -281,13 +281,13 @@ function wrap_text($string, $target_language = '') {
  * @return array $text
  */
 function wrap_text_include($file) {
-	global $zz_conf;
+	global $zz_setting;
 
 	if (!file_exists($file)) return [];
 	include $file;
 	if (!isset($text)) return [];
 	if (!is_array($text)) return [];
-	if ($zz_conf['character_set'] !== 'utf-8') {
+	if ($zz_setting['character_set'] !== 'utf-8') {
 		foreach ($text as $key => $value) {
 			$text[$key] = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8'); 
 		}
@@ -656,7 +656,7 @@ function wrap_set_units() {
 		case 'es':
 		case 'pl':
 		case 'cs':
-			if ($zz_conf['character_set'] === 'utf-8') {
+			if ($zz_setting['character_set'] === 'utf-8') {
 				$zz_conf['thousands_separator'] = "\xC2\xA0"; // non-breaking space
 			} else {
 				$zz_conf['thousands_separator'] = ' ';
@@ -677,9 +677,9 @@ function wrap_set_units() {
  * @return string
  */
 function wrap_text_recode($str, $in_charset) {
-	global $zz_conf;
+	global $zz_setting;
 
-	$translated = @iconv($in_charset, $zz_conf['character_set'], $str);
+	$translated = @iconv($in_charset, $zz_setting['character_set'], $str);
 	if (!$translated) {
 		// characters which are not defined in the desired character set
 		// replace with htmlentities
@@ -695,7 +695,7 @@ function wrap_text_recode($str, $in_charset) {
  * @return array
  */
 function wrap_po_parse($file) {
-	global $zz_conf;
+	global $zz_setting;
 
 	if (!file_exists($file)) return [];
 	$chunks = wrap_po_chunks($file);
@@ -718,7 +718,7 @@ function wrap_po_parse($file) {
 			if (in_array($key, ['#:'])) continue;
 			// does not recognize \n as newline
 			$chunk[$key] = str_replace('\n', "\n", $chunk[$key]);
-			if ($zz_conf['character_set'] !== $header['X-Character-Encoding']) {
+			if ($zz_setting['character_set'] !== $header['X-Character-Encoding']) {
 				$chunk[$key] = wrap_text_recode($chunk[$key], $header['X-Character-Encoding']);
 			}
 			switch ($key) {

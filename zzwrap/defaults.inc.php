@@ -229,8 +229,8 @@ function wrap_set_defaults_pre_conf() {
 // Language, character set
 // -------------------------------------------------------------------------
 
-	$zz_setting['lang']			= '';
-	$zz_conf['character_set']	= 'utf-8';
+	$zz_setting['lang'] = '';
+	$zz_setting['character_set'] = 'utf-8';
 
 }
 
@@ -364,7 +364,7 @@ function wrap_set_defaults_post_conf() {
 	if (function_exists('mb_internal_encoding')) {
 		// (if PHP does not know character set, will default to
 		// ISO-8859-1)
-		mb_internal_encoding(strtoupper($zz_conf['character_set']));
+		mb_internal_encoding(strtoupper($zz_setting['character_set']));
 	}
 	if (empty($zz_setting['language_translations'])) {
 		// fields in table languages.language_xx

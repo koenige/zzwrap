@@ -91,7 +91,7 @@ function wrap_detect_encoding($data) {
 /**
  * set internal character encoding for mulitbyte functions
  *
- * @param string $character_encoding ($zz_conf['character_set'])
+ * @param string $character_encoding ($zz_setting['character_set'])
  * @return bool
  */
 function wrap_set_encoding($character_encoding) {
@@ -122,7 +122,6 @@ function wrap_set_encoding($character_encoding) {
  */
 function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	global $zz_setting;
-	global $zz_conf;
 	static $characters;
 
 	if (!$characters) {
@@ -175,7 +174,7 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	// require at least one character
 	if (!$_str) $_str = $spaceChar;
 
-	wrap_set_encoding($zz_conf['character_set']);
+	wrap_set_encoding($zz_setting['character_set']);
 	return $_str;
 }
 
@@ -213,7 +212,6 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @return string
  */
 function wrap_date($date, $format = false) {
-	global $zz_conf;
 	global $zz_setting;
 	if (!$date) return '';
 
@@ -587,15 +585,15 @@ function wrap_money_format($number, $format = false) {
  *
  * @param string $string
  * @return string
- * @global array $zz_conf
+ * @global array $zz_setting
  */
 function wrap_html_escape($string) {
-	global $zz_conf;
+	global $zz_setting;
 	// overwrite default character set UTF-8 because htmlspecialchars will
 	// return NULL if character set is unknown
-	switch ($zz_conf['character_set']) {
+	switch ($zz_setting['character_set']) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_conf['character_set']; break;
+		default: $character_set = $zz_setting['character_set']; break;
 	}
 	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
 	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
@@ -780,7 +778,7 @@ function wrap_normalize($input) {
 	global $zz_conf;
 	static $replacements;
 
-	if ($zz_conf['character_set'] !== 'utf-8') return $input;
+	if ($zz_setting['character_set'] !== 'utf-8') return $input;
 	if (!$input) return $input;
 	if (is_numeric($input)) return $input;
 	if (!is_string($input)) return $input; // e. g. subrecords

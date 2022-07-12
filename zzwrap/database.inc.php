@@ -152,17 +152,17 @@ function wrap_db_charset($charset = '') {
 	
 	if (!$charset) {
 		// mySQL uses different identifiers for character encoding than HTML
-		if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']])) {
-			switch ($zz_conf['character_set']) {
+		if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_setting['character_set']])) {
+			switch ($zz_setting['character_set']) {
 				case 'iso-8859-1': $charset = 'latin1'; break;
 				case 'iso-8859-2': $charset = 'latin2'; break;
 				case 'utf-8': $charset = 'utf8'; break;
 				default: 
-					wrap_error(sprintf('No character set for %s found.', $zz_conf['character_set']), E_USER_NOTICE);
+					wrap_error(sprintf('No character set for %s found.', $zz_setting['character_set']), E_USER_NOTICE);
 					break;
 			}
 		} else {
-			$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_conf['character_set']];
+			$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_setting['character_set']];
 		}
 	}
 	if (!$charset) return;

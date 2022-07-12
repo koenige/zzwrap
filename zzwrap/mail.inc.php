@@ -82,7 +82,7 @@ function wrap_mail($mail, $list = []) {
 	if (!isset($mail['headers']['MIME-Version']))
 		$mail['headers']['MIME-Version'] = '1.0';
 	if (!isset($mail['headers']['Content-Type']))
-		$mail['headers']['Content-Type'] = 'text/plain; charset='.$zz_conf['character_set'];
+		$mail['headers']['Content-Type'] = 'text/plain; charset='.$zz_setting['character_set'];
 	if (!isset($mail['headers']['Content-Transfer-Encoding']))
 		$mail['headers']['Content-Transfer-Encoding'] = '8bit';
 
@@ -190,7 +190,8 @@ function wrap_mail_headers($mail) {
  * @return string
  */
 function wrap_mail_name($name) {
-	global $zz_conf;
+	global $zz_setting;
+
 	if (!is_array($name)) {
 		// add brackets, there are checks that think brackets
 		// show that a mail is less likely to be junk
@@ -220,7 +221,7 @@ function wrap_mail_name($name) {
 		// patterns that are allowed for atom
 		$pattern_unquoted = "/^[a-z0-9 \t!#$%&'*+\-^?=~{|}_`\/]*$/i";
 		// do not add line break (or preg_match would not work for long lines)
-		$name['name'] = mb_encode_mimeheader($name['name'], $zz_conf['character_set'], $zz_conf['character_set'], "");
+		$name['name'] = mb_encode_mimeheader($name['name'], $zz_setting['character_set'], $zz_setting['character_set'], "");
 		if (!preg_match($pattern_unquoted, $name['name'])) {
 			// alternatively use quoted-string
 			// @todo: allow quoted-pair
