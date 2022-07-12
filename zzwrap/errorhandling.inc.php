@@ -23,7 +23,7 @@
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
  *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end'
  * @global array $zz_conf cofiguration settings
- *		'error_mail_to', 'error_mail_from', 'error_handling', 'error_log',
+ *		'error_handling', 'error_log',
  *		'log_errors', 'log_errors_max_len', 'debug', 'error_mail_level',
  *		'project', 'character_set'
  * @global array $zz_page
@@ -142,7 +142,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		break;
 	case 'mail':
 		if (!in_array($level, $zz_conf['error_mail_level'])) break;
-		if (empty($zz_conf['error_mail_to'])) break;
+		if (empty(wrap_get_setting('error_mail_to'))) break;
 		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
 		$foot = false;
@@ -157,10 +157,10 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		if ($user = wrap_user()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
 		if ($foot) $msg .= "\n\n-- ".$foot;
 
-		$mail['to'] = $zz_conf['error_mail_to'];
+		$mail['to'] = wrap_get_setting('error_mail_to');
 		$mail['message'] = $msg;
-		if (!empty($zz_conf['error_mail_parameters']))
-			$mail['parameters'] = $zz_conf['error_mail_parameters']; 
+		if (!empty($zz_setting['error_mail_parameters']))
+			$mail['parameters'] = $zz_setting['error_mail_parameters']; 
 		$mail['subject'] = '';
 		if (empty($zz_setting['mail_subject_prefix']))
 			$mail['subject'] = '['.wrap_get_setting('project').'] ';

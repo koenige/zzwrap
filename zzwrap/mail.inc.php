@@ -25,7 +25,7 @@
  *			string 'text', string 'html', array 'files'
  * @param array $list send mails to multiple recipients via a list
  * @global $zz_conf
- *		'error_mail_from', 'character_set'
+ *		'error_handling'
  * @global $zz_setting
  *		'local_access', bool 'show_local_mail' log mail or show mail,
  *		'mail_subject_prefix'

@@ -661,8 +661,8 @@ function wrap_set_defaults_post_conf() {
 	if (!isset($zz_conf['error_log_post']))
 		$zz_conf['error_log_post']	= false;
 	
-	if (!isset($zz_conf['error_mail_parameters']) AND isset($zz_conf['error_mail_from']))
-		$zz_conf['error_mail_parameters'] = '-f '.$zz_conf['error_mail_from'];
+	if (!isset($zz_setting['error_mail_parameters']) AND isset($zz_setting['error_mail_from']))
+		$zz_setting['error_mail_parameters'] = '-f '.$zz_setting['error_mail_from'];
 
 
 	// -------------------------------------------------------------------------
