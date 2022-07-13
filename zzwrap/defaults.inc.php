@@ -608,8 +608,6 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['local_pwd']))
 		if (file_exists($zz_setting['cms_dir'].'/pwd.json'))
 			$zz_setting['local_pwd'] = $zz_setting['cms_dir'].'/pwd.json';
-		elseif (file_exists($zz_setting['cms_dir'].'/../../pwd.json'))
-			$zz_setting['local_pwd'] = $zz_setting['cms_dir'].'/../../pwd.json';
 		else
 			$zz_setting['local_pwd'] = $zz_setting['cms_dir'].'/../pwd.json';
 
