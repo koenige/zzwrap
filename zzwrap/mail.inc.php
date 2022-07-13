@@ -171,6 +171,8 @@ function wrap_mail_headers($mail) {
 		if (!in_array($matches[1], $headers) AND substr($matches[1], 0, 2) !== 'X-') break;
 		if (in_array($matches[1], ['To', 'Subject'])) {
 			$mail[strtolower($matches[1])] = trim($matches[2]);
+		} elseif (in_array($matches[1], ['Date'])) {
+			// .. ignore Date header
 		} else {
 			$mail['headers'][$matches[1]] = trim($matches[2]);
 		}
@@ -379,6 +381,8 @@ function wrap_mail_phpmailer($msg, $list) {
 			list($this_mail, $this_name) = wrap_mail_split($field_body);
 			$mail->addReplyTo($this_mail, $this_name);
 			break;
+		case 'Date':
+			break; // never add second Date header, some ISPs don’t like that
 		default:
 			$mail->addCustomHeader($field_name, $field_body);
 			break;
