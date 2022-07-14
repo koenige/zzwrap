@@ -508,10 +508,10 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 	}
 	
 	// check if there's a menu defined for SESSION
-	// and add these entries to the main menu
+	// and add these entries to the main menu or another menu
 	if (wrap_get_setting('session_menu') AND !empty($_SESSION['logged_in'])
 		AND !empty($nav[wrap_get_setting('session_menu')])
-		AND $menu_name === wrap_get_setting('main_menu')) {
+		AND $menu_name === wrap_get_setting('session_menu_in_menu')) {
 		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[wrap_get_setting('session_menu')]);
 	}
 
