@@ -775,7 +775,7 @@ function wrap_longitude($value) {
  * @return string
  */
 function wrap_normalize($input) {
-	global $zz_conf;
+	global $zz_setting;
 	static $replacements;
 
 	if ($zz_setting['character_set'] !== 'utf-8') return $input;
