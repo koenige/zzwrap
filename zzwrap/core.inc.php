@@ -2652,7 +2652,7 @@ function wrap_get_setting($key, $login_id = 0) {
 	$cfg = wrap_cfg_files('settings');
 	if (!empty($cfg[$key]['default'])) {
 		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
-		return $tmp_setting[$key];
+		return wrap_setting_value($tmp_setting[$key]);
 	} elseif (!empty($cfg[$key]['default_from_setting'])) {
 		if (str_starts_with($cfg[$key]['default_from_setting'], 'zzform_')) {
 			$default_setting_key = substr($cfg[$key]['default_from_setting'], 7);
