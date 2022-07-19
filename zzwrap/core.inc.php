@@ -27,7 +27,6 @@
  */
 function wrap_session_start() {
 	global $zz_setting;
-	global $zz_conf;
 	
 	// is already a session active?
 	if (session_id()) {
@@ -253,9 +252,7 @@ function wrap_url_expand($url = false) {
  */
 function wrap_look_for_page($zz_page) {
 	// no database connection or settings are missing
-	if (!wrap_sql('pages')) wrap_quit(503); 
-
-	global $zz_conf;
+	if (!wrap_sql('pages')) wrap_quit(503);
 	$page = [];
 
 	// Prepare URL for database request
@@ -391,7 +388,7 @@ function wrap_page_parameters($params) {
 	foreach ($params as $key => $value) {
 		if (!array_key_exists($key, $cfg)) continue;
 		if (empty($cfg[$key]['page_parameter'])) continue;
-		$zz_setting[$key] = $value; 
+		$zz_setting[$key] = $value;
 	}
 	return true;
 }
@@ -1298,12 +1295,10 @@ function wrap_https_redirect() {
  * checks the HTTP request made, builds URL
  * sets language according to URL and request
  *
- * @global array $zz_conf
  * @global array $zz_setting
  * @global array $zz_page
  */
 function wrap_check_request() {
-	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
 
@@ -1517,12 +1512,10 @@ function wrap_check_http_request_method() {
  *		'etag_generate_md5' => creates 'etag' if not send with MD5,
  *		'caching' => bool; defaults to true, false = no caching allowed,
  *		'ext' => use this extension, do not try to determine it from file ending
- * @global array $zz_conf
  * @todo send pragma public header only if browser that is affected by this bug
  * @todo implement Ranges for bytes
  */
 function wrap_file_send($file) {
-	global $zz_conf;
 	global $zz_page;
 	global $zz_setting;
 
@@ -1652,12 +1645,11 @@ function wrap_file_cleanup($file) {
  * @param array $headers (optional):
  *		'filename': download filename
  *		'character_set': character encoding
- * @global array $zz_conf
  * @global array $zz_setting
+ * @global array $zz_page
  * @return void
  */
 function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
-	global $zz_conf;
 	global $zz_setting;
 	global $zz_page;
 
