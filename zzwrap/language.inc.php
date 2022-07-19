@@ -58,16 +58,31 @@ function wrap_set_language() {
 	$language = wrap_negotiate_language($zz_setting['languages_allowed'], 
 		$zz_setting['default_source_language'], null, false);
 	if (!$language) return false;
-	// in case there is content, redirect to the language specific content later
-	$zz_setting['base'] .= '/'.$language;
 	$zz_setting['lang'] = $language;
+	// in case there is content, redirect to the language specific content later
+	$zz_page['language_redirect'] = true;
+	return true;
+}
+
+/**
+ * redirect URL to language specific URL
+ *
+ * @global array $zz_setting
+ * @global array $zz_page
+ * @return void
+ */
+function wrap_language_redirect() {
+	global $zz_setting;
+	global $zz_page;
+	if (empty($zz_page['language_redirect'])) return;
+	if (empty($zz_setting['negotiate_language'])) return;
+
+	$zz_setting['base'] .= '/'.$zz_setting['lang'];
 	$zz_page['url']['redirect'] = true;
 	$zz_page['url']['redirect_cache'] = false;
 	// vary header for caching
 	wrap_cache_header('Vary: Accept-Language');
 	wrap_cache_header('Cache-Control: private');
-
-	return true;
 }
 
 /**

@@ -87,6 +87,7 @@ function zzwrap() {
 		wrap_rights('preview', 'set', wrap_test_secret_key($zz_setting['secret_key']));
 
 	$zz_page['db'] = wrap_look_for_page($zz_page);
+	wrap_language_redirect();
 
 	// Functions which might be executed always, before possible login
 	wrap_include_files('start');
