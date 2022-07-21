@@ -2039,7 +2039,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 		// no need to rewrite cache, it's possible to send a Last-Modified
 		// header along
 		$etag = wrap_cache_get_header($head, 'ETag');
-		if ($etag === $existing_etag) {
+		if ($etag AND $etag === $existing_etag) {
 			wrap_cache_revalidated($head);
 			return false;
 		}
