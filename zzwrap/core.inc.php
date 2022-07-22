@@ -3202,11 +3202,11 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * e. g. for 'default_masquerade' get path from 'default_masquerade_path'
  * for 'activities_profile[usergroup]' use 'activities_profile_path[usergroup]'
  * @param string $area
- * @param string $value (optional)
+ * @param mixed $value (optional)
  * @param bool $check_rights (optional)
  * @return string
  */
-function wrap_path($area, $value = '', $check_rights = true) {
+function wrap_path($area, $value = [], $check_rights = true) {
 	global $zz_setting;
 
 	// check rights
@@ -3222,7 +3222,7 @@ function wrap_path($area, $value = '', $check_rights = true) {
 		if (empty($zz_setting[$keys[0]][$keys[1]])) $check = true;
 	} else {
 		$setting = sprintf('%s_path', $area);
-		if (empty($zz_setting[$setting])) $check = true;
+		if (!wrap_get_setting($setting)) $check = true;
 	}
 
 	if ($check) {
@@ -3232,8 +3232,9 @@ function wrap_path($area, $value = '', $check_rights = true) {
 	if (!empty($keys))
 		$this_setting = $zz_setting[$keys[0]][$keys[1]];
 	else
-		$this_setting = $zz_setting[$setting];
-	return sprintf($zz_setting['base'].$this_setting, $value);
+		$this_setting = wrap_get_setting($setting);
+	if (!is_array($value)) $value = [$value];
+	return vsprintf($zz_setting['base'].$this_setting, $value);
 }
 
 /**
