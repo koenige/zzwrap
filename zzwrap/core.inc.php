@@ -2630,33 +2630,75 @@ function wrap_get_setting($key, $login_id = 0) {
 	global $zz_setting;
 	global $zz_conf;
 
-	if (isset($zz_setting[$key]) AND !$login_id) {
+	// setting is set in $zz_setting (from _settings-table or directly)
+	// if it is an array, check if all keys are there later
+	if (isset($zz_setting[$key]) AND !$login_id AND !is_array($zz_setting[$key])) {
 		return $zz_setting[$key];
 	}
+
 	// read setting from database
 	if (!empty($zz_conf['db_connection']) AND $login_id) {
 		$values = wrap_setting_read($key, $login_id);
-		if ($login_id AND array_key_exists($key, $values)) {
+		if (array_key_exists($key, $values)) {
 			return $values[$key];
 		}
 	}
+
 	// default value set in one of the current settings.cfg files?
 	$cfg = wrap_cfg_files('settings');
-	if (!empty($cfg[$key]['default'])) {
-		$tmp_setting = wrap_setting_key($key, $cfg[$key]['default']);
-		return wrap_setting_value($tmp_setting[$key]);
-	} elseif (!empty($cfg[$key]['default_from_setting'])) {
-		if (str_starts_with($cfg[$key]['default_from_setting'], 'zzform_')) {
-			$default_setting_key = substr($cfg[$key]['default_from_setting'], 7);
+	if (array_key_exists($key, $cfg)) {
+		return wrap_get_setting_default($key, $cfg[$key]);
+	}
+
+	// check for keys that are arrays
+	$my_keys = [];
+	foreach ($cfg as $cfg_key => $cfg_value) {
+		if (!str_starts_with($cfg_key, $key.'[')) continue;
+		$my_keys[] = $cfg_key;
+	}
+
+	$return = [];
+	foreach ($my_keys as $my_key) {
+		$return = array_merge_recursive($return, wrap_setting_key($my_key, wrap_get_setting_default($my_key, $cfg[$my_key])));
+	}
+	if (!empty($return[$key])) {
+		// check if some of the keys have already been set, overwrite these
+		if (isset($zz_setting[$key])) {
+			$return[$key] = array_merge($return[$key], $zz_setting[$key]);
+		}
+		return $return[$key];
+	} else {
+		// no defaults, so return existing settings unchanged
+		if (isset($zz_setting[$key])) return $zz_setting[$key];
+	}
+	return NULL;
+}
+
+/**
+ * gets default value from .cfg file
+ *
+ * @param string $key
+ * @param array $params = $cfg[$key]
+ * @return mixed $setting (if not found, returns NULL)
+ */
+function wrap_get_setting_default($key, $params) {
+	global $zz_setting;
+	global $zz_conf;
+
+	if (!empty($params['default'])) {
+		return wrap_setting_value($params['default']);
+	} elseif (!empty($params['default_from_setting'])) {
+		if (str_starts_with($params['default_from_setting'], 'zzform_')) {
+			$default_setting_key = substr($params['default_from_setting'], 7);
 			if (array_key_exists($default_setting_key, $zz_conf)) {
 				return $zz_conf[$default_setting_key];
 			}
-		} elseif (array_key_exists($cfg[$key]['default_from_setting'], $zz_setting)) {
-			return $zz_setting[$cfg[$key]['default_from_setting']];
+		} elseif (array_key_exists($params['default_from_setting'], $zz_setting)) {
+			return $zz_setting[$params['default_from_setting']];
 		}
 	}
-	if (!empty($zz_conf['db_connection']) AND !empty($cfg[$key]['brick'])) {
-		$path = wrap_setting_path($key, $cfg[$key]['brick']);
+	if (!empty($zz_conf['db_connection']) AND !empty($params['brick'])) {
+		$path = wrap_setting_path($key, $params['brick']);
 		if ($path) return $zz_setting[$key];
 	}
 	return NULL;
