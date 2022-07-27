@@ -338,11 +338,20 @@ function wrap_look_for_page($zz_page) {
 function wrap_url_cut($my_url, $params) {
 	static $asterisk_middle;
 	$end_params = [];
+	if (empty($asterisk_middle)) $asterisk_middle = 0;
 
-	if (!empty($asterisk_middle)) {
+	if ($asterisk_middle) {
 		// go from /db/persons*/participations to /db/persons*
 		$my_url = substr($my_url, 0, strrpos($my_url, '*') + 1);
-		$asterisk_middle = false;
+		if ($asterisk_middle >= 2 OR count($params) <= 2) {
+			$asterisk_middle = 0;
+		} else {
+			$end_params = $params;
+			array_shift($end_params);
+			array_shift($end_params);
+			$my_url .= '/'.implode('/', $end_params);
+			$asterisk_middle++;
+		}
 		return [$my_url, $params, $end_params];
 	}
 	if ($params) {
@@ -351,12 +360,12 @@ function wrap_url_cut($my_url, $params) {
 	if ($pos = strrpos($my_url, '/')) {
 		array_unshift($params, substr($my_url, $pos + 1));
 		$my_url = substr($my_url, 0, $pos).'*';
-		if (count($params) > 1 AND empty($asterisk_middle)) {
+		if (count($params) > 1 AND !$asterisk_middle) {
 			// go from /db/persons/first.last* to  /db/persons*/participations
 			$end_params = $params;
 			array_shift($end_params);
 			$my_url .= '/'.implode('/', $end_params);
-			$asterisk_middle = true;
+			$asterisk_middle++;
 		}
 	} elseif (($my_url OR $my_url === '0' OR $my_url === 0) AND substr($my_url, 0, 1) !== '_') {
 		array_unshift($params, $my_url);
