@@ -1163,6 +1163,11 @@ function wrap_typo_cleanup($text, $lang = '') {
 			}
 			$letter = '[';
 			break;
+		case 'x':
+			if (preg_match('/^ x $/', mb_substr($text, $i -1, 3))) {
+				$letter = '×';
+			}
+			break;
 		default:
 			break;
 		}
