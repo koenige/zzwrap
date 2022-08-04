@@ -2641,7 +2641,9 @@ function wrap_get_setting($key, $login_id = 0) {
 
 	// setting is set in $zz_setting (from _settings-table or directly)
 	// if it is an array, check if all keys are there later
-	if (isset($zz_setting[$key]) AND !$login_id AND !is_array($zz_setting[$key])) {
+	if (isset($zz_setting[$key]) AND !$login_id
+		AND (!is_array($zz_setting[$key]) OR is_numeric(key($zz_setting[$key])))
+	) {
 		return $zz_setting[$key];
 	}
 
