@@ -1521,6 +1521,29 @@ function wrap_id_read($table, $sql) {
 }
 
 /**
+ * get IDs from a tree for items that have children
+ *
+ * @param string $table
+ * @param string $path
+ * @return array
+ */
+function wrap_id_tree($table, $path) {
+	$list = wrap_id($table, $path, 'list');
+	$ids = [reset($list)];
+	if (count($list) === 1)
+		return $ids;
+
+	foreach ($list as $item => $id) {
+		$item_path = substr($item, strlen($path));
+		if (substr_count($item_path, '/') <= 1) continue;
+		$parent_path = substr($item, 0, strrpos($item, '/'));
+		$ids[] = $list[$parent_path];
+	}
+	$ids = array_unique($ids);
+	return $ids;
+}
+
+/**
  * check if a database table exists
  * first check, if there is a database connection
  * then check table
