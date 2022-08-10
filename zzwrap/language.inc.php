@@ -195,7 +195,7 @@ function wrap_text($string, $params = []) {
 	}
 
 	// @deprecated
-	if (!is_array($params)) $params['lang'] = $params;
+	if (!is_array($params)) $params = ['lang' => $params];
 
 	// get filename for translated texts
 	if (!empty($params['lang']))
