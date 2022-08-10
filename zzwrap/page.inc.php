@@ -354,8 +354,10 @@ function wrap_get_menu_webpages() {
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
 	if (!$entries) return false;
-	if ($menu_table = wrap_sql('menu_table'))
+	if ($menu_table = wrap_sql('menu_table')) {
 		$entries = wrap_translate($entries, $menu_table);
+		$entries = wrap_get_menu_shorten($entries, $sql);
+	}
 	foreach ($entries as $line) {
 		if (strstr($line['menu'], ',')) {
 			$mymenus = explode(',', $line['menu']);
@@ -392,6 +394,26 @@ function wrap_get_menu_webpages() {
 		}
 	}
 	return $menu;
+}
+
+/**
+ * shorten translated menu entries
+ *
+ * @param array $entries
+ * @param string $sql
+ * @return array
+ */
+function wrap_get_menu_shorten($entries, $sql) {
+	// use of SUBSTRING_INDEX? get separator character(s)
+	preg_match('/SUBSTRING_INDEX\(title, ["\'](.+)["\'], 1\) AS title/', $sql, $matches);
+	if (empty($matches[1])) return $entries;
+
+	foreach ($entries as $id => $entry) {
+		$pos = strpos($entry['title'], $matches[1]);
+		if (!$pos) continue;
+		$entries[$id]['title'] = trim(substr($entry['title'], 0, $pos));
+	}
+	return $entries;
 }
 
 /**
