@@ -171,29 +171,35 @@ function wrap_language_get_text($language) {
  * or write back text string to be translated
  * 
  * @param string $string	Text string to be translated
- * @param string $target_language	Language to translate into (if different from
- *		actively used language on website)
+ * @param mixed $params
+ *		array list of parameters
+ *		string	Language to translate into (if different from
+ *		actively used language on website @deprecated)
  * @global array $zz_conf	configuration variables
  * @global array $zz_setting
  *			'log_missing_text' must be set to log missing text
  * @return string $string	Translation of text
  * @see zz_text()
  */
-function wrap_text($string, $target_language = '') {
+function wrap_text($string, $params = []) {
 	global $zz_conf;
 	global $zz_setting;
 	static $text;
 	static $text_included;
 	static $module_text;
+	static $context;
 	
 	if (!$string) return $string;
 	if ($zz_setting['character_set'] !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true)) {
 		$string = wrap_text_recode($string, 'utf-8');
 	}
 
+	// @deprecated
+	if (!is_array($params)) $params['lang'] = $params;
+
 	// get filename for translated texts
-	if ($target_language)
-		$language = $target_language;
+	if (!empty($params['lang']))
+		$language = $params['lang'];
 	else
 		$language = $zz_setting['lang'];
 	if (isset($zz_conf['default_language_for'][$language]))
@@ -202,6 +208,7 @@ function wrap_text($string, $target_language = '') {
 	if (empty($text_included) OR $text_included !== $language) {
 		$text = [];
 		$module_text = [];
+		$context = [];
 		// standard text english
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
 		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.po';
@@ -231,13 +238,15 @@ function wrap_text($string, $target_language = '') {
 			if (substr($file, -3) === '.po') {
 				$po_text = wrap_po_parse($file);
 				// @todo plurals
-				// @todo consider scopes!
 				if (!empty($po_text['_global'])) {
 					$text = array_merge($text, $po_text['_global']);
 				}
 				foreach (array_keys($po_text) as $area) {
 					if (substr($area, 0, 1) === '_') continue;
-					$module_text[$area] = $po_text[$area];
+					if (in_array($area, $zz_setting['modules']))
+						$module_text[$area] = $po_text[$area];
+					else
+						$context[$area] = $po_text[$area];
 				}
 			} else {
 				$text = array_merge($text, wrap_text_include($file));
@@ -271,6 +280,11 @@ function wrap_text($string, $target_language = '') {
 
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
+	
+	if (!empty($params['context']))
+		if (array_key_exists($params['context'], $context))
+			if (array_key_exists($string, $context[$params['context']]))
+				return $context[$params['context']][$string];
 	
 	if (!array_key_exists($string, $my_text)) {
 		// write missing translation to somewhere.
@@ -724,7 +738,7 @@ function wrap_po_parse($file) {
 			$header = wrap_po_headers($chunk['msgstr']);
 			continue;
 		}
-		$scope = '_global';
+		$context = '_global';
 		$plurals = false;
 		$format = false;
 		foreach (array_keys($chunk) as $key) {
@@ -737,7 +751,7 @@ function wrap_po_parse($file) {
 				$chunk[$key] = wrap_text_recode($chunk[$key], $header['X-Character-Encoding']);
 			}
 			switch ($key) {
-			case 'msgctxt': $scope = $chunk[$key]; break;
+			case 'msgctxt': $context = $chunk[$key]; break;
 			case 'msgid_plural': $plurals = true; break;
 			case '#,':
 				if (!strstr($chunk[$key], 'php-format')) break;
@@ -746,20 +760,20 @@ function wrap_po_parse($file) {
 		}
 		if (!$plurals) {
 			if ($chunk['msgstr']) {
-				$text[$scope][$chunk['msgid']] = $chunk['msgstr'];
+				$text[$context][$chunk['msgid']] = $chunk['msgstr'];
 			}
 		} else {
-			$text[$scope][$chunk['msgid']] = $chunk['msgstr[0]'];
+			$text[$context][$chunk['msgid']] = $chunk['msgstr[0]'];
 			$i = 1;
 			while (isset($chunk['msgstr['.$i.']'])) {
-				$text[$scope][$chunk['msgid_plural']][$i] = $chunk['msgstr['.$i.']'];
+				$text[$context][$chunk['msgid_plural']][$i] = $chunk['msgstr['.$i.']'];
 				$i++;
 			}
-			$text['_plural'][$scope][$chunk['msgid_plural']] = true;
+			$text['_plural'][$context][$chunk['msgid_plural']] = true;
 		}
 		if ($format) {
-			$text['_format'][$scope][$chunk['msgid']] = true;
-			if ($plurals) $text['_format'][$scope][$chunk['msgid_plural']] = true;
+			$text['_format'][$context][$chunk['msgid']] = true;
+			if ($plurals) $text['_format'][$context][$chunk['msgid_plural']] = true;
 		}
 	}
 	if (!empty($header['Plural-Forms'])) {
