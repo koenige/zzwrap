@@ -2941,7 +2941,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 	global $zz_setting;
 	global $zz_conf;
 
-	if (!$username) $username = !empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['user'];
+	if (!$username) $username = wrap_user();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	if (substr($url, 0, 1) === '/') $url = $zz_setting['host_base'].$url;
@@ -3006,7 +3006,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$id = !empty($result['id']) ? $result['id'] : false;
 		if (file_exists($zz_conf['dir_inc'].'/database.inc.php')) {
 			require_once $zz_conf['dir_inc'].'/database.inc.php';
-			zz_log_sql($sql, (!empty($_SESSION['username']) ? $_SESSION['username'] : $zz_conf['user']), $id);
+			zz_log_sql($sql, wrap_user('Servant Robot 247'), $id);
 		}
 		// activate setting
 		if (!$login_id) {
