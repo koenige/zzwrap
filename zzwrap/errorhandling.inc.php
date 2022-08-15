@@ -779,13 +779,14 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
  * read username
  * either from setting log_username, SESSION or from $zz_conf
  *
+ * @param string $default (optional)
  * @return string
  */
-function wrap_user() {
+function wrap_user($default = '') {
 	global $zz_conf;
 	global $zz_setting;
 	if (!empty($zz_setting['log_username'])) return $zz_setting['log_username'];
 	if (!empty($_SESSION['username'])) return $_SESSION['username'];
 	if (!empty($zz_conf['user'])) return $zz_conf['user'];
-	return '';
+	return $default;
 }
