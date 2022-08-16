@@ -253,7 +253,6 @@ function wrap_url_expand($url = false) {
 function wrap_look_for_page($zz_page) {
 	// no database connection or settings are missing
 	if (!wrap_sql('pages')) wrap_quit(503);
-	$page = [];
 
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
@@ -263,60 +262,77 @@ function wrap_look_for_page($zz_page) {
 	list($full_url, $leftovers) = wrap_look_for_placeholders($zz_page, $full_url);
 	
 	// For request, remove ending (.html, /), but not for page root
+	// core_pages_fields: notation like /* _latin1='%s' */
+	$identifier_template = trim(rtrim(ltrim(trim(wrap_sql('pages_fields')), '/*'), '*/'));
+	$end_params = [];
+	$data = [];
 	foreach ($full_url as $i => $my_url) {
-		// if more than one URL to be tested against: count of rounds
-		$loops[$i] = 0;
-		$page[$i] = false;
-		$parameter[$i] = [];
-		while (!$page[$i]) {
-			$loops[$i]++;
-			$sql = sprintf(wrap_sql('pages'), '/'.wrap_db_escape($my_url));
-			if (!wrap_rights('preview')) {
-				$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
-			}
-			$page[$i] = wrap_db_fetch($sql);
-			if (empty($page[$i])) {
-				list($my_url, $parameter[$i], $end_params) = wrap_url_cut($my_url, $parameter[$i]);
-				if (!$my_url) break;
-			} else {
-				// something was found, get out of here
-				if (!empty($end_params)) {
-					// remove used parameters behind asterisk
-					$parameter[$i] = array_reverse($parameter[$i]);
-					foreach ($end_params as $index => $value) {
-						if ($parameter[$i][$index] === $value) // check not needed, equal anyways
-							unset($parameter[$i][$index]);
-					}
-					$parameter[$i] = array_reverse($parameter[$i]);
-				}
-				// but get placeholders as parameters as well!
-				if (!empty($leftovers[$i])) {
-					$new = $leftovers[$i];
-					foreach ($parameter[$i] as $key => $value) {
-						$new[] = $value;
-					}
-					$parameter[$i] = $new;
-				}
-				$url[$i] = $my_url;
-				break;
-			}
+		$index = 0;
+		$params = [];
+		while ($my_url) {
+			$data[$i + $index * count($full_url)] = [
+				'url' => $my_url,
+				'identifier' => sprintf($identifier_template, wrap_db_escape($my_url)),
+				'params_end' => $end_params,
+				'params' => $params,
+				'leftovers' => $leftovers[$i] ?? []
+			];
+			list($my_url, $params, $end_params) = wrap_url_cut($my_url, $params);
+			$index++;
 		}
-		if (!$page[$i]) unset($loops[$i]);
 	}
-	if (empty($loops)) return false;
+	if (!$data) return false;
+	ksort($data);
 	
-	// get best match, sort twice:
-	// 1. get match with least loops
-	// 2. get match with lowest index of loops
-	asort($loops);
-	asort($loops);
-	$i = key($loops);
-	$page = $page[$i];
-	if (!empty($page['parameters'])) wrap_page_parameters($page['parameters']);
-	if (!$page) return false;
+	// get all pages that would match list of identifiers
+	foreach ($data as $index => $line) {
+		$identifiers[$index] = $line['identifier'];
+		$urls[$index] = $line['url'];
+	}
+	$identifiers = array_unique($identifiers);
+	$sql = sprintf(wrap_sql('pages'), implode(',', $identifiers));
+	if (!wrap_rights('preview')) {
+		$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
+	}
+	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	if (!$pages) return false;
 
-	$page['parameter'] = implode('/', $parameter[$i]);
-	$page['url'] = $url[$i];
+	// get page whith best match
+	$found = false;
+	foreach ($pages as $this_page) {
+		// identifier starts with /, just search for rest
+		$pos = array_search(substr($this_page['identifier'], 1), $urls);
+		if ($found === false OR $pos < $found) {
+			$found = $pos;
+			$page = $this_page;
+		}
+	}
+	if (!empty($page['parameters'])) wrap_page_parameters($page['parameters']);
+	if (empty($page)) return false;
+
+	$data = $data[$found];
+	$params = $data['params'];
+
+	if (!empty($data['end_params'])) {
+		// remove used parameters behind asterisk
+		$params = array_reverse($params);
+		foreach ($data['end_params'] as $index => $value) {
+			if ($params[$index] === $value) // check not needed, equal anyways
+				unset($params[$index]);
+		}
+		$params = array_reverse($params);
+	}
+
+	// but get placeholders as parameters as well!
+	if (!empty($data['leftovers'])) {
+		$new = $data['leftovers'];
+		foreach ($params as $key => $value) {
+			$new[] = $value;
+		}
+		$params = $new;
+	}
+	$page['parameter'] = implode('/', $params);
+	$page['url'] = $data['url'];
 	return $page;
 }
 
