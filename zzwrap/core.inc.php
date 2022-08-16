@@ -269,7 +269,7 @@ function wrap_look_for_page($zz_page) {
 	foreach ($full_url as $i => $my_url) {
 		$index = 0;
 		$params = [];
-		while ($my_url) {
+		while ($my_url !== false) {
 			$data[$i + $index * count($full_url)] = [
 				'url' => $my_url,
 				'identifier' => sprintf($identifier_template, wrap_db_escape($my_url)),
