@@ -1567,18 +1567,22 @@ function wrap_file_send($file) {
 	}
 
 	// Content-Type HTTP header
-	// Read mime type from database
-	$sql = sprintf(wrap_sql('filetypes'), $suffix);
-	$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
-	if (!$zz_page['content_type']) {
-		// Canonicalize suffices
-		$suffix_map = [
-			'jpg' => 'jpeg',
-			'tif' => 'tiff'
-		];
-		if (in_array($suffix, array_keys($suffix_map))) {
-			$suffix = $suffix_map[$suffix];
-			$sql = sprintf(wrap_sql('filetypes'), $suffix);
+	// Read mime type from .cfg or database
+	// Canonicalize suffices
+	$suffix_map = [
+		'jpg' => 'jpeg',
+		'tif' => 'tiff'
+	];
+	$suffix_canonical = in_array($suffix, array_keys($suffix_map))
+		? $suffix_map[$suffix] : $suffix;
+	$filetype_cfg = wrap_filetypes($suffix_canonical);
+	if (!empty($filetype_cfg['mime'][0])) {
+		$zz_page['content_type'] = $filetype_cfg['mime'][0];
+	} else {
+		$sql = sprintf(wrap_sql('filetypes'), $suffix);
+		$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
+		if (!$zz_page['content_type']) {
+			$sql = sprintf(wrap_sql('filetypes'), $suffix_canonical);
 			$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 		}
 	}
