@@ -270,11 +270,20 @@ function wrap_look_for_page($zz_page) {
 		$index = 0;
 		$params = [];
 		while ($my_url !== false) {
+			// remove identical parts at the end
+			$my_params = $params;
+			if (strstr($my_url, '*/')) {
+				$parts = explode('*/', $my_url);
+				while (end($parts) === end($my_params)) {
+					array_pop($parts);
+					array_pop($my_params);
+				}
+			}
 			$data[$i + $index * count($full_url)] = [
 				'url' => $my_url,
 				'identifier' => sprintf($identifier_template, wrap_db_escape($my_url)),
 				'params_end' => $end_params,
-				'params' => $params,
+				'params' => $my_params,
 				'leftovers' => $leftovers[$i] ?? []
 			];
 			list($my_url, $params, $end_params) = wrap_url_cut($my_url, $params);
@@ -347,51 +356,51 @@ function wrap_look_for_page($zz_page) {
  *  /db/persons* /participations
  *  /db/persons* etc.
  * note: currently not supported are two asterisks as placeholders
- * @param string $my_url
+ * @param string $url
  * @param array $params
  * @return array
  */
-function wrap_url_cut($my_url, $params) {
+function wrap_url_cut($url, $params) {
 	static $asterisk_middle;
 	$end_params = [];
 	if (empty($asterisk_middle)) $asterisk_middle = 0;
 
 	if ($asterisk_middle) {
 		// go from /db/persons*/participations to /db/persons*
-		$my_url = substr($my_url, 0, strrpos($my_url, '*') + 1);
+		$url = substr($url, 0, strrpos($url, '*') + 1);
 		if ($asterisk_middle >= 2 OR count($params) <= 2) {
 			$asterisk_middle = 0;
 		} else {
 			$end_params = $params;
 			array_shift($end_params);
 			array_shift($end_params);
-			$my_url .= '/'.implode('/', $end_params);
+			$url .= '/'.implode('/', $end_params);
 			$asterisk_middle++;
 		}
-		return [$my_url, $params, $end_params];
+		return [$url, $params, $end_params];
 	}
 	if ($params) {
-		$my_url = substr($my_url, 0, -1); // remove '*'
+		$url = substr($url, 0, -1); // remove '*'
 	}
-	if ($pos = strrpos($my_url, '/')) {
-		array_unshift($params, substr($my_url, $pos + 1));
-		$my_url = substr($my_url, 0, $pos).'*';
+	if ($pos = strrpos($url, '/')) {
+		array_unshift($params, substr($url, $pos + 1));
+		$url = substr($url, 0, $pos).'*';
 		if (count($params) > 1 AND !$asterisk_middle) {
 			// go from /db/persons/first.last* to  /db/persons*/participations
 			$end_params = $params;
 			array_shift($end_params);
-			$my_url .= '/'.implode('/', $end_params);
+			$url .= '/'.implode('/', $end_params);
 			$asterisk_middle++;
 		}
-	} elseif (($my_url OR $my_url === '0' OR $my_url === 0) AND substr($my_url, 0, 1) !== '_') {
-		array_unshift($params, $my_url);
-		$my_url = '*';
+	} elseif (($url OR $url === '0' OR $url === 0) AND substr($url, 0, 1) !== '_') {
+		array_unshift($params, $url);
+		$url = '*';
 	} else {
-		$my_url = false;
+		$url = false;
 	}
 	// if URL already contains *, return with 404 if not found, no placeholders possible
-	if (strstr($my_url, '**/')) $my_url = false;
-	return [$my_url, $params, $end_params];
+	if (strstr($url, '**/')) $url = false;
+	return [$url, $params, $end_params];
 }
 
 /**
