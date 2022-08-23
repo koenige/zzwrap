@@ -62,7 +62,12 @@ function wrap_db_connect() {
 	// connect to database
 	$db = wrap_db_credentials();
 	if (empty($db['db_port'])) $db['db_port'] = NULL;
-	$zz_conf['db_connection'] = @mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
+	try {
+		$zz_conf['db_connection'] = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
+	} catch (Exception $e) {
+		$zz_conf['db_connection'] = false;
+		wrap_error(sprintf('Error with database connection: %s', $e->getMessage()), E_USER_NOTICE, ['collect_start' => true]);
+	}
 	if (!$zz_conf['db_connection']) return false;
 	mysqli_report(MYSQLI_REPORT_OFF);
 
@@ -1329,6 +1334,7 @@ function wrap_check_db_connection() {
 	if ($zz_conf['db_connection']) return true;
 	wrap_send_cache();
 	wrap_error(sprintf('No connection to SQL server. (Host: %s)', $zz_setting['hostname']), E_USER_ERROR);
+	wrap_error(false, false, ['collect_end' => true]);
 	exit;
 }
 

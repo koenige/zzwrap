@@ -2386,6 +2386,7 @@ function wrap_send_cache($age = 0) {
 	// Log if cached version is used because there's no connection to database
 	if (empty($zz_conf['db_connection'])) {
 		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
+		wrap_error(false, false, ['collect_end' => true]);
 	}
 	
 	// is it a cached redirect? that's it. exit.
