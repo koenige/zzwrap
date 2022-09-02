@@ -123,17 +123,21 @@ function wrap_template_file($template, $show_error = true) {
 		$my_module = '';
 	}
 	$found = [];
-	foreach ($zz_setting['modules'] as $module) {
+	$modules_and_themes = $zz_setting['modules'];
+	$modules_and_themes = array_merge($modules_and_themes, wrap_themes());
+	foreach ($modules_and_themes as $module) {
 		if ($my_module AND $module !== $my_module) continue;
+		$dir = in_array($module, $zz_setting['modules'])
+			? $zz_setting['modules_dir'] : $zz_setting['themes_dir'];
 		$pathinfo = pathinfo($template);
 		if (!empty($pathinfo['dirname'])
 			AND in_array($pathinfo['dirname'], ['layout', 'behaviour'])
 			AND !empty($pathinfo['extension'])
 		) {
 			// has path and extension = separate file, other folder
-			$tpl_file = sprintf('%s/%s/%s', $zz_setting['modules_dir'], $module, $template);
+			$tpl_file = sprintf('%s/%s/%s', $dir, $module, $template);
 		} else {
-			$tpl_file = wrap_template_file_per_folder($template, $zz_setting['modules_dir'].'/'.$module.'/templates');
+			$tpl_file = wrap_template_file_per_folder($template, $dir.'/'.$module.'/templates');
 		}
 		if ($tpl_file) $found[$module] = $tpl_file;
 	}
@@ -1288,4 +1292,23 @@ function wrap_page_replace($page) {
 		$page = $function($page);
 	}
 	return $page;
+}
+
+/**
+ * get all existing themes
+ *
+ * @return array
+ */
+function wrap_themes() {
+	global $zz_setting;
+	if (empty($zz_setting['themes_dir'])) return [];
+	if (!is_dir($zz_setting['themes_dir'])) return [];
+	$themes = scandir($zz_setting['themes_dir']);
+	foreach ($themes as $index => $theme) {
+		if (str_starts_with($theme, '.') OR !is_dir($zz_setting['themes_dir'].'/'.$theme)) {
+			unset($themes[$index]);
+			continue;
+		}
+	}
+	return $themes;
 }
