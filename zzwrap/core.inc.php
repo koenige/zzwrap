@@ -463,8 +463,6 @@ function wrap_look_for_file($url_path) {
 	global $zz_setting;
 	if (empty($zz_setting['modules']) AND !$zz_setting['active_theme']) return false;
 	if (!$url_path) return false;
-	$folders = !empty($zz_setting['modules']) ? $zz_setting['modules'] : [];
-	if ($zz_setting['active_theme']) array_unshift($folders, $zz_setting['active_theme']);
 
 	if ($zz_setting['active_theme'] AND !empty($zz_setting['icon_paths'])) {
 		if (in_array($url_path, $zz_setting['icon_paths'])) {
@@ -479,6 +477,11 @@ function wrap_look_for_file($url_path) {
 		}
 	}
 
+	$folders = $zz_setting['modules'] ?? [];
+	$themes = wrap_themes();
+	$folders = array_merge($folders, $themes);
+	$folders = array_unique($folders); // themes can be identical with modules
+
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (empty($zz_setting[$path.'_path'])) continue;
@@ -487,10 +490,11 @@ function wrap_look_for_file($url_path) {
 		if (count($url_folders) < 2) continue;
 		if (!in_array($url_folders[1], $folders)) continue;
 		array_shift($url_folders);
-		$module = array_shift($url_folders);
-		$dir = ($module === $zz_setting['active_theme']) ? $zz_setting['themes_dir'] : $zz_setting['modules_dir'];
+		$folder = array_shift($url_folders);
+		// prefer themes over modules here if name is identical
+		$dir = in_array($folder, $themes) ? $zz_setting['themes_dir'] : $zz_setting['modules_dir'];
 		$file['name'] = sprintf('%s/%s/%s/%s',
-			$dir, $module, $path, implode('/', $url_folders));
+			$dir, $folder, $path, implode('/', $url_folders));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css', 'js'])) {
 			wrap_cache_allow_private();
 			return $file['name'];
