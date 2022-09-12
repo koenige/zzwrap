@@ -181,9 +181,9 @@ function wrap_package_activate($package, $type = 'module') {
 		$zz_setting['activated'][$plural_type][] = $package;
 	
 	// dependencies?
-	$package = wrap_cfg_files('package', $package);
-	if (!empty($package['dependencies'])) {
-		foreach ($package['dependencies'] as $dependency_type => $dependencies) {
+	$package_info = wrap_cfg_files('package', $package);
+	if (!empty($package_info['dependencies'])) {
+		foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
 			if ($dependency_type === 'module') continue;
 			foreach ($dependencies as $dependency) {
 				$zz_setting['activated'][$dependency_type][] = $dependency;
