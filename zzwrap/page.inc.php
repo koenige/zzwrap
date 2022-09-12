@@ -160,6 +160,11 @@ function wrap_template_file($template, $show_error = true) {
 			wrap_quit(503, $error_msg);
 		}
 	} else {
+		$package = key($found);
+		if (in_array($package, $zz_setting['modules']))
+			wrap_package_activate($package);
+		else
+			wrap_package_activate($package, 'theme');
 		$tpl_file = reset($found);
 	}
 	return $tpl_file;
