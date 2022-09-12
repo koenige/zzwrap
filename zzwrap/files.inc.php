@@ -48,9 +48,11 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	$files = [];
 
 	switch ($search) {
+	case 'modules/themes/custom':
+		$modules = $zz_setting['activated']['themes'] ?? [];
 	case 'custom/modules':
 	case 'modules/custom':
-		$modules = $zz_setting['modules'];
+		$modules = array_merge($modules, $zz_setting['modules']);
 		$custom = true;
 		break;
 	case 'custom':
@@ -93,8 +95,10 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		// disable default module?
 		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
-		$file = sprintf('%s/%s/%s/%s', $zz_setting['modules_dir'], $module, $this_path, $filename);
-		if (file_exists($file)) $files[$module] = $file;
+		$type = in_array($module, $zz_setting['modules']) ? 'modules' : 'themes';
+		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $module, $this_path, $filename);
+		if (file_exists($file))
+			$files[$module] = $file;
 	}
 
 	if ($custom) {
