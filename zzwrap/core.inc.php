@@ -3197,16 +3197,16 @@ function wrap_cfg_files($type, $single_module = false) {
 	// get data
 	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/custom');
 	$cfg[$type] = [];
-	foreach ($files as $module => $cfg_file) {
-		$single_cfg[$type][$module] = parse_ini_file($cfg_file, true);
-		foreach (array_keys($single_cfg[$type][$module]) as $index)
-			$single_cfg[$type][$module][$index]['module'] = $module;
+	foreach ($files as $package => $cfg_file) {
+		$single_cfg[$type][$package] = parse_ini_file($cfg_file, true);
+		foreach (array_keys($single_cfg[$type][$package]) as $index)
+			$single_cfg[$type][$package][$index]['module'] = $package;
 		// might be called before database connection exists
 		if (!empty($zz_conf['db_connection'])) {
-			wrap_cfg_translate($single_cfg[$type][$module]);
+			wrap_cfg_translate($single_cfg[$type][$package]);
 			$translated = true;
 		}
-		$cfg[$type] += $single_cfg[$type][$module];
+		$cfg[$type] += $single_cfg[$type][$package];
 	}
 	if ($single_module) {
 		if (!array_key_exists($single_module, $single_cfg[$type])) return [];

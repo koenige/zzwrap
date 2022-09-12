@@ -103,7 +103,7 @@ function wrap_template($template, $data = [], $mode = false) {
 function wrap_template_file($template, $show_error = true) {
 	global $zz_setting;
 
-	if (!empty($zz_setting['active_theme'])) {
+	if ($zz_setting['active_theme']) {
 		$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/themes/'.$zz_setting['active_theme'].'/templates');
 		if ($tpl_file) return $tpl_file;
 	}
@@ -123,11 +123,10 @@ function wrap_template_file($template, $show_error = true) {
 		$my_module = '';
 	}
 	$found = [];
-	$modules_and_themes = $zz_setting['modules'];
-	$modules_and_themes = array_merge($modules_and_themes, wrap_themes());
-	foreach ($modules_and_themes as $module) {
-		if ($my_module AND $module !== $my_module) continue;
-		$dir = in_array($module, $zz_setting['modules'])
+	$packages = array_merge($zz_setting['modules'], wrap_themes());
+	foreach ($packages as $package) {
+		if ($my_module AND $package !== $my_module) continue;
+		$dir = in_array($package, $zz_setting['modules'])
 			? $zz_setting['modules_dir'] : $zz_setting['themes_dir'];
 		$pathinfo = pathinfo($template);
 		if (!empty($pathinfo['dirname'])
@@ -135,11 +134,11 @@ function wrap_template_file($template, $show_error = true) {
 			AND !empty($pathinfo['extension'])
 		) {
 			// has path and extension = separate file, other folder
-			$tpl_file = sprintf('%s/%s/%s', $dir, $module, $template);
+			$tpl_file = sprintf('%s/%s/%s', $dir, $package, $template);
 		} else {
-			$tpl_file = wrap_template_file_per_folder($template, $dir.'/'.$module.'/templates');
+			$tpl_file = wrap_template_file_per_folder($template, $dir.'/'.$package.'/templates');
 		}
-		if ($tpl_file) $found[$module] = $tpl_file;
+		if ($tpl_file) $found[$package] = $tpl_file;
 	}
 	// ignore default template if there’s another template from a module
 	if (count($found) === 2 AND array_key_exists('default', $found)) {
