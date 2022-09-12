@@ -157,13 +157,39 @@ function wrap_include_ext_libraries() {
 /**
  * activate a module or a theme
  *
+ * settings active_module, active_theme, activated[modules], activated[themes]
  * @param string $package
+ * @param string $type (optional, default = module)
  * @return void
  * @global $zz_setting
  */
-function wrap_package_activate($package) {
+function wrap_package_activate($package, $type = 'module') {
 	global $zz_setting;
-	if (empty($zz_setting['active_module']))
-		$zz_setting['active_module'] = $package;
-	wrap_include_files('functions', $package);
+	
+	$single_type = sprintf('active_%s', $type);
+	$plural_type = sprintf('%ss', $type);
+	
+	if (empty($zz_setting[$single_type]))
+		$zz_setting[$single_type] = $package;
+	if (!isset($zz_setting['activated'][$plural_type]))
+		$zz_setting['activated'][$plural_type] = [];
+	if (!in_array($package, $zz_setting['activated'][$plural_type]))
+		$zz_setting['activated'][$plural_type][] = $package;
+	
+	// dependencies?
+	$package = wrap_cfg_files('package', $package);
+	if (!empty($package['dependencies'])) {
+		foreach ($package['dependencies'] as $dependency_type => $dependencies) {
+			if ($dependency_type === 'module') continue;
+			foreach ($dependencies as $dependency) {
+				$zz_setting['activated'][$dependency_type][] = $dependency;
+			}
+		}
+	}
+	
+	switch ($type) {
+	case 'module':
+		wrap_include_files('functions', $package);
+		break;
+	}
 }
