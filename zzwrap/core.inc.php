@@ -3195,7 +3195,7 @@ function wrap_cfg_files($type, $single_module = false) {
 	}
 
 	// get data
-	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/custom');
+	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
 	$cfg[$type] = [];
 	foreach ($files as $package => $cfg_file) {
 		$single_cfg[$type][$package] = parse_ini_file($cfg_file, true);
