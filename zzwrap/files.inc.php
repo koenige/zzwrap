@@ -155,12 +155,13 @@ function wrap_include_ext_libraries() {
  */
 
 /**
- * make a module active_module
+ * activate a module or a theme
  *
  * @param string $package
  * @return void
+ * @global $zz_setting
  */
-function wrap_module_activate($package) {
+function wrap_package_activate($package) {
 	global $zz_setting;
 	if (empty($zz_setting['active_module']))
 		$zz_setting['active_module'] = $package;
