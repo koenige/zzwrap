@@ -188,6 +188,7 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
  * @return string HTML anchor with mailto-Link
  */
 function wrap_mailto($person, $mail, $attributes = false) {
+	if (!$mail) return '';
 	$mailto = str_replace('@', '&#64;', urlencode('<'.$mail.'>'));
 	$mail = str_replace('@', '&#64;', $mail);
 	$output = '<a href="&#109;&#x61;&#105;&#x6c;t&#111;&#x3a;%22'.str_replace(' ', '%20', $person)
