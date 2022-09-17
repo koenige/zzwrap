@@ -715,7 +715,10 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting['xml_close_empty_tags'] = false;
 
 	// Theme
-	if (empty($zz_setting['active_theme'])) $zz_setting['active_theme'] = '';
+	if (!empty($zz_setting['active_theme']))
+		wrap_package_activate($zz_setting['active_theme'], 'theme');
+	else
+		$zz_setting['active_theme'] = '';
 	
 	// Page template
 	if (empty($zz_setting['template'])) {
