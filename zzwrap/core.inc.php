@@ -2742,6 +2742,9 @@ function wrap_get_setting_default($key, $params) {
 			return $zz_setting[$params['default_from_setting']];
 		}
 	}
+	if (!empty($params['default_from_function']) AND function_exists($params['default_from_function'])) {
+		return $params['default_from_function']();
+	}
 	if (!empty($zz_conf['db_connection']) AND !empty($params['brick'])) {
 		$path = wrap_setting_path($key, $params['brick']);
 		if ($path) return $zz_setting[$key];
