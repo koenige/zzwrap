@@ -43,16 +43,17 @@ function wrap_include_files($filename, $paths = 'custom/modules') {
 function wrap_collect_files($filename, $search = 'custom/modules') {
 	global $zz_setting;
 
-	$modules = [];
+	$packages = [];
 	$custom = false;
 	$files = [];
 
 	switch ($search) {
 	case 'modules/themes/custom':
-		$modules = $zz_setting['activated']['themes'] ?? [];
+	case 'custom/modules/themes':
+		$packages = $zz_setting['activated']['themes'] ?? [];
 	case 'custom/modules':
 	case 'modules/custom':
-		$modules = array_merge($modules, $zz_setting['modules']);
+		$packages = array_merge($packages, $zz_setting['modules']);
 		$custom = true;
 		break;
 	case 'custom':
@@ -61,21 +62,21 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		break;
 	case 'modules':
 		// only look into modules
-		$modules = $zz_setting['modules'];
+		$packages = $zz_setting['modules'];
 		break;
 	case 'custom/active':
 	case 'active/custom':
 		$custom = true;
 		if (!empty($zz_setting['active_module']))
-			$modules = [$zz_setting['active_module']];
+			$packages = [$zz_setting['active_module']];
 		break;
 	case 'active':
 		if (empty($zz_setting['active_module'])) return [];
-		$modules = [$zz_setting['active_module']];
+		$packages = [$zz_setting['active_module']];
 		break;
 	default:
 		// only look into single module folder
-		$modules = [$search];
+		$packages = [$search];
 		break;
 	}
 	
@@ -90,15 +91,15 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	if (!strpos($filename, '.')) $filename = sprintf('%s.inc.php', $filename);
 
 	// check modules (default always is first module)
-	foreach ($modules as $module) {
-		$this_path = $path ? $path : $module;
+	foreach ($packages as $package) {
+		$this_path = $path ? $path : $package;
 		// disable default module?
-		if ($module === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
+		if ($package === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
-		$type = in_array($module, $zz_setting['modules']) ? 'modules' : 'themes';
-		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $module, $this_path, $filename);
+		$type = in_array($package, $zz_setting['modules']) ? 'modules' : 'themes';
+		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $package, $this_path, $filename);
 		if (file_exists($file))
-			$files[$module] = $file;
+			$files[$package] = $file;
 	}
 
 	if ($custom) {
