@@ -66,7 +66,7 @@ function zzwrap() {
 		exit;
 	}
 	
-	wrap_include_files('_functions', 'modules/themes/custom');
+	wrap_include_files('_functions', 'custom/modules/themes');
 
 	// do not check if database connection is established until now
 	// to avoid infinite recursion due to calling the error page
