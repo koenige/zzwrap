@@ -2076,8 +2076,8 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	}
 	$doc = wrap_cache_filename('url', $url);
 	$head = wrap_cache_filename('headers', $url);
-	if (strlen(basename($headers)) > 255) {
-		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $headers), E_USER_NOTICE);
+	if (strlen(basename($head)) > 255) {
+		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $head), E_USER_NOTICE);
 		return false;
 	}
 	if (file_exists($head)) {
