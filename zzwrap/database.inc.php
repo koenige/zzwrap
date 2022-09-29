@@ -1153,10 +1153,24 @@ function wrap_sql_file($filename, $key_separator = '') {
 				$subkey = substr($line, 0, strpos($line, ' '));
 				$data[$key][$subkey] = '';
 			} else {
-				$key = substr($line, 0, strpos($line, ' '));
-				if ($key === 'query') $key = rtrim($line, ' --');
-				$index[$key] = 0;
-				$data[$key][$index[$key]] = '';
+				$check = substr($line, 0, strpos($line, ' '));
+				if ($check === 'query') {
+					$check = ltrim($line, 'query ');
+					$check = rtrim($check, ' --');
+					if (!empty($data[$key][0])) {
+						// query no applying to table name before
+						$key = $check;
+						$index[$key] = 0;
+						$data[$key][$index[$key]] = '';
+					} else {
+						// table name, directly followed by query
+					}
+					$data[$key]['query'][] = $check;
+				} else {
+					$key = $check;
+					$index[$key] = 0;
+					$data[$key][$index[$key]] = '';
+				}
 			}
 		} else {
 			if (empty($key)) {
