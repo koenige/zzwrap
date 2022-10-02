@@ -3165,6 +3165,37 @@ function wrap_setting_value($string) {
 }
 
 /**
+ * write settings from array to $zz_setting or $zz_conf
+ *
+ * @param array $config
+ * @return void
+ */
+function wrap_setting_register($config) {
+	global $zz_setting;
+	global $zz_conf;
+
+	foreach ($config as $skey => $value) {
+		if (str_starts_with($skey, 'zzform_')) {
+			$skey = substr($skey, 7);
+			$var = 'zz_conf';
+		} else {
+			$var = 'zz_setting';
+		}
+		$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
+		foreach ($keys_values as $key => $value) {
+			if (!is_array($value)) {
+				if (!$value OR $value === 'false') $value = false;
+				elseif ($value === 'true') $value = true;
+			}
+			if (empty($$var[$key]) OR !is_array($$var[$key]))
+				$$var[$key] = $value;
+			else
+				$$var[$key] = array_merge_recursive($$var[$key], $value);
+		}
+	}
+}
+
+/**
  * read default settings from .cfg files
  *
  * @param string $type (settings, access, etc.)
