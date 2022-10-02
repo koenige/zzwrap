@@ -3196,6 +3196,34 @@ function wrap_setting_register($config) {
 }
 
 /**
+ * add settings from website if backend is on a different website
+ *
+ * @return void
+ */
+function wrap_setting_backend() {
+	if (!$backend_website_id = wrap_get_setting('backend_website_id')) return;
+	if ($backend_website_id === wrap_get_setting('website_id')) return;
+
+	$cfg = wrap_cfg_files('settings');
+	foreach ($cfg as $index => $parameters) {
+		if (!empty($parameters['backend_for_website'])) continue;
+		unset($cfg[$index]);
+	}
+	if (!$cfg) return;
+
+	$sql = 'SELECT setting_key, setting_value
+		FROM /*_PREFIX_*/_settings
+		WHERE website_id = %d
+		AND setting_key IN ("%s")';
+	$sql = sprintf($sql
+		, wrap_get_setting('backend_website_id')
+		, implode('","', array_keys($cfg))
+	);
+	$extra_settings = wrap_db_fetch($sql, 'setting_key', 'key/value');
+	wrap_setting_register($extra_settings);
+}
+
+/**
  * read default settings from .cfg files
  *
  * @param string $type (settings, access, etc.)
