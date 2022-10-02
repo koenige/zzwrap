@@ -301,25 +301,7 @@ function wrap_config($mode, $site = '') {
 	case 'read':
 		$existing_config = json_decode($existing_config, true);
 		if (!$existing_config) return;
-		foreach ($existing_config as $skey => $value) {
-			if (str_starts_with($skey, 'zzform_')) {
-				$skey = substr($skey, 7);
-				$var = 'zz_conf';
-			} else {
-				$var = 'zz_setting';
-			}
-			$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
-			foreach ($keys_values as $key => $value) {
-				if (!is_array($value)) {
-					if (!$value OR $value === 'false') $value = false;
-					elseif ($value === 'true') $value = true;
-				}
-				if (empty($$var[$key]) OR !is_array($$var[$key]))
-					$$var[$key] = $value;
-				else
-					$$var[$key] = array_merge_recursive($$var[$key], $value);
-			}
-		}
+		wrap_setting_register($existing_config);
 		break;
 	case 'write':
 		if (!wrap_database_table_check('_settings', true)) break;
