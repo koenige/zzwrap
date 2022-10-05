@@ -67,12 +67,18 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	case 'custom/active':
 	case 'active/custom':
 		$custom = true;
-		if (!empty($zz_setting['active_module']))
+		if (!empty($zz_setting['activated']['modules']))
+			$packages = $zz_setting['activated']['modules'];
+		elseif (!empty($zz_setting['active_module']))
 			$packages = [$zz_setting['active_module']];
 		break;
 	case 'active':
-		if (empty($zz_setting['active_module'])) return [];
-		$packages = [$zz_setting['active_module']];
+		if (!empty($zz_setting['activated']['modules']))
+			$packages = $zz_setting['activated']['modules'];
+		elseif (!empty($zz_setting['active_module']))
+			$packages = [$zz_setting['active_module']];
+		else
+			return [];
 		break;
 	default:
 		// only look into single module folder

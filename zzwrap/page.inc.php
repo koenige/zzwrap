@@ -1263,23 +1263,20 @@ function wrap_page_format_files() {
 		// @todo add brick_formatting_functions_prefix
 		// @todo add functions from zzwrap/format.inc.php
 	}
-	if (!empty($zz_setting['active_module'])) {
-		if (!in_array($zz_setting['active_module'], $included)) {
-			$format_file = wrap_collect_files('format', 'active');
-			if ($format_file) {
-				$existing_functions = get_defined_functions();
-				require_once $format_file[$zz_setting['active_module']];
-				$included[] = $zz_setting['active_module'];
-				$new_existing_functions = get_defined_functions();
-				$new_functions = array_diff($new_existing_functions['user'], $existing_functions['user']);
-				foreach ($new_functions as $function) {
-					if (str_starts_with($function, 'mf_'.$zz_setting['active_module'].'_')) {
-						$function = substr($function, strlen('mf_'.$zz_setting['active_module'].'_'));
-						$zz_setting['brick_formatting_functions_prefix'][$function] = 'mf_'.$zz_setting['active_module'];
-					}
-					$zz_setting['brick_formatting_functions'][] = $function;
-				}
+	$format_files = wrap_collect_files('format', 'active');
+	foreach ($format_files as $package => $format_file) {
+		if (in_array($package, $included)) continue;
+		$existing_functions = get_defined_functions();
+		require_once $format_file;
+		$included[] = $package;
+		$new_existing_functions = get_defined_functions();
+		$new_functions = array_diff($new_existing_functions['user'], $existing_functions['user']);
+		foreach ($new_functions as $function) {
+			if (str_starts_with($function, 'mf_'.$package.'_')) {
+				$function = substr($function, strlen('mf_'.$package.'_'));
+				$zz_setting['brick_formatting_functions_prefix'][$function] = 'mf_'.$package;
 			}
+			$zz_setting['brick_formatting_functions'][] = $function;
 		}
 	}
 }
