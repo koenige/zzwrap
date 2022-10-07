@@ -256,6 +256,8 @@ function wrap_look_for_page($zz_page) {
 
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
+	// no asterisk in URL
+	if (!empty($url['full']['path']) AND strstr($url['full']['path'], '*')) return false;
 	// sometimes, bots add second / to URL, remove and redirect
 	$full_url[0] = $url['db'];
 
