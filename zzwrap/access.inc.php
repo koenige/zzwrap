@@ -16,10 +16,11 @@
 /**
  * check access for a certain area
  *
- * @string $area
+ * @param string $area
+ * @param string $details (optional, e. g. event_id:234 or event:2022/test)
  * @return bool true: access granted
  */
-function wrap_access($area) {
+function wrap_access($area, $details = '') {
 	global $zz_conf;
 	global $zz_setting;
 	static $config;
@@ -66,7 +67,7 @@ function wrap_access($area) {
 	// check if access rights are met
 	if (!empty($usergroups[$area])) {
 		foreach ($usergroups[$area] as $usergroup) {
-			$access = brick_access_rights($usergroup);
+			$access = brick_access_rights($usergroup, $details);
 			if ($access) break;
 		}
 	} else {
