@@ -3402,7 +3402,9 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	else
 		$this_setting = wrap_get_setting($setting);
 	if (!is_array($value)) $value = [$value];
-	return vsprintf($zz_setting['base'].$this_setting, $value);
+	$path = vsprintf($zz_setting['base'].$this_setting, $value);
+	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
+	return $path;
 }
 
 /**
