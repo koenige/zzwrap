@@ -284,9 +284,7 @@ function wrap_look_for_page($zz_page) {
 			$data[$i + $index * count($full_url)] = [
 				'url' => $my_url,
 				'identifier' => sprintf($identifier_template, wrap_db_escape($my_url)),
-				'params_end' => $end_params,
-				'params' => $my_params,
-				'leftovers' => $leftovers[$i] ?? []
+				'params' => wrap_url_params($my_params, $end_params, $leftovers[$i] ?? [])
 			];
 			list($my_url, $params, $end_params) = wrap_url_cut($my_url, $params);
 			$index++;
@@ -321,30 +319,40 @@ function wrap_look_for_page($zz_page) {
 	if (!empty($page['parameters'])) wrap_page_parameters($page['parameters']);
 	if (empty($page)) return false;
 
-	$data = $data[$found];
-	$params = $data['params'];
+	$page['parameter'] = implode('/', $data[$found]['params']);
+	$page['url'] = $data[$found]['url'];
+	return $page;
+}
 
-	if (!empty($data['end_params'])) {
+/**
+ * get correct parameters for page
+ *
+ * @param array $params
+ * @param array $end_params parameters at end of query after asterisk
+ * @param array $leftovers placeholder values like %year%
+ * @return array
+ */
+function wrap_url_params($params, $end_params = [], $leftovers = []) {
+	if (!empty($end_params)) {
 		// remove used parameters behind asterisk
+		$end_params = array_reverse($end_params);
 		$params = array_reverse($params);
-		foreach ($data['end_params'] as $index => $value) {
-			if ($params[$index] === $value) // check not needed, equal anyways
+		foreach ($end_params as $index => $value) {
+			if ($params[$index] === $value)
 				unset($params[$index]);
 		}
 		$params = array_reverse($params);
 	}
 
 	// but get placeholders as parameters as well!
-	if (!empty($data['leftovers'])) {
-		$new = $data['leftovers'];
-		foreach ($params as $key => $value) {
+	if (!empty($leftovers)) {
+		$new = $leftovers;
+		foreach ($params as $value) {
 			$new[] = $value;
 		}
 		$params = $new;
 	}
-	$page['parameter'] = implode('/', $params);
-	$page['url'] = $data['url'];
-	return $page;
+	return $params;
 }
 
 /**
