@@ -3424,11 +3424,20 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	else
 		$this_setting = wrap_get_setting($setting);
 	if (!is_array($value)) $value = [$value];
+	$required_count = substr_count($this_setting, '%');
+	if (count($value) < $required_count) {
+		if (!empty($zz_setting['backend_path']))
+			array_unshift($value, $zz_setting['backend_path']);
+		if (count($value) < $required_count)
+			return '';
+	}
 	$path = vsprintf($zz_setting['base'].$this_setting, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
 	if ($website_id = wrap_get_setting('backend_website_id')
 		AND $website_id !== wrap_get_setting('website_id')) {
-		$path = wrap_host_base($website_id).$path;
+		$cfg = wrap_cfg_files('settings');
+		if (!empty($cfg[$setting]['backend_for_website']))
+			$path = wrap_host_base($website_id).$path;
 	}
 	return $path;
 }
