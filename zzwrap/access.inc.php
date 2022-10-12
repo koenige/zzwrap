@@ -71,6 +71,7 @@ function wrap_access($area, $details = '') {
 			if ($access) break;
 		}
 	} else {
+		if ($config[$area]['group'] === 'public') return true;
 		$access = brick_access_rights($config[$area]['group']);
 	}
 	if (!$access) return false;
