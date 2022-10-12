@@ -285,6 +285,20 @@ function wrap_look_for_page($zz_page) {
 				'url' => $my_url,
 				'params' => wrap_url_params($my_params, $end_params, $leftovers[$i] ?? [])
 			];
+			if (count($end_params) > 1) {
+				$extra_urls = $end_params;
+				$extra_url = $my_url;
+				$extra_end = [array_pop($extra_urls)];
+				do {
+					$index++;
+					$extra_url = substr($extra_url, 0, strrpos($extra_url, '/'));
+					$data[$i + $index * count($full_url)] = [
+						'url' => $extra_url.'*',
+						'params' => array_merge(wrap_url_params($my_params, $end_params, $leftovers[$i] ?? []), array_reverse($extra_end)),						
+					];
+					$extra_end[] = array_pop($extra_urls);
+				} while ($extra_urls);
+			}
 			list($my_url, $params, $end_params) = wrap_url_cut($my_url, $params);
 			$index++;
 		}
