@@ -283,7 +283,6 @@ function wrap_look_for_page($zz_page) {
 			}
 			$data[$i + $index * count($full_url)] = [
 				'url' => $my_url,
-				'identifier' => sprintf($identifier_template, wrap_db_escape($my_url)),
 				'params' => wrap_url_params($my_params, $end_params, $leftovers[$i] ?? [])
 			];
 			list($my_url, $params, $end_params) = wrap_url_cut($my_url, $params);
@@ -294,8 +293,9 @@ function wrap_look_for_page($zz_page) {
 	ksort($data);
 	
 	// get all pages that would match list of identifiers
+	$identifiers = [];
 	foreach ($data as $index => $line) {
-		$identifiers[$index] = $line['identifier'];
+		$identifiers[$index] = sprintf($identifier_template, wrap_db_escape($line['url']));
 		$urls[$index] = $line['url'];
 	}
 	$identifiers = array_unique($identifiers);
