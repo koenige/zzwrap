@@ -3426,8 +3426,40 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	if (!is_array($value)) $value = [$value];
 	$path = vsprintf($zz_setting['base'].$this_setting, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
+	if ($website_id = wrap_get_setting('backend_website_id')
+		AND $website_id !== wrap_get_setting('website_id')) {
+		$path = wrap_host_base($website_id).$path;
+	}
 	return $path;
 }
+
+/**
+ * get hostname for website ID
+ *
+ * @param int $website_id
+ * @return string
+ */
+function wrap_host_base($website_id) {
+	static $host_bases;
+	if (empty($host_bases)) $host_bases = [];
+	if (array_key_exists($website_id, $host_bases))
+		return $host_bases[$website_id];
+
+	$sql = 'SELECT setting_value
+		FROM /*_PREFIX_*/_settings
+		WHERE setting_key = "canonical_hostname"
+		AND _settings.website_id = %d';
+	$sql = sprintf($sql, $website_id);
+	$hostname = wrap_db_fetch($sql, '', 'single value');
+	if (!$hostname) {
+		$hostnames = array_flip(wrap_id('websites', '', 'list'));
+		if (!array_key_exists($website_id, $hostnames)) return '';
+		$hostname = $hostnames[$website_id];
+	}
+	return $host_bases[$website_id] = sprintf('https://%s', $hostname);
+}
+
+
 
 /**
  * recursively delete folders
