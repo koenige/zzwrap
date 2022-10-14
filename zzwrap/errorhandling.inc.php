@@ -447,13 +447,8 @@ function wrap_errorpage_log($status, $page) {
 function wrap_errorpage_ignore($status, $string = false) {
 	global $zz_setting;
 	
-	$files = [];
-	if (empty($zz_setting['errors_not_logged_no_defaults'])) {
-		$files[] = $zz_setting['core'].'/errors-not-logged.txt';
-	}
-	$files[] = $zz_setting['custom_wrap_dir'].'/errors-not-logged.txt';
+	$files = wrap_collect_files('errors-not-logged.txt', 'default/custom');
 	foreach ($files as $file) {
-		if (!file_exists($file)) continue;
 		$handle = fopen($file, 'r');
 		$i = 0;
 		while (!feof($handle)) {
