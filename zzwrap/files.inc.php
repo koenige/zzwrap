@@ -80,6 +80,11 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		else
 			return [];
 		break;
+	case 'default/custom':
+	case 'custom/default':
+		$packages = ['default'];
+		$custom = true;
+		break;
 	default:
 		// only look into single module folder
 		$packages = [$search];
