@@ -177,6 +177,9 @@ function wrap_install_zzform() {
  */
 function wrap_install_user() {
 	global $zz_setting;
+	global $zz_conf;
+	require_once $zz_conf['dir'].'/_functions.inc.php';
+
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_zzform();
 		$values = [];
