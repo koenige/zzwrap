@@ -138,18 +138,19 @@ function wrap_session_stop() {
  *	if ($page !== true) return $page;
  *
  * @param string $token name of the token
+ * @param string $qs optional query string for URL
  * @return mixed
  *		array $page => cookies are not allowed, output message
  *		bool true => everything ok
  */
-function wrap_session_check($token) {
+function wrap_session_check($token, $qs = '') {
 	wrap_session_start();
 	if (array_key_exists('no-cookie', $_GET)) {
-		return wrap_session_cookietest_end($token);
+		return wrap_session_cookietest_end($token, $qs);
 	}
 	if (empty($_SESSION[$token])) {
 		// Cookietest durch redirect auf dieselbe URL mit ?cookie am Ende
-		return wrap_session_cookietest_start($token);
+		return wrap_session_cookietest_start($token, $qs);
 	}
 	session_write_close();
 	return true;
@@ -160,19 +161,21 @@ function wrap_session_check($token) {
  * the session is still active
  *
  * @param string $token name of the token
+ * @param string $qs optional query string for URL
  * @return void redirect to another URL
  */
-function wrap_session_cookietest_start($token) {
+function wrap_session_cookietest_start($token, $qs) {
 	global $zz_page;
 	$_SESSION[$token] = true;
 	$_SESSION['last_click_at'] = time();
 	session_write_close();
-
+	
+	$qs = $qs ? $qs.'&no-cookie' : 'no-cookie';
 	$url = $zz_page['url']['full'];
 	if (empty($url['query'])) {
-		$url['query'] = 'no-cookie';
+		$url['query'] = $qs;
 	} else {
-		$url['query'] .= '&no-cookie';
+		$url['query'] .= '&'.$qs;
 	}
 	return wrap_redirect(wrap_glue_url($url), 302, false);
 }
@@ -181,11 +184,12 @@ function wrap_session_cookietest_start($token) {
  * check if session exists and if yes, redirect to old URL
  *
  * @param string $token name of the token
+ * @param string $qs optional query string for URL
  * @return mixed
  *		void redirect to old URL if everything is ok
  *		array $page if a cookie message should be sent back to user
  */
-function wrap_session_cookietest_end($token) {
+function wrap_session_cookietest_end($token, $qs) {
 	global $zz_page;
 	session_write_close();
 	$url = $zz_page['url']['full'];
@@ -196,6 +200,18 @@ function wrap_session_cookietest_end($token) {
 	if (!empty($_SESSION[$token])) {
 		return wrap_redirect($data['url'], 302, false);
 	}
+
+	// remove custom query string from URL, allow them for current view
+	if ($qs) {
+		parse_str($qs, $qs);
+		foreach ($qs as $key => $value) {
+			$page['query_strings'][] = $key;
+			unset($query[$key]);
+		}
+		$url['query'] = http_build_query($query);
+		$data['url'] = wrap_glue_url($url);
+	}
+
 	// return cookie missing message
 	$page['dont_show_h1'] = true;
 	$page['meta'][] = ['name' => 'robots', 'content' => 'noindex'];
