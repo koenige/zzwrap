@@ -129,6 +129,43 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	return $files;
 }
 
+/**
+ * parse a .tsv tab separated values file
+ *
+ * @param string $filename
+ * @param string $paths (optional)
+ * @return array
+ */
+function wrap_tsv_parse($filename, $paths = '') {
+	$filename = sprintf('configuration/%s.tsv', $filename);
+	$files = wrap_collect_files($filename, $paths);
+	if (!$files) return [];
+	$data = [];
+	foreach ($files as $file) {
+		$content = file($file);
+		$head = [];
+		foreach ($content as $line) {
+			if (!trim($line)) continue;
+			if (str_starts_with($line, '#:')) {
+				$head = explode("\t", trim(substr($line, 2)));
+			}
+			if (str_starts_with($line, '#')) continue;
+			$line = explode("\t", trim($line));
+			if (count($line) === 2 and !$head) {
+				// key/value
+				$data[trim($line[0])] = trim($line[1]);
+			} else {
+				$data[trim($line[0])] = $line;
+				if ($head) {
+					foreach ($head as $index => $title)
+						$data[$line[0]][$title] = trim($line[$index]);
+				}
+			}
+		}
+	}
+	return $data;
+}
+
 /*
  * --------------------------------------------------------------------
  * External Libraries
