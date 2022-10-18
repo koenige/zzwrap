@@ -582,6 +582,28 @@ function wrap_money_format($number, $format = false) {
 }
 
 /**
+ * return a currency symbol for a currency
+ *
+ * @param string $currency
+ * @return string
+ * @todo merge with wrap_money to get correct no of minor units
+ * @todo some currencies have different symbols for singular and plural
+ */
+function wrap_currency($currency) {
+	static $currencies;
+	if (empty($currencies)) {
+		$currencies = wrap_tsv_parse('currencies', 'default/custom');
+	}
+	if (!array_key_exists($currency, $currencies)) return $currency;
+	$text = sprintf('<abbr title="%s (%s)">%s</abbr>'
+		, $currencies[$currency]['Currency']
+		, $currencies[$currency]['Alphabetic Code']
+		, $currencies[$currency]['Symbol'] ?? $currencies[$currency]['Alphabetic Code']		
+	);
+	return $text;
+}
+
+/**
  * Escapes unvalidated strings for HTML values (< > & " ')
  *
  * @param string $string
