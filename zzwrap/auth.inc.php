@@ -280,12 +280,12 @@ function cms_login($params, $settings = []) {
 	}
 
 	// Check if there are parameters for single sign on
-	if (!empty($_GET['add']) OR !empty($_GET['mail'])) {
+	if (!empty($_GET['add']) OR !empty($_GET['link'])) {
 		if (!in_array('contacts', $zz_setting['modules'])) wrap_quit(404);
 		if (!empty($_GET['add']))
 			return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['add'])).'%%%');
-		if (!empty($_GET['mail']))
-			return brick_format('%%% make maillogin '.implode(' ', explode('-', $_GET['mail'])).'%%%');
+		if (!empty($_GET['link']))
+			return brick_format('%%% make linklogin '.implode(' ', explode('-', $_GET['link'])).'%%%');
 	} elseif (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
@@ -476,7 +476,7 @@ function cms_login($params, $settings = []) {
 		];
 	}
 	$page['query_strings'] = [
-		'password', 'auth', 'via', 'add', 'mail', 'username', 'token', 'url'
+		'password', 'auth', 'via', 'add', 'link', 'username', 'token', 'url'
 	];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
