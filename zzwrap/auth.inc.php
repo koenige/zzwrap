@@ -4,7 +4,7 @@
  * zzwrap
  * Authentication functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * https://www.zugzwang.org/projects/zzwrap
  *
  *	- wrap_auth()
@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2021 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2012, 2014-2021 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -281,8 +281,8 @@ function cms_login($params, $settings = []) {
 
 	// Check if there are parameters for single sign on
 	if (!empty($_GET['request'])) {
-		$page = wrap_login_request($_GET['request'], $login);
-		return $page;
+		if (!in_array('contacts', $zz_setting['modules'])) wrap_quit(404);
+		return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['request'])).'%%%');
 	} elseif (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
@@ -946,69 +946,4 @@ function wrap_sso_login($login_url, $dest_url = '/') {
 		$login_url, $_SESSION['username'], $token, urlencode($dest_url)
 	);
 	return wrap_redirect($url, 307, false);
-}
-
-/**
- * show a form to letting an existing user create a new login
- *
- * @param string $request
- * @param array $login
- */
-function wrap_login_request($request, $login) {
-	global $zz_conf;
-	global $zz_setting;
-
-	$zz_conf['url_self'] = $zz_setting['request_uri'];
-	unset($_GET['request']); // not needed anymore, remove because of zzform's request
-	$return = [];
-	$page['query_strings'] = ['request'];
-	if (!substr_count($request, '-') > 1) {
-		$return['invalid_request'] = true;
-		$page['text'] = wrap_template('login-request', $return);
-		return $page;
-	}
-	$request = explode('-', $request);
-	while (count($request) > 2) {
-		// username might contain - as character
-		$first = array_shift($request);
-		$request[0] = $first.'-'.$request[0];
-	}
-
-	// check if login exists
-	$sql = sprintf(wrap_sql('login_exists'), $request[0]);
-	$existing = wrap_db_fetch($sql, '', 'single value');
-	if ($existing) {
-		$return['missing_user_or_login_exists'] = true;
-		wrap_error(sprintf('Could not create login, login for user already exists: %s', $request[0]), E_USER_NOTICE);
-		$page['text'] = wrap_template('login-request', $return);
-		return $page;
-	}
-	
-	// check if username exists
-	$sql = sprintf(wrap_sql('username_exists'), $request[0]);
-	$user = wrap_db_fetch($sql);
-	if (!$user) {
-		wrap_error(sprintf('Could not create login, user does not exist: %s', $request[0]), E_USER_NOTICE);
-		$return['missing_user_or_login_exists'] = true;
-		$page['text'] = wrap_template('login-request', $return);
-		return $page;
-	}
-
-	// check if hash is correct
-	// set addlogin_key 
-	// set addlogin_key_validity_in_minutes
-	$access = wrap_check_hash($user['user_id'].'-'.$user['username'], $request[1], '', 'addlogin_key');
-	if (!$access) {
-		$return['invalid_request'] = true;
-		wrap_error(sprintf('Could not create login, hash is invalid: %s %s', $request[0], $request[1]), E_USER_NOTICE);
-		$page['text'] = wrap_template('login-request', $return);
-		return $page;
-	}
-
-	// everything is correct, let user add a login
-	// addlogin must be a custom form script
-	$zz_conf['user'] = $user['username'];
-	$page = brick_format('%%% forms addlogin '.$user['user_id'].' %%%');
-	$page['query_strings'] = ['request'];
-	return $page;
 }
