@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2021 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -280,9 +280,12 @@ function cms_login($params, $settings = []) {
 	}
 
 	// Check if there are parameters for single sign on
-	if (!empty($_GET['request'])) {
+	if (!empty($_GET['add']) OR !empty($_GET['mail'])) {
 		if (!in_array('contacts', $zz_setting['modules'])) wrap_quit(404);
-		return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['request'])).'%%%');
+		if (!empty($_GET['add']))
+			return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['add'])).'%%%');
+		if (!empty($_GET['mail']))
+			return brick_format('%%% make maillogin '.implode(' ', explode('-', $_GET['mail'])).'%%%');
 	} elseif (!empty($_GET['auth'])) {
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
@@ -473,7 +476,7 @@ function cms_login($params, $settings = []) {
 		];
 	}
 	$page['query_strings'] = [
-		'password', 'auth', 'via', 'request', 'username', 'token', 'url'
+		'password', 'auth', 'via', 'add', 'mail', 'username', 'token', 'url'
 	];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
