@@ -280,10 +280,13 @@ function cms_login($params, $settings = []) {
 	}
 
 	// Check if there are parameters for single sign on
-	if (!empty($_GET['add']) OR !empty($_GET['link'])) {
+	if (!empty($_GET['add']) OR !empty($_GET['link']) OR !empty($_GET['request'])) {
 		if (!in_array('contacts', $zz_setting['modules'])) wrap_quit(404);
 		if (!empty($_GET['add']))
 			return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['add'])).'%%%');
+		// @deprecated
+		if (!empty($_GET['request']))
+			return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['request'])).'%%%');
 		if (!empty($_GET['link']))
 			return brick_format('%%% make linklogin '.implode(' ', explode('-', $_GET['link'])).'%%%');
 	} elseif (!empty($_GET['auth'])) {
@@ -476,7 +479,7 @@ function cms_login($params, $settings = []) {
 		];
 	}
 	$page['query_strings'] = [
-		'password', 'auth', 'via', 'add', 'link', 'username', 'token', 'url'
+		'password', 'auth', 'via', 'request', 'add', 'link', 'username', 'token', 'url'
 	];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
