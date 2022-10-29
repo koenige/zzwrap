@@ -428,6 +428,11 @@ function wrap_mail_phpmailer($msg, $list) {
 		$mail->clearAddresses();
 	}
 
+	if (!$zz_setting['local_access'] AND wrap_get_setting('mail_imap_copy_sent')) {
+		$success = wrap_mail_sent($mail->getSentMIMEMessage());
+		if ($success) $zz_setting['log_mail'] = false; // do not log mails which are in SENT folder
+	}
+
 	return true;
 }
 
@@ -572,4 +577,72 @@ function wrap_mail_reply_to($headers) {
 	}
 	$headers['From']['e_mail'] = $e_mail;
 	return $headers;
+}
+
+/**
+ * check if IMAP extension is available
+ *
+ * @return bool
+ */
+function wrap_mail_imap_extension() {
+	if (function_exists('imap_open')) return true;
+	wrap_error('IMAP extension for PHP not installed', E_USER_WARNING);
+	return false;
+}
+
+/**
+ * get IMAP path
+ *
+ * @param string $mailbox (optional)
+ * @return string
+ */
+function wrap_mail_imap_path($mailbox = '') {
+	$path = '{%s:%s%s}%s';
+	$path = sprintf($path
+		, wrap_get_setting('mail_imap')
+		, wrap_get_setting('mail_imap_port')
+		, wrap_get_setting('mail_imap_flags')
+		, $mailbox
+	);
+	return $path;
+}
+
+/**
+ * copy a sent mail to the SENT folder
+ *
+ * @param string $message
+ * @return bool
+ */
+function wrap_mail_sent($message) {
+	if (!wrap_mail_imap_extension()) return false;
+	if (!$sent = wrap_get_setting('mail_imap_sent_mailbox')) {
+		$sent = wrap_mail_mailboxes('sent');
+		if (!$sent) return false;
+		wrap_setting_write('mail_imap_sent_mailbox', $sent);
+	}
+	$path = wrap_mail_imap_path($sent);
+	$imapStream = imap_open($path, wrap_get_setting('mail_username'), wrap_get_setting('mail_password'));
+    $result = imap_append($imapStream, $path, $message);
+    imap_close($imapStream);
+    return $result;
+
+}
+
+/**
+ * get all mailboxes on IMAP server, return matching mailbox
+ *
+ * @param string $search
+ * @return bool
+ */
+function wrap_mail_mailboxes($search) {
+	if (!wrap_mail_imap_extension()) return '';
+	$path = wrap_mail_imap_path();
+	$imapStream = imap_open($path, wrap_get_setting('mail_username'), wrap_get_setting('mail_password'));
+	$mailboxes = imap_listmailbox($imapStream, $path, '*');
+	imap_close($imapStream);
+	foreach ($mailboxes as $mailbox) {
+		$mailbox = substr($mailbox, strpos($mailbox, '}') + 1);
+		if (preg_match('/'.$search.'/i', $mailbox)) return $mailbox;
+	}
+	return '';
 }
