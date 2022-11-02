@@ -433,11 +433,6 @@ function wrap_set_defaults_post_conf() {
 			$zz_setting['files_path']
 		];
 	}
-
-	// zzform: local zzform-colours.css?		
-	if (!isset($zz_setting['zzform_colours'])) {
-		$zz_setting['zzform_colours'] = true;
-	}
 	
 	// -------------------------------------------------------------------------
 	// HTTP, Hostname, Access via HTTPS or not
