@@ -3121,10 +3121,11 @@ function wrap_setting_read($key, $login_id = 0) {
 
 	if (!$login_id AND !$setting_table) {
 		$setting_table = wrap_database_table_check('_settings');
+		if (!$setting_table) return [];
 	} elseif ($login_id AND !$login_setting_table) {
-		$setting_table = wrap_database_table_check('logins_settings');
+		$login_setting_table = wrap_database_table_check('logins_settings');
+		if (!$login_setting_table) return [];
 	}
-	if (!$setting_table) return [];
 	$sql = 'SELECT setting_key, setting_value
 		FROM /*_PREFIX_*/%s_settings
 		WHERE setting_key %%s "%%s"';
