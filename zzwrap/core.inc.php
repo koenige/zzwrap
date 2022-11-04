@@ -3226,9 +3226,14 @@ function wrap_setting_value($string) {
 function wrap_setting_register($config) {
 	global $zz_setting;
 	global $zz_conf;
+	
+	$zzform_cfg = $zz_setting['cms_dir'].'/_inc/modules/zzform/configuration/settings.cfg';
+	$zzform_cfg = file_exists($zzform_cfg) ? parse_ini_file($zzform_cfg, true) : [];
 
 	foreach ($config as $skey => $value) {
-		if (str_starts_with($skey, 'zzform_')) {
+		if (str_starts_with($skey, 'zzform_')
+			AND (empty($zzform_cfg[$skey]) OR empty($zzform_cfg[$skey]['no_conf']))
+		) {
 			$skey = substr($skey, 7);
 			$var = 'zz_conf';
 		} else {
