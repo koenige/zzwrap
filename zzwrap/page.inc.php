@@ -945,7 +945,7 @@ function wrap_get_page() {
 	} elseif (array_key_exists('well_known', $zz_page)) {
 		$page = $zz_page['well_known'];
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
-		$page['text'] = wrap_template($zz_page['tpl_file'], $zz_conf + $zz_setting);
+		$page['text'] = wrap_template($zz_page['tpl_file']);
 		if (!$page['text']) wrap_quit(404);
 		$page['content_type'] = wrap_file_extension($zz_page['tpl_file']);
 		$zz_setting['character_set'] = wrap_detect_encoding($page['text']);
