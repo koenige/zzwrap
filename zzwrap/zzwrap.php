@@ -92,7 +92,7 @@ function zzwrap() {
 	// Functions which might be executed always, before possible login
 	wrap_include_files('start');
 	
-	if ($zz_setting['authentication_possible']) {
+	if (wrap_get_setting('authentication_possible')) {
 		wrap_auth();
 	}
 	wrap_check_https($zz_page, $zz_setting);
@@ -148,11 +148,8 @@ function wrap_includes() {
  * includes required files for zzwrap
  */
 function wrap_includes_postconf() {
-	global $zz_setting;
-
-	if ($zz_setting['authentication_possible']) {
+	if (wrap_get_setting('authentication_possible'))
 		require_once __DIR__.'/auth.inc.php';
-	}
 }
 
 /**

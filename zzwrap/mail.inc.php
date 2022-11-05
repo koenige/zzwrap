@@ -469,7 +469,7 @@ function wrap_mail_signature($mail) {
 
 	if (!empty($mail['multipart'])) return $mail;
 	if (!str_starts_with($mail['headers']['Content-Type'], 'text/plain')) return $mail;
-	if (empty($zz_setting['mail_with_signature'])) return $mail;
+	if (!wrap_get_setting('mail_with_signature')) return $mail;
 	if (!wrap_template_file('signature-mail', false)) return $mail;
 
 	$mail['message'] .= "\r\n".wrap_template('signature-mail');

@@ -768,7 +768,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
 	if (!$formatted_breadcrumbs) return '';
-	return implode(' '.$zz_setting['breadcrumbs_separator'].' ', $formatted_breadcrumbs);
+	return implode(' '.wrap_get_setting('breadcrumbs_separator').' ', $formatted_breadcrumbs);
 }
 
 /**
@@ -889,14 +889,13 @@ function wrap_page_h1($page) {
  */
 function wrap_page_title($page) {
 	global $zz_page;
-	global $zz_setting;
 
 	if ($zz_page['url']['full']['path'] === '/') {
 		$pagetitle = strip_tags($zz_page['db'][wrap_sql('title')]);
-		$pagetitle = sprintf($zz_setting['template_pagetitle_home'], $pagetitle, $page['project']);
+		$pagetitle = sprintf(wrap_get_setting('template_pagetitle_home'), $pagetitle, $page['project']);
 	} else {
 		$pagetitle = strip_tags($page['title']);
-		$pagetitle = sprintf($zz_setting['template_pagetitle'], $pagetitle, $page['project']);
+		$pagetitle = sprintf(wrap_get_setting('template_pagetitle'), $pagetitle, $page['project']);
 	}
 	return $pagetitle;
 }
@@ -1029,7 +1028,7 @@ function wrap_htmlout_page($page) {
 	global $zz_conf;
 
 	// if globally dont_show_h1 is set, don't show it
-	if (!empty($zz_setting['dont_show_h1'])) $page['dont_show_h1'] = true;
+	if (wrap_get_setting('dont_show_h1')) $page['dont_show_h1'] = true;
 
 	if (!isset($page['text'])) $page['text'] = '';
 	// init page
@@ -1072,7 +1071,7 @@ function wrap_htmlout_page($page) {
 	unset($page['text']);
 	foreach ($textblocks as $position => $text) {
 		// add title to page, main text block
-		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND empty($zz_setting['h1_via_template'])
+		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND !(wrap_get_setting('h1_via_template'))
 			AND $position === 'text') {
 			$text = "\n".markdown('# '.$page['title']."\n")."\n".$text;
 		}

@@ -209,7 +209,6 @@ function wrap_set_defaults_pre_conf() {
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
 	}
-	$zz_setting['mail_with_signature'] = true;
 
 // -------------------------------------------------------------------------
 // Authentication
@@ -649,16 +648,6 @@ function wrap_set_defaults_post_conf() {
 	if (!isset($zz_conf['translations_of_fields']))
 		$zz_conf['translations_of_fields'] = false;
 	
-	// breadcrumbs
-	if (!isset($zz_setting['breadcrumbs_separator']))
-		$zz_setting['breadcrumbs_separator'] = '&gt;';
-	
-	// page title and project title
-	if (!isset($zz_setting['template_pagetitle']))
-		$zz_setting['template_pagetitle'] = '%1$s (%2$s)';
-	if (!isset($zz_setting['template_pagetitle_home']))
-		$zz_setting['template_pagetitle_home'] = '%1$s';
-
 	// @deprecated
 	$deprecated_zz_page = [
 		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home',
@@ -713,9 +702,6 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	// Authentication
 	// -------------------------------------------------------------------------
-	
-	if (!isset($zz_setting['authentication_possible']))
-		$zz_setting['authentication_possible'] = true;
 	
 	if ($zz_setting['local_access']) {
 		$zz_setting['logout_inactive_after'] *= 20;

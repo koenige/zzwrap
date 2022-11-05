@@ -288,7 +288,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	$page['last_update'] = false;
 	if (empty($zz_setting['error_breadcrumbs_without_homepage_url'])) {
 		$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
-			.wrap_get_setting('project').'</a></strong> '.$zz_setting['breadcrumbs_separator'].' ';
+			.wrap_get_setting('project').'</a></strong> '.wrap_get_setting('breadcrumbs_separator').' ';
 	} else {
 		$page['breadcrumbs'] = '';
 	}

@@ -52,7 +52,7 @@ function wrap_session_start() {
 	// insufficient access rights
 	// only throw 503 error if authentication is a MUST HAVE
 	// otherwise, page might still be accessible without authentication
-	if ($zz_setting['authentication_possible'] AND wrap_authenticate_url()) {
+	if (wrap_get_setting('authentication_possible') AND wrap_authenticate_url()) {
 		$session_error = error_get_last();
 		if ($last_error != $session_error
 			AND str_starts_with($session_error['message'], 'session_start()')) {
