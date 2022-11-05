@@ -723,27 +723,6 @@ function wrap_set_defaults_post_conf() {
 	
 	
 	// -------------------------------------------------------------------------
-	// Encryption
-	// -------------------------------------------------------------------------
-	
-	if (empty($zz_conf['hash_password'])) 
-		$zz_conf['hash_password'] = 'password_hash';
-
-	// Base-2 logarithm of the iteration count used for password stretching
-	if (!isset($zz_conf['hash_cost_log2']))
-		$zz_conf['hash_cost_log2'] = 11;
-	
-	if (in_array($zz_conf['hash_password'], ['phpass', 'phpass-md5'])) {
-		// Do we require the hashes to be portable to older systems (less secure)?
-		if (!isset($zz_conf['hash_portable']))
-			$zz_conf['hash_portable'] = FALSE;
-		
-		// path to script
-		if (!isset($zz_conf['hash_script']))
-			$zz_conf['hash_script'] = $zz_setting['lib'].'/phpass/PasswordHash.php';
-	}
-	
-	// -------------------------------------------------------------------------
 	// Mail
 	// -------------------------------------------------------------------------
 	

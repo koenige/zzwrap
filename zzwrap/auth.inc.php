@@ -212,7 +212,6 @@ function wrap_authenticate_url($url = false, $no_auth_urls = []) {
  */
 function cms_logout($params) {
 	global $zz_setting;
-	global $zz_conf;
 
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
@@ -773,25 +772,24 @@ function wrap_login_format($field_value, $field_name) {
  * @param string $hash hash as stored in database
  * @param int $login_id
  * @global array $zz_conf
- *		'hash_password', 'hash_script'
  * @return bool true: given credentials are correct, false: no access!
  */
 function wrap_password_check($pass, $hash, $login_id = 0) {
 	global $zz_conf;
-	if (!empty($zz_conf['hash_script']))
-		require_once $zz_conf['hash_script'];
+	global $zz_setting;
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
 
-	switch ($zz_conf['hash_password']) {
+	switch (wrap_get_setting('hash_password')) {
 	case 'password_hash':
 		if (password_verify($pass, $hash)) return true;
 		return false;
 	case 'phpass':
 	case 'phpass-md5':
-		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		require_once $zz_setting['lib'].'/phpass/PasswordHash.php';
+		$hasher = new PasswordHash(wrap_get_setting('hash_cost_log2'), wrap_get_setting('hash_portable'));
 		if ($hasher->CheckPassword($pass, $hash)) return true;
-		if ($zz_conf['hash_password'] === 'phpass') return false;
+		if (wrap_get_setting('hash_password') === 'phpass') return false;
 		if (!$login_id) return false;
 		// to transfer old double md5 hashed logins without salt to more secure logins
 		if (!$hasher->CheckPassword(md5($pass), $hash)) return false;
@@ -813,33 +811,28 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
  * hash password
  *
  * @param string $pass password as entered by user
- * @global array $zz_conf
- *		'hash_password', 'password_salt',
- *		'hash_script', 'hash_cost_log2', 'hash_portable'
+ * @global array $zz_setting
  * @return string hash
  */
 function wrap_password_hash($pass) {
-	global $zz_conf;
-	if (!empty($zz_conf['hash_script']))
-		require_once $zz_conf['hash_script'];
+	global $zz_setting;
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
 
-	switch ($zz_conf['hash_password']) {
+	switch (wrap_get_setting('hash_password')) {
 	case 'password_hash':
-		$hash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => $zz_conf['hash_cost_log2']]);
+		$hash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => wrap_get_setting('hash_cost_log2')]);
 		if (strlen($hash) < 20) return false;
 		return $hash;
 	case 'phpass':
 	case 'phpass-md5':
-		$hasher = new PasswordHash($zz_conf['hash_cost_log2'], $zz_conf['hash_portable']);
+		require_once $zz_setting['lib'].'/phpass/PasswordHash.php';
+		$hasher = new PasswordHash(wrap_get_setting('hash_cost_log2'), wrap_get_setting('hash_portable'));
 		$hash = $hasher->HashPassword($pass);
 		if (strlen($hash) < 20) return false;
 		return $hash;
 	}
-	if (!isset($zz_conf['password_salt'])) 
-		$zz_conf['password_salt'] = '';
-	return $zz_conf['hash_password']($pass.$zz_conf['password_salt']);
+	return wrap_get_setting('hash_password')($pass.wrap_get_setting('hash_password_salt'));
 }
 
 /**
