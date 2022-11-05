@@ -145,8 +145,6 @@ function wrap_set_defaults_pre_conf() {
 
 	// Forms: zzform upload module
 	$zz_setting['tmp_dir']		= $zz_setting['cms_dir'].'/_temp';
-	$zz_conf['backup']			= true;
-	$zz_conf['backup_dir']		= $zz_setting['cms_dir'].'/_backup';
 
 	// Logfiles
 	$zz_setting['log_dir']		= $zz_setting['cms_dir'].'/_logs';
@@ -158,9 +156,6 @@ function wrap_set_defaults_pre_conf() {
 	// modules
 	$zz_setting['ext_libraries'][] = 'markdown-extra';
 
-	// Forms: zzform upload module
-	$zz_conf['graphics_library'] = 'imagemagick';
-	
 	// tables from default module
 	$zz_setting['brick_default_tables'] = true;
 
@@ -197,8 +192,6 @@ function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	$zz_conf['prefix']			= ''; // prefix for all database tables
-	$zz_conf['logging']			= true;
-	$zz_conf['logging_id']		= true;
 	$zz_setting['unwanted_mysql_modes'] = [
 		'NO_ZERO_IN_DATE'
 	];
@@ -712,12 +705,6 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	// Database structure
 	// -------------------------------------------------------------------------
-	
-	if (!isset($zz_conf['relations_table']))
-		$zz_conf['relations_table']	= '/*_PREFIX_*/_relations';
-	
-	if (!empty($zz_conf['logging']) AND !isset($zz_conf['logging_table']))
-		$zz_conf['logging_table']	= '/*_PREFIX_*/_logging';
 	
 	if (!empty($zz_conf['translations_of_fields']) AND empty($zz_conf['translations_table']))
 		$zz_conf['translations_table']  = '/*_PREFIX_*/_translationfields';
