@@ -329,6 +329,7 @@ function wrap_mail_php($mail, $additional_headers) {
  * @return bool
  */
 function wrap_mail_phpmailer($msg, $list) {
+	global $zz_setting;
 	wrap_include_files('libraries/phpmailer', 'default');
 	
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
