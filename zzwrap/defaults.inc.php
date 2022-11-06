@@ -489,12 +489,7 @@ function wrap_set_defaults_post_conf() {
 		}
 	}
 	
-	if (empty($zz_setting['syndication_trigger_timeout_ms'])) {
-		// timeout when triggering an URL with cURL
-		// increase on slow servers
-		$zz_setting['syndication_trigger_timeout_ms'] = 100;
-	}
-	
+
 	// -------------------------------------------------------------------------
 	// Paths
 	// -------------------------------------------------------------------------

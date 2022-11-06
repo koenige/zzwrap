@@ -454,8 +454,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				'content' => $content
 			]
 		];
-		if (!empty($zz_setting['syndication_timeout_ms'])) {
-			$opts['http']['timeout'] = $zz_setting['syndication_timeout_ms'] / 1000;
+		if ($timeout_ms = wrap_get_setting('syndication_timeout_ms')) {
+			$opts['http']['timeout'] = $timeout_ms / 1000;
 		}
 		$context = stream_context_create($opts);
 		set_error_handler('wrap_syndication_errors');
@@ -499,11 +499,11 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				// without NOSIGNAL, cURL might terminate immediately
 				// when using the standard name resolver
 				curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-				curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['syndication_trigger_timeout_ms']);
+				curl_setopt($ch, CURLOPT_TIMEOUT_MS, wrap_get_setting('syndication_trigger_timeout_ms'));
 			}
 		}
-		if (!$timeout_ignore AND !empty($zz_setting['syndication_timeout_ms'])) {
-			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $zz_setting['syndication_timeout_ms']);
+		if (!$timeout_ignore AND $timeout_ms = wrap_get_setting('syndication_timeout_ms')) {
+			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout_ms);
 		}
 		if (in_array($method, ['POST', 'PATCH'])) {
 			curl_setopt($ch, CURLOPT_POST, true);
