@@ -1181,6 +1181,8 @@ function wrap_sql_file($filename, $key_separator = '') {
 				$line = rtrim($line, ';');
 				$data[$key][$subkey] .= $line.' ';
 			} else {
+				if (str_ends_with($key, '__fields'))
+					$line = trim(rtrim(ltrim(trim($line), '/*'), '*/'));
 				if (empty($data[$key][$index[$key]])) {
 					$data[$key][$index[$key]] = '';
 				}
@@ -1248,7 +1250,6 @@ function wrap_system_sql($subtree) {
 	if (empty($data)) {
 		$data = [];
 		$files = wrap_collect_files('configuration/system.sql', 'modules/custom');
-		
 		foreach ($files as $filename) {
 			$data = wrap_array_merge($data, wrap_sql_file($filename, '_'));
 		}

@@ -280,8 +280,8 @@ function wrap_look_for_page($zz_page) {
 	list($full_url, $leftovers) = wrap_look_for_placeholders($zz_page, $full_url);
 	
 	// For request, remove ending (.html, /), but not for page root
-	// core_pages_fields: notation like /* _latin1='%s' */
-	$identifier_template = trim(rtrim(ltrim(trim(wrap_sql('pages_fields')), '/*'), '*/'));
+	// core_pages__fields: notation like /* _latin1='%s' */
+	$identifier_template = trim(rtrim(ltrim(trim(wrap_sql('pages__fields')), '/*'), '*/'));
 	$end_params = [];
 	$data = [];
 	foreach ($full_url as $i => $my_url) {
