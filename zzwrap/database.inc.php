@@ -1255,7 +1255,9 @@ function wrap_sql_file($filename, $key_separator = '') {
 				if (empty($data[$key][$index[$key]])) {
 					$data[$key][$index[$key]] = '';
 				}
-				$data[$key][$index[$key]] .= rtrim($line, ';').' ';
+				$data[$key][$index[$key]] .= rtrim($line, ';');
+				if (!str_ends_with($key, '__table'))
+					$data[$key][$index[$key]] .= ' ';
 				if (substr($line, -1) === ';') $index[$key]++;
 			}
 		}
