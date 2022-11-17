@@ -3446,6 +3446,7 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	else
 		$this_setting = wrap_get_setting($setting);
 	if (!is_array($value)) $value = [$value];
+	if (!$this_setting) return '';
 	$required_count = substr_count($this_setting, '%');
 	if (count($value) < $required_count) {
 		if (!empty($zz_setting['backend_path']))
