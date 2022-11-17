@@ -318,9 +318,9 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	}
 
 	// error pages have no last update
-	$page[wrap_sql('lastupdate')] = false;
-	if (!empty($zz_page['db'][wrap_sql('lastupdate')])) {
-		$zz_page['db'][wrap_sql('lastupdate')] = false;
+	$page[wrap_sql_fields('page_last_update')] = false;
+	if (!empty($zz_page['db'][wrap_sql_fields('page_last_update')])) {
+		$zz_page['db'][wrap_sql_fields('page_last_update')] = false;
 	}
 	
 	// -- 3. output HTTP header

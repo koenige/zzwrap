@@ -281,7 +281,7 @@ function wrap_look_for_page($zz_page) {
 	
 	// For request, remove ending (.html, /), but not for page root
 	// core_pages__fields: notation like /* _latin1='%s' */
-	$identifier_template = trim(rtrim(ltrim(trim(wrap_sql('pages__fields')), '/*'), '*/'));
+	$identifier_template = wrap_sql_fields('core_pages');
 	$end_params = [];
 	$data = [];
 	foreach ($full_url as $i => $my_url) {
@@ -331,7 +331,7 @@ function wrap_look_for_page($zz_page) {
 	$identifiers = array_unique($identifiers);
 	$sql = sprintf(wrap_sql('pages'), implode(',', $identifiers));
 	if (!wrap_rights('preview')) {
-		$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
+		$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	}
 	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	if (!$pages) return false;
@@ -631,8 +631,8 @@ function wrap_check_canonical($zz_page, $page) {
 		AND substr($zz_page['db']['identifier'], -1) === '*') {
 		if (empty($page['url_ending'])) $page['url_ending'] = 'none';
 	}
-	if (!empty($zz_page['db'][wrap_sql('ending')])) {
-		$ending = $zz_page['db'][wrap_sql('ending')];
+	if (!empty($zz_page['db'][wrap_sql_fields('page_ending')])) {
+		$ending = $zz_page['db'][wrap_sql_fields('page_ending')];
 		// if brick_format() returns a page ending, use this
 		if (isset($page['url_ending'])) $ending = $page['url_ending'];
 		$zz_page['url'] = wrap_check_canonical_ending($ending, $zz_page['url']);
@@ -801,7 +801,7 @@ function wrap_check_redirects($page_url) {
 	if (empty($zz_setting['check_redirects'])) return false;
 	$url = wrap_read_url($zz_page['url']);
 	$where_language = (!empty($_GET['lang']) AND !is_array($_GET['lang']))
-		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql_field('default_redirects_old_url')
+		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql_field('core_redirects_old_url')
 			, wrap_db_escape($url['db']), wrap_db_escape($_GET['lang']))
 		: '';
 	$sql = sprintf(wrap_sql('redirects')
@@ -895,7 +895,7 @@ function wrap_check_redirects_placeholder($url, $position) {
 	elseif ($last_separator === '-') $last_separator = '/';
 	// If there's an asterisk (*) at the end of the redirect
 	// the cut part will be pasted to the end of the string
-	$field_name = wrap_sql_field('default_redirects_new_url');
+	$field_name = wrap_sql_field('core_redirects_new_url');
 	if (substr($redir[$field_name], -1) === '*') {
 		$parameter = substr($parameter, 1);
 		$redir[$field_name] = substr($redir[$field_name], 0, -1).$last_separator.$parameter;
@@ -1173,7 +1173,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 				$new = $page['redirect'];
 			}
 		} else {
-			$field_name = wrap_sql_field('default_redirects_new_url');
+			$field_name = wrap_sql_field('core_redirects_new_url');
 			$new = $redir[$field_name];
 		}
 		$newurl = parse_url($new);

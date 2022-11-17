@@ -1024,16 +1024,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$set['core'] = true;
 			$zz_sql += wrap_system_sql('core');
 
-			$zz_sql['is_public'] = 'live = "yes"';
-
-			$zz_sql['page_id']		= 'page_id';
-			$zz_sql['content']		= 'content';
-			$zz_sql['title']		= 'title';
-			$zz_sql['ending']		= 'ending';
-			$zz_sql['identifier']	= 'identifier';
-			$zz_sql['lastupdate']	= 'last_update';
-			$zz_sql['author_id']	= 'author_person_id';
-
 			if (!empty($zz_conf['translations_of_fields'])) {
 				$zz_sql['translations'] = '';
 				$zz_sql['translation_matrix_pages'] = '/*_PREFIX_*/webpages';

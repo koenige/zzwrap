@@ -237,7 +237,7 @@ function wrap_get_menu($page) {
 	global $zz_page;
 	
 	if ($sql = wrap_sql('menu_hierarchy') AND !empty($zz_page['db'])) {
-		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql('page_id')], $sql);
+		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql_fields('page_id')], $sql);
 	} else {
 		$hierarchy = [];
 	}
@@ -298,7 +298,7 @@ function wrap_get_menu($page) {
 				} else {
 					$menu[$id][$nav_id]['below']
 						= (substr($zz_setting['request_uri'], 0, ($item['url'] ? strlen($item['url']) : 0)) === $item['url']) ? true
-						: (in_array($item[wrap_sql('page_id')], $hierarchy) ? true : false);
+						: (in_array($item[wrap_sql_fields('page_id')], $hierarchy) ? true : false);
 				}
 			}
 			if ($menu[$id][$nav_id]['below'] OR $menu[$id][$nav_id]['current_page']) {
@@ -360,9 +360,9 @@ function wrap_get_menu_webpages() {
 
 	$menu = [];
 	// get top menus
-	$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
+	$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 	if (!$entries) return false;
-	if ($menu_table = wrap_sql_table('default_menu')) {
+	if ($menu_table = wrap_sql_table('page_menu')) {
 		$entries = wrap_translate($entries, $menu_table);
 		$entries = wrap_get_menu_shorten($entries, $sql);
 	}
@@ -387,8 +387,8 @@ function wrap_get_menu_webpages() {
 	foreach ($levels as $level) {
 		if (!$sql = wrap_sql('menu_level'.$level)) continue;
 		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
-		$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
-		if ($menu_table = wrap_sql_table('default_menu'))
+		$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
+		if ($menu_table = wrap_sql_table('page_menu'))
 			$entries = wrap_translate($entries, $menu_table);
 		foreach ($entries as $line) {
 			if (empty($line['top_ids'])) {
@@ -436,7 +436,7 @@ function wrap_get_menu_shorten($entries, $sql) {
 function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
 	if (!$line['url'] OR (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
 		AND substr($line['url'], -6) !== '*.html')) {
-		if ($id === 'page_id') $id = wrap_sql('page_id');
+		if ($id === 'page_id') $id = wrap_sql_fields('page_id');
 		$menu[$menu_key][$line[$id]] = $line;
 		return $menu[$menu_key];
 	}
@@ -512,7 +512,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 	} else {
 		// as default, menu comes from database table 'webpages'
 		// wrap_get_menu_webpages()
-		$fn_page_id = wrap_sql('page_id');
+		$fn_page_id = wrap_sql_fields('page_id');
 	}
 	
 	if (empty($nav[$menu_name]) AND !$page_id) {
@@ -614,14 +614,14 @@ function wrap_get_top_nav_id($menu) {
 	// so exit, this page is not in navigation
 	if (empty($zz_page['db'])) return false;
 
-	$breadcrumbs = wrap_get_breadcrumbs($zz_page['db'][wrap_sql('page_id')]);
+	$breadcrumbs = wrap_get_breadcrumbs($zz_page['db'][wrap_sql_fields('page_id')]);
 	array_pop($breadcrumbs); // own page, we do not need this
 	while ($breadcrumbs) {
 		$upper_breadcrumb = array_pop($breadcrumbs);
 		// set current_page for next upper page in hierarchy
 		foreach (array_keys($menu) as $main_nav_id) {
 			foreach ($menu[$main_nav_id] as $nav_id => $element) {
-				if (is_array($element) AND $element[wrap_sql('page_id')] == $upper_breadcrumb['page_id']) {
+				if (is_array($element) AND $element[wrap_sql_fields('page_id')] == $upper_breadcrumb['page_id']) {
 					// current_page in $menu may be set to true
 					// without problems since $menu is not used for anything anymore
 					// i. e. there will still be a link to the navigation menu entry
@@ -686,8 +686,8 @@ function wrap_get_breadcrumbs($page_id) {
 
 	$breadcrumbs = [];
 	// get all webpages
-	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql('is_public'));
-	$pages = wrap_db_fetch($sql, wrap_sql('page_id'));
+	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
+	$pages = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 	if ($zz_conf['translations_of_fields']) {
 		$pages = wrap_translate($pages, wrap_sql('translation_matrix_breadcrumbs'), '', false);
 	}
@@ -715,7 +715,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$breadcrumbs[] = [
 		'title' => $pages[$page_id]['title'],
 		'url_path' => $pages[$page_id]['identifier'],
-		'page_id' => $pages[$page_id][wrap_sql('page_id')]
+		'page_id' => $pages[$page_id][wrap_sql_fields('page_id')]
 	];
 	if ($pages[$page_id]['mother_page_id'] 
 		&& !empty($pages[$pages[$page_id]['mother_page_id']]))
@@ -839,7 +839,7 @@ function wrap_page_last_update($page) {
 		$last_update = $page['last_update'];
 	}
 	if (!$last_update) {
-		$last_update = $zz_page['db'][wrap_sql('lastupdate')];
+		$last_update = $zz_page['db'][wrap_sql_fields('page_last_update')];
 		$last_update = $last_update;
 	}
 	return wrap_date($last_update);
@@ -856,7 +856,7 @@ function wrap_page_media($page) {
 	global $zz_page;
 	$media = !empty($page['media']) ? $page['media'] : [];
 	if (function_exists('wrap_get_media')) {
-		$page_id = $zz_page['db'][wrap_sql('page_id')];
+		$page_id = $zz_page['db'][wrap_sql_fields('page_id')];
 		$media = array_merge(wrap_get_media($page_id), $media);
 	}
 	return $media;
@@ -874,7 +874,7 @@ function wrap_page_h1($page) {
 	if (!empty($page['title']))
 		$title = $page['title'];
 	else
-		$title = $zz_page['db'][wrap_sql('title')];
+		$title = $zz_page['db'][wrap_sql_fields('page_title')];
 	if (!empty($zz_setting['translate_page_title']))
 		$title = wrap_text($title);
 	return $title;
@@ -891,7 +891,7 @@ function wrap_page_title($page) {
 	global $zz_page;
 
 	if ($zz_page['url']['full']['path'] === '/') {
-		$pagetitle = strip_tags($zz_page['db'][wrap_sql('title')]);
+		$pagetitle = strip_tags($zz_page['db'][wrap_sql_fields('page_title')]);
 		$pagetitle = sprintf(wrap_get_setting('template_pagetitle_home'), $pagetitle, $page['project']);
 	} else {
 		$pagetitle = strip_tags($page['title']);
@@ -952,7 +952,7 @@ function wrap_get_page() {
 		$page['query_strings'][] = 'v';
 		$page['query_strings'][] = 'nocache';
 	} else {
-		$page = brick_format($zz_page['db'][wrap_sql('content')], $zz_page['db']['parameter']);
+		$page = brick_format($zz_page['db'][wrap_sql_fields('page_content')], $zz_page['db']['parameter']);
 	}
 	wrap_page_check_if_error($page);
 
@@ -975,9 +975,9 @@ function wrap_get_page() {
 	$page['title']		= wrap_page_h1($page);
 	!empty($page['project']) OR $page['project'] = wrap_text(wrap_get_setting('project'));
 	$page['pagetitle']	= wrap_page_title($page);
-	$page[wrap_sql('lastupdate')] = wrap_page_last_update($page);
-	if (!empty($zz_page['db'][wrap_sql('author_id')]))
-		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql('author_id')]);
+	$page[wrap_sql_fields('page_last_update')] = wrap_page_last_update($page);
+	if (!empty($zz_page['db'][wrap_sql_fields('page_author_id')]))
+		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql_fields('page_author_id')]);
 
 	return $page;
 }
@@ -1053,7 +1053,7 @@ function wrap_htmlout_page($page) {
 	$blocks = wrap_check_blocks($zz_setting['template']);
 	if (in_array('breadcrumbs', $blocks)
 		AND (empty($page['breadcrumbs']) OR is_array($page['breadcrumbs']))) {
-		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql('page_id')], $page['breadcrumbs']);
+		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql_fields('page_id')], $page['breadcrumbs']);
 	}
 	if (in_array('nav', $blocks) AND $zz_conf['db_connection']) {
 		// get menus, if database connection active
