@@ -1169,6 +1169,32 @@ function wrap_sql_query($key, $filename = 'queries') {
 }
 
 /**
+ * read a table name from queries.sql
+ *
+ * @param string $key
+ * @return string
+ */
+function wrap_sql_table($key, $filename = 'queries') {
+	$key .= '__table';
+	$def = wrap_sql_query($key, $filename);
+	if (is_array($def)) $def = reset($def);
+	return $def;
+}
+
+/**
+ * read one or more fields from queries.sql
+ *
+ * @param string $key
+ * @return string
+ */
+function wrap_sql_fields($key, $filename = 'queries') {
+	$key .= '__fields';
+	$def = wrap_sql_query($key, $filename);
+	if (is_array($def)) $def = implode(', ', $def);
+	return $def;
+}
+
+/**
  * read a .sql file
  *
  * @param string $filename

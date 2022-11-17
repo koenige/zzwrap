@@ -148,10 +148,10 @@ function wrap_prepare_url($url) {
 function wrap_language_get_text($language) {
 	$sql = 'SELECT text_id, text, more_text
 		FROM %s';
-	$sql = sprintf($sql, wrap_sql_query('default_text__table'));
+	$sql = sprintf($sql, wrap_sql_table('default_text'));
 	$sourcetext = wrap_db_fetch($sql, 'text_id');
 	if (!$sourcetext) return [];
-	$translations = wrap_translate($sourcetext, wrap_sql_query('default_text__table'), false, true, $language);
+	$translations = wrap_translate($sourcetext, wrap_sql_table('default_text'), false, true, $language);
 
 	$text = [];
 	foreach ($sourcetext as $id => $values) {
