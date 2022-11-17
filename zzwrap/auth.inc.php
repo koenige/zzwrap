@@ -798,7 +798,7 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
 		$values['action'] = 'update';
 		$values['POST']['login_id'] = $login_id;
 		$values['POST']['secure_password'] = 'yes';
-		$values['POST'][wrap_sql_field('default_password')] = $pass;
+		$values['POST'][wrap_sql_field('auth_password')] = $pass;
 		$ops = zzform_multi('logins', $values);
 		return true;
 	default:

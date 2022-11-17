@@ -1026,8 +1026,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 			if (!empty($zz_conf['translations_of_fields'])) {
 				$zz_sql['translations'] = '';
-				$zz_sql['translation_matrix_pages'] = '/*_PREFIX_*/webpages';
-				$zz_sql['translation_matrix_breadcrumbs'] = '/*_PREFIX_*/webpages';
 
 				if (!empty($zz_setting['default_source_language'])) {
 					$zz_sql['translations'] = sprintf('SELECT translation_id, translationfield_id, translation, field_id,

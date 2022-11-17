@@ -689,7 +689,7 @@ function wrap_get_breadcrumbs($page_id) {
 	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	$pages = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 	if ($zz_conf['translations_of_fields']) {
-		$pages = wrap_translate($pages, wrap_sql('translation_matrix_breadcrumbs'), '', false);
+		$pages = wrap_translate($pages, wrap_sql_table('default_translation_breadcrumbs'), '', false);
 	}
 
 	// get all breadcrumbs recursively

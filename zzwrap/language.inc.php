@@ -347,13 +347,9 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	global $zz_conf;
 	global $zz_setting;
 	if (empty($zz_conf['translations_of_fields'])) return $data;
+	if (!wrap_get_setting('default_source_language')) return $data;
 	$translation_sql = wrap_sql('translations');
-	if ($translation_sql === NULL) {
-		wrap_error('Please set `$zz_sql["translations"]`!', E_USER_ERROR);
-		return $data;
-	} elseif (!$translation_sql) {
-		return $data;
-	}
+	if (!$translation_sql) return $data;
 
 	// get page language: $zz_setting['lang']
 	if (!$target_language) {
@@ -572,7 +568,7 @@ function wrap_translate_page() {
 	if (empty($zz_page['db'])) return false; // theme files
 	$my_page = wrap_translate([
 		$zz_page['db'][wrap_sql_fields('page_id')] => $zz_page['db']],
-		wrap_sql('translation_matrix_pages')
+		wrap_sql_table('default_translation_pages')
 	);
 	$zz_page['db'] = array_shift($my_page);
 	return true;
