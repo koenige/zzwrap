@@ -282,7 +282,7 @@ function wrap_install_settings_folders() {
 		'_inc/custom/zzbrick_forms', '_inc/custom/zzbrick_make', 
 		'_inc/custom/zzbrick_page', '_inc/custom/zzbrick_request', 
 		'_inc/custom/zzbrick_request_get', '_inc/custom/zzbrick_tables', 
-		'_inc/custom/zzform', 'configuration', 'docs/data', 'docs/examples',
+		'_inc/custom/zzform', '_inc/custom/configuration', 'docs/data', 'docs/examples',
 		'docs/screenshots', 'docs/templates', 'docs/todo'
 	];
 	foreach ($folders as $folder) {
