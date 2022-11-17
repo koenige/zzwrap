@@ -1129,6 +1129,46 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 }
 
 /**
+ * read a query from [filename].sql, default: queries.sql
+ *
+ * @param string $key
+ * @return mixed
+ */
+function wrap_sql_query($key, $filename = 'queries') {
+	static $queries;
+	static $collected;
+	if (empty($queries)) $queries = [];
+	if (empty($collected)) $collected = [];
+	
+	$filename = sprintf('configuration/%s.sql', $filename);
+
+	if (!in_array('custom', $collected)) {
+		// first check custom queries, won’t be overwritten by later queries
+		$files = wrap_collect_files($filename, 'custom');
+		if ($files) {
+			$file = reset($files);
+			$queries = wrap_sql_file($file);
+		}
+	}
+	$package = substr($key, 0, strpos($key, '_'));
+	if (!in_array($package, $collected)) {
+		$files = wrap_collect_files($filename, $package);
+		if ($files) {
+			$file = reset($files);
+			$package_queries = wrap_sql_file($file);
+			foreach ($package_queries as $p_key => $p_query) {
+				if (!str_starts_with($p_key, $package.'_')) continue;
+				if (array_key_exists($p_key, $queries)) continue;
+				$queries[$p_key] = $p_query;
+			}
+		}
+	}
+	if (!array_key_exists($key, $queries)) return '';
+	if (count($queries[$key]) > 1) return $queries[$key];
+	return $queries[$key][0];
+}
+
+/**
  * read a .sql file
  *
  * @param string $filename
