@@ -540,7 +540,6 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
  * @return array
  */
 function wrap_translate_field_list($field_key, $db_field) {
-	global $zz_conf;
 	static $data;
 	$key = sprintf('%s/%s', $field_key, $db_field);
 	if (isset($data[$key])) return $data[$key];
@@ -556,7 +555,7 @@ function wrap_translate_field_list($field_key, $db_field) {
 			FROM %s
 			WHERE db_name = "%%s" AND table_name = "%%s" AND field_name = "%%s"';
 	}
-	$sql = sprintf($sql, $field_key, $zz_conf['translations_table']);
+	$sql = sprintf($sql, $field_key, wrap_sql_table('default_translationfields'));
 	$sql = vsprintf($sql, $field);
 	$data[$key] = wrap_db_fetch($sql, ['field_type', 'translationfield_id']);
 	return $data[$key];

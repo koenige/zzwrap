@@ -685,14 +685,6 @@ function wrap_set_defaults_post_conf() {
 		$zz_conf['debug']			= false;
 	
 	// -------------------------------------------------------------------------
-	// Database structure
-	// -------------------------------------------------------------------------
-	
-	if (!empty($zz_conf['translations_of_fields']) AND empty($zz_conf['translations_table']))
-		$zz_conf['translations_table']  = '/*_PREFIX_*/_translationfields';
-		
-	
-	// -------------------------------------------------------------------------
 	// Authentication
 	// -------------------------------------------------------------------------
 	
