@@ -112,7 +112,7 @@ function wrap_install_module($module) {
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/database.inc.php';
 
-	$logging_table = wrap_database_table_check(wrap_get_setting('zzform_logging_table'), true);
+	$logging_table = wrap_database_table_check(wrap_sql_query('zzform_logging__table'), true);
 	
 	$files = wrap_collect_files('configuration/install.sql', $module);
 	if (!$files) return false;
@@ -132,7 +132,7 @@ function wrap_install_module($module) {
 			// install already in logging table?
 			if ($logging_table) {
 				$sql = 'SELECT log_id FROM %s WHERE query = "%s"';
-				$sql = sprintf($sql, wrap_get_setting('zzform_logging_table'), wrap_db_escape($query));
+				$sql = sprintf($sql, wrap_sql_query('zzform_logging__table'), wrap_db_escape($query));
 				$record = wrap_db_fetch($sql);
 				if ($record) continue;
 			}
