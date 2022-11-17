@@ -1132,28 +1132,42 @@ function wrap_sql_query($key, $filename = 'queries') {
 	static $collected;
 	if (empty($queries)) $queries = [];
 	if (empty($collected)) $collected = [];
+
+	$prefix = $package = substr($key, 0, strpos($key, '_'));
+	if (in_array($package, ['page', 'auth', 'core', 'ids'])) {
+		$package = 'default';
+		$filename = 'system';
+		$prefix_check = ['page', 'auth', 'core', 'ids'];
+	} else {
+		$prefix_check = [$package];
+	}
 	
 	$filename = sprintf('configuration/%s.sql', $filename);
 
-	if (!in_array('custom', $collected)) {
+	if (!in_array('custom-'.$filename, $collected)) {
 		// first check custom queries, won’t be overwritten by later queries
 		$files = wrap_collect_files($filename, 'custom');
 		if ($files) {
 			$file = reset($files);
-			$queries = wrap_sql_file($file);
+			$custom_queries = wrap_sql_file($file);
+			foreach ($custom_queries as $p_key => $p_query) {
+				$queries[$p_key] = $p_query;
+			}
 		}
+		$collected[] = 'custom-'.$filename;
 	}
-	$package = substr($key, 0, strpos($key, '_'));
-	if (!in_array($package, $collected)) {
+	if (!in_array($package.'-'.$filename, $collected)) {
 		$files = wrap_collect_files($filename, $package);
 		if ($files) {
 			$file = reset($files);
 			$package_queries = wrap_sql_file($file);
 			foreach ($package_queries as $p_key => $p_query) {
-				if (!str_starts_with($p_key, $package.'_')) continue;
+				$p_query_prefix = substr($p_key, 0, strpos($p_key, '_'));
+				if (!in_array($p_query_prefix, $prefix_check)) continue;
 				if (array_key_exists($p_key, $queries)) continue;
 				$queries[$p_key] = $p_query;
 			}
+			$collected[] = $package.'-'.$filename;
 		}
 	}
 	if (!array_key_exists($key, $queries)) return '';
@@ -1165,26 +1179,28 @@ function wrap_sql_query($key, $filename = 'queries') {
  * read a table name from queries.sql
  *
  * @param string $key
+ * @param string $filename (optional)
  * @return string
  */
 function wrap_sql_table($key, $filename = 'queries') {
 	$key .= '__table';
 	$def = wrap_sql_query($key, $filename);
 	if (is_array($def)) $def = reset($def);
-	return $def;
+	return trim($def);
 }
 
 /**
  * read one or more fields from queries.sql
  *
  * @param string $key
+ * @param string $filename (optional)
  * @return string
  */
 function wrap_sql_fields($key, $filename = 'queries') {
 	$key .= '__fields';
 	$def = wrap_sql_query($key, $filename);
 	if (is_array($def)) $def = implode(', ', $def);
-	return $def;
+	return trim($def);
 }
 
 /**
@@ -1248,9 +1264,7 @@ function wrap_sql_file($filename, $key_separator = '') {
 				if (empty($data[$key][$index[$key]])) {
 					$data[$key][$index[$key]] = '';
 				}
-				$data[$key][$index[$key]] .= rtrim($line, ';');
-				if (!str_ends_with($key, '__table'))
-					$data[$key][$index[$key]] .= ' ';
+				$data[$key][$index[$key]] .= rtrim($line, ';').' ';
 				if (substr($line, -1) === ';') $index[$key]++;
 			}
 		}
