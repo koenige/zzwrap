@@ -1177,6 +1177,7 @@ function wrap_sql_query($key, $filename = 'queries') {
  * @return array lines, grouped
  */
 function wrap_sql_file($filename, $key_separator = '') {
+	global $zz_conf;
 	$data = [];
 	$lines = file($filename);
 	foreach ($lines as $line) {
@@ -1221,8 +1222,10 @@ function wrap_sql_file($filename, $key_separator = '') {
 				$line = rtrim($line, ';');
 				$data[$key][$subkey] .= $line.' ';
 			} else {
-				if (str_ends_with($key, '__fields'))
+				if (str_ends_with($key, '__fields') OR str_ends_with($key, '__table'))
 					$line = trim(rtrim(ltrim(trim($line), '/*'), '*/'));
+				if (str_ends_with($key, '__table'))
+					$line = $zz_conf['prefix'].$line;
 				if (empty($data[$key][$index[$key]])) {
 					$data[$key][$index[$key]] = '';
 				}
