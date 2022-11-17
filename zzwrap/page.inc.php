@@ -362,7 +362,7 @@ function wrap_get_menu_webpages() {
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
 	if (!$entries) return false;
-	if ($menu_table = wrap_sql('menu_table')) {
+	if ($menu_table = wrap_sql_table('default_menu')) {
 		$entries = wrap_translate($entries, $menu_table);
 		$entries = wrap_get_menu_shorten($entries, $sql);
 	}
@@ -388,7 +388,7 @@ function wrap_get_menu_webpages() {
 		if (!$sql = wrap_sql('menu_level'.$level)) continue;
 		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
 		$entries = wrap_db_fetch($sql, wrap_sql('page_id'));
-		if ($menu_table = wrap_sql('menu_table'))
+		if ($menu_table = wrap_sql_table('default_menu'))
 			$entries = wrap_translate($entries, $menu_table);
 		foreach ($entries as $line) {
 			if (empty($line['top_ids'])) {

@@ -1026,9 +1026,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 
 			$zz_sql['is_public'] = 'live = "yes"';
 
-			$zz_sql['redirects_new_fieldname'] = 'new_url';
-			$zz_sql['redirects_old_fieldname'] = 'old_url';
-
 			$zz_sql['page_id']		= 'page_id';
 			$zz_sql['content']		= 'content';
 			$zz_sql['title']		= 'title';
@@ -1060,8 +1057,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($set['page'])) return true;
 			$set['page'] = true;
 			$zz_sql += wrap_system_sql('page');
-
-			$zz_sql['menu_table'] = '/*_PREFIX_*/webpages';
 			break;
 		case 'auth':
 			if (!empty($set['auth'])) return true;
@@ -1069,8 +1064,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql += wrap_system_sql('auth');
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = [$zz_setting['hostname']];
-
-			$zz_sql['password'] = 'password';
 
 			break;
 		default:
