@@ -143,16 +143,15 @@ function wrap_prepare_url($url) {
  * Gets text from a database table
  * 
  * @param string $language (ISO 639-1 two letter code)
- * @global array $zz_conf
  * @return array $text
  */
 function wrap_language_get_text($language) {
-	global $zz_conf;
 	$sql = 'SELECT text_id, text, more_text
-		FROM '.$zz_conf['text_table'];
+		FROM %s';
+	$sql = sprintf($sql, wrap_sql_query('default_text__table'));
 	$sourcetext = wrap_db_fetch($sql, 'text_id');
 	if (!$sourcetext) return [];
-	$translations = wrap_translate($sourcetext, $zz_conf['text_table'], false, true, $language);
+	$translations = wrap_translate($sourcetext, wrap_sql_query('default_text__table'), false, true, $language);
 
 	$text = [];
 	foreach ($sourcetext as $id => $values) {
@@ -259,7 +258,7 @@ function wrap_text($string, $params = []) {
 		$text_included = $language;
 
 		// get translations from database
-		if (!empty($zz_conf['text_table'])) {
+		if (wrap_get_setting('translate_text_db')) {
 			$text = array_merge($text, wrap_language_get_text($language));
 		}
 	}
