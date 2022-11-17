@@ -4,11 +4,11 @@
  * zzwrap
  * Language and internationalization functions
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018, 2020-2022 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2011, 2014-2018, 2020-2022 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -87,7 +87,7 @@ function wrap_language_redirect() {
 
 /**
  * Reads the language from the URL and returns without it
- * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
+ * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurÃ¼ck 
  * 
  * @param array $url ($zz_page['url'])
  * @global array $zz_setting
@@ -107,12 +107,8 @@ function wrap_prepare_url($url) {
 		$pos = strlen($url['full']['path']);
 	}
 	$lang = substr($url['full']['path'], 1, $pos);
-	// check if it's a language
-	if ($sql = wrap_sql('language') AND $zz_conf['db_connection']) {
-		// read from sql query
-		$sql = sprintf($sql, wrap_db_escape($lang));
-		$lang = wrap_db_fetch($sql, '', 'single value');
-	} elseif (!empty($zz_setting['languages_allowed'])) {
+	// check if itâ€™s a language
+	if (!empty($zz_setting['languages_allowed'])) {
 		// read from array
 		if (!in_array($lang, $zz_setting['languages_allowed'])) 
 			$lang = false;
@@ -575,7 +571,7 @@ function wrap_translate_page() {
 	if (!$zz_conf['translations_of_fields']) return false;
 	if (empty($zz_page['db'])) return false; // theme files
 	$my_page = wrap_translate([
-		$zz_page['db'][wrap_sql('page_id')] => $zz_page['db']],
+		$zz_page['db'][wrap_sql_fields('page_webpages_page_id')] => $zz_page['db']],
 		wrap_sql('translation_matrix_pages')
 	);
 	$zz_page['db'] = array_shift($my_page);

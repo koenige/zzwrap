@@ -1034,8 +1034,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql['lastupdate']	= 'last_update';
 			$zz_sql['author_id']	= 'author_person_id';
 
-			$zz_sql['language'] = false;
-
 			if (!empty($zz_conf['translations_of_fields'])) {
 				$zz_sql['translations'] = '';
 				$zz_sql['translation_matrix_pages'] = '/*_PREFIX_*/webpages';
