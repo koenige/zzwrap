@@ -193,6 +193,8 @@ function wrap_db_charset($charset = '') {
  */
 function wrap_db_prefix($sql) {
 	global $zz_conf;
+	if (!$sql) return $sql;
+	
 	$prefix = '/*_PREFIX_*/';
 	if (strstr($sql, $prefix)) {
 		$sql = str_replace($prefix, $zz_conf['prefix'], $sql);
@@ -1157,6 +1159,7 @@ function wrap_sql_query($key, $filename = 'queries') {
 		}
 	}
 	if (!array_key_exists($key, $queries)) return '';
+	$queries[$key] = wrap_sql_placeholders($queries[$key]);
 	if (count($queries[$key]) > 1) return $queries[$key];
 	return $queries[$key][0];
 }
@@ -1328,26 +1331,33 @@ function wrap_system_sql($subtree) {
 			unset($data[$subtree][$key]);
 		}
 	}
-	$data[$subtree] = wrap_system_sql_placeholders($data[$subtree]);
+	$data[$subtree] = wrap_sql_placeholders($data[$subtree]);
 	if ($separate)
-		$data[$subtree] += wrap_system_sql_placeholders($separate);
+		$data[$subtree] += wrap_sql_placeholders($separate);
 	return $data[$subtree];
 }
 
 /**
- * replace placeholders in system.sql queries
+ * replace placeholders in queries
  *
  * _PREFIX_ with $zz_conf['prefix']
  * _ID LANGUAGES ENG_ with wrap_id('languages', 'eng')
  * _ID LANGUAGES SETTING LANG3_ with wrap_id('languages', $zz_setting['lang3'])
- * _ID SETTING LANG3_ with $zz_setting['lang3']
+ * _SETTING LANG3_ with $zz_setting['lang3']
  *
- * @param array $queries
+ * @param mixed $queries
  * @return array
  */
-function wrap_system_sql_placeholders($queries) {
+function wrap_sql_placeholders($queries) {
 	global $zz_setting;
 	global $zz_conf;
+	
+	if (!is_array($queries)) {
+		$queries = [$queries];
+		$single_query = true;
+	} else {
+		$single_query = false;
+	}
 
 	$placeholders = ['ID', 'SETTING'];
 	foreach ($queries as $key => $query) {
@@ -1355,48 +1365,49 @@ function wrap_system_sql_placeholders($queries) {
 			$query = $queries[$key] = str_replace('/*_PREFIX_*/', $zz_conf['prefix'], $query);
 		}
 		foreach ($placeholders as $placeholder) {
-			if (strstr($query, '/*_'.$placeholder)) {
-				$parts = explode('/*_'.$placeholder, $query);
-				$query = '';
-				foreach ($parts as $index => $part) {
-					if (!$index) {
-						$query .= $part;
-						continue;
-					}
-					$part = explode('_*/', $part);
-					$part[0] = trim(strtolower($part[0]));
-					$part[0] = explode(' ', $part[0]);
-					$val = false;
-					switch ($placeholder) {
-					case 'ID':
-						if (count($part[0]) === 3 AND $part[0][1] === 'setting') {
-							$val = wrap_id($part[0][0], $zz_setting[$part[0][2]], 'check');
-						} else {
-							$val = wrap_id($part[0][0], $part[0][1], 'check');
-						}
-						break;
-					case 'SETTING':
-						if (array_key_exists($part[0][0], $zz_setting))
-							$val = $zz_setting[$part[0][0]];
-						break;
-					}
-					if ($val) $part[0] = $val;
-					else {
-						if ($placeholder === 'SETTING') {
-							// no value available
-							wrap_error(sprintf(
-								'Unable to replace placeholder %s (%s)'
-								, $placeholder, implode(': ', $part[0])
-							));
-						} // do not log if ID is missing
-						$part[0] = 0;
-					}
-					$query .= implode('', $part);
+			if (!strstr($query, '/*_'.$placeholder)) continue;
+			$parts = explode('/*_'.$placeholder, $query);
+			$query = '';
+			foreach ($parts as $index => $part) {
+				if (!$index) {
+					$query .= $part;
+					continue;
 				}
-				$queries[$key] = $query;
+				$part = explode('_*/', $part);
+				$part[0] = trim(strtolower($part[0]));
+				$part[0] = explode(' ', $part[0]);
+				$val = false;
+				switch ($placeholder) {
+				case 'ID':
+					if (count($part[0]) === 3 AND $part[0][1] === 'setting') {
+						$val = wrap_id($part[0][0], $zz_setting[$part[0][2]], 'check');
+					} else {
+						$val = wrap_id($part[0][0], $part[0][1], 'check');
+					}
+					break;
+				case 'SETTING':
+					if (array_key_exists($part[0][0], $zz_setting))
+						$val = $zz_setting[$part[0][0]];
+					break;
+				}
+				if ($val) $part[0] = $val;
+				else {
+					if ($placeholder === 'SETTING') {
+						// no value available
+						wrap_error(sprintf(
+							'Unable to replace placeholder %s (%s)'
+							, $placeholder, implode(': ', $part[0])
+						));
+					} // do not log if ID is missing
+					$part[0] = 0;
+				}
+				$query .= implode('', $part);
 			}
+			$queries[$key] = $query;
 		}
 	}
+	
+	if ($single_query) return reset($queries);
 	return $queries;
 }
 
