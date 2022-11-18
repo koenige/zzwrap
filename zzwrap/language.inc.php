@@ -348,7 +348,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	global $zz_setting;
 	if (empty($zz_conf['translations_of_fields'])) return $data;
 	if (!wrap_get_setting('default_source_language')) return $data;
-	$translation_sql = wrap_sql('translations');
+	$translation_sql = wrap_sql_query('default_translations');
 	if (!$translation_sql) return $data;
 
 	// get page language: $zz_setting['lang']

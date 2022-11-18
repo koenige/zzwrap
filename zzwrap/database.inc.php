@@ -1025,21 +1025,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($set['core'])) return true;
 			$set['core'] = true;
 			$zz_sql += wrap_system_sql('core');
-
-			if (!empty($zz_conf['translations_of_fields'])) {
-				$zz_sql['translations'] = '';
-
-				if (!empty($zz_setting['default_source_language'])) {
-					$zz_sql['translations'] = sprintf('SELECT translation_id, translationfield_id, translation, field_id,
-					"%s" AS source_language
-					FROM /*_PREFIX_*/_translations_%%s translations
-					LEFT JOIN /*_PREFIX_*/languages languages USING (language_id)
-					WHERE translationfield_id IN (%%s) 
-						AND field_id IN (%%s)
-						AND languages.iso_639_1 = "%%s"', $zz_setting['default_source_language']);
-				}
-			}
-			
 			break;
 		case 'page':
 			if (!empty($set['page'])) return true;
@@ -1052,7 +1037,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql += wrap_system_sql('auth');
 			if (empty($zz_sql['domain']))
 				$zz_sql['domain'] = [$zz_setting['hostname']];
-
 			break;
 		default:
 			if (!empty($set[$key])) return true;
