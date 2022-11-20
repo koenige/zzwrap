@@ -510,10 +510,6 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['custom_wrap_sql_dir']))	
 		$zz_setting['custom_wrap_sql_dir'] = $zz_setting['custom'].'/zzwrap_sql';
 
-	// customized access rights checks
-	if (empty($zz_setting['custom_rights_dir']))	
-		$zz_setting['custom_rights_dir'] = $zz_setting['custom'].'/zzbrick_rights';
-	
 	// modules
 	if (empty($zz_setting['modules_dir'])) {
 		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
@@ -541,7 +537,20 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['themes_dir'])) {
 		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
 	}
-	
+
+	// customized access rights checks
+	if (empty($zz_setting['custom_rights_dir'])) {
+		if (!empty($zz_setting['default_rights'])) {
+			$path = sprintf('%s/default/zzbrick_rights/%s', $zz_setting['modules_dir'], $zz_setting['default_rights']);
+			if (is_dir($path))
+				$zz_setting['custom_rights_dir'] = $path;
+		}
+		if (empty($zz_setting['custom_rights_dir']))
+			$zz_setting['custom_rights_dir'] = $zz_setting['custom'].'/zzbrick_rights';
+	}
+	$file = $zz_setting['custom_rights_dir'].'/access_rights.inc.php';
+	if (file_exists($file)) include_once $file;
+
 	if (!empty($zz_setting['cache_dir'])) {
 		$zz_setting['cache_dir_zz'] = empty($zz_setting['cache_directories'])
 			? $zz_setting['cache_dir'] : $zz_setting['cache_dir'].'/d';
