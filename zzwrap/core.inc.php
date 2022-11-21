@@ -2821,8 +2821,10 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 				if ($level === $setting) break;
 			}
 			$setting = $return;
-		} else {
+		} elseif ($setting) {
 			$setting = [$setting];
+		} else {
+			$setting = [];
 		}
 	}
 	return $setting;
