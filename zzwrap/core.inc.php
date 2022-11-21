@@ -2717,11 +2717,14 @@ function wrap_get_setting($key, $login_id = 0) {
 	global $zz_setting;
 	global $zz_conf;
 
+	$cfg = wrap_cfg_files('settings');
+
 	// setting is set in $zz_setting (from _settings-table or directly)
 	// if it is an array, check if all keys are there later
 	if (isset($zz_setting[$key]) AND !$login_id
 		AND (!is_array($zz_setting[$key]) OR is_numeric(key($zz_setting[$key])))
 	) {
+		$zz_setting[$key] = wrap_get_setting_prepare($zz_setting[$key], $key, $cfg);
 		return $zz_setting[$key];
 	}
 
@@ -2729,14 +2732,14 @@ function wrap_get_setting($key, $login_id = 0) {
 	if (!empty($zz_conf['db_connection']) AND $login_id) {
 		$values = wrap_setting_read($key, $login_id);
 		if (array_key_exists($key, $values)) {
-			return $values[$key];
+			return wrap_get_setting_prepare($values[$key], $key, $cfg);
 		}
 	}
 
 	// default value set in one of the current settings.cfg files?
-	$cfg = wrap_cfg_files('settings');
 	if (array_key_exists($key, $cfg)) {
-		return wrap_get_setting_default($key, $cfg[$key]);
+		$default = wrap_get_setting_default($key, $cfg[$key]);
+		return wrap_get_setting_prepare($default, $key, $cfg);
 	}
 
 	// check for keys that are arrays
@@ -2774,7 +2777,9 @@ function wrap_get_setting_default($key, $params) {
 	global $zz_setting;
 	global $zz_conf;
 
-	if (!empty($params['default'])) {
+	if (!empty($params['default_from_php_ini']) AND ini_get($params['default_from_php_ini'])) {
+		return ini_get($params['default_from_php_ini']);
+	} elseif (!empty($params['default'])) {
 		return wrap_setting_value($params['default']);
 	} elseif (!empty($params['default_from_setting'])) {
 		if (str_starts_with($params['default_from_setting'], 'zzform_')) {
@@ -2794,6 +2799,33 @@ function wrap_get_setting_default($key, $params) {
 		if ($path) return $zz_setting[$key];
 	}
 	return NULL;
+}
+
+/**
+ * prepare setting before returning, according to settings.cfg
+ *
+ * @param mixed $setting
+ * @param string $key
+ * @param array $cfg
+ * @return mixed
+ */
+function wrap_get_setting_prepare($setting, $key, $cfg) {
+	if (!array_key_exists($key, $cfg)) return $setting;
+	// type = list means values need to be array!
+	if (!empty($cfg[$key]['type']) AND $cfg[$key]['type'] === 'list' AND !is_array($setting)) {
+		if (!empty($cfg[$key]['levels'])) {
+			$levels = wrap_setting_value($cfg[$key]['levels']);
+			$return = [];
+			foreach ($levels as $level) {
+				$return[] = $level;
+				if ($level === $setting) break;
+			}
+			$setting = $return;
+		} else {
+			$setting = [$setting];
+		}
+	}
+	return $setting;
 }
 
 /** 
