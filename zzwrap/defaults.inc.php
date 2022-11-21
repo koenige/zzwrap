@@ -200,15 +200,11 @@ function wrap_set_defaults_pre_conf() {
 // Error Logging, Mail
 // -------------------------------------------------------------------------
 
-	$zz_conf['error_mail_level'] = ['error', 'warning'];
-	$zz_conf['error_handling']	= 'mail';
-	if ($zz_setting['local_access']) {
-		$zz_conf['error_handling']	= 'output';
-	}
-	if (!$zz_setting['local_access']) {
+	if ($zz_setting['local_access'])
+		$zz_setting['error_handling']	= 'output';
+	if (!$zz_setting['local_access'])
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
-	}
 
 // -------------------------------------------------------------------------
 // Authentication
@@ -609,28 +605,6 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	// Error Logging
 	// -------------------------------------------------------------------------
-	
-	if (!isset($zz_conf['error_log']['error']))
-		$zz_conf['error_log']['error']	= ini_get('error_log');
-	
-	if (!isset($zz_conf['error_log']['warning']))
-		$zz_conf['error_log']['warning']	= ini_get('error_log');
-	
-	if (!isset($zz_conf['error_log']['notice']))
-		$zz_conf['error_log']['notice']	= ini_get('error_log');
-	
-	if (!isset($zz_conf['log_errors']))
-		$zz_conf['log_errors'] 			= ini_get('log_errors');
-	
-	if (!isset($zz_conf['log_errors_max_len']))
-		$zz_conf['log_errors_max_len'] 	= ini_get('log_errors_max_len');
-	
-	if (!isset($zz_conf['translate_log_encodings']))
-		$zz_conf['translate_log_encodings'] = [
-			'iso-8859-2' => 'iso-8859-1'
-		];
-	if (!isset($zz_conf['error_log_post']))
-		$zz_conf['error_log_post']	= false;
 	
 	if (!isset($zz_setting['error_mail_parameters']) AND isset($zz_setting['error_mail_from']))
 		$zz_setting['error_mail_parameters'] = '-f '.$zz_setting['error_mail_from'];

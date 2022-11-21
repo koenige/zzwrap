@@ -23,9 +23,7 @@
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
  *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end'
  * @global array $zz_conf cofiguration settings
- *		'error_handling', 'error_log',
- *		'log_errors', 'log_errors_max_len', 'debug', 'error_mail_level',
- *		'project', 'character_set'
+ *		'debug'
  * @global array $zz_page
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
@@ -91,10 +89,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		break;
 	}
 
-	$log_encoding = $zz_setting['character_set'];
-	// PHP does not support all encodings
-	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
-		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
+	$log_encoding = wrap_log_encoding();
 
 	if (is_array($msg)) $msg = 'JSON '.json_encode($msg);
 
@@ -112,36 +107,24 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	if (!isset($settings['log_post_data'])) $settings['log_post_data'] = true;
 	if (empty($_POST)) $settings['log_post_data'] = false;
-	elseif (!$zz_conf['error_log_post']) $settings['log_post_data'] = false;
+	elseif (!wrap_get_setting('error_log_post')) $settings['log_post_data'] = false;
 
 	// reformat log output
-	if (!empty($zz_conf['error_log'][$level]) AND $zz_conf['log_errors']) {
+	if (wrap_get_setting('error_log['.$level.']') AND wrap_get_setting('log_errors')) {
 		wrap_log((!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output, $level, 'zzwrap');
 		if ($settings['log_post_data']) wrap_log('postdata', 'notice', 'zzwrap');
 	}
 		
 	if (!empty($zz_conf['debug']))
-		$zz_conf['error_handling'] = 'output';
-	if (empty($zz_conf['error_handling']))
-		$zz_conf['error_handling'] = false;
+		$zz_setting['error_handling'] = 'output';
 
-	if (!is_array($zz_conf['error_mail_level'])) {
-		if ($zz_conf['error_mail_level'] === 'error') 
-			$zz_conf['error_mail_level'] = ['error'];
-		elseif ($zz_conf['error_mail_level'] === 'warning') 
-			$zz_conf['error_mail_level'] = ['error', 'warning'];
-		elseif ($zz_conf['error_mail_level'] === 'notice') 
-			$zz_conf['error_mail_level'] = ['error', 'warning', 'notice'];
-		else
-			$zz_conf['error_mail_level'] = [];
-	}
-	switch ($zz_conf['error_handling']) {
+	switch (wrap_get_setting('error_handling')) {
 	case 'mail_summary':
-		if (!in_array($level, $zz_conf['error_mail_level'])) break;
+		if (!in_array($level, wrap_get_setting('error_mail_level'))) break;
 		$zz_setting['mail_summary'][$level][] = $msg;
 		break;
 	case 'mail':
-		if (!in_array($level, $zz_conf['error_mail_level'])) break;
+		if (!in_array($level, wrap_get_setting('error_mail_level'))) break;
 		if (empty(wrap_get_setting('error_mail_to'))) break;
 		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
@@ -197,8 +180,6 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 /**
  * sends a large mail instead of several one liners if errors occured
  *
- * @global array $zz_conf
- *		string 'error_handling' will be reset to 'mail'
  * @global array $zz_setting
  *		array 'mail_summary' contains all error messages, indexed by level and
  *		numerical; will be unset after content is sent
@@ -207,15 +188,14 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
  * @see wrap_error()
  */
 function wrap_error_summary() {
-	global $zz_conf;
 	global $zz_setting;
-	if ($zz_conf['error_handling'] !== 'mail_summary') return false;
-	$zz_conf['error_handling'] = 'mail';
+	if (wrap_get_setting('error_handling') !== 'mail_summary') return false;
+	$zz_setting['error_handling'] = 'mail';
 	if (empty($zz_setting['mail_summary'])) return false;
 	
 	// no need to log these errors again
-	$log_errors = $zz_conf['log_errors'];
-	$zz_conf['log_errors'] = false;
+	$log_errors = wrap_get_setting('log_errors');
+	$zz_setting['log_errors'] = false;
 	
 	foreach ($zz_setting['mail_summary'] AS $error_level => $errors) {
 		$msg = implode("\n\n", $errors);
@@ -226,7 +206,7 @@ function wrap_error_summary() {
 		wrap_error($msg, $error_level);
 	}
 	unset($zz_setting['mail_summary']);
-	$zz_conf['log_errors'] = $log_errors;
+	$zz_setting['log_errors'] = $log_errors;
 	return true;
 }
 
@@ -242,7 +222,6 @@ function wrap_error_summary() {
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_setting;	
-	global $zz_conf;
 	global $zz_page;
 
 	wrap_include_ext_libraries();
@@ -349,7 +328,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
  */
 function wrap_errorpage_log($status, $page) {
 	global $zz_setting;
-	global $zz_conf;
 	global $zz_page;
 
 	if (in_array($status, [401, 403, 404, 410, 503])) {
@@ -357,10 +335,7 @@ function wrap_errorpage_log($status, $page) {
 		if ($ignore) return false;
 	}
 	
-	$log_encoding = $zz_setting['character_set'];
-	// PHP does not support all encodings
-	if (in_array($log_encoding, array_keys($zz_conf['translate_log_encodings'])))
-		$log_encoding = $zz_conf['translate_log_encodings'][$log_encoding];
+	$log_encoding = wrap_log_encoding();
 
 	$msg = html_entity_decode(strip_tags($page['h1'])."\n\n"
 		.strip_tags($page['error_description'])."\n"
@@ -726,7 +701,6 @@ function wrap_error_url_decode($url) {
  * @return string
  */
 function wrap_log($line, $level = 'notice', $module = '', $file = false) {
-	global $zz_conf;
 	global $zz_setting;
 	static $postdata;
 	if ($line === 'postdata') {
@@ -753,12 +727,12 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		, ucfirst($level)
 		, preg_replace("/\s+/", " ", $line) 
 	);
-	$line = substr($line, 0, $zz_conf['log_errors_max_len'] - (strlen($user) + 4));
+	$line = substr($line, 0, wrap_get_setting('log_errors_max_len') - (strlen($user) + 4));
 	$line .= sprintf(" [%s]\n", $user);
 	if (!$file) {
 		if (in_array($module, ['zzform', 'zzwrap'])
-			AND array_key_exists($level, $zz_conf['error_log']))
-			$file = $zz_conf['error_log'][$level];
+			AND wrap_get_setting('error_log['.$level.']'))
+			$file = wrap_get_setting('error_log['.$level.']');
 		else {
 			$log_filename = !empty($zz_setting['log_filename'])
 				? $module.'/'.$zz_setting['log_filename'] : $module;
@@ -768,6 +742,19 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	}
 	error_log($line, 3, $file);
 	return true;
+}
+
+/**
+ * get character encoding for logfile
+ *
+ * @return string
+ */
+function wrap_log_encoding() {
+	$log_encoding = wrap_get_setting('character_set');
+	// PHP does not support all encodings
+	if (!$log_recode = wrap_get_setting('log_recode')) return $log_encoding;
+	if (!array_key_exists($log_encoding, $log_recode)) return $log_encoding;
+	return $log_recode[$log_encoding];
 }
 
 /**

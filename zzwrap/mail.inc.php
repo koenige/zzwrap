@@ -24,15 +24,12 @@
  *		array 'multipart' (optional):
  *			string 'text', string 'html', array 'files'
  * @param array $list send mails to multiple recipients via a list
- * @global $zz_conf
- *		'error_handling'
  * @global $zz_setting
  *		'local_access', bool 'show_local_mail' log mail or show mail,
  *		'mail_subject_prefix'
  * @return bool true: message was sent; false: message was not sent
  */
 function wrap_mail($mail, $list = []) {
-	global $zz_conf;
 	global $zz_setting;
 
 	// multipart?
@@ -103,9 +100,9 @@ function wrap_mail($mail, $list = []) {
 	// Additional parameters
 	if (!isset($mail['parameters'])) $mail['parameters'] = '';
 
-	$old_error_handling = $zz_conf['error_handling'];
-	if ($zz_conf['error_handling'] == 'mail') {
-		$zz_conf['error_handling'] = false; // don't send mail, does not work!
+	$old_error_handling = wrap_get_setting('error_handling');
+	if (wrap_get_setting('error_handling') === 'mail') {
+		$zz_setting['error_handling'] = false; // don't send mail, does not work!
 	}
 
 	// if local server, show e-mail, don't send it
@@ -143,7 +140,7 @@ function wrap_mail($mail, $list = []) {
 	if (!empty($zz_setting['log_mail'])) {
 		wrap_mail_log($mail, $additional_headers);
 	}
-	$zz_conf['error_handling'] = $old_error_handling;
+	$zz_setting['error_handling'] = $old_error_handling;
 	return true;
 }
 

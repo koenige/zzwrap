@@ -280,7 +280,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
 	} else {
-		if (!empty($zz_conf['error_handling']) AND $zz_conf['error_handling'] === 'output') {
+		if (wrap_get_setting('error_handling') === 'output') {
 			global $zz_page;
 			$zz_page['error_msg'] = '<p class="error">'.$error_msg.'<br>'.$sql.'</p>';
 		}
@@ -997,7 +997,6 @@ function wrap_edit_sql_statement($sql, $statement) {
  * $zz_sql['menu'] expects: page_id, title, mother_page_id, url, menu
  * $zz_sql['menu_level2'] expects: page_id, title, (id_title), mother_page_id, 
  *		url (function_url), menu
- * $zz_sql['page_id'] Name of ID field in webpages-table
  * $zz_sql['authors'] person_id = ID, person = name of author
  * @param string $key
  * @param string $mode (optional: get(default), set, add, overwrite)
