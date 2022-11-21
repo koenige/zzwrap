@@ -2737,7 +2737,7 @@ function wrap_get_setting($key, $login_id = 0) {
 	}
 
 	// default value set in one of the current settings.cfg files?
-	if (array_key_exists($key, $cfg)) {
+	if (array_key_exists($key, $cfg) AND !isset($zz_setting[$key])) {
 		$default = wrap_get_setting_default($key, $cfg[$key]);
 		return wrap_get_setting_prepare($default, $key, $cfg);
 	}
