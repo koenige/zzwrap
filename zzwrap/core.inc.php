@@ -2811,8 +2811,8 @@ function wrap_get_setting_default($key, $params) {
  */
 function wrap_get_setting_prepare($setting, $key, $cfg) {
 	if (!array_key_exists($key, $cfg)) return $setting;
-	// type = list means values need to be array!
-	if (!empty($cfg[$key]['type']) AND $cfg[$key]['type'] === 'list' AND !is_array($setting)) {
+	// list = 1 means values need to be array!
+	if (!empty($cfg[$key]['list']) AND !is_array($setting)) {
 		if (!empty($cfg[$key]['levels'])) {
 			$levels = wrap_setting_value($cfg[$key]['levels']);
 			$return = [];

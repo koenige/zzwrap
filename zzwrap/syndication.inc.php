@@ -261,9 +261,6 @@ function wrap_syndication_geocode($address) {
 	// set geocoders
 	$geocoders = wrap_get_setting('geocoder');
 	if (!$geocoders) return false;
-	if (!is_array($geocoders)) {
-		$geocoders = [$geocoders];
-	}
 	foreach ($geocoders as $geocoder) {
 		if (!array_key_exists($geocoder, $urls)) {
 			wrap_error(sprintf('Geocoder %s not supported.', $geocoder), E_USER_WARNING);

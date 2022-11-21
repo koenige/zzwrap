@@ -20,7 +20,7 @@
  * @global array $zz_setting
  *		'lang', 'lanugage_in_url', 'language_redirect' will be set
  *		'base' might be changed
- *		'languages_allowed', 'negotiate_language', default_source_language'
+ *		'negotiate_language', default_source_language'
  * @global array $zz_page
  *		'url', 'redirect'
  * @global array $zz_conf
@@ -42,7 +42,7 @@ function wrap_set_language() {
 	}
 
 	// single language website?
-	if (empty($zz_setting['languages_allowed'])) return true;
+	if (!wrap_get_setting('languages_allowed')) return true;
 
 	// Content Negotiation for language?
 	if (empty($zz_setting['negotiate_language'])) return true;
@@ -55,7 +55,7 @@ function wrap_set_language() {
 	// Check if redirect is necessary
 	if (empty($zz_setting['default_source_language']))
 		$zz_setting['default_source_language'] = $zz_setting['lang'];
-	$language = wrap_negotiate_language($zz_setting['languages_allowed'], 
+	$language = wrap_negotiate_language(wrap_get_setting('languages_allowed'), 
 		$zz_setting['default_source_language'], null, false);
 	if (!$language) return false;
 	$zz_setting['lang'] = $language;
@@ -91,7 +91,7 @@ function wrap_language_redirect() {
  * 
  * @param array $url ($zz_page['url'])
  * @global array $zz_setting
- *		'lang' (will be changed), 'base' (will be changed), 'languages_allowed'
+ *		'lang' (will be changed), 'base' (will be changed)
  * @global array $zz_conf
  *		'db_connection'
  * @return array $url
@@ -108,9 +108,9 @@ function wrap_prepare_url($url) {
 	}
 	$lang = substr($url['full']['path'], 1, $pos);
 	// check if it’s a language
-	if (!empty($zz_setting['languages_allowed'])) {
+	if (wrap_get_setting('languages_allowed')) {
 		// read from array
-		if (!in_array($lang, $zz_setting['languages_allowed'])) 
+		if (!in_array($lang, wrap_get_setting('languages_allowed'))) 
 			$lang = false;
 	} else {
 		// impossible to check, so there's no language

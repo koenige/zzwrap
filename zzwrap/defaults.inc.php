@@ -435,7 +435,7 @@ function wrap_set_defaults_post_conf() {
 	foreach ($zz_setting['https_urls'] AS $url) {
 		// check language strings
 		// @todo: add support for language strings at some other position of the URL
-		$languages = !empty($zz_setting['languages_allowed']) ? $zz_setting['languages_allowed'] : [];
+		$languages = wrap_get_setting('languages_allowed');
 		$languages[] = ''; // without language string should be checked always
 		foreach ($languages as $lang) {
 			if ($lang) $lang = '/'.$lang;
