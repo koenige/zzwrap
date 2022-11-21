@@ -27,6 +27,7 @@ function wrap_access($area, $details = '') {
 	static $usergroups;
 	if (empty($config)) $config = wrap_cfg_files('access');
 	if (empty($usergroups)) $usergroups = [];
+	$area_short = substr($area, 0, strpos($area, '['));
 
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) return true;
@@ -51,7 +52,8 @@ function wrap_access($area, $details = '') {
 	}
 	
 	// are there access rights? no: = no access!
-	if (empty($usergroups[$area]) AND empty($config[$area]['group'])) return false;
+	if (empty($usergroups[$area]) AND empty($config[$area]['group']) AND empty($config[$area_short]['group']))
+		return false;
 
 	// directly given access via session or setting?
 	$keys = ['zz_setting', '_SESSION'];
@@ -71,8 +73,9 @@ function wrap_access($area, $details = '') {
 			if ($access) break;
 		}
 	} else {
-		if ($config[$area]['group'] === 'public') return true;
-		$access = brick_access_rights($config[$area]['group']);
+		$group_rights = $config[$area]['group'] ?? $config[$area_short]['group'];
+		if ($group_rights === 'public') return true;
+		$access = brick_access_rights($group_rights);
 	}
 	if (!$access) return false;
 	return true;
