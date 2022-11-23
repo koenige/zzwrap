@@ -254,7 +254,7 @@ function wrap_text($string, $params = []) {
 		$text_included = $language;
 
 		// get translations from database
-		if (wrap_get_setting('translate_text_db')) {
+		if (!empty($zz_setting['translate_text_db'])) { // no wrap_get_setting() at this point!
 			$text = array_merge($text, wrap_language_get_text($language));
 		}
 	}
