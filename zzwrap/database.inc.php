@@ -1305,7 +1305,7 @@ function wrap_system_sql($subtree) {
 		}
 	}
 
-	if (!array_key_exists($subtree, $data)) return NULL;
+	if (!array_key_exists($subtree, $data)) return [];
 	$separate = [];
 	if ($subtree === 'ids') {
 		foreach ($data[$subtree] as $key => $query) {
