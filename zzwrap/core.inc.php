@@ -1406,7 +1406,7 @@ function wrap_check_request() {
 			$zz_page['url']['redirect'] = true;
 			$zz_page['url']['redirect_cache'] = false;
 		}
-		if (!empty($_SERVER['HTTP_X_FORWARDED_HOST']) AND !empty($zz_setting['hostname_in_url'])) {
+		if (!empty($_SERVER['HTTP_X_FORWARDED_HOST']) AND wrap_get_setting('hostname_in_url')) {
 			$forwarded_host = '/'.$_SERVER['HTTP_X_FORWARDED_HOST'];
 			if ($zz_setting['local_access'] AND substr($forwarded_host, -6) === '.local') {
 				$forwarded_host = substr($forwarded_host, 0, -6);
