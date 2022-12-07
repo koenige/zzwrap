@@ -1096,9 +1096,10 @@ function wrap_sql($key, $mode = 'get', $value = false) {
  * read a query from [filename].sql, default: queries.sql
  *
  * @param string $key
+ * @param string $file
  * @return mixed
  */
-function wrap_sql_query($key, $filename = 'queries') {
+function wrap_sql_query($key, $file = 'queries') {
 	static $queries;
 	static $collected;
 	if (empty($queries)) $queries = [];
@@ -1107,16 +1108,16 @@ function wrap_sql_query($key, $filename = 'queries') {
 	$prefix = $package = substr($key, 0, strpos($key, '_'));
 	if (in_array($package, ['page', 'auth', 'core', 'ids'])) {
 		$package = 'default';
-		$filename = 'system';
+		$file = 'system';
 		$prefix_check = ['page', 'auth', 'core', 'ids'];
 	} else {
 		$prefix_check = [$package];
 	}
 	
-	$filename = sprintf('configuration/%s.sql', $filename);
+	$filename = sprintf('configuration/%s.sql', $file);
 
+	// first check custom queries, won’t be overwritten by later queries
 	if (!in_array('custom-'.$filename, $collected)) {
-		// first check custom queries, won’t be overwritten by later queries
 		$files = wrap_collect_files($filename, 'custom');
 		if ($files) {
 			$file = reset($files);
@@ -1127,6 +1128,20 @@ function wrap_sql_query($key, $filename = 'queries') {
 		}
 		$collected[] = 'custom-'.$filename;
 	}
+	// then check queries that are there explicitly to overwrite later queries
+	if (!in_array('overwrite-'.$filename, $collected)) {
+		$overwrite_filename = sprintf('configuration/overwrite-%s.sql', $file);
+		$files = wrap_collect_files($overwrite_filename, 'modules');
+		foreach ($files as $file) {
+			$overwrite_queries = wrap_sql_file($file);
+			foreach ($overwrite_queries as $p_key => $p_query) {
+				if (array_key_exists($p_key, $queries)) continue;
+				$queries[$p_key] = $p_query;
+			}
+		}
+		$collected[] = 'overwrite-'.$filename;
+	}
+	
 	if (!in_array($package.'-'.$filename, $collected)) {
 		$files = wrap_collect_files($filename, $package);
 		if ($files) {
