@@ -574,6 +574,54 @@ function wrap_translate_page() {
 	return true;
 }
 
+/** 
+ * translate URL
+ *
+ * @param array $data
+ * @return array
+ */
+function wrap_translate_url($data) {
+	global $zz_conf;
+	// has URL language code in it?
+	if (!wrap_get_setting('language_in_url')) return $data;
+
+	// are there translations for webpages.identifier?	
+	$field = wrap_translate_field_list('field_name',
+		$zz_conf['db_name'].'./*_PREFIX_*/webpages.identifier'
+	);
+	if (!$field) return $data;
+	$field = reset($field);
+	$field = reset($field);
+	
+	$identifiers = [];
+	foreach ($data as $line) {
+		$identifiers[] = sprintf('/%s', $line['url']);
+	}
+
+	$sql = 'SELECT translation, identifier
+		FROM /*_PREFIX_*/_translations_%s translations
+		LEFT JOIN /*_PREFIX_*/webpages webpages
+			ON translations.field_id = webpages.page_id
+		WHERE translationfield_id = %d
+		AND translation IN ("%s")
+		AND language_id = %d';
+	$sql = sprintf($sql
+		, $field['field_type']
+		, $field['translationfield_id']
+		, implode('", "', $identifiers)
+		, wrap_language_id(wrap_get_setting('lang'))
+	);
+	$translations = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	if (!$translations) return $data;
+
+	foreach ($data as $index => $line) {
+		$url = sprintf('/%s', $line['url']);
+		if (!array_key_exists($url, $translations)) continue;
+		$data[$index]['url'] = ltrim($translations[$url], '/');
+	}
+	return $data;
+}
+
 /**
  * gets the user defined language from the browser
  *

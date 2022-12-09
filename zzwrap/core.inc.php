@@ -322,6 +322,8 @@ function wrap_look_for_page($zz_page) {
 	if (!$data) return false;
 	ksort($data);
 	
+	$data = wrap_translate_url($data);
+
 	// get all pages that would match list of identifiers
 	$identifiers = [];
 	foreach ($data as $index => $line) {
