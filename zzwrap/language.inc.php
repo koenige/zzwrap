@@ -581,17 +581,12 @@ function wrap_translate_page() {
  * @return array
  */
 function wrap_translate_url($data) {
-	global $zz_conf;
 	// has URL language code in it?
 	if (!wrap_get_setting('language_in_url')) return $data;
 
-	// are there translations for webpages.identifier?	
-	$field = wrap_translate_field_list('field_name',
-		$zz_conf['db_name'].'./*_PREFIX_*/webpages.identifier'
-	);
+	// are there translations for webpages.identifier?
+	$field = wrap_translate_identifier_field();
 	if (!$field) return $data;
-	$field = reset($field);
-	$field = reset($field);
 	
 	$identifiers = [];
 	foreach ($data as $line) {
@@ -620,6 +615,57 @@ function wrap_translate_url($data) {
 		$data[$index]['url'] = ltrim($translations[$url], '/');
 	}
 	return $data;
+}
+
+/**
+ * get translated URLs for current page
+ *
+ * @return array
+ * @todo support placeholders in URLs
+ */
+function wrap_translate_url_other() {
+	global $zz_page;
+	$field = wrap_translate_identifier_field();
+	if (!$field) return [];
+
+	$sql = 'SELECT iso_639_1 AS lang
+			, CONCAT(translation, IF(STRCMP(ending, "none"), ending, "")) AS translation
+		FROM /*_PREFIX_*/_translations_%s translations
+		LEFT JOIN /*_PREFIX_*/webpages webpages
+			ON translations.field_id = webpages.page_id
+		LEFT JOIN /*_PREFIX_*/languages USING (language_id)
+		WHERE translationfield_id = %d
+		AND field_id = %d';
+	$sql = sprintf($sql
+		, $field['field_type']
+		, $field['translationfield_id']
+		, $zz_page['db']['page_id']
+	);
+	$translations = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	if (!empty($zz_page['db']['wrap_source_language']['identifier']))
+		$translations[$zz_page['db']['wrap_source_language']['identifier']]
+			= $zz_page['db']['wrap_source_content']['identifier']
+			.($zz_page['db']['ending'] !== 'none' ? $zz_page['db']['ending'] : '');
+	return $translations;
+}
+
+/**
+ * get definition of field which contains translations for webpages.identifier
+ *
+ * @return array
+ */
+function wrap_translate_identifier_field() {
+	global $zz_conf;
+	static $field;
+	if (!empty($field)) return $field;
+
+	$field = wrap_translate_field_list('field_name',
+		$zz_conf['db_name'].'./*_PREFIX_*/webpages.identifier'
+	);
+	if (!$field) return [];
+	$field = reset($field);
+	$field = reset($field);
+	return $field;
 }
 
 /**
