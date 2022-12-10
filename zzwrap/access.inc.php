@@ -155,7 +155,8 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
 		$secret_key .= $timeframe_start;
 	}
 	$secret = $string.$secret_key;
-	if (wrap_get_setting('character_set') !== 'utf-8') $secret = utf8_encode($secret);
+	if (wrap_get_setting('character_set') !== 'utf-8')
+		$secret = mb_convert_encoding($secret, 'UTF-8', wrap_get_setting('character_set'));
 	$hash = sha1($secret);
 	$hash = wrap_base_convert($hash, 16, 62);
 	return $hash;

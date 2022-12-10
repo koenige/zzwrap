@@ -1852,24 +1852,20 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
  *
  * @param string $type 'inline' or 'attachment'
  * @param string $filename
- * @global $zz_setting
  * @return void
  */
 function wrap_http_content_disposition($type, $filename) {
-	global $zz_setting;
-
 	// no double quotes in filenames
 	$filename = str_replace('"', '', $filename);
+
 	// RFC 2616: filename must consist of all ASCII characters
+	$filename_ascii = wrap_filename($filename, ' ', ['.' => '.']);
+	$filename_ascii = preg_replace('/[^(\x20-\x7F)]*/', '', $filename_ascii);
+
 	// RFC 5987: filename* may be sent with UTF-8 encoding
-	$filename_ascii = $filename;
-	if ($zz_setting['character_set'] === 'utf-8') {
-		$filename_ascii = utf8_decode($filename_ascii);
-	} else {
-		// @todo use iconv for encodings different from latin1
-		$filename = utf8_encode($filename);
-	}
-	$filename_ascii = preg_replace('/[^(\x20-\x7F)]*/','', $filename_ascii);
+	if (wrap_get_setting('character_set') !== 'utf-8')
+		$filename = mb_convert_encoding($filename, 'UTF-8', wrap_get_setting('character_set'));
+
 	if ($filename_ascii !== $filename) {
 		wrap_cache_header(sprintf(
 			'Content-Disposition: %s; filename="%s"; filename*=utf-8\'\'%s',
