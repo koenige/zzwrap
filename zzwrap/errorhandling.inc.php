@@ -271,9 +271,11 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	} else {
 		$page['breadcrumbs'] = '';
 	}
-	$page['breadcrumbs'] .= wrap_text($status['text']); 
-	$page['pagetitle'] = strip_tags($page['status'].' '.wrap_text($status['text'])
-		.' ('.wrap_get_setting('project').')'); 
+	$page['breadcrumbs'] .= wrap_text($status['text']);
+	$page['pagetitle'] = sprintf(wrap_get_setting('template_pagetitle')
+		, $page['status'].' '.wrap_text($status['text'])
+		, wrap_text(wrap_get_setting('project'))
+	);
 	$page['h1'] = wrap_text($status['text']);
 	$page['error_description'] = sprintf(wrap_text($status['description']), 
 		$_SERVER['REQUEST_METHOD']);
