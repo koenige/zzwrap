@@ -19,24 +19,24 @@
  *
  * @param string $url
  * @param string $type Type of ressource, defaults to 'json'
- * @param string $cache_filename (optional)
+ * @param array $settings (optional)
+ *		string 'cache_filename'
  * @return array $data
  */
-function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
+function wrap_syndication_get($url, $type = 'json', $settings = []) {
 	global $zz_setting;
 	// you may change the error code if e. g. only pictures will be fetched
 	// via JSON to E_USER_WARNING or E_USER_NOTICE
 	if (empty($zz_setting['syndication_error_code']))
 		$zz_setting['syndication_error_code'] = E_USER_ERROR;
+	if (!$url) return [];
+
 	$data = [];
 	$etag = '';
 	$last_modified = '';
-	if (!$url) return [];
-	if (!$cache_filename) $cache_filename = $url;
+	$cache_filename = $settings['cache_filename'] ?? $url;
+	$cache_age_syndication = $settings['cache_age_syndication'] ?? wrap_get_setting('cache_age_syndication');
 
-	if (!isset($zz_setting['cache_age_syndication'])) {
-		$zz_setting['cache_age_syndication'] = 0;
-	}
 	$files = [];
 	if (!empty($zz_setting['cache'])) {
 		$files = [
@@ -45,7 +45,7 @@ function wrap_syndication_get($url, $type = 'json', $cache_filename = false) {
 		];
 		// does a cache file exist?
 		if (file_exists($files[0]) AND file_exists($files[1])) {
-			$fresh = wrap_cache_freshness($files, $zz_setting['cache_age_syndication']);
+			$fresh = wrap_cache_freshness($files, $cache_age_syndication);
 			$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 			if (!$last_modified)
 				$last_modified = wrap_date(filemtime($files[0]), 'timestamp->rfc1123');
@@ -178,8 +178,6 @@ function wrap_syndication_errors($errno, $errstr, $errfile = '', $errline = 0, $
  *		string 'postal_code'
  */
 function wrap_syndication_geocode($address) {
-	global $zz_setting;
-	
 	$urls['Google Maps'] = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
 	// @see http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
 	$urls['Nominatim'] = 'https://nominatim.openstreetmap.org/search.php?q=%s&countrycodes=%s&format=jsonv2&accept-language=de&limit=50';
@@ -277,9 +275,6 @@ function wrap_syndication_geocode($address) {
 	}
 	if (empty($gcs)) return false;
 
-	$cache_age_syndication = (isset($zz_setting['cache_age_syndication']) ? $zz_setting['cache_age_syndication'] : 0);
-	$zz_setting['cache_age_syndication'] = -1;
-
 	$results = [];
 	$found = [];
 	foreach ($gcs as $gc) {
@@ -290,7 +285,7 @@ function wrap_syndication_geocode($address) {
 		if ($gc['geocoder'] === 'Nominatim') {
 			wrap_lock_wait('nominatim', 1);
 		}
-		$coords = wrap_syndication_get($url);	
+		$coords = wrap_syndication_get($url, 'json', ['cache_age_syndication' => -1]);	
 		if ($gc['geocoder'] === 'Nominatim') {
 			wrap_unlock('nominatim');
 		}
@@ -406,7 +401,6 @@ function wrap_syndication_geocode($address) {
 		}
 	}
 
-	$zz_setting['cache_age_syndication'] = $cache_age_syndication;
 	return $results[$result_index];
 }
 
