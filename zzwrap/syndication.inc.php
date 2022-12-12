@@ -178,10 +178,6 @@ function wrap_syndication_errors($errno, $errstr, $errfile = '', $errline = 0, $
  *		string 'postal_code'
  */
 function wrap_syndication_geocode($address) {
-	$urls['Google Maps'] = 'https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=%s&sensor=false';
-	// @see http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
-	$urls['Nominatim'] = 'https://nominatim.openstreetmap.org/search.php?q=%s&countrycodes=%s&format=jsonv2&accept-language=de&limit=50';
-	
 	$add[0] = '';
 	if (isset($address['locality'])) {
 		$add[0] = trim(urlencode($address['locality']));
@@ -192,9 +188,6 @@ function wrap_syndication_geocode($address) {
 	$is_postbox = false;
 	if (!empty($address['street_name'])) {
 		$street = explode("\n", $address['street_name']);
-		$postbox_strings = [
-			'Postfach ', 'PF ', 'P.O.Box ', 'P.O. Box '
-		];
 		foreach ($street as $index => $line) {
 			if (count($street) > 1) {
 				// do not remove if this is single information about street
@@ -202,12 +195,11 @@ function wrap_syndication_geocode($address) {
 				if (str_starts_with($line, 'OT ')) unset($street[$index]);
 			}
 			// care of: no use for geocoding
-			if (str_starts_with($line, 'c/o')) unset($street[$index]);
-			if (str_starts_with($line, '℅')) unset($street[$index]);
-			if (str_starts_with($line, 'p. Adr.')) unset($street[$index]);
+			foreach (wrap_get_setting('geocoder_care_of') as $care_of_string)
+				if (str_starts_with($line, $care_of_string)) unset($street[$index]);
 			// geocoders do not know postbox
-			foreach ($postbox_strings as $postbox_string) {
-				if (!str_starts_with($line, $postbox_string)) continue;
+			foreach (wrap_get_setting('geocoder_postbox') as $postbox_string) {
+				if (!str_starts_with($line, $postbox_string.' ')) continue;
 				unset($street[$index]); 
 				$is_postbox = true; // never change postal_code
 			}
@@ -255,6 +247,8 @@ function wrap_syndication_geocode($address) {
 		$add[$index] = implode(',', $line);
 	}
 	ksort($add);
+	
+	$urls = wrap_get_setting('geocoder_urls');
 
 	// set geocoders
 	$geocoders = wrap_get_setting('geocoder');
