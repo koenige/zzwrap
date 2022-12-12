@@ -21,6 +21,8 @@
  * @param string $type Type of ressource, defaults to 'json'
  * @param array $settings (optional)
  *		string 'cache_filename'
+ *		string 'cache_age_syndication'
+ *		array 'headers_to_send'
  * @return array $data
  */
 function wrap_syndication_get($url, $type = 'json', $settings = []) {
@@ -59,12 +61,8 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 	}
 	if (!$data) {
 		wrap_error(false, false, ['collect_start' => true]);
-		$headers_to_send = [];
-		if ($etag) {
-			$headers_to_send = [
-				'If-None-Match: "'.$etag.'"'
-			];
-		}
+		$headers_to_send = $settings['headers_to_send'] ?? [];
+		if ($etag) $headers_to_send[] = 'If-None-Match: "'.$etag.'"';
 		// @todo Last-Modified
 
 		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send);
