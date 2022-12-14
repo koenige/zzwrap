@@ -3217,6 +3217,8 @@ function wrap_setting_key($key, $value) {
  * @return mixed
  */
 function wrap_setting_value($string) {
+	$string = wrap_setting_value_placeholder($string);
+
 	switch (substr($string, 0, 1)) {
 	case '\\':
 		return substr($string, 1);
@@ -3233,19 +3235,26 @@ function wrap_setting_value($string) {
 		$string = substr($string, 1);
 		parse_str($string, $strings);
 		return $strings;
-	case '%':
-		global $zz_setting;
-		if (!str_starts_with($string, '%%%')) return $string;
-		$parts = explode('%%%', $string);
-		unset($parts[0]);
-		$parts[1] = trim($parts[1]);
-		if (!str_starts_with($parts[1], 'setting ')) return $string;
-		$setting = substr($parts[1], 8);
-		if (!array_key_exists($setting, $zz_setting)) return $string;
-		$parts[1] = $zz_setting[$setting];
-		$string = implode('', $parts);
-		return $string;
 	}
+	return $string;
+}
+
+/**
+ * check if setting has a setting placeholder in it
+ *
+ * @param string $string
+ * @return string
+ */
+function wrap_setting_value_placeholder($string) {
+	global $zz_setting;
+	if (!strstr($string, '%%%')) return $string;
+	$parts = explode('%%%', $string);
+	$parts[1] = trim($parts[1]);
+	if (!str_starts_with($parts[1], 'setting ')) return $string;
+	$setting = substr($parts[1], 8);
+	if (!array_key_exists($setting, $zz_setting)) return $string;
+	$parts[1] = $zz_setting[$setting];
+	$string = implode('', $parts);
 	return $string;
 }
 
