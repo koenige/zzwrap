@@ -2947,10 +2947,16 @@ function wrap_mkdir($folder) {
 		if (!file_exists($current_folder)) {
 			$success = mkdir($current_folder);
 			if (!$success) {
-				wrap_error(sprintf('Could not create folder %s.', $current_folder), E_USER_ERROR);
+				wrap_error(sprintf('Unable to create folder %s.', $current_folder), E_USER_WARNING);
 				return false;
 			}
 			$created[] = $current_folder;
+		}
+		// check if folder is a folder, not a file
+		// might happen e. g. in caching for non-existing URLs with paths below non-existing URLs
+		if (!is_dir($current_folder)) {
+			wrap_error(sprintf('Unable to create folder %s.', $current_folder), E_USER_WARNING);
+			return false;
 		}
 	}
 	return $created;
