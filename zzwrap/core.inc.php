@@ -69,7 +69,6 @@ function wrap_session_start() {
  * @return bool
  */
 function wrap_session_stop() {
-	global $zz_setting;
 	$sql = false;
 	$sql_mask = false;
 
@@ -263,7 +262,6 @@ function wrap_url_expand($url = false) {
  * of it with placeholders
  * 
  * @param array $zz_page
- * @global array $zz_conf zz configuration variables
  * @return array $page
  */
 function wrap_look_for_page($zz_page) {
@@ -476,12 +474,10 @@ function wrap_page_parameters($params) {
  * @return mixed false: nothing found, array: $page
  */
 function wrap_well_known_url($url) {
-	global $zz_setting;
-
 	switch ($url['path']) {
 	case '/robots.txt':
 		$page['content_type'] = 'txt';
-		$page['text'] = '# robots.txt for '.$zz_setting['site'];
+		$page['text'] = '# robots.txt for '.wrap_get_setting('site');
 		$page['status'] = 200;
 		return $page;
 	case '/.well-known/change-password':
@@ -752,8 +748,7 @@ function wrap_read_url($url) {
  * @return string
  */
 function wrap_glue_url($url) {
-	global $zz_setting;
-	$base = !empty($zz_setting['base']) ? $zz_setting['base'] : '';
+	$base = wrap_get_setting('base');
 	if (substr($base, -1) === '/') $base = substr($base, 0, -1);
 	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 		$url['port'] = sprintf(':%s', $_SERVER['SERVER_PORT']);
@@ -1320,28 +1315,26 @@ function wrap_restrict_ip() {
  * Attention: POST variables will get lost
  * @param array $zz_page Array with full URL in $zz_page['url']['full'], 
  *		this is the result of parse_url()
- * @param array $zz_setting settings, 'ignore_scheme' ignores redirect
- *		and 'protocol' defines the protocol wanted (http or https)
  * @return redirect header
  */
-function wrap_check_https($zz_page, $zz_setting) {
+function wrap_check_https($zz_page) {
 	// if it doesn't matter, get out of here
-	if ($zz_setting['ignore_scheme']) return true;
-	foreach ($zz_setting['ignore_scheme_paths'] as $path) {
+	if (wrap_get_setting('ignore_scheme')) return true;
+	foreach (wrap_get_setting('ignore_scheme_paths') as $path) {
 		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
 	}
 
 	// change from http to https or vice versa
 	// attention: $_POST will not be preserved
 	if (!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') {
-		if ($zz_setting['protocol'] === 'https') return true;
+		if (wrap_get_setting('protocol') === 'https') return true;
 		// if user is logged in, do not redirect
 		if (!empty($_SESSION)) return true;
 	} else {
-		if ($zz_setting['protocol'] === 'http') return true;
+		if (wrap_get_setting('protocol') === 'http') return true;
 	}
 	$url = $zz_page['url']['full'];
-	$url['scheme'] = $zz_setting['protocol'];
+	$url['scheme'] = wrap_get_setting('protocol');
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 	exit;
 }
@@ -1359,7 +1352,7 @@ function wrap_https_redirect() {
 
 	// access must be possible via both http and https
 	// check to avoid infinite redirection
-	if (empty($zz_setting['ignore_scheme'])) return false;
+	if (!wrap_get_setting('ignore_scheme')) return false;
 	// connection is already via https?
 	if (!empty($zz_setting['https'])) return false;
 	// local connection?
@@ -3052,7 +3045,6 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
 
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
 	global $zz_setting;
-	global $zz_conf;
 
 	if (!$username) $username = wrap_user();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
@@ -3330,7 +3322,6 @@ function wrap_setting_backend() {
  * @return array
  */
 function wrap_cfg_files($type, $single_module = false) {
-	global $zz_setting;
 	global $zz_conf;
 	static $cfg;
 	static $single_cfg;
@@ -3559,7 +3550,6 @@ function wrap_unlink_recursive($folder) {
  * @return 
  */
 function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
-	global $zz_setting;
 	static $filetypes;
 	
 	if (empty($filetypes)) {

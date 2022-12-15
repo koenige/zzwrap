@@ -95,7 +95,7 @@ function zzwrap() {
 	if (wrap_get_setting('authentication_possible')) {
 		wrap_auth();
 	}
-	wrap_check_https($zz_page, $zz_setting);
+	wrap_check_https($zz_page);
 
 	// @todo check if we can start this earlier
 	if (!empty($zz_setting['cache_age'])) {
