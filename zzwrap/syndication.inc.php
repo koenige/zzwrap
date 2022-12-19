@@ -63,9 +63,14 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 		wrap_error(false, false, ['collect_start' => true]);
 		$headers_to_send = $settings['headers_to_send'] ?? [];
 		if ($etag) $headers_to_send[] = 'If-None-Match: "'.$etag.'"';
+		foreach ($headers_to_send as $header) {
+			if (!str_starts_with($header, 'Authorization: Bearer')) continue;
+			$headers_to_send[] = 'X-Request-WWW-Authentication: 1';
+		}
+		$pwd = $settings['pwd'] ?? false;
 		// @todo Last-Modified
-
-		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send);
+		
+		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send, 'GET', [], $pwd);
 
 		switch ($status) {
 		case 200:
