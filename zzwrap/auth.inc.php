@@ -638,18 +638,19 @@ function wrap_login_http_auth() {
 	// Fast-CGI workaround
 	// needs this line in Apache server configuration:
 	// RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+	// or
+	// SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+	// HTTP_AUTHORIZATION
 	if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+		if (str_starts_with($_SERVER['HTTP_AUTHORIZATION'], 'Bearer '))
+			return wrap_login_http_oauth(substr($_SERVER['HTTP_AUTHORIZATION'], strlen('Bearer ')));
 		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = 
 			explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
 	}
 
 	// send WWW-Authenticate header to get username if not yet there
-	if (empty($_SERVER['PHP_AUTH_USER'])) {
-		header(sprintf('WWW-Authenticate: Basic realm="%s"', wrap_get_setting('project')));
-		wrap_http_status_header(401);
-		wrap_log_uri(401);
-		exit;
-	}
+	if (empty($_SERVER['PHP_AUTH_USER']))
+		wrap_login_http_auth_request();
 	if (empty($_SERVER['PHP_AUTH_USER'])) return false;
 	if (empty($_SERVER['PHP_AUTH_PW'])) return false;
 
@@ -660,6 +661,40 @@ function wrap_login_http_auth() {
 	$login['different_sign_on'] = true;
 	$login['username'] = $_SERVER['PHP_AUTH_USER'];
 	return wrap_login($login);
+}
+
+/**
+ * check OAuth access token if it is valid
+ * if it is valid, login, otherwise send WWW-Authenticate
+ *
+ * @param string $access_token
+ * @return bool
+ */
+function wrap_login_http_oauth($access_token) {
+	if (wrap_get_setting('login_with_contact_id'))
+		$sql = wrap_sql_query('auth_acces_token_contact');
+	else
+		$sql = wrap_sql_query('auth_acces_token');
+	$sql = sprintf($sql, wrap_db_escape($access_token));
+	$login['username'] = wrap_db_fetch($sql, '', 'single value');
+	wrap_error($sql);
+	wrap_error(json_encode($login));
+	if (!$login['username']) return wrap_login_http_auth_request();
+	$login['different_sign_on'] = true;
+	wrap_error(json_encode($login));
+	return wrap_login($login);
+}
+
+/**
+ * send WWW-Authenticate header
+ *
+ * @return void
+ */
+function wrap_login_http_auth_request() {
+	header(sprintf('WWW-Authenticate: Basic realm="%s"', wrap_get_setting('project')));
+	wrap_http_status_header(401);
+	wrap_log_uri(401);
+	exit;
 }
 
 /**
