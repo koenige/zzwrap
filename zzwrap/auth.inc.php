@@ -677,11 +677,8 @@ function wrap_login_http_oauth($access_token) {
 		$sql = wrap_sql_query('auth_acces_token');
 	$sql = sprintf($sql, wrap_db_escape($access_token));
 	$login['username'] = wrap_db_fetch($sql, '', 'single value');
-	wrap_error($sql);
-	wrap_error(json_encode($login));
 	if (!$login['username']) return wrap_login_http_auth_request();
 	$login['different_sign_on'] = true;
-	wrap_error(json_encode($login));
 	return wrap_login($login);
 }
 
