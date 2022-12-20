@@ -714,7 +714,7 @@ function wrap_get_breadcrumbs($page_id) {
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 	$breadcrumbs[] = [
 		'title' => $pages[$page_id]['title'],
-		'url_path' => $pages[$page_id]['identifier'],
+		'url_path' => $pages[$page_id]['identifier'].($pages[$page_id]['ending'] ?? ''),
 		'page_id' => $pages[$page_id][wrap_sql_fields('page_id')]
 	];
 	if ($pages[$page_id]['mother_page_id'] 
