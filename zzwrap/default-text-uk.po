@@ -1,5 +1,5 @@
 # zzwrap
-# Default translations to german language
+# Default translations template
 #
 # Part of »Zugzwang Project«
 # https://www.zugzwang.org/projects/zzwrap
@@ -10,106 +10,107 @@
 #
 msgid ""
 msgstr ""
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.7.1\n"
+"Language: uk\n"
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
-msgstr "Passwort oder Benutzername falsch. Bitte versuchen Sie es erneut."
+msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Username:"
-msgstr "Benutzername:"
+msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username are empty. Please try again."
-msgstr "Passwort oder Benutzername leer. Bitte versuchen Sie es erneut."
+msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Request password"
-msgstr "Passwort anfordern"
+msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Forgotten Password"
-msgstr "Vergessenes Passwort"
+msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Link for login is wrong or out of date."
-msgstr "Der Link fürs Login ist falsch oder abgelaufen."
+msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Please get a new one."
-msgstr "Bitte besorgen Sie sich einen neuen."
+msgstr ""
 
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
-msgstr "Vorübergehend ist keine Anmeldung möglich."
+msgstr ""
 
 # access
 #: library/zzwrap/core.inc.php
 msgid "Access to this website for your IP address is restricted."
-msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
+msgstr "﻿Доступ до цього веб-сайту для вашої IP-адреси обмежено."
 
 # HTTP Status Code 300
 #: library/zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"
-msgstr "Mehrfachauswahl"
+msgstr "﻿Кілька варіантів вибору"
 
 # HTTP Status Code 301
 #: library/zzwrap/errorhandling.inc.php
 msgid "Moved Permanently"
-msgstr "Dauerhaft verschoben"
+msgstr "Переміщено остаточно"
 
 # HTTP Status Code 302
 #: library/zzwrap/errorhandling.inc.php
 msgid "Found"
-msgstr "Umleitung (unbestimmt)"
+msgstr "﻿Знайдений"
 
 # HTTP Status Code 303
 #: library/zzwrap/errorhandling.inc.php
 msgid "See Other"
-msgstr "Umleitung"
+msgstr "﻿Див. інше"
 
 # HTTP Status Code 304
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Modified"
-msgstr "Keine Veränderung"
+msgstr "﻿Не змінено"
 
 # HTTP Status Code 305
 #: library/zzwrap/errorhandling.inc.php
 msgid "Use Proxy"
-msgstr "Proxy benutzen"
+msgstr "﻿Використовувати проксі"
 
 # HTTP Status Code 307
 #: library/zzwrap/errorhandling.inc.php
 msgid "Temporary Redirect"
-msgstr "Vorübergehende Umleitung"
+msgstr "﻿Тимчасове переспрямування"
 
 # HTTP Status Code 400
 msgid "Bad Request"
-msgstr "Fehlerhafte Anfrage"
+msgstr "﻿Неправильний запит"
 
 # HTTP Status Code 400
 #: library/zzwrap/errorhandling.inc.php
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
-"Ihr Browser (oder Proxy) hat eine ungültige Anfrage gesendet, die vom Server "
-"nicht beantwortet werden kann."
+"﻿Ваш веб-переглядач (або проксі-сервер) надіслав запит, який цей сервер не "
+"може зрозуміти."
 
 # HTTP Status Code 401
 #: library/zzwrap/errorhandling.inc.php
 msgid "Unauthorized"
-msgstr "Anmeldung fehlgeschlagen"
+msgstr "﻿Не авторизовано"
 
 # HTTP Status Code 401
 #: library/zzwrap/errorhandling.inc.php
@@ -118,20 +119,20 @@ msgid ""
 "either supplied the wrong credentials (e.g., bad password), or your browser "
 "doesn't understand how to supply the credentials required."
 msgstr ""
-"Der Server konnte nicht prüfen, ob Sie autorisiert sind, auf diese URL "
-"zuzugreifen. Entweder wurden falsche Daten (z. B. ein falsches Passwort) "
-"angegeben oder Ihr Browser versteht nicht, wie die geforderten Daten zu "
-"übermitteln sind."
+"﻿Цьому серверу не вдалося підтвердити, що ви маєте дозвіл на доступ до цієї "
+"URL-адреси. Ви або надали неправильні облікові дані (наприклад, неправильний "
+"пароль), або ваш веб-переглядач не розуміє, як надати необхідні облікові "
+"дані."
 
 # HTTP Status Code 402
 #: library/zzwrap/errorhandling.inc.php
 msgid "Payment Required"
-msgstr "Bezahlung erforderlich"
+msgstr "﻿Потрібна оплата"
 
 # HTTP Status Code 403
 #: library/zzwrap/errorhandling.inc.php
 msgid "Forbidden"
-msgstr "Kein Zugriff"
+msgstr "﻿Заборонено"
 
 # HTTP Status Code 403
 #: library/zzwrap/errorhandling.inc.php
@@ -139,48 +140,48 @@ msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
 msgstr ""
-"Der Zugriff auf den angeforderten Inhalt ist nicht möglich. Entweder kann er "
-"vom Server nicht gelesen werden oder er ist zugriffsgeschützt."
+"﻿У вас немає дозволу на доступ до запитаного об 'єкта. Вона або захищена від "
+"читання, або недоступна для читання сервером."
 
 # HTTP Status Code 404
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Found"
-msgstr "Inhalt nicht gefunden"
+msgstr "﻿Не знайдено"
 
 # HTTP Status Code 404
 #: library/zzwrap/errorhandling.inc.php
 msgid "The requested URL was not found on this server."
-msgstr "Der von Ihnen gewünschte Inhalt konnte nicht gefunden werden."
+msgstr "﻿Запитувана URL-адреса не знайдена на цьому сервері."
 
 # HTTP Status Code 405
 #: library/zzwrap/errorhandling.inc.php
 msgid "Method Not Allowed"
-msgstr "Methode nicht erlaubt"
+msgstr "﻿Метод не дозволено"
 
 # HTTP Status Code 405
 #: library/zzwrap/errorhandling.inc.php
 msgid "The %s-method is not allowed for the requested URL."
-msgstr "Die %s-Methode ist für die angeforderte URL nicht erlaubt."
+msgstr "﻿%s-метод не дозволений для запитуваної URL-адреси."
 
 # HTTP Status Code 406
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Acceptable"
-msgstr "Nicht verarbeitbar"
+msgstr "﻿Не прийнятна"
 
 # HTTP Status Code 407
 #: library/zzwrap/errorhandling.inc.php
 msgid "Proxy Authentication Required"
-msgstr "Proxyanmeldung erforderlich"
+msgstr "﻿Необхідно ввійти на проксі-сервері"
 
 # HTTP Status Code 409
 #: library/zzwrap/errorhandling.inc.php
 msgid "Conflict"
-msgstr "Konflikt"
+msgstr "﻿Конфлікт"
 
 # HTTP Status Code 410
 #: library/zzwrap/errorhandling.inc.php
 msgid "Gone"
-msgstr "Inhalt nicht mehr verfügbar"
+msgstr "Пішов"
 
 # HTTP Status Code 410
 #: library/zzwrap/errorhandling.inc.php
@@ -188,13 +189,13 @@ msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
 msgstr ""
-"Der angeforderte Inhalt existiert auf dem Server nicht mehr und wurde "
-"dauerhaft entfernt. Eine Weiterleitungsadresse ist nicht verfügbar."
+"﻿Запитувана URL-адреса більше не доступна на цьому сервері, і немає адреси "
+"пересилання."
 
 # HTTP Status Code 411
 #: library/zzwrap/errorhandling.inc.php
 msgid "Length Required"
-msgstr "Content-Length-Angabe fehlerhaft"
+msgstr "﻿Обов 'язкова довжина"
 
 # HTTP Status Code 411
 #: library/zzwrap/errorhandling.inc.php
@@ -202,39 +203,37 @@ msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
 msgstr ""
-"Die Anfrage kann nicht beantwortet werden. Bei Verwendung der %s-Methode muß "
-"ein korrekter <code>Content-Length</code>-Header angegeben werden."
+"﻿Запит з %s-методом вимагає дійсного <code>заголовка</code> Content-Length."
 
 # HTTP Status Code 412
 #: library/zzwrap/errorhandling.inc.php
 msgid "Precondition Failed"
-msgstr "Vorbedingung verfehlt"
+msgstr "﻿Не вдалося виставити попередню умову"
 
 # HTTP Status Code 412
 #: library/zzwrap/errorhandling.inc.php
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr ""
-"Die für den Abruf der angeforderten URL notwendige Vorbedingung wurde nicht "
-"erfüllt."
+"﻿Попередня умова запиту URL-адреси зазнала невдачі при позитивній оцінці."
 
 # HTTP Status Code 413
 #: library/zzwrap/errorhandling.inc.php
 msgid "Request Entity Too Large"
-msgstr "Übergebene Daten zu groß"
+msgstr "﻿Запит сутності завеликий"
 
 # HTTP Status Code 413
 #: library/zzwrap/errorhandling.inc.php
 msgid ""
-"The %s-method does not allow the data transmitted, or the data volume exceeds "
-"the capacity limit."
+"The %s-method does not allow the data transmitted, or the data volume "
+"exceeds the capacity limit."
 msgstr ""
-"Die bei der Anfrage übermittelten Daten sind für die %s-Methode nicht erlaubt "
-"oder die Datenmenge hat das Maximum überschritten."
+"﻿%s-метод не дозволяє передавати дані, або обсяг даних перевищує ліміт "
+"місткості."
 
 # HTTP Status Code 414
 #: library/zzwrap/errorhandling.inc.php
 msgid "URI Too Long"
-msgstr "URI zu lang"
+msgstr "﻿Занадто довгий URI"
 
 # HTTP Status Code 414
 #: library/zzwrap/errorhandling.inc.php
@@ -242,77 +241,70 @@ msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
 msgstr ""
-"Die bei der Anfrage  übermittelte URI überschreitet die maximale Länge. Die "
-"Anfrage kann nicht ausgeführt werden."
+"﻿Довжина запитуваної URL-адреси перевищує ліміт потужності для цього сервера. "
+"Не вдалося обробити запит."
 
 # HTTP Status Code 415
 #: library/zzwrap/errorhandling.inc.php
 msgid "Unsupported Media Type"
-msgstr "Nicht unterstütztes Format"
+msgstr "﻿Непідтримуваний тип носія."
 
 # HTTP Status Code 415
 #: library/zzwrap/errorhandling.inc.php
 msgid "The server does not support the media type transmitted in the request."
-msgstr ""
-"Das bei der Anfrage übermittelte Format (Media Type) wird vom Server nicht "
-"unterstützt."
+msgstr "﻿Сервер не підтримує тип носія, переданий у запиті."
 
 # HTTP Status Code 416
 #: library/zzwrap/errorhandling.inc.php
 msgid "Requested Range Not Satisfiable"
-msgstr "Abgefragtes Intervall (<code>range</code>) nicht erfüllbar"
+msgstr "﻿Запитуваний діапазон не задовольняється"
 
 # HTTP Status Code 417
 #: library/zzwrap/errorhandling.inc.php
 msgid "Expectation Failed"
-msgstr "Erwartung (<code>Expect</code>) fehlgeschlagen"
+msgstr "﻿Помилка очікування"
 
 # HTTP Status Code 500
 #: library/zzwrap/errorhandling.inc.php
 msgid "Internal Server Error"
-msgstr "Serverfehler"
+msgstr "﻿Внутрішня помилка сервера"
 
 # HTTP Status Code 500
 #: library/zzwrap/errorhandling.inc.php
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
-msgstr ""
-"Die Anfrage kann nicht beantwortet werden, da im Server ein interner Fehler "
-"aufgetreten ist."
+msgstr "﻿Сервер виявив внутрішню помилку і не зміг виконати ваш запит."
 
 # HTTP Status Code 500
 #: library/zzwrap/errorhandling.inc.php
 msgid "Unsupported server protocol (%s)"
-msgstr "Server-Protokoll wird nicht unterstützt (%s)"
+msgstr "﻿Непідтримуваний протокол сервера (%s)"
 
 # HTTP Status Code 501
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Implemented"
-msgstr "Abfrage nicht unterstützt"
+msgstr "﻿Не впроваджено"
 
 # HTTP Status Code 501
 #: library/zzwrap/errorhandling.inc.php
 msgid "The server does not support the action requested by the browser (%s)."
-msgstr ""
-"Die vom Browser angeforderte Aktion wird vom Server nicht unterstützt (%s)."
+msgstr "﻿Сервер не підтримує дії, запрошені веб-переглядачем (%s)."
 
 # HTTP Status Code 502
 #: library/zzwrap/errorhandling.inc.php
 msgid "Bad Gateway"
-msgstr "Fehlerhaftes Gateway"
+msgstr "﻿Поганий шлюз"
 
 # HTTP Status Code 502
 #: library/zzwrap/errorhandling.inc.php
 msgid "The proxy server received an invalid response from an upstream server."
-msgstr ""
-"Der Proxy-Server erhielt eine fehlerhafte Antwort eines übergeordneten Servers "
-"oder Proxies."
+msgstr "﻿Проксі-сервер отримав недійсну відповідь від вихідного сервера."
 
 # HTTP Status Code 503
 #: library/zzwrap/errorhandling.inc.php
 msgid "Service Unavailable"
-msgstr "Dienst steht nicht zur Verfügung."
+msgstr "﻿Служба SMTP недоступна"
 
 # HTTP Status Code 503
 #: library/zzwrap/errorhandling.inc.php
@@ -320,31 +312,30 @@ msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
 msgstr ""
-"Der Server kann zur Zeit Ihre Anfrage nicht bearbeiten. Grund kann eine "
-"Überlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es später "
-"noch einmal."
+"﻿Сервер тимчасово не може обслуговувати ваш запит через проблеми з технічним "
+"обслуговуванням або потужністю. Повторіть спробу пізніше."
 
 # HTTP Status Code 504
 #: library/zzwrap/errorhandling.inc.php
 msgid "Gateway Timeout"
-msgstr "Zeitlimit am Netzübergang (<code>gateway</code>) überschritten"
+msgstr "﻿Час вичерпано"
 
 # HTTP Status Code 505
 #: library/zzwrap/errorhandling.inc.php
 msgid "HTTP Version Not Supported"
-msgstr "HTTP-Version nicht unterstützt"
+msgstr "﻿Версія HTTP не підтримується"
 
 #: library/zzwrap/errorhandling.inc.php
 msgid ""
 "Please try to find the content you were looking for from our <a href=\"%s"
 "\">main page</a>."
 msgstr ""
-"Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, über <a href=\"%s"
-"\">unsere Hauptseite</a> zu finden."
+"﻿Спробуйте знайти потрібний вміст на нашій <a href=\"%s\">головній сторінці</"
+"a>."
 
 #: library/zzwrap/errorhandling.inc.php
 msgid "User"
-msgstr "Nutzer"
+msgstr "﻿Користувач"
 
 #: library/zzwrap/errorhandling.inc.php
 msgid ""
@@ -358,184 +349,184 @@ msgid ""
 "\n"
 " but could not be found on the server"
 msgstr ""
-"Die URL\n"
+"﻿URL-адресу\n"
 "\n"
 "%s\n"
 "\n"
-"wurde ueber %s\n"
-"mit der IP-Adresse %s\n"
-"Browser %s\n"
+" було запрошено через %s\n"
+" з IP-адресою %s\n"
+"Браузер %s\n"
 "\n"
-"angefordert, konnte auf dem Server aber nicht gefunden werden!"
+", але не вдалося знайти на сервері"
 
 #: library/zzwrap/errorhandling.inc.php
 msgid "Error on website"
-msgstr "Fehler auf der Website"
+msgstr "﻿Помилка на сайті"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "N North"
-msgstr "N Nord"
+msgstr "Північ"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "NNE North-northeast"
-msgstr "NNO Nordnordost"
+msgstr "﻿Півн.-Півн.східн."
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "NE Northeast"
-msgstr "NO Nordost"
+msgstr "﻿Північно-Східна Азія"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "ENE East-northeast"
-msgstr "ONO Ostnordost"
+msgstr "﻿Схід - Півн-схід"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "E East"
-msgstr "O Ost"
+msgstr "﻿Схід"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "ESE East-southeast"
-msgstr "OSO Ostsüdost"
+msgstr "﻿Схід - Півд-схід"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "SE Southeast"
-msgstr "SO Südost"
+msgstr "Південно-Східна Азія"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "SSE South-southeast"
-msgstr "SSO Südsüdost"
+msgstr "﻿Півд - Півд-сх."
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "S South"
-msgstr "S Süd"
+msgstr "﻿Південь"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "SSW South-southwest"
-msgstr "SSW Südsüdwest"
+msgstr "﻿Півд - Півд-зах"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "SW Southwest"
-msgstr "SW Südwest"
+msgstr "﻿Південно-Західна Півкуля"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "WSW West-southwest"
-msgstr "WSW Westsüdwest"
+msgstr "Захід-Південний Захід"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "W West"
-msgstr "W West"
+msgstr "﻿Захід"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "WNW West-northwest"
-msgstr "WNW Westnordwest"
+msgstr "﻿Зах - Півн-зах"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "NW Northwest"
-msgstr "NW Nordwest"
+msgstr "﻿Північний захід"
 
 # Points of the compass (abbreviation, space, long form)
 #: library/zzwrap/format.inc.php
 msgid "NNW North-northwest"
-msgstr "NNW Nordnordwest"
+msgstr "﻿Північ-Півн.зах."
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "%d years"
-msgstr "%d Jahre"
+msgstr "﻿%d років"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "1 year"
-msgstr "1 Jahr"
+msgstr "﻿1 рік"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "%d weeks"
-msgstr "%d Wochen"
+msgstr "﻿%d тижнів"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "1 week"
-msgstr "1 Woche"
+msgstr "﻿1 тиждень"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "%d days"
-msgstr "%d Tage"
+msgstr "﻿%d днів"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "1 day"
-msgstr "1 Tag"
+msgstr "﻿1 день"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "%d hours"
-msgstr "%d Stunden"
+msgstr "﻿%d годин"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "1 hour"
-msgstr "1 Stunde"
+msgstr "﻿1 година"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "%d minutes"
-msgstr "%d Minuten"
+msgstr "﻿%d хвилин"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "1 minute"
-msgstr "1 Minute"
+msgstr "﻿1 хвилина"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "%d seconds"
-msgstr "%d Sekunden"
+msgstr "﻿%d секунд"
 
 # duration
 #: library/zzwrap/format.inc.php
 msgid "1 second"
-msgstr "1 Sekunde"
+msgstr "﻿1 секунда"
 
 # Weekdays, abbreviated
 msgid "Mon"
-msgstr "Mo"
+msgstr "﻿Пн"
 
 # Weekdays, abbreviated
 msgid "Tue"
-msgstr "Di"
+msgstr "﻿Вт"
 
 # Weekdays, abbreviated
 msgid "Wed"
-msgstr "Mi"
+msgstr "﻿Ср"
 
 # Weekdays, abbreviated
 msgid "Thu"
-msgstr "Do"
+msgstr "﻿Чт"
 
 # Weekdays, abbreviated
 msgid "Fri"
-msgstr "Fr"
+msgstr "﻿Пт"
 
 # Weekdays, abbreviated
 msgid "Sat"
-msgstr "Sa"
+msgstr "﻿Сб"
 
 # Weekdays, abbreviated
 msgid "Sun"
-msgstr "So"
+msgstr "﻿Нд"
