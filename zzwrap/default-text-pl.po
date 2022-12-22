@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2022 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -24,40 +24,40 @@ msgstr ""
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
-msgstr ""
+msgstr "Nieprawidłowe hasło lub nazwa użytkownika. Proszę spróbować ponownie."
 
 #: library/zzwrap/auth.inc.php
 msgid "Username:"
-msgstr ""
+msgstr "nazwa użytkownika"
 
 #: library/zzwrap/auth.inc.php
 msgid "Password or username are empty. Please try again."
-msgstr ""
+msgstr "Hasło lub nazwa użytkownika są puste. Proszę spróbować ponownie."
 
 #: library/zzwrap/auth.inc.php
 msgid "Request password"
-msgstr ""
+msgstr "Poproś o hasło"
 
 #: library/zzwrap/auth.inc.php
 msgid "Forgotten Password"
-msgstr ""
+msgstr "Nie pamiętam hasła"
 
 #: library/zzwrap/auth.inc.php
 msgid "Link for login is wrong or out of date."
-msgstr ""
+msgstr "Link do logowania jest błędny lub nieaktualny."
 
 #: library/zzwrap/auth.inc.php
 msgid "Please get a new one."
-msgstr ""
+msgstr "Poproś o nowy."
 
 #: library/zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
-msgstr ""
+msgstr "Chwilowo logowanie nie jest możliwe."
 
 # access
 #: library/zzwrap/core.inc.php
 msgid "Access to this website for your IP address is restricted."
-msgstr "Dostęp do tej witryny dla Twojego adresu IP jest ograniczony."
+msgstr "Dostęp do tej witryny dla twojego adresu IP jest ograniczony."
 
 # HTTP Status Code 300
 #: library/zzwrap/errorhandling.inc.php
@@ -131,7 +131,7 @@ msgstr "Nie masz uprawnień dostępu do żądanego obiektu. Jest on albo chronio
 # HTTP Status Code 404
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Found"
-msgstr "Nic nie znaleziono"
+msgstr "Nie znaleziono"
 
 # HTTP Status Code 404
 #: library/zzwrap/errorhandling.inc.php
@@ -166,7 +166,7 @@ msgstr "Konflikt"
 # HTTP Status Code 410
 #: library/zzwrap/errorhandling.inc.php
 msgid "Gone"
-msgstr "Stracony"
+msgstr "Brak"
 
 # HTTP Status Code 410
 #: library/zzwrap/errorhandling.inc.php
@@ -241,7 +241,7 @@ msgstr "Wewnętrzny błąd serwera"
 # HTTP Status Code 500
 #: library/zzwrap/errorhandling.inc.php
 msgid "The server encountered an internal error and was unable to complete your request."
-msgstr "Serwer napotkał błąd wewnętrzny i nie był w stanie zrealizować Twojego żądania."
+msgstr "Serwer napotkał błąd wewnętrzny i nie był w stanie zrealizować twojego żądania."
 
 # HTTP Status Code 500
 #: library/zzwrap/errorhandling.inc.php
@@ -251,7 +251,7 @@ msgstr "Nieobsługiwany protokół serwera (%s)"
 # HTTP Status Code 501
 #: library/zzwrap/errorhandling.inc.php
 msgid "Not Implemented"
-msgstr "Nie zaimplementowano"
+msgstr "Nie zrealizowano"
 
 # HTTP Status Code 501
 #: library/zzwrap/errorhandling.inc.php
@@ -276,7 +276,7 @@ msgstr "Serwis niedostępny"
 # HTTP Status Code 503
 #: library/zzwrap/errorhandling.inc.php
 msgid "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later."
-msgstr "Serwer tymczasowo nie może obsłużyć Twojego żądania z powodu przestojów konserwacyjnych lub problemów z wydajnością. Spróbuj ponownie później."
+msgstr "Serwer tymczasowo nie może obsłużyć żądania z powodu przestojów konserwacyjnych lub problemów z wydajnością. Spróbuj ponownie później."
 
 # HTTP Status Code 504
 #: library/zzwrap/errorhandling.inc.php
@@ -311,8 +311,8 @@ msgstr ""
 "Adres URL\n"
 "\n"
 "%s\n"
-"\ n został zamówiony za pośrednictwem %s\n"
-" z adresem IP %s\ nPrzeglądarka %s\n"
+"\\ n został zamówiony za pośrednictwem %s\n"
+" z adresem IP %s\\ nPrzeglądarka %s\n"
 "\n"
 ", ale nie można znaleźć na serwerze"
 
@@ -462,29 +462,28 @@ msgstr "1 sekunda"
 
 # Weekdays, abbreviated
 msgid "Mon"
-msgstr "Pon"
+msgstr "pon"
 
 # Weekdays, abbreviated
 msgid "Tue"
-msgstr "Wto"
+msgstr "wt"
 
 # Weekdays, abbreviated
 msgid "Wed"
-msgstr "Śro"
+msgstr "śr"
 
 # Weekdays, abbreviated
 msgid "Thu"
-msgstr "Czw"
+msgstr "czw"
 
 # Weekdays, abbreviated
 msgid "Fri"
-msgstr "Pt"
+msgstr "pt"
 
 # Weekdays, abbreviated
 msgid "Sat"
-msgstr "Sob"
+msgstr "sob"
 
 # Weekdays, abbreviated
 msgid "Sun"
-msgstr "Nie"
-
+msgstr "nd"
