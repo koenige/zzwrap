@@ -82,6 +82,36 @@ function wrap_access($area, $details = '') {
 }
 
 /**
+ * check access rights on page level
+ * if access=access_key is set, check if rights suffice
+ *
+ * @param array $page
+ * @param array $details (optional)
+ * @return bool
+ */
+function wrap_access_page($page, $details = []) {
+	static $config;
+	if (empty($page['parameters'])) return true;
+	parse_str($page['parameters'], $parameters);
+	if (empty($parameters['access'])) return true;
+	// check later with placeholders?
+	if (empty($config)) $config = wrap_cfg_files('access');
+	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND $details) return true;
+	if ($details) {
+		$access = false;
+		foreach ($details as $detail) {
+			if (!wrap_access($parameters['access'], $detail)) continue;
+			$access = true;
+			break;
+		}
+		if (!$access) wrap_quit(403);
+	} else {
+		if (!wrap_access($parameters['access'])) wrap_quit(403);
+	}
+	return true;
+}
+
+/**
  * checks or sets rights
  *
  * @param string $right key:

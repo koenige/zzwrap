@@ -94,6 +94,7 @@ function zzwrap() {
 	
 	if (wrap_get_setting('authentication_possible')) {
 		wrap_auth();
+		wrap_access_page($zz_page['db']);
 	}
 	wrap_check_https($zz_page);
 
