@@ -96,7 +96,7 @@ function wrap_access_page($page, $details = []) {
 	if (empty($parameters['access'])) return true;
 	// check later with placeholders?
 	if (empty($config)) $config = wrap_cfg_files('access');
-	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND $details) return true;
+	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
 	if ($details) {
 		$access = false;
 		foreach ($details as $detail) {
