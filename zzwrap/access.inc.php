@@ -100,6 +100,7 @@ function wrap_access_page($page, $details = []) {
 	if ($details) {
 		$access = false;
 		foreach ($details as $detail) {
+			if (!$detail) continue; // do not check if nothing is defined
 			if (!wrap_access($parameters['access'], $detail)) continue;
 			$access = true;
 			break;
