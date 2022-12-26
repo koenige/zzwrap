@@ -468,6 +468,32 @@ function wrap_page_parameters($params) {
 }
 
 /**
+ * add module parameters to settings
+ *
+ * whitelist of possible parameters is generated from settings.cfg in modules
+ * setting needs scope = module
+ * @param string $params
+ * @global array $zz_setting
+ * @return bool
+ */
+function wrap_module_parameters($module, $params) {
+	global $zz_setting;
+	
+	parse_str($params, $params);
+	if (!$params) return false;
+
+	$cfg = wrap_cfg_files('settings');
+	foreach ($params as $key => $value) {
+		if (!array_key_exists($key, $cfg)) continue;
+		if (empty($cfg[$key]['scope'])) continue;
+		$scope = wrap_setting_value($cfg[$key]['scope']);
+		if (!in_array($module, $scope)) continue;
+		$zz_setting[$key] = $value;
+	}
+	return true;
+}
+
+/**
  * support some standard URLs if there’s no entry in webpages table for them
  *
  * @param array $url
