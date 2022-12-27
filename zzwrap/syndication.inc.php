@@ -788,6 +788,10 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	
 	$my['sha1'] = sha1_file($source_file);
 	$my['timestamp'] = filemtime($source_file);
+	// beware, there is a lot of buggy software that changes timestamps after
+	// e. g. FTP upload to some date in the past
+	if (filectime($source_file) > $my['timestamp'])
+		$my['timestamp'] = filectime($source_file);
 	if (!empty($params['destination'])) {
 		$substitutes = [];
 		foreach ($params['destination'] as $var) {
