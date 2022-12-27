@@ -87,9 +87,10 @@ function wrap_access($area, $details = '') {
  *
  * @param array $page
  * @param array $details (optional)
+ * @param bool $quit
  * @return bool
  */
-function wrap_access_page($page, $details = []) {
+function wrap_access_page($page, $details = [], $quit = true) {
 	static $config;
 	if (empty($page['parameters'])) return true;
 	parse_str($page['parameters'], $parameters);
@@ -97,18 +98,19 @@ function wrap_access_page($page, $details = []) {
 	// check later with placeholders?
 	if (empty($config)) $config = wrap_cfg_files('access');
 	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
-	if ($details) {
-		$access = false;
+	$access = false;
+	if ($details)
 		foreach ($details as $detail) {
 			if (!$detail) continue; // do not check if nothing is defined
 			if (!wrap_access($parameters['access'], $detail)) continue;
 			$access = true;
 			break;
 		}
-		if (!$access) wrap_quit(403);
-	} else {
-		if (!wrap_access($parameters['access'])) wrap_quit(403);
-	}
+	elseif (wrap_access($parameters['access']))
+		$access = true;
+	if (!$access)
+		if ($quit) wrap_quit(403);
+		else return false;
 	return true;
 }
 
