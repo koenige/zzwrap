@@ -805,6 +805,10 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	$remove = false;
 	$delete_lines = [];
 	foreach ($watched_files as $index => $line) {
+		if (str_starts_with($line, hex2bin('00000000'))) {
+			$delete_lines[] = $index;
+			continue;
+		}
 		$file = explode(' ', trim($line)); // 0 = timestamp, 1 = sha1, 2 = filename
 		if (empty($file[2])) {
 			$delete_lines[] = $index;
