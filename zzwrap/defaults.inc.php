@@ -613,8 +613,7 @@ function wrap_set_defaults_post_conf() {
 	// project title, default
 	// (will occur only if database connection fails and json does not exist)
 	if (!isset($zz_setting['project']))
-		$zz_setting['project'] = preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST'])
-			? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
+		$zz_setting['project'] = $zz_setting['hostname'];
 
 	// translations
 	if (!isset($zz_conf['translations_of_fields']))
