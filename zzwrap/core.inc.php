@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -2147,7 +2147,8 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 			return false;
 		}
 	}
-	wrap_mkdir(dirname($head));
+	// create folder, but not if it is a file
+	if (!is_file(dirname($head))) wrap_mkdir(dirname($head));
 	// save document
 	if ($text) {
 		file_put_contents($doc, $text);
@@ -2163,6 +2164,11 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 		header_remove('Server');
 		$headers = $zz_setting['headers'];
 	}
+	// if it is a redirect only and it redirects to an URL without trailing slash
+	// for which a cache already exists, do not cache this redirect because it is
+	// impossible to save example/index and example at the same time (example being folder
+	// and file)
+	if (is_file(dirname($head)) AND !$text) return false;
 	file_put_contents($head, implode("\r\n", $headers));
 	return true;
 }
