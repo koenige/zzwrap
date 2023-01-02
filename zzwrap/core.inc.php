@@ -2654,7 +2654,11 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$file .= '/'.urlencode($base.$url['path']);
 	}
 	if (!empty($url['query'])) $file .= urlencode('?'.$url['query']);
-	if ($type === 'url') return $file;
+	if ($type === 'url') {
+		if (!empty($zz_setting['cache_directories']) AND !strstr(basename($file), '.'))
+			$file .= '.html'; // to avoid conflicts with directories
+		return $file;
+	}
 
 	$file .= '.headers';
 	if ($type === 'headers') return $file;
