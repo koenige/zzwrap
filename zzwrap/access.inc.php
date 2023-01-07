@@ -93,7 +93,8 @@ function wrap_access($area, $details = '') {
 function wrap_access_page($page, $details = [], $quit = true) {
 	static $config;
 	if (empty($page['parameters'])) return true;
-	parse_str($page['parameters'], $parameters);
+	if (is_string($page['parameters']))
+		parse_str($page['parameters'], $parameters);
 	if (empty($parameters['access'])) return true;
 	// check later with placeholders?
 	if (empty($config)) $config = wrap_cfg_files('access');
