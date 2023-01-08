@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -17,10 +17,10 @@
  * check access for a certain area
  *
  * @param string $area
- * @param string $details (optional, e. g. event_id:234 or event:2022/test)
+ * @param string $detail (optional, e. g. event_id:234 or event:2022/test)
  * @return bool true: access granted
  */
-function wrap_access($area, $details = '') {
+function wrap_access($area, $detail = '') {
 	global $zz_conf;
 	global $zz_setting;
 	static $config;
@@ -69,15 +69,50 @@ function wrap_access($area, $details = '') {
 	// check if access rights are met
 	if (!empty($usergroups[$area])) {
 		foreach ($usergroups[$area] as $usergroup) {
-			$access = brick_access_rights($usergroup, $details);
+			$access = brick_access_rights($usergroup, $detail);
 			if ($access) break;
 		}
 	} else {
 		$group_rights = $config[$area]['group'] ?? $config[$area_short]['group'];
-		if ($group_rights === 'public') return true;
-		$access = brick_access_rights($group_rights);
+		if ($group_rights === 'public') $access = true;
+		else $access = brick_access_rights($group_rights);
 	}
 	if (!$access) return false;
+	
+	// check if there are conditions if access is granted
+	if (array_key_exists($area, $config))
+		$access = wrap_conditions($config[$area], $detail);
+	
+	return $access;
+}
+
+/**
+ * check condition if access is granted
+ *
+ * @param array $config
+ * @param string $detail
+ * @return bool
+ */
+function wrap_conditions($config, $detail) {
+	static $data;
+	if (empty($data)) $data = [];
+	if (!$detail) return true;
+	if (empty($config['condition'])) return true;
+	$module = $config['condition_queries_module'] ?? $config['module'];
+	$key = sprintf('%s_%s', $module, $detail);
+	
+	// get the data
+	if (!array_key_exists($key, $data)) {
+		$keys = explode(':', $key);
+		$sql = wrap_sql_query($keys[0]);
+		if ($sql) {
+			$sql = sprintf($sql, $keys[1]);
+			$data[$key] = wrap_db_fetch($sql);
+		} else {
+			wrap_error(sprintf('No query for %s found.', $keys[0]));
+		}
+	}
+	if (empty($data[$key][$config['condition']])) return NULL; // not applicable = 404
 	return true;
 }
 
@@ -103,14 +138,14 @@ function wrap_access_page($page, $details = [], $quit = true) {
 	if ($details)
 		foreach ($details as $detail) {
 			if (!$detail) continue; // do not check if nothing is defined
-			if (!wrap_access($parameters['access'], $detail)) continue;
-			$access = true;
-			break;
+			$access = wrap_access($parameters['access'], $detail);
+			if ($access) break;
 		}
-	elseif (wrap_access($parameters['access']))
-		$access = true;
+	else
+		$access = wrap_access($parameters['access']);
+
 	if (!$access)
-		if ($quit) wrap_quit(403);
+		if ($quit) wrap_quit(is_null($access) ? 404 : 403);
 		else return false;
 	return true;
 }
