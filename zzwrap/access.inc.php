@@ -108,12 +108,28 @@ function wrap_conditions($config, $detail) {
 		if ($sql) {
 			$sql = sprintf($sql, $keys[1]);
 			$data[$key] = wrap_db_fetch($sql);
+			$data[$key] = wrap_parameters($data[$key]);
 		} else {
 			wrap_error(sprintf('No query for %s found.', $keys[0]));
 		}
 	}
 	if (empty($data[$key][$config['condition']])) return NULL; // not applicable = 404
 	return true;
+}
+
+/**
+ * merge all _parameters fields into $data
+ *
+ * @param array $fields
+ * @return array
+ */
+function wrap_parameters($fields) {
+	foreach ($fields as $key => $value) {
+		if (!str_ends_with($key, '_parameters')) continue;
+		parse_str($value, $parameters);
+		$fields = array_merge($fields, $parameters);
+	}
+	return $fields;
 }
 
 /**
