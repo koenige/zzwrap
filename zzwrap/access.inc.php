@@ -99,12 +99,13 @@ function wrap_conditions($config, $detail) {
 	if (!$detail) return true;
 	if (empty($config['condition'])) return true;
 	$module = $config['condition_queries_module'] ?? $config['module'];
+	if (!$module) $module = 'custom';
 	$key = sprintf('%s_%s', $module, $detail);
 	
 	// get the data
 	if (!array_key_exists($key, $data)) {
 		$keys = explode(':', $key);
-		$sql = wrap_sql_query($keys[0]);
+		$sql = wrap_sql_query($config['condition_query'] ?? $keys[0]);
 		if ($sql) {
 			$sql = sprintf($sql, $keys[1]);
 			$data[$key] = wrap_db_fetch($sql);
