@@ -18,9 +18,10 @@
  *
  * @param string $area
  * @param string $detail (optional, e. g. event_id:234 or event:2022/test)
+ * @param bool $conditions check conditions or not
  * @return bool true: access granted
  */
-function wrap_access($area, $detail = '') {
+function wrap_access($area, $detail = '', $conditions = true) {
 	global $zz_conf;
 	global $zz_setting;
 	static $config;
@@ -80,7 +81,7 @@ function wrap_access($area, $detail = '') {
 	if (!$access) return false;
 	
 	// check if there are conditions if access is granted
-	if (array_key_exists($area, $config))
+	if ($conditions AND array_key_exists($area, $config))
 		$access = wrap_conditions($config[$area], $detail);
 	
 	return $access;
@@ -100,12 +101,15 @@ function wrap_conditions($config, $detail) {
 	if (empty($config['condition'])) return true;
 	$module = $config['condition_queries_module'] ?? $config['module'];
 	if (!$module) $module = 'custom';
-	$key = sprintf('%s_%s', $module, $detail);
+	if (!empty($config['condition_query']))
+		$key = sprintf('%s_%s_%s', $module, $config['condition_query'], $detail);
+	else
+		$key = sprintf('%s_%s', $module, $detail);
 	
 	// get the data
 	if (!array_key_exists($key, $data)) {
 		$keys = explode(':', $key);
-		$sql = wrap_sql_query($config['condition_query'] ?? $keys[0]);
+		$sql = wrap_sql_query($keys[0]);
 		if ($sql) {
 			$sql = sprintf($sql, $keys[1]);
 			$data[$key] = wrap_db_fetch($sql);
@@ -154,10 +158,12 @@ function wrap_access_page($page, $details = [], $quit = true) {
 	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
 	$access = false;
 	if ($details)
-		foreach ($details as $detail) {
+		foreach ($details as $index => $detail) {
 			if (!$detail) continue; // do not check if nothing is defined
-			$access = wrap_access($parameters['access'], $detail);
-			if ($access) break;
+			// check condition only for first detail
+			// do not go on if condition check was false (return = NULL)
+			$access = wrap_access($parameters['access'], $detail, ($index ? false : true));
+			if ($access OR is_null($access)) break;
 		}
 	else
 		$access = wrap_access($parameters['access']);
