@@ -280,40 +280,19 @@ function wrap_look_for_page($zz_page) {
 	// For request, remove ending (.html, /), but not for page root
 	// core_pages__fields: notation like /* _latin1='%s' */
 	$identifier_template = wrap_sql_fields('core_pages');
-	$end_params = [];
 	$data = [];
 	foreach ($full_url as $i => $my_url) {
 		$index = 0;
 		$params = [];
+		$replaced = [];
 		while ($my_url !== false) {
-			// remove identical parts at the end
-			$my_params = $params;
-			if (strstr($my_url, '*/')) {
-				$parts = explode('*/', $my_url);
-				while (end($parts) === end($my_params)) {
-					array_pop($parts);
-					array_pop($my_params);
-				}
-			}
+			if ($index AND $my_url === '*') break; // already set in first run
 			$data[$i + $index * count($full_url)] = [
 				'url' => $my_url,
-				'params' => wrap_url_params($my_params, $end_params, $leftovers[$i] ?? [])
+				'params' => wrap_url_params($replaced, $leftovers[$i] ?? [])
 			];
-			if (count($end_params) > 1) {
-				$extra_urls = $end_params;
-				$extra_url = $my_url;
-				$extra_end = [array_pop($extra_urls)];
-				do {
-					$index++;
-					$extra_url = substr($extra_url, 0, strrpos($extra_url, '/'));
-					$data[$i + $index * count($full_url)] = [
-						'url' => $extra_url.'*',
-						'params' => array_merge(wrap_url_params($my_params, $end_params, $leftovers[$i] ?? []), array_reverse($extra_end)),						
-					];
-					$extra_end[] = array_pop($extra_urls);
-				} while ($extra_urls);
-			}
-			list($my_url, $params, $end_params) = wrap_url_cut($my_url, $params);
+			if ($my_url === '*') break;
+			list($my_url, $params, $replaced) = wrap_url_cut($my_url, $params);
 			$index++;
 		}
 	}
@@ -358,31 +337,19 @@ function wrap_look_for_page($zz_page) {
  * get correct parameters for page
  *
  * @param array $params
- * @param array $end_params parameters at end of query after asterisk
+ * @param array $replaced parameters at end of query after asterisk
  * @param array $leftovers placeholder values like %year%
  * @return array
  */
-function wrap_url_params($params, $end_params = [], $leftovers = []) {
-	if (!empty($end_params)) {
-		// remove used parameters behind asterisk
-		$end_params = array_reverse($end_params);
-		$params = array_reverse($params);
-		foreach ($end_params as $index => $value) {
-			if ($params[$index] === $value)
-				unset($params[$index]);
-		}
-		$params = array_reverse($params);
-	}
+function wrap_url_params($replaced, $leftovers = []) {
+	if (empty($leftovers))
+		return $replaced;
 
-	// but get placeholders as parameters as well!
-	if (!empty($leftovers)) {
-		$new = $leftovers;
-		foreach ($params as $value) {
-			$new[] = $value;
-		}
-		$params = $new;
-	}
-	return $params;
+	$new = $leftovers;
+	foreach ($replaced as $value)
+		$new[] = $value;
+	$replaced = $new;
+	return $replaced;
 }
 
 /**
@@ -401,46 +368,79 @@ function wrap_url_params($params, $end_params = [], $leftovers = []) {
  * @return array
  */
 function wrap_url_cut($url, $params) {
-	static $asterisk_middle;
-	$end_params = [];
-	if (empty($asterisk_middle)) $asterisk_middle = 0;
-
-	if ($asterisk_middle) {
-		// go from /db/persons*/participations to /db/persons*
-		$url = substr($url, 0, strrpos($url, '*') + 1);
-		if ($asterisk_middle >= 2 OR count($params) <= 2) {
-			$asterisk_middle = 0;
-		} else {
-			$end_params = $params;
-			array_shift($end_params);
-			array_shift($end_params);
-			$url .= '/'.implode('/', $end_params);
-			$asterisk_middle++;
-		}
-		return [$url, $params, $end_params];
-	}
-	if ($params) {
-		$url = substr($url, 0, -1); // remove '*'
-	}
+	static $counter;
+	static $counter_end;
+	static $last_url;
+	if (empty($counter)) $counter = 0;
+	if (empty($last_url)) $last_url = '';
+	$replaced = [];
+	$my_params = [];
+	
 	if ($pos = strrpos($url, '/')) {
-		array_unshift($params, substr($url, $pos + 1));
-		$url = substr($url, 0, $pos).'*';
-		if (count($params) > 1 AND !$asterisk_middle) {
-			// go from /db/persons/first.last* to  /db/persons*/participations
-			$end_params = $params;
-			array_shift($end_params);
-			$url .= '/'.implode('/', $end_params);
-			$asterisk_middle++;
-		}
+		$new_param = rtrim(substr($url, $pos + 1), '*');
+		$url = rtrim(substr($url, 0, $pos), '*').'*';
 	} elseif (($url OR $url === '0' OR $url === 0) AND substr($url, 0, 1) !== '_') {
-		array_unshift($params, $url);
+		array_unshift($params, rtrim($url, '*'));
+		$new_param = '';
 		$url = '*';
+		// do not add URLs starting with `*` here because
+		// a) too many possibilities
+		// b) script needs to be adapted to that
+		return [$url, $params, $params];
 	} else {
+		$new_param = '';
 		$url = false;
 	}
-	// if URL already contains *, return with 404 if not found, no placeholders possible
-	if (strstr($url, '**/')) $url = false;
-	return [$url, $params, $end_params];
+
+	if ($counter) {
+		if ($counter === $counter_end) {
+			$counter = 0;
+			$replaced = $params;
+		} else {
+			$url = $last_url;
+			$my_params = $params;
+			$replaced[-1] = array_shift($my_params);
+			$asterisks = -floor($counter/count($my_params));
+			$pos = $counter + ($asterisks - 1) * count($my_params);
+			$index = count($my_params) + $pos - 1;
+			if ($index < 0) $index = count($my_params) - 1;
+			while ($asterisks) {
+				$replaced[$index] = $my_params[$index];
+				$my_params[$index] = '*';
+				$asterisks--;
+				$index--;
+				if ($index < 0) $index = count($my_params) - 1;
+			}
+			ksort($replaced); // might be set in different order if more than one *
+			$replaced = array_values($replaced);
+			$counter--;
+		}
+	} else {
+		$replaced[] = $new_param;
+		array_unshift($params, $new_param);
+		$my_params = $params;
+		array_shift($my_params);
+		if ($my_params) {
+			$counter = -1;
+			$counter_end = -((count($my_params) - 1) * count($my_params) + 1);
+			$last_url = $url;
+		}
+	}
+
+	if ($my_params) {
+		$new_url = implode('/', $my_params);
+		$new_url = str_replace('/*', '*', $new_url);
+		$url .= '/'.$new_url;
+	}
+
+	// remove two or more adjacent asterisks
+	while (strstr($url, '**'))
+		$url = str_replace('**', '*', $url);
+	while (strstr($url, '*/*/'))
+		$url = str_replace('*/*/', '*/', $url);
+
+	// return result
+	return [$url, $params, $replaced];
 }
 
 /**
