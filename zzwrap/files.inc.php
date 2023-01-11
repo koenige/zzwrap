@@ -2,13 +2,13 @@
 
 /**
  * zzwrap
- * include functions
+ * files functions
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -230,7 +230,7 @@ function wrap_package_activate($package, $type = 'module') {
 		$zz_setting['activated'][$plural_type][] = $package;
 	
 	// dependencies?
-	$package_info = wrap_cfg_files('package', $package);
+	$package_info = wrap_cfg_files('package', ['package' => $package]);
 	if (!empty($package_info['dependencies'])) {
 		foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
 			if ($dependency_type === 'module') continue;

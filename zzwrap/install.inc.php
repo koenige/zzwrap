@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -230,7 +230,7 @@ function wrap_install_settings() {
  * @return string
  */
 function wrap_install_settings_page($module = false) {
-	$cfg = wrap_cfg_files('settings', $module);
+	$cfg = wrap_cfg_files('settings', ['package' => $module]);
 	$data = [];
 	$found = false;
 	foreach ($cfg as $key => $line) {

@@ -3360,10 +3360,10 @@ function wrap_setting_backend() {
  * read default settings from .cfg files
  *
  * @param string $type (settings, access, etc.)
- * @param string $single_module (optional)
+ * @param array $settings (optional)
  * @return array
  */
-function wrap_cfg_files($type, $single_module = false) {
+function wrap_cfg_files($type, $settings = []) {
 	global $zz_conf;
 	static $cfg;
 	static $single_cfg;
@@ -3383,35 +3383,61 @@ function wrap_cfg_files($type, $single_module = false) {
 		$translated = true;
 	}
 	
-	// return existing values
-	if ($single_module) {
-		if (!empty($single_cfg[$type][$single_module])) {
-			return $single_cfg[$type][$single_module];
-		}
-	} elseif (!empty($cfg[$type])) {
-		return $cfg[$type];
-	}
+	// read data
+	if (empty($cfg[$type]))
+		list($cfg[$type], $single_cfg[$type]) = wrap_cfg_files_parse($type);
+	if (empty($cfg[$type]))
+		return [];
 
-	// get data
-	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
-	if (!$files) return [];
-	$cfg[$type] = [];
-	foreach ($files as $package => $cfg_file) {
-		$single_cfg[$type][$package] = parse_ini_file($cfg_file, true);
-		foreach (array_keys($single_cfg[$type][$package]) as $index)
-			$single_cfg[$type][$package][$index]['module'] = $package;
-		// might be called before database connection exists
-		if (!empty($zz_conf['db_connection'])) {
-			wrap_cfg_translate($single_cfg[$type][$package]);
-			$translated = true;
+	// return existing values
+	if (!empty($settings['package'])) {
+		if (!array_key_exists($settings['package'], $single_cfg[$type])) return [];
+		return $single_cfg[$type][$settings['package']];
+	} elseif (!empty($settings['scope'])) {
+		// restrict array to a certain scope, 'website' being implicit default scope
+		$cfg_return = $cfg[$type];
+		foreach ($cfg_return as $key => $config) {
+			if (empty($config['scope'])) {
+				if ($settings['scope'] === 'website') continue;
+				unset($cfg_return[$key]);
+				continue;
+			}
+			$scope = wrap_setting_value($config['scope']);
+			if (in_array($settings['scope'], $scope)) continue;
+			unset($cfg_return[$key]);
 		}
-		$cfg[$type] += $single_cfg[$type][$package];
-	}
-	if ($single_module) {
-		if (!array_key_exists($single_module, $single_cfg[$type])) return [];
-		return $single_cfg[$type][$single_module];
+		return $cfg_return;
 	}
 	return $cfg[$type];
+}
+
+/**
+ * parse .cfg files per type
+ *
+ * @param string $type
+ * @return array
+ *		array $cfg configuration data indexed by package
+ *		array $single_cfg configuration data, all keys in one array
+ */
+function wrap_cfg_files_parse($type) {
+	global $zz_conf;
+
+	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
+	if (!$files) return [[], []];
+
+	$cfg = [];
+	foreach ($files as $package => $cfg_file) {
+		$single_cfg[$package] = parse_ini_file($cfg_file, true);
+		foreach (array_keys($single_cfg[$package]) as $index)
+			$single_cfg[$package][$index]['module'] = $package;
+		// might be called before database connection exists
+		if (!empty($zz_conf['db_connection'])) {
+			wrap_cfg_translate($single_cfg[$package]);
+			$translated = true;
+		}
+		$cfg += $single_cfg[$package];
+	}
+	return [$cfg, $single_cfg];
 }
 
 /**
