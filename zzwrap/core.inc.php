@@ -3520,6 +3520,7 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  */
 function wrap_path($area, $value = [], $check_rights = true) {
 	global $zz_setting;
+	global $zz_page;
 
 	// check rights
 	if ($check_rights AND !wrap_access($area)) return false;
@@ -3549,6 +3550,14 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	if (!$this_setting) return '';
 	// if you address e. g. news_article and it is in fact news_article[publication_path]:
 	if (is_array($this_setting)) return '';
+	// replace page placeholders with %s
+	if (!empty($zz_page['url_placeholders'])) {
+		foreach (array_keys($zz_page['url_placeholders']) as $placeholder) {
+			$placeholder = sprintf('%%%s%%', $placeholder);
+			if (!strstr($this_setting, $placeholder)) continue;
+			$this_setting = str_replace($placeholder, '%s', $this_setting);
+		}
+	}
 	$required_count = substr_count($this_setting, '%');
 	if (count($value) < $required_count) {
 		if (!empty($zz_setting['backend_path']))
