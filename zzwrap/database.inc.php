@@ -21,7 +21,7 @@
  *	- wrap_sql()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1120,11 +1120,10 @@ function wrap_sql_query($key, $file = 'queries') {
 	if (!in_array('custom-'.$filename, $collected)) {
 		$files = wrap_collect_files($filename, 'custom');
 		if ($files) {
-			$file = reset($files);
-			$custom_queries = wrap_sql_file($file);
-			foreach ($custom_queries as $p_key => $p_query) {
+			$this_file = reset($files);
+			$custom_queries = wrap_sql_file($this_file);
+			foreach ($custom_queries as $p_key => $p_query)
 				$queries[$p_key] = $p_query;
-			}
 		}
 		$collected[] = 'custom-'.$filename;
 	}
