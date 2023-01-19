@@ -47,8 +47,15 @@ function wrap_access($area, $detail = '', $conditions = true) {
 			FROM usergroups
 			LEFT JOIN access_usergroups USING (usergroup_id)
 			LEFT JOIN access USING (access_id)
-			WHERE access.access_key = "%s"';
-		$sql = sprintf($sql, wrap_db_escape($area));
+			WHERE access.access_key IN("%s")';
+		$areas = [wrap_db_escape($area)];
+		if (!empty($config[$area]['include_access'])) {
+			if (!is_array($config[$area]['include_access']))
+				$areas[] = $config[$area]['include_access'];
+			else
+				$areas = array_merge($areas, $config[$area]['include_access']);
+		}
+		$sql = sprintf($sql, implode('","', $areas));
 		$usergroups[$area] = wrap_db_fetch($sql, 'usergroup_id', 'key/value');
 	}
 	
