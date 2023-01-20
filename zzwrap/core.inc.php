@@ -286,18 +286,17 @@ function wrap_look_for_page($zz_page) {
 		$params = [];
 		$replaced = [];
 		while ($my_url !== false) {
-			if ($index AND $my_url === '*') break; // already set in first run
-			$data[$i + $index * count($full_url)] = [
-				'url' => $my_url,
-				'params' => wrap_url_params($replaced, $leftovers[$i] ?? [])
-			];
-			if ($my_url === '*') break;
+			$data[$i + $index * count($full_url)]
+				= wrap_url_params($my_url, $replaced, $leftovers[$i] ?? []);
 			list($my_url, $params, $replaced) = wrap_url_cut($my_url, $params);
 			$index++;
 		}
 	}
 	if (!$data) return false;
 	ksort($data);
+	// remove empty lines after sort
+	foreach ($data as $index => $line)
+		if (!$line) unset($data[$index]);
 	
 	$data = wrap_translate_url($data);
 
@@ -330,6 +329,13 @@ function wrap_look_for_page($zz_page) {
 
 	$page['parameter'] = implode('/', $data[$found]['params']);
 	$page['url'] = $data[$found]['url'];
+	
+	if ($page['url'] === '*') {
+		// some system paths must not match *
+		if (in_array($url['full']['path'], wrap_get_setting('icon_paths'))) return false;
+		if (str_starts_with($url['full']['path'], wrap_get_setting('layout_path'))) return false;
+		if (str_starts_with($url['full']['path'], wrap_get_setting('behaviour_path'))) return false;
+	}
 	return $page;
 }
 
@@ -341,15 +347,31 @@ function wrap_look_for_page($zz_page) {
  * @param array $leftovers placeholder values like %year%
  * @return array
  */
-function wrap_url_params($replaced, $leftovers = []) {
-	if (empty($leftovers))
-		return $replaced;
-
-	$new = $leftovers;
-	foreach ($replaced as $value)
-		$new[] = $value;
-	$replaced = $new;
-	return $replaced;
+function wrap_url_params($url, $replaced, $leftovers = []) {
+	if (!empty($leftovers)) {
+		if (!$replaced) {
+			$replaced = [reset($leftovers)];
+		} else {
+			$new = [];
+			$leftover_placed = false;
+			foreach ($replaced as $value) {
+				// is placeholder among the replaced parameters?
+				// then just return empty array (for sort order)
+				if (str_starts_with($value, '%') AND str_ends_with($value, '%'))
+					return [];
+				if (!in_array($value, $leftovers['before']) AND !$leftover_placed) {
+					$new[] = reset($leftovers);
+					$leftover_placed = true;
+				}
+				$new[] = $value;
+			}
+			$replaced = $new;
+		}
+	}
+	return [
+		'url' => $url,
+		'params' => array_values($replaced)
+	];
 }
 
 /**
@@ -376,10 +398,13 @@ function wrap_url_cut($url, $params) {
 	$replaced = [];
 	$my_params = [];
 	
-	if ($pos = strrpos($url, '/')) {
+	if ($url === '*') {
+		// do not go on after * is reached
+		return [false, $params, $params];
+	} elseif ($pos = strrpos($url, '/')) {
 		$new_param = rtrim(substr($url, $pos + 1), '*');
 		$url = rtrim(substr($url, 0, $pos), '*').'*';
-	} elseif (($url OR $url === '0' OR $url === 0) AND substr($url, 0, 1) !== '_') {
+	} elseif (($url OR $url === '0' OR $url === 0)) {
 		array_unshift($params, rtrim($url, '*'));
 		$new_param = '';
 		$url = '*';
@@ -609,6 +634,8 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
 						$leftovers[$i] = $leftovers[$url_index];
 					// take current part and put it into leftovers
 					$leftovers[$i][$partkey] = $url_parts[$i][$partkey];
+					$leftovers[$i]['before'] = array_slice($url_parts[0], 0, $partkey);
+					$leftovers[$i]['after'] = array_slice($url_parts[0], $partkey + 1);
 					// overwrite current part with placeholder
 					$url_parts[$i][$partkey] = '%'.$wildcard.'%';
 					$full_url[$i] = implode('/', $url_parts[$i]); 
