@@ -125,12 +125,18 @@ function wrap_conditions($config, $detail) {
 			wrap_error(sprintf('No query for %s found.', $keys[0]));
 		}
 	}
-	if (is_array($config['condition'])) {
-		foreach ($config['condition'] as $condition)
-			if (empty($data[$key][$condition])) return NULL;
-	} else {
-		if (empty($data[$key][$config['condition']])) return NULL; // not applicable = 404
-	}
+	if (!is_array($config['condition']))
+		$config['condition'] = [$config['condition']];
+	foreach ($config['condition'] as $condition)
+		if (empty($data[$key][$condition])) return NULL; // not applicable = 404
+
+	if (empty($config['condition_unless']))
+		$config['condition_unless'] = [];
+	elseif (!is_array($config['condition_unless']))
+		$config['condition_unless'] = [$config['condition_unless']];
+	foreach ($config['condition_unless'] as $condition)
+		if (!empty($data[$key][$condition])) return NULL; // not applicable = 404
+
 	return true;
 }
 
