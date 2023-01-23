@@ -336,7 +336,7 @@ function wrap_install_remote_db() {
 		if (empty($_POST['db_host'])) $all = false;
 		if ($all) {
 			$data = json_encode($_POST, JSON_PRETTY_PRINT);
-			$filename = $zz_setting['custom'].'/zzwrap_sql/pwd.json';
+			$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd.json';
 			file_put_contents($filename, $data);
 			return wrap_install_finish();
 		}
