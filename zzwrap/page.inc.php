@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -108,7 +108,7 @@ function wrap_template_file($template, $show_error = true) {
 		if ($tpl_file) return $tpl_file;
 	}
 	
-	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/templates');
+	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/custom/templates');
 	if ($tpl_file) return $tpl_file;
 
 	// check if there's a module template
@@ -171,7 +171,7 @@ function wrap_template_file($template, $show_error = true) {
 }
 
 /**
- * Checks per folder (templates, modules/templates) if there's a template
+ * Checks per folder (custom/templates, modules/templates) if there's a template
  * in that folder; checks first for language variations, then for languages
  * and at last for templates without language information
  *
