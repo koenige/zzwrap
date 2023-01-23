@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -500,7 +500,7 @@ function wrap_set_defaults_post_conf() {
 	
 	// customized cms includes
 	if (empty($zz_setting['custom_wrap_dir']))	
-		$zz_setting['custom_wrap_dir'] = $zz_setting['custom'].'/zzwrap';
+		$zz_setting['custom_wrap_dir'] = $zz_setting['custom'].'/custom';
 	
 	// customized sql queries, db connection
 	if (empty($zz_setting['custom_wrap_sql_dir']))	
