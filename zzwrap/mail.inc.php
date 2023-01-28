@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -462,8 +462,7 @@ function wrap_mail_split($address) {
  * @return array
  */
 function wrap_mail_signature($mail) {
-	global $zz_setting;
-	require_once $zz_setting['lib'].'/zzbrick/zzbrick.php'; // for error mails necessary
+	wrap_include_ext_libraries(); // for error mails necessary
 
 	if (!empty($mail['multipart'])) return $mail;
 	if (!str_starts_with($mail['headers']['Content-Type'], 'text/plain')) return $mail;
