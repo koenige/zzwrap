@@ -156,9 +156,6 @@ function wrap_set_defaults_pre_conf() {
 	// modules
 	$zz_setting['ext_libraries'][] = 'markdown-extra';
 
-	// tables from default module
-	$zz_setting['brick_default_tables'] = true;
-
 // -------------------------------------------------------------------------
 // Page
 // -------------------------------------------------------------------------
