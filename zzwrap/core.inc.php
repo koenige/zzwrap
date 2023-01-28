@@ -3429,7 +3429,7 @@ function wrap_cfg_files($type, $settings = []) {
 				unset($cfg_return[$key]);
 				continue;
 			}
-			$scope = wrap_setting_value($config['scope']);
+			$scope = is_array($config['scope']) ? $config['scope'] : wrap_setting_value($config['scope']);
 			if (in_array($settings['scope'], $scope)) continue;
 			unset($cfg_return[$key]);
 		}
