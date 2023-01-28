@@ -541,7 +541,7 @@ function wrap_mail_queue_send() {
 		foreach ($used_logfiles as $logfile) unlink($logfile);
 	}
 	$zz_setting['mail_subject_prefix'] = $old_mail_subject_prefix;
-	unset($zz_setting['url_parameter']); // needs to be set later on
+	unset($zz_setting['brick_url_parameter']); // needs to be set later on
 	
 	return false;
 }
