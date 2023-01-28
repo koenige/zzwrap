@@ -39,7 +39,7 @@ function wrap_template($template, $data = [], $mode = false) {
 	wrap_page_format_files();
 
 	if (strstr($template, "\n")) {
-		$current_template = '(from variable)';
+		$zz_setting['current_template'] = '(from variable)';
 		$template = explode("\n", $template);
 		// add newline that explode removed to each line
 		foreach (array_keys($template) as $no) {
@@ -47,15 +47,14 @@ function wrap_template($template, $data = [], $mode = false) {
 		}
 	} elseif (str_starts_with($template, '/') AND file_exists($template)) {
 		$tpl_file = $template;
-		$current_template = $template;
+		$zz_setting['current_template'] = $template;
 		$template = file($tpl_file);
 	} else {
 		$tpl_file = wrap_template_file($template);
 		if (!$tpl_file) return false;
-		$current_template = $template;
+		$zz_setting['current_template'] = $template;
 		$template = file($tpl_file);
 	}
-	$zz_setting['current_template'] = $current_template;
 	// remove comments and next empty line from the start
 	foreach ($template as $index => $line) {
 		if (substr($line, 0, 1) === '#') unset($template[$index]); // comments
@@ -68,9 +67,7 @@ function wrap_template($template, $data = [], $mode = false) {
 
 	// replace placeholders in template
 	// save old setting regarding text formatting
-	if (!isset($zz_setting['brick_fulltextformat'])) 
-		$zz_setting['brick_fulltextformat'] = '';
-	$old_brick_fulltextformat = $zz_setting['brick_fulltextformat'];
+	$old_brick_fulltextformat = wrap_get_setting('brick_fulltextformat');
 	// apply new text formatting
 	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
 	$page = brick_format($template, $data);
@@ -80,7 +77,7 @@ function wrap_template($template, $data = [], $mode = false) {
 	// get rid of if / else text that will be put to hidden
 	if (is_array($page['text']) AND count($page['text']) === 2 
 		AND in_array('_hidden_', array_keys($page['text']))
-		AND in_array($zz_setting['brick_default_position'], array_keys($page['text']))) {
+		AND in_array(wrap_get_setting('brick_default_position'), array_keys($page['text']))) {
 		unset($page['text']['_hidden_']);
 		$page['text'] = end($page['text']);
 	}
@@ -1110,7 +1107,7 @@ function wrap_htmlout_page($page) {
 	}
 	
 	$page = wrap_page_replace($page);
-	$page = brick_head_format($page, $zz_setting, true);
+	$page = brick_head_format($page, true);
 	$text = wrap_template($zz_setting['template'], $page);
 
 	// allow %%% notation on page with an escaping backslash
