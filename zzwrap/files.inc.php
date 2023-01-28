@@ -185,7 +185,9 @@ function wrap_include_ext_libraries() {
 			require_once $file;
 		else {
 			$found = false;
-			foreach ($zz_setting['modules'] as $module) {
+			// if library name is identical to module, just look inside module
+			$folders = in_array($function, $zz_setting['modules']) ? [$function] : $zz_setting['modules'];
+			foreach ($folders as $module) {
 				$file = $zz_setting['modules_dir'].'/'.$module.'/libraries/'.$function.'.inc.php';
 				if (!file_exists($file)) continue;
 				require_once $file;
