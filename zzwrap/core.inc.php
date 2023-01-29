@@ -3278,6 +3278,7 @@ function wrap_setting_key($key, $value) {
  * @return mixed
  */
 function wrap_setting_value($string) {
+	if (is_array($string)) return $string;
 	$string = wrap_setting_value_placeholder($string);
 
 	switch (substr($string, 0, 1)) {
