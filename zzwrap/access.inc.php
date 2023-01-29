@@ -137,6 +137,13 @@ function wrap_conditions($config, $detail) {
 	foreach ($config['condition_unless'] as $condition)
 		if (!empty($data[$key][$condition])) return NULL; // not applicable = 404
 
+	if (empty($config['condition_if_setting']))
+		$config['condition_if_setting'] = [];
+	elseif (!is_array($config['condition_if_setting']))
+		$config['condition_if_setting'] = [$config['condition_if_setting']];
+	foreach ($config['condition_if_setting'] as $condition)
+		if (!wrap_get_setting($condition)) return NULL; // not applicable = 404
+
 	return true;
 }
 
