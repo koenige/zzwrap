@@ -181,17 +181,32 @@ function wrap_access_page($page, $details = [], $quit = true) {
 	// check later with placeholders?
 	if (empty($config)) $config = wrap_cfg_files('access');
 	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
+	return wrap_access_details($parameters['access'], $details, 'OR', $quit);
+}
+
+/**
+ * check access rights with details and quit if no access
+ *
+ * @param string $access_key
+ * @param array $details (optional)
+ * @param string $operand (optional) OR = either one of the details needs to be true; AND: both need to be true
+ * @param bool $quit
+ * @return bool
+ */
+function wrap_access_details($access_key, $details = [], $operand = 'AND', $quit = true) {
 	$access = false;
 	if ($details)
 		foreach ($details as $index => $detail) {
 			if (!$detail) continue; // do not check if nothing is defined
 			// check condition only for first detail
 			// do not go on if condition check was false (return = NULL)
-			$access = wrap_access($parameters['access'], $detail, ($index ? false : true));
-			if ($access OR is_null($access)) break;
+			$access = wrap_access($access_key, $detail, ($index ? false : true));
+			if (is_null($access)) break;
+			if ($operand === 'OR' AND $access) break;
+			if ($operand === 'AND' AND !$access) break;
 		}
 	else
-		$access = wrap_access($parameters['access']);
+		$access = wrap_access($access_key);
 
 	if (!$access)
 		if ($quit) wrap_quit(is_null($access) ? 404 : 403);
