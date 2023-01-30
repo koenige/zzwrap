@@ -3585,6 +3585,9 @@ function wrap_path($area, $value = [], $check_rights = true) {
 			if (!strstr($this_setting, $placeholder)) continue;
 			$this_setting = str_replace($placeholder, '%s', $this_setting);
 		}
+		// remove duplicate *
+		while (strstr($this_setting, '%s/%s'))
+			$this_setting = str_replace('%s/%s', '%s', $this_setting);
 	}
 	$required_count = substr_count($this_setting, '%');
 	if (count($value) < $required_count) {
