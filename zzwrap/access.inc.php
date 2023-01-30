@@ -167,16 +167,16 @@ function wrap_parameters($fields) {
  * check access rights on page level
  * if access=access_key is set, check if rights suffice
  *
- * @param array $page
+ * @param mixed $parameters
  * @param array $details (optional)
  * @param bool $quit
  * @return bool
  */
-function wrap_access_page($page, $details = [], $quit = true) {
+function wrap_access_page($parameters, $details = [], $quit = true) {
 	static $config;
-	if (empty($page['parameters'])) return true;
-	if (is_string($page['parameters']))
-		parse_str($page['parameters'], $parameters);
+	if (!$parameters) return true;
+	if (is_string($parameters))
+		parse_str($parameters, $parameters);
 	if (empty($parameters['access'])) return true;
 	// check later with placeholders?
 	if (empty($config)) $config = wrap_cfg_files('access');
