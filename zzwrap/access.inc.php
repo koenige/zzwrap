@@ -112,6 +112,8 @@ function wrap_conditions($config, $detail) {
 		$key = sprintf('%s_%s_%s', $module, $config['condition_query'], $detail);
 	else
 		$key = sprintf('%s_%s', $module, $detail);
+	// if there are two keys, just look at the first key here
+	if ($pos = strpos($key, '+')) $key = substr($key, 0, $pos);
 	
 	// get the data
 	if (!array_key_exists($key, $data)) {
