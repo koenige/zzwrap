@@ -2782,6 +2782,9 @@ function wrap_get_setting($key, $login_id = 0) {
 		return $zz_setting[$key];
 	}
 
+	// shorthand notation with []?
+	if ($value = wrap_setting_key_read($zz_setting, $key)) return $value;
+
 	// read setting from database
 	if (!empty($zz_conf['db_connection']) AND $login_id) {
 		$values = wrap_setting_read($key, $login_id);
@@ -3258,16 +3261,65 @@ function wrap_setting_login_id($login_id = 0) {
  */
 function wrap_setting_key($key, $value) {
 	$settings = [];
-	if (strstr($key, '[')) {
-		$keys = explode('[', $key);
-		if (count($keys) === 2)
-			$settings[$keys[0]][substr($keys[1], 0, -1)] = $value;
-		elseif (count($keys) === 3)
-			$settings[$keys[0]][substr($keys[1], 0, -1)][substr($keys[2], 0, -1)] = $value;
-	} else {
+	
+	if (!strstr($key, '[')) {
 		$settings[$key] = $value;
+		return $settings;
+	}
+
+	$keys = wrap_setting_key_array($key);
+	switch (count($keys)) {
+		case 2:
+			$settings[$keys[0]][$keys[1]] = $value;
+			break;
+		case 3:
+			$settings[$keys[0]][$keys[1]][$keys[2]] = $value;
+			break;
+		case 4:
+			$settings[$keys[0]][$keys[1]][$keys[2]][$keys[3]] = $value;
+			break;
+		default:
+			wrap_error(sprintf('Too many arrays in %s, not implemented.', $key), E_USER_ERROR);
 	}
 	return $settings;
+}
+
+/**
+ * reads key/value pairs in $zz_setting, key may be array in form of
+ * key[subkey]
+ *
+ * @param array $source
+ * @param string $key
+ * @return mixed
+ */
+function wrap_setting_key_read($source, $key) {
+	if (!strstr($key, '['))
+		return $source[$key] ?? false;
+
+	$keys = wrap_setting_key_array($key);
+	switch (count($keys)) {
+		case 2:
+			return $source[$keys[0]][$keys[1]] ?? false;
+		case 3:
+			return $source[$keys[0]][$keys[1]][$keys[2]] ?? false;
+		case 4:
+			return $source[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? false;
+		default:
+			wrap_error(sprintf('Too many arrays in %s, not implemented.', $key), E_USER_ERROR);
+	}
+}
+
+/**
+ * change key[subkey][subsubkey] into array key, subkey, subsubkey
+ *
+ * @param string $key
+ * @return array
+ */
+function wrap_setting_key_array($key) {
+	$keys = explode('[', $key);
+	foreach ($keys as $index => $key)
+		$keys[$index] = rtrim($key, ']');
+	return $keys;
 }
 
 /**
