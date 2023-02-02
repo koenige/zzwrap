@@ -506,6 +506,7 @@ function wrap_module_parameters($module, $params) {
 	static $unchanged;
 	$changed = [];
 	
+	if (!$params) return false;
 	parse_str($params, $params);
 	if (!$params) return false;
 
