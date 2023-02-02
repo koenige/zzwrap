@@ -503,6 +503,8 @@ function wrap_page_parameters($params) {
  */
 function wrap_module_parameters($module, $params) {
 	global $zz_setting;
+	static $unchanged;
+	$changed = [];
 	
 	parse_str($params, $params);
 	if (!$params) return false;
@@ -513,7 +515,20 @@ function wrap_module_parameters($module, $params) {
 		if (empty($cfg[$key]['scope'])) continue;
 		$scope = wrap_setting_value($cfg[$key]['scope']);
 		if (!in_array($module, $scope)) continue;
-		$zz_setting[$key] = $value;
+		if (!array_key_exists($key, $zz_setting)) {
+			$unchanged[$key] = NULL;
+			$zz_setting[$key] = $value;
+			$changed[] = $key;
+		} elseif ($zz_setting[$key] !== $value) {
+			$unchanged[$key] = $zz_setting[$key];
+			$zz_setting[$key] = $value;
+			$changed[] = $key;
+		}
+	}
+	// multiple calls: change unchanged parameters back to original value
+	foreach (array_keys($unchanged) as $key) {
+		if (in_array($key, $changed)) continue;
+		$zz_setting[$key] = $unchanged[$key];
 	}
 	return true;
 }
