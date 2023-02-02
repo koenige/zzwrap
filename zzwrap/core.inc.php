@@ -504,6 +504,7 @@ function wrap_page_parameters($params) {
 function wrap_module_parameters($module, $params) {
 	global $zz_setting;
 	static $unchanged;
+	if (empty($unchanged)) $unchanged = [];
 	$changed = [];
 	
 	if (!$params) return false;
