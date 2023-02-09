@@ -461,8 +461,8 @@ function wrap_set_defaults_post_conf() {
 	
 	// allow to choose manually whether one uses https or not
 	if (!isset($zz_setting['ignore_scheme'])) $zz_setting['ignore_scheme'] = false;
-	if ($zz_setting['ignore_scheme']) 
-		$zz_setting['https'] = empty($_SERVER['HTTPS']) ? false : true;
+	if ($zz_setting['ignore_scheme'])
+		$zz_setting['https'] = wrap_https();
 
 	if (!isset($zz_setting['session_secure_cookie'])) {
 		$zz_setting['session_secure_cookie'] = true;

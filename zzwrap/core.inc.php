@@ -1024,7 +1024,7 @@ function wrap_log_uri($status = 0) {
 		$logfile = sprintf('%s/%s%s-access-%s.log'
 			, $logdir
 			, str_replace('/', '-', $zz_setting['site'])
-			, (isset($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') ? '-ssl' : ''
+			, wrap_https() ? '-ssl' : ''
 			, date('Y-m-d', $_SERVER['REQUEST_TIME'])
 		);
 		$line = sprintf(
@@ -1396,7 +1396,7 @@ function wrap_check_https($zz_page) {
 
 	// change from http to https or vice versa
 	// attention: $_POST will not be preserved
-	if (!empty($_SERVER['HTTPS']) AND $_SERVER['HTTPS'] === 'on') {
+	if (wrap_https()) {
 		if (wrap_get_setting('protocol') === 'https') return true;
 		// if user is logged in, do not redirect
 		if (!empty($_SESSION)) return true;
@@ -1407,6 +1407,19 @@ function wrap_check_https($zz_page) {
 	$url['scheme'] = wrap_get_setting('protocol');
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 	exit;
+}
+
+/**
+ * check if server (or proxy server) uses https
+ *
+ * @return bool
+ */
+function wrap_https() {
+	if (array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER))
+		if ($_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') return true;
+	if (array_key_exists('HTTPS', $_SERVER))
+		if ($_SERVER['HTTPS'] === 'on') return true;
+	return false;
 }
 
 /**
@@ -2232,7 +2245,7 @@ function wrap_cache_header($header = false) {
 		header_remove('X-Powered-By');
 		header_remove('Server');
 		$headers = $zz_setting['extra_http_headers'];
-		if (empty($_SERVER['HTTPS'])) {
+		if (!wrap_https()) {
 			header_remove('Strict-Transport-Security'); // only for https
 			foreach ($headers as $index => $header) {
 				if (str_starts_with($header, 'Strict-Transport-Security'))
