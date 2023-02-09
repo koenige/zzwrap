@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2022 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2023 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -311,10 +311,10 @@ msgstr ""
 "Adres URL\n"
 "\n"
 "%s\n"
-"\\ n został zamówiony za pośrednictwem %s\n"
-" z adresem IP %s\\ nPrzeglądarka %s\n"
+"\n został zamówiony za pośrednictwem %s\n"
+" z adresem IP %s\nPrzeglądarka %s\n"
 "\n"
-", ale nie można znaleźć na serwerze"
+"– ale nie można znaleźć na serwerze"
 
 #: library/zzwrap/errorhandling.inc.php
 msgid "Error on website"
