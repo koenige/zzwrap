@@ -63,7 +63,7 @@ function wrap_mail($mail, $list = []) {
 
 	// From
 	if (!isset($mail['headers']['From'])) {
-		$mail['headers']['From']['name'] = wrap_get_setting('own_name');
+		$mail['headers']['From']['name'] = wrap_get_setting('project');
 		$mail['headers']['From']['e_mail'] = wrap_get_setting('own_e_mail');
 	}
 	// From as Reply-To?
