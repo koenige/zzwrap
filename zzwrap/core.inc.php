@@ -273,7 +273,8 @@ function wrap_look_for_page($zz_page) {
 	// no asterisk in URL
 	if (!empty($url['full']['path']) AND strstr($url['full']['path'], '*')) return false;
 	// sometimes, bots add second / to URL, remove and redirect
-	$full_url[0] = $url['db'];
+	$full_url[0]['path'] = $url['db'];
+	$full_url[0]['placeholders'] = [];
 
 	list($full_url, $leftovers) = wrap_look_for_placeholders($zz_page, $full_url);
 	
@@ -285,10 +286,13 @@ function wrap_look_for_page($zz_page) {
 		$index = 0;
 		$params = [];
 		$replaced = [];
-		while ($my_url !== false) {
-			$data[$i + $index * count($full_url)]
-				= wrap_url_params($my_url, $replaced, $leftovers[$i] ?? []);
-			list($my_url, $params, $replaced) = wrap_url_cut($my_url, $params);
+		while ($my_url['path'] !== false) {
+			if (!array_intersect($replaced, $my_url['placeholders']))
+				$data[$i + $index * count($full_url)]
+					= wrap_url_params($my_url['path'], $replaced, $leftovers[$i] ?? []);
+			else
+				$data[$i + $index * count($full_url)] = [];
+			list($my_url['path'], $params, $replaced) = wrap_url_cut($my_url['path'], $params);
 			$index++;
 		}
 	}
@@ -350,21 +354,19 @@ function wrap_look_for_page($zz_page) {
 function wrap_url_params($url, $replaced, $leftovers = []) {
 	if (!empty($leftovers)) {
 		if (!$replaced) {
-			$replaced = [reset($leftovers)];
+			$replaced = wrap_url_params_leftovers($leftovers);
 		} else {
 			$new = [];
 			$leftover_placed = false;
 			foreach ($replaced as $value) {
-				// is placeholder among the replaced parameters?
-				// then just return empty array (for sort order)
-				if (str_starts_with($value, '%') AND str_ends_with($value, '%'))
-					return [];
 				if (!in_array($value, $leftovers['before']) AND !$leftover_placed) {
-					$new[] = reset($leftovers);
+					$new = array_merge($new, wrap_url_params_leftovers($leftovers));
 					$leftover_placed = true;
 				}
 				$new[] = $value;
 			}
+			if (!$leftover_placed)
+				$new = array_merge($new, wrap_url_params_leftovers($leftovers));
 			$replaced = $new;
 		}
 	}
@@ -372,6 +374,21 @@ function wrap_url_params($url, $replaced, $leftovers = []) {
 		'url' => $url,
 		'params' => array_values($replaced)
 	];
+}
+
+/**
+ * get all leftovers with numerical index
+ *
+ * @param array $leftovers
+ * @return array
+ */
+function wrap_url_params_leftovers($leftovers) {
+	$data = [];
+	foreach ($leftovers as $index => $leftover) {
+		if (!is_numeric($index)) continue;
+		$data[] = $leftover;
+	}
+	return $data;
 }
 
 /**
@@ -636,7 +653,7 @@ function wrap_file_extension($file) {
 function wrap_look_for_placeholders($zz_page, $full_url) {
 	if (empty($zz_page['url_placeholders'])) return [$full_url, []];
 	// cut url in parts
-	$url_parts[0] = explode('/', $full_url[0]);
+	$url_parts[0] = explode('/', $full_url[0]['path']);
 	$i = 1;
 	$leftovers = [];
 	foreach ($zz_page['url_placeholders'] as $wildcard => $values) {
@@ -655,7 +672,10 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
 					$leftovers[$i]['after'] = array_slice($url_parts[0], $partkey + 1);
 					// overwrite current part with placeholder
 					$url_parts[$i][$partkey] = '%'.$wildcard.'%';
-					$full_url[$i] = implode('/', $url_parts[$i]); 
+					$full_url[$i]['path'] = implode('/', $url_parts[$i]);
+					if ($full_url[$url_index]['placeholders'])
+						$full_url[$i]['placeholders'] = $full_url[$url_index]['placeholders'];
+					$full_url[$i]['placeholders'][] = $url_parts[$i][$partkey];
 					$i++;
 				}
 			}
