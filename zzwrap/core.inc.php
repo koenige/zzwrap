@@ -3559,13 +3559,22 @@ function wrap_cfg_files_parse($type) {
 	foreach ($files as $package => $cfg_file) {
 		$single_cfg[$package] = parse_ini_file($cfg_file, true);
 		foreach (array_keys($single_cfg[$package]) as $index)
-			$single_cfg[$package][$index]['module'] = $package;
+			$single_cfg[$package][$index]['module'] = $package ? $package : 'custom';
 		// might be called before database connection exists
 		if (!empty($zz_conf['db_connection'])) {
 			wrap_cfg_translate($single_cfg[$package]);
 			$translated = true;
 		}
-		$cfg += $single_cfg[$package];
+		// no merging, let custom cfg overwrite single settings from modules
+		foreach ($single_cfg[$package] as $key => $line) {
+			if (array_key_exists($key, $cfg))
+				foreach ($line as $subkey => $value) {
+					if ($subkey === 'module') continue;
+					$cfg[$key][$subkey] = $value;
+				}
+			else
+				$cfg[$key] = $line;
+		}
 	}
 	return [$cfg, $single_cfg];
 }
