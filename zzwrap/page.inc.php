@@ -680,6 +680,7 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 function wrap_get_breadcrumbs($page_id) {
 	if (!($sql = wrap_sql('breadcrumbs'))) return [];
 	global $zz_conf;
+	global $zz_page;
 
 	$breadcrumbs = [];
 	// get all webpages
@@ -691,10 +692,28 @@ function wrap_get_breadcrumbs($page_id) {
 
 	// get all breadcrumbs recursively
 	$breadcrumbs = wrap_get_breadcrumbs_recursive($page_id, $pages);
-	foreach ($breadcrumbs as $index => $breadcrumb) {
-		if (!$index) continue;
-		if (strstr($breadcrumb['url_path'], '*')) unset($breadcrumbs[$index]);
+	// check for placeholders
+	$breadcrumb_placeholder = $zz_page['breadcrumb_placeholder'] ?? [];
+	$placeholder_url_paths = [];
+	foreach ($breadcrumb_placeholder as $placeholder)
+		$placeholder_url_paths[] = $placeholder['url_path'];
+	foreach ($breadcrumbs as $index => &$breadcrumb) {
+		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
+		if ($breadcrumb_placeholder) {
+			if (str_ends_with($breadcrumb['url_path'], '*/') AND array_key_exists(($count - 1), $breadcrumb_placeholder))
+				$breadcrumb['title'] = $breadcrumb_placeholder[($count - 1)]['title'];
+			$breadcrumb['url_path'] = str_replace('*', '/%s', $breadcrumb['url_path']);
+			while ($count > count($placeholder_url_paths))
+				$placeholder_url_paths[] = '*';
+			$breadcrumb['url_path'] = vsprintf($breadcrumb['url_path'], $placeholder_url_paths);
+		}
+		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
+		// remove breadcrumbs with * in URL except for current page
+		if ($index) unset($breadcrumbs[$index]);
 	}
+	// remove url_path of current page, here, not before, because of breadcrumb title!
+	if (array_key_exists(0, $breadcrumbs))
+		$breadcrumbs[0]['url_path'] = '';
 	// sort breadcrumbs in descending order
 	krsort($breadcrumbs);
 	// finished!
