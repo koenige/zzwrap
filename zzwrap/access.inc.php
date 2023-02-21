@@ -120,6 +120,7 @@ function wrap_conditions($config, $detail) {
 		$keys = explode(':', $key);
 		$sql = wrap_sql_query($keys[0]);
 		if ($sql) {
+			if (trim($sql) === '/* ignore */') return true;
 			$sql = sprintf($sql, $keys[1]);
 			$data[$key] = wrap_db_fetch($sql);
 			$data[$key] = wrap_parameters($data[$key]);
