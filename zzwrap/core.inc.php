@@ -3659,7 +3659,6 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  */
 function wrap_path($area, $value = [], $check_rights = true) {
 	global $zz_setting;
-	global $zz_page;
 
 	// check rights
 	if ($check_rights AND !wrap_access($area)) return false;
@@ -3690,16 +3689,7 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	// if you address e. g. news_article and it is in fact news_article[publication_path]:
 	if (is_array($this_setting)) return '';
 	// replace page placeholders with %s
-	if (!empty($zz_page['url_placeholders'])) {
-		foreach (array_keys($zz_page['url_placeholders']) as $placeholder) {
-			$placeholder = sprintf('%%%s%%', $placeholder);
-			if (!strstr($this_setting, $placeholder)) continue;
-			$this_setting = str_replace($placeholder, '%s', $this_setting);
-		}
-		// remove duplicate *
-		while (strstr($this_setting, '%s/%s'))
-			$this_setting = str_replace('%s/%s', '%s', $this_setting);
-	}
+	$this_setting = wrap_path_placeholder($this_setting);
 	$required_count = substr_count($this_setting, '%');
 	if (count($value) < $required_count) {
 		if (!empty($zz_setting['backend_path']))
@@ -3715,6 +3705,26 @@ function wrap_path($area, $value = [], $check_rights = true) {
 		if (!empty($cfg[$setting]['backend_for_website']))
 			$path = wrap_host_base($website_id).$path;
 	}
+	return $path;
+}
+
+/**
+ * replace URL placeholders in path (e. g. %year%) with %s
+ *
+ * @param string $path
+ * @return string
+ */
+function wrap_path_placeholder($path) {
+	global $zz_page;
+	if (empty($zz_page['url_placeholders'])) return $path;
+	foreach (array_keys($zz_page['url_placeholders']) as $placeholder) {
+		$placeholder = sprintf('%%%s%%', $placeholder);
+		if (!strstr($path, $placeholder)) continue;
+		$path = str_replace($placeholder, '%s', $path);
+	}
+	// remove duplicate *
+	while (strstr($path, '%s/%s'))
+		$path = str_replace('%s/%s', '%s', $path);
 	return $path;
 }
 
