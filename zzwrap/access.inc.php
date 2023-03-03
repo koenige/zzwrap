@@ -158,7 +158,7 @@ function wrap_conditions($config, $detail) {
  */
 function wrap_parameters($fields) {
 	foreach ($fields as $key => $value) {
-		if (!str_ends_with($key, '_parameters')) continue;
+		if (!str_ends_with($key, '_parameters') AND $key !== 'parameters') continue;
 		if (!$value) continue;
 		parse_str($value, $parameters);
 		$fields = array_merge($fields, $parameters);
