@@ -3713,19 +3713,20 @@ function wrap_path($area, $value = [], $check_rights = true) {
  * replace URL placeholders in path (e. g. %year%) with %s
  *
  * @param string $path
+ * @param string $char whith what to replace
  * @return string
  */
-function wrap_path_placeholder($path) {
+function wrap_path_placeholder($path, $char = '%s') {
 	global $zz_page;
 	if (empty($zz_page['url_placeholders'])) return $path;
 	foreach (array_keys($zz_page['url_placeholders']) as $placeholder) {
 		$placeholder = sprintf('%%%s%%', $placeholder);
 		if (!strstr($path, $placeholder)) continue;
-		$path = str_replace($placeholder, '%s', $path);
+		$path = str_replace($placeholder, $char, $path);
 	}
 	// remove duplicate *
-	while (strstr($path, '%s/%s'))
-		$path = str_replace('%s/%s', '%s', $path);
+	while (strstr($path, $char.'/'.$char))
+		$path = str_replace($char.'/'.$char, $char, $path);
 	return $path;
 }
 
