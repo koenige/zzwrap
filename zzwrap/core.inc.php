@@ -2811,6 +2811,24 @@ if (!function_exists('str_contains')) {
 }
 
 /**
+ * read or write settings
+ *
+ * @param string $key
+ * @param mixed $value (if set, assign value, if not read value)
+ * @param int $login_id (optional, get setting for user)
+ * @return mixed
+ * @todo support writing of setting per login ID (necessary?)
+ * @todo support array structure like setting[subsetting] for $key
+ */
+function wrap_setting($key, $value = NULL, $login_id = NULL) {
+	global $zz_setting;
+	// write?
+	if (isset($value) AND !isset($login_id)) $zz_setting[$key] = $value;
+	// read
+	return wrap_get_setting($key, $login_id);
+}
+
+/**
  * gets setting from configuration (default: zz_setting)
  *
  * @param string $key
