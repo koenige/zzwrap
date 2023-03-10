@@ -575,9 +575,6 @@ function wrap_set_defaults_post_conf() {
 			}
 		}
 	}
-	if (empty($zz_setting['session_save_path']) AND $zz_setting['tmp_dir']) {
-		$zz_setting['session_save_path'] = $zz_setting['tmp_dir'].'/sessions';
-	}
 	
 	// cainfo
 	// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
