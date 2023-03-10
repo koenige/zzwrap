@@ -83,7 +83,7 @@ function wrap_set_defaults_pre_conf() {
 		$zz_setting['hostname'] = substr($zz_setting['hostname'], 0, -1);
 	// in case, somebody's doing a CONNECT or something similar, use some default
 	if (empty($zz_setting['hostname'])) 
-		$zz_setting['hostname'] === 'www.example.org';
+		$zz_setting['hostname'] = 'www.example.org';
 	// make hostname lowercase to avoid duplicating caches
 	$zz_setting['hostname'] = strtolower($zz_setting['hostname']);
 
@@ -338,6 +338,8 @@ function wrap_set_defaults_post_conf() {
 	// modules
 	if (empty($zz_setting['modules_dir']))
 		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
+	if (empty($zz_setting['themes_dir']))
+		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
 
 	if (empty($zz_setting['modules'])) {
 		$zz_setting['modules'] = [];
