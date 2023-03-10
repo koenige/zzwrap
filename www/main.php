@@ -7,7 +7,7 @@
  * http://www.zugzwang.org/projects/zzproject
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2019 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2012, 2019, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -23,5 +23,5 @@ $zz_conf['root'] = $_SERVER['DOCUMENT_ROOT'];
 $zz_setting['cms_dir'] = realpath($zz_conf['root'].'/..');
 
 // CMS will be started
-require_once $zz_setting['cms_dir'].'/_inc/library/zzwrap/zzwrap.php';
+require_once $zz_setting['cms_dir'].'/_inc/modules/zzwrap/zzwrap/zzwrap.php';
 zzwrap();
