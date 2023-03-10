@@ -179,9 +179,9 @@ function wrap_include_ext_libraries() {
 
 	if (empty($zz_setting['ext_libraries'])) return false;
 	foreach ($zz_setting['ext_libraries'] as $function) {
-		if (file_exists($file = $zz_setting['lib'].'/'.$function.'.php')) 
+		if (file_exists($file = wrap_setting('lib').'/'.$function.'.php')) 
 			require_once $file;
-		elseif (file_exists($file = $zz_setting['lib'].'/'.$function.'/'.$function.'.php'))
+		elseif (file_exists($file = wrap_setting('lib').'/'.$function.'/'.$function.'.php'))
 			require_once $file;
 		else {
 			$found = false;

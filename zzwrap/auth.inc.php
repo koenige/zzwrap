@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -818,7 +818,7 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
 		return false;
 	case 'phpass':
 	case 'phpass-md5':
-		require_once $zz_setting['lib'].'/phpass/PasswordHash.php';
+		require_once wrap_setting('lib').'/phpass/PasswordHash.php';
 		$hasher = new PasswordHash(wrap_get_setting('hash_cost_log2'), wrap_get_setting('hash_portable'));
 		if ($hasher->CheckPassword($pass, $hash)) return true;
 		if (wrap_get_setting('hash_password') === 'phpass') return false;
@@ -847,7 +847,6 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
  * @return string hash
  */
 function wrap_password_hash($pass) {
-	global $zz_setting;
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
 
@@ -858,7 +857,7 @@ function wrap_password_hash($pass) {
 		return $hash;
 	case 'phpass':
 	case 'phpass-md5':
-		require_once $zz_setting['lib'].'/phpass/PasswordHash.php';
+		require_once wrap_setting('lib').'/phpass/PasswordHash.php';
 		$hasher = new PasswordHash(wrap_get_setting('hash_cost_log2'), wrap_get_setting('hash_portable'));
 		$hash = $hasher->HashPassword($pass);
 		if (strlen($hash) < 20) return false;

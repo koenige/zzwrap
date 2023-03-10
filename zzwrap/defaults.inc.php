@@ -324,6 +324,45 @@ function wrap_set_defaults_post_conf() {
 	global $zz_setting;
 	global $zz_page;
 
+
+	// -------------------------------------------------------------------------
+	// Paths
+	// -------------------------------------------------------------------------
+	
+	$zz_setting['inc'] = realpath($zz_setting['inc']);
+
+	// localized includes
+	if (empty($zz_setting['custom']))	
+		$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
+
+	// modules
+	if (empty($zz_setting['modules_dir']))
+		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
+
+	if (empty($zz_setting['modules'])) {
+		$zz_setting['modules'] = [];
+		if (is_dir($zz_setting['modules_dir'])) {
+			$handle = opendir($zz_setting['modules_dir']);
+			while ($file = readdir($handle)) {
+				if (substr($file, 0, 1) === '.') continue;
+				if (!is_dir($zz_setting['modules_dir'].'/'.$file)) continue;
+				$zz_setting['modules'][] = $file;
+			}
+			closedir($handle);
+		}
+		// some hosters sort files in reverse order
+		sort($zz_setting['modules']);
+		// put default module always on top to have the possibility to
+		// add functions with the same name in other modules
+		if ($key = array_search('default', $zz_setting['modules'])) {
+			unset($zz_setting['modules'][$key]);
+			array_unshift($zz_setting['modules'], 'default');
+		}
+	}
+	
+	// now we can use wrap_setting()
+	
+
 	// -------------------------------------------------------------------------
 	// Internationalization, Language, Character Encoding
 	// -------------------------------------------------------------------------
@@ -484,17 +523,7 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	// Paths
 	// -------------------------------------------------------------------------
-	
-	$zz_setting['inc'] = realpath($zz_setting['inc']);
-	
-	// library
-	if (empty($zz_setting['lib']))
-		$zz_setting['lib']			= $zz_setting['inc'].'/library';
-		
-	// localized includes
-	if (empty($zz_setting['custom']))	
-		$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
-	
+
 	// customized cms includes
 	if (empty($zz_setting['custom_wrap_dir']))	
 		$zz_setting['custom_wrap_dir'] = $zz_setting['custom'].'/custom';
@@ -503,30 +532,7 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_setting['custom_wrap_sql_dir']))	
 		$zz_setting['custom_wrap_sql_dir'] = $zz_setting['custom'].'/zzwrap_sql';
 
-	// modules
-	if (empty($zz_setting['modules_dir'])) {
-		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
-	}
-	if (empty($zz_setting['modules'])) {
-		$zz_setting['modules'] = [];
-		if (is_dir($zz_setting['modules_dir'])) {
-			$handle = opendir($zz_setting['modules_dir']);
-			while ($file = readdir($handle)) {
-				if (substr($file, 0, 1) === '.') continue;
-				if (!is_dir($zz_setting['modules_dir'].'/'.$file)) continue;
-				$zz_setting['modules'][] = $file;
-			}
-			closedir($handle);
-		}
-		// some hosters sort files in reverse order
-		sort($zz_setting['modules']);
-		// put default module always on top to have the possibility to
-		// add functions with the same name in other modules
-		if ($key = array_search('default', $zz_setting['modules'])) {
-			unset($zz_setting['modules'][$key]);
-			array_unshift($zz_setting['modules'], 'default');
-		}
-	}
+
 	if (empty($zz_setting['themes_dir'])) {
 		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
 	}
@@ -556,8 +562,6 @@ function wrap_set_defaults_post_conf() {
 	if (empty($zz_conf['dir']))
 		if (file_exists($dir = $zz_setting['modules_dir'].'/zzform/zzform')) {
 			$zz_conf['dir']				= $dir;
-		} else {
-			$zz_conf['dir']				= $zz_setting['lib'].'/zzform';
 		}
 	if (empty($zz_conf['dir_custom']))
 		$zz_conf['dir_custom']		= $zz_setting['custom'].'/zzform';
