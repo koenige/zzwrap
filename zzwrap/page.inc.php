@@ -124,7 +124,7 @@ function wrap_template_file($template, $show_error = true) {
 	foreach ($packages as $package) {
 		if ($my_module AND $package !== $my_module) continue;
 		$dir = in_array($package, $zz_setting['modules'])
-			? $zz_setting['modules_dir'] : $zz_setting['themes_dir'];
+			? $zz_setting['modules_dir'] : wrap_setting('themes_dir');
 		$pathinfo = pathinfo($template);
 		if (!empty($pathinfo['dirname'])
 			AND in_array($pathinfo['dirname'], ['layout', 'behaviour'])
@@ -1316,12 +1316,11 @@ function wrap_page_replace($page) {
  * @return array
  */
 function wrap_themes() {
-	global $zz_setting;
-	if (empty($zz_setting['themes_dir'])) return [];
-	if (!is_dir($zz_setting['themes_dir'])) return [];
-	$themes = scandir($zz_setting['themes_dir']);
+	if (!wrap_setting('themes_dir')) return [];
+	if (!is_dir(wrap_setting('themes_dir'))) return [];
+	$themes = scandir(wrap_setting('themes_dir'));
 	foreach ($themes as $index => $theme) {
-		if (str_starts_with($theme, '.') OR !is_dir($zz_setting['themes_dir'].'/'.$theme)) {
+		if (str_starts_with($theme, '.') OR !is_dir(wrap_setting('themes_dir').'/'.$theme)) {
 			unset($themes[$index]);
 			continue;
 		}

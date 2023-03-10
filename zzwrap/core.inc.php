@@ -592,7 +592,7 @@ function wrap_look_for_file($url_path) {
 			$path = $url_path;
 			if (str_starts_with($path, $zz_setting['base_path']))
 				$path = substr($path, strlen($zz_setting['base_path']));
-			$file['name'] = sprintf('%s/%s%s', $zz_setting['themes_dir'], $zz_setting['active_theme'], $path);
+			$file['name'] = sprintf('%s/%s%s', wrap_setting('themes_dir'), $zz_setting['active_theme'], $path);
 			if (file_exists($file['name'])) {
 				$file['etag_generate_md5'] = true;
 				wrap_file_send($file);
@@ -615,7 +615,7 @@ function wrap_look_for_file($url_path) {
 		array_shift($url_folders);
 		$folder = array_shift($url_folders);
 		// prefer themes over modules here if name is identical
-		$dir = in_array($folder, $themes) ? $zz_setting['themes_dir'] : $zz_setting['modules_dir'];
+		$dir = in_array($folder, $themes) ? wrap_setting('themes_dir') : $zz_setting['modules_dir'];
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$dir, $folder, $path, implode('/', $url_folders));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css', 'js'])) {
@@ -3513,13 +3513,15 @@ function wrap_setting_backend() {
  */
 function wrap_cfg_files($type, $settings = []) {
 	global $zz_conf;
+	global $zz_setting;
 	static $cfg;
 	static $single_cfg;
 	static $translated;
 
 	// check if wrap_cfg_files() was called without database connection
 	// then translate all config variables read so far
-	if (!$translated AND !empty($zz_conf['db_connection']) AND !empty($cfg)) {
+
+	if (!$translated AND !empty($zz_conf['db_connection']) AND !empty($cfg) AND !empty($zz_setting['text_included'])) {
 		foreach (array_keys($cfg) as $this_type) {
 			wrap_cfg_translate($cfg[$this_type]);
 		}

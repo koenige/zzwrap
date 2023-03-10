@@ -33,7 +33,7 @@
  * @global array $zz_conf
  *		'db_connection', 'db_name', 'db_name_local', 'character_set'
  * @global array $zz_setting
- *		'local_access', 'local_pwd', 'custom_wrap_sql_dir', 'db_password_files',
+ *		'local_access', 'local_pwd', 'db_password_files',
  *		'encoding_to_mysql_encoding'
  * @return bool true: database connection established, false: no connection
  */
@@ -103,9 +103,9 @@ function wrap_db_credentials() {
 	$rewrite = false;
 	foreach ($zz_setting['db_password_files'] as $file) {
 		if (substr($file, 0, 1) !== '/') {
-			$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.inc.php';
+			$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.inc.php';
 			if (!file_exists($filename)) {
-				$filename = $zz_setting['custom_wrap_sql_dir'].'/pwd'.$file.'.json';
+				$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.json';
 				if (!file_exists($filename)) continue;
 				$db = json_decode(file_get_contents($filename), true);
 				$zz_conf['db_name'] = $db['db_name'];
@@ -1043,9 +1043,9 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$zz_sql += wrap_system_sql($key);
 			break;
 		}
-		if (file_exists($zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php')
+		if (file_exists(wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php')
 			AND !empty($zz_conf['db_connection']))
-			require_once $zz_setting['custom_wrap_sql_dir'].'/sql-'.$key.'.inc.php';
+			require_once wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php';
 
 		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
 			$zz_sql['domain'] = [$zz_sql['domain']];

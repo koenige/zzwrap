@@ -518,24 +518,10 @@ function wrap_set_defaults_post_conf() {
 			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
 		}
 	}
-	
 
 	// -------------------------------------------------------------------------
 	// Paths
 	// -------------------------------------------------------------------------
-
-	// customized cms includes
-	if (empty($zz_setting['custom_wrap_dir']))	
-		$zz_setting['custom_wrap_dir'] = $zz_setting['custom'].'/custom';
-	
-	// customized sql queries, db connection
-	if (empty($zz_setting['custom_wrap_sql_dir']))	
-		$zz_setting['custom_wrap_sql_dir'] = $zz_setting['custom'].'/zzwrap_sql';
-
-
-	if (empty($zz_setting['themes_dir'])) {
-		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
-	}
 
 	// customized access rights checks
 	if (empty($zz_setting['custom_rights_dir'])) {

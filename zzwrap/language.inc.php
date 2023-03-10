@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018, 2020-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018, 2020-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -205,8 +205,8 @@ function wrap_text($string, $params = []) {
 		$module_text = [];
 		$context = [];
 		// standard text english
-		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.inc.php';
-		$files[] = $zz_setting['custom_wrap_dir'].'/text-en.po';
+		$files[] = wrap_setting('custom_wrap_dir').'/text-en.inc.php';
+		$files[] = wrap_setting('custom_wrap_dir').'/text-en.po';
 		// default translated text
 		$files[] = $zz_setting['core'].'/default-text-'.$language.'.po';
 		// module text(s)
@@ -221,12 +221,12 @@ function wrap_text($string, $params = []) {
 			}
 		}
 		// standard translated text 
-		$files[] = $zz_setting['custom_wrap_dir'].'/text-'.$language.'.inc.php';
-		$files[] = $zz_setting['custom_wrap_dir'].'/text-'.$language.'.po';
+		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php';
+		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po';
 		if (!empty($zz_setting['language_variation'])) {
 			// language variantes contain only some translations
 			// and are added on top of the existing translations
-			$files[] = $zz_setting['custom_wrap_dir'].'/text-'.$language.'-'.$zz_setting['language_variation'].'.po';
+			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.$zz_setting['language_variation'].'.po';
 		}
 
 		foreach ($files as $file) {
@@ -257,6 +257,7 @@ function wrap_text($string, $params = []) {
 		if (!empty($zz_setting['translate_text_db'])) { // no wrap_get_setting() at this point!
 			$text = array_merge($text, wrap_language_get_text($language));
 		}
+		$zz_setting['text_included'] = true; // now we can translate something
 	}
 
 	$my_text = $text;
