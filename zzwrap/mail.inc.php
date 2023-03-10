@@ -24,16 +24,11 @@
  *		array 'multipart' (optional):
  *			string 'text', string 'html', array 'files'
  * @param array $list send mails to multiple recipients via a list
- * @global $zz_setting
- *		'local_access', bool 'show_local_mail' log mail or show mail,
- *		'mail_subject_prefix'
  * @return bool true: message was sent; false: message was not sent
  */
 function wrap_mail($mail, $list = []) {
-	global $zz_setting;
-
 	// multipart?
-	if (!empty($mail['multipart']) AND !wrap_get_setting('use_library_phpmailer')) {
+	if (!empty($mail['multipart']) AND !wrap_setting('use_library_phpmailer')) {
 		foreach ($mail['multipart']['files'] as $index => $file) {
 			if (file_exists($file['path_local'])) {
 				$binary = fread(fopen($file['path_local'], "r"), filesize($file['path_local']));
@@ -58,13 +53,13 @@ function wrap_mail($mail, $list = []) {
 	$mail['to'] = wrap_mail_name($mail['to']);
 
 	// Subject
-	if (!empty($zz_setting['mail_subject_prefix']))
-		$mail['subject'] = $zz_setting['mail_subject_prefix'].' '.$mail['subject'];
+	if (wrap_setting('mail_subject_prefix'))
+		$mail['subject'] = wrap_setting('mail_subject_prefix').' '.$mail['subject'];
 
 	// From
 	if (!isset($mail['headers']['From'])) {
-		$mail['headers']['From']['name'] = wrap_get_setting('project');
-		$mail['headers']['From']['e_mail'] = wrap_get_setting('own_e_mail');
+		$mail['headers']['From']['name'] = wrap_setting('project');
+		$mail['headers']['From']['e_mail'] = wrap_setting('own_e_mail');
 	}
 	// From as Reply-To?
 	$mail['headers'] = wrap_mail_reply_to($mail['headers']);
@@ -79,7 +74,7 @@ function wrap_mail($mail, $list = []) {
 	if (!isset($mail['headers']['MIME-Version']))
 		$mail['headers']['MIME-Version'] = '1.0';
 	if (!isset($mail['headers']['Content-Type']))
-		$mail['headers']['Content-Type'] = 'text/plain; charset='.$zz_setting['character_set'];
+		$mail['headers']['Content-Type'] = 'text/plain; charset='.wrap_setting('character_set');
 	if (!isset($mail['headers']['Content-Transfer-Encoding']))
 		$mail['headers']['Content-Transfer-Encoding'] = '8bit';
 
@@ -94,23 +89,23 @@ function wrap_mail($mail, $list = []) {
 		// @todo field body any ASCII characters except CR LF
 		// @todo field body longer than 78 characters SHOULD / 998 
 		// characters MUST be folded with CR LF WSP
-		$additional_headers .= $field_name.': '.$field_body.$zz_setting['mail_header_eol'];
+		$additional_headers .= $field_name.': '.$field_body.wrap_setting('mail_header_eol');
 	}
 
 	// Additional parameters
 	if (!isset($mail['parameters'])) $mail['parameters'] = '';
 
-	$old_error_handling = wrap_get_setting('error_handling');
-	if (wrap_get_setting('error_handling') === 'mail') {
-		$zz_setting['error_handling'] = false; // don't send mail, does not work!
+	$old_error_handling = wrap_setting('error_handling');
+	if (wrap_setting('error_handling') === 'mail') {
+		wrap_setting('error_handling', false); // don't send mail, does not work!
 	}
 
 	// if local server, show e-mail, don't send it
-	if ($zz_setting['local_access']) {
+	if (wrap_setting('local_access')) {
 		$mailtext = 'Mail '.wrap_html_escape('To: '.$mail['to']."\n"
 			.'Subject: '.$mail['subject']."\n".
 			$additional_headers."\n".$mail['message']);
-		if (!empty($zz_setting['show_local_mail'])) {
+		if (wrap_setting('show_local_mail')) {
 			echo '<pre>', $mailtext, '</pre>';
 			exit;
 		}
@@ -124,7 +119,7 @@ function wrap_mail($mail, $list = []) {
 		// if real server, send mail
 		if (!empty($mail['queue'])) {
 			$success = wrap_mail_queue_add($mail, $additional_headers);
-		} elseif (wrap_get_setting('use_library_phpmailer')) {
+		} elseif (wrap_setting('use_library_phpmailer')) {
 			$mail = wrap_mail_signature($mail);
 			$success = wrap_mail_phpmailer($mail, $list);
 		} else {
@@ -137,10 +132,10 @@ function wrap_mail($mail, $list = []) {
 				.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
 		}
 	}
-	if (!empty($zz_setting['log_mail'])) {
+	if (wrap_setting('log_mail')) {
 		wrap_mail_log($mail, $additional_headers);
 	}
-	$zz_setting['error_handling'] = $old_error_handling;
+	wrap_setting('error_handling', $old_error_handling);
 	return true;
 }
 
@@ -189,8 +184,6 @@ function wrap_mail_headers($mail) {
  * @return string
  */
 function wrap_mail_name($name) {
-	global $zz_setting;
-
 	if (!is_array($name)) {
 		// add brackets, there are checks that think brackets
 		// show that a mail is less likely to be junk
@@ -220,7 +213,7 @@ function wrap_mail_name($name) {
 		// patterns that are allowed for atom
 		$pattern_unquoted = "/^[a-z0-9 \t!#$%&'*+\-^?=~{|}_`\/]*$/i";
 		// do not add line break (or preg_match would not work for long lines)
-		$name['name'] = mb_encode_mimeheader($name['name'], $zz_setting['character_set'], $zz_setting['character_set'], "");
+		$name['name'] = mb_encode_mimeheader($name['name'], wrap_setting('character_set'), wrap_setting('character_set'), "");
 		if (!preg_match($pattern_unquoted, $name['name'])) {
 			// alternatively use quoted-string
 			// @todo: allow quoted-pair
@@ -252,7 +245,7 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
 
 	// check if hostname has MX record
-	if ($mail_check_mx AND !wrap_get_setting('mail_dont_check_mx')) {
+	if ($mail_check_mx AND !wrap_setting('mail_dont_check_mx')) {
 		$host = explode('@', $e_mail);
 		if (count($host) !== 2) return false;
 		// trailing dot to get a FQDN
@@ -279,9 +272,8 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
  * @return void
  */
 function wrap_mail_log($mail, $additional_headers, $logfile = '') {
-	global $zz_setting;
 	if (!$logfile) $logfile = 'mail.log';
-	$logfile = $zz_setting['log_dir'].'/'.$logfile;
+	$logfile = wrap_setting('log_dir').'/'.$logfile;
 	wrap_mkdir(dirname($logfile));
 	if (!file_exists($logfile)) touch($logfile);
 	
@@ -311,9 +303,7 @@ function wrap_mail_separator() {
  * @return bool
  */
 function wrap_mail_php($mail, $additional_headers) {
-	global $zz_setting;
-
-	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', $zz_setting['mail_header_eol']);
+	$mail['subject'] = mb_encode_mimeheader($mail['subject'], mb_internal_encoding(), 'B', wrap_setting('mail_header_eol'));
 	$success = mail($mail['to'], $mail['subject'], $mail['message'], $additional_headers, $mail['parameters']);
 	return $success;
 }
@@ -326,16 +316,15 @@ function wrap_mail_php($mail, $additional_headers) {
  * @return bool
  */
 function wrap_mail_phpmailer($msg, $list) {
-	global $zz_setting;
 	wrap_include_files('libraries/phpmailer', 'default');
 	
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
 	$mail->isSMTP();  
-	$mail->Host = wrap_get_setting('mail_host');
+	$mail->Host = wrap_setting('mail_host');
 	$mail->SMTPAuth = true;
 	$mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; 
-	$mail->Username = wrap_get_setting('mail_username');
-	$mail->Password = wrap_get_setting('mail_password');
+	$mail->Username = wrap_setting('mail_username');
+	$mail->Password = wrap_setting('mail_password');
 	if ($list) {
 		// SMTP connection will not close after each email sent, reduces SMTP overhead
 		$mail->SMTPKeepAlive = true; 
@@ -426,9 +415,9 @@ function wrap_mail_phpmailer($msg, $list) {
 		$mail->clearAddresses();
 	}
 
-	if (!$zz_setting['local_access'] AND wrap_get_setting('mail_imap_copy_sent')) {
+	if (!wrap_setting('local_access') AND wrap_setting('mail_imap_copy_sent')) {
 		$success = wrap_mail_sent($mail->getSentMIMEMessage());
-		if ($success) $zz_setting['log_mail'] = false; // do not log mails which are in SENT folder
+		if ($success) wrap_setting('log_mail', false); // do not log mails which are in SENT folder
 	}
 
 	return true;
@@ -466,7 +455,7 @@ function wrap_mail_signature($mail) {
 
 	if (!empty($mail['multipart'])) return $mail;
 	if (!str_starts_with($mail['headers']['Content-Type'], 'text/plain')) return $mail;
-	if (!wrap_get_setting('mail_with_signature')) return $mail;
+	if (!wrap_setting('mail_with_signature')) return $mail;
 	if (!wrap_template_file('signature-mail', false)) return $mail;
 
 	$mail['message'] .= "\r\n".wrap_template('signature-mail');
@@ -492,13 +481,12 @@ function wrap_mail_queue_add($mail, $additional_headers) {
  * @return bool
  */
 function wrap_mail_queue_send() {
-	global $zz_setting;
-	require_once $zz_setting['core'].'/syndication.inc.php';
+	require_once wrap_setting('core').'/syndication.inc.php';
 	// lock will unlock automatically, not manually, to just get error mails every n seconds
-	$lock = wrap_lock('mailqueue', 'sequential', wrap_get_setting('error_mail_delay_seconds'));
+	$lock = wrap_lock('mailqueue', 'sequential', wrap_setting('error_mail_delay_seconds'));
 	if ($lock) return;
 
-	$queue_dir = $zz_setting['log_dir'].'/mailqueue';
+	$queue_dir = wrap_setting('log_dir').'/mailqueue';
 	if (!file_exists($queue_dir)) return false;
 	if (!is_dir($queue_dir)) return false;
 	$headers = ['To', 'Subject', 'From'];
@@ -512,14 +500,14 @@ function wrap_mail_queue_send() {
 		if (!str_ends_with($logfile, '.log')) continue;
 		$logdata = explode('@', substr($logfile, 0, -4));
 		if (count($logdata) !== 3) continue; // not a logfile
-		if (strtotime($logdata[2]) + wrap_get_setting('error_mail_delay_seconds') >= time()) continue;
+		if (strtotime($logdata[2]) + wrap_setting('error_mail_delay_seconds') >= time()) continue;
 		$mail['message'] .= file_get_contents($queue_dir.'/'.$logfile);
 		$used_logfiles[] = $queue_dir.'/'.$logfile;
 	}
 	if (!$mail['message']) return false;
 
-	$old_mail_subject_prefix = $zz_setting['mail_subject_prefix'] ?? false;
-	$zz_setting['mail_subject_prefix'] = false;
+	$old_mail_subject_prefix = wrap_setting('mail_subject_prefix');
+	wrap_setting('mail_subject_prefix', false);
 	$lines = explode("\n", $mail['message']);
 	foreach ($lines as $line) {
 		foreach ($headers as $header) {
@@ -540,8 +528,8 @@ function wrap_mail_queue_send() {
 	if ($success) {
 		foreach ($used_logfiles as $logfile) unlink($logfile);
 	}
-	$zz_setting['mail_subject_prefix'] = $old_mail_subject_prefix;
-	unset($zz_setting['brick_url_parameter']); // needs to be set later on
+	wrap_setting('mail_subject_prefix', $old_mail_subject_prefix);
+	wrap_setting_delete('brick_url_parameter'); // needs to be set later on
 	
 	return false;
 }
@@ -555,8 +543,8 @@ function wrap_mail_queue_send() {
  * @return array
  */
 function wrap_mail_reply_to($headers) {
-	if (!wrap_get_setting('mail_reply_to')) return $headers;
-	$e_mail = wrap_get_setting('own_e_mail');
+	if (!wrap_setting('mail_reply_to')) return $headers;
+	$e_mail = wrap_setting('own_e_mail');
 	if (!$e_mail)
 		wrap_error('System’s E-Mail address not set (setting `own_e_mail`).', E_USER_ERROR);
 
@@ -596,9 +584,9 @@ function wrap_mail_imap_extension() {
 function wrap_mail_imap_path($mailbox = '') {
 	$path = '{%s:%s%s}%s';
 	$path = sprintf($path
-		, wrap_get_setting('mail_imap')
-		, wrap_get_setting('mail_imap_port')
-		, wrap_get_setting('mail_imap_flags')
+		, wrap_setting('mail_imap')
+		, wrap_setting('mail_imap_port')
+		, wrap_setting('mail_imap_flags')
 		, $mailbox
 	);
 	return $path;
@@ -612,13 +600,13 @@ function wrap_mail_imap_path($mailbox = '') {
  */
 function wrap_mail_sent($message) {
 	if (!wrap_mail_imap_extension()) return false;
-	if (!$sent = wrap_get_setting('mail_imap_sent_mailbox')) {
+	if (!$sent = wrap_setting('mail_imap_sent_mailbox')) {
 		$sent = wrap_mail_mailboxes('sent');
 		if (!$sent) return false;
 		wrap_setting_write('mail_imap_sent_mailbox', $sent);
 	}
 	$path = wrap_mail_imap_path($sent);
-	$imapStream = imap_open($path, wrap_get_setting('mail_username'), wrap_get_setting('mail_password'));
+	$imapStream = imap_open($path, wrap_setting('mail_username'), wrap_setting('mail_password'));
     $result = imap_append($imapStream, $path, $message);
     imap_close($imapStream);
     return $result;
@@ -634,7 +622,7 @@ function wrap_mail_sent($message) {
 function wrap_mail_mailboxes($search) {
 	if (!wrap_mail_imap_extension()) return '';
 	$path = wrap_mail_imap_path();
-	$imapStream = imap_open($path, wrap_get_setting('mail_username'), wrap_get_setting('mail_password'));
+	$imapStream = imap_open($path, wrap_setting('mail_username'), wrap_setting('mail_password'));
 	$mailboxes = imap_listmailbox($imapStream, $path, '*');
 	imap_close($imapStream);
 	foreach ($mailboxes as $mailbox) {

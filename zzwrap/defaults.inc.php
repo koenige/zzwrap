@@ -659,12 +659,8 @@ function wrap_set_defaults_post_conf() {
 	// Mail
 	// -------------------------------------------------------------------------
 	
-	if (!isset($zz_setting['mail_header_eol'])) {
-		// mail header lines should be separated by \r\n
-		// some postfix versions handle mail internally with \n and
-		// replace \n with \r\n for outgoing mail, ending with \r\r\n = CRCRLF
+	if (!isset($zz_setting['mail_header_eol']))
 		$zz_setting['mail_header_eol'] = "\r\n";
-	}
 
 	// -------------------------------------------------------------------------
 	// Libraries
