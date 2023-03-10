@@ -2829,6 +2829,22 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
 }
 
 /**
+ * add setting to a list
+ *
+ * @param string $key
+ * @param mixed $value
+ */
+function wrap_setting_add($key, $value) {
+	global $zz_setting;
+	if (empty($zz_setting[$key]))
+		$zz_setting[$key] = [];
+	if (is_array($value))
+		$zz_setting[$key] = array_merge($zz_setting[$key], $value);
+	else
+		$zz_setting[$key][] = $value;
+}
+
+/**
  * delete setting
  *
  * @param string $key
@@ -3407,28 +3423,32 @@ function wrap_setting_key_array($key) {
  * @param string $string
  * @return mixed
  */
-function wrap_setting_value($string) {
-	if (is_array($string)) return $string;
-	$string = wrap_setting_value_placeholder($string);
+function wrap_setting_value($setting) {
+	if (is_array($setting)) {
+		foreach ($setting as $index => $value)
+			$setting[$index] = wrap_setting_value_placeholder($value);
+		return $setting;
+	}
+	$setting = wrap_setting_value_placeholder($setting);
 
-	switch (substr($string, 0, 1)) {
+	switch (substr($setting, 0, 1)) {
 	case '\\':
-		return substr($string, 1);
+		return substr($setting, 1);
 	case '[':
-		if (!substr($string, -1) === ']') break;
-		$string = substr($string, 1, -1);
-		$strings = explode(',', $string);
-		foreach ($strings as $index => $string) {
-			$strings[$index] = trim($string);
+		if (!substr($setting, -1) === ']') break;
+		$setting = substr($setting, 1, -1);
+		$settings = explode(',', $setting);
+		foreach ($settings as $index => $setting) {
+			$settings[$index] = trim($setting);
 		}
-		return $strings;
+		return $settings;
 	case '?':
 	case '&':
-		$string = substr($string, 1);
-		parse_str($string, $strings);
-		return $strings;
+		$setting = substr($setting, 1);
+		parse_str($setting, $settings);
+		return $settings;
 	}
-	return $string;
+	return $setting;
 }
 
 /**
