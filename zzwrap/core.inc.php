@@ -2829,6 +2829,16 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
 }
 
 /**
+ * delete setting
+ *
+ * @param string $key
+ */
+function wrap_setting_delete($key) {
+	global $zz_setting;
+	unset($zz_setting[$key]);
+}
+
+/**
  * gets setting from configuration (default: zz_setting)
  *
  * @param string $key
