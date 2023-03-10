@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -121,7 +121,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	switch (wrap_get_setting('error_handling')) {
 	case 'mail_summary':
 		if (!in_array($level, wrap_get_setting('error_mail_level'))) break;
-		$zz_setting['mail_summary'][$level][] = $msg;
+		wrap_error_summary($msg, $level);
 		break;
 	case 'mail':
 		if (!in_array($level, wrap_get_setting('error_mail_level'))) break;
@@ -178,35 +178,44 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 }
 
 /**
- * sends a large mail instead of several one liners if errors occured
+ * sends a large mail instead of several one liners if errors occured; if parameters
+ * are given, saves log entries for later mailing
  *
- * @global array $zz_setting
- *		array 'mail_summary' contains all error messages, indexed by level and
- *		numerical; will be unset after content is sent
- *		string 'start_process' (optional, time that process was started)
+ * @param string $line (optional)
+ * @param string $lerror_leveline (optional)
+ * @param bool $prefix_line (optional)
  * @return bool = mail was sent (true), not sent (false)
  * @see wrap_error()
  */
-function wrap_error_summary() {
-	global $zz_setting;
-	if (wrap_get_setting('error_handling') !== 'mail_summary') return false;
-	$zz_setting['error_handling'] = 'mail';
-	if (empty($zz_setting['mail_summary'])) return false;
+function wrap_error_summary($line = '', $error_level = '', $prefix_line = false) {
+	static $log;
+	static $prefixes;
+	if (empty($log)) $log = [];
+	if (empty($prefixes)) $prefixes = [];
+	if ($line) {
+		if ($prefix_line) $prefixes[$error_level] = $line;
+		else $log[$error_level] = $line;
+		return;
+	}
+	
+	if (!$log) return false;
+	if (wrap_setting('error_handling') !== 'mail_summary') return false;
+	wrap_setting('error_handling', 'mail');
 	
 	// no need to log these errors again
-	$log_errors = wrap_get_setting('log_errors');
-	$zz_setting['log_errors'] = false;
+	$log_errors = wrap_setting('log_errors');
+	wrap_setting('log_errors', false);
 	
-	foreach ($zz_setting['mail_summary'] AS $error_level => $errors) {
+	foreach ($log AS $error_level => $errors) {
 		$msg = implode("\n\n", $errors);
-		if (!empty($zz_setting['start_process']) AND $error_level === 'warning') {
-			$msg = $zz_setting['start_process']."\n\n".$msg;
-			unset($zz_setting['start_process']);
+		if (!empty($prefixes[$error_level])) {
+			$msg = implode("\n\n", $prefixes[$error_level])."\n\n".$msg;
+			unset($prefixes[$error_level]);
 		}
 		wrap_error($msg, $error_level);
 	}
-	unset($zz_setting['mail_summary']);
-	$zz_setting['log_errors'] = $log_errors;
+	$log = [];
+	wrap_setting('log_errors', $log_errors);
 	return true;
 }
 
