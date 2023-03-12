@@ -2823,7 +2823,13 @@ if (!function_exists('str_contains')) {
 function wrap_setting($key, $value = NULL, $login_id = NULL) {
 	global $zz_setting;
 	// write?
-	if (isset($value) AND !isset($login_id)) $zz_setting[$key] = $value;
+	if (isset($value) AND !isset($login_id)) {
+		$value = wrap_setting_value($value);
+		if (strstr($key, '['))
+			$zz_setting = wrap_setting_key($key, $value, $zz_setting);
+		else
+			$zz_setting[$key] = $value;
+	}
 	// read
 	return wrap_get_setting($key, $login_id);
 }
@@ -2877,7 +2883,8 @@ function wrap_get_setting($key, $login_id = 0) {
 	}
 
 	// shorthand notation with []?
-	if ($value = wrap_setting_key_read($zz_setting, $key)) return $value;
+	$shorthand = wrap_setting_key_read($zz_setting, $key);
+	if (isset($shorthand)) return $shorthand;
 
 	// read setting from database
 	if (!empty($zz_conf['db_connection']) AND $login_id) {
@@ -3352,10 +3359,10 @@ function wrap_setting_login_id($login_id = 0) {
  *
  * @param string $key
  * @param string $value
+ * @param array $settings (existing settings or no settings)
+ * @return array
  */
-function wrap_setting_key($key, $value) {
-	$settings = [];
-	
+function wrap_setting_key($key, $value, $settings = []) {
 	if (!strstr($key, '[')) {
 		$settings[$key] = $value;
 		return $settings;
@@ -3388,16 +3395,16 @@ function wrap_setting_key($key, $value) {
  */
 function wrap_setting_key_read($source, $key) {
 	if (!strstr($key, '['))
-		return $source[$key] ?? false;
+		return $source[$key] ?? NULL;
 
 	$keys = wrap_setting_key_array($key);
 	switch (count($keys)) {
 		case 2:
-			return $source[$keys[0]][$keys[1]] ?? false;
+			return $source[$keys[0]][$keys[1]] ?? NULL;
 		case 3:
-			return $source[$keys[0]][$keys[1]][$keys[2]] ?? false;
+			return $source[$keys[0]][$keys[1]][$keys[2]] ?? NULL;
 		case 4:
-			return $source[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? false;
+			return $source[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? NULL;
 		default:
 			wrap_error(sprintf('Too many arrays in %s, not implemented.', $key), E_USER_ERROR);
 	}
@@ -3459,6 +3466,7 @@ function wrap_setting_value($setting) {
  */
 function wrap_setting_value_placeholder($string) {
 	global $zz_setting;
+	if (!is_string($string)) return $string;
 	if (!strstr($string, '%%%')) return $string;
 	$parts = explode('%%%', $string);
 	$parts[1] = trim($parts[1]);
