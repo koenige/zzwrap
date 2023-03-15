@@ -257,7 +257,6 @@ function wrap_text($string, $params = []) {
 		if (!empty($zz_setting['translate_text_db'])) { // no wrap_get_setting() at this point!
 			$text = array_merge($text, wrap_language_get_text($language));
 		}
-		$zz_setting['text_included'] = true; // now we can translate something
 	}
 
 	$my_text = $text;

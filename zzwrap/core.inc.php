@@ -3559,7 +3559,7 @@ function wrap_cfg_files($type, $settings = []) {
 	// check if wrap_cfg_files() was called without database connection
 	// then translate all config variables read so far
 
-	if (!$translated AND !empty($zz_conf['db_connection']) AND !empty($cfg) AND !empty($zz_setting['text_included'])) {
+	if (!$translated AND !empty($zz_conf['db_connection']) AND !empty($cfg) AND !empty($settings['translate'])) {
 		foreach (array_keys($cfg) as $this_type) {
 			wrap_cfg_translate($cfg[$this_type]);
 		}
