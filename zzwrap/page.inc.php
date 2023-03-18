@@ -62,6 +62,7 @@ function wrap_template($template, $data = [], $mode = false) {
 		else break;
 	}
 	$template = implode("", $template);
+	if (!trim($template)) return '';
 	// now we have the template as string, in case of error, return
 	if ($mode === 'error') return $template;
 
