@@ -617,19 +617,6 @@ function wrap_set_defaults_post_conf() {
 		$zz_setting[$deprecated] = $zz_page[$deprecated];
 	}
 	
-	// allowed HTML rel attribute values
-	if (!isset($zz_setting['html_link_types'])) {
-		$zz_setting['html_link_types'] = [
-			'Alternate', 'Stylesheet', 'Start', 'Next', 'Prev', 'Contents',
-			'Index', 'Glossary', 'Copyright', 'Chapter', 'Section',
-			'Subsection', 'Appendix', 'Help', 'Bookmark', 'Up'
-		];
-	}
-	
-	// XML mode? for closing tags
-	if (!isset($zz_setting['xml_close_empty_tags']))
-		$zz_setting['xml_close_empty_tags'] = false;
-
 	// Theme
 	if (!empty($zz_setting['active_theme']))
 		wrap_package_activate($zz_setting['active_theme'], 'theme');
