@@ -170,9 +170,7 @@ function wrap_auth_loginpage() {
 		}
 	}
 		// do not unnecessarily expose URL structure
-	if ($request === $zz_setting['login_entryurl']
-		OR (is_array($zz_setting['login_entryurl']) 
-			AND in_array($request, $zz_setting['login_entryurl']))) unset($qs['request']); 
+	if ($request === wrap_domain_path('login_entry')) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
 	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url']
 		.(count($qs) ? '?'.implode('&', $qs) : ''), 307, false);
@@ -413,21 +411,13 @@ function cms_login($params, $settings = []) {
 				$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
 		} else {
 			// Hooray! User has been logged in
-			if (!empty($_SESSION['change_password']) AND wrap_get_setting('change_password_url')) {
+			if (!empty($_SESSION['change_password']) AND wrap_domain_path('change_password')) {
 			// if password has to be changed, redirect to password change page
 				if ($url) $url = '?url='.urlencode($url);
-				if (is_array($zz_setting['change_password_url'])) {
-					$url = $zz_setting['change_password_url'][$_SESSION['domain']].$url;
-				} else {
-					$url = $zz_setting['change_password_url'].$url;
-				}
+				$url = wrap_domain_path('change_password').$url;
 			} elseif (!$url) {
 			// if there is no url= in query string, use default value
-				if (is_array($zz_setting['login_entryurl'])) {
-					$url = $zz_setting['login_entryurl'][$_SESSION['domain']];
-				} else {
-					$url = $zz_setting['login_entryurl'];
-				}
+				$url = wrap_domain_path('login_entry');
 			}
 			// Redirect to protected landing page
 			if ((!empty($_GET) AND array_key_exists('via', $_GET))
@@ -605,6 +595,24 @@ function wrap_login_db($login) {
 		return $data;
 	}
 	return [];
+}
+
+/**
+ * return URL bound to specific domain
+ *
+ * @param string $setting, e. g. login_entry_url, change_password_url
+ * @return string
+ */
+function wrap_domain_path($setting) {
+	// @todo rename domain_entryurl to domain_entry_url
+	$setting .= ($setting === 'domain_entry' ? 'url' : '_url');
+	$domain_url = wrap_setting($setting);
+	if (!is_array($domain_url))
+		return $domain_url;
+
+	if (empty($_SESSION['domain'])) return '';
+	if (!array_key_exists($_SESSION['domain'], $domain_url)) return '';
+	return $domain_url[$_SESSION['domain']];
 }
 
 /**

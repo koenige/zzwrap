@@ -566,7 +566,7 @@ function wrap_well_known_url($url) {
 		$page['status'] = 200;
 		return $page;
 	case '/.well-known/change-password':
-		if (!$path = wrap_get_setting('change_password_url')) return false;
+		if (!$path = wrap_domain_path('change_password')) return false;
 		wrap_redirect_change($path);
 	}
 	return false;
@@ -3427,7 +3427,7 @@ function wrap_setting_key_array($key) {
  * allows settings from db to be in the format [1, 2, 3]; first \ will be
  * removed and allows settings starting with [
  *
- * @param string $string
+ * @param string $setting
  * @return mixed
  */
 function wrap_setting_value($setting) {
