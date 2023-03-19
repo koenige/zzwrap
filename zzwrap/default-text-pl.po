@@ -22,75 +22,75 @@ msgstr ""
 "X-Generator: Poedit 1.7.1\n"
 "Language: pl\n"
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
 msgstr "Nieprawidłowe hasło lub nazwa użytkownika. Proszę spróbować ponownie."
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Username:"
 msgstr "nazwa użytkownika"
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Password or username are empty. Please try again."
 msgstr "Hasło lub nazwa użytkownika są puste. Proszę spróbować ponownie."
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Request password"
 msgstr "Poproś o hasło"
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Forgotten Password"
 msgstr "Nie pamiętam hasła"
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Link for login is wrong or out of date."
 msgstr "Link do logowania jest błędny lub nieaktualny."
 
-#: library/zzwrap/auth.inc.php
+#: zzwrap/auth.inc.php
 msgid "Please get a new one."
 msgstr "Poproś o nowy."
 
-#: library/zzwrap/core.inc.php
+#: zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
 msgstr "Chwilowo logowanie nie jest możliwe."
 
 # access
-#: library/zzwrap/core.inc.php
+#: zzwrap/core.inc.php
 msgid "Access to this website for your IP address is restricted."
 msgstr "Dostęp do tej witryny dla twojego adresu IP jest ograniczony."
 
 # HTTP Status Code 300
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"
 msgstr "Wielokrotny wybór"
 
 # HTTP Status Code 301
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Moved Permanently"
 msgstr "Przeniesiono na stałe"
 
 # HTTP Status Code 302
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Found"
 msgstr "Znalezione"
 
 # HTTP Status Code 303
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "See Other"
 msgstr "Zobacz inne"
 
 # HTTP Status Code 304
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Not Modified"
 msgstr "Niemodyfikowane"
 
 # HTTP Status Code 305
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Use Proxy"
 msgstr "Użyj proxy"
 
 # HTTP Status Code 307
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Temporary Redirect"
 msgstr "Tymczasowe przekierowanie"
 
@@ -99,204 +99,204 @@ msgid "Bad Request"
 msgstr "Wystąpił błąd"
 
 # HTTP Status Code 400
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Your browser (or proxy) sent a request that this server could not understand."
 msgstr "Twoja przeglądarka przesłała zapytanie, którego serwer nie może zinterpretować."
 
 # HTTP Status Code 401
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Unauthorized"
 msgstr "Brak uprawnień"
 
 # HTTP Status Code 401
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "This server could not verify that you are authorized to access this URL. You either supplied the wrong credentials (e.g., bad password), or your browser doesn't understand how to supply the credentials required."
 msgstr "Ten serwer nie mógł zweryfikować, czy masz dostęp do tego adresu URL. Podano nieprawidłowe dane logowania (np. nieprawidłowe hasło) lub przeglądarka nie wie, jak podać wymagane dane logowania."
 
 # HTTP Status Code 402
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Payment Required"
 msgstr "Wymagana płatność"
 
 # HTTP Status Code 403
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Forbidden"
 msgstr "Zabronione"
 
 # HTTP Status Code 403
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "You don't have permission to access the requested object. It is either read-protected or not readable by the server."
 msgstr "Nie masz uprawnień dostępu do żądanego obiektu. Jest on albo chroniony przed odczytem, albo nie może być odczytany przez serwer."
 
 # HTTP Status Code 404
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Not Found"
 msgstr "Nie znaleziono"
 
 # HTTP Status Code 404
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The requested URL was not found on this server."
 msgstr "Żądany adres URL nie został znaleziony na tym serwerze."
 
 # HTTP Status Code 405
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Method Not Allowed"
 msgstr "Niedozwolona metoda"
 
 # HTTP Status Code 405
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "Metoda %s jest niedozwolona dla żądanego adresu URL."
 
 # HTTP Status Code 406
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Not Acceptable"
 msgstr "Niedopuszczalne"
 
 # HTTP Status Code 407
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Proxy Authentication Required"
 msgstr "Wymagane uwierzytelnienie serwera proxy"
 
 # HTTP Status Code 409
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Conflict"
 msgstr "Konflikt"
 
 # HTTP Status Code 410
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Gone"
 msgstr "Brak"
 
 # HTTP Status Code 410
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The requested URL is no longer available on this server and there is no forwarding address."
 msgstr "Żądany adres URL nie jest już dostępny na tym serwerze i nie ma adresu przekierowania."
 
 # HTTP Status Code 411
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Length Required"
 msgstr "Wymagana długość"
 
 # HTTP Status Code 411
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "A request with the %s-method requires a valid <code>Content-Length</code> header."
 msgstr "Żądanie z metodą %s wymaga prawidłowego nagłówka <code>Content-Length</code>."
 
 # HTTP Status Code 412
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Precondition Failed"
 msgstr "Warunek wstępny nie powiódł się"
 
 # HTTP Status Code 412
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr "Warunek wstępny dotyczący żądania adresu URL nie powiódł się."
 
 # HTTP Status Code 413
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Request Entity Too Large"
 msgstr "Podmiot wnioskujący jest za duży"
 
 # HTTP Status Code 413
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The %s-method does not allow the data transmitted, or the data volume exceeds the capacity limit."
 msgstr "Metoda %s nie pozwala na przesyłanie danych lub wolumen danych przekracza limit pojemności."
 
 # HTTP Status Code 414
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "URI Too Long"
 msgstr "Zbyt długi identyfikator URI"
 
 # HTTP Status Code 414
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The length of the requested URL exceeds the capacity limit for this server. The request cannot be processed."
 msgstr "Długość żądanego adresu URL przekracza limit pojemności dla tego serwera. Żądanie nie może zostać przetworzone."
 
 # HTTP Status Code 415
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Unsupported Media Type"
 msgstr "Nieobsługiwany typ nośnika."
 
 # HTTP Status Code 415
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The server does not support the media type transmitted in the request."
 msgstr "Serwer nie obsługuje typu nośnika przesyłanego w żądaniu."
 
 # HTTP Status Code 416
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Requested Range Not Satisfiable"
 msgstr "Żądany zakres jest niedostępny"
 
 # HTTP Status Code 417
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Expectation Failed"
 msgstr "Oczekiwanie nie powiodło się"
 
 # HTTP Status Code 500
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Internal Server Error"
 msgstr "Wewnętrzny błąd serwera"
 
 # HTTP Status Code 500
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The server encountered an internal error and was unable to complete your request."
 msgstr "Serwer napotkał błąd wewnętrzny i nie był w stanie zrealizować twojego żądania."
 
 # HTTP Status Code 500
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Unsupported server protocol (%s)"
 msgstr "Nieobsługiwany protokół serwera (%s)"
 
 # HTTP Status Code 501
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Not Implemented"
 msgstr "Nie zrealizowano"
 
 # HTTP Status Code 501
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr "Serwer nie obsługuje działania żądanego przez przeglądarkę (%s)."
 
 # HTTP Status Code 502
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Bad Gateway"
 msgstr "Zła bramka"
 
 # HTTP Status Code 502
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr "Serwer proxy otrzymał nieprawidłową odpowiedź z serwera upstream."
 
 # HTTP Status Code 503
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Service Unavailable"
 msgstr "Serwis niedostępny"
 
 # HTTP Status Code 503
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later."
 msgstr "Serwer tymczasowo nie może obsłużyć żądania z powodu przestojów konserwacyjnych lub problemów z wydajnością. Spróbuj ponownie później."
 
 # HTTP Status Code 504
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Gateway Timeout"
 msgstr "Limit czasu bramki"
 
 # HTTP Status Code 505
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "HTTP Version Not Supported"
 msgstr "Wersja http nie jest obsługiwana"
 
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Please try to find the content you were looking for from our <a href=\"%s\">main page</a>."
 msgstr "Spróbuj znaleźć treści, których szukałeś, z naszej <a href=\"%s\">strony głównej</a>."
 
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "User"
 msgstr "Użytkownik"
 
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid ""
 "The URL\n"
 "\n"
@@ -316,147 +316,147 @@ msgstr ""
 "\n"
 "– ale nie można znaleźć na serwerze"
 
-#: library/zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php
 msgid "Error on website"
 msgstr "Błąd na stronie internetowej"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "N North"
 msgstr "Północ"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "NNE North-northeast"
 msgstr "Północno-północno-zachodni"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "NE Northeast"
 msgstr "Północny wschód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "ENE East-northeast"
 msgstr "Wschód-północny wschód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "E East"
 msgstr "Wschód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "ESE East-southeast"
 msgstr "Wschód-południe-wschód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "SE Southeast"
 msgstr "Południowy wschód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "SSE South-southeast"
 msgstr "Południowo-południowo-wschodnie"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "S South"
 msgstr "Południe"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "SSW South-southwest"
 msgstr "Południe-południe-zachód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "SW Southwest"
 msgstr "Południowy zachód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "WSW West-southwest"
 msgstr "Zachód-południe-zachód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "W West"
 msgstr "Zachód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "WNW West-northwest"
 msgstr "Zachód-północny zachód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "NW Northwest"
 msgstr "Północny zachód"
 
 # Points of the compass (abbreviation, space, long form)
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "NNW North-northwest"
 msgstr "Północno-północno-zachodni"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "%d years"
 msgstr "%d lat"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "1 year"
 msgstr "1 rok"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "%d weeks"
 msgstr "%d tygodni"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "1 week"
 msgstr "1 tydzień"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "%d days"
 msgstr "%d dni"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "1 day"
 msgstr "1 dzień"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "%d hours"
 msgstr "%d godzin"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "1 hour"
 msgstr "1 godzina"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "%d minutes"
 msgstr "%d minut"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "1 minute"
 msgstr "1 minuta"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "%d seconds"
 msgstr "%d sekund"
 
 # duration
-#: library/zzwrap/format.inc.php
+#: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 sekunda"
 
