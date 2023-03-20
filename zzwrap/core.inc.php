@@ -2841,13 +2841,15 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
  * @param mixed $value
  */
 function wrap_setting_add($key, $value) {
-	global $zz_setting;
-	if (empty($zz_setting[$key]))
-		$zz_setting[$key] = [];
+	if (!is_array(wrap_setting($key)))
+		wrap_error(sprintf('Unable to add value %s to key %s, it is not an array.', $key, json_encode($value)), E_USER_WARNING);
+
+	$existing = wrap_setting($key);
 	if (is_array($value))
-		$zz_setting[$key] = array_merge($zz_setting[$key], $value);
+		$existing = array_merge($existing, $value);
 	else
-		$zz_setting[$key][] = $value;
+		$existing[] = $value;
+	wrap_setting($key, $existing);
 }
 
 /**
@@ -2898,6 +2900,14 @@ function wrap_get_setting($key, $login_id = 0) {
 	if (array_key_exists($key, $cfg) AND !isset($zz_setting[$key])) {
 		$default = wrap_get_setting_default($key, $cfg[$key]);
 		return wrap_get_setting_prepare($default, $key, $cfg);
+	} elseif ($pos = strpos($key, '[') AND array_key_exists(substr($key, 0, $pos), $cfg)) {
+		$default = wrap_get_setting_default($key, $cfg[substr($key, 0, $pos)]);
+		$sub_key = substr($key, $pos +1, -1);
+		if (is_array($default) AND array_key_exists($sub_key, $default)) {
+			$default = $default[$sub_key];
+			return wrap_get_setting_prepare($default, $key, $cfg);
+		}
+		// @todo add support for key[sub_key][sub_sub_key] notation
 	}
 
 	// check for keys that are arrays
@@ -2932,7 +2942,6 @@ function wrap_get_setting($key, $login_id = 0) {
  * @return mixed $setting (if not found, returns NULL)
  */
 function wrap_get_setting_default($key, $params) {
-	global $zz_setting;
 	global $zz_conf;
 
 	if (!empty($params['default_from_php_ini']) AND ini_get($params['default_from_php_ini'])) {
@@ -2945,8 +2954,8 @@ function wrap_get_setting_default($key, $params) {
 			if (array_key_exists($default_setting_key, $zz_conf)) {
 				return $zz_conf[$default_setting_key];
 			}
-		} elseif (array_key_exists($params['default_from_setting'], $zz_setting)) {
-			return $zz_setting[$params['default_from_setting']];
+		} elseif (!is_null(wrap_setting($params['default_from_setting']))) {
+			return wrap_setting($params['default_from_setting']);
 		}
 	}
 	if (!empty($params['default_from_function']) AND function_exists($params['default_from_function'])) {
@@ -2954,7 +2963,7 @@ function wrap_get_setting_default($key, $params) {
 	}
 	if (!empty($zz_conf['db_connection']) AND !empty($params['brick'])) {
 		$path = wrap_setting_path($key, $params['brick']);
-		if ($path) return $zz_setting[$key];
+		if ($path) return wrap_setting($key);
 	}
 	return NULL;
 }
@@ -3255,7 +3264,6 @@ function wrap_is_int($var) {
  */
 function wrap_setting_write($key, $value, $login_id = 0) {
 	global $zz_conf;
-	global $zz_setting;
 
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
@@ -3287,9 +3295,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 			zz_log_sql($sql, wrap_user('Servant Robot 247'), $id);
 		}
 		// activate setting
-		if (!$login_id) {
-			$zz_setting = wrap_array_merge($zz_setting, wrap_setting_key($key, $value));
-		}
+		if (!$login_id) wrap_setting($key, $value);
 		return true;
 	}
 
@@ -3354,7 +3360,7 @@ function wrap_setting_login_id($login_id = 0) {
 }
 
 /**
- * sets key/value pairs in $zz_setting, key may be array in form of
+ * sets key/value pairs, key may be array in form of
  * key[subkey], value may be array in form (1, 2, 3)
  *
  * @param string $key
@@ -3386,8 +3392,7 @@ function wrap_setting_key($key, $value, $settings = []) {
 }
 
 /**
- * reads key/value pairs in $zz_setting, key may be array in form of
- * key[subkey]
+ * reads key/value pairs, key may be array in form of key[subkey]
  *
  * @param array $source
  * @param string $key
