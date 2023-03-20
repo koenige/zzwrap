@@ -3666,7 +3666,6 @@ function wrap_cfg_translate(&$cfg) {
  * @return bool
  */
 function wrap_setting_path($setting_key, $brick = '', $params = []) {
-	global $zz_setting;
 	static $tries;
 	if (empty($tries)) $tries = [];
 	if (in_array($setting_key, $tries)) return false; // do not try more than once per request
@@ -3680,8 +3679,8 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	}
 	
 	$path = '';
-	if (!empty($zz_setting['website_id']))
-		$website_sql = sprintf(' AND website_id = %d', $zz_setting['website_id']);
+	if (wrap_setting('website_id'))
+		$website_sql = sprintf(' AND website_id = %d', wrap_setting('website_id'));
 	else
 		$website_sql = '';
 	if (!empty($params)) {
@@ -3721,8 +3720,6 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * @return string
  */
 function wrap_path($area, $value = [], $check_rights = true) {
-	global $zz_setting;
-
 	// check rights
 	$detail = is_bool($check_rights) ? '' : $check_rights;
 	if ($check_rights AND !wrap_access($area, $detail)) return false;
@@ -3731,40 +3728,35 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	$check = false;
 	if (strstr($area, '[')) {
 		$keys = explode('[', $area);
-		$keys[1] = rtrim($keys[1], ']');
 		$keys[0] = sprintf('%s_path', $keys[0]);
-		$setting = sprintf('%s[%s]', $keys[0], $keys[1]);
-		if (empty($zz_setting[$keys[0]][$keys[1]])) $check = true;
+		$setting = implode('[', $keys);
 	} else {
 		$setting = sprintf('%s_path', $area);
-		if (!wrap_get_setting($setting)) $check = true;
 	}
+	if (!wrap_setting($setting)) $check = true;
 
 	if ($check) {
 		$success = wrap_setting_path($setting);
 		if (!$success) return false;
 	}
-	if (!empty($keys))
-		$this_setting = $zz_setting[$keys[0]][$keys[1]];
-	else
-		$this_setting = wrap_get_setting($setting);
-	if (!is_array($value)) $value = [$value];
+	$this_setting = wrap_setting($setting);
 	if (!$this_setting) return '';
 	// if you address e. g. news_article and it is in fact news_article[publication_path]:
 	if (is_array($this_setting)) return '';
 	// replace page placeholders with %s
 	$this_setting = wrap_path_placeholder($this_setting);
 	$required_count = substr_count($this_setting, '%');
+	if (!is_array($value)) $value = [$value];
 	if (count($value) < $required_count) {
-		if (!empty($zz_setting['backend_path']))
-			array_unshift($value, $zz_setting['backend_path']);
+		if (wrap_setting('backend_path'))
+			array_unshift($value, wrap_setting('backend_path'));
 		if (count($value) < $required_count)
 			return '';
 	}
-	$path = vsprintf($zz_setting['base'].$this_setting, $value);
+	$path = vsprintf(wrap_setting('base').$this_setting, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
-	if ($website_id = wrap_get_setting('backend_website_id')
-		AND $website_id !== wrap_get_setting('website_id')) {
+	if ($website_id = wrap_setting('backend_website_id')
+		AND $website_id !== wrap_setting('website_id')) {
 		$cfg = wrap_cfg_files('settings');
 		if (!empty($cfg[$setting]['backend_for_website']))
 			$path = wrap_host_base($website_id).$path;
