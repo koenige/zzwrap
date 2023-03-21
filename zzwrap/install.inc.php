@@ -347,7 +347,7 @@ function wrap_install_finish() {
 	wrap_install_zzform();
 
 	wrap_setting_write('zzwrap_install_date', date('Y-m-d H:i:s'));
-	$success = wrap_setting_write('zzform_db_name_local', $_SESSION['db_name_local']);
+	$success = wrap_setting_write('db_name_local', $_SESSION['db_name_local']);
 	if ($success) {
 		$_SESSION['step'] = 'finish';
 		return wrap_redirect_change(wrap_domain_path('login_entry'));

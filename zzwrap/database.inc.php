@@ -31,7 +31,7 @@
  * selects database, sets NAMES to character encoding
  *
  * @global array $zz_conf
- *		'db_connection', 'db_name', 'db_name_local', 'character_set'
+ *		'db_connection', 'db_name'
  * @return bool true: database connection established, false: no connection
  */
 function wrap_db_connect() {
@@ -42,8 +42,8 @@ function wrap_db_connect() {
 	
 	// local access: get local database name
 	if (wrap_setting('local_access')) {
-		if (!empty($zz_conf['db_name_local'])) {
-			$zz_conf['db_name'] = $zz_conf['db_name_local'];
+		if (wrap_setting('db_name_local')) {
+			$zz_conf['db_name'] = wrap_setting('db_name_local');
 		} else {
 			wrap_setting('authentication_possible', false);
 			wrap_session_start();
@@ -112,7 +112,7 @@ function wrap_db_credentials() {
 				if (!empty($db['db_name'])) {
 					$zz_conf['db_name'] = $db['db_name'];
 					if ($file === wrap_setting('local_pwd'))
-						$zz_conf['db_name_local'] = $db['db_name'];
+						wrap_setting('db_name_local', $db['db_name']);
 				}
 			} else {
 				include $file;
