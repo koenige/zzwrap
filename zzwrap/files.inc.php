@@ -172,11 +172,23 @@ function wrap_tsv_parse($filename, $paths = '') {
  * --------------------------------------------------------------------
  */
 
-function wrap_include_ext_libraries() {
+/**
+ * include libraries from library folder
+ *
+ * @param mixed $libraries (string = single library, array = list of libraries)
+ * @return void
+ */
+function wrap_lib($libraries = []) {
 	static $included;
-	if ($included) return true;
+	if (empty($included)) $included = [];
 
-	foreach (wrap_setting('ext_libraries') as $function) {
+	if (!$libraries)
+		$libraries = wrap_setting('ext_libraries');
+	elseif (!is_array($libraries))
+		$libraries = [$libraries];
+
+	foreach ($libraries as $function) {
+		if (in_array($function, $included)) continue;
 		if (file_exists($file = wrap_setting('lib').'/'.$function.'.php')) 
 			require_once $file;
 		elseif (file_exists($file = wrap_setting('lib').'/'.$function.'/'.$function.'.php'))
@@ -196,9 +208,8 @@ function wrap_include_ext_libraries() {
 				wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
 			}
 		}
+		$included[] = $function;
 	}
-	$included = true;
-	return true;
 }
 
 /*

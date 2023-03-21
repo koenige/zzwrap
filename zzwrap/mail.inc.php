@@ -315,7 +315,7 @@ function wrap_mail_php($mail, $additional_headers) {
  * @return bool
  */
 function wrap_mail_phpmailer($msg, $list) {
-	wrap_include_files('libraries/phpmailer', 'default');
+	wrap_lib('phpmailer');
 	
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
 	$mail->isSMTP();  
@@ -450,7 +450,7 @@ function wrap_mail_split($address) {
  * @return array
  */
 function wrap_mail_signature($mail) {
-	wrap_include_ext_libraries(); // for error mails necessary
+	wrap_lib(); // for error mails necessary
 
 	if (!empty($mail['multipart'])) return $mail;
 	if (!str_starts_with($mail['headers']['Content-Type'], 'text/plain')) return $mail;

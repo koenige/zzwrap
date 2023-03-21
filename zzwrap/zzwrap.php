@@ -104,7 +104,7 @@ function zzwrap() {
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
-	wrap_include_ext_libraries();
+	wrap_lib();
 
 	wrap_include_files('_settings_post_login');
 

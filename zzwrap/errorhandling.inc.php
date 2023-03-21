@@ -33,7 +33,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	static $collect_messages;
 	static $collect_error_type;
 
-	wrap_include_ext_libraries(); // for mail template, maybe zzbrick is used
+	wrap_lib(); // for mail template, maybe zzbrick is used
 
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
@@ -228,7 +228,7 @@ function wrap_error_summary($line = '', $error_level = '', $prefix_line = false)
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_page;
 
-	wrap_include_ext_libraries();
+	wrap_lib();
 
 	// -- 1. check what kind of error page it is
 	// if wanted, check if mod_rewrite works

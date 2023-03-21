@@ -19,7 +19,7 @@ function wrap_install() {
 	$zz_conf['user'] = 'Crew droid Robot 571';
 
 	wrap_setting('template', 'install-page');
-	wrap_include_ext_libraries();
+	wrap_lib();
 	wrap_setting('cache', false);
 	
 	wrap_session_start();
