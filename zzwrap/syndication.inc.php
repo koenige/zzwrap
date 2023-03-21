@@ -26,10 +26,8 @@
  * @return array $data
  */
 function wrap_syndication_get($url, $type = 'json', $settings = []) {
-	// you may change the error code if e. g. only pictures will be fetched
+	// you may change the syndication_error_code if e. g. only pictures will be fetched
 	// via JSON to E_USER_WARNING or E_USER_NOTICE
-	if (is_null(wrap_setting('syndication_error_code')))
-		wrap_setting('syndication_error_code', E_USER_ERROR);
 	if (!$url) return [];
 
 	$data = [];
@@ -415,8 +413,6 @@ function wrap_syndication_geocode($address) {
 function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
 	global $zz_conf;
 
-	if (!wrap_setting('syndication_error_code'))
-		wrap_setting('syndication_error_code', E_USER_ERROR);
 	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
