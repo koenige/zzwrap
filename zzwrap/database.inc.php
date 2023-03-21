@@ -86,6 +86,7 @@ function wrap_db_credentials() {
 	if (!empty($db)) return $db;
 	
 	$db_password_files = wrap_setting('db_password_files');
+	$db_password_files[] = '';
 	if (wrap_setting('local_access'))
 		array_unshift($db_password_files, wrap_setting('local_pwd'));
 
