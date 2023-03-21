@@ -33,12 +33,10 @@
  * she or he is logged in, do not prolong login time, set person as logged out
  * if login time has passed
  * @param bool $force explicitly force authentication
- * @global array $zz_setting
  * @global array $zz_page
  * @return bool true if login is necessary, false if no login is required
  */
 function wrap_auth($force = false) {
-	global $zz_setting;
 	global $zz_page;
 	static $authentication_was_called;
 
@@ -48,7 +46,7 @@ function wrap_auth($force = false) {
 	$authentication_was_called = true;
 
 	// check if there are URLs that need authentication
-	if (empty($zz_setting['auth_urls'])) return false;
+	if (!wrap_setting('auth_urls')) return false;
 
 	// send header for IE for P3P (Platform for Privacy Preferences Project)
 	// if cookie is needed
@@ -60,10 +58,10 @@ function wrap_auth($force = false) {
 	// check if current URL needs authentication
 	if (!$force) {
 		$authentication = false;
-		foreach ($zz_setting['auth_urls'] as $auth_url) {
+		foreach (wrap_setting('auth_urls') as $auth_url) {
 			if (!str_starts_with(strtolower($zz_page['url']['full']['path']), strtolower($auth_url)))
 				continue;
-			if ($zz_page['url']['full']['path'] === $zz_setting['login_url'])
+			if ($zz_page['url']['full']['path'] === wrap_setting('login_url'))
 				continue;
 			if (wrap_authenticate_url())
 				$authentication = true;
@@ -77,7 +75,7 @@ function wrap_auth($force = false) {
 			wrap_session_start();
 			// calculate maximum login time
 			// you'll stay logged in for x minutes
-			$keep_alive = $zz_setting['logout_inactive_after'] * 60;
+			$keep_alive = wrap_setting('logout_inactive_after') * 60;
 			if (empty($_SESSION['last_click_at']) OR
 				$_SESSION['last_click_at'] + $keep_alive < time()) {
 				// automatically logout
@@ -94,11 +92,11 @@ function wrap_auth($force = false) {
 
 	// if it's not local access (e. g. on development server), all access 
 	// should go via secure connection
-	$zz_setting['protocol'] = 'http'.((!empty($zz_setting['no_https'])
-		OR ($zz_setting['local_access'] AND empty($zz_setting['local_https']))) ? '' : 's');
+	wrap_setting('protocol', 'http'.((wrap_setting('no_https')
+		OR (wrap_setting('local_access') AND !wrap_setting('local_https'))) ? '' : 's'));
 	// calculate maximum login time
 	// you'll stay logged in for x minutes
-	$keep_alive = $zz_setting['logout_inactive_after'] * 60;
+	$keep_alive = wrap_setting('logout_inactive_after') * 60;
 	
 	$logged_in = true;
 	// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
@@ -131,7 +129,7 @@ function wrap_auth($force = false) {
 		wrap_db_query($sql, E_USER_NOTICE);
 	}
 	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade')) {
-		$logout = (time() + $zz_setting['logout_inactive_after'] * 60);
+		$logout = (time() + wrap_setting('logout_inactive_after') * 60);
 		$keep_alive = date('Y-m-d H:i:s', $logout);
 		$sql_mask = sprintf($sql_mask, '"'.$keep_alive.'"', $_SESSION['mask_id']);
 		// it's not important if an error occurs here
@@ -150,7 +148,6 @@ function wrap_auth($force = false) {
  */
 function wrap_auth_loginpage() {
 	global $zz_page;
-	global $zz_setting;
 
 	$qs = [];
 	$qs['request'] = false; 
@@ -172,7 +169,7 @@ function wrap_auth_loginpage() {
 		// do not unnecessarily expose URL structure
 	if ($request === wrap_domain_path('login_entry')) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
-	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url']
+	wrap_redirect(wrap_setting('host_base').wrap_setting('login_url')
 		.(count($qs) ? '?'.implode('&', $qs) : ''), 307, false);
 	exit;
 }
@@ -181,23 +178,18 @@ function wrap_auth_loginpage() {
  * Checks current URL against no auth URLs
  *
  * @param string $url URL from database
- * @param array $no_auth_urls ($zz_setting['no_auth_urls'])
+ * @param array $no_auth_urls
  * @return bool true if authentication is required, false if not
  */
 function wrap_authenticate_url($url = false, $no_auth_urls = []) {
 	global $zz_page;
-	global $zz_setting;
-	if (!$url) {
+	if (!$url)
 		$url = $zz_page['url']['full']['path'];
-	}
-	if (!$no_auth_urls AND !empty($zz_setting['no_auth_urls'])) {
-		$no_auth_urls = $zz_setting['no_auth_urls'];
-	}
-	foreach ($no_auth_urls AS $test_url) {
-		if (str_starts_with($url, $test_url)) {
-			return false; // no authentication required
-		}
-	}
+	if (!$no_auth_urls)
+		$no_auth_urls = wrap_setting('no_auth_urls');
+	foreach ($no_auth_urls AS $test_url)
+		// no authentication required
+		if (str_starts_with($url, $test_url)) return false;
 	return true; // no matches: authentication required
 }
 
@@ -209,16 +201,14 @@ function wrap_authenticate_url($url = false, $no_auth_urls = []) {
  * @return - (redirect to main page)
  */
 function cms_logout($params) {
-	global $zz_setting;
-
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
 	
 	// Stop the session, delete all session data
 	wrap_session_stop();
 
-	if (substr($zz_setting['login_url'], 0, 1) !== '/') $zz_setting['host_base'] = '';
-	wrap_redirect($zz_setting['host_base'].$zz_setting['login_url'].'?logout', 307, false);
+	$host_base = str_starts_with(wrap_setting('login_url'), '/') ? wrap_setting('host_base') : '';
+	wrap_redirect($host_base.wrap_setting('login_url').'?logout', 307, false);
 	exit;
 }
 
@@ -238,19 +228,17 @@ function cms_logout($params) {
  *		bool 'via': check login data from a different server, POST some JSON
  *		bool 'no-cookie': for cookie check only
  *		bool 'password': show form to retrieve forgotten password
- * @global array $zz_setting
  * @global array $zz_conf
  * @global array $zz_page
  * @return mixed bool false: login failed; array $page: login form; or redirect
  *		to (wanted) landing page
  */
 function cms_login($params, $settings = []) {
-	global $zz_setting;
 	global $zz_conf;
 	global $zz_page;
 
-	$zz_setting['extra_http_headers'][] = 'X-Frame-Options: Deny';
-	$zz_setting['extra_http_headers'][] = "Content-Security-Policy: frame-ancestors 'self'";
+	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
+	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
 	if (!empty($_SESSION['logged_in'])) {
 		$url = cms_login_redirect_url();
@@ -271,14 +259,14 @@ function cms_login($params, $settings = []) {
 	$loginform = [];
 	$loginform['msg'] = false;
 	$loginform['action_url'] = !empty($settings['action_url']) ? $settings['action_url'] : './';
-	$loginform['password_link'] = wrap_get_setting('password_link');
+	$loginform['password_link'] = wrap_setting('password_link');
 	if ($loginform['password_link'] === true) {
 		$loginform['password_link'] = $loginform['action_url'].'?password';
 	}
 
 	// Check if there are parameters for single sign on
 	if (!empty($_GET['add']) OR !empty($_GET['link']) OR !empty($_GET['request'])) {
-		if (!in_array('contacts', $zz_setting['modules'])) wrap_quit(404);
+		if (!in_array('contacts', wrap_setting('modules'))) wrap_quit(404);
 		if (!empty($_GET['add']))
 			return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['add'])).'%%%');
 		// @deprecated
@@ -302,7 +290,7 @@ function cms_login($params, $settings = []) {
 			$login['sso_token'] = $params[2];
 			break;
 		case 'sso_hash':
-			if ($params[2] !== wrap_get_setting('single_sign_on_secret')) return false;
+			if ($params[2] !== wrap_setting('single_sign_on_secret')) return false;
 			break;
 		}
 		$login['username'] = $params[3];
@@ -311,11 +299,6 @@ function cms_login($params, $settings = []) {
 		$login['create_missing_user'] = true;
 	} elseif (!empty($params[0])) {
 		return false; // other parameters are not allowed
-	}
-
-	// default settings
-	if (empty($zz_setting['login_fields'])) {
-		$zz_setting['login_fields'][] = 'Username';
 	}
 
 	// someone tried to login via POST
@@ -329,7 +312,7 @@ function cms_login($params, $settings = []) {
 			$loginform['mail'] = trim($_POST['mail']);
 			if (wrap_mail_valid($loginform['mail'])) {
 				$loginform['mail_sent'] = true;
-				$loginform['login_link_valid'] = wrap_get_setting('password_key_validity_in_minutes');
+				$loginform['login_link_valid'] = wrap_setting('password_key_validity_in_minutes');
 				wrap_password_reminder($loginform['mail'], !empty($settings['reminder_data']) ? $settings['reminder_data'] : []);
 			} else {
 				$loginform['mail_invalid'] = true;
@@ -353,7 +336,7 @@ function cms_login($params, $settings = []) {
 			if (empty($_POST['username']) OR empty($_POST['password']))
 				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
 			$full_login = [];
-			foreach ($zz_setting['login_fields'] AS $login_field) {
+			foreach (wrap_setting('login_fields') AS $login_field) {
 				$login_field = strtolower($login_field);
 				if (!empty($_POST[$login_field])) {
 					$login[$login_field] = wrap_login_format($_POST[$login_field], $login_field);
@@ -441,7 +424,7 @@ function cms_login($params, $settings = []) {
 	$params = [];
 	if (!empty($url)) {
 		$params[] = 'url='.urlencode($url);
-		$zz_setting['cache'] = false;
+		wrap_setting('cache', false);
 	}
 	if (isset($querystring['no-cookie'])) {
 		$params[] = 'no-cookie';
@@ -450,18 +433,19 @@ function cms_login($params, $settings = []) {
 		$params[] = 'via';
 	}
 	if (!empty($querystring)) {
-		$zz_setting['cache'] = false;
+		wrap_setting('cache', false);
 	}
 	$loginform['params'] = $params ? '?'.implode('&amp;', $params) : '';
 
 	$loginform['fields'] = [];
-	foreach ($zz_setting['login_fields'] AS $login_field) {
+	$login_fields_output = wrap_setting('login_fields_output');
+	foreach (wrap_setting('login_fields') AS $login_field) {
 		$loginform['fields'][] = [
 			'title' => wrap_text($login_field.':'),
 			'fieldname' => strtolower($login_field),
 			// separate input, e. g. dropdown etc.
-			'output' => !empty($zz_setting['login_fields_output'][$login_field])
-				? $zz_setting['login_fields_output'][$login_field] : '',
+			'output' => !empty($login_fields_output[$login_field])
+				? $login_fields_output[$login_field] : '',
 			// text input
 			'value' => !empty($_POST[strtolower($login_field)])
 				? wrap_html_escape($_POST[strtolower($login_field)]) : ''
@@ -508,30 +492,18 @@ function cms_login_redirect_url() {
  *
  * @param string $url URL of landing page
  * @param array (optional) $querystring query string of current URL
- * @global array $zz_setting
  * @return - (redirect to different page)
  */
 function cms_login_redirect($url, $querystring = []) {
-	global $zz_setting;
+	// protocol/hostname is already part of URL?
+	$host_base = str_starts_with($url, '/') ? wrap_setting('host_base') : '';
 	
-	// get correct protocol/hostname
-	if (substr($url, 0, 1) === '/') {
-		$zz_setting['protocol'] = 'http'.($zz_setting['no_https'] ? '' : 's');
-		$zz_setting['host_base'] = $zz_setting['protocol'].'://'.$zz_setting['hostname'];
-		if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
-			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
-		}
-	} else {
-		// protocol/hostname is already part of URL
-		$zz_setting['host_base'] = '';
-	}
-
 	// test whether COOKIEs for session management are allowed
 	// if not, add no-cookie to URL so that wrap_auth() can hand that
 	// back over to cms_login() if login was unsuccessful because of
 	// lack of acceptance of cookies
 	if (empty($_COOKIE) OR isset($querystring['no-cookie'])) {
-		$redir_query_string = parse_url($zz_setting['host_base'].$url);
+		$redir_query_string = parse_url($host_base.$url);
 		if (!empty($redir_query_string['query']))
 			$url .= '&no-cookie';
 		else
@@ -551,7 +523,6 @@ function cms_login_redirect($url, $querystring = []) {
  * @return bool true: login was successful, false: login was not successful
  */
 function wrap_login($login) {
-	global $zz_setting;
 	$logged_in = false;
 
 	// check username and password
@@ -561,11 +532,11 @@ function wrap_login($login) {
 	// if database login does not work, try different sources
 	// ... LDAP ...
 	// ... different database server ...
-	if (!empty($zz_setting['ldap_login']) AND !$logged_in) {
+	if (wrap_setting('ldap_login') AND !$logged_in) {
 		$data = cms_login_ldap($login);
 		if ($data) $logged_in = true;
 	}
-	if (!empty($zz_setting['formauth_login']) AND !$logged_in) {
+	if (wrap_setting('formauth_login') AND !$logged_in) {
 		$data = cms_login_formauth($login);
 		if ($data) $logged_in = true;
 	}
@@ -679,7 +650,7 @@ function wrap_login_http_auth() {
  * @return bool
  */
 function wrap_login_http_oauth($access_token) {
-	if (wrap_get_setting('login_with_contact_id'))
+	if (wrap_setting('login_with_contact_id'))
 		$sql = wrap_sql_query('auth_acces_token_contact');
 	else
 		$sql = wrap_sql_query('auth_acces_token');
@@ -696,7 +667,7 @@ function wrap_login_http_oauth($access_token) {
  * @return void
  */
 function wrap_login_http_auth_request() {
-	header(sprintf('WWW-Authenticate: Basic realm="%s"', wrap_get_setting('project')));
+	header(sprintf('WWW-Authenticate: Basic realm="%s"', wrap_setting('project')));
 	wrap_http_status_header(401);
 	wrap_log_uri(401);
 	exit;
@@ -735,11 +706,8 @@ function wrap_login_hash($hash, $login) {
  *
  * @param int $user_id
  * @param array (optional) $data result of wrap_sql('login') or custom LDAP function
- * @global array $zz_setting
  */
 function wrap_register($user_id = false, $data = []) {
-	global $zz_setting;
-
 	// Local modifications to SQL queries
 	wrap_sql('auth', 'set');
 
@@ -763,7 +731,7 @@ function wrap_register($user_id = false, $data = []) {
 		$_SESSION[$key] = $value; 
 	}
 	if (empty($_SESSION['domain'])) {
-		$_SESSION['domain'] = $zz_setting['hostname'];
+		$_SESSION['domain'] = wrap_setting('hostname');
 	}
 
 	// Login: no user_id set so far, get it from SESSION
@@ -774,7 +742,7 @@ function wrap_register($user_id = false, $data = []) {
 		$_SESSION['settings'] = wrap_db_fetch($sql, 'dummy_id', 'key/value');
 	}
 	// get user groups, if module present
-	$usergroups_file = $zz_setting['custom_rights_dir'].'/usergroups.inc.php';
+	$usergroups_file = wrap_setting('custom_rights_dir').'/usergroups.inc.php';
 	if (file_exists($usergroups_file)) {
 		include_once $usergroups_file;
 		wrap_register_usergroups($user_id);
@@ -791,16 +759,13 @@ function wrap_register($user_id = false, $data = []) {
  *
  * @param string $field_value
  * @param string $field_name
- * @global array $zz_setting
  * @return string $field_value, reformatted
  */
 function wrap_login_format($field_value, $field_name) {
-	global $zz_setting;
-	
 	$field_value = wrap_db_escape($field_value);
 	
-	if (!empty($zz_setting['login_fields_format']))
-		$field_value = $zz_setting['login_fields_format']($field_value, $field_name);
+	if ($function = wrap_setting('login_fields_format'))
+		$field_value = $function($field_value, $field_name);
 
 	return $field_value;
 }
@@ -816,20 +781,19 @@ function wrap_login_format($field_value, $field_name) {
  */
 function wrap_password_check($pass, $hash, $login_id = 0) {
 	global $zz_conf;
-	global $zz_setting;
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
 
-	switch (wrap_get_setting('hash_password')) {
+	switch (wrap_setting('hash_password')) {
 	case 'password_hash':
 		if (password_verify($pass, $hash)) return true;
 		return false;
 	case 'phpass':
 	case 'phpass-md5':
 		require_once wrap_setting('lib').'/phpass/PasswordHash.php';
-		$hasher = new PasswordHash(wrap_get_setting('hash_cost_log2'), wrap_get_setting('hash_portable'));
+		$hasher = new PasswordHash(wrap_setting('hash_cost_log2'), wrap_setting('hash_portable'));
 		if ($hasher->CheckPassword($pass, $hash)) return true;
-		if (wrap_get_setting('hash_password') === 'phpass') return false;
+		if (wrap_setting('hash_password') === 'phpass') return false;
 		if (!$login_id) return false;
 		// to transfer old double md5 hashed logins without salt to more secure logins
 		if (!$hasher->CheckPassword(md5($pass), $hash)) return false;
@@ -851,27 +815,26 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
  * hash password
  *
  * @param string $pass password as entered by user
- * @global array $zz_setting
  * @return string hash
  */
 function wrap_password_hash($pass) {
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
 
-	switch (wrap_get_setting('hash_password')) {
+	switch (wrap_setting('hash_password')) {
 	case 'password_hash':
-		$hash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => wrap_get_setting('hash_cost_log2')]);
+		$hash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => wrap_setting('hash_cost_log2')]);
 		if (strlen($hash) < 20) return false;
 		return $hash;
 	case 'phpass':
 	case 'phpass-md5':
 		require_once wrap_setting('lib').'/phpass/PasswordHash.php';
-		$hasher = new PasswordHash(wrap_get_setting('hash_cost_log2'), wrap_get_setting('hash_portable'));
+		$hasher = new PasswordHash(wrap_setting('hash_cost_log2'), wrap_setting('hash_portable'));
 		$hash = $hasher->HashPassword($pass);
 		if (strlen($hash) < 20) return false;
 		return $hash;
 	}
-	return wrap_get_setting('hash_password')($pass.wrap_get_setting('hash_password_salt'));
+	return wrap_setting('hash_password')($pass.wrap_setting('hash_password_salt'));
 }
 
 /**
@@ -883,7 +846,6 @@ function wrap_password_hash($pass) {
  * @return string
  */
 function wrap_password_token($username = '', $secret_key = 'login_key') {
-	global $zz_setting;
 	static $tokens;
 	if (empty($tokens)) $tokens = [];
 	
@@ -902,8 +864,8 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		$sql = sprintf(wrap_sql_login(), $username);
 		$userdata = wrap_db_fetch($sql);
 		if (!$userdata AND $sql = wrap_sql('login_foreign')) {
-			if (array_key_exists('login_foreign_ids', $zz_setting)) {
-				foreach ($zz_setting['login_foreign_ids'] as $id) {
+			if ($login_foreign_ids = wrap_setting('login_foreign_ids')) {
+				foreach ($login_foreign_ids as $id) {
 					$sql = sprintf($sql, $id, $username);
 					$userdata = wrap_db_fetch($sql);
 					if ($userdata) break;

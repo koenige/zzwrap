@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020 Gustaf Mossakowski
+ * @copyright Copyright © 2020, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -40,8 +40,7 @@ function wrap_data_ids($data, $id_field_name = '') {
  * @return array
  */
 function wrap_data_langs($data, $lang_field_name = '') {
-	global $zz_setting;
-	if (!$lang_field_name) return [$zz_setting['lang']];
+	if (!$lang_field_name) return [wrap_setting('lang')];
 
 	foreach ($data as $id => $line) {
 		$langs[$line[$lang_field_name]] = $line[$lang_field_name];
@@ -84,13 +83,11 @@ function wrap_data_media($data, $ids, $langs, $table, $id_field) {
  * @return array
  */
 function wrap_data_merge($data, $new_data, $id_field_name = '', $lang_field_name = '') {
-	global $zz_setting;
-
 	foreach ($data as $id => $line) {
 		if ($lang_field_name)
 			$lang = $line[$lang_field_name];
 		else
-			$lang = $zz_setting['lang'];
+			$lang = wrap_setting('lang');
 		if ($id_field_name)
 			$data[$id] = array_merge($new_data[$lang][$line[$id_field_name]], $line);
 		else

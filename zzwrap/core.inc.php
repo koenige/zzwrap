@@ -26,8 +26,6 @@
  * @return bool
  */
 function wrap_session_start() {
-	global $zz_setting;
-	
 	// is already a session active?
 	if (session_id()) {
 		session_write_close();
@@ -35,14 +33,14 @@ function wrap_session_start() {
 		return true;
 	}
 	// change session_save_path
-	if (!empty($zz_setting['session_save_path'])) {
-		$success = wrap_mkdir($zz_setting['session_save_path']);
+	if (wrap_setting('session_save_path')) {
+		$success = wrap_mkdir(wrap_setting('session_save_path'));
 		if ($success) 
-			session_save_path($zz_setting['session_save_path']);
+			session_save_path(wrap_setting('session_save_path'));
 	}
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	$last_error = false;
-	session_set_cookie_params(0, '/', $zz_setting['hostname'], $zz_setting['session_secure_cookie'], true);
+	session_set_cookie_params(0, '/', wrap_setting('hostname'), wrap_setting('session_secure_cookie'), true);
 	$last_error = error_get_last();
 	// don't collide with other PHPSESSID on the same server, set own name:
 	session_name('zugzwang_sid');
@@ -52,7 +50,7 @@ function wrap_session_start() {
 	// insufficient access rights
 	// only throw 503 error if authentication is a MUST HAVE
 	// otherwise, page might still be accessible without authentication
-	if (wrap_get_setting('authentication_possible') AND wrap_authenticate_url()) {
+	if (wrap_setting('authentication_possible') AND wrap_authenticate_url()) {
 		$session_error = error_get_last();
 		if ($last_error != $session_error
 			AND str_starts_with($session_error['message'], 'session_start()')) {
@@ -234,13 +232,12 @@ function wrap_session_cookietest_end($token, $qs) {
  * @return string
  */
 function wrap_url_expand($url = false) {
-	global $zz_setting;
 	if (!$url)
-		$url = $zz_setting['host_base'].$zz_setting['request_uri'];
-	if (substr($url, 0, 1) === '#')
-		$url = $zz_setting['host_base'].$zz_setting['request_uri'].$url;
+		$url = wrap_setting('host_base').wrap_setting('request_uri');
+	elseif (substr($url, 0, 1) === '#')
+		$url = wrap_setting('host_base').wrap_setting('request_uri').$url;
 	elseif (substr($url, 0, 1) === '?') {
-		$request_uri = $zz_setting['request_uri'];
+		$request_uri = wrap_setting('request_uri');
 		if (strstr($request_uri, '?')) {
 			$qs = parse_url($request_uri, PHP_URL_QUERY);
 			parse_str($qs, $qs);
@@ -251,9 +248,9 @@ function wrap_url_expand($url = false) {
 			$request_uri = substr($request_uri, 0, strrpos($request_uri, '?') + 1).http_build_query($qs);
 			$url = '';
 		}
-		$url = $zz_setting['host_base'].$request_uri.$url;
+		$url = wrap_setting('host_base').$request_uri.$url;
 	} elseif (substr($url, 0, 1) === '/')
-		$url = $zz_setting['host_base'].$url;
+		$url = wrap_setting('host_base').$url;
 	return $url;
 }
 
@@ -336,9 +333,9 @@ function wrap_look_for_page($zz_page) {
 	
 	if ($page['url'] === '*') {
 		// some system paths must not match *
-		if (in_array($url['full']['path'], wrap_get_setting('icon_paths'))) return false;
-		if (str_starts_with($url['full']['path'], wrap_get_setting('layout_path'))) return false;
-		if (str_starts_with($url['full']['path'], wrap_get_setting('behaviour_path'))) return false;
+		if (in_array($url['full']['path'], wrap_setting('icon_paths'))) return false;
+		if (str_starts_with($url['full']['path'], wrap_setting('layout_path'))) return false;
+		if (str_starts_with($url['full']['path'], wrap_setting('behaviour_path'))) return false;
 	}
 	return $page;
 }
@@ -491,12 +488,9 @@ function wrap_url_cut($url, $params) {
  * whitelist of possible parameters is generated from settings.cfg in modules
  * setting needs page_parameter = 1
  * @param string $params
- * @global array $zz_setting
  * @return bool
  */
 function wrap_page_parameters($params) {
-	global $zz_setting;
-	
 	parse_str($params, $params);
 	if (!$params) return false;
 	$cfg = wrap_cfg_files('settings');
@@ -504,7 +498,7 @@ function wrap_page_parameters($params) {
 	foreach ($params as $key => $value) {
 		if (!array_key_exists($key, $cfg)) continue;
 		if (empty($cfg[$key]['page_parameter'])) continue;
-		$zz_setting[$key] = $value;
+		wrap_setting($key, $value);
 	}
 	return true;
 }
@@ -515,11 +509,9 @@ function wrap_page_parameters($params) {
  * whitelist of possible parameters is generated from settings.cfg in modules
  * setting needs scope = module
  * @param string $params
- * @global array $zz_setting
  * @return bool
  */
 function wrap_module_parameters($module, $params) {
-	global $zz_setting;
 	static $unchanged;
 	if (empty($unchanged)) $unchanged = [];
 	$changed = [];
@@ -534,20 +526,20 @@ function wrap_module_parameters($module, $params) {
 		if (empty($cfg[$key]['scope'])) continue;
 		$scope = wrap_setting_value($cfg[$key]['scope']);
 		if (!in_array($module, $scope)) continue;
-		if (!array_key_exists($key, $zz_setting)) {
+		if (is_null(wrap_setting($key))) {
 			$unchanged[$key] = NULL;
-			$zz_setting[$key] = $value;
+			wrap_setting($key, $value);
 			$changed[] = $key;
-		} elseif ($zz_setting[$key] !== $value) {
-			$unchanged[$key] = $zz_setting[$key];
-			$zz_setting[$key] = $value;
+		} elseif (wrap_setting($key) !== $value) {
+			$unchanged[$key] = wrap_setting($key);
+			wrap_setting($key, $value);
 			$changed[] = $key;
 		}
 	}
 	// multiple calls: change unchanged parameters back to original value
 	foreach (array_keys($unchanged) as $key) {
 		if (in_array($key, $changed)) continue;
-		$zz_setting[$key] = $unchanged[$key];
+		wrap_setting($key, $unchanged[$key]);
 	}
 	return true;
 }
@@ -562,7 +554,7 @@ function wrap_well_known_url($url) {
 	switch ($url['path']) {
 	case '/robots.txt':
 		$page['content_type'] = 'txt';
-		$page['text'] = '# robots.txt for '.wrap_get_setting('site');
+		$page['text'] = '# robots.txt for '.wrap_setting('site');
 		$page['status'] = 200;
 		return $page;
 	case '/.well-known/change-password':
@@ -577,22 +569,18 @@ function wrap_well_known_url($url) {
  * then send it out
  *
  * @param array $url_path ($zz_page['url']['full']['path'])
- * @global array $zz_setting
- *		array 'modules', string 'modules_dir', string 'layout_path',
- *		string 'behaviour_path'
  * @return
  */
 function wrap_look_for_file($url_path) {
-	global $zz_setting;
-	if (empty($zz_setting['modules']) AND !$zz_setting['active_theme']) return false;
+	if (!wrap_setting('modules') AND !wrap_setting('active_theme')) return false;
 	if (!$url_path) return false;
 
-	if ($zz_setting['active_theme'] AND !empty($zz_setting['icon_paths'])) {
-		if (in_array($url_path, $zz_setting['icon_paths'])) {
+	if (wrap_setting('active_theme') AND wrap_setting('icon_paths')) {
+		if (in_array($url_path, wrap_setting('icon_paths'))) {
 			$path = $url_path;
-			if (str_starts_with($path, $zz_setting['base_path']))
-				$path = substr($path, strlen($zz_setting['base_path']));
-			$file['name'] = sprintf('%s/%s%s', wrap_setting('themes_dir'), $zz_setting['active_theme'], $path);
+			if (str_starts_with($path, wrap_setting('base_path')))
+				$path = substr($path, strlen(wrap_setting('base_path')));
+			$file['name'] = sprintf('%s/%s%s', wrap_setting('themes_dir'), wrap_setting('active_theme'), $path);
 			if (file_exists($file['name'])) {
 				$file['etag_generate_md5'] = true;
 				wrap_file_send($file);
@@ -600,22 +588,22 @@ function wrap_look_for_file($url_path) {
 		}
 	}
 
-	$folders = $zz_setting['modules'] ?? [];
+	$folders = wrap_setting('modules');
 	$themes = wrap_themes();
 	$folders = array_merge($folders, $themes);
 	$folders = array_unique($folders); // themes can be identical with modules
 
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
-		if (empty($zz_setting[$path.'_path'])) continue;
-		if (!str_starts_with($url_path, $zz_setting[$path.'_path'])) continue;
-		$url_folders = explode('/', substr($url_path, strlen($zz_setting[$path.'_path'])));
+		if (!wrap_setting($path.'_path')) continue;
+		if (!str_starts_with($url_path, wrap_setting($path.'_path'))) continue;
+		$url_folders = explode('/', substr($url_path, strlen(wrap_setting($path.'_path'))));
 		if (count($url_folders) < 2) continue;
 		if (!in_array($url_folders[1], $folders)) continue;
 		array_shift($url_folders);
 		$folder = array_shift($url_folders);
 		// prefer themes over modules here if name is identical
-		$dir = in_array($folder, $themes) ? wrap_setting('themes_dir') : $zz_setting['modules_dir'];
+		$dir = in_array($folder, $themes) ? wrap_setting('themes_dir') : wrap_setting('modules_dir');
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$dir, $folder, $path, implode('/', $url_folders));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css', 'js'])) {
@@ -692,20 +680,18 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  * @return array $url
  */
 function wrap_check_canonical($zz_page, $page) {
-	global $zz_setting;
-	
 	// canonical hostname?
-	if (!empty($zz_setting['canonical_hostname'])) {
-		if (!empty($zz_setting['local_access'])) {
-			if (str_starts_with($zz_setting['hostname'], 'dev.')) {
-				$canonical = 'dev.'.$zz_setting['canonical_hostname'];
+	if (wrap_setting('canonical_hostname')) {
+		if (wrap_setting('local_access')) {
+			if (str_starts_with(wrap_setting('hostname'), 'dev.')) {
+				$canonical = 'dev.'.wrap_setting('canonical_hostname');
 			} else {
-				$canonical = $zz_setting['canonical_hostname'].'.local';
+				$canonical = wrap_setting('canonical_hostname').'.local';
 			}
 		} else {
-			$canonical = $zz_setting['canonical_hostname'];
+			$canonical = wrap_setting('canonical_hostname');
 		}
-		if ($zz_setting['hostname'] !== $canonical) {
+		if (wrap_setting('hostname') !== $canonical) {
 			$zz_page['url']['full']['host'] = $canonical;
 			$zz_page['url']['redirect'] = true;
 			$zz_page['url']['redirect_cache'] = false;
@@ -731,22 +717,22 @@ function wrap_check_canonical($zz_page, $page) {
 		// initialize
 		if (empty($page[$type])) $page[$type] = [];
 		// merge from settings
-		if (!empty($zz_setting[$type])) {
-			$page[$type] = array_merge($page[$type], $zz_setting[$type]);
+		if (wrap_setting($type)) {
+			$page[$type] = array_merge($page[$type], wrap_setting($type));
 		}
 	}
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
 		['no-cookie', 'lang', 'code', 'url', 'logout']);
-	if ($qs = wrap_get_setting('query_strings')) {
+	if ($qs = wrap_setting('query_strings')) {
 		$page['query_strings'] = array_merge($page['query_strings'], $qs);
 	}
 	if (!empty($zz_page['url']['full']['query'])) {
 		parse_str($zz_page['url']['full']['query'], $params);
 		foreach (array_keys($params) as $param) {
 			if (in_array($param, $page['query_strings'])) continue;
-			if (wrap_get_setting('no_query_strings_redirect')) {
-				$zz_setting['cache'] = false; // do not cache these
+			if (wrap_setting('no_query_strings_redirect')) {
+				wrap_setting('cache', false); // do not cache these
 				continue;
 			}
 			$param_value = $params[$param];
@@ -758,7 +744,7 @@ function wrap_check_canonical($zz_page, $page) {
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
 			if (!wrap_errorpage_ignore('qs', $param)) {
 				wrap_error(sprintf('Wrong URL: query string %s=%s [%s], Referer: %s'
-					, $param, $param_value, $zz_setting['request_uri']
+					, $param, $param_value, wrap_setting('request_uri')
 					, isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '--'
 				), E_USER_NOTICE);
 			}
@@ -838,7 +824,7 @@ function wrap_read_url($url) {
  * @return string
  */
 function wrap_glue_url($url) {
-	$base = wrap_get_setting('base');
+	$base = wrap_setting('base');
 	if (substr($base, -1) === '/') $base = substr($base, 0, -1);
 	if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 		$url['port'] = sprintf(':%s', $_SERVER['SERVER_PORT']);
@@ -877,15 +863,13 @@ function wrap_build_url($parts) {
  * check for redirects, if there's a corresponding table.
  *
  * @param array $page_url = $zz_page['url']
- * @global array $zz_setting
  * @global array $zz_page
  * @return mixed (bool false: no redirect; array: fields needed for redirect)
  */
 function wrap_check_redirects($page_url) {
-	global $zz_setting;
 	global $zz_page;
 
-	if (empty($zz_setting['check_redirects'])) return false;
+	if (!wrap_setting('check_redirects')) return false;
 	$url = wrap_read_url($zz_page['url']);
 	$where_language = (!empty($_GET['lang']) AND !is_array($_GET['lang']))
 		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql_fields('core_redirects_old_url')
@@ -898,7 +882,7 @@ function wrap_check_redirects($page_url) {
 	);
 	// not needed anymore, but set to false hinders from getting into a loop
 	// (wrap_db_fetch() will call wrap_quit() if table does not exist)
-	$zz_setting['check_redirects'] = false; 
+	wrap_setting('check_redirects', false); 
 	$redir = wrap_db_fetch($sql);
 	if ($redir) return $redir;
 
@@ -1028,28 +1012,27 @@ function wrap_check_redirect_from_cache($page, $url) {
  * @return bool
  */
 function wrap_log_uri($status = 0) {
-	global $zz_setting;
 	global $zz_page;
 	
 	if (!$status)
 		$status = !empty($zz_page['error_code']) ? $zz_page['error_code'] : 200;
 
-	if (!empty($zz_setting['http_log'])) {
+	if (wrap_setting('http_log')) {
 		$logdir = sprintf('%s/access/%s/%s'
-			, $zz_setting['log_dir']
+			, wrap_setting('log_dir')
 			, date('Y', $_SERVER['REQUEST_TIME'])
 			, date('m', $_SERVER['REQUEST_TIME'])
 		);
 		wrap_mkdir($logdir);
 		$logfile = sprintf('%s/%s%s-access-%s.log'
 			, $logdir
-			, str_replace('/', '-', $zz_setting['site'])
+			, str_replace('/', '-', wrap_setting('site'))
 			, wrap_https() ? '-ssl' : ''
 			, date('Y-m-d', $_SERVER['REQUEST_TIME'])
 		);
 		$line = sprintf(
 			'%s - %s [%s] "%s %s %s" %d %d "%s" "%s" %s'."\n"
-			, $zz_setting['remote_ip']
+			, wrap_setting('remote_ip')
 			, !empty($_SESSION['username']) ? $_SESSION['username']
 				: (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '-')
 			, date('d/M/Y:H:i:s O', $_SERVER['REQUEST_TIME'])
@@ -1060,17 +1043,17 @@ function wrap_log_uri($status = 0) {
 			, !empty($zz_page['content_length']) ? $zz_page['content_length'] : 0
 			, !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '-'
 			, !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-'
-			, $zz_setting['hostname']
+			, wrap_setting('hostname')
 		);
 		error_log($line, 3, $logfile);
 	}
 
-	if (empty($zz_setting['uris_table'])) return false;
+	if (!wrap_setting('uris_table')) return false;
 	if (empty($zz_page['url'])) return false;
 
 	$scheme = $zz_page['url']['full']['scheme'];
 	$host = $zz_page['url']['full']['host'];
-	$base = str_starts_with($_SERVER['REQUEST_URI'], $zz_setting['base']) ? $zz_setting['base'] : '';
+	$base = str_starts_with($_SERVER['REQUEST_URI'], wrap_setting('base')) ? wrap_setting('base') : '';
 	$path = $base.wrap_db_escape($zz_page['url']['full']['path']);
 	$query = !empty($zz_page['url']['full']['query'])
 		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
@@ -1205,7 +1188,6 @@ function wrap_remove_query_strings($url, $objectionable_qs = []) {
  */
 function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	global $zz_conf;
-	global $zz_setting;
 	global $zz_page;
 
 	// for pages matching every URL, check if there’s a ressource somewhere else
@@ -1213,15 +1195,15 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		$zz_page = wrap_ressource_by_url($zz_page, false);
 	}
 
-	if (!empty($zz_setting['canonical_hostname'])) {
-		$hostname = $zz_setting['hostname'];
+	if (wrap_setting('canonical_hostname')) {
+		$hostname = wrap_setting('hostname');
 		if (str_ends_with($hostname, '.local')) $hostname = substr($hostname, 0, -6);
 		elseif (str_starts_with($hostname, 'dev.')) $hostname = substr($hostname, 4);
-		if ($hostname !== $zz_setting['canonical_hostname']) {
+		if ($hostname !== wrap_setting('canonical_hostname')) {
 			// fix links on error page to real destinations
-			$zz_setting['host_base']
-				= $zz_setting['protocol'].'://'.$zz_setting['canonical_hostname'];
-			$zz_setting['homepage_url'] = $zz_setting['host_base'].$zz_setting['homepage_url'];
+			wrap_setting('host_base', 
+				wrap_setting('protocol').'://'.wrap_setting('canonical_hostname'));
+			wrap_setting('homepage_url', wrap_setting('host_base').wrap_setting('homepage_url'));
 		}
 	}
 
@@ -1244,16 +1226,16 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		// (header 302 is sent automatically if using Location)
 		if (!empty($page['redirect'])) {
 			if (is_array($page['redirect']) AND array_key_exists('languagelink', $page['redirect'])) {
-				$old_base = $zz_setting['base'];
-				if (!empty($zz_setting['language_in_url'])
-					AND str_ends_with($zz_setting['base'], '/'.$zz_setting['lang'])) {
-					$zz_setting['base'] = substr($zz_setting['base'], 0, -3);
+				$old_base = wrap_setting('base');
+				if (wrap_setting('language_in_url')
+					AND str_ends_with(wrap_setting('base'), '/'.wrap_setting('lang'))) {
+					wrap_setting('base', substr(wrap_setting('base'), 0, -3));
 				}
 				if ($page['redirect']['languagelink']) {
-					$zz_setting['base'] .= '/'.$page['redirect']['languagelink'];
+					wrap_setting('base', wrap_setting('base').'/'.$page['redirect']['languagelink']);
 				}
 				$new = wrap_glue_url($zz_page['url']['full']);
-				$zz_setting['base'] = $old_base; // keep old base for caching
+				wrap_setting('base', $old_base); // keep old base for caching
 			} elseif (is_array($page['redirect'])) {
 				wrap_error(sprintf('Redirect to array not supported: %s', json_encode($page['redirect'])));
 			} else {
@@ -1265,11 +1247,11 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		}
 		$newurl = parse_url($new);
 		if (empty($newurl['scheme'])) {
-			if ($zz_setting['base'] AND file_exists($zz_conf['root'].'/'.$new)) {
+			if (wrap_setting('base') AND file_exists($zz_conf['root'].'/'.$new)) {
 				// no language redirect if it's an existing file
-				$new = $zz_setting['host_base'].$new;
+				$new = wrap_setting('host_base').$new;
 			} else {
-				$new = $zz_setting['host_base'].$zz_setting['base'].$new;
+				$new = wrap_setting('host_base').wrap_setting('base').$new;
 			}
 		}
 		wrap_redirect($new, $page['status']);
@@ -1304,7 +1286,6 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
  * @return bool true if header was sent, false if not
  */
 function wrap_http_status_header($code) {
-	global $zz_setting;
 	// Set protocol
 	$protocol = $_SERVER['SERVER_PROTOCOL'];
 	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
@@ -1318,7 +1299,7 @@ function wrap_http_status_header($code) {
 	if ($status) {
 		$header = $protocol.' '.$status['code'].' '.$status['text'];
 		header($header);
-		$zz_setting['headers'][] = $header;
+		wrap_setting_add('headers', $header);
 		return true;
 	}
 	return false;
@@ -1327,19 +1308,16 @@ function wrap_http_status_header($code) {
 /**
  * reads HTTP status codes from http-statuscodes.txt
  *
- * @global array $zz_setting
- *		'core'
  * @return array $codes
  */
 function wrap_http_status_list($code) {
-	global $zz_setting;
 	$status = [];
 	
 	// read error codes from file
 	$pos[0] = 'code';
 	$pos[1] = 'text';
 	$pos[2] = 'description';
-	$codes_from_file = file($zz_setting['core'].'/http-statuscodes.txt');
+	$codes_from_file = file(__DIR__.'/http-statuscodes.txt');
 	foreach ($codes_from_file as $line) {
 		if (str_starts_with($line, '#')) continue;	// Lines with # will be ignored
 		elseif (!trim($line)) continue;				// empty lines will be ignored
@@ -1390,11 +1368,10 @@ function wrap_http_remote_ip() {
  * @return void
  */
 function wrap_restrict_ip() {
-	global $zz_setting;
-	if (empty($zz_setting['access_restricted_ips'])) return;
-	if (!in_array($zz_setting['remote_ip'], $zz_setting['access_restricted_ips'])) return;
-	if (str_starts_with($zz_setting['request_uri'], $zz_setting['layout_path'])) return;
-	if (str_starts_with($zz_setting['request_uri'], $zz_setting['behaviour_path'])) return;
+	if (!$access_restricted_ips = wrap_setting('access_restricted_ips')) return;
+	if (!in_array(wrap_setting('remote_ip'), $access_restricted_ips)) return;
+	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('layout_path'))) return;
+	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('behaviour_path'))) return;
 	wrap_quit(403, wrap_text('Access to this website for your IP address is restricted.'));
 }
 
@@ -1409,22 +1386,22 @@ function wrap_restrict_ip() {
  */
 function wrap_check_https($zz_page) {
 	// if it doesn't matter, get out of here
-	if (wrap_get_setting('ignore_scheme')) return true;
-	foreach (wrap_get_setting('ignore_scheme_paths') as $path) {
+	if (wrap_setting('ignore_scheme')) return true;
+	foreach (wrap_setting('ignore_scheme_paths') as $path) {
 		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
 	}
 
 	// change from http to https or vice versa
 	// attention: $_POST will not be preserved
 	if (wrap_https()) {
-		if (wrap_get_setting('protocol') === 'https') return true;
+		if (wrap_setting('protocol') === 'https') return true;
 		// if user is logged in, do not redirect
 		if (!empty($_SESSION)) return true;
 	} else {
-		if (wrap_get_setting('protocol') === 'http') return true;
+		if (wrap_setting('protocol') === 'http') return true;
 	}
 	$url = $zz_page['url']['full'];
-	$url['scheme'] = wrap_get_setting('protocol');
+	$url['scheme'] = wrap_setting('protocol');
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 	exit;
 }
@@ -1445,21 +1422,19 @@ function wrap_https() {
 /**
  * redirects to https URL if explicitly wanted
  *
- * @global array $zz_setting
  * @global array $zz_page
  * @return bool
  */
 function wrap_https_redirect() {
-	global $zz_setting;
 	global $zz_page;
 
 	// access must be possible via both http and https
 	// check to avoid infinite redirection
-	if (!wrap_get_setting('ignore_scheme')) return false;
+	if (!wrap_setting('ignore_scheme')) return false;
 	// connection is already via https?
-	if (!empty($zz_setting['https'])) return false;
+	if (wrap_setting('https')) return false;
 	// local connection?
-	if ($zz_setting['local_access'] AND empty($zz_setting['local_https'])) return false;
+	if (wrap_setting('local_access') AND !wrap_setting('local_https')) return false;
 
 	$url = $zz_page['url']['full'];
 	$url['scheme'] = 'https';
@@ -1471,11 +1446,9 @@ function wrap_https_redirect() {
  * checks the HTTP request made, builds URL
  * sets language according to URL and request
  *
- * @global array $zz_setting
  * @global array $zz_page
  */
 function wrap_check_request() {
-	global $zz_setting;
 	global $zz_page;
 
 	// check REQUEST_METHOD, quit if inappropriate
@@ -1488,10 +1461,10 @@ function wrap_check_request() {
 	// check REQUEST_URI
 	// Base URL, allow it to be set manually (handle with care!)
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
-	$zz_setting['request_uri'] = wrap_percent_encode_non_ascii($zz_setting['request_uri']);
+	wrap_setting('request_uri', wrap_percent_encode_non_ascii(wrap_setting('request_uri')));
 	
 	if (empty($zz_page['url']['full'])) {
-		$zz_page['url']['full'] = parse_url($zz_setting['host_base'].$zz_setting['request_uri']);
+		$zz_page['url']['full'] = parse_url(wrap_setting('host_base').wrap_setting('request_uri'));
 		if (empty($zz_page['url']['full']['path'])) {
 			// in case, some script requests GET ? HTTP/1.1 or so:
 			$zz_page['url']['full']['path'] = '/';
@@ -1504,16 +1477,16 @@ function wrap_check_request() {
 			$zz_page['url']['redirect'] = true;
 			$zz_page['url']['redirect_cache'] = false;
 		}
-		if (!empty($_SERVER['HTTP_X_FORWARDED_HOST']) AND wrap_get_setting('hostname_in_url')) {
+		if (!empty($_SERVER['HTTP_X_FORWARDED_HOST']) AND wrap_setting('hostname_in_url')) {
 			$forwarded_host = '/'.$_SERVER['HTTP_X_FORWARDED_HOST'];
-			if ($zz_setting['local_access'] AND substr($forwarded_host, -6) === '.local') {
+			if (wrap_setting('local_access') AND substr($forwarded_host, -6) === '.local') {
 				$forwarded_host = substr($forwarded_host, 0, -6);
-			} elseif ($zz_setting['local_access'] AND str_starts_with($forwarded_host, 'dev.')) {
+			} elseif (wrap_setting('local_access') AND str_starts_with($forwarded_host, 'dev.')) {
 				$forwarded_host = substr($forwarded_host, 4);
 			}
 			if (str_starts_with($zz_page['url']['full']['path'], $forwarded_host)) {
 				$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
-				$zz_setting['request_uri'] = substr($zz_setting['request_uri'], strlen($forwarded_host));
+				wrap_setting('request_uri', substr(wrap_setting('request_uri'), strlen($forwarded_host)));
 			}
 		}
 	}
@@ -1649,21 +1622,19 @@ function wrap_url_decode($input, $type = 'path') {
 /**
  * Test HTTP REQUEST method
  * 
- * @global array $zz_setting
  * @return void
  */
 function wrap_check_http_request_method() {
-	global $zz_setting;
-	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['allowed'])) {
+	if (in_array($_SERVER['REQUEST_METHOD'], wrap_setting('http[allowed]'))) {
 		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'OPTIONS') return true;
 		if (wrap_is_dav_url()) return true;
 		// @todo allow checking request methods depending on ressources
 		// e. g. GET only ressources may forbid POST
-		header('Allow: '.implode(',', $zz_setting['http']['allowed']));
+		header('Allow: '.implode(',', wrap_setting('http[allowed]')));
 		header('Content-Length: 0');
 		exit;
 	}
-	if (in_array($_SERVER['REQUEST_METHOD'], $zz_setting['http']['not_allowed'])) {
+	if (in_array($_SERVER['REQUEST_METHOD'], wrap_setting('http[not_allowed]'))) {
 		wrap_quit(405);	// 405 Not Allowed
 	}
 	wrap_quit(501); // 501 Not Implemented
@@ -1693,10 +1664,9 @@ function wrap_check_http_request_method() {
  */
 function wrap_file_send($file) {
 	global $zz_page;
-	global $zz_setting;
 
 	if (is_dir($file['name'])) {
-		if (!empty($zz_setting['cache'])) wrap_cache_delete(404);
+		if (wrap_setting('cache')) wrap_cache_delete(404);
 		return false;
 	}
 	if (!file_exists($file['name'])) {
@@ -1708,7 +1678,7 @@ function wrap_file_send($file) {
 			wrap_quit($file['error_code']);
 		}
 		wrap_file_cleanup($file);
-		if (!empty($zz_setting['cache'])) wrap_cache_delete(404);
+		if (wrap_setting('cache')) wrap_cache_delete(404);
 		return false;
 	}
 	if (!empty($zz_page['url']['redirect'])) {
@@ -1791,10 +1761,10 @@ function wrap_file_send($file) {
 	
 	wrap_cache_header();
 	if ($file['caching'])
-		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_file']));
+		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', wrap_setting('cache_control_file')));
 
 	// Caching?
-	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in']) AND empty($_POST)) {
+	if (wrap_setting('cache') AND empty($_SESSION['logged_in']) AND empty($_POST)) {
 		wrap_cache_header('X-Local-Filename: '.$file['name']);
 		wrap_cache_ressource();
 	}
@@ -1825,12 +1795,10 @@ function wrap_file_cleanup($file) {
  * @param array $headers (optional):
  *		'filename': download filename
  *		'character_set': character encoding
- * @global array $zz_setting
  * @global array $zz_page
  * @return void
  */
 function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
-	global $zz_setting;
 	global $zz_page;
 
 	// positions: text might be array
@@ -1846,9 +1814,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		$text = trim($text);
 	}
 
-	if (!empty($zz_setting['gzip_encode'])) {
+	if (wrap_setting('gzip_encode'))
 		wrap_cache_header('Vary: Accept-Encoding');
-	}
 	header_remove('Accept-Ranges');
 
 	// Content-Type HTTP header
@@ -1862,7 +1829,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 			} elseif (!empty($headers['character_set'])) {
 				$zz_page['character_set'] = $headers['character_set'];
 			} else {
-				$zz_page['character_set'] = $zz_setting['character_set'];
+				$zz_page['character_set'] = wrap_setting('character_set');
 			}
 			if ($zz_page['character_set'] === 'utf-16le') {
 				// Add BOM, little endian
@@ -1916,14 +1883,14 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 
 	// send all headers
 	wrap_cache_header();
-	if (!empty($zz_setting['cache']) AND !isset($_GET['nocache'])) {
-		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $zz_setting['cache_control_text']));
+	if (wrap_setting('cache') AND !isset($_GET['nocache'])) {
+		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', wrap_setting('cache_control_text')));
 	} else {
 		wrap_cache_header_default('Cache-Control: max-age=0');
 	}
 
 	// Caching?
-	if (!empty($zz_setting['cache']) AND empty($_SESSION['logged_in'])
+	if (wrap_setting('cache') AND empty($_SESSION['logged_in'])
 		AND empty($_POST) AND $status === 200) {
 		$cache_saved = wrap_cache_ressource($text, $zz_page['etag']);
 		if (!$cache_saved) {
@@ -1933,7 +1900,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 			if ($time = filemtime($doc)) // if it exists
 				$last_modified_time = $time;
 		}
-	} elseif (!empty($zz_setting['cache'])) {
+	} elseif (wrap_setting('cache')) {
 		wrap_cache_delete($status);
 	}
 
@@ -1959,8 +1926,8 @@ function wrap_http_content_disposition($type, $filename) {
 	$filename_ascii = preg_replace('/[^(\x20-\x7F)]*/', '', $filename_ascii);
 
 	// RFC 5987: filename* may be sent with UTF-8 encoding
-	if (wrap_get_setting('character_set') !== 'utf-8')
-		$filename = mb_convert_encoding($filename, 'UTF-8', wrap_get_setting('character_set'));
+	if (wrap_setting('character_set') !== 'utf-8')
+		$filename = mb_convert_encoding($filename, 'UTF-8', wrap_setting('character_set'));
 
 	if ($filename_ascii !== $filename) {
 		wrap_cache_header(sprintf(
@@ -1980,7 +1947,6 @@ function wrap_http_content_disposition($type, $filename) {
  * @param array $etag_header
  */
 function wrap_send_ressource($type, $content, $etag_header = []) {
-	global $zz_setting;
 	global $zz_page;
 
 	// remove internal headers
@@ -2006,7 +1972,7 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 			$content = file_get_contents($content['name']);
 		}
 		// output content
-		if (!empty($zz_setting['gzip_encode'])) {
+		if (wrap_setting('gzip_encode')) {
 			wrap_send_gzip($content, $etag_header);
 		} else {
 			echo $content;
@@ -2202,7 +2168,6 @@ function wrap_send_gzip($text, $etag_header) {
  * @return bool false: no new cache file was written, true: new cache file created
  */
 function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $headers = []) {
-	global $zz_setting;
 	$host = wrap_cache_filename('domain', $url);
 	if (!file_exists($host)) {
 		$success = wrap_mkdir($host);
@@ -2239,7 +2204,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	if (!$headers) {
 		header_remove('X-Powered-By');
 		header_remove('Server');
-		$headers = $zz_setting['headers'];
+		$headers = wrap_setting('headers');
 	}
 	// if it is a redirect only and it redirects to an URL without trailing slash
 	// for which a cache already exists, do not cache this redirect because it is
@@ -2254,17 +2219,16 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
  * send one or more HTTP header and save it for later caching
  * send extra http headers, @see defaults.inc.php
  *
- * @param string $header (optional, if not set: use $zz_setting['headers'])
+ * @param string $header (optional, if not set: use wrap_setting('headers'))
  * @return bool
  */
 function wrap_cache_header($header = false) {
-	global $zz_setting;
 	if ($header) {
 		$headers = [$header];
 	} else {
 		header_remove('X-Powered-By');
 		header_remove('Server');
-		$headers = $zz_setting['extra_http_headers'];
+		$headers = wrap_setting('extra_http_headers');
 		if (!wrap_https()) {
 			header_remove('Strict-Transport-Security'); // only for https
 			foreach ($headers as $index => $header) {
@@ -2278,9 +2242,9 @@ function wrap_cache_header($header = false) {
 		header($line);
 		if (strstr($line, ': ')) {
 			$header_parts = explode(': ', $line);
-			$zz_setting['headers'][strtolower($header_parts[0])] = $line;
+			wrap_setting_add('headers', [strtolower($header_parts[0]) => $line]);
 		} else {
-			$zz_setting['headers'][] = $line;
+			wrap_setting_add('headers', $line);
 		}
 	}
 	return true;
@@ -2293,9 +2257,8 @@ function wrap_cache_header($header = false) {
  * @return bool true if a default header was sent
  */
 function wrap_cache_header_default($header) {
-	global $zz_setting;
 	$parts = explode(': ', $header);
-	if (!empty($zz_setting['headers'][strtolower($parts[0])])) return false;
+	if (wrap_setting('headers['.strtolower($parts[0]).']')) return false;
 	
 	$headers = headers_list();
 	foreach ($headers as $line) {
@@ -2495,16 +2458,14 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
  * (e. g. if connection is broken)
  *
  * @param int $age maximum acceptable cache age in seconds
- * @global array $zz_setting
  * @return void
  */
 function wrap_send_cache($age = 0) {
-	global $zz_setting;
 	global $zz_page;
 	global $zz_conf;
 	
 	// Some cases in which we do not cache
-	if (empty($zz_setting['cache'])) return false;
+	if (!wrap_setting('cache')) return false;
 	if (!empty($_SESSION)) return false;
 	if (!empty($_POST)) return false;
 
@@ -2527,9 +2488,8 @@ function wrap_send_cache($age = 0) {
 	// Content-Type HTTP header etc.
 	wrap_cache_get_header($files[1], '', true);
 
-	if (!empty($zz_setting['gzip_encode'])) {
+	if (wrap_setting('gzip_encode'))
 		wrap_cache_header('Vary: Accept-Encoding');
-	}
 
 	// Log if cached version is used because there's no connection to database
 	if (empty($zz_conf['db_connection'])) {
@@ -2581,7 +2541,6 @@ function wrap_send_cache($age = 0) {
  * @return bool false: not fresh, true: cache is fresh
  */
 function wrap_cache_freshness($files, $age, $has_content = true) {
-	global $zz_setting;
 	// -1: cache will always considered to be fresh
 	if ($age === -1) return true;
 	$now = time();
@@ -2594,9 +2553,9 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 		}
 		if ($has_content AND filemtime($files[0]) > $now + $age) return true;
 	} else {
-		$host = substr($files[0], strlen($zz_setting['cache_dir_zz']) + 1);
+		$host = substr($files[0], strlen(wrap_setting('cache_dir_zz')) + 1);
 		$host = substr($host, 0, strpos($host, '/'));
-		if ($host !== $zz_setting['hostname']) {
+		if ($host !== wrap_setting('hostname')) {
 			// remote access, check cache-control of remote server
 			$cache_control = wrap_cache_get_header($files[1], 'Cache-Control');
 			parse_str($cache_control, $cache_control);
@@ -2693,23 +2652,21 @@ function wrap_cache_get_header($file, $type, $send = false) {
  * @param string $type (optional) default: 'url'; 'headers', 'domain'
  * @param string $url (optional) URL to cache, if not set, internal URL will be used
  * @global array $zz_page ($zz_page['url']['full'])
- * @global array $zz_setting 'cache_dir_zz'
  * @return string filename
  */
 function wrap_cache_filename($type = 'url', $url = '') {
 	global $zz_page;
-	global $zz_setting;
 
 	if (!$url) {
 		if (empty($zz_page['url'])) return false;
 		$url = $zz_page['url']['full'];
-		$base = $zz_setting['base'];
+		$base = wrap_setting('base');
 		if ($base === '/') $base = '';
 	} else {
 		$url = parse_url($url);
 		$base = '';
 	}
-	$file = $zz_setting['cache_dir_zz'];
+	$file = wrap_setting('cache_dir_zz');
 	$file .= '/'.urlencode($url['host']);
 	if ($type === 'domain') return $file;
 
@@ -2718,7 +2675,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$url['query'] = str_replace('%5B', '[', $url['query']);
 		$url['query'] = str_replace('%5D', ']', $url['query']);
 	}
-	if (!empty($zz_setting['cache_directories'])) {
+	if (wrap_setting('cache_directories')) {
 		$url['path'] = explode('/', $url['path']);
 		foreach ($url['path'] as $index => $path) {
 			$url['path'][$index] = urlencode($path);
@@ -2732,7 +2689,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 	}
 	if (!empty($url['query'])) $file .= urlencode('?'.$url['query']);
 	if ($type === 'url') {
-		if (!empty($zz_setting['cache_directories']) AND !strstr(basename($file), '.'))
+		if (wrap_setting('cache_directories') AND !strstr(basename($file), '.'))
 			$file .= '.html'; // to avoid conflicts with directories
 		return $file;
 	}
@@ -3195,13 +3152,12 @@ function wrap_trigger_url($url) {
  * @return array from wrap_syndication_retrieve_via_http()
  */
 function wrap_trigger_protected_url($url, $username = false, $send_lock = true) {
-	global $zz_setting;
-	if (!$username and !empty($zz_setting['log_username']))
-		$username = $zz_setting['log_username'];
-	if (!empty($zz_setting['log_trigger'])) {
-		$logfile = $zz_setting['log_trigger'] === true ? '' : $zz_setting['log_trigger'];
+	if (!$username)
+		$username = wrap_setting('log_username');
+	if (wrap_setting('log_trigger')) {
+		$logfile = wrap_setting('log_trigger') === true ? '' : wrap_setting('log_trigger');
 		wrap_log(
-			sprintf('trigger URL %s %s -> %s', date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']), $zz_setting['request_uri'], $url)
+			sprintf('trigger URL %s %s -> %s', date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']), wrap_setting('request_uri'), $url)
 			, E_USER_NOTICE, $logfile
 		);
 	}
@@ -3215,25 +3171,22 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
 /**
  * get a protected URL
  *
+ * settings: login_key, login_key_validity_in_minutes must be set
  * @param string $url
  * @param array $headers
  * @param string $method
  * @param array $data
  * @param string $username (optional, $zz_conf/SESSION['username'] will be used unless set)
- * @global array $zz_setting
- *	login_key, login_key_validity_in_minutes must be set
  * @return array from wrap_syndication_retrieve_via_http()
  */
 
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
-	global $zz_setting;
-
 	if (!$username) $username = wrap_user();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
-	if (substr($url, 0, 1) === '/') $url = $zz_setting['host_base'].$url;
+	if (substr($url, 0, 1) === '/') $url = wrap_setting('host_base').$url;
 
-	require_once $zz_setting['core'].'/syndication.inc.php';
+	require_once __DIR__.'/syndication.inc.php';
 	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
 	return $result;
 }
@@ -3470,15 +3423,14 @@ function wrap_setting_value($setting) {
  * @return string
  */
 function wrap_setting_value_placeholder($string) {
-	global $zz_setting;
 	if (!is_string($string)) return $string;
 	if (!strstr($string, '%%%')) return $string;
 	$parts = explode('%%%', $string);
 	$parts[1] = trim($parts[1]);
 	if (!str_starts_with($parts[1], 'setting ')) return $string;
 	$setting = substr($parts[1], 8);
-	if (!array_key_exists($setting, $zz_setting)) return $string;
-	$parts[1] = $zz_setting[$setting];
+	if (is_null(wrap_setting($setting))) return $string;
+	$parts[1] = wrap_setting($setting);
 	$string = implode('', $parts);
 	return $string;
 }
@@ -3525,8 +3477,8 @@ function wrap_setting_register($config) {
  * @return void
  */
 function wrap_setting_backend() {
-	if (!$backend_website_id = wrap_get_setting('backend_website_id')) return;
-	if ($backend_website_id === wrap_get_setting('website_id')) return;
+	if (!$backend_website_id = wrap_setting('backend_website_id')) return;
+	if ($backend_website_id === wrap_setting('website_id')) return;
 
 	$cfg = wrap_cfg_files('settings');
 	foreach ($cfg as $index => $parameters) {
@@ -3540,7 +3492,7 @@ function wrap_setting_backend() {
 		WHERE website_id = %d
 		AND setting_key IN ("%s")';
 	$sql = sprintf($sql
-		, wrap_get_setting('backend_website_id')
+		, wrap_setting('backend_website_id')
 		, implode('","', array_keys($cfg))
 	);
 	$extra_settings = wrap_db_fetch($sql, 'setting_key', 'key/value');
@@ -3556,7 +3508,6 @@ function wrap_setting_backend() {
  */
 function wrap_cfg_files($type, $settings = []) {
 	global $zz_conf;
-	global $zz_setting;
 	static $cfg;
 	static $single_cfg;
 	static $translated;

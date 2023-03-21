@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -21,26 +21,25 @@
  * @param string $type Type of ressource, defaults to 'json'
  * @param array $settings (optional)
  *		string 'cache_filename'
- *		string 'cache_age_syndication'
+ *		int 'cache_age_syndication'
  *		array 'headers_to_send'
  * @return array $data
  */
 function wrap_syndication_get($url, $type = 'json', $settings = []) {
-	global $zz_setting;
 	// you may change the error code if e. g. only pictures will be fetched
 	// via JSON to E_USER_WARNING or E_USER_NOTICE
-	if (empty($zz_setting['syndication_error_code']))
-		$zz_setting['syndication_error_code'] = E_USER_ERROR;
+	if (is_null(wrap_setting('syndication_error_code')))
+		wrap_setting('syndication_error_code', E_USER_ERROR);
 	if (!$url) return [];
 
 	$data = [];
 	$etag = '';
 	$last_modified = '';
 	$cache_filename = $settings['cache_filename'] ?? $url;
-	$cache_age_syndication = $settings['cache_age_syndication'] ?? wrap_get_setting('cache_age_syndication');
+	$cache_age_syndication = $settings['cache_age_syndication'] ?? wrap_setting('cache_age_syndication');
 
 	$files = [];
-	if (!empty($zz_setting['cache'])) {
+	if (wrap_setting('cache')) {
 		$files = [
 			wrap_cache_filename('url', $cache_filename),
 			wrap_cache_filename('headers', $cache_filename)
@@ -75,7 +74,7 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 		switch ($status) {
 		case 200:
 			$my_etag = substr(wrap_syndication_http_header('ETag', $headers), 1, -1);
-			if ($data and !empty($zz_setting['cache'])) {
+			if ($data and wrap_setting('cache')) {
 				if ($cache_filename !== $url) {
 					$headers[] = sprintf('X-Source-URL: %s', $url);
 				}
@@ -87,7 +86,7 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 			// cache file must exist, we would not have an etag header
 			// so use it
 			$data = file_get_contents($files[0]);
-			if (!empty($zz_setting['cache'])) {
+			if (wrap_setting('cache')) {
 				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 			}
 			wrap_cache_revalidated($files[1]);
@@ -99,7 +98,7 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 			wrap_error(sprintf(
 				'Syndication from URL %s failed with redirect status code %s. Use URL %s instead.',
 				$url, $status, wrap_syndication_http_header('Location', $headers)
-			), $zz_setting['syndication_error_code']);
+			), wrap_setting('syndication_error_code'));
 			break;
 		case 404:
 			$data = [];
@@ -112,15 +111,14 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 					'Syndication from URL %s failed. Status code %s. Using cached file instead.',
 					$url, $status
 				), E_USER_NOTICE);
-				if (!empty($zz_setting['cache'])) {
+				if (wrap_setting('cache'))
 					$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
-				}
 			} else {
 				$data = NULL;
 				wrap_error(sprintf(
 					'Syndication from URL %s failed. Status code %s.',
 					$url, $status
-				), $zz_setting['syndication_error_code']);
+				), wrap_setting('syndication_error_code'));
 			}
 			break;
 		}
@@ -198,10 +196,10 @@ function wrap_syndication_geocode($address) {
 				if (str_starts_with($line, 'OT ')) unset($street[$index]);
 			}
 			// care of: no use for geocoding
-			foreach (wrap_get_setting('geocoder_care_of') as $care_of_string)
+			foreach (wrap_setting('geocoder_care_of') as $care_of_string)
 				if (str_starts_with($line, $care_of_string)) unset($street[$index]);
 			// geocoders do not know postbox
-			foreach (wrap_get_setting('geocoder_postbox') as $postbox_string) {
+			foreach (wrap_setting('geocoder_postbox') as $postbox_string) {
 				if (!str_starts_with($line, $postbox_string.' ')) continue;
 				unset($street[$index]); 
 				$is_postbox = true; // never change postal_code
@@ -251,10 +249,10 @@ function wrap_syndication_geocode($address) {
 	}
 	ksort($add);
 	
-	$urls = wrap_get_setting('geocoder_urls');
+	$urls = wrap_setting('geocoder_urls');
 
 	// set geocoders
-	$geocoders = wrap_get_setting('geocoder');
+	$geocoders = wrap_setting('geocoder');
 	if (!$geocoders) return false;
 	foreach ($geocoders as $geocoder) {
 		if (!array_key_exists($geocoder, $urls)) {
@@ -415,11 +413,10 @@ function wrap_syndication_geocode($address) {
  *		array $data
  */
 function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
-	global $zz_setting;
 	global $zz_conf;
 
-	if (empty($zz_setting['syndication_error_code']))
-		$zz_setting['syndication_error_code'] = E_USER_ERROR;
+	if (!wrap_setting('syndication_error_code'))
+		wrap_setting('syndication_error_code', E_USER_ERROR);
 	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
@@ -442,7 +439,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				'content' => $content
 			]
 		];
-		if ($timeout_ms = wrap_get_setting('syndication_timeout_ms')) {
+		if ($timeout_ms = wrap_setting('syndication_timeout_ms')) {
 			$opts['http']['timeout'] = $timeout_ms / 1000;
 		}
 		$context = stream_context_create($opts);
@@ -466,7 +463,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		$protocol = substr($url, 0, strpos($url, ':'));
 		$ch = curl_init();
 		if ($zz_conf['debug']) {
-			$f = fopen($zz_setting['tmp_dir'].'/curl-request-'.time().'.txt', 'w');
+			$f = fopen(wrap_setting('tmp_dir').'/curl-request-'.time().'.txt', 'w');
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
 			curl_setopt($ch, CURLOPT_STDERR, $f);
 		}
@@ -487,10 +484,10 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				// without NOSIGNAL, cURL might terminate immediately
 				// when using the standard name resolver
 				curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-				curl_setopt($ch, CURLOPT_TIMEOUT_MS, wrap_get_setting('syndication_trigger_timeout_ms'));
+				curl_setopt($ch, CURLOPT_TIMEOUT_MS, wrap_setting('syndication_trigger_timeout_ms'));
 			}
 		}
-		if (!$timeout_ignore AND $timeout_ms = wrap_get_setting('syndication_timeout_ms')) {
+		if (!$timeout_ignore AND $timeout_ms = wrap_setting('syndication_timeout_ms')) {
 			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout_ms);
 		}
 		if (in_array($method, ['POST', 'PATCH'])) {
@@ -506,16 +503,15 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		if ($protocol === 'https') {
 			// ignore verification on development server if target is
 			// development server, too
-			if ($zz_setting['local_access']) {
+			if (wrap_setting('local_access')) {
 				$remote_url_parts = parse_url($url);
 				if (str_ends_with($remote_url_parts['host'], '.local')
 				    OR str_starts_with($remote_url_parts['host'], 'dev.')) {
-					$old_curl_ignore_ssl_verifyresult
-						= empty($zz_setting['curl_ignore_ssl_verifyresult']) ? false : true;
-					$zz_setting['curl_ignore_ssl_verifyresult'] = true;
+					$old_curl_ignore_ssl_verifyresult = wrap_setting('curl_ignore_ssl_verifyresult');
+					wrap_setting('curl_ignore_ssl_verifyresult', true);
 				}
 			}
-			if (!empty($zz_setting['curl_ignore_ssl_verifyresult'])) {
+			if (wrap_setting('curl_ignore_ssl_verifyresult')) {
 				// not recommended, mainly for debugging!
 				// only set this if you know what you are doing
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -525,10 +521,10 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 			}
 			if (isset($old_curl_ignore_ssl_verifyresult))
-				$zz_setting['curl_ignore_ssl_verifyresult'] = $old_curl_ignore_ssl_verifyresult;
+				wrap_setting('curl_ignore_ssl_verifyresult', $old_curl_ignore_ssl_verifyresult);
 			// Certficates are bundled with cURL from 7.10 onwards, PHP 5 requires at least 7.10
 			// so there should be currently no need to include an own PEM file
-			// curl_setopt($ch, CURLOPT_CAINFO, $zz_setting['cainfo_file']);
+			// curl_setopt($ch, CURLOPT_CAINFO, wrap_setting('cainfo_file'));
 		}
 		$data = curl_exec($ch);
 		if ($zz_conf['debug']) fclose($f);
@@ -543,7 +539,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		} else {
 			if (!$status) {
 				$curl_error = curl_error($ch);
-				$syndication_error_code = $zz_setting['syndication_error_code'];
+				$syndication_error_code = wrap_setting('syndication_error_code');
 				if (str_starts_with($curl_error, 'Could not resolve host:'))
 					$syndication_error_code = E_USER_NOTICE;
 				wrap_error(sprintf(
@@ -731,8 +727,7 @@ function wrap_lock_hash() {
  * @return string filename
  */
 function wrap_lock_file($realm) {
-	global $zz_setting;
-	return $zz_setting['tmp_dir'].'/'.basename($realm).'.lock';
+	return wrap_setting('tmp_dir').'/'.basename($realm).'.lock';
 }
 
 /**
@@ -750,9 +745,8 @@ function wrap_lock_file($realm) {
  *		to destination, nothing was transfered
  */
 function wrap_watchdog($source, $destination, $params = [], $delete = false) {
-	global $zz_setting;
-	require_once $zz_setting['core'].'/file.inc.php';
-	$logfile = $zz_setting['log_dir'].'/watchdog.log';
+	require_once __DIR__.'/file.inc.php';
+	$logfile = wrap_setting('log_dir').'/watchdog.log';
 	if (!file_exists($logfile)) touch($logfile);
 
 	if (str_starts_with($source, 'http://')
@@ -763,7 +757,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		if (empty($data['_']['filename'])) return false;
 		$source_file = $data['_']['filename'];
 	} elseif (str_starts_with($source, 'brick ')) {
-		$source_file = $zz_setting['tmp_dir'].'/'.str_replace(' ', '/', $source);
+		$source_file = wrap_setting('tmp_dir').'/'.str_replace(' ', '/', $source);
 		$filename = basename($source_file);
 		if (!strstr($filename, '.')) $source_file .= '.html';
 		if (!file_exists($source_file)) {

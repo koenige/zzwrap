@@ -17,48 +17,40 @@
  * Sets language for HTML document; checks language information from
  * URL and HTTP header
  *
- * @global array $zz_setting
- *		'lang', 'lanugage_in_url', 'language_redirect' will be set
- *		'base' might be changed
- *		'negotiate_language', default_source_language'
+ * settings 'lang' will be set
+ * setting 'base' might be changed, 'negotiate_language', default_source_language'
  * @global array $zz_page
  *		'url', 'redirect'
  * @global array $zz_conf
- *		'language', 'translations_of_fields'
+ *		'translations_of_fields'
  * @return bool true: ok.
  */
 function wrap_set_language() {
-	global $zz_setting;
 	global $zz_conf;
 	global $zz_page;
 
-	$zz_setting['language_in_url'] = false;
-	$zz_setting['language_redirect'] = false;
-
 	// check for language code in URL
-	if ($zz_conf['translations_of_fields']) {
-		// might change $zz_setting['lang'], 'base', 'language_in_url'
+	if ($zz_conf['translations_of_fields'])
 		$zz_page['url'] = wrap_prepare_url($zz_page['url']);
-	}
 
 	// single language website?
-	if (!wrap_get_setting('languages_allowed')) return true;
+	if (!wrap_setting('languages_allowed')) return true;
 
 	// Content Negotiation for language?
-	if (empty($zz_setting['negotiate_language'])) return true;
-	foreach ($zz_setting['dont_negotiate_language_paths'] as $path) {
+	if (!wrap_setting('negotiate_language')) return true;
+	foreach (wrap_setting('dont_negotiate_language_paths') as $path) {
 		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
 	}
 	// language is already in URL?
-	if ($zz_setting['language_in_url']) return true;
+	if (wrap_setting('language_in_url')) return true;
 
 	// Check if redirect is necessary
-	if (empty($zz_setting['default_source_language']))
-		$zz_setting['default_source_language'] = $zz_setting['lang'];
-	$language = wrap_negotiate_language(wrap_get_setting('languages_allowed'), 
-		$zz_setting['default_source_language'], null, false);
+	if (!wrap_setting('default_source_language'))
+		wrap_setting('default_source_language', wrap_setting('lang'));
+	$language = wrap_negotiate_language(wrap_setting('languages_allowed'), 
+		wrap_setting('default_source_language'), null, false);
 	if (!$language) return false;
-	$zz_setting['lang'] = $language;
+	wrap_setting('lang', $language);
 	// in case there is content, redirect to the language specific content later
 	$zz_page['language_redirect'] = true;
 	return true;
@@ -67,17 +59,15 @@ function wrap_set_language() {
 /**
  * redirect URL to language specific URL
  *
- * @global array $zz_setting
  * @global array $zz_page
  * @return void
  */
 function wrap_language_redirect() {
-	global $zz_setting;
 	global $zz_page;
 	if (empty($zz_page['language_redirect'])) return;
-	if (empty($zz_setting['negotiate_language'])) return;
+	if (!wrap_setting('negotiate_language')) return;
 
-	$zz_setting['base'] .= '/'.$zz_setting['lang'];
+	wrap_setting('base', wrap_setting('base').'/'.wrap_setting('lang'));
 	$zz_page['url']['redirect'] = true;
 	$zz_page['url']['redirect_cache'] = false;
 	// vary header for caching
@@ -89,15 +79,13 @@ function wrap_language_redirect() {
  * Reads the language from the URL and returns without it
  * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
  * 
+ * settings: 'lang' (will be changed), 'base' (will be changed)
  * @param array $url ($zz_page['url'])
- * @global array $zz_setting
- *		'lang' (will be changed), 'base' (will be changed)
  * @global array $zz_conf
  *		'db_connection'
  * @return array $url
  */
 function wrap_prepare_url($url) {
-	global $zz_setting;
 	global $zz_conf;
 
 	// looking for /en/ or similar
@@ -108,9 +96,9 @@ function wrap_prepare_url($url) {
 	}
 	$lang = substr($url['full']['path'], 1, $pos);
 	// check if it’s a language
-	if (wrap_get_setting('languages_allowed')) {
+	if (wrap_setting('languages_allowed')) {
 		// read from array
-		if (!in_array($lang, wrap_get_setting('languages_allowed'))) 
+		if (!in_array($lang, wrap_setting('languages_allowed'))) 
 			$lang = false;
 	} else {
 		// impossible to check, so there's no language
@@ -121,11 +109,11 @@ function wrap_prepare_url($url) {
 	if (!$lang) return $url;
 		
 	// save language in settings
-	$zz_setting['lang'] = $lang;
+	wrap_setting('lang', $lang);
 	// add language to base URL
-	$zz_setting['base'] .= '/'.$lang;
+	wrap_setting('base', wrap_setting('base').'/'.$lang);
 	// modify internal URL
-	$zz_setting['language_in_url'] = true;
+	wrap_setting('language_in_url', true);
 	$url['full']['path'] = substr($url['full']['path'], $pos + 1);
 	if (!$url['full']['path']) {
 		$url['full']['path'] = '/';
@@ -171,21 +159,18 @@ function wrap_language_get_text($language) {
  *		string	Language to translate into (if different from
  *		actively used language on website @deprecated)
  * @global array $zz_conf	configuration variables
- * @global array $zz_setting
- *			'log_missing_text' must be set to log missing text
  * @return string $string	Translation of text
  * @see zz_text()
  */
 function wrap_text($string, $params = []) {
 	global $zz_conf;
-	global $zz_setting;
 	static $text;
 	static $text_included;
 	static $module_text;
 	static $context;
 	
 	if (!$string) return $string;
-	if ($zz_setting['character_set'] !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true)) {
+	if (wrap_setting('character_set') !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true)) {
 		$string = wrap_text_recode($string, 'utf-8');
 	}
 
@@ -196,7 +181,7 @@ function wrap_text($string, $params = []) {
 	if (!empty($params['lang']))
 		$language = $params['lang'];
 	else
-		$language = $zz_setting['lang'];
+		$language = wrap_setting('lang');
 	if (isset($zz_conf['default_language_for'][$language]))
 		$language = $zz_conf['default_language_for'][$language];
 
@@ -208,25 +193,25 @@ function wrap_text($string, $params = []) {
 		$files[] = wrap_setting('custom_wrap_dir').'/text-en.inc.php';
 		$files[] = wrap_setting('custom_wrap_dir').'/text-en.po';
 		// default translated text
-		$files[] = $zz_setting['core'].'/default-text-'.$language.'.po';
+		$files[] = __DIR__.'/default-text-'.$language.'.po';
 		// module text(s)
-		foreach ($zz_setting['modules'] as $module) {
-			$modules_dir = $zz_setting['modules_dir'].'/'.$module.'/'.$module;
+		foreach (wrap_setting('modules') as $module) {
+			$modules_dir = wrap_setting('modules_dir').'/'.$module.'/'.$module;
 			// zzform: for historical reasons, include -en text here as well
 			if ($module === 'zzform' AND $language !== 'en')
 				$files[] = $modules_dir.'/'.$module.'-en.po';
 			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
-			if (!empty($zz_setting['language_variation'])) {
-				$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.$zz_setting['language_variation'].'.po';
+			if (wrap_setting('language_variation')) {
+				$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
 			}
 		}
 		// standard translated text 
 		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php';
 		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po';
-		if (!empty($zz_setting['language_variation'])) {
+		if (wrap_setting('language_variation')) {
 			// language variantes contain only some translations
 			// and are added on top of the existing translations
-			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.$zz_setting['language_variation'].'.po';
+			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.wrap_setting('language_variation').'.po';
 		}
 
 		foreach ($files as $file) {
@@ -238,7 +223,7 @@ function wrap_text($string, $params = []) {
 				}
 				foreach (array_keys($po_text) as $area) {
 					if (substr($area, 0, 1) === '_') continue;
-					if (in_array($area, $zz_setting['modules']))
+					if (in_array($area, wrap_setting('modules')))
 						$module_text[$area] = $po_text[$area];
 					else
 						$context[$area] = $po_text[$area];
@@ -254,15 +239,14 @@ function wrap_text($string, $params = []) {
 		$text_included = $language;
 
 		// get translations from database
-		if (!empty($zz_setting['translate_text_db'])) { // no wrap_get_setting() at this point!
+		if (wrap_setting('translate_text_db'))
 			$text = array_merge($text, wrap_language_get_text($language));
-		}
 	}
 
 	$my_text = $text;
 	// active module?
-	if (!empty($zz_setting['active_module']) AND !empty($module_text[$zz_setting['active_module']])) {
-		$my_text = array_merge($module_text[$zz_setting['active_module']], $text);
+	if (wrap_setting('active_module') AND !empty($module_text[wrap_setting('active_module')])) {
+		$my_text = array_merge($module_text[wrap_setting('active_module')], $text);
 	}
 	if (!empty($zz_conf['text'][$language])) {
 		$my_text = array_merge($my_text, $zz_conf['text'][$language]);
@@ -286,9 +270,9 @@ function wrap_text($string, $params = []) {
 		// @todo check logfile for duplicates
 		// @todo optional log directly in database
 		// @todo log missing text in a .pot file
-		if (!empty($zz_setting['log_missing_text'])) {
+		if (wrap_setting('log_missing_text')) {
 			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
-			$log_file = sprintf($zz_setting['log_missing_text'], $language);
+			$log_file = sprintf(wrap_setting('log_missing_text_file'), $language);
 			error_log($log_message, 3, $log_file);
 			chmod($log_file, 0664);
 		}
@@ -305,13 +289,11 @@ function wrap_text($string, $params = []) {
  * @return array $text
  */
 function wrap_text_include($file) {
-	global $zz_setting;
-
 	if (!file_exists($file)) return [];
 	include $file;
 	if (!isset($text)) return [];
 	if (!is_array($text)) return [];
-	if ($zz_setting['character_set'] !== 'utf-8') {
+	if (wrap_setting('character_set') !== 'utf-8') {
 		foreach ($text as $key => $value) {
 			$text[$key] = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8'); 
 		}
@@ -334,32 +316,23 @@ function wrap_text_include($file) {
  * @param string $foreign_key_field_name (optional) if it's not the main record but
  *			a detail record indexed by $foreign_key_field_name
  * @param bool $mark_incomplete	(optional) write back if fields are not translated?
- * @param string $lang different (optional) target language than set in 
- *			$zz_setting['translation_lang']
+ * @param string $lang different (optional) target language than set in setting 'lang'
  * @global array $zz_conf
  * 		- $zz_conf['translations_of_fields']
- * @global array $zz_setting
  * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
  */
 function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
 	global $zz_conf;
-	global $zz_setting;
 	if (empty($zz_conf['translations_of_fields'])) return $data;
-	if (!wrap_get_setting('default_source_language')) return $data;
+	if (!wrap_setting('default_source_language')) return $data;
 	$translation_sql = wrap_sql_query('default_translations');
 	if (!$translation_sql) return $data;
 
-	// get page language: $zz_setting['lang']
-	if (!$target_language) {
-		if (!empty($zz_setting['lang'])) { 
-			$target_language = $zz_setting['lang'];
-		} else {
-			// we do not have a language to translate to, return data untranslated
-			return $data;
-		}
-	}
+	if (!$target_language)
+		// if we do not have a language to translate to, return data untranslated
+		if (!$target_language = wrap_setting('lang')) return $data;
 
 	// check the matrix and fill in the blanks
 	// cross check against database
@@ -454,8 +427,8 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		$translations = wrap_db_fetch($main_language_sql, 'translation_id');
 		if (!$translations) continue;
 
-		if (!empty($zz_setting['language_variation'])) {
-			$variation_language_sql = $sql . sprintf(' AND variation = "%s"', $zz_setting['language_variation']);
+		if (wrap_setting('language_variation')) {
+			$variation_language_sql = $sql . sprintf(' AND variation = "%s"', wrap_setting('language_variation'));
 			$variations = wrap_db_fetch($variation_language_sql, 'translation_id');
 		} else {
 			$variations = [];
@@ -510,7 +483,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 
 	// check if something is untranslated!
 	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete)
-		$zz_setting['translation_incomplete'] = true;
+		wrap_setting('translation_incomplete', true);
 	// reset if array was simple
 	if ($simple_data) {
 		$data = $data[$simple_data];
@@ -582,7 +555,7 @@ function wrap_translate_page() {
  */
 function wrap_translate_url($data) {
 	// has URL language code in it?
-	if (!wrap_get_setting('language_in_url')) return $data;
+	if (!wrap_setting('language_in_url')) return $data;
 
 	// are there translations for webpages.identifier?
 	$field = wrap_translate_identifier_field();
@@ -604,7 +577,7 @@ function wrap_translate_url($data) {
 		, $field['field_type']
 		, $field['translationfield_id']
 		, implode('", "', $identifiers)
-		, wrap_language_id(wrap_get_setting('lang'))
+		, wrap_language_id(wrap_setting('lang'))
 	);
 	$translations = wrap_db_fetch($sql, '_dummy_', 'key/value');
 	if (!$translations) return $data;
@@ -742,14 +715,12 @@ function wrap_negotiate_language($allowed_languages, $default_language, $accept 
  * this is not exhaustive, it's just a means to reduce configuration effort.
  *
  * @global array $zz_conf
- * @global array $zz_setting
  */
 function wrap_set_units() {
 	global $zz_conf;
-	global $zz_setting;
 	
 	if (!isset($zz_conf['decimal_point'])) {
-		switch ($zz_setting['lang']) {
+		switch (wrap_setting('lang')) {
 		case 'de':
 		case 'fr':
 		case 'es':
@@ -763,13 +734,13 @@ function wrap_set_units() {
 		}
 	}
 	if (!isset($zz_conf['thousands_separator'])) {
-		switch ($zz_setting['lang']) {
+		switch (wrap_setting('lang')) {
 		case 'de':
 		case 'fr':
 		case 'es':
 		case 'pl':
 		case 'cs':
-			if ($zz_setting['character_set'] === 'utf-8') {
+			if (wrap_setting('character_set') === 'utf-8') {
 				$zz_conf['thousands_separator'] = "\xC2\xA0"; // non-breaking space
 			} else {
 				$zz_conf['thousands_separator'] = ' ';
@@ -790,9 +761,7 @@ function wrap_set_units() {
  * @return string
  */
 function wrap_text_recode($str, $in_charset) {
-	global $zz_setting;
-
-	$translated = @iconv($in_charset, $zz_setting['character_set'], $str);
+	$translated = @iconv($in_charset, wrap_setting('character_set'), $str);
 	if (!$translated) {
 		// characters which are not defined in the desired character set
 		// replace with htmlentities
@@ -808,8 +777,6 @@ function wrap_text_recode($str, $in_charset) {
  * @return array
  */
 function wrap_po_parse($file) {
-	global $zz_setting;
-
 	if (!file_exists($file)) return [];
 	$chunks = wrap_po_chunks($file);
 	
@@ -831,7 +798,7 @@ function wrap_po_parse($file) {
 			if (in_array($key, ['#:'])) continue;
 			// does not recognize \n as newline
 			$chunk[$key] = str_replace('\n', "\n", $chunk[$key]);
-			if ($zz_setting['character_set'] !== $header['X-Character-Encoding']) {
+			if (wrap_setting('character_set') !== $header['X-Character-Encoding']) {
 				$chunk[$key] = wrap_text_recode($chunk[$key], $header['X-Character-Encoding']);
 			}
 			switch ($key) {

@@ -28,7 +28,6 @@
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	global $zz_conf;
-	global $zz_setting;
 	global $zz_page;
 	static $collect;
 	static $collect_messages;
@@ -94,9 +93,8 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	if (is_array($msg)) $msg = 'JSON '.json_encode($msg);
 
 	// Log prefix?
-	if (!empty($zz_setting['error_prefix'])) {
-		$msg = $zz_setting['error_prefix'].' '.$msg;
-	}
+	if (wrap_setting('error_prefix'))
+		$msg = wrap_setting('error_prefix').' '.$msg;
 	
 	// Log output
 	$log_output = $msg;
@@ -107,32 +105,32 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	if (!isset($settings['log_post_data'])) $settings['log_post_data'] = true;
 	if (empty($_POST)) $settings['log_post_data'] = false;
-	elseif (!wrap_get_setting('error_log_post')) $settings['log_post_data'] = false;
+	elseif (!wrap_setting('error_log_post')) $settings['log_post_data'] = false;
 
 	// reformat log output
-	if (wrap_get_setting('error_log['.$level.']') AND wrap_get_setting('log_errors')) {
+	if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
 		wrap_log((!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output, $level, 'zzwrap');
 		if ($settings['log_post_data']) wrap_log('postdata', 'notice', 'zzwrap');
 	}
 		
 	if (!empty($zz_conf['debug']))
-		$zz_setting['error_handling'] = 'output';
+		wrap_setting('error_handling', 'output');
 
-	switch (wrap_get_setting('error_handling')) {
+	switch (wrap_setting('error_handling')) {
 	case 'mail_summary':
-		if (!in_array($level, wrap_get_setting('error_mail_level'))) break;
+		if (!in_array($level, wrap_setting('error_mail_level'))) break;
 		wrap_error_summary($msg, $level);
 		break;
 	case 'mail':
-		if (!in_array($level, wrap_get_setting('error_mail_level'))) break;
-		if (empty(wrap_get_setting('error_mail_to'))) break;
+		if (!in_array($level, wrap_setting('error_mail_level'))) break;
+		if (!wrap_setting('error_mail_to')) break;
 		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
 		$foot = false;
 		if (empty($settings['mail_no_request_uri']))
-			$foot .= "\nURL: ".$zz_setting['host_base'].$zz_setting['request_uri'];
+			$foot .= "\nURL: ".wrap_setting('host_base').wrap_setting('request_uri');
 		if (empty($settings['mail_no_ip']))
-			$foot .= "\nIP: ".$zz_setting['remote_ip'];
+			$foot .= "\nIP: ".wrap_setting('remote_ip');
 		if (empty($settings['mail_no_user_agent']))
 			$foot .= "\nBrowser: ".(!empty($_SERVER['HTTP_USER_AGENT']) 
 				? $_SERVER['HTTP_USER_AGENT'] : wrap_text('unknown'));	
@@ -140,16 +138,15 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		if ($user = wrap_user()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
 		if ($foot) $msg .= "\n\n-- ".$foot;
 
-		$mail['to'] = wrap_get_setting('error_mail_to');
+		$mail['to'] = wrap_setting('error_mail_to');
 		$mail['message'] = $msg;
-		if (!empty($zz_setting['error_mail_parameters']))
-			$mail['parameters'] = $zz_setting['error_mail_parameters']; 
+		$mail['parameters'] = wrap_setting('error_mail_parameters');
 		$mail['subject'] = '';
-		if (empty($zz_setting['mail_subject_prefix']))
-			$mail['subject'] = '['.wrap_get_setting('project').'] ';
+		if (wrap_setting('mail_subject_prefix'))
+			$mail['subject'] = '['.wrap_setting('project').'] ';
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
-		$mail['headers']['X-Originating-URL'] = $zz_setting['host_base'].$zz_setting['request_uri'];
+		$mail['headers']['X-Originating-URL'] = wrap_setting('host_base').wrap_setting('request_uri');
 		$mail['headers']['X-Originating-Datetime'] = date('Y-m-d H:i:s');
 		$mail['queue'] = true;
 		wrap_mail($mail);
@@ -226,18 +223,16 @@ function wrap_error_summary($line = '', $error_level = '', $prefix_line = false)
  * @param array $page
  * @param array $zz_page
  * @param bool $log_errors whether errors shall be logged or not
- * @global array $zz_setting
  * @global array $zz_conf
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
-	global $zz_setting;	
 	global $zz_page;
 
 	wrap_include_ext_libraries();
 
 	// -- 1. check what kind of error page it is
 	// if wanted, check if mod_rewrite works
-	if (!empty($zz_setting['mod_rewrite_error']) 
+	if (wrap_setting('log_mod_rewrite_error') 
 		AND $_SERVER['SCRIPT_NAME'] !== '/_scripts/main.php') {
 		if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1))) {
 			wrap_error('mod_rewrite does not work as expected: '
@@ -272,18 +267,18 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	// -- 2. set page elements
 	
-	if (empty($page['lang'])) $page['lang'] = $zz_setting['lang'];
+	if (empty($page['lang'])) $page['lang'] = wrap_setting('lang');
 	$page['last_update'] = false;
-	if (empty($zz_setting['error_breadcrumbs_without_homepage_url'])) {
-		$page['breadcrumbs'] = '<strong><a href="'.$zz_setting['homepage_url'].'">'
-			.wrap_get_setting('project').'</a></strong> '.wrap_get_setting('breadcrumbs_separator').' ';
+	if (!wrap_setting('error_breadcrumbs_without_homepage_url')) {
+		$page['breadcrumbs'] = '<strong><a href="'.wrap_setting('homepage_url').'">'
+			.wrap_setting('project').'</a></strong> '.wrap_setting('breadcrumbs_separator').' ';
 	} else {
 		$page['breadcrumbs'] = '';
 	}
 	$page['breadcrumbs'] .= wrap_text($status['text']);
-	$page['pagetitle'] = sprintf(wrap_get_setting('template_pagetitle')
+	$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle')
 		, $page['status'].' '.wrap_text($status['text'])
-		, wrap_text(wrap_get_setting('project'))
+		, wrap_text(wrap_setting('project'))
 	);
 	$page['h1'] = wrap_text($status['text']);
 	$page['error_description'] = sprintf(wrap_text($status['description']), 
@@ -291,7 +286,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	if (in_array($page['status'], $extra_description_codes)) {
 		$page['error_explanation'] = ' '.sprintf(wrap_text('Please try to find the '
 			.'content you were looking for from our <a href="%s">main page</a>.'),
-			$zz_setting['homepage_url']);
+			wrap_setting('homepage_url'));
 	} else {
 		$page['error_explanation'] = '';
 	}
@@ -315,9 +310,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	// -- 3. output HTTP header
 	header($_SERVER['SERVER_PROTOCOL'].' '.$status['code'].' '.$status['text']);
-	if ($page['status'] == 405) {
-		header('Allow: '.implode(',', $zz_setting['http']['allowed']));
-	}
+	if ($page['status'] == 405)
+		header('Allow: '.implode(',', wrap_setting('http[allowed]')));
 	
 	// -- 4. error logging
 
@@ -338,7 +332,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
  * @return bool true if something was logged, false if not
  */
 function wrap_errorpage_log($status, $page) {
-	global $zz_setting;
 	global $zz_page;
 
 	if (in_array($status, [401, 403, 404, 410, 503])) {
@@ -353,7 +346,7 @@ function wrap_errorpage_log($status, $page) {
 		.strip_tags($page['error_explanation'])."\n\n", ENT_QUOTES, $log_encoding);
 	$settings = [];
 	$settings['subject'] = '('.$status.')';
-	$settings['logfile'] = '['.$status.' '.$zz_setting['request_uri'].']';
+	$settings['logfile'] = '['.$status.' '.wrap_setting('request_uri').']';
 	switch ($status) {
 	case 503:
 		$settings['no_return'] = true; // don't exit function again
@@ -363,11 +356,11 @@ function wrap_errorpage_log($status, $page) {
 		if (wrap_errorpage_logignore()) return false;
 		// own error message!
 		$requested = $zz_page['url']['full']['scheme'].'://'
-			.$zz_setting['hostname'].$zz_setting['request_uri'];
+			.wrap_setting('hostname').wrap_setting('request_uri');
 		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server"), $requested, 
-			$_SERVER['HTTP_REFERER'], $zz_setting['remote_ip'], $_SERVER['HTTP_USER_AGENT']);
+			$_SERVER['HTTP_REFERER'], wrap_setting('remote_ip'), $_SERVER['HTTP_USER_AGENT']);
 		if (!empty($_POST)) {
 			$msg .= "\n\n".wrap_print($_POST, false, false);
 		}
@@ -431,8 +424,6 @@ function wrap_errorpage_log($status, $page) {
  * @return bool true: ignore for logging, false: log error
  */
 function wrap_errorpage_ignore($status, $string = false) {
-	global $zz_setting;
-	
 	$files = wrap_collect_files('errors-not-logged.txt', 'default/custom');
 	foreach ($files as $file) {
 		$handle = fopen($file, 'r');
@@ -472,10 +463,10 @@ function wrap_errorpage_ignore($status, $string = false) {
 				}
 				break;
 			case 'request':
-				if (wrap_error_checkmatch($zz_setting['request_uri'], $line[2])) return true;
+				if (wrap_error_checkmatch(wrap_setting('request_uri'), $line[2])) return true;
 				break;
 			case 'ip':
-				if (substr($zz_setting['remote_ip'], 0, (strlen($line[2]))) === $line[2]) {
+				if (substr(wrap_setting('remote_ip'), 0, (strlen($line[2]))) === $line[2]) {
 					return true;
 				}
 				break;
@@ -528,9 +519,6 @@ function wrap_error_checkmatch($string, $match) {
  * @return bool true: do not log
  */
 function wrap_errorpage_logignore() {
-	global $zz_page;
-	global $zz_setting;
-
 	// access without REFERER will be ignored (may be typo, ...)
 	if (!isset($_SERVER['HTTP_REFERER'])) return true;
 	if (!trim($_SERVER['HTTP_REFERER'])) return true;
@@ -557,7 +545,6 @@ function wrap_errorpage_logignore() {
  * @return bool true: referer is valid, false: referer is invalid
  */
 function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
-	global $zz_setting;
 	global $zz_page;
 
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
@@ -573,17 +560,17 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 
 	// referer from external domain?
 	$external_request = false;
-	if (strtolower($zz_setting['hostname']) !== strtolower($referer['host'])) {
+	if (strtolower(wrap_setting('hostname')) !== strtolower($referer['host'])) {
 		$external_request = true;
-	} elseif (!empty($zz_setting['canonical_hostname']) AND $zz_setting['canonical_hostname'] !== $zz_setting['hostname']) {
+	} elseif (wrap_setting('canonical_hostname') AND wrap_setting('canonical_hostname') !== wrap_setting('hostname')) {
 		$external_request = true;
 	}
 	if ($external_request) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) {
 			if (strstr($referer['path'], '../')) return false;
-			if ($referer['host'] === $zz_setting['hostname']
+			if ($referer['host'] === wrap_setting('hostname')
 				AND $referer['path'] !== $zz_page['url']['full']['path']
-				AND $referer['scheme'] !== 'https' AND in_array('/', $zz_setting['https_urls'])
+				AND $referer['scheme'] !== 'https' AND in_array('/', wrap_setting('https_urls'))
 			) {
 				// it is no https redirect but from the same hostname and from a different path
 				// i. e. it is a forged referer, @see wrap_error_referer_local_https()
@@ -624,10 +611,10 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	// query string is equal, path is left
 	if ($referer['path'] === $zz_page['url']['full']['path']) return false;
 	if (str_replace('//', '/', $referer['path']) === $zz_page['url']['full']['path']) return false;
-	if ($referer['path'] === $zz_setting['base'].$zz_page['url']['full']['path']) return false;
-	if ($referer['path'] === $zz_setting['request_uri']) return false; // for malformed URIs
+	if ($referer['path'] === wrap_setting('base').$zz_page['url']['full']['path']) return false;
+	if ($referer['path'] === wrap_setting('request_uri')) return false; // for malformed URIs
 	// check if equal if path has %-encoded values
-	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode($zz_setting['base'].$zz_page['url']['full']['path']))
+	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode(wrap_setting('base').$zz_page['url']['full']['path']))
 		return false;
 
 	return true;
@@ -640,15 +627,13 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
  * @return bool true: localhost, false: external referer
  */
 function wrap_error_referer_local_redirect($referer_host) {
-	global $zz_setting;
-
 	// missing www. redirect
-	if (strtolower('www.'.$referer_host) === strtolower($zz_setting['hostname']))
+	if (strtolower('www.'.$referer_host) === strtolower(wrap_setting('hostname')))
 		return true;
 
 	// canonical host name e. g. starts with www., access is from and to
 	// server without www. = referer is wrong
-	if (!empty($zz_setting['canonical_hostname']) AND strtolower($referer_host) === strtolower($zz_setting['hostname']))
+	if (wrap_setting('canonical_hostname') AND strtolower($referer_host) === strtolower(wrap_setting('hostname')))
 		return true;
 
 	// IP redirect
@@ -656,10 +641,10 @@ function wrap_error_referer_local_redirect($referer_host) {
 
 	// referer from canonical hostname
 	$hostnames = [];
-	if (!empty($zz_setting['canonical_hostname']))
-		$hostnames[] = $zz_setting['canonical_hostname'];
-	if (!empty($zz_setting['external_redirect_hostnames'])) // external redirects
-		$hostnames = array_merge($hostnames, $zz_setting['external_redirect_hostnames']);
+	if (wrap_setting('canonical_hostname'))
+		$hostnames[] = wrap_setting('canonical_hostname');
+	if (wrap_setting('external_redirect_hostnames')) // external redirects
+		$hostnames = array_merge($hostnames, wrap_setting('external_redirect_hostnames'));
 	foreach ($hostnames as $hostname) {
 		if (strtolower($hostname) === strtolower($referer_host)) return true;
 	}
@@ -673,7 +658,6 @@ function wrap_error_referer_local_redirect($referer_host) {
  * @return bool true: https required but not there, false: ok
  */
 function wrap_error_referer_local_https($referer) {
-	global $zz_setting;
 	global $zz_page;
 
 	// just if referer URL path differs
@@ -683,11 +667,11 @@ function wrap_error_referer_local_https($referer) {
 
 	// check for https
 	if ($referer['scheme'] === 'https') return false;
-	if (empty($zz_setting['canonical_hostname'])) return false;
-	if ($referer['host'] !== $zz_setting['canonical_hostname']) return false;
+	if (!wrap_setting('canonical_hostname')) return false;
+	if ($referer['host'] !== wrap_setting('canonical_hostname')) return false;
 
 	// if all URLs are https, then real referer from same domain must be https, too
-	if (in_array('/', $zz_setting['https_urls'])) return true;
+	if (in_array('/', wrap_setting('https_urls'))) return true;
 
 	return false;
 }
@@ -712,7 +696,6 @@ function wrap_error_url_decode($url) {
  * @return string
  */
 function wrap_log($line, $level = 'notice', $module = '', $file = false) {
-	global $zz_setting;
 	static $postdata;
 	if ($line === 'postdata') {
 		if (!empty($postdata)) return false;
@@ -728,7 +711,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	}
 
 	if (!$module) {
-		$module = !empty($zz_setting['active_module']) ? $zz_setting['active_module'] : 'custom';
+		$module = wrap_setting('active_module') ? wrap_setting('active_module') : 'custom';
 	}
 
 	$user = wrap_user();
@@ -738,16 +721,16 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		, ucfirst($level)
 		, preg_replace("/\s+/", " ", $line) 
 	);
-	$line = substr($line, 0, wrap_get_setting('log_errors_max_len') - (strlen($user) + 4));
+	$line = substr($line, 0, wrap_setting('log_errors_max_len') - (strlen($user) + 4));
 	$line .= sprintf(" [%s]\n", $user);
 	if (!$file) {
 		if (in_array($module, ['zzform', 'zzwrap'])
-			AND wrap_get_setting('error_log['.$level.']'))
-			$file = wrap_get_setting('error_log['.$level.']');
+			AND wrap_setting('error_log['.$level.']'))
+			$file = wrap_setting('error_log['.$level.']');
 		else {
-			$log_filename = !empty($zz_setting['log_filename'])
-				? $module.'/'.$zz_setting['log_filename'] : $module;
-			$file = sprintf('%s/%s.log', $zz_setting['log_dir'], $log_filename);
+			$log_filename = wrap_setting('log_filename')
+				? $module.'/'.wrap_setting('log_filename') : $module;
+			$file = sprintf('%s/%s.log', wrap_setting('log_dir'), $log_filename);
 			wrap_mkdir(dirname($file));
 		}
 	}
@@ -761,9 +744,9 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
  * @return string
  */
 function wrap_log_encoding() {
-	$log_encoding = wrap_get_setting('character_set');
+	$log_encoding = wrap_setting('character_set');
 	// PHP does not support all encodings
-	if (!$log_recode = wrap_get_setting('log_recode')) return $log_encoding;
+	if (!$log_recode = wrap_setting('log_recode')) return $log_encoding;
 	if (!array_key_exists($log_encoding, $log_recode)) return $log_encoding;
 	return $log_recode[$log_encoding];
 }
@@ -777,8 +760,7 @@ function wrap_log_encoding() {
  */
 function wrap_user($default = '') {
 	global $zz_conf;
-	global $zz_setting;
-	if (!empty($zz_setting['log_username'])) return $zz_setting['log_username'];
+	if ($username = wrap_setting('log_username')) return $username;
 	if (!empty($_SESSION['username'])) return $_SESSION['username'];
 	if (!empty($zz_conf['user'])) return $zz_conf['user'];
 	return $default;

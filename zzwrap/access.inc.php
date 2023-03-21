@@ -23,7 +23,6 @@
  */
 function wrap_access($area, $detail = '', $conditions = true) {
 	global $zz_conf;
-	global $zz_setting;
 	static $config;
 	static $usergroups;
 	if (empty($config)) $config = wrap_cfg_files('access');
@@ -39,9 +38,9 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	if (!empty($zz_conf['multi'])) return true;
 
 	// read settings from database
-	if (in_array('activities', $zz_setting['modules'])
+	if (in_array('activities', wrap_setting('modules'))
 		AND !array_key_exists($area, $usergroups)
-		AND wrap_get_setting('mod_activities_install_date')
+		AND wrap_setting('mod_activities_install_date')
 	) {
 		$sql = 'SELECT usergroup_id, usergroup
 			FROM usergroups
@@ -64,15 +63,10 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		return false;
 
 	// directly given access via session or setting?
-	$keys = ['zz_setting', '_SESSION'];
-	foreach ($keys as $key) {
-		if (!empty($$key['no_access'])) {
-			if (in_array($area, $$key['no_access'])) return false;
-		}
-		if (!empty($$key['access'])) {
-			if (in_array($area, $$key['access'])) return true;
-		}
-	}
+	if (in_array($area, wrap_setting('no_access'))) return false;
+	if (in_array($area, wrap_setting('access'))) return true;
+	if (!empty($_SESSION['no_access']) AND in_array($area, $_SESSION['no_access'])) return false;
+	if (!empty($_SESSION['access']) AND in_array($area, $_SESSION['access'])) return true;
 
 	// check if access rights are met
 	if (!empty($usergroups[$area])) {
@@ -145,7 +139,7 @@ function wrap_conditions($config, $detail) {
 	elseif (!is_array($config['condition_if_setting']))
 		$config['condition_if_setting'] = [$config['condition_if_setting']];
 	foreach ($config['condition_if_setting'] as $condition)
-		if (!wrap_get_setting($condition)) return NULL; // not applicable = 404
+		if (!wrap_setting($condition)) return NULL; // not applicable = 404
 
 	return true;
 }
@@ -282,8 +276,8 @@ function wrap_check_hash($string, $hash, $error_msg = '', $key = 'secret_key') {
  * @todo support other character encodings as utf-8 and iso-8859-1
  */
 function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
-	$secret_key = wrap_get_setting($key);
-	$minutes_valid = wrap_get_setting($key.'_validity_in_minutes');
+	$secret_key = wrap_setting($key);
+	$minutes_valid = wrap_setting($key.'_validity_in_minutes');
 	if ($minutes_valid) {
 		$now = time();
 		$seconds = $minutes_valid * 60;
@@ -291,8 +285,8 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
 		$secret_key .= $timeframe_start;
 	}
 	$secret = $string.$secret_key;
-	if (wrap_get_setting('character_set') !== 'utf-8')
-		$secret = mb_convert_encoding($secret, 'UTF-8', wrap_get_setting('character_set'));
+	if (wrap_setting('character_set') !== 'utf-8')
+		$secret = mb_convert_encoding($secret, 'UTF-8', wrap_setting('character_set'));
 	$hash = sha1($secret);
 	$hash = wrap_base_convert($hash, 16, 62);
 	return $hash;
@@ -369,14 +363,13 @@ function wrap_test_secret_key($secret_key) {
  * erlaubt Zugriff nur von berechtigten IP-Adressen, bricht andernfalls mit 403
  * Fehlercode ab
  *
- * @param string $ip_list Schlüssel in $zz_setting, der Array mit den erlaubten
- *		IP-Adressen enthält
+ * @param string $ip_list key in setting, that holds list of allowed IP addresses
  * @return bool true: access granted; exit function: access forbidden
  * @todo make compatible to IPv6
  * @todo combine with ipfilter from zzbrick
  */
 function wrap_restrict_ip_access($ip_list) {
-	$ip_list = wrap_get_setting($ip_list);
+	$ip_list = wrap_setting($ip_list);
 	if ($ip_list === NULL) {
 		wrap_error(sprintf(wrap_text('List of allowed IPs not found in configuration (%s).'),
 			$ip_list), E_USER_NOTICE);

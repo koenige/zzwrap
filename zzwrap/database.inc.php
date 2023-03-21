@@ -32,24 +32,20 @@
  *
  * @global array $zz_conf
  *		'db_connection', 'db_name', 'db_name_local', 'character_set'
- * @global array $zz_setting
- *		'local_access', 'local_pwd', 'db_password_files',
- *		'encoding_to_mysql_encoding'
  * @return bool true: database connection established, false: no connection
  */
 function wrap_db_connect() {
-	global $zz_setting;
 	global $zz_conf;
 	
 	// do we already have a connection?
 	if (!empty($zz_conf['db_connection'])) return true;
 	
 	// local access: get local database name
-	if ($zz_setting['local_access']) {
+	if (wrap_setting('local_access')) {
 		if (!empty($zz_conf['db_name_local'])) {
 			$zz_conf['db_name'] = $zz_conf['db_name_local'];
 		} else {
-			$zz_setting['authentication_possible'] = false;
+			wrap_setting('authentication_possible', false);
 			wrap_session_start();
 			if (!empty($_SESSION['db_name_local']) AND !empty($_SESSION['step']) AND $_SESSION['step'] === 'finish') {
 				$zz_conf['db_name'] = $_SESSION['db_name_local'];
@@ -85,23 +81,17 @@ function wrap_db_connect() {
  * @return array
  */
 function wrap_db_credentials() {
-	global $zz_setting;
 	global $zz_conf;
 	static $db;
 	if (!empty($db)) return $db;
-
-	if (!isset($zz_setting['db_password_files']))
-		$zz_setting['db_password_files'] = [''];
-	elseif (!is_array($zz_setting['db_password_files']))
-		$zz_setting['db_password_files'] = [$zz_setting['db_password_files']];
-
-	if ($zz_setting['local_access']) {
-		array_unshift($zz_setting['db_password_files'], $zz_setting['local_pwd']);
-	}
+	
+	$db_password_files = wrap_setting('db_password_files');
+	if (wrap_setting('local_access'))
+		array_unshift($db_password_files, wrap_setting('local_pwd'));
 
 	$found = false;
 	$rewrite = false;
-	foreach ($zz_setting['db_password_files'] as $file) {
+	foreach ($db_password_files as $file) {
 		if (substr($file, 0, 1) !== '/') {
 			$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.inc.php';
 			if (!file_exists($filename)) {
@@ -120,7 +110,7 @@ function wrap_db_credentials() {
 				$db = json_decode(file_get_contents($file), true);
 				if (!empty($db['db_name'])) {
 					$zz_conf['db_name'] = $db['db_name'];
-					if ($file === $zz_setting['local_pwd'])
+					if ($file === wrap_setting('local_pwd'))
 						$zz_conf['db_name_local'] = $db['db_name'];
 				}
 			} else {
@@ -149,29 +139,18 @@ function wrap_db_credentials() {
  *
  * @param string $charset (optional)
  * @global $zz_conf
- * @global $zz_setting
  * @return void
  */
 function wrap_db_charset($charset = '') {
 	global $zz_conf;
-	global $zz_setting;
 	
 	if (!$charset) {
-		// mySQL uses different identifiers for character encoding than HTML
-		if (empty($zz_setting['encoding_to_mysql_encoding'][$zz_setting['character_set']])) {
-			switch ($zz_setting['character_set']) {
-				case 'iso-8859-1': $charset = 'latin1'; break;
-				case 'iso-8859-2': $charset = 'latin2'; break;
-				case 'utf-8': $charset = 'utf8'; break;
-				default: 
-					wrap_error(sprintf('No character set for %s found.', $zz_setting['character_set']), E_USER_NOTICE);
-					break;
-			}
-		} else {
-			$charset = $zz_setting['encoding_to_mysql_encoding'][$zz_setting['character_set']];
+		$charset = wrap_setting('encoding_to_mysql_encoding['.wrap_setting('character_set').']');
+		if (!$charset) {
+			wrap_error(sprintf('No character set for %s found.', wrap_setting('character_set')), E_USER_NOTICE);
+			return;
 		}
 	}
-	if (!$charset) return;
 	if (strtolower($charset) === 'utf8') {
 		// use utf8mb4, the real 4-byte utf-8 encoding if database is in utf8mb4
 		// instead of proprietary 3-byte utf-8
@@ -280,7 +259,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
 	} else {
-		if (wrap_get_setting('error_handling') === 'output') {
+		if (wrap_setting('error_handling') === 'output') {
 			global $zz_page;
 			$zz_page['error_msg'] = '<p class="error">'.$error_msg.'<br>'.$sql.'</p>';
 		}
@@ -1005,7 +984,6 @@ function wrap_edit_sql_statement($sql, $statement) {
  */
 function wrap_sql($key, $mode = 'get', $value = false) {
 	global $zz_conf;
-	global $zz_setting;
 	static $zz_sql;
 	static $set;
 	static $modifications;
@@ -1035,7 +1013,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$set['auth'] = true;
 			$zz_sql += wrap_system_sql('auth');
 			if (empty($zz_sql['domain']))
-				$zz_sql['domain'] = [$zz_setting['hostname']];
+				$zz_sql['domain'] = [wrap_setting('hostname')];
 			break;
 		default:
 			if (!empty($set[$key])) return true;
@@ -1050,7 +1028,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
 			$zz_sql['domain'] = [$zz_sql['domain']];
 		
-		if (!empty($zz_setting['multiple_websites'])) {
+		if (wrap_setting('multiple_websites')) {
 			$modify_queries = [
 				'pages', 'redirects', 'redirects_*', 'redirects*_', 'breadcrumbs',
 				'menu'
@@ -1066,7 +1044,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 						}
 					} else {
 						$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
-							, sprintf('website_id = %d', $zz_setting['website_id'])
+							, sprintf('website_id = %d', wrap_setting('website_id'))
 						);
 					}
 					$modifications[] = $key;
@@ -1294,9 +1272,9 @@ function wrap_sql_ignores($module = '', $table = '') {
  * @return string
  */
 function wrap_sql_login() {
-	if (wrap_get_setting('login_with_email'))
+	if (wrap_setting('login_with_email'))
 		return wrap_sql('login_email');
-	if (wrap_get_setting('login_with_contact_id'))
+	if (wrap_setting('login_with_contact_id'))
 		return wrap_sql('login_contact');
 	return wrap_sql('login');
 }
@@ -1308,7 +1286,6 @@ function wrap_sql_login() {
  * @return array
  */
 function wrap_system_sql($subtree) {
-	global $zz_setting;
 	static $data;
 
 	if (empty($data)) {
@@ -1339,14 +1316,13 @@ function wrap_system_sql($subtree) {
  *
  * _PREFIX_ with $zz_conf['prefix']
  * _ID LANGUAGES ENG_ with wrap_id('languages', 'eng')
- * _ID LANGUAGES SETTING LANG3_ with wrap_id('languages', $zz_setting['lang3'])
- * _SETTING LANG3_ with $zz_setting['lang3']
+ * _ID LANGUAGES SETTING LANG3_ with wrap_id('languages', wrap_setting('lang3'))
+ * _SETTING LANG3_ with wrap_setting('lang3')
  *
  * @param mixed $queries
  * @return array
  */
 function wrap_sql_placeholders($queries) {
-	global $zz_setting;
 	global $zz_conf;
 	
 	if (!is_array($queries)) {
@@ -1377,14 +1353,13 @@ function wrap_sql_placeholders($queries) {
 				switch ($placeholder) {
 				case 'ID':
 					if (count($part[0]) === 3 AND $part[0][1] === 'setting') {
-						$val = wrap_id($part[0][0], $zz_setting[$part[0][2]], 'check');
+						$val = wrap_id($part[0][0], wrap_setting($part[0][2]), 'check');
 					} else {
 						$val = wrap_id($part[0][0], $part[0][1], 'check');
 					}
 					break;
 				case 'SETTING':
-					if (array_key_exists($part[0][0], $zz_setting))
-						$val = $zz_setting[$part[0][0]];
+					$val = wrap_setting($part[0][0]);
 					break;
 				}
 				if ($val) $part[0] = $val;
@@ -1413,15 +1388,13 @@ function wrap_sql_placeholders($queries) {
  * if not: send cache or exit
  * 
  * @global array $zz_conf
- * @global array $zz_setting
  * @return bool true: everything is okay
  */
 function wrap_check_db_connection() {
 	global $zz_conf;
-	global $zz_setting;
 	if ($zz_conf['db_connection']) return true;
 	wrap_send_cache();
-	wrap_error(sprintf('No connection to SQL server. (Host: %s)', $zz_setting['hostname']), E_USER_ERROR);
+	wrap_error(sprintf('No connection to SQL server. (Host: %s)', wrap_setting('hostname')), E_USER_ERROR);
 	wrap_error(false, false, ['collect_end' => true]);
 	exit;
 }
@@ -1452,18 +1425,15 @@ function wrap_db_escape($value) {
  *
  * @param void
  * @return void
- * @global array $zz_setting
- *		'unwanted_mysql_modes'	
  */
 function wrap_mysql_mode() {
-	global $zz_setting;
-	if (empty($zz_setting['unwanted_mysql_modes'])) return;
+	if (!wrap_setting('unwanted_mysql_modes')) return;
 
 	$sql = 'SELECT @@SESSION.sql_mode';
 	$mode = wrap_db_fetch($sql, '', 'single value');
 	$modes = explode(',', $mode);
 	foreach ($modes as $index => $mode) {
-		if (!in_array($mode, $zz_setting['unwanted_mysql_modes'])) continue;
+		if (!in_array($mode, wrap_setting('unwanted_mysql_modes'))) continue;
 		unset($modes[$index]);
 	}
 	$mode = implode(',', $modes);

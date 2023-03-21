@@ -96,9 +96,8 @@ function wrap_mail($mail, $list = []) {
 	if (!isset($mail['parameters'])) $mail['parameters'] = '';
 
 	$old_error_handling = wrap_setting('error_handling');
-	if (wrap_setting('error_handling') === 'mail') {
+	if (wrap_setting('error_handling') === 'mail')
 		wrap_setting('error_handling', false); // don't send mail, does not work!
-	}
 
 	// if local server, show e-mail, don't send it
 	if (wrap_setting('local_access')) {
@@ -481,7 +480,7 @@ function wrap_mail_queue_add($mail, $additional_headers) {
  * @return bool
  */
 function wrap_mail_queue_send() {
-	require_once wrap_setting('core').'/syndication.inc.php';
+	require_once __DIR__.'/syndication.inc.php';
 	// lock will unlock automatically, not manually, to just get error mails every n seconds
 	$lock = wrap_lock('mailqueue', 'sequential', wrap_setting('error_mail_delay_seconds'));
 	if ($lock) return;

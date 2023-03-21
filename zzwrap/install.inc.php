@@ -14,14 +14,13 @@
 
 
 function wrap_install() {
-	global $zz_setting;
 	global $zz_conf;
-	if (!$zz_setting['local_access']) return;
+	if (!wrap_setting('local_access')) return;
 	$zz_conf['user'] = 'Crew droid Robot 571';
 
-	$zz_setting['template'] = 'install-page';
+	wrap_setting('template', 'install-page');
 	wrap_include_ext_libraries();
-	$zz_setting['cache'] = false;
+	wrap_setting('cache', false);
 	
 	wrap_session_start();
 	$_SESSION['cms_install'] = true;
@@ -66,7 +65,6 @@ function wrap_install() {
  */
 function wrap_install_dbname() {
 	global $zz_conf;
-	global $zz_setting;
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (!empty($_POST['db_name_local'])) {
@@ -88,7 +86,7 @@ function wrap_install_dbname() {
 			wrap_sql_ignores();
 			wrap_install_module('default');
 			wrap_install_module('zzform');
-			foreach ($zz_setting['modules'] as $module) {
+			foreach (wrap_setting('modules') as $module) {
 				if (in_array($module, ['zzform', 'default'])) continue;
 				wrap_install_module($module);
 			}
@@ -108,7 +106,6 @@ function wrap_install_dbname() {
  * @return bool
  */
 function wrap_install_module($module) {
-	global $zz_setting;
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/database.inc.php';
 
@@ -154,15 +151,12 @@ function wrap_install_module($module) {
 function wrap_install_zzform() {
 	global $zz_conf;
 	global $zz_page;
-	global $zz_setting;
 	require_once $zz_conf['dir'].'/zzform.php';
 
-	if (!isset($zz_setting['brick_default_tables']))
-		$zz_setting['brick_default_tables'] = true;
 	$zz_page['url']['full'] = [
-		'scheme' => $zz_setting['protocol'],
-		'host' => $zz_setting['hostname'],
-		'path' => $zz_setting['request_uri']
+		'scheme' => wrap_setting('protocol'),
+		'host' => wrap_setting('hostname'),
+		'path' => wrap_setting('request_uri')
 	];
 	if (!empty($_SESSION['db_name_local']))
 		$db = mysqli_select_db($zz_conf['db_connection'], $_SESSION['db_name_local']);
@@ -176,7 +170,6 @@ function wrap_install_zzform() {
  * @return mixed
  */
 function wrap_install_user() {
-	global $zz_setting;
 	global $zz_conf;
 	require_once $zz_conf['dir'].'/_functions.inc.php';
 
@@ -185,7 +178,7 @@ function wrap_install_user() {
 		$values = [];
 		$values['action'] = 'insert';
 		$values['POST']['username'] = $_POST['username'];
-		if (empty($zz_setting['install_without_login_rights']))
+		if (!wrap_setting('install_without_login_rights'))
 			$values['POST']['login_rights'] = 'admin';
 		$values['POST']['password'] = $_POST['password'];
 		$values['POST']['password_change'] = 'no';
@@ -286,7 +279,7 @@ function wrap_install_settings_folders() {
 		'docs/screenshots', 'docs/templates', 'docs/todo'
 	];
 	foreach ($folders as $folder) {
-		$folder = $zz_setting['cms_dir'].'/'.$folder;
+		$folder = wrap_setting('cms_dir').'/'.$folder;
 		if (file_exists($folder)) continue;
 		wrap_mkdir($folder);
 	}
@@ -351,7 +344,6 @@ function wrap_install_remote_db() {
  * @return mixed
  */
 function wrap_install_finish() {
-	global $zz_setting;
 	wrap_install_zzform();
 
 	wrap_setting_write('zzwrap_install_date', date('Y-m-d H:i:s'));
@@ -369,8 +361,6 @@ function wrap_install_finish() {
  * @return array IDs
  */
 function wrap_install_cfg($table) {
-	global $zz_setting;
-
 	$ids = [];
 
 	// read definitions
@@ -408,7 +398,7 @@ function wrap_install_cfg($table) {
 			if (array_key_exists($key, $replaces)) {
 				// 1. replace part of the value
 				$replace = explode(' ', $replaces[$key]);
-				if (!empty($zz_setting[$replace[0]])) {
+				if (wrap_setting($replace[0])) {
 					if ($value === $replace[1]) $value = $replace[2];
 				}
 			}
@@ -420,8 +410,8 @@ function wrap_install_cfg($table) {
 						$add_prefix = false;
 				}
 				if ($add_prefix) {
-					if (!empty($zz_setting[$prefixes[$key]]))
-						$value = $zz_setting[$prefixes[$key]].$value;
+					if (wrap_setting($prefixes[$key]))
+						$value = $wrap_setting($prefixes[$key]).$value;
 					else
 						$value = $prefixes[$key].$value;
 				}
@@ -431,7 +421,7 @@ function wrap_install_cfg($table) {
 				$remove = explode(' ', $removes[$key]);
 				$remove_key = array_shift($remove);
 				$remove = implode(' ', $remove);
-				if (!empty($zz_setting[$remove_key]))
+				if (wrap_setting($remove_key))
 					$value = str_replace($remove, '', $value);
 			}
 			

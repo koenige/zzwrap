@@ -35,11 +35,10 @@
  * @return mixed $text (string or array indexed by positions)
  */
 function wrap_template($template, $data = [], $mode = false) {
-	global $zz_setting;
 	wrap_page_format_files();
 
 	if (strstr($template, "\n")) {
-		$zz_setting['current_template'] = '(from variable)';
+		wrap_setting('current_template', '(from variable)');
 		$template = explode("\n", $template);
 		// add newline that explode removed to each line
 		foreach (array_keys($template) as $no) {
@@ -47,12 +46,12 @@ function wrap_template($template, $data = [], $mode = false) {
 		}
 	} elseif (str_starts_with($template, '/') AND file_exists($template)) {
 		$tpl_file = $template;
-		$zz_setting['current_template'] = $template;
+		wrap_setting('current_template', $template);
 		$template = file($tpl_file);
 	} else {
 		$tpl_file = wrap_template_file($template);
 		if (!$tpl_file) return false;
-		$zz_setting['current_template'] = $template;
+		wrap_setting('current_template', $template);
 		$template = file($tpl_file);
 	}
 	// remove comments and next empty line from the start
@@ -68,17 +67,17 @@ function wrap_template($template, $data = [], $mode = false) {
 
 	// replace placeholders in template
 	// save old setting regarding text formatting
-	$old_brick_fulltextformat = wrap_get_setting('brick_fulltextformat');
+	$old_brick_fulltextformat = wrap_setting('brick_fulltextformat');
 	// apply new text formatting
-	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
+	wrap_setting('brick_fulltextformat', 'brick_textformat_html');
 	$page = brick_format($template, $data);
 	// restore old setting regarding text formatting
-	$zz_setting['brick_fulltextformat'] = $old_brick_fulltextformat;
+	wrap_setting('brick_fulltextformat', $old_brick_fulltextformat);
 
 	// get rid of if / else text that will be put to hidden
 	if (is_array($page['text']) AND count($page['text']) === 2 
 		AND in_array('_hidden_', array_keys($page['text']))
-		AND in_array(wrap_get_setting('brick_default_position'), array_keys($page['text']))) {
+		AND in_array(wrap_setting('brick_default_position'), array_keys($page['text']))) {
 		unset($page['text']['_hidden_']);
 		$page['text'] = end($page['text']);
 	}
@@ -95,18 +94,15 @@ function wrap_template($template, $data = [], $mode = false) {
  *
  * @param string $template
  * @param bool $show_error return with error 503 if not found or not
- * @global array $zz_setting
  * @return string $filename
  */
 function wrap_template_file($template, $show_error = true) {
-	global $zz_setting;
-
-	if ($zz_setting['active_theme']) {
-		$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/themes/'.$zz_setting['active_theme'].'/templates');
+	if (wrap_setting('active_theme')) {
+		$tpl_file = wrap_template_file_per_folder($template, wrap_setting('inc').'/themes/'.wrap_setting('active_theme').'/templates');
 		if ($tpl_file) return $tpl_file;
 	}
 	
-	$tpl_file = wrap_template_file_per_folder($template, $zz_setting['inc'].'/custom/templates');
+	$tpl_file = wrap_template_file_per_folder($template, wrap_setting('custom').'/templates');
 	if ($tpl_file) return $tpl_file;
 
 	// check if there's a module template
@@ -121,11 +117,11 @@ function wrap_template_file($template, $show_error = true) {
 		$my_module = '';
 	}
 	$found = [];
-	$packages = array_merge($zz_setting['modules'], wrap_themes());
+	$packages = array_merge(wrap_setting('modules'), wrap_themes());
 	foreach ($packages as $package) {
 		if ($my_module AND $package !== $my_module) continue;
-		$dir = in_array($package, $zz_setting['modules'])
-			? $zz_setting['modules_dir'] : wrap_setting('themes_dir');
+		$dir = in_array($package, wrap_setting('modules'))
+			? wrap_setting('modules_dir') : wrap_setting('themes_dir');
 		$pathinfo = pathinfo($template);
 		if (!empty($pathinfo['dirname'])
 			AND in_array($pathinfo['dirname'], ['layout', 'behaviour'])
@@ -159,7 +155,7 @@ function wrap_template_file($template, $show_error = true) {
 		}
 	} else {
 		$package = key($found);
-		if (in_array($package, $zz_setting['modules']))
+		if (in_array($package, wrap_setting('modules')))
 			wrap_package_activate($package);
 		else
 			wrap_package_activate($package, 'theme');
@@ -175,17 +171,15 @@ function wrap_template_file($template, $show_error = true) {
  *
  * @param string $template
  * @param string $folder
- * @global array $zz_setting
  * @return string $filename
  */
 function wrap_template_file_per_folder($template, $folder) {
-	global $zz_setting;
-	if (!empty($zz_setting['lang'])) {
-		if (!empty($zz_setting['language_variation'])) {
-			$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'-'.$zz_setting['language_variation'].'.template.txt';
+	if (wrap_setting('lang')) {
+		if (wrap_setting('language_variation')) {
+			$tpl_file = $folder.'/'.$template.'-'.wrap_setting('lang').'-'.wrap_setting('language_variation').'.template.txt';
 			if (file_exists($tpl_file)) return $tpl_file;
 		}
-		$tpl_file = $folder.'/'.$template.'-'.$zz_setting['lang'].'.template.txt';
+		$tpl_file = $folder.'/'.$template.'-'.wrap_setting('lang').'.template.txt';
 		if (file_exists($tpl_file)) return $tpl_file;
 	}
 	$tpl_file = $folder.'/'.$template.'.template.txt';
@@ -221,8 +215,6 @@ function wrap_create_id($id_title) {
  * 
  * reads menu settings from webpages- or navigation-table, sets current page to
  * 'current_page', adds base URL if neccessary
- * global variables: 
- * $zz_setting['menu']
  *
  * @param array $page
  * @return array
@@ -231,21 +223,17 @@ function wrap_create_id($id_title) {
  *   string current_menu
  */
 function wrap_get_menu($page) {
-	global $zz_setting;
 	global $zz_page;
 	
-	if ($sql = wrap_sql('menu_hierarchy') AND !empty($zz_page['db'])) {
+	if ($sql = wrap_sql('menu_hierarchy') AND !empty($zz_page['db']))
 		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql_fields('page_id')], $sql);
-	} else {
+	else
 		$hierarchy = [];
-	}
-	if (empty($zz_setting['menu'])) 
-		$zz_setting['menu'] = 'webpages';
 	
 	$page['current_navitem'] = 0;
 	$page['current_menu'] = '';
 
-	if ($zz_setting['menu'] === 'navigation') {
+	if (wrap_setting('menu') === 'navigation') {
 		// Menu from separate navigation table
 		$menu = wrap_get_menu_navigation();
 	} else {
@@ -269,7 +257,7 @@ function wrap_get_menu($page) {
 				$menu[$id][$nav_id]['url'] = $base.$item['url'];
 			// mark current page in menus
 			$menu[$id][$nav_id]['current_page'] = 
-				($menu[$id][$nav_id]['url'] === $zz_setting['request_uri']) ? true : false;
+				($menu[$id][$nav_id]['url'] === wrap_setting('request_uri')) ? true : false;
 			if ($menu[$id][$nav_id]['current_page']) {
 				$page['current_navitem'] = $nav_id;
 				$page['current_menu'] = $id;
@@ -290,12 +278,12 @@ function wrap_get_menu($page) {
 				}
 			}
 			if (!isset($menu[$id][$nav_id]['below'])) {
-				if ($item['url'] === $zz_setting['base'].'/') {
+				if ($item['url'] === wrap_setting('base').'/') {
 					// all pages are below homepage, don't highlight this
 					$menu[$id][$nav_id]['below'] = false;
 				} else {
 					$menu[$id][$nav_id]['below']
-						= (substr($zz_setting['request_uri'], 0, ($item['url'] ? strlen($item['url']) : 0)) === $item['url']) ? true
+						= (substr(wrap_setting('request_uri'), 0, ($item['url'] ? strlen($item['url']) : 0)) === $item['url']) ? true
 						: (in_array($item[wrap_sql_fields('page_id')], $hierarchy) ? true : false);
 				}
 			}
@@ -320,7 +308,6 @@ function wrap_get_menu($page) {
  * @return array $menu: 'title', 'url', 'subtitle' (optional), 'id_title' (optional)
  */
 function wrap_get_menu_navigation() {
-	global $zz_setting;
 	global $zz_conf;
 	// no menu query, so we don't have a menu
 	if (!wrap_sql('menu')) return [];
@@ -352,7 +339,6 @@ function wrap_get_menu_navigation() {
  * @return array $menu: 'title', 'url', 'subtitle'
  */
 function wrap_get_menu_webpages() {
-	global $zz_setting;
 	// no menu query, so we don't have a menu
 	if (!$sql = wrap_sql('menu')) return []; 
 
@@ -476,13 +462,10 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
  * @param int $level: if it's a submenu, show the level of the menu
  * @param bool $avoid_duplicates avoid duplicate menus, can be set to false if
  *  for some reasons menus shall be recreated (e. g. settings differ)
- * @global array $zz_setting
- *		'main_menu', 'menu_display_submenu_items'
  * @return string HTML-Output
  */
 function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_duplicates = true) {
 	static $menus;
-	global $zz_setting;
 
 	if (!$nav) return false;
 	// avoid duplicate menus
@@ -491,17 +474,9 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		if (in_array($menu_name, $menus)) return false;
 	}
 	
-	// when to display submenu items
-	// 'all': always display all submenu items
-	// 'current': only display submenu items when item from menu branch is selected
-	// 'none'/false: never display submenu items
-	if (!isset($zz_setting['menu_display_submenu_items'])) 
-		$zz_setting['menu_display_submenu_items'] = 'current';
-
 	// no menu_name: use default menu name
-	if (!$menu_name AND wrap_get_setting('main_menu')) {
-		$menu_name = wrap_get_setting('main_menu');
-	}
+	if (!$menu_name)
+		$menu_name = wrap_setting('main_menu');
 
 	if (!$menu_name OR is_numeric($menu_name)) {
 		// if we have a separate navigation table, the $nav-array comes from
@@ -537,10 +512,10 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 	
 	// check if there's a menu defined for SESSION
 	// and add these entries to the main menu or another menu
-	if (wrap_get_setting('session_menu') AND !empty($_SESSION['logged_in'])
-		AND !empty($nav[wrap_get_setting('session_menu')])
-		AND $menu_name === wrap_get_setting('session_menu_in_menu')) {
-		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[wrap_get_setting('session_menu')]);
+	if (wrap_setting('session_menu') AND !empty($_SESSION['logged_in'])
+		AND !empty($nav[wrap_setting('session_menu')])
+		AND $menu_name === wrap_setting('session_menu_in_menu')) {
+		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[wrap_setting('session_menu')]);
 	}
 
 	// OK, finally, we just get the menu together
@@ -573,8 +548,8 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		}
 		$id .= ($id ? '-' : '').$item[$fn_page_id];
 		if (!empty($nav[$id]) // there is a submenu and at least one of:
-			AND ($zz_setting['menu_display_submenu_items'] !== 'none')
-			AND ($zz_setting['menu_display_submenu_items'] === 'all' 	// all menus shall be shown
+			AND (wrap_setting('menu_display_submenu_items') !== 'none')
+			AND (wrap_setting('menu_display_submenu_items') === 'all' 	// all menus shall be shown
 				OR $item['current_page'] 	// it's the submenu of the current page
 				OR $item['below'])) {		// it has a url one or more levels below this page
 			$item['submenu_rows'] = count($nav[$id]);
@@ -749,8 +724,6 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
  * @return string HTML output, plain linear, of breadcrumbs
  */
  function wrap_htmlout_breadcrumbs($page_id, $brick_breadcrumbs) {
-	global $zz_setting;
-	
 	// get breadcrumbs from database
 	$breadcrumbs = wrap_get_breadcrumbs($page_id);
 	if (!$breadcrumbs) return '';
@@ -777,7 +750,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($paths as $path) {
 			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
 		}
-		$current = ($base.$crumb['url_path'] === $zz_setting['request_uri'] ? true : false);
+		$current = ($base.$crumb['url_path'] === wrap_setting('request_uri') ? true : false);
 		$formatted_breadcrumbs[] = 
 			(($current OR !$crumb['url_path'])
 				? '<strong>' : '<a href="'.$base.$crumb['url_path'].'">')
@@ -785,22 +758,20 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
 	}
 	if (!$formatted_breadcrumbs) return '';
-	return implode(' '.wrap_get_setting('breadcrumbs_separator').' ', $formatted_breadcrumbs);
+	return implode(' '.wrap_setting('breadcrumbs_separator').' ', $formatted_breadcrumbs);
 }
 
 /**
  * get base URL for navigation
  * if 'language_not_in_nav' is set, remove language strings
  *
- * @global array $zz_setting
  * @return string
  */
 function wrap_nav_base() {
-	global $zz_setting;
-	if (empty($zz_setting['lang'])) return '';
-	$base = empty($zz_setting['base']) ? '' : $zz_setting['base'];
-	if (!empty($zz_setting['language_not_in_nav'])) {
-		if (substr($base, -strlen($zz_setting['lang']) - 1) === '/'. $zz_setting['lang']) {
+	if (!wrap_setting('lang')) return '';
+	$base = wrap_setting('base');
+	if (wrap_setting('language_not_in_nav')) {
+		if (substr($base, -strlen(wrap_setting('lang')) - 1) === '/'. wrap_setting('lang')) {
 			 $base = substr($base, 0, -3);
 		}
 	}
@@ -892,7 +863,7 @@ function wrap_page_h1($page) {
 		$title = $page['title'];
 	else
 		$title = $zz_page['db'][wrap_sql_fields('page_title')];
-	if (!empty($zz_setting['translate_page_title']))
+	if (wrap_setting('translate_page_title'))
 		$title = wrap_text($title);
 	return $title;
 }
@@ -909,10 +880,10 @@ function wrap_page_title($page) {
 
 	if ($zz_page['url']['full']['path'] === '/') {
 		$pagetitle = strip_tags($zz_page['db'][wrap_sql_fields('page_title')]);
-		$pagetitle = sprintf(wrap_get_setting('template_pagetitle_home'), $pagetitle, $page['project']);
+		$pagetitle = sprintf(wrap_setting('template_pagetitle_home'), $pagetitle, $page['project']);
 	} else {
 		$pagetitle = strip_tags($page['title']);
-		$pagetitle = sprintf(wrap_get_setting('template_pagetitle'), $pagetitle, $page['project']);
+		$pagetitle = sprintf(wrap_setting('template_pagetitle'), $pagetitle, $page['project']);
 	}
 	return $pagetitle;
 }
@@ -946,12 +917,10 @@ function wrap_page_check_if_error($page) {
 /**
  * puzzle page elements together
  *
- * @global array $zz_setting
  * @global array $zz_conf
  * @global array $zz_page
  */
 function wrap_get_page() {
-	global $zz_setting;
 	global $zz_conf;
 	global $zz_page;
 
@@ -964,7 +933,7 @@ function wrap_get_page() {
 		$page['text'] = wrap_template($zz_page['tpl_file']);
 		if (!$page['text']) wrap_quit(404);
 		$page['content_type'] = wrap_file_extension($zz_page['tpl_file']);
-		$zz_setting['character_set'] = wrap_detect_encoding($page['text']);
+		wrap_setting('character_set', wrap_detect_encoding($page['text']));
 		$page['status'] = 200;
 		$page['query_strings'][] = 'v';
 		$page['query_strings'][] = 'nocache';
@@ -987,10 +956,10 @@ function wrap_get_page() {
 	}
 
 	$page['status']		= 200; // Seiteninhalt vorhanden!
-	!empty($page['lang']) OR $page['lang'] = $zz_setting['lang'];
+	!empty($page['lang']) OR $page['lang'] = wrap_setting('lang');
 	$page['media']		= wrap_page_media($page);
 	$page['title']		= wrap_page_h1($page);
-	!empty($page['project']) OR $page['project'] = wrap_text(wrap_get_setting('project'));
+	!empty($page['project']) OR $page['project'] = wrap_text(wrap_setting('project'));
 	$page['pagetitle']	= wrap_page_title($page);
 	$page[wrap_sql_fields('page_last_update')] = wrap_page_last_update($page);
 	if (!empty($zz_page['db'][wrap_sql_fields('page_author_id')]))
@@ -1007,15 +976,13 @@ function wrap_get_page() {
  * @param bool $cache cache redirect, defaults to true
  */
 function wrap_redirect($location = false, $status = 302, $cache = true) {
-	global $zz_setting;
-
 	wrap_http_status_header($status);
 	$header = sprintf('Location: %s', wrap_url_expand($location));
-	$zz_setting['headers'][] = $header;
-	if ($cache AND !empty($zz_setting['cache'])
+	wrap_setting_add('headers', $header);
+	if ($cache AND wrap_setting('cache')
 		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
 		// provide cache URL since internal URL might already be rewritten
-		wrap_cache_ressource('', '', $zz_setting['host_base'].$zz_setting['request_uri']);
+		wrap_cache_ressource('', '', wrap_setting('host_base').wrap_setting('request_uri'));
 	}
 	wrap_log_uri($status);
 	wrap_cache_header();
@@ -1040,34 +1007,33 @@ function wrap_redirect_change($url = false) {
  * @return string HTML output
  */
 function wrap_htmlout_page($page) {
-	global $zz_setting;
 	global $zz_page;
 	global $zz_conf;
 
 	// if globally dont_show_h1 is set, don't show it
-	if (wrap_get_setting('dont_show_h1')) $page['dont_show_h1'] = true;
+	if (wrap_setting('dont_show_h1')) $page['dont_show_h1'] = true;
 
 	if (!isset($page['text'])) $page['text'] = '';
 	// init page
-	if (file_exists($zz_setting['custom'].'/zzbrick_page/_init.inc.php'))
-		require_once $zz_setting['custom'].'/zzbrick_page/_init.inc.php';
+	if (file_exists($file = wrap_setting('custom').'/zzbrick_page/_init.inc.php'))
+		require_once $file;
 	if (empty($page['description'])) {
 		$page['description'] = $zz_page['db']['description'] ?? '';
 	}
 
 	// bring together page output
 	// do not modify html, since this is a template
-	$zz_setting['brick_fulltextformat'] = 'brick_textformat_html';
+	wrap_setting('brick_fulltextformat', 'brick_textformat_html');
 
 	// Use different template if set in function or _init
 	if (!empty($page['template'])) {
 		if (substr($page['template'], -5) !== '-page')
 			$page['template'] .= '-page';
 		$tpl_file = wrap_template_file($page['template'], false);
-		if ($tpl_file) $zz_setting['template'] = $page['template'];
+		if ($tpl_file) wrap_setting('template', $page['template']);
 	}
 	
-	$blocks = wrap_check_blocks($zz_setting['template']);
+	$blocks = wrap_check_blocks(wrap_setting('template'));
 	if (in_array('breadcrumbs', $blocks)
 		AND (empty($page['breadcrumbs']) OR is_array($page['breadcrumbs']))) {
 		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql_fields('page_id')], $page['breadcrumbs']);
@@ -1088,7 +1054,7 @@ function wrap_htmlout_page($page) {
 	unset($page['text']);
 	foreach ($textblocks as $position => $text) {
 		// add title to page, main text block
-		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND !(wrap_get_setting('h1_via_template'))
+		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND !(wrap_setting('h1_via_template'))
 			AND $position === 'text') {
 			$text = "\n".markdown('# '.$page['title']."\n")."\n".$text;
 		}
@@ -1128,7 +1094,7 @@ function wrap_htmlout_page($page) {
 	
 	$page = wrap_page_replace($page);
 	$page = brick_head_format($page, true);
-	$text = wrap_template($zz_setting['template'], $page);
+	$text = wrap_template(wrap_setting('template'), $page);
 
 	// allow %%% notation on page with an escaping backslash
 	// but do not replace this in textareas because editing needs to be possible
@@ -1270,7 +1236,6 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
  * @return void
  */
 function wrap_page_format_files() {
-	global $zz_setting;
 	static $included;
 	if (empty($included)) {
 		$included = [];
@@ -1290,9 +1255,9 @@ function wrap_page_format_files() {
 		foreach ($new_functions as $function) {
 			if (str_starts_with($function, 'mf_'.$package.'_')) {
 				$function = substr($function, strlen('mf_'.$package.'_'));
-				$zz_setting['brick_formatting_functions_prefix'][$function] = 'mf_'.$package;
+				wrap_setting_add('brick_formatting_functions_prefix', [$function => 'mf_'.$package]);
 			}
-			$zz_setting['brick_formatting_functions'][] = $function;
+			wrap_setting_add('brick_formatting_functions', $function);
 		}
 	}
 }
@@ -1305,9 +1270,9 @@ function wrap_page_format_files() {
  * @return array
  */
 function wrap_page_replace($page) {
-	if ($function = wrap_get_setting('page_replace_function') AND function_exists($function)) {
+	$function = wrap_setting('page_replace_function');
+	if ($function AND function_exists($function))
 		$page = $function($page);
-	}
 	return $page;
 }
 

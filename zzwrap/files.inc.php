@@ -173,12 +173,10 @@ function wrap_tsv_parse($filename, $paths = '') {
  */
 
 function wrap_include_ext_libraries() {
-	global $zz_setting;
 	static $included;
 	if ($included) return true;
 
-	if (empty($zz_setting['ext_libraries'])) return false;
-	foreach ($zz_setting['ext_libraries'] as $function) {
+	foreach (wrap_setting('ext_libraries') as $function) {
 		if (file_exists($file = wrap_setting('lib').'/'.$function.'.php')) 
 			require_once $file;
 		elseif (file_exists($file = wrap_setting('lib').'/'.$function.'/'.$function.'.php'))
@@ -186,9 +184,9 @@ function wrap_include_ext_libraries() {
 		else {
 			$found = false;
 			// if library name is identical to module, just look inside module
-			$folders = in_array($function, $zz_setting['modules']) ? [$function] : $zz_setting['modules'];
+			$folders = in_array($function, wrap_setting('modules')) ? [$function] : wrap_setting('modules');
 			foreach ($folders as $module) {
-				$file = $zz_setting['modules_dir'].'/'.$module.'/libraries/'.$function.'.inc.php';
+				$file = wrap_setting('modules_dir').'/'.$module.'/libraries/'.$function.'.inc.php';
 				if (!file_exists($file)) continue;
 				require_once $file;
 				$found = true;
@@ -216,20 +214,15 @@ function wrap_include_ext_libraries() {
  * @param string $package
  * @param string $type (optional, default = module)
  * @return void
- * @global $zz_setting
  */
 function wrap_package_activate($package, $type = 'module') {
-	global $zz_setting;
-	
 	$single_type = sprintf('active_%s', $type);
 	$plural_type = sprintf('%ss', $type);
 	
-	if (empty($zz_setting[$single_type]))
-		$zz_setting[$single_type] = $package;
-	if (!isset($zz_setting['activated'][$plural_type]))
-		$zz_setting['activated'][$plural_type] = [];
-	if (!in_array($package, $zz_setting['activated'][$plural_type]))
-		$zz_setting['activated'][$plural_type][] = $package;
+	if (!wrap_setting($single_type))
+		wrap_setting($single_type, $package);
+	if (!in_array($package, wrap_setting('activated['.$plural_type.']')))
+		wrap_setting_add('activated['.$plural_type.']', $package);
 	
 	// dependencies?
 	$package_info = wrap_cfg_files('package', ['package' => $package]);
@@ -237,7 +230,7 @@ function wrap_package_activate($package, $type = 'module') {
 		foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
 			if ($dependency_type === 'module') continue;
 			foreach ($dependencies as $dependency) {
-				$zz_setting['activated'][$dependency_type][] = $dependency;
+				wrap_setting_add('activated['.$dependency_type.']', $dependency);
 			}
 		}
 	}

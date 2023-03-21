@@ -38,7 +38,7 @@ function wrap_set_defaults() {
 	$module_config_included = wrap_include_files('./config', 'modules');
 	// module config will overwrite standard config
 	// so make it possible to overwrite module config
-	if ($module_config_included AND file_exists($file = $zz_setting['inc'].'/config-modules.inc.php'))
+	if ($module_config_included AND file_exists($file = wrap_setting('inc').'/config-modules.inc.php'))
 		require_once $file;
 }
 
@@ -135,7 +135,6 @@ function wrap_set_defaults_pre_conf() {
 	// Caching	
 	$zz_setting['cache']		= true;
 	$zz_setting['cache_dir']	= $zz_setting['cms_dir'].'/_cache';
-	$zz_setting['cache_age']	= 10;
 	if ($zz_setting['local_access']) {
 		$zz_setting['cache_age']	= 1;
 	}
@@ -149,19 +148,10 @@ function wrap_set_defaults_pre_conf() {
 	// Logfiles
 	$zz_setting['log_dir']		= $zz_setting['cms_dir'].'/_logs';
 
-// -------------------------------------------------------------------------
-// Modules
-// -------------------------------------------------------------------------
-
-	// modules
-	$zz_setting['ext_libraries'][] = 'markdown-extra';
 
 // -------------------------------------------------------------------------
 // Page
 // -------------------------------------------------------------------------
-
-	// Use redirects table / Umleitungs-Tabelle benutzen
-	$zz_setting['check_redirects'] = true;
 
 	// zzbrick: brick types
 	$zz_setting['brick_types_translated']['tables'] = 'forms';
@@ -189,9 +179,6 @@ function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	$zz_conf['prefix']			= ''; // prefix for all database tables
-	$zz_setting['unwanted_mysql_modes'] = [
-		'NO_ZERO_IN_DATE'
-	];
 
 // -------------------------------------------------------------------------
 // Error Logging, Mail
@@ -202,13 +189,6 @@ function wrap_set_defaults_pre_conf() {
 	if (!$zz_setting['local_access'])
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
-
-// -------------------------------------------------------------------------
-// Authentication
-// -------------------------------------------------------------------------
-
-	// minutes until you will be logged out automatically while inactive
-	$zz_setting['logout_inactive_after'] = 30;
 
 // -------------------------------------------------------------------------
 // Language, character set
@@ -372,121 +352,80 @@ function wrap_set_defaults_post_conf() {
 	if (function_exists('mb_internal_encoding')) {
 		// (if PHP does not know character set, will default to
 		// ISO-8859-1)
-		mb_internal_encoding(strtoupper($zz_setting['character_set']));
+		mb_internal_encoding(strtoupper(wrap_setting('character_set')));
 	}
-	if (empty($zz_setting['language_translations'])) {
-		// fields in table languages.language_xx
-		$zz_setting['language_translations'] = ['en', 'de', 'fr'];
-	}
-	if (!empty($zz_setting['timezone']))
-		date_default_timezone_set($zz_setting['timezone']);
+	if (wrap_setting('timezone'))
+		date_default_timezone_set(wrap_setting('timezone'));
 
 	// -------------------------------------------------------------------------
 	// Request method
 	// -------------------------------------------------------------------------
 	
-	if (empty($zz_setting['http']['allowed'])) {
-		if (!wrap_is_dav_url()) {
-			$zz_setting['http']['allowed'] = ['GET', 'HEAD', 'POST', 'OPTIONS'];
-		} else {
-			$zz_setting['http']['allowed'] = [
+	if (!wrap_setting('http[allowed]')) {
+		if (!wrap_is_dav_url())
+			wrap_setting('http[allowed]', ['GET', 'HEAD', 'POST', 'OPTIONS']);
+		else
+			wrap_setting('http[allowed]', [
 				'GET', 'HEAD', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'PROPFIND',
 				'PROPPATCH', 'MKCOL', 'COPY', 'MOVE', 'LOCK', 'UNLOCK'
-			];
-		}
+			]);
 	} else {
 		// The following REQUEST methods must always be allowed in general:
-		if (!in_array('GET', $zz_setting['http']['allowed']))
-			$zz_setting['http']['allowed'][] = 'GET';
-		if (!in_array('HEAD', $zz_setting['http']['allowed']))
-			$zz_setting['http']['allowed'][] = 'HEAD';
+		if (!in_array('GET', wrap_setting('http[allowed]')))
+			wrap_setting_add('http[allowed]', 'GET');
+		if (!in_array('HEAD', wrap_setting('http[allowed]')))
+			wrap_setting_add('http[allowed]', 'HEAD');
 	}
-	if (empty($zz_setting['http']['not_allowed'])) {
-		if (!wrap_is_dav_url()) {
-			$zz_setting['http']['not_allowed'] = ['PUT', 'DELETE', 'TRACE', 'CONNECT'];
-		} else {
-			$zz_setting['http']['not_allowed'] = ['TRACE', 'CONNECT'];
-		}
+	if (!wrap_setting('http[not_allowed]')) {
+		if (!wrap_is_dav_url())
+			wrap_setting('http[not_allowed]', ['PUT', 'DELETE', 'TRACE', 'CONNECT']);
+		else
+			wrap_setting('http[not_allowed]', ['TRACE', 'CONNECT']);
 	}
 
 	// -------------------------------------------------------------------------
 	// URLs
 	// -------------------------------------------------------------------------
 
-	if (empty($zz_setting['homepage_url']))
-		$zz_setting['homepage_url']	= $zz_setting['base_path'].'/';
-	if (empty($zz_setting['login_url']))
-		$zz_setting['login_url']	= $zz_setting['base_path'].'/login/';
-	if (empty($zz_setting['logout_url']))
-		$zz_setting['logout_url']	= $zz_setting['base_path'].'/logout/';
-	if (empty($zz_setting['login_entryurl']))
-		$zz_setting['login_entryurl'] = $zz_setting['base_path'].'/';
-
-
 	// HTML paths, relative to DOCUMENT_ROOT
-	if (empty($zz_setting['layout_path']))
-		$zz_setting['layout_path'] = $zz_setting['base_path'].'/_layout';
-	if (empty($zz_setting['behaviour_path']))
-		$zz_setting['behaviour_path'] = $zz_setting['base_path'].'/_behaviour';
-	if (empty($zz_setting['files_path']))
-		$zz_setting['files_path'] = $zz_setting['base_path'].'/files';
-	if (!isset($zz_setting['dont_negotiate_language_paths'])) {
-		$zz_setting['dont_negotiate_language_paths'] = [
-			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
-			$zz_setting['files_path'], '/robots.txt'
-		];
+	if (is_null(wrap_setting('dont_negotiate_language_paths'))) {
+		wrap_setting('dont_negotiate_language_paths', [
+			wrap_setting('layout_path'), wrap_setting('behaviour_path'),
+			wrap_setting('files_path'), '/robots.txt'
+		]);
 	}
-	if (!isset($zz_setting['icon_paths'])) {
-		$zz_setting['icon_paths'] = [
-			$zz_setting['base_path'].'/apple-touch-icon.png',
-			$zz_setting['base_path'].'/favicon.ico',
-			$zz_setting['base_path'].'/favicon.png',
-			$zz_setting['base_path'].'/opengraph.png'
-		];
-	}
-	$zz_setting['dont_negotiate_language_paths'] =
-		array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['icon_paths']);
-	if (isset($zz_setting['extra_dont_negotiate_language_paths'])) {
-		$zz_setting['dont_negotiate_language_paths'] =
-			array_merge($zz_setting['dont_negotiate_language_paths'], $zz_setting['extra_dont_negotiate_language_paths']);
-	}
-	if (!isset($zz_setting['ignore_scheme_paths'])) {
-		$zz_setting['ignore_scheme_paths'] = [
-			$zz_setting['layout_path'], $zz_setting['behaviour_path'],
-			$zz_setting['files_path']
-		];
-	}
+	wrap_setting_add('dont_negotiate_language_paths', wrap_setting('icon_paths'));
+	if (wrap_setting('extra_dont_negotiate_language_paths'))
+		wrap_setting_add('dont_negotiate_language_paths', wrap_setting('extra_dont_negotiate_language_paths'));
 	
 	// -------------------------------------------------------------------------
 	// HTTP, Hostname, Access via HTTPS or not
 	// -------------------------------------------------------------------------
 	
-	if (empty($zz_setting['https'])) $zz_setting['https'] = false;
 	// HTTPS; zzwrap authentication will always be https
-	if (empty($zz_setting['https_urls'])) $zz_setting['https_urls'] = [];
-	// Logout must go via HTTPS because of secure cookie
-	$zz_setting['https_urls'][] = $zz_setting['logout_url'];
-	$zz_setting['https_urls'][] = $zz_setting['login_url'];
-	if (!empty($zz_setting['auth_urls'])) {
-		$zz_setting['https_urls'] = array_merge($zz_setting['https_urls'], $zz_setting['auth_urls']);
+	if (!in_array('/', wrap_setting('https_urls'))) {
+		// Logout must go via HTTPS because of secure cookie
+		wrap_setting_add('https_urls', wrap_setting('logout_url'));
+		wrap_setting_add('https_urls', wrap_setting('login_url'));
+		wrap_setting_add('https_urls', wrap_setting('auth_urls'));
 	}
-	foreach ($zz_setting['https_urls'] AS $url) {
+	foreach (wrap_setting('https_urls') AS $url) {
 		// check language strings
-		// @todo: add support for language strings at some other position of the URL
-		$languages = $zz_setting['languages_allowed'] ?? [];
+		// @todo add support for language strings at some other position of the URL
+		$languages = wrap_setting('languages_allowed');
 		$languages[] = ''; // without language string should be checked always
 		foreach ($languages as $lang) {
 			if ($lang) $lang = '/'.$lang;
-			if ($zz_setting['base'].$lang.strtolower($url) 
-				== substr(strtolower($_SERVER['REQUEST_URI']), 0, strlen($zz_setting['base'].$lang.$url))) {
-				$zz_setting['https'] = true;
+			if (wrap_setting('base').$lang.strtolower($url) 
+				== substr(strtolower($_SERVER['REQUEST_URI']), 0, strlen(wrap_setting('base').$lang.$url))) {
+				wrap_setting('https', true);
 			}
 		}
 	}
 	// local (development) connections are never made via https
-	if (!empty($zz_setting['local_access']) AND empty($zz_setting['local_https'])) {
-		$zz_setting['https'] = false;
-		$zz_setting['no_https'] = true;
+	if (wrap_setting('local_access') AND !wrap_setting('local_https')) {
+		wrap_setting('https', false);
+		wrap_setting('no_https', true);
 	}
 	// connections from local don't need to go via https
 	// makes it easier for some things
@@ -494,30 +433,24 @@ function wrap_set_defaults_post_conf() {
 		OR $_SERVER['REMOTE_ADDR'] === '::1'
 		OR (!empty($_SERVER['SERVER_ADDR']) AND $_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR'])) {
 		// don't set https to false, just allow non-https connections
-		$zz_setting['ignore_scheme'] = true; 
+		wrap_setting('ignore_scheme', true); 
 	}
 	// explicitly do not want https even for authentication (not recommended)
-	if (!empty($zz_setting['no_https'])) $zz_setting['https'] = false;
-	else $zz_setting['no_https'] = false;
+	if (wrap_setting('no_https')) wrap_setting('https', false);
 	
 	// allow to choose manually whether one uses https or not
-	if (!isset($zz_setting['ignore_scheme'])) $zz_setting['ignore_scheme'] = false;
-	if ($zz_setting['ignore_scheme'])
-		$zz_setting['https'] = wrap_https();
+	if (wrap_setting('ignore_scheme'))
+		wrap_setting('https', wrap_https());
 
-	if (!isset($zz_setting['session_secure_cookie'])) {
-		$zz_setting['session_secure_cookie'] = true;
-	}
-	if ($zz_setting['no_https'] OR !$zz_setting['https']) {
-		$zz_setting['session_secure_cookie'] = false;
-	}
+	if (wrap_setting('no_https') OR !wrap_setting('https'))
+		wrap_setting('session_secure_cookie', false);
 
-	if (empty($zz_setting['protocol']))
-		$zz_setting['protocol'] 	= 'http'.($zz_setting['https'] ? 's' : '');
-	if (empty($zz_setting['host_base'])) {
-		$zz_setting['host_base'] 	= $zz_setting['protocol'].'://'.$zz_setting['hostname'];
+	if (!wrap_setting('protocol'))
+		wrap_setting('protocol', 'http'.(wrap_setting('https') ? 's' : ''));
+	if (!wrap_setting('host_base')) {
+		wrap_setting('host_base', wrap_setting('protocol').'://'.wrap_setting('hostname'));
 		if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
-			$zz_setting['host_base'] .= sprintf(':%s', $_SERVER['SERVER_PORT']);
+			wrap_setting('host_base', wrap_setting('host_base').sprintf(':%s', $_SERVER['SERVER_PORT']));
 		}
 	}
 
@@ -526,81 +459,70 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 
 	// customized access rights checks
-	if (empty($zz_setting['custom_rights_dir'])) {
-		if (!empty($zz_setting['default_rights'])) {
-			$path = sprintf('%s/default/zzbrick_rights/%s', $zz_setting['modules_dir'], $zz_setting['default_rights']);
+	if (!wrap_setting('custom_rights_dir')) {
+		if (wrap_setting('default_rights')) {
+			$path = sprintf('%s/default/zzbrick_rights/%s', wrap_setting('modules_dir'), wrap_setting('default_rights'));
 			if (is_dir($path))
-				$zz_setting['custom_rights_dir'] = $path;
+				wrap_setting('custom_rights_dir', $path);
 		}
-		if (empty($zz_setting['custom_rights_dir']))
-			$zz_setting['custom_rights_dir'] = $zz_setting['custom'].'/zzbrick_rights';
+		if (!wrap_setting('custom_rights_dir'))
+			wrap_setting('custom_rights_dir', wrap_setting('custom').'/zzbrick_rights');
 	}
-	$file = $zz_setting['custom_rights_dir'].'/access_rights.inc.php';
+	$file = wrap_setting('custom_rights_dir').'/access_rights.inc.php';
 	if (file_exists($file)) include_once $file;
 
-	if (!empty($zz_setting['cache_dir'])) {
-		$zz_setting['cache_dir_zz'] = empty($zz_setting['cache_directories'])
-			? $zz_setting['cache_dir'] : $zz_setting['cache_dir'].'/d';
+	if (wrap_setting('cache_dir')) {
+		wrap_setting('cache_dir_zz', !wrap_setting('cache_directories')
+			? wrap_setting('cache_dir') : wrap_setting('cache_dir').'/d');
 	}
 
 	// cms core
-	$zz_setting['core']			= __DIR__;
+	wrap_setting('core', __DIR__);
 	
 	// zzform path
 	if (empty($zz_conf['dir']))
-		if (file_exists($dir = $zz_setting['modules_dir'].'/zzform/zzform')) {
+		if (file_exists($dir = wrap_setting('modules_dir').'/zzform/zzform')) {
 			$zz_conf['dir']				= $dir;
 		}
 	if (empty($zz_conf['dir_custom']))
-		$zz_conf['dir_custom']		= $zz_setting['custom'].'/zzform';
+		$zz_conf['dir_custom']		= wrap_setting('custom').'/zzform';
 	if (empty($zz_conf['dir_inc']))
 		$zz_conf['dir_inc']			= $zz_conf['dir'];
 	
 	// zzform db scripts
 	if (empty($zz_conf['form_scripts']))
-		$zz_conf['form_scripts']	= $zz_setting['custom'].'/zzbrick_tables';
+		$zz_conf['form_scripts']	= wrap_setting('custom').'/zzbrick_tables';
 	
 	// local pwd
-	if (empty($zz_setting['local_pwd']))
-		if (file_exists($zz_setting['cms_dir'].'/pwd.json'))
-			$zz_setting['local_pwd'] = $zz_setting['cms_dir'].'/pwd.json';
+	if (!wrap_setting('local_pwd'))
+		if (file_exists(wrap_setting('cms_dir').'/pwd.json'))
+			wrap_setting('local_pwd', wrap_setting('cms_dir').'/pwd.json');
 		else
-			$zz_setting['local_pwd'] = $zz_setting['cms_dir'].'/../pwd.json';
+			wrap_setting('local_pwd', wrap_setting('cms_dir').'/../pwd.json');
 
-	if (!is_dir($zz_setting['tmp_dir'])) {
-		$success = wrap_mkdir($zz_setting['tmp_dir']);
+	if (!is_dir(wrap_setting('tmp_dir'))) {
+		$success = wrap_mkdir(wrap_setting('tmp_dir'));
 		if (!$success) {
-			wrap_error(sprintf('Temp directory %s does not exist.', $zz_setting['tmp_dir']));
-			$zz_setting['tmp_dir'] = false;
+			wrap_error(sprintf('Temp directory %s does not exist.', wrap_setting('tmp_dir')));
+			wrap_setting('tmp_dir', false);
 			if ($dir = ini_get('upload_tmp_dir')) {
-				if ($dir AND is_dir($dir)) $zz_setting['tmp_dir'] = $dir;
+				if ($dir AND is_dir($dir)) wrap_setting('tmp_dir', $dir);
 			}
 		}
 	}
-	
-	// cainfo
-	// Certficates are bundled with CURL from 7.10 onwards, PHP 5 requires at least 7.10
-	// so there should be currently no need to include an own PEM file
-	// if (empty($zz_setting['cainfo_file']))
-	//	$zz_setting['cainfo_file'] = __DIR__.'/cacert.pem';
 	
 	// -------------------------------------------------------------------------
 	// Error Logging
 	// -------------------------------------------------------------------------
 	
-	if (!isset($zz_setting['error_mail_parameters']) AND isset($zz_setting['error_mail_from']))
-		$zz_setting['error_mail_parameters'] = '-f '.$zz_setting['error_mail_from'];
+	if (is_null(wrap_setting('error_mail_parameters')) AND wrap_setting('error_mail_from'))
+		wrap_setting('error_mail_parameters', '-f '.wrap_setting('error_mail_from'));
 
 
 	// -------------------------------------------------------------------------
 	// Page
 	// -------------------------------------------------------------------------
 	
-	// project title, default
-	// (will occur only if database connection fails and json does not exist)
-	if (!isset($zz_setting['project']))
-		$zz_setting['project'] = $zz_setting['hostname'];
-
 	// translations
 	if (!isset($zz_conf['translations_of_fields']))
 		$zz_conf['translations_of_fields'] = false;
@@ -618,16 +540,9 @@ function wrap_set_defaults_post_conf() {
 	}
 	
 	// Theme
-	if (!empty($zz_setting['active_theme']))
-		wrap_package_activate($zz_setting['active_theme'], 'theme');
-	else
-		$zz_setting['active_theme'] = '';
+	if (wrap_setting('active_theme'))
+		wrap_package_activate(wrap_setting('active_theme'), 'theme');
 	
-	// Page template
-	if (empty($zz_setting['template'])) {
-		$zz_setting['template'] = 'page';
-	}
-
 	// -------------------------------------------------------------------------
 	// Debugging
 	// -------------------------------------------------------------------------
@@ -639,25 +554,17 @@ function wrap_set_defaults_post_conf() {
 	// Authentication
 	// -------------------------------------------------------------------------
 	
-	if ($zz_setting['local_access']) {
-		$zz_setting['logout_inactive_after'] *= 20;
-	}
+	if (wrap_setting('local_access'))
+		wrap_setting('logout_inactive_after', wrap_setting('logout_inactive_after') * 20);
 	
 	
 	// -------------------------------------------------------------------------
 	// Mail
 	// -------------------------------------------------------------------------
 	
-	if (!isset($zz_setting['mail_header_eol']))
-		$zz_setting['mail_header_eol'] = "\r\n";
+	if (is_null(wrap_setting('mail_header_eol')))
+		wrap_setting('mail_header_eol', "\r\n");
 
-	// -------------------------------------------------------------------------
-	// Libraries
-	// -------------------------------------------------------------------------
-
-	if (empty($zz_setting['ext_libraries']) OR !in_array('zzbrick', $zz_setting['ext_libraries'])) {
-		$zz_setting['ext_libraries'][] = 'zzbrick';
-	}
 
 }
 
@@ -667,15 +574,14 @@ function wrap_set_defaults_post_conf() {
  * @return bool
  */
 function wrap_tests() {
-	global $zz_setting;
 	// check if cache directory exists
-	if (!empty($zz_setting['cache'])) {
-		if (!file_exists($zz_setting['cache_dir'])) {
+	if (wrap_setting('cache')) {
+		if (!file_exists(wrap_setting('cache_dir'))) {
 			wrap_error(sprintf('Cache directory %s does not exist. Caching disabled.', 
-				$zz_setting['cache_dir']), E_USER_WARNING);
-			$zz_setting['cache'] = '';
+				wrap_setting('cache_dir')), E_USER_WARNING);
+			wrap_setting('cache', false);
 		}
-		// @todo: not is writable
+		// @todo not is writable
 	}
 	return true;
 }
@@ -687,11 +593,7 @@ function wrap_tests() {
  * @return bool
  */
 function wrap_is_dav_url() {
-	global $zz_setting;
-	if (empty($zz_setting['dav_url'])) return false;
-	// no str_starts_with() here, function is not yet loaded
-	if (substr($_SERVER['REQUEST_URI'], 0, strlen($zz_setting['dav_url'])) === $zz_setting['dav_url']) {
-		return true;
-	}
+	if (!wrap_setting('dav_url')) return false;
+	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('dav_url'))) return true;
 	return false;
 }

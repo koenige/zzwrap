@@ -4,11 +4,11 @@
  * zzwrap
  * Main function
  *
- * Part of »Zugzwang Project«
+ * Part of Â»Zugzwang ProjectÂ«
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright Â© 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -46,8 +46,8 @@ function zzwrap() {
 
 	wrap_tests();
 	wrap_config('write');
-	if (!empty($zz_setting['multiple_websites']))
-		wrap_config('write', $zz_setting['site']);
+	if (wrap_setting('multiple_websites'))
+		wrap_config('write', wrap_setting('site'));
 
 	// local modifications to SQL queries
 	// may need db connection
@@ -55,7 +55,7 @@ function zzwrap() {
 	wrap_sql('page', 'set');
 	
 	// check HTTP request, build URL, set language according to URL and request
-	wrap_check_request(); // affects $zz_page, $zz_setting
+	wrap_check_request(); // affects $zz_page
 
 	// errorpages
 	// only if accessed without rewriting, 'code' may be used as a query string
@@ -73,18 +73,18 @@ function zzwrap() {
 	wrap_check_db_connection();
 	
 	// page offline?
-	if (!empty($zz_setting['site_offline'])) {
-		if ($tpl = wrap_get_setting('site_offline_template')) {
-			$zz_setting['template'] = $tpl;
+	if (wrap_setting('site_offline')) {
+		if ($tpl = wrap_setting('site_offline_template')) {
+			wrap_setting('template', $tpl);
 		}
 		wrap_quit(503, wrap_text('This page is currently offline.'));
 		exit;
 	}
 
-	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
-	// Veröffentlichung freigegebene Seiten angeschaut werden können.
-	if (!empty($zz_setting['secret_key']) AND !wrap_rights('preview'))
-		wrap_rights('preview', 'set', wrap_test_secret_key($zz_setting['secret_key']));
+	// Secret Key fÃ¼r Vorschaufunktion, damit auch noch nicht zur
+	// VerÃ¶ffentlichung freigegebene Seiten angeschaut werden kÃ¶nnen.
+	if (wrap_setting('secret_key') AND !wrap_rights('preview'))
+		wrap_rights('preview', 'set', wrap_test_secret_key(wrap_setting('secret_key')));
 
 	$zz_page['db'] = wrap_look_for_page($zz_page);
 	wrap_language_redirect();
@@ -92,16 +92,15 @@ function zzwrap() {
 	// Functions which might be executed always, before possible login
 	wrap_include_files('start');
 	
-	if (wrap_get_setting('authentication_possible')) {
+	if (wrap_setting('authentication_possible')) {
 		wrap_auth();
 		wrap_access_page($zz_page['db']['parameters'] ?? '');
 	}
 	wrap_check_https($zz_page);
 
 	// @todo check if we can start this earlier
-	if (!empty($zz_setting['cache_age'])) {
-		wrap_send_cache($zz_setting['cache_age']);
-	}
+	if (wrap_setting('cache_age'))
+		wrap_send_cache(wrap_setting('cache_age'));
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
@@ -115,7 +114,7 @@ function zzwrap() {
 		$zz_page = wrap_ressource_by_url($zz_page);
 	}
 	
-	wrap_set_encoding($zz_setting['character_set']);
+	wrap_set_encoding(wrap_setting('character_set'));
 	wrap_translate_page();
 	wrap_set_units();
 	if (!empty($_SESSION['logged_in'])) session_write_close();
@@ -130,8 +129,6 @@ function zzwrap() {
  * includes required files for zzwrap
  */
 function wrap_includes() {
-	global $zz_setting;
-
 	// function library scripts
 	require_once __DIR__.'/errorhandling.inc.php';
 	require_once __DIR__.'/database.inc.php';
@@ -149,7 +146,7 @@ function wrap_includes() {
  * includes required files for zzwrap
  */
 function wrap_includes_postconf() {
-	if (wrap_get_setting('authentication_possible'))
+	if (wrap_setting('authentication_possible'))
 		require_once __DIR__.'/auth.inc.php';
 }
 
@@ -162,7 +159,6 @@ function wrap_includes_postconf() {
  * @return array
  */
 function wrap_ressource_by_url($zz_page, $quit = true) {
-	global $zz_setting;
 	$well_known = wrap_well_known_url($zz_page['url']['full']);
 	if ($well_known) {
 		$zz_page['well_known'] = $well_known;
@@ -170,7 +166,7 @@ function wrap_ressource_by_url($zz_page, $quit = true) {
 		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
 		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
 		if (!empty($_GET['lang']) AND in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list'))))
-			$zz_setting['lang'] = $_GET['lang'];
+			wrap_setting('lang', $_GET['lang']);
 	}
 	return $zz_page;
 }

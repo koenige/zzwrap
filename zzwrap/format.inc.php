@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2022 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -91,7 +91,7 @@ function wrap_detect_encoding($data) {
 /**
  * set internal character encoding for mulitbyte functions
  *
- * @param string $character_encoding ($zz_setting['character_set'])
+ * @param string $character_encoding (setting 'character_set')
  * @return bool
  */
 function wrap_set_encoding($character_encoding) {
@@ -121,11 +121,10 @@ function wrap_set_encoding($character_encoding) {
  * @return string
  */
 function wrap_filename($str, $spaceChar = '-', $replacements = []) {
-	global $zz_setting;
 	static $characters;
 
 	if (!$characters) {
-		$data = file($zz_setting['core'].'/transliteration-characters.tsv');
+		$data = file(__DIR__.'/transliteration-characters.tsv');
 		foreach ($data as $line) {
 			if (!trim($line)) continue;
 			if (substr($line, 0, 1) === '#') continue;
@@ -174,7 +173,7 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	// require at least one character
 	if (!$_str) $_str = $spaceChar;
 
-	wrap_set_encoding($zz_setting['character_set']);
+	wrap_set_encoding(wrap_setting('character_set'));
 	return $_str;
 }
 
@@ -213,14 +212,13 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @return string
  */
 function wrap_date($date, $format = false) {
-	global $zz_setting;
 	if (!$date) return '';
 
-	if (!$format AND isset($zz_setting['date_format']))
-		$format = $zz_setting['date_format'];
+	if (!$format AND !is_null(wrap_setting('date_format')))
+		$format = wrap_setting('date_format');
 	if (!$format) {
 		wrap_error('Please set at least a default format for wrap_date().
-			via $zz_setting["date_format"] = "dates-de" or so');
+			via setting "date_format" = "dates-de" or so');
 		return $date;
 	}
 	
@@ -457,14 +455,10 @@ function wrap_print($array, $color = 'FFF', $html = true) {
  * @return string
  */
 function wrap_number($number, $format = false) {
-	global $zz_setting;
 	global $zz_conf;
 	if (!$number AND $number !== '0' AND $number !== 0) return '';
 
-	if (!$format AND isset($zz_setting['number_format']))
-		$format = $zz_setting['number_format'];
-	if (!$format)
-		$format = 'simple';
+	if (!$format) $format = wrap_setting('number_format');
 	
 	switch ($format) {
 	case 'roman->arabic':
@@ -566,10 +560,7 @@ function wrap_money($number, $format = false) {
 }
 
 function wrap_money_format($number, $format = false) {
-	if (!$format) {
-		global $zz_setting;
-		$format = $zz_setting['lang'];
-	}
+	if (!$format) $format = wrap_setting('lang');
 	if (!is_numeric($number)) return $number;
 	switch ($format) {
 	case 'de':
@@ -608,15 +599,13 @@ function wrap_currency($currency) {
  *
  * @param string $string
  * @return string
- * @global array $zz_setting
  */
 function wrap_html_escape($string) {
-	global $zz_setting;
 	// overwrite default character set UTF-8 because htmlspecialchars will
 	// return NULL if character set is unknown
-	switch ($zz_setting['character_set']) {
+	switch (wrap_setting('character_set')) {
 		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
-		default: $character_set = $zz_setting['character_set']; break;
+		default: $character_set = wrap_setting('character_set'); break;
 	}
 	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
 	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
@@ -798,10 +787,9 @@ function wrap_longitude($value) {
  * @return string
  */
 function wrap_normalize($input) {
-	global $zz_setting;
 	static $replacements;
 
-	if ($zz_setting['character_set'] !== 'utf-8') return $input;
+	if (wrap_setting('character_set') !== 'utf-8') return $input;
 	if (!$input) return $input;
 	if (is_numeric($input)) return $input;
 	if (!is_string($input)) return $input; // e. g. subrecords
@@ -909,11 +897,7 @@ function wrap_time($time, $format = false) {
  * @return string
  */
 function wrap_duration($duration, $unit = 'second', $format = '') {
-	global $zz_setting;
-	if (!$format AND isset($zz_setting['duration_format']))
-		$format = $zz_setting['duration_format'];
-	else
-		$format = 'long';
+	if (!$format) $format = wrap_setting('duration_format');
 
 	$data = [
 		'year' => 0, 'week' => 0, 'day' => 0,
@@ -975,7 +959,7 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
  * return weekday abbreviation for a given day of the week starting with Sunday = 1
  *
  * @param string $day
- * @param string $lang (optional, uses $zz_setting['lang'] as default)
+ * @param string $lang (optional, uses setting 'lang' as default)
  * @return string
  */
 function wrap_weekday($day, $lang = '') {
@@ -996,7 +980,7 @@ function wrap_weekday($day, $lang = '') {
  *
  * @param array $data data indexed by ID
  * @param array $fields list with name of fields
- * @param string $lang (optional, uses $zz_setting['lang'] as default)
+ * @param string $lang (optional, uses setting 'lang' as default)
  * @return array
  */
 function wrap_weekdays($data, $fields, $lang) {
@@ -1017,8 +1001,6 @@ function wrap_weekdays($data, $fields, $lang) {
  * @return string $text
  */
 function wrap_typo_cleanup($text, $lang = '') {
-	global $zz_setting;
-
 	if (!trim($text)) return $text;
 	$new_text = '';
 	$skip = 0;
@@ -1029,16 +1011,12 @@ function wrap_typo_cleanup($text, $lang = '') {
 	$is_url = false;
 
 	if (!$lang) {
-		if (!empty($zz_setting['default_source_language']))
-			$lang = $zz_setting['default_source_language'];
+		if (wrap_setting('default_source_language'))
+			$lang = wrap_setting('default_source_language');
 		else
-			$lang = $zz_setting['lang'];
+			$lang = wrap_setting('lang');
 	}
-	if (empty($zz_setting['quotation_marks'][$lang])) {
-		$quotation_marks_format = $lang;
-	} else {
-		$quotation_marks_format = $zz_setting['quotation_marks'][$lang];
-	}
+	$quotation_marks_format = wrap_setting('quotation_marks['.$lang.']') ?? $lang;
 
 	switch ($quotation_marks_format) {
 	case 'de':
@@ -1227,11 +1205,9 @@ function wrap_typo_cleanup($text, $lang = '') {
  * @return string
  */
 function wrap_placeholder($placeholder) {
-	global $zz_setting;
-
 	switch ($placeholder) {
 	case 'mysql_date_format':
-		switch ($zz_setting['lang']) {
+		switch (wrap_setting('lang')) {
 			case 'de': return '%d.%m.%Y';
 			case 'en': return '%d/%m/%Y';
 			default: return '%Y-%m-%d';
