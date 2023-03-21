@@ -22,8 +22,7 @@
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
  *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end'
- * @global array $zz_conf cofiguration settings
- *		'debug'
+ * @global array $zz_conf
  * @global array $zz_page
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
@@ -113,7 +112,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		if ($settings['log_post_data']) wrap_log('postdata', 'notice', 'zzwrap');
 	}
 		
-	if (!empty($zz_conf['debug']))
+	if (wrap_setting('debug'))
 		wrap_setting('error_handling', 'output');
 
 	switch (wrap_setting('error_handling')) {
@@ -223,7 +222,6 @@ function wrap_error_summary($line = '', $error_level = '', $prefix_line = false)
  * @param array $page
  * @param array $zz_page
  * @param bool $log_errors whether errors shall be logged or not
- * @global array $zz_conf
  */ 
 function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	global $zz_page;

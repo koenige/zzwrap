@@ -2968,8 +2968,7 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
  */
 function wrap_setting_log_missing($key, $cfg) {
 	global $zz_setting;
-	global $zz_conf;
-	if (empty($zz_conf['debug'])) return;
+	if (empty($zz_setting['debug'])) return;
 
 	$base_key = $key;
 	if ($pos = strpos($base_key, '[')) $base_key = substr($base_key, 0, $pos);
@@ -3204,7 +3203,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
  * @param array $headers
  * @param string $method
  * @param array $data
- * @param string $username (optional, $zz_conf/SESSION['username'] will be used unless set)
+ * @param string $username (optional)
  * @return array from wrap_syndication_retrieve_via_http()
  */
 

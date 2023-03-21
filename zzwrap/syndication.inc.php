@@ -411,8 +411,6 @@ function wrap_syndication_geocode($address) {
  *		array $data
  */
 function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
-	global $zz_conf;
-
 	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
@@ -458,7 +456,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		// @todo add some method to avoid timeouts because of slow name lookups
 		$protocol = substr($url, 0, strpos($url, ':'));
 		$ch = curl_init();
-		if ($zz_conf['debug']) {
+		if (wrap_setting('debug')) {
 			$f = fopen(wrap_setting('tmp_dir').'/curl-request-'.time().'.txt', 'w');
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
 			curl_setopt($ch, CURLOPT_STDERR, $f);
@@ -523,10 +521,10 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			// curl_setopt($ch, CURLOPT_CAINFO, wrap_setting('cainfo_file'));
 		}
 		$data = curl_exec($ch);
-		if ($zz_conf['debug']) fclose($f);
+		if (wrap_setting('debug')) fclose($f);
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($timeout_ignore) {
-			if ($zz_conf['debug']) {
+			if (wrap_setting('debug')) {
 				$info = curl_getinfo($ch);
 				wrap_error('JSON '.json_encode($info));
 			}

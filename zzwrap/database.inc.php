@@ -194,7 +194,7 @@ function wrap_db_prefix($sql) {
  */
 function wrap_db_query($sql, $error = E_USER_ERROR) {
 	global $zz_conf;
-	if (!empty($zz_conf['debug'])) {
+	if (wrap_setting('debug')) {
 		$time = microtime(true);
 	}
 	if (!$zz_conf['db_connection']) return false;
@@ -207,7 +207,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 
 	$sql = wrap_db_prefix($sql);
 	$result = mysqli_query($zz_conf['db_connection'], $sql);
-	if (!empty($zz_conf['debug'])) {
+	if (wrap_setting('debug')) {
 		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
 	}
