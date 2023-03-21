@@ -106,16 +106,6 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['remote_ip'] = wrap_http_remote_ip();
 
 // -------------------------------------------------------------------------
-// Paths
-// -------------------------------------------------------------------------
-
-	// Temporary data
-	$zz_setting['tmp_dir']		= $zz_setting['cms_dir'].'/_temp';
-
-	// Logfiles
-	$zz_setting['log_dir']		= $zz_setting['cms_dir'].'/_logs';
-
-// -------------------------------------------------------------------------
 // Database
 // -------------------------------------------------------------------------
 
@@ -125,18 +115,9 @@ function wrap_set_defaults_pre_conf() {
 // Error Logging, Mail
 // -------------------------------------------------------------------------
 
-	if ($zz_setting['local_access'])
-		$zz_setting['error_handling']	= 'output';
 	if (!$zz_setting['local_access'])
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
-
-// -------------------------------------------------------------------------
-// Language, character set
-// -------------------------------------------------------------------------
-
-	$zz_setting['lang'] = '';
-	$zz_setting['character_set'] = 'utf-8';
 
 }
 
@@ -499,6 +480,7 @@ function wrap_set_defaults_post_conf() {
 		wrap_setting('logout_inactive_after', wrap_setting('logout_inactive_after') * 20);
 		wrap_setting('cache_age', 1);
 		wrap_setting('gzip_encode', 0);
+		wrap_setting('error_handling', 'output');
 	}
 	
 	// -------------------------------------------------------------------------
