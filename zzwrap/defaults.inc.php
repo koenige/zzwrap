@@ -310,12 +310,6 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 
 	// HTML paths, relative to DOCUMENT_ROOT
-	if (is_null(wrap_setting('dont_negotiate_language_paths'))) {
-		wrap_setting('dont_negotiate_language_paths', [
-			wrap_setting('layout_path'), wrap_setting('behaviour_path'),
-			wrap_setting('files_path'), '/robots.txt'
-		]);
-	}
 	wrap_setting_add('dont_negotiate_language_paths', wrap_setting('icon_paths'));
 	if (wrap_setting('extra_dont_negotiate_language_paths'))
 		wrap_setting_add('dont_negotiate_language_paths', wrap_setting('extra_dont_negotiate_language_paths'));
