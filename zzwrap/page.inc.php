@@ -233,7 +233,7 @@ function wrap_get_menu($page) {
 	$page['current_navitem'] = 0;
 	$page['current_menu'] = '';
 
-	if (wrap_setting('menu') === 'navigation') {
+	if (wrap_sql_table('page_menu') === 'navigation') {
 		// Menu from separate navigation table
 		$menu = wrap_get_menu_navigation();
 	} else {
