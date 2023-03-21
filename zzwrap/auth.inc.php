@@ -575,8 +575,8 @@ function wrap_login_db($login) {
  * @return string
  */
 function wrap_domain_path($setting) {
-	// @todo rename domain_entryurl to domain_entry_url
-	$setting .= ($setting === 'domain_entry' ? 'url' : '_url');
+	// @todo rename login_entryurl to login_entry_url
+	$setting .= ($setting === 'login_entry' ? 'url' : '_url');
 	$domain_url = wrap_setting($setting);
 	if (!is_array($domain_url))
 		return $domain_url;
