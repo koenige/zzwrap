@@ -27,7 +27,7 @@ function wrap_install() {
 	if (empty($_SESSION['step'])) $_SESSION['step'] = 1;
 	elseif (empty($_SESSION['db_name_local'])) $_SESSION['step'] = 1;
 	else {
-		$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_SESSION['db_name_local']));
+		$db = mysqli_select_db(wrap_db_connection(), wrap_db_escape($_SESSION['db_name_local']));
 		if (!$db) $_SESSION['step'] = 1;
 	}
 
@@ -68,7 +68,7 @@ function wrap_install_dbname() {
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (!empty($_POST['db_name_local'])) {
-			$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_POST['db_name_local']));
+			$db = mysqli_select_db(wrap_db_connection(), wrap_db_escape($_POST['db_name_local']));
 			if ($db) {
 				$zz_conf['db_name'] = $_POST['db_name_local'];
 				$_SESSION['step'] = 2;
@@ -77,7 +77,7 @@ function wrap_install_dbname() {
 			}
 			$sql = sprintf('CREATE DATABASE `%s`', wrap_db_escape($_POST['db_name_local']));
 			wrap_db_query($sql);
-			$db = mysqli_select_db($zz_conf['db_connection'], wrap_db_escape($_POST['db_name_local']));
+			$db = mysqli_select_db(wrap_db_connection(), wrap_db_escape($_POST['db_name_local']));
 			if (!$db) $out['error'] = sprintf(
 				'Unable to create database %s. Please check the database error log.'
 				, wrap_html_escape($_POST['db_name_local'])
@@ -159,7 +159,7 @@ function wrap_install_zzform() {
 		'path' => wrap_setting('request_uri')
 	];
 	if (!empty($_SESSION['db_name_local']))
-		$db = mysqli_select_db($zz_conf['db_connection'], $_SESSION['db_name_local']);
+		$db = mysqli_select_db(wrap_db_connection(), $_SESSION['db_name_local']);
 	return;
 }
 

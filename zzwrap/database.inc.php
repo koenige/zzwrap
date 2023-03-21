@@ -31,14 +31,14 @@
  * selects database, sets NAMES to character encoding
  *
  * @global array $zz_conf
- *		'db_connection', 'db_name'
+ *		'db_name'
  * @return bool true: database connection established, false: no connection
  */
 function wrap_db_connect() {
 	global $zz_conf;
 	
 	// do we already have a connection?
-	if (!empty($zz_conf['db_connection'])) return true;
+	if (wrap_db_connection()) return true;
 	
 	// local access: get local database name
 	if (wrap_setting('local_access')) {
@@ -60,17 +60,35 @@ function wrap_db_connect() {
 	if (empty($db['db_port'])) $db['db_port'] = NULL;
 	try {
 		if (empty($zz_conf['db_name'])) $zz_conf['db_name'] = '';
-		$zz_conf['db_connection'] = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
+		wrap_db_connection($db);
 	} catch (Exception $e) {
-		$zz_conf['db_connection'] = false;
+		wrap_db_connection(false);
 		wrap_error(sprintf('Error with database connection: %s', $e->getMessage()), E_USER_NOTICE, ['collect_start' => true]);
 	}
-	if (!$zz_conf['db_connection']) return false;
+	if (!wrap_db_connection()) return false;
 	mysqli_report(MYSQLI_REPORT_OFF);
 
 	wrap_db_charset();
 	wrap_mysql_mode();
 	return true;
+}
+
+/**
+ * establish a database connection, return status without parameters
+ *
+ * @param mixed $db (optional, establish or kill a database connection)
+ * @return object
+ */
+function wrap_db_connection($db = []) {
+	global $zz_conf;
+	static $connection;
+	if ($db === false) {
+		$connection = NULL;
+		return NULL;
+	}
+	if (!$db) return $connection;
+	$connection = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
+	return $connection;
 }
 
 /**
@@ -139,12 +157,9 @@ function wrap_db_credentials() {
  * set a character encoding for the database connection
  *
  * @param string $charset (optional)
- * @global $zz_conf
  * @return void
  */
 function wrap_db_charset($charset = '') {
-	global $zz_conf;
-	
 	if (!$charset) {
 		$charset = wrap_setting('encoding_to_mysql_encoding['.wrap_setting('character_set').']');
 		if (!$charset) {
@@ -159,7 +174,7 @@ function wrap_db_charset($charset = '') {
 		$result = wrap_db_fetch($sql, '', 'single value');
 		if ($result === 'utf8mb4') $charset = 'utf8mb4';
 	}
-	mysqli_set_charset($zz_conf['db_connection'], $charset);
+	mysqli_set_charset(wrap_db_connection(), $charset);
 }
 
 /**
@@ -185,18 +200,16 @@ function wrap_db_prefix($sql) {
  * queries database and does the error handling in case an error occurs
  *
  * $param string $sql
- * @global array $zz_conf
  * @return mixed
  *		bool: false = query failed, true = query was succesful
  *		array:	'id' => on INSERT: inserted ID if applicable
  *				'rows' => number of inserted/deleted/updated rows
  */
 function wrap_db_query($sql, $error = E_USER_ERROR) {
-	global $zz_conf;
 	if (wrap_setting('debug')) {
 		$time = microtime(true);
 	}
-	if (!$zz_conf['db_connection']) return false;
+	if (!wrap_db_connection()) return false;
 	$sql = trim($sql);
 	
 	if (str_starts_with($sql, 'SET NAMES ')) {
@@ -205,7 +218,7 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	}
 
 	$sql = wrap_db_prefix($sql);
-	$result = mysqli_query($zz_conf['db_connection'], $sql);
+	$result = mysqli_query(wrap_db_connection(), $sql);
 	if (wrap_setting('debug')) {
 		$time = microtime(true) - $time;
 		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
@@ -219,11 +232,11 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	switch ($tokens[0]) {
 	case 'INSERT':
 		// return inserted ID
-		$return['id'] = mysqli_insert_id($zz_conf['db_connection']);
+		$return['id'] = mysqli_insert_id(wrap_db_connection());
 	case 'UPDATE':
 	case 'DELETE':
 		// return number of updated or deleted rows
-		$return['rows'] = mysqli_affected_rows($zz_conf['db_connection']);
+		$return['rows'] = mysqli_affected_rows(wrap_db_connection());
 		break;
 	}
 	if (!in_array($tokens[0], ['SET', 'SELECT'])
@@ -249,11 +262,11 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	if ($error_no === 2006 AND in_array($tokens[0], ['SET', 'SELECT'])) {
 		// retry connection
 		wrap_db_connect();
-		$result = mysqli_query($zz_conf['db_connection'], $sql);
+		$result = mysqli_query(wrap_db_connection(), $sql);
 		if ($result) return $result;
 		wrap_db_error_no();
 	}
-	$error_msg = mysqli_error($zz_conf['db_connection']);
+	$error_msg = mysqli_error(wrap_db_connection());
 	
 	if (function_exists('wrap_error') AND !$warnings) {
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
@@ -273,7 +286,6 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
  * @return int
  */
 function wrap_db_error_no() {
-	global $zz_conf;
 	$close_connection_errors = [
 		1030,	// Got error %d from storage engine
 		1317,	// Query execution was interrupted
@@ -281,10 +293,10 @@ function wrap_db_error_no() {
 		2008	// MySQL client ran out of memory
 	];
 
-	$error_no = mysqli_errno($zz_conf['db_connection']);
+	$error_no = mysqli_errno(wrap_db_connection());
 	if (in_array($error_no, $close_connection_errors)) {
-		mysqli_close($zz_conf['db_connection']);
-		$zz_conf['db_connection'] = NULL;
+		mysqli_close(wrap_db_connection());
+		wrap_db_connection(false);
 	}
 	return $error_no;
 }
@@ -318,8 +330,7 @@ function wrap_db_error_no() {
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_type = E_USER_ERROR) {
-	global $zz_conf;
-	if (empty($zz_conf['db_connection'])) return [];
+	if (!wrap_db_connection()) return [];
 	
 	$result = wrap_db_query($sql, $error_type);
 	if (!$result) return NULL;
@@ -983,7 +994,6 @@ function wrap_edit_sql_statement($sql, $statement) {
  *		corresponding to $key
  */
 function wrap_sql($key, $mode = 'get', $value = false) {
-	global $zz_conf;
 	static $zz_sql;
 	static $set;
 	static $modifications;
@@ -1022,7 +1032,7 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			break;
 		}
 		if (file_exists(wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php')
-			AND !empty($zz_conf['db_connection']))
+			AND wrap_db_connection())
 			require_once wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php';
 
 		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
@@ -1384,12 +1394,10 @@ function wrap_sql_placeholders($queries) {
  * Do we have a database connection?
  * if not: send cache or exit
  * 
- * @global array $zz_conf
  * @return bool true: everything is okay
  */
 function wrap_check_db_connection() {
-	global $zz_conf;
-	if ($zz_conf['db_connection']) return true;
+	if (wrap_db_connection()) return true;
 	wrap_send_cache();
 	wrap_error(sprintf('No connection to SQL server. (Host: %s)', wrap_setting('hostname')), E_USER_ERROR);
 	wrap_error(false, false, ['collect_end' => true]);
@@ -1403,18 +1411,16 @@ function wrap_check_db_connection() {
  * @return string escaped $value
  */
 function wrap_db_escape($value) {
-	global $zz_conf;
-
 	// should never happen, just during development
 	if (!$value AND $value !== '0' AND $value !== 0) return '';
 	if (is_array($value) OR is_object($value)) {
 		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
 		return '';
 	}
-	if (!$zz_conf['db_connection']) {
+	if (!wrap_db_connection()) {
 		return addslashes($value);
 	}
-	return mysqli_real_escape_string($zz_conf['db_connection'], $value);
+	return mysqli_real_escape_string(wrap_db_connection(), $value);
 }
 
 /**

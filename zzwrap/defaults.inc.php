@@ -124,10 +124,9 @@ function wrap_set_defaults_pre_conf() {
  */
 function wrap_config($mode, $site = '') {
 	global $zz_setting;
-	global $zz_conf;
 
 	$re_read_config = false;
-	if (!empty($zz_conf['db_connection']) AND $site AND empty($zz_setting['websites'])) {
+	if (wrap_db_connection() AND $site AND empty($zz_setting['websites'])) {
 		// multiple websites on server?
 		// only possible to check after db connection was established
 		$sql = 'SHOW TABLES';

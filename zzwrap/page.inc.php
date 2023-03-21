@@ -1003,7 +1003,6 @@ function wrap_redirect_change($url = false) {
  */
 function wrap_htmlout_page($page) {
 	global $zz_page;
-	global $zz_conf;
 
 	// if globally dont_show_h1 is set, don't show it
 	if (wrap_setting('dont_show_h1')) $page['dont_show_h1'] = true;
@@ -1033,7 +1032,7 @@ function wrap_htmlout_page($page) {
 		AND (empty($page['breadcrumbs']) OR is_array($page['breadcrumbs']))) {
 		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql_fields('page_id')], $page['breadcrumbs']);
 	}
-	if (in_array('nav', $blocks) AND $zz_conf['db_connection']) {
+	if (in_array('nav', $blocks) AND wrap_db_connection()) {
 		// get menus, if database connection active
 		$page = wrap_get_menu($page);
 		if (!empty($page['nav_db'])) {

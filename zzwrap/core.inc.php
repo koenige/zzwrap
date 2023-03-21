@@ -2462,7 +2462,6 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
  */
 function wrap_send_cache($age = 0) {
 	global $zz_page;
-	global $zz_conf;
 	
 	// Some cases in which we do not cache
 	if (!wrap_setting('cache')) return false;
@@ -2492,7 +2491,7 @@ function wrap_send_cache($age = 0) {
 		wrap_cache_header('Vary: Accept-Encoding');
 
 	// Log if cached version is used because there's no connection to database
-	if (empty($zz_conf['db_connection'])) {
+	if (!wrap_db_connection()) {
 		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
 		wrap_error(false, false, ['collect_end' => true]);
 	}
@@ -2828,7 +2827,6 @@ function wrap_setting_delete($key) {
  */
 function wrap_get_setting($key, $login_id = 0) {
 	global $zz_setting;
-	global $zz_conf;
 
 	$cfg = wrap_cfg_files('settings');
 
@@ -2849,7 +2847,7 @@ function wrap_get_setting($key, $login_id = 0) {
 	if (isset($shorthand)) return $shorthand;
 
 	// read setting from database
-	if (!empty($zz_conf['db_connection']) AND $login_id) {
+	if (!wrap_db_connection() AND $login_id) {
 		$values = wrap_setting_read($key, $login_id);
 		if (array_key_exists($key, $values)) {
 			return wrap_get_setting_prepare($values[$key], $key, $cfg);
@@ -2923,7 +2921,7 @@ function wrap_get_setting_default($key, $params) {
 	if (!empty($params['default_from_function']) AND function_exists($params['default_from_function'])) {
 		return $params['default_from_function']();
 	}
-	if (!empty($zz_conf['db_connection']) AND !empty($params['brick'])) {
+	if (!wrap_db_connection() AND !empty($params['brick'])) {
 		$path = wrap_setting_path($key, $params['brick']);
 		if ($path) return wrap_setting($key);
 	}
@@ -3534,7 +3532,6 @@ function wrap_setting_backend() {
  * @return array
  */
 function wrap_cfg_files($type, $settings = []) {
-	global $zz_conf;
 	static $cfg;
 	static $single_cfg;
 	static $translated;
@@ -3542,7 +3539,7 @@ function wrap_cfg_files($type, $settings = []) {
 	// check if wrap_cfg_files() was called without database connection
 	// then translate all config variables read so far
 
-	if (!$translated AND !empty($zz_conf['db_connection']) AND !empty($cfg) AND !empty($settings['translate'])) {
+	if (!$translated AND wrap_db_connection() AND !empty($cfg) AND !empty($settings['translate'])) {
 		foreach (array_keys($cfg) as $this_type) {
 			wrap_cfg_translate($cfg[$this_type]);
 		}
@@ -3591,8 +3588,6 @@ function wrap_cfg_files($type, $settings = []) {
  *		array $single_cfg configuration data, all keys in one array
  */
 function wrap_cfg_files_parse($type) {
-	global $zz_conf;
-
 	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
 	if (!$files) return [[], []];
 
@@ -3602,7 +3597,7 @@ function wrap_cfg_files_parse($type) {
 		foreach (array_keys($single_cfg[$package]) as $index)
 			$single_cfg[$package][$index]['module'] = $package ? $package : 'custom';
 		// might be called before database connection exists
-		if (!empty($zz_conf['db_connection'])) {
+		if (wrap_db_connection()) {
 			wrap_cfg_translate($single_cfg[$package]);
 			$translated = true;
 		}
