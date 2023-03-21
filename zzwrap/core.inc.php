@@ -2832,6 +2832,9 @@ function wrap_get_setting($key, $login_id = 0) {
 
 	$cfg = wrap_cfg_files('settings');
 
+	// check if in settings.cfg
+	wrap_setting_log_missing($key, $cfg);
+
 	// setting is set in $zz_setting (from _settings-table or directly)
 	// if it is an array, check if all keys are there later
 	if (isset($zz_setting[$key]) AND !$login_id
@@ -2955,6 +2958,29 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 	}
 	return $setting;
 }
+
+/**
+ * log missing keys in settings.cfg
+ *
+ * @param string $key
+ * @param array $cfg
+ * @return void
+ */
+function wrap_setting_log_missing($key, $cfg) {
+	global $zz_setting;
+	global $zz_conf;
+	if (empty($zz_conf['debug'])) return;
+
+	$base_key = $key;
+	if ($pos = strpos($base_key, '[')) $base_key = substr($base_key, 0, $pos);
+	if (array_key_exists($base_key, $cfg)) return;
+	$log_dir = $zz_setting['log_dir'] ?? false;
+	if (!$log_dir AND !empty($cfg['log_dir']['default']))
+		$log_dir = wrap_setting_value_placeholder($cfg['log_dir']['default']);
+	if (!$log_dir) return;
+	error_log(sprintf("Setting %s not found in settings.cfg.\n", $base_key), 3, $log_dir.'/settings.log');
+}
+
 
 /** 
  * Merges Array recursively: replaces old with new keys, adds new keys
