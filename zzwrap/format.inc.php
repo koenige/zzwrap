@@ -455,7 +455,6 @@ function wrap_print($array, $color = 'FFF', $html = true) {
  * @return string
  */
 function wrap_number($number, $format = false) {
-	global $zz_conf;
 	if (!$number AND $number !== '0' AND $number !== 0) return '';
 
 	if (!$format) $format = wrap_setting('number_format');
@@ -512,18 +511,18 @@ function wrap_number($number, $format = false) {
 		}
 		return $output;
 	case 'two-decimal-places':
-		$output = number_format($number, 2, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+		$output = number_format($number, 2, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 		return $output;
 	case 'simple':
 	case 'simple-hidezero':
 		if (strstr($number, '.')) {
 			if ($format === 'simple-hidezero' AND (str_ends_with($number, '.0') OR str_ends_with($number, '.00') OR str_ends_with($number, '.000'))) {
-				$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+				$output = number_format($number, 0, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 			} else {
-				$output = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+				$output = number_format($number, 1, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 			}
 		} else {
-			$output = number_format($number, 0, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+			$output = number_format($number, 0, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 		}
 		return $output;
 	default:
@@ -540,9 +539,8 @@ function wrap_number($number, $format = false) {
  * @return string
  */
 function wrap_percent($number) {
-	global $zz_conf;
 	$number *= 100;
-	$number = number_format($number, 1, $zz_conf['decimal_point'], $zz_conf['thousands_separator']);
+	$number = number_format($number, 1, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
 	$number .= html_entity_decode('&nbsp;%');
 	return $number;
 }
@@ -650,7 +648,6 @@ function wrap_js_nl2br($string) {
  * @return string
  */
 function wrap_unit_format($value, $precision, $units, $factor = 1000) {
-	global $zz_conf;
     $value = max($value, 0);
     $pow = floor(($value ? log($value) : 0) / log($factor)); 
     $pow = min($pow, count($units) - 1); 
@@ -659,8 +656,8 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
 	$value /= pow($factor, $pow);
 
     $text = round($value, $precision) . html_entity_decode('&nbsp;') . $units[$pow]; 
-    if ($zz_conf['decimal_point'] !== '.')
-    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
+    if (wrap_setting('decimal_point') !== '.')
+    	$text = str_replace('.', wrap_setting('decimal_point'), $text);
     return $text;
 }
 
@@ -713,15 +710,14 @@ function wrap_meters($meters, $precision = 1) {
  * @return string
  */
 function wrap_bearing($value, $precision = 1) {
-	global $zz_conf;
 	if (strstr($value, '/')) {
 		$value = explode('/', $value);
 		$value = $value[0]/$value[1];
 	}
 	if ($value < 0) $value = 360 - $value;
 	$text = round($value, $precision).'° ';
-    if ($zz_conf['decimal_point'] !== '.')
-    	$text = str_replace('.', $zz_conf['decimal_point'], $text);
+    if (wrap_setting('decimal_point') !== '.')
+    	$text = str_replace('.', wrap_setting('decimal_point'), $text);
     $units = [
     	  0 => 'N North', '22.5' => 'NNE North-northeast',
     	 45 => 'NE Northeast', '67.5' => 'ENE East-northeast',

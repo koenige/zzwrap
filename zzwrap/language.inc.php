@@ -700,26 +700,23 @@ function wrap_negotiate_language($allowed_languages, $default_language, $accept 
  * as used in number_format()
  * this is not exhaustive, it's just a means to reduce configuration effort.
  *
- * @global array $zz_conf
  */
 function wrap_set_units() {
-	global $zz_conf;
-	
-	if (!isset($zz_conf['decimal_point'])) {
+	if (is_null(wrap_setting('decimal_point'))) {
 		switch (wrap_setting('lang')) {
 		case 'de':
 		case 'fr':
 		case 'es':
 		case 'pl':
 		case 'cs':
-			$zz_conf['decimal_point'] = ',';
+			wrap_setting('decimal_point', ',');
 			break;
 		default:
-			$zz_conf['decimal_point'] = '.';
+			wrap_setting('decimal_point', '.');
 			break;
 		}
 	}
-	if (!isset($zz_conf['thousands_separator'])) {
+	if (is_null(wrap_setting('thousands_separator'))) {
 		switch (wrap_setting('lang')) {
 		case 'de':
 		case 'fr':
@@ -727,13 +724,13 @@ function wrap_set_units() {
 		case 'pl':
 		case 'cs':
 			if (wrap_setting('character_set') === 'utf-8') {
-				$zz_conf['thousands_separator'] = "\xC2\xA0"; // non-breaking space
+				wrap_setting('thousands_separator', "\xC2\xA0"); // non-breaking space
 			} else {
-				$zz_conf['thousands_separator'] = ' ';
+				wrap_setting('thousands_separator', ' ');
 			}
 			break;
 		default:
-			$zz_conf['thousands_separator'] = ',';
+			wrap_setting('thousands_separator', ',');
 			break;
 		}
 	}
