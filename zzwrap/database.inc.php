@@ -172,12 +172,11 @@ function wrap_db_charset($charset = '') {
  * legally inside queries
  */
 function wrap_db_prefix($sql) {
-	global $zz_conf;
 	if (!$sql) return $sql;
 	
 	$prefix = '/*_PREFIX_*/';
 	if (strstr($sql, $prefix)) {
-		$sql = str_replace($prefix, $zz_conf['prefix'], $sql);
+		$sql = str_replace($prefix, wrap_setting('db_prefix'), $sql);
 	}
 	return $sql;
 }
@@ -1177,7 +1176,6 @@ function wrap_sql_fields($key, $filename = 'queries') {
  * @return array lines, grouped
  */
 function wrap_sql_file($filename, $key_separator = '') {
-	global $zz_conf;
 	$data = [];
 	$lines = file($filename);
 	foreach ($lines as $line) {
@@ -1225,7 +1223,7 @@ function wrap_sql_file($filename, $key_separator = '') {
 				if (str_ends_with($key, '__fields') OR str_ends_with($key, '__table'))
 					$line = trim(rtrim(ltrim(trim($line), '/*'), '*/'));
 				if (str_ends_with($key, '__table'))
-					$line = $zz_conf['prefix'].$line;
+					$line = wrap_setting('db_prefix').$line;
 				if (empty($data[$key][$index[$key]])) {
 					$data[$key][$index[$key]] = '';
 				}
@@ -1315,7 +1313,7 @@ function wrap_system_sql($subtree) {
 /**
  * replace placeholders in queries
  *
- * _PREFIX_ with $zz_conf['prefix']
+ * _PREFIX_ with wrap_setting('db_prefix')
  * _ID LANGUAGES ENG_ with wrap_id('languages', 'eng')
  * _ID LANGUAGES SETTING LANG3_ with wrap_id('languages', wrap_setting('lang3'))
  * _SETTING LANG3_ with wrap_setting('lang3')
@@ -1324,8 +1322,6 @@ function wrap_system_sql($subtree) {
  * @return array
  */
 function wrap_sql_placeholders($queries) {
-	global $zz_conf;
-	
 	if (!is_array($queries)) {
 		$queries = [$queries];
 		$single_query = true;
@@ -1336,7 +1332,7 @@ function wrap_sql_placeholders($queries) {
 	$placeholders = ['ID', 'SETTING'];
 	foreach ($queries as $key => $query) {
 		if (strstr($query, '/*_PREFIX_*/')) {
-			$query = $queries[$key] = str_replace('/*_PREFIX_*/', $zz_conf['prefix'], $query);
+			$query = $queries[$key] = str_replace('/*_PREFIX_*/', wrap_setting('db_prefix'), $query);
 		}
 		foreach ($placeholders as $placeholder) {
 			if (!strstr($query, '/*_'.$placeholder)) continue;

@@ -106,12 +106,6 @@ function wrap_set_defaults_pre_conf() {
 	$zz_setting['remote_ip'] = wrap_http_remote_ip();
 
 // -------------------------------------------------------------------------
-// Database
-// -------------------------------------------------------------------------
-
-	$zz_conf['prefix']			= ''; // prefix for all database tables
-
-// -------------------------------------------------------------------------
 // Error Logging, Mail
 // -------------------------------------------------------------------------
 
@@ -138,7 +132,8 @@ function wrap_config($mode, $site = '') {
 		// only possible to check after db connection was established
 		$sql = 'SHOW TABLES';
 		$tables = wrap_db_fetch($sql, '_dummy_key_', 'single value');
-		if (in_array($zz_conf['prefix'].'websites', $tables)) {
+		$websites_table = (!empty($zz_setting['db_prefix']) ? $zz_setting['db_prefix'] : '').'websites';
+		if (in_array($websites_table, $tables)) {
 			$zz_setting['websites'] = true;
 
 			$sql = sprintf('SELECT website_id
