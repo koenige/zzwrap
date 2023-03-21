@@ -102,77 +102,26 @@ function wrap_set_defaults_pre_conf() {
 		$zz_setting['local_access'] = true;
 	}
 
-	// base URL, e. g. for languages
-	$zz_setting['base'] = '';
-	
-	// request URI
 	$zz_setting['request_uri'] = $_SERVER['REQUEST_URI'];
-
-// -------------------------------------------------------------------------
-// HTTP
-// -------------------------------------------------------------------------
-
-	$zz_setting['extra_http_headers'] = [];
-	// Prevent IE > 7 from sniffing mime types
-	$zz_setting['extra_http_headers'][] = 'X-Content-Type-Options: nosniff';
-	// set Cache-Control defaults
-	$zz_setting['cache_control_text'] = 3600; // 1 hour
-	$zz_setting['cache_control_file'] = 86400; // 1 day
 	$zz_setting['remote_ip'] = wrap_http_remote_ip();
-	$zz_setting['https_urls'][] = '/';
-	$zz_setting['local_https'] = true;
 
 // -------------------------------------------------------------------------
 // URLs
 // -------------------------------------------------------------------------
 
+	// base URL, e. g. for languages
+	$zz_setting['base'] = '';
 	$zz_setting['base_path'] = '';
 
 // -------------------------------------------------------------------------
 // Paths
 // -------------------------------------------------------------------------
 
-	// Caching	
-	$zz_setting['cache']		= true;
-	$zz_setting['cache_dir']	= $zz_setting['cms_dir'].'/_cache';
-	if ($zz_setting['local_access']) {
-		$zz_setting['cache_age']	= 1;
-	}
-
-	// Media
-	$zz_setting['media_folder']	= $zz_setting['cms_dir'].'/files';
-
-	// Forms: zzform upload module
+	// Temporary data
 	$zz_setting['tmp_dir']		= $zz_setting['cms_dir'].'/_temp';
 
 	// Logfiles
 	$zz_setting['log_dir']		= $zz_setting['cms_dir'].'/_logs';
-
-
-// -------------------------------------------------------------------------
-// Page
-// -------------------------------------------------------------------------
-
-	// zzbrick: brick types
-	$zz_setting['brick_types_translated']['tables'] = 'forms';
-	$zz_setting['brick_types_translated']['make'] = 'request';
-
-	$zz_setting['brick_fulltextformat'] = 'markdown';
-	// functions that might be used for formatting (zzbrick)
-	$zz_setting['brick_formatting_functions'] = [
-		'markdown', 'markdown_inline', 'markdown_attribute', 'wrap_date',
-		'rawurlencode', 'wordwrap', 'nl2br', 'htmlspecialchars',
-		'wrap_html_escape', 'wrap_latitude', 'wrap_longitude', 'wrap_number',
-		'ucfirst', 'wrap_time', 'wrap_bytes', 'wrap_duration', 'strip_tags',
-		'strtoupper', 'strtolower', 'wrap_money', 'quoted_printable_encode',
-		'wrap_bearing', 'wrap_cfg_quote', 'wrap_meters', 'wrap_js_escape',
-		'wrap_js_nl2br', 'wrap_percent', 'wrap_punycode_decode', 'wrap_gram',
-		'wrap_currency'
-	];
-
-	if (!$zz_setting['local_access']) {
-		$zz_setting['gzip_encode'] = true;
-	}
 
 // -------------------------------------------------------------------------
 // Database
@@ -551,12 +500,14 @@ function wrap_set_defaults_post_conf() {
 		$zz_conf['debug']			= false;
 	
 	// -------------------------------------------------------------------------
-	// Authentication
+	// Development server
 	// -------------------------------------------------------------------------
 	
-	if (wrap_setting('local_access'))
+	if (wrap_setting('local_access')) {
 		wrap_setting('logout_inactive_after', wrap_setting('logout_inactive_after') * 20);
-	
+		wrap_setting('cache_age', 1);
+		wrap_setting('gzip_encode', 0);
+	}
 	
 	// -------------------------------------------------------------------------
 	// Mail
