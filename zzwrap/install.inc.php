@@ -64,13 +64,11 @@ function wrap_install() {
  * @return mixed
  */
 function wrap_install_dbname() {
-	global $zz_conf;
-
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (!empty($_POST['db_name_local'])) {
 			$db = mysqli_select_db(wrap_db_connection(), wrap_db_escape($_POST['db_name_local']));
 			if ($db) {
-				$zz_conf['db_name'] = $_POST['db_name_local'];
+				wrap_setting('db_name', $_POST['db_name_local']);
 				$_SESSION['step'] = 2;
 				$_SESSION['db_name_local'] = $_POST['db_name_local'];
 				return false;

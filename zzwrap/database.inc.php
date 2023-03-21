@@ -30,25 +30,21 @@
  * Establishes a database connection (if not already established)
  * selects database, sets NAMES to character encoding
  *
- * @global array $zz_conf
- *		'db_name'
  * @return bool true: database connection established, false: no connection
  */
 function wrap_db_connect() {
-	global $zz_conf;
-	
 	// do we already have a connection?
 	if (wrap_db_connection()) return true;
 	
 	// local access: get local database name
 	if (wrap_setting('local_access')) {
 		if (wrap_setting('db_name_local')) {
-			$zz_conf['db_name'] = wrap_setting('db_name_local');
+			wrap_setting('db_name', wrap_setting('db_name_local'));
 		} else {
 			wrap_setting('authentication_possible', false);
 			wrap_session_start();
 			if (!empty($_SESSION['db_name_local']) AND !empty($_SESSION['step']) AND $_SESSION['step'] === 'finish') {
-				$zz_conf['db_name'] = $_SESSION['db_name_local'];
+				wrap_setting('db_name', $_SESSION['db_name_local']);
 				wrap_session_stop();
 			}
 			session_write_close();
@@ -59,7 +55,6 @@ function wrap_db_connect() {
 	$db = wrap_db_credentials();
 	if (empty($db['db_port'])) $db['db_port'] = NULL;
 	try {
-		if (empty($zz_conf['db_name'])) $zz_conf['db_name'] = '';
 		wrap_db_connection($db);
 	} catch (Exception $e) {
 		wrap_db_connection(false);
@@ -80,26 +75,24 @@ function wrap_db_connect() {
  * @return object
  */
 function wrap_db_connection($db = []) {
-	global $zz_conf;
 	static $connection;
 	if ($db === false) {
 		$connection = NULL;
 		return NULL;
 	}
 	if (!$db) return $connection;
-	$connection = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $zz_conf['db_name'], $db['db_port']);
+	$connection = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], wrap_setting('db_name'), $db['db_port']);
 	return $connection;
 }
 
 /**
  * get connection details
  * files need to define
- * $db_host, $db_user, $db_pwd, $zz_conf['db_name']
+ * $db_host, $db_user, $db_pwd, $zz_setting['db_name']
  *
  * @return array
  */
 function wrap_db_credentials() {
-	global $zz_conf;
 	static $db;
 	if (!empty($db)) return $db;
 	
@@ -117,7 +110,7 @@ function wrap_db_credentials() {
 				$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.json';
 				if (!file_exists($filename)) continue;
 				$db = json_decode(file_get_contents($filename), true);
-				$zz_conf['db_name'] = $db['db_name'];
+				wrap_setting('db_name', $db['db_name']);
 			} else {
 				include $filename;
 				$rewrite = true;
@@ -128,7 +121,7 @@ function wrap_db_credentials() {
 			if (str_ends_with($file, '.json')) {
 				$db = json_decode(file_get_contents($file), true);
 				if (!empty($db['db_name'])) {
-					$zz_conf['db_name'] = $db['db_name'];
+					wrap_setting('db_name', $db['db_name']);
 					if ($file === wrap_setting('local_pwd'))
 						wrap_setting('db_name_local', $db['db_name']);
 				}
@@ -142,13 +135,15 @@ function wrap_db_credentials() {
 	}
 	if (!$found) wrap_error('No password file for database found.', E_USER_ERROR);
 	if ($rewrite) {
+		// @deprecated
 		// $zz_conf['db_name'] should be set in pwd.inc.php
 		$db = [
 			'db_host' => $db_host,
 			'db_user' => $db_user,
 			'db_pwd' => $db_pwd,
 			'db_port' => isset($db_port) ? $db_port : false,
-		];	
+		];
+		wrap_setting('db_name', $zz_conf['db_name']);
 	}
 	return $db;
 }
@@ -1451,9 +1446,8 @@ function wrap_mysql_mode() {
  * @return string
  */
 function wrap_db_auto_increment($table) {
-	global $zz_conf;
 	$sql = 'SHOW TABLE STATUS FROM `%s` WHERE `name` LIKE "%s"';
-	$sql = sprintf($sql, $zz_conf['db_name'], $table);
+	$sql = sprintf($sql, wrap_setting('db_name'), $table);
 	$data = wrap_db_fetch($sql);
 	if (empty($data)) return '';
 	return $data['Auto_increment'];

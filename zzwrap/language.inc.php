@@ -314,7 +314,6 @@ function wrap_text_include($file) {
  */
 function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
-	global $zz_conf;
 	if (!wrap_setting('translate_fields')) return $data;
 	if (!wrap_setting('default_source_language')) return $data;
 	$translation_sql = wrap_sql_query('default_translations');
@@ -342,7 +341,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	foreach ($old_matrix as $key => $field) {
 		$field = wrap_db_prefix($field);
 		// database name is optional, so add it here for all cases
-		if (substr_count($field, '.') === 1) $field = $zz_conf['db_name'].'.'.$field;
+		if (substr_count($field, '.') === 1) $field = wrap_setting('db_name').'.'.$field;
 		if (is_numeric($key)) {
 			// numeric key: CMS.seiten.titel, CMS.seiten.*
 			$field_list = wrap_translate_field_list('field_name', $field);
@@ -616,12 +615,11 @@ function wrap_translate_url_other() {
  * @return array
  */
 function wrap_translate_identifier_field() {
-	global $zz_conf;
 	static $field;
 	if (!empty($field)) return $field;
 
 	$field = wrap_translate_field_list('field_name',
-		$zz_conf['db_name'].'./*_PREFIX_*/webpages.identifier'
+		wrap_setting('db_name').'./*_PREFIX_*/webpages.identifier'
 	);
 	if (!$field) return [];
 	$field = reset($field);

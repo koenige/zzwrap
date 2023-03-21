@@ -22,8 +22,6 @@
  * @return void
  */
 function zzwrap() {
-	global $zz_setting;		// settings for zzwrap and zzbrick
-	global $zz_conf;		// settings for zzform
 	global $zz_page;		// page variables
 
 	if (!empty($_SERVER['HTTP_X_TIMEOUT_IGNORE'])) {
@@ -39,7 +37,7 @@ function zzwrap() {
 
 	// establish database connection
 	wrap_db_connect();
-	if (empty($zz_conf['db_name'])) {
+	if (!wrap_setting('db_name')) {
 		require_once __DIR__.'/install.inc.php';
 		wrap_install();
 	}
