@@ -2903,6 +2903,8 @@ function wrap_get_setting_default($key, $params) {
 
 	if (!empty($params['default_from_php_ini']) AND ini_get($params['default_from_php_ini'])) {
 		return ini_get($params['default_from_php_ini']);
+	} elseif (!empty($params['default_empty_string'])) {
+		return '';
 	} elseif (!empty($params['default'])) {
 		return wrap_setting_value($params['default']);
 	} elseif (!empty($params['default_from_setting'])) {
