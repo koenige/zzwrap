@@ -22,11 +22,9 @@
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
  *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end'
- * @global array $zz_conf
  * @global array $zz_page
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
-	global $zz_conf;
 	global $zz_page;
 	static $collect;
 	static $collect_messages;
@@ -70,11 +68,11 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	$return = false;
 	switch ($error_type) {
 	case E_USER_ERROR: // critical error: stop!
-		if (!empty($zz_conf['exit_503'])) $settings['no_return'] = true;
+		if (wrap_setting('error_exit_503')) $settings['no_return'] = true;
 		$level = 'error';
 		if (empty($settings['no_return'])) 
 			$return = 'exit'; // get out of this function immediately
-		$zz_conf['exit_503'] = true;
+		wrap_setting('error_exit_503', true);
 		break;
 	default:
 	case E_USER_WARNING: // acceptable error, go on
