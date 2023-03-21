@@ -175,8 +175,8 @@ function wrap_text($string, $params = []) {
 		$language = $params['lang'];
 	else
 		$language = wrap_setting('lang');
-	if (isset($zz_conf['default_language_for'][$language]))
-		$language = $zz_conf['default_language_for'][$language];
+	if (wrap_setting('language_default_for['.$language.']'))
+		$language = $wrap_setting('language_default_for['.$language.']');
 
 	if (empty($text_included) OR $text_included !== $language) {
 		$text = [];
