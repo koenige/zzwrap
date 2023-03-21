@@ -439,10 +439,6 @@ function wrap_set_defaults_post_conf() {
 	// Page
 	// -------------------------------------------------------------------------
 	
-	// translations
-	if (!isset($zz_conf['translations_of_fields']))
-		$zz_conf['translations_of_fields'] = false;
-	
 	// @deprecated
 	$deprecated_zz_page = [
 		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home',

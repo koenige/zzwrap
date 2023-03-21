@@ -308,7 +308,6 @@ function wrap_get_menu($page) {
  * @return array $menu: 'title', 'url', 'subtitle' (optional), 'id_title' (optional)
  */
 function wrap_get_menu_navigation() {
-	global $zz_conf;
 	// no menu query, so we don't have a menu
 	if (!wrap_sql('menu')) return [];
 
@@ -650,19 +649,17 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
  * Reads webpages from database, creates breadcrumbs hierarchy
  * 
  * @param int $page_id ID of current webpage in database
- * @global array $zz_conf
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  */
 function wrap_get_breadcrumbs($page_id) {
 	if (!($sql = wrap_sql('breadcrumbs'))) return [];
-	global $zz_conf;
 	global $zz_page;
 
 	$breadcrumbs = [];
 	// get all webpages
 	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	$pages = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
-	if ($zz_conf['translations_of_fields']) {
+	if (wrap_setting('translate_fields')) {
 		$pages = wrap_translate($pages, wrap_sql_table('default_translation_breadcrumbs'), '', false);
 	}
 
@@ -917,11 +914,9 @@ function wrap_page_check_if_error($page) {
 /**
  * puzzle page elements together
  *
- * @global array $zz_conf
  * @global array $zz_page
  */
 function wrap_get_page() {
-	global $zz_conf;
 	global $zz_page;
 
 	if (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {

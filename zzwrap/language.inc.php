@@ -21,16 +21,13 @@
  * setting 'base' might be changed, 'negotiate_language', default_source_language'
  * @global array $zz_page
  *		'url', 'redirect'
- * @global array $zz_conf
- *		'translations_of_fields'
  * @return bool true: ok.
  */
 function wrap_set_language() {
-	global $zz_conf;
 	global $zz_page;
 
 	// check for language code in URL
-	if ($zz_conf['translations_of_fields'])
+	if (wrap_setting('translate_fields'))
 		$zz_page['url'] = wrap_prepare_url($zz_page['url']);
 
 	// single language website?
@@ -81,13 +78,9 @@ function wrap_language_redirect() {
  * 
  * settings: 'lang' (will be changed), 'base' (will be changed)
  * @param array $url ($zz_page['url'])
- * @global array $zz_conf
- *		'db_connection'
  * @return array $url
  */
 function wrap_prepare_url($url) {
-	global $zz_conf;
-
 	// looking for /en/ or similar
 	if (empty($url['full']['path'])) return $url;
 	// if /en/ is not there, /en still may be, so check full URL
@@ -285,7 +278,6 @@ function wrap_text($string, $params = []) {
  * include a text file
  *
  * @param string $file filename with path
- * @global array $zz_conf
  * @return array $text
  */
 function wrap_text_include($file) {
@@ -317,15 +309,13 @@ function wrap_text_include($file) {
  *			a detail record indexed by $foreign_key_field_name
  * @param bool $mark_incomplete	(optional) write back if fields are not translated?
  * @param string $lang different (optional) target language than set in setting 'lang'
- * @global array $zz_conf
- * 		- $zz_conf['translations_of_fields']
  * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
  */
 function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
 	global $zz_conf;
-	if (empty($zz_conf['translations_of_fields'])) return $data;
+	if (!wrap_setting('translate_fields')) return $data;
 	if (!wrap_setting('default_source_language')) return $data;
 	$translation_sql = wrap_sql_query('default_translations');
 	if (!$translation_sql) return $data;
@@ -530,14 +520,12 @@ function wrap_translate_field_list($field_key, $db_field) {
  * translate page (that was not possible in wrap_look_for_page() because we
  * did not have complete language information then.
  *
- * @global array $zz_conf
  * @global array $zz_page (array 'db' will be changed)
  * @return bool true: translation was run, false: not run
  */
 function wrap_translate_page() {
-	global $zz_conf;
 	global $zz_page;
-	if (!$zz_conf['translations_of_fields']) return false;
+	if (!wrap_setting('translate_fields')) return false;
 	if (empty($zz_page['db'])) return false; // theme files
 	$my_page = wrap_translate([
 		$zz_page['db'][wrap_sql_fields('page_id')] => $zz_page['db']],
