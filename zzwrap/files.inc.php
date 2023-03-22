@@ -50,7 +50,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	switch ($search) {
 	case 'modules/themes/custom':
 	case 'custom/modules/themes':
-		$packages = $zz_setting['activated']['themes'] ?? [];
+		$packages = $zz_setting['themes'];
 	case 'custom/modules':
 	case 'modules/custom':
 		$packages = array_merge($packages, $zz_setting['modules']);
