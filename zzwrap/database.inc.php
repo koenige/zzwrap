@@ -88,7 +88,7 @@ function wrap_db_connection($db = []) {
 /**
  * get connection details
  * files need to define
- * $db_host, $db_user, $db_pwd, $zz_setting['db_name']
+ * db_host, db_user, db_pwd, db_name, db_port (optional)
  *
  * @return array
  */
