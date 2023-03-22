@@ -601,7 +601,7 @@ function wrap_look_for_file($url_path) {
 		array_shift($url_folders);
 		$folder = array_shift($url_folders);
 		// prefer themes over modules here if name is identical
-		$dir = in_array($folder, $themes) ? wrap_setting('themes_dir') : wrap_setting('modules_dir');
+		$dir = in_array($folder, wrap_setting('themes')) ? wrap_setting('themes_dir') : wrap_setting('modules_dir');
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$dir, $folder, $path, implode('/', $url_folders));
 		if (in_array($ext = wrap_file_extension($file['name']), ['css', 'js'])) {
