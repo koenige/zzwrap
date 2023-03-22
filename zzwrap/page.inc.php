@@ -117,7 +117,7 @@ function wrap_template_file($template, $show_error = true) {
 		$my_module = '';
 	}
 	$found = [];
-	$packages = array_merge(wrap_setting('modules'), wrap_themes());
+	$packages = array_merge(wrap_setting('modules'), wrap_setting('themes'));
 	foreach ($packages as $package) {
 		if ($my_module AND $package !== $my_module) continue;
 		$dir = in_array($package, wrap_setting('modules'))
@@ -1268,22 +1268,4 @@ function wrap_page_replace($page) {
 	if ($function AND function_exists($function))
 		$page = $function($page);
 	return $page;
-}
-
-/**
- * get all existing themes
- *
- * @return array
- */
-function wrap_themes() {
-	if (!wrap_setting('themes_dir')) return [];
-	if (!is_dir(wrap_setting('themes_dir'))) return [];
-	$themes = scandir(wrap_setting('themes_dir'));
-	foreach ($themes as $index => $theme) {
-		if (str_starts_with($theme, '.') OR !is_dir(wrap_setting('themes_dir').'/'.$theme)) {
-			unset($themes[$index]);
-			continue;
-		}
-	}
-	return $themes;
 }

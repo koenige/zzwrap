@@ -588,9 +588,7 @@ function wrap_look_for_file($url_path) {
 		}
 	}
 
-	$folders = wrap_setting('modules');
-	$themes = wrap_themes();
-	$folders = array_merge($folders, $themes);
+	$folders = array_merge(wrap_setting('modules'), wrap_setting('themes'));
 	$folders = array_unique($folders); // themes can be identical with modules
 
 	$paths = ['layout', 'behaviour'];

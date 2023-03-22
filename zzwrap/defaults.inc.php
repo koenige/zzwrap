@@ -26,11 +26,12 @@ function wrap_set_defaults() {
 	global $zz_page;
 
 	// configuration settings, defaults
+	wrap_set_defaults_paths();
 	wrap_set_defaults_pre_conf();
 	wrap_config('read');
-	if (!empty($zz_setting['multiple_websites']))
-		wrap_config('read', $zz_setting['site']);
-	if (file_exists($file = $zz_setting['inc'].'/config.inc.php'))
+	if (wrap_setting('multiple_websites'))
+		wrap_config('read', wrap_setting('site'));
+	if (file_exists($file = wrap_setting('inc').'/config.inc.php'))
 		require_once $file;
 	wrap_set_defaults_post_conf();
 
@@ -43,12 +44,12 @@ function wrap_set_defaults() {
 }
 
 /**
- * Default variables, pre config
+ * default variables: paths
  *
  * @global array $zz_setting
  * @global array $zz_conf
  */
-function wrap_set_defaults_pre_conf() {
+function wrap_set_defaults_paths() {
 	global $zz_setting;
 	global $zz_conf;
 
@@ -66,53 +67,101 @@ function wrap_set_defaults_pre_conf() {
 		$zz_setting['cms_dir'] = realpath($zz_conf['root'].'/..');
 	if (!isset($zz_setting['inc']))
 		$zz_setting['inc'] = $zz_setting['cms_dir'].'/_inc';
+	$zz_setting['inc'] = realpath($zz_setting['inc']);
 
+// -------------------------------------------------------------------------
+// System paths
+// -------------------------------------------------------------------------
+
+	$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
+	$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
+	$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
+	
+	$zz_setting['modules'] = wrap_packages('modules', $zz_setting['modules_dir']);
+	$zz_setting['themes'] = wrap_packages('themes', $zz_setting['themes_dir']);
+
+	// now we can use wrap_setting()
+}
+
+/**
+ * Default variables, pre config
+ *
+ * @global array $zz_setting
+ * @global array $zz_conf
+ */
+function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 // Hostname
 // -------------------------------------------------------------------------
-
 	// HTTP_HOST, check against XSS
 	if (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
-		$zz_setting['hostname']	= $_SERVER['HTTP_HOST'];
+		wrap_setting('hostname', $_SERVER['HTTP_HOST']);
 	else
-		$zz_setting['hostname'] = $_SERVER['SERVER_NAME'];
+		wrap_setting('hostname', $_SERVER['SERVER_NAME']);
 	// fully-qualified (unambiguous) DNS domain names have a dot at the end
 	// we better not redirect these to a domain name without a dot to avoid
 	// ambiguity, but we do not need to do double caching etc.
-	if (substr($zz_setting['hostname'], -1) === '.')
-		$zz_setting['hostname'] = substr($zz_setting['hostname'], 0, -1);
+	if (substr(wrap_setting('hostname'), -1) === '.')
+		wrap_setting('hostname', substr(wrap_setting('hostname'), 0, -1));
 	// in case, somebody's doing a CONNECT or something similar, use some default
-	if (empty($zz_setting['hostname'])) 
-		$zz_setting['hostname'] = 'www.example.org';
+	if (!wrap_setting('hostname')) 
+		wrap_setting('hostname', 'www.example.org');
 	// make hostname lowercase to avoid duplicating caches
-	$zz_setting['hostname'] = strtolower($zz_setting['hostname']);
+	wrap_setting('hostname', strtolower(wrap_setting('hostname')));
 
 	// check if it’s a local development server
 	// get site name without www. and .local
-	$zz_setting['local_access'] = false;
-	$zz_setting['site'] = $zz_setting['hostname'];
-	if (str_starts_with($zz_setting['site'], 'www.'))
-		$zz_setting['site'] = substr($zz_setting['site'], 4);
-	if (str_starts_with($zz_setting['site'], 'dev.')) {
-		$zz_setting['site'] = substr($zz_setting['site'], 4);
-		$zz_setting['local_access'] = true;
+	wrap_setting('local_access', false);
+	wrap_setting('site', wrap_setting('hostname'));
+	if (str_starts_with(wrap_setting('site'), 'www.'))
+		wrap_setting('site', substr(wrap_setting('site'), 4));
+	if (str_starts_with(wrap_setting('site'), 'dev.')) {
+		wrap_setting('site', substr(wrap_setting('site'), 4));
+		wrap_setting('local_access', true);
 	}
-	if (str_ends_with($zz_setting['site'], '.local')) {
-		$zz_setting['site'] = substr($zz_setting['site'], 0, -6);
-		$zz_setting['local_access'] = true;
+	if (str_ends_with(wrap_setting('site'), '.local')) {
+		wrap_setting('site', substr(wrap_setting('site'), 0, -6));
+		wrap_setting('local_access', true);
 	}
 
-	$zz_setting['request_uri'] = $_SERVER['REQUEST_URI'];
-	$zz_setting['remote_ip'] = wrap_http_remote_ip();
+	wrap_setting('request_uri', $_SERVER['REQUEST_URI']);
+	wrap_setting('remote_ip', wrap_http_remote_ip());
 
 // -------------------------------------------------------------------------
 // Error Logging, Mail
 // -------------------------------------------------------------------------
 
-	if (!$zz_setting['local_access'])
+	if (!wrap_setting('local_access'))
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
+}
 
+/**
+ * register all packages (modules and themes) of installation
+ *
+ * @param string $type
+ * @param string $folder
+ * @return array
+ */
+function wrap_packages($type, $folder) {
+	if (!is_dir($folder)) return [];
+	$packages = scandir($folder);
+	foreach ($packages as $index => $package) {
+		if (str_starts_with($package, '.') OR !is_dir($folder.'/'.$package)) {
+			unset($packages[$index]);
+			continue;
+		}
+	}
+	// some hosters sort files in reverse order
+	sort($packages);
+
+	// put default module always on top to have the possibility to
+	// add functions with the same name in other modules
+	if ($type === 'modules' AND $key = array_search('default', $packages)) {
+		unset($packages[$key]);
+		array_unshift($packages, 'default');
+	}
+	return $packages;
 }
 
 /**
@@ -123,17 +172,15 @@ function wrap_set_defaults_pre_conf() {
  * @return void
  */
 function wrap_config($mode, $site = '') {
-	global $zz_setting;
-
 	$re_read_config = false;
-	if (wrap_db_connection() AND $site AND empty($zz_setting['websites'])) {
+	if (wrap_db_connection() AND $site AND !wrap_setting('websites')) {
 		// multiple websites on server?
 		// only possible to check after db connection was established
 		$sql = 'SHOW TABLES';
 		$tables = wrap_db_fetch($sql, '_dummy_key_', 'single value');
-		$websites_table = (!empty($zz_setting['db_prefix']) ? $zz_setting['db_prefix'] : '').'websites';
+		$websites_table = wrap_setting('db_prefix').'websites';
 		if (in_array($websites_table, $tables)) {
-			$zz_setting['websites'] = true;
+			wrap_setting('websites', true);
 
 			$sql = sprintf('SELECT website_id
 				FROM websites WHERE domain = "%s"', wrap_db_escape($site));
@@ -147,29 +194,27 @@ function wrap_config($mode, $site = '') {
 					WHERE setting_key = "external_redirect_hostnames"
 					AND setting_value LIKE "[%%%s%%]"', wrap_db_escape($site));
 				$website = wrap_db_fetch($sql);
-				if (!$website AND !empty($zz_setting['website_id_default'])) {
+				if (!$website AND wrap_setting('website_id_default')) {
 					$sql = sprintf('SELECT website_id, domain
-						FROM websites WHERE website_id = %d', $zz_setting['website_id_default']);
+						FROM websites WHERE website_id = %d', wrap_setting('website_id_default'));
 					$website = wrap_db_fetch($sql);
 				}
 				if ($website) {
 					// different site, read config for this site
 					$website_id = $website['website_id'];
-					$site = $zz_setting['site'] = $website['domain'];
+					$site = wrap_setting('site', $website['domain']);
 					$re_read_config = true;
 				}
 			}
 		} else {
-			$zz_setting['websites'] = false;
+			wrap_setting('websites', false);
 		}
-	} else {
-		if (empty($zz_setting['websites'])) $zz_setting['websites'] = false;
 	}
 
 	if ($site) {
-		$file = $zz_setting['log_dir'].'/config-'.str_replace('/', '-', $site).'.json';
+		$file = wrap_setting('log_dir').'/config-'.str_replace('/', '-', $site).'.json';
 	} else {
-		$file = $zz_setting['inc'].'/config.json';
+		$file = wrap_setting('inc').'/config.json';
 	}
 	if (!file_exists($file)) {
 		if ($mode === 'read') return;
@@ -187,9 +232,9 @@ function wrap_config($mode, $site = '') {
 	case 'write':
 		if (!wrap_database_table_check('_settings', true)) break;
 		
-		if (!empty($zz_setting['multiple_websites'])) {
+		if (wrap_setting('multiple_websites')) {
 			if (empty($website_id)) $website_id = 1;
-			$zz_setting['website_id'] = $website_id;
+			wrap_setting('website_id', $website_id);
 			$sql = sprintf('SELECT setting_key, setting_value
 				FROM /*_PREFIX_*/_settings
 				WHERE website_id = %d
@@ -212,54 +257,12 @@ function wrap_config($mode, $site = '') {
 /**
  * Default variables, post config
  *
- * @global array $zz_setting
  * @global array $zz_conf
+ * @global array $zz_page
  */
 function wrap_set_defaults_post_conf() {
 	global $zz_conf;
-	global $zz_setting;
 	global $zz_page;
-
-
-	// -------------------------------------------------------------------------
-	// Paths
-	// -------------------------------------------------------------------------
-	
-	$zz_setting['inc'] = realpath($zz_setting['inc']);
-
-	// localized includes
-	if (empty($zz_setting['custom']))	
-		$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
-
-	// modules
-	if (empty($zz_setting['modules_dir']))
-		$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
-	if (empty($zz_setting['themes_dir']))
-		$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
-
-	if (empty($zz_setting['modules'])) {
-		$zz_setting['modules'] = [];
-		if (is_dir($zz_setting['modules_dir'])) {
-			$handle = opendir($zz_setting['modules_dir']);
-			while ($file = readdir($handle)) {
-				if (substr($file, 0, 1) === '.') continue;
-				if (!is_dir($zz_setting['modules_dir'].'/'.$file)) continue;
-				$zz_setting['modules'][] = $file;
-			}
-			closedir($handle);
-		}
-		// some hosters sort files in reverse order
-		sort($zz_setting['modules']);
-		// put default module always on top to have the possibility to
-		// add functions with the same name in other modules
-		if ($key = array_search('default', $zz_setting['modules'])) {
-			unset($zz_setting['modules'][$key]);
-			array_unshift($zz_setting['modules'], 'default');
-		}
-	}
-	
-	// now we can use wrap_setting()
-	
 
 	// -------------------------------------------------------------------------
 	// Internationalization, Language, Character Encoding
@@ -442,7 +445,7 @@ function wrap_set_defaults_post_conf() {
 		if (empty($zz_page)) continue;
 		if (!array_key_exists($deprecated, $zz_page)) continue;
 		wrap_error(sprintf('@deprecated: $zz_page["%s"] is now $zz_setting["%s"]', $deprecated, $deprecated), E_USER_DEPRECATED);
-		$zz_setting[$deprecated] = $zz_page[$deprecated];
+		wrap_setting($deprecated, $zz_page[$deprecated]);
 	}
 	
 	// Theme
@@ -491,7 +494,6 @@ function wrap_tests() {
 /**
  * check if a URL is inside a WebDAV library and will not be handled by zzproject
  *
- * @global array $zz_setting
  * @return bool
  */
 function wrap_is_dav_url() {
