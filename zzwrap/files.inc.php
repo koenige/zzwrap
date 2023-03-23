@@ -186,28 +186,42 @@ function wrap_lib($libraries = []) {
 		$libraries = wrap_setting('ext_libraries');
 	elseif (!is_array($libraries))
 		$libraries = [$libraries];
+		
+	$possible_paths = [
+		wrap_setting('lib').'/%s.php',
+		wrap_setting('lib').'/%s/%s.php',
+		wrap_setting('lib').'/%s/autoload.php',
+		wrap_setting('lib').'/%s/vendor/autoload.php'
+	];
 
 	foreach ($libraries as $function) {
 		if (in_array($function, $included)) continue;
-		if (file_exists($file = wrap_setting('lib').'/'.$function.'.php')) 
-			require_once $file;
-		elseif (file_exists($file = wrap_setting('lib').'/'.$function.'/'.$function.'.php'))
-			require_once $file;
-		else {
-			$found = false;
+		$found = false;
+
+		$folders = wrap_collect_files(sprintf('libraries/%s', $function), 'modules');
+		if (array_key_exists($function, $folders)) {
 			// if library name is identical to module, just look inside module
-			$folders = in_array($function, wrap_setting('modules')) ? [$function] : wrap_setting('modules');
-			foreach ($folders as $module) {
-				$file = wrap_setting('modules_dir').'/'.$module.'/libraries/'.$function.'.inc.php';
+			require_once $folders[$function];
+			$found = true;
+		} elseif ($folders) {
+			// check all modules
+			$file = reset($folders);
+			require_once $file;
+			$found = true;
+		} else {
+			// look in possible paths
+			$func_vars = [$function, $function];
+			foreach ($possible_paths as $path) {
+				$file = vsprintf($path, $func_vars);
 				if (!file_exists($file)) continue;
 				require_once $file;
 				$found = true;
 				break;
 			}
-			if (!$found) {
-				wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
-			}
 		}
+		if (!$found)
+			wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
+
 		$included[] = $function;
 	}
 }
