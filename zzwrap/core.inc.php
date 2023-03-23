@@ -1744,7 +1744,9 @@ function wrap_file_send($file) {
 		'application/octet-stream', 'application/zip', 'text/html',
 		'application/xhtml+xml'
 	];
-	if (in_array($zz_page['content_type'], $download_filetypes)) {
+	if (in_array($zz_page['content_type'], $download_filetypes)
+		OR !empty($_GET['download'])
+	) {
 		wrap_http_content_disposition('attachment', $file['send_as']);
 			// d. h. bietet save as-dialog an, geht nur mit application/octet-stream
 		wrap_cache_header('Pragma: public');
