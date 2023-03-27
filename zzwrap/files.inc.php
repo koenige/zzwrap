@@ -121,7 +121,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 			if (str_starts_with($search, 'custom/')) {
 				array_unshift($files, $file);
 			} else {
-				$files[] = $file;
+				$files['custom'] = $file;
 			}
 		}
 	}

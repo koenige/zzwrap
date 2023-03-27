@@ -3595,7 +3595,7 @@ function wrap_cfg_files_parse($type) {
 	foreach ($files as $package => $cfg_file) {
 		$single_cfg[$package] = parse_ini_file($cfg_file, true);
 		foreach (array_keys($single_cfg[$package]) as $index)
-			$single_cfg[$package][$index]['module'] = $package ? $package : 'custom';
+			$single_cfg[$package][$index]['package'] = $package;
 		// might be called before database connection exists
 		if (wrap_db_connection()) {
 			wrap_cfg_translate($single_cfg[$package]);
@@ -3605,7 +3605,7 @@ function wrap_cfg_files_parse($type) {
 		foreach ($single_cfg[$package] as $key => $line) {
 			if (array_key_exists($key, $cfg))
 				foreach ($line as $subkey => $value) {
-					if ($subkey === 'module') continue;
+					if ($subkey === 'package') continue;
 					$cfg[$key][$subkey] = $value;
 				}
 			else
