@@ -1231,28 +1231,45 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
  */
 function wrap_page_format_files() {
 	static $included;
-	if (empty($included)) {
-		$included = [];
-		$included[] = 'custom';
-		wrap_include_files('format', 'custom');
-		// @todo add brick_formatting_functions_prefix
-		// @todo add functions from zzwrap/format.inc.php
-	}
-	$format_files = wrap_collect_files('format', 'active');
+	if (empty($included)) $included = [];
+	$format_files = wrap_collect_files('format', 'custom');
+	$format_files += wrap_collect_files('format', 'active');
 	foreach ($format_files as $package => $format_file) {
 		if (in_array($package, $included)) continue;
-		$existing_functions = get_defined_functions();
-		require_once $format_file;
 		$included[] = $package;
-		$new_existing_functions = get_defined_functions();
-		$new_functions = array_diff($new_existing_functions['user'], $existing_functions['user']);
-		foreach ($new_functions as $function) {
-			if (str_starts_with($function, 'mf_'.$package.'_')) {
-				$function = substr($function, strlen('mf_'.$package.'_'));
-				wrap_setting_add('brick_formatting_functions_prefix', [$function => 'mf_'.$package]);
-			}
-			wrap_setting_add('brick_formatting_functions', $function);
+		$new_functions = wrap_page_new_functions($format_file);
+		$prefix = $package === 'custom' ? 'my' : 'mf_'.$package;
+		wrap_page_add_format_functions($new_functions, $prefix);
+	}
+}
+
+/**
+ * get all function names in a file
+ *
+ * @param string $filed filename
+ * @return array
+ */
+function wrap_page_new_functions($file) {
+	$existing = get_defined_functions();
+	require_once $file;
+	$new = get_defined_functions();
+	$diff = array_diff($new['user'], $existing['user']);
+	return $diff;
+}
+
+/**
+ * add functions to brick_formatting_functions, register prefix
+ *
+ * @param string $filed filename
+ * @return array
+ */
+function wrap_page_add_format_functions($functions, $prefix) {
+	foreach ($functions as $function) {
+		if (str_starts_with($function, $prefix.'_')) {
+			$function = substr($function, strlen($prefix.'_'));
+			wrap_setting_add('brick_formatting_functions_prefix', [$function => $prefix]);
 		}
+		wrap_setting_add('brick_formatting_functions', $function);
 	}
 }
 
