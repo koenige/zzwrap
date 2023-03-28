@@ -100,7 +100,7 @@ function wrap_conditions($config, $detail) {
 	if (empty($data)) $data = [];
 	if (!$detail) return true;
 	if (empty($config['condition'])) return true;
-	$module = $config['condition_queries_module'] ?? $config['module'];
+	$module = $config['condition_queries_module'] ?? $config['package'];
 	if (!$module) $module = 'custom';
 	if (!empty($config['condition_query']))
 		$key = sprintf('%s_%s_%s', $module, $config['condition_query'], $detail);
