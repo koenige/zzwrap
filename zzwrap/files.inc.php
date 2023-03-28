@@ -253,7 +253,7 @@ function wrap_package_activate($package, $type = 'module') {
 	$package_info = wrap_cfg_files('package', ['package' => $package]);
 	if (!empty($package_info['dependencies'])) {
 		foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
-			if ($dependency_type === 'module') continue;
+			if ($dependency_type === 'package') continue;
 			foreach ($dependencies as $dependency) {
 				wrap_setting_add('activated['.$dependency_type.']', $dependency);
 			}
