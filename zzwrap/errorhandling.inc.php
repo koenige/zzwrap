@@ -139,7 +139,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		$mail['message'] = $msg;
 		$mail['parameters'] = wrap_setting('error_mail_parameters');
 		$mail['subject'] = '';
-		if (wrap_setting('mail_subject_prefix'))
+		if (!wrap_setting('mail_subject_prefix'))
 			$mail['subject'] = '['.wrap_setting('project').'] ';
 		$mail['subject'] .= (function_exists('wrap_text') ? wrap_text('Error on website') : 'Error on website')
 			.(!empty($settings['subject']) ? ' '.$settings['subject'] : '');
