@@ -40,9 +40,7 @@ function wrap_auth($force = false) {
 	global $zz_page;
 	static $authentication_was_called;
 
-	if (!$force) {
-		if ($authentication_was_called) return true; // don't run this function twice
-	}
+	if (!$force AND $authentication_was_called) return true; // don't run this function twice
 	$authentication_was_called = true;
 
 	// check if there are URLs that need authentication
@@ -96,18 +94,8 @@ function wrap_auth($force = false) {
 		OR (wrap_setting('local_access') AND !wrap_setting('local_https'))) ? '' : 's'));
 	// calculate maximum login time
 	// you'll stay logged in for x minutes
-	$keep_alive = wrap_setting('logout_inactive_after') * 60;
 	
-	$logged_in = true;
-	// Falls nicht oder zu lange eingeloggt, auf Login-Seite umlenken
-	// initialize request, should be in front of nocookie
-	if (empty($_SESSION['logged_in']) 
-		OR $now > ($_SESSION['last_click_at'] + $keep_alive)
-		OR (isset($_SESSION['domain']) AND !in_array($_SESSION['domain'], wrap_sql('domain')))) {
-		// get rid of domain, since user is not logged in anymore
-		$logged_in = false;
-	}
-
+	$logged_in = wrap_auth_logged_in($now);
 	if (!$logged_in) $logged_in = wrap_login_ip();
 	if (!$logged_in) $logged_in = wrap_login_http_auth();
 
@@ -138,6 +126,36 @@ function wrap_auth($force = false) {
 	if (!empty($zz_page['url']['redirect'])) {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, false);
 	}
+	return true;
+}
+
+/**
+ * check if user is logged in
+ *
+ * @param int $now
+ * @return bool
+ */
+function wrap_auth_logged_in($now) {
+	// session says no
+	if (empty($_SESSION['logged_in'])) return false;
+
+	// logout because of inactivty?
+	$keep_alive = wrap_setting('logout_inactive_after') * 60;
+	if ($now > ($_SESSION['last_click_at'] + $keep_alive)) return false;
+
+	// logged in, but under different domain?
+	if (isset($_SESSION['domain'])) {
+		if (in_array($_SESSION['domain'], wrap_sql('domain'))) return true;
+		// is it just not the canonical hostname?
+		$canonical_hostname = wrap_canonical_hostname();
+		if ($canonical_hostname
+			AND wrap_setting('hostname') !== wrap_canonical_hostname()
+			AND $_SESSION['domain'] === $canonical_hostname
+		) return true;
+		return false;
+	}
+
+	// everything ok
 	return true;
 }
 
