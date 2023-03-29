@@ -679,21 +679,11 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  */
 function wrap_check_canonical($zz_page, $page) {
 	// canonical hostname?
-	if (wrap_setting('canonical_hostname')) {
-		if (wrap_setting('local_access')) {
-			if (str_starts_with(wrap_setting('hostname'), 'dev.')) {
-				$canonical = 'dev.'.wrap_setting('canonical_hostname');
-			} else {
-				$canonical = wrap_setting('canonical_hostname').'.local';
-			}
-		} else {
-			$canonical = wrap_setting('canonical_hostname');
-		}
-		if (wrap_setting('hostname') !== $canonical) {
-			$zz_page['url']['full']['host'] = $canonical;
-			$zz_page['url']['redirect'] = true;
-			$zz_page['url']['redirect_cache'] = false;
-		}
+	$canonical = wrap_canonical_hostname();
+	if ($canonical AND wrap_setting('hostname') !== $canonical) {
+		$zz_page['url']['full']['host'] = $canonical;
+		$zz_page['url']['redirect'] = true;
+		$zz_page['url']['redirect_cache'] = false;
 	}
 	
 	// if database allows field 'ending', check if the URL is canonical
@@ -750,6 +740,24 @@ function wrap_check_canonical($zz_page, $page) {
 		$zz_page['url']['full']['query'] = http_build_query($params);
 	}
 	return $zz_page['url'];
+}
+
+/**
+ * get canonical hostname, care for development server
+ *
+ * @return string
+ */
+function wrap_canonical_hostname() {
+	if (!wrap_setting('canonical_hostname')) return '';
+
+	$canonical = wrap_setting('canonical_hostname');
+	if (wrap_setting('local_access')) {
+		if (str_starts_with(wrap_setting('hostname'), 'dev.'))
+			$canonical = 'dev.'.$canonical;
+		else
+			$canonical .= '.local';
+	}
+	return $canonical;	
 }
 
 /**
@@ -1193,14 +1201,11 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		$zz_page = wrap_ressource_by_url($zz_page, false);
 	}
 
-	if (wrap_setting('canonical_hostname')) {
-		$hostname = wrap_setting('hostname');
-		if (str_ends_with($hostname, '.local')) $hostname = substr($hostname, 0, -6);
-		elseif (str_starts_with($hostname, 'dev.')) $hostname = substr($hostname, 4);
-		if ($hostname !== wrap_setting('canonical_hostname')) {
+	if ($canonical_hostname = wrap_canonical_hostname()) {
+		if (wrap_setting('hostname') !== $canonical_hostname) {
 			// fix links on error page to real destinations
 			wrap_setting('host_base', 
-				wrap_setting('protocol').'://'.wrap_setting('canonical_hostname'));
+				wrap_setting('protocol').'://'.$canonical_hostname);
 			wrap_setting('homepage_url', wrap_setting('host_base').wrap_setting('homepage_url'));
 		}
 	}
