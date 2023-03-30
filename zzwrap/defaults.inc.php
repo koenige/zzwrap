@@ -395,8 +395,6 @@ function wrap_set_defaults_post_conf() {
 		}
 	if (empty($zz_conf['dir_custom']))
 		$zz_conf['dir_custom']		= wrap_setting('custom').'/zzform';
-	if (empty($zz_conf['dir_inc']))
-		$zz_conf['dir_inc']			= $zz_conf['dir'];
 	
 	// zzform db scripts
 	if (empty($zz_conf['form_scripts']))

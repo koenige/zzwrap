@@ -3245,8 +3245,6 @@ function wrap_is_int($var) {
  * @return bool
  */
 function wrap_setting_write($key, $value, $login_id = 0) {
-	global $zz_conf;
-
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
 		// support for keys that are arrays
@@ -3272,8 +3270,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	$result = wrap_db_query($sql);
 	if ($result) {
 		$id = !empty($result['id']) ? $result['id'] : false;
-		if (file_exists($zz_conf['dir_inc'].'/database.inc.php')) {
-			require_once $zz_conf['dir_inc'].'/database.inc.php';
+		if ($files = wrap_include_files('database', 'zzform')) {
 			zz_log_sql($sql, wrap_user('Servant Robot 247'), $id);
 		}
 		// activate setting
