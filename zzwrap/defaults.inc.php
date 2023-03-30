@@ -47,24 +47,22 @@ function wrap_set_defaults() {
  * default variables: paths
  *
  * @global array $zz_setting
- * @global array $zz_conf
  */
 function wrap_set_defaults_paths() {
 	global $zz_setting;
-	global $zz_conf;
 
 // -------------------------------------------------------------------------
-// Main paths, should be set in main.php
+// Main paths, deviations should be defined in main.php
 // -------------------------------------------------------------------------
 	
-	// http root directory
-	if (!isset($zz_conf['root']))
-		$zz_conf['root'] = $_SERVER['DOCUMENT_ROOT'];
-	if (substr($zz_conf['root'], -1) === '/')
-		$zz_conf['root'] = substr($zz_conf['root'], 0, -1);
+	// web root directory
+	if (!isset($zz_setting['root_dir']))
+		$zz_setting['root_dir'] = $_SERVER['DOCUMENT_ROOT'];
+	if (str_ends_with($zz_setting['root_dir'], '/'))
+		$zz_setting['root_dir'] = substr($zz_setting['root_dir'], 0, -1);
 	// includes
 	if (!isset($zz_setting['cms_dir']))
-		$zz_setting['cms_dir'] = realpath($zz_conf['root'].'/..');
+		$zz_setting['cms_dir'] = realpath($zz_setting['root_dir'].'/..');
 	if (!isset($zz_setting['inc']))
 		$zz_setting['inc'] = $zz_setting['cms_dir'].'/_inc';
 	$zz_setting['inc'] = realpath($zz_setting['inc']);
@@ -86,8 +84,6 @@ function wrap_set_defaults_paths() {
 /**
  * Default variables, pre config
  *
- * @global array $zz_setting
- * @global array $zz_conf
  */
 function wrap_set_defaults_pre_conf() {
 // -------------------------------------------------------------------------

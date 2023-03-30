@@ -1193,7 +1193,6 @@ function wrap_remove_query_strings($url, $objectionable_qs = []) {
  * @return exits function with a redirect or an error document
  */
 function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
-	global $zz_conf;
 	global $zz_page;
 
 	// for pages matching every URL, check if there’s a ressource somewhere else
@@ -1250,7 +1249,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		}
 		$newurl = parse_url($new);
 		if (empty($newurl['scheme'])) {
-			if (wrap_setting('base') AND file_exists($zz_conf['root'].'/'.$new)) {
+			if (wrap_setting('base') AND file_exists(wrap_setting('root_dir').'/'.$new)) {
 				// no language redirect if it's an existing file
 				$new = wrap_setting('host_base').$new;
 			} else {
