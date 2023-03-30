@@ -756,9 +756,7 @@ function wrap_bearing($value, $precision = 1) {
  * @return string
  */
 function wrap_latitude($value) {
-	global $zz_conf;
-	if (!file_exists($zz_conf['dir'].'/geo.inc.php')) return $value; // @todo
-	require_once $zz_conf['dir'].'/geo.inc.php';
+	if (!$files = wrap_include_files('geo', 'zzform')) return $value; // @todo
 	return zz_geo_coord_out($value, 'lat', 'dms');
 }
 
@@ -769,9 +767,7 @@ function wrap_latitude($value) {
  * @return string
  */
 function wrap_longitude($value) {
-	global $zz_conf;
-	if (!file_exists($zz_conf['dir'].'/geo.inc.php')) return $value; // @todo
-	require_once $zz_conf['dir'].'/geo.inc.php';
+	if (!$files = wrap_include_files('geo', 'zzform')) return $value; // @todo
 	return zz_geo_coord_out($value, 'lon', 'dms');
 }
 

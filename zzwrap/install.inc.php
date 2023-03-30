@@ -104,8 +104,7 @@ function wrap_install_dbname() {
  * @return bool
  */
 function wrap_install_module($module) {
-	global $zz_conf;
-	require_once $zz_conf['dir'].'/database.inc.php';
+	wrap_include_files('database', 'zzform');
 
 	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
 	
@@ -168,8 +167,7 @@ function wrap_install_zzform() {
  * @return mixed
  */
 function wrap_install_user() {
-	global $zz_conf;
-	require_once $zz_conf['dir'].'/_functions.inc.php';
+	wrap_include_files('_functions', 'zzform');
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_zzform();
