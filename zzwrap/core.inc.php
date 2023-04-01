@@ -2989,7 +2989,6 @@ function wrap_setting_log_missing($key, $cfg) {
  * @param array $old			Old array
  * @param array $new			New array
  * @return array $merged		Merged array
- * @see zz_array_merge
  */
 function wrap_array_merge($old, $new) {
 	foreach ($new as $index => $value) {
@@ -3815,9 +3814,12 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 	if (empty($filetypes)) {
 		$filetypes = [];
 		$files = wrap_collect_files('configuration/filetypes.cfg', 'modules/custom');
-		foreach ($files as $filename) {
+		foreach ($files as $filename)
 			$filetypes = wrap_filetypes_add($filename, $filetypes);
-		}
+		// support changes via settings, too, e. g. filetypes[m4v][multipage_thumbnail_frame] = 50
+		foreach (wrap_setting('filetypes') as $filetype => $config)
+			if (!array_key_exists($filetype, $filetypes)) wrap_error('No filetype %s exists.');
+			else $filetypes[$filetype] = wrap_array_merge($filetypes[$filetype], $config);
 	}
 
 	switch ($action) {
