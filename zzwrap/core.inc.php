@@ -3820,6 +3820,7 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 		foreach (wrap_setting('filetypes') as $filetype => $config)
 			if (!array_key_exists($filetype, $filetypes)) wrap_error('No filetype %s exists.');
 			else $filetypes[$filetype] = wrap_array_merge($filetypes[$filetype], $config);
+		$filetypes = wrap_filetypes_array($filetypes);
 	}
 
 	switch ($action) {
@@ -3892,22 +3893,35 @@ function wrap_filetypes_add($filename, $filetypes) {
 function wrap_filetypes_normalize($filetypes) {
 	foreach ($filetypes as $type => $values) {
 		$filetypes[$type]['filetype'] = $type;
-		if (empty($values['mime'])) {
-			$filetypes[$type]['mime'][0] = 'application/octet-stream';
-		} elseif (!is_array($values['mime'])) {
-			$filetypes[$type]['mime'] = [0 => $values['mime']];
-		}
-		if (empty($values['extension'])) {
-			$filetypes[$type]['extension'][0] = $type;
-		} elseif (!is_array($values['extension'])) {
-			$filetypes[$type]['extension'] = [0 => $values['extension']];
-		}
+		if (empty($values['mime']))
+			$filetypes[$type]['mime'] = ['application/octet-stream'];
+		if (empty($values['extension']))
+			$filetypes[$type]['extension'] = [$type];
 		if (!array_key_exists('thumbnail', $values))
 			 $filetypes[$type]['thumbnail'] = 0;
 		if (!array_key_exists('multipage', $values))
 			 $filetypes[$type]['multipage'] = 0;
-		if (array_key_exists('php', $values) AND !is_array($values['php']))
-			$filetypes[$type]['php'] = [$values['php']];
+	}
+	$filetypes = wrap_filetypes_array($filetypes);
+	return $filetypes;
+}
+
+/**
+ * make sure that some keys in wrap_filetypes() are an array
+ *
+ * @param array $filetypes
+ * @return array
+ */
+function wrap_filetypes_array($filetypes) {
+	$keys = [
+		'mime', 'extension', 'php', 'convert'
+	];
+	foreach ($filetypes as $type => $values) {
+		foreach ($keys as $key) {
+			if (!array_key_exists($key, $values)) continue;
+			if (is_array($values[$key])) continue;
+			$filetypes[$type][$key] = [$values[$key]];
+		}
 	}
 	return $filetypes;
 }
