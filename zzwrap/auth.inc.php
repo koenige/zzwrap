@@ -794,11 +794,9 @@ function wrap_login_format($field_value, $field_name) {
  * @param string $pass password as entered by user
  * @param string $hash hash as stored in database
  * @param int $login_id
- * @global array $zz_conf
  * @return bool true: given credentials are correct, false: no access!
  */
 function wrap_password_check($pass, $hash, $login_id = 0) {
-	global $zz_conf;
 	// password must not be longer than 72 characters
 	if (strlen($pass) > 72) return false;
 
@@ -816,7 +814,6 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
 		// to transfer old double md5 hashed logins without salt to more secure logins
 		if (!$hasher->CheckPassword(md5($pass), $hash)) return false;
 		// Update existing password
-		require_once $zz_conf['dir'].'/zzform.php';
 		$values['action'] = 'update';
 		$values['POST']['login_id'] = $login_id;
 		$values['POST']['secure_password'] = 'yes';
