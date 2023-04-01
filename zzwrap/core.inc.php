@@ -3902,12 +3902,12 @@ function wrap_filetypes_normalize($filetypes) {
 		} elseif (!is_array($values['extension'])) {
 			$filetypes[$type]['extension'] = [0 => $values['extension']];
 		}
-		if (!array_key_exists('thumbnail', $values)) {
+		if (!array_key_exists('thumbnail', $values))
 			 $filetypes[$type]['thumbnail'] = 0;
-		}
-		if (!array_key_exists('multipage', $values)) {
+		if (!array_key_exists('multipage', $values))
 			 $filetypes[$type]['multipage'] = 0;
-		}
+		if (array_key_exists('php', $values) AND !is_array($values['php']))
+			$filetypes[$type]['php'] = [$values['php']];
 	}
 	return $filetypes;
 }
