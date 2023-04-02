@@ -3209,7 +3209,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
  */
 
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
-	if (!$username) $username = wrap_user();
+	if (!$username) $username = wrap_username();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	if (substr($url, 0, 1) === '/') $url = wrap_setting('host_base').$url;
@@ -3270,7 +3270,9 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	if ($result) {
 		$id = !empty($result['id']) ? $result['id'] : false;
 		if ($files = wrap_include_files('database', 'zzform')) {
-			zz_log_sql($sql, wrap_user('Servant Robot 247'), $id);
+			wrap_setting('log_username_default', 'Servant Robot 247');
+			zz_log_sql($sql, '', $id);
+			wrap_setting_delete('log_username_default');
 		}
 		// activate setting
 		if (!$login_id) wrap_setting($key, $value);
@@ -3924,4 +3926,29 @@ function wrap_filetypes_array($filetypes) {
 		}
 	}
 	return $filetypes;
+}
+
+/**
+ * username inside system
+ *
+ * @param array $register (optional)
+ * @return string
+ */
+function wrap_username() {
+	$username = '';
+	if (wrap_setting('log_username'))
+		$username = wrap_setting('log_username');
+	elseif (!empty($_SESSION['username']))
+		$username = $_SESSION['username'];
+	elseif (!empty($_SERVER['PHP_AUTH_USER']))
+		$username = $_SERVER['PHP_AUTH_USER'];
+	elseif (wrap_setting('log_username_default'))
+		$username = wrap_setting('log_username_default');
+	
+	// suffix?
+	if ($suffix = wrap_setting('log_username_suffix'))
+		if ($username) $username = sprintf('%s (%s)', $username, $suffix);
+		else $username = wrap_setting('log_username_suffix');
+
+	return $username;
 }

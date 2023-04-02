@@ -14,9 +14,8 @@
 
 
 function wrap_install() {
-	global $zz_conf;
 	if (!wrap_setting('local_access')) return;
-	$zz_conf['user'] = 'Crew droid Robot 571';
+	wrap_setting('log_username', 'Crew droid Robot 571');
 
 	wrap_setting('template', 'install-page');
 	wrap_lib();
@@ -146,9 +145,7 @@ function wrap_install_module($module) {
  * @return void
  */
 function wrap_install_zzform() {
-	global $zz_conf;
 	global $zz_page;
-	require_once $zz_conf['dir'].'/zzform.php';
 
 	$zz_page['url']['full'] = [
 		'scheme' => wrap_setting('protocol'),

@@ -246,13 +246,11 @@ function cms_logout($params) {
  *		bool 'via': check login data from a different server, POST some JSON
  *		bool 'no-cookie': for cookie check only
  *		bool 'password': show form to retrieve forgotten password
- * @global array $zz_conf
  * @global array $zz_page
  * @return mixed bool false: login failed; array $page: login form; or redirect
  *		to (wanted) landing page
  */
 function cms_login($params, $settings = []) {
-	global $zz_conf;
 	global $zz_page;
 
 	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
@@ -394,16 +392,16 @@ function cms_login($params, $settings = []) {
 	// and in that case, redirect to wanted URL in database
 	if ($try_login) {
 		if (empty($_SESSION['logged_in'])) { // Login not successful
-			if (!$loginform['msg']) {
+			if (!$loginform['msg'])
 				$loginform['msg'] = wrap_text('Password or username incorrect. Please try again.');
-			}
 			$user = implode('.', $full_login);
-			if (empty($zz_conf['user'])) {
-				// Log failed login name in user name column, once.
-				$zz_conf['user'] = $user;
-				$user = '';
-			} else {
+			if ($username = wrap_username() AND $username !== $user) {
+				// alread a user is logged in, tried to log in to another account
 				$user .= "\n";
+			} else {
+				// Log failed login name in user name column, once.
+				wrap_setting('log_username', $user);
+				$user = '';
 			}
 			$error_settings = [
 				'log_post_data' => false
@@ -745,12 +743,10 @@ function wrap_register($user_id = false, $data = []) {
 		// data from cms_login_ldap() has to be dealt with in masquerade script
 	}
 	
-	foreach ($data as $key => $value) {
+	foreach ($data as $key => $value)
 		$_SESSION[$key] = $value; 
-	}
-	if (empty($_SESSION['domain'])) {
+	if (empty($_SESSION['domain']))
 		$_SESSION['domain'] = wrap_setting('hostname');
-	}
 
 	// Login: no user_id set so far, get it from SESSION
 	if (!$user_id) $user_id = $_SESSION['user_id'];

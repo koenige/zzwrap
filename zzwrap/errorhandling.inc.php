@@ -132,7 +132,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			$foot .= "\nBrowser: ".(!empty($_SERVER['HTTP_USER_AGENT']) 
 				? $_SERVER['HTTP_USER_AGENT'] : wrap_text('unknown'));	
 		// add user name to mail message if there is one
-		if ($user = wrap_user()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
+		if ($user = wrap_username()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
 		if ($foot) $msg .= "\n\n-- ".$foot;
 
 		$mail['to'] = wrap_setting('error_mail_to');
@@ -710,7 +710,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		$module = wrap_setting('active_module') ? wrap_setting('active_module') : 'custom';
 	}
 
-	$user = wrap_user();
+	$user = wrap_username();
 	$line = sprintf('[%s] %s %s: %s'
 		, date('d-M-Y H:i:s')
 		, $module
@@ -745,19 +745,4 @@ function wrap_log_encoding() {
 	if (!$log_recode = wrap_setting('log_recode')) return $log_encoding;
 	if (!array_key_exists($log_encoding, $log_recode)) return $log_encoding;
 	return $log_recode[$log_encoding];
-}
-
-/**
- * read username
- * either from setting log_username, SESSION or from $zz_conf
- *
- * @param string $default (optional)
- * @return string
- */
-function wrap_user($default = '') {
-	global $zz_conf;
-	if ($username = wrap_setting('log_username')) return $username;
-	if (!empty($_SESSION['username'])) return $_SESSION['username'];
-	if (!empty($zz_conf['user'])) return $zz_conf['user'];
-	return $default;
 }
