@@ -404,7 +404,7 @@ function wrap_install_cfg($table) {
 				}
 				if ($add_prefix) {
 					if (wrap_setting($prefixes[$key]))
-						$value = $wrap_setting($prefixes[$key]).$value;
+						$value = wrap_setting($prefixes[$key]).$value;
 					else
 						$value = $prefixes[$key].$value;
 				}

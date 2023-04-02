@@ -176,7 +176,7 @@ function wrap_text($string, $params = []) {
 	else
 		$language = wrap_setting('lang');
 	if (wrap_setting('language_default_for['.$language.']'))
-		$language = $wrap_setting('language_default_for['.$language.']');
+		$language = wrap_setting('language_default_for['.$language.']');
 
 	if (empty($text_included) OR $text_included !== $language) {
 		$text = [];
