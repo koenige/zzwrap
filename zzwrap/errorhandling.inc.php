@@ -626,6 +626,8 @@ function wrap_error_referer_local_redirect($referer_host) {
 	// missing www. redirect
 	if (strtolower('www.'.$referer_host) === strtolower(wrap_setting('hostname')))
 		return true;
+	if (strtolower($referer_host) === strtolower('www.'.wrap_setting('hostname')))
+		return true;
 
 	// canonical host name e. g. starts with www., access is from and to
 	// server without www. = referer is wrong
