@@ -3813,17 +3813,8 @@ function wrap_unlink_recursive($folder) {
 function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 	static $filetypes;
 	
-	if (empty($filetypes)) {
-		$filetypes = [];
-		$files = wrap_collect_files('configuration/filetypes.cfg', 'modules/custom');
-		foreach ($files as $filename)
-			$filetypes = wrap_filetypes_add($filename, $filetypes);
-		// support changes via settings, too, e. g. filetypes[m4v][multipage_thumbnail_frame] = 50
-		foreach (wrap_setting('filetypes') as $filetype => $config)
-			if (!array_key_exists($filetype, $filetypes)) wrap_error('No filetype %s exists.');
-			else $filetypes[$filetype] = wrap_array_merge($filetypes[$filetype], $config);
-		$filetypes = wrap_filetypes_array($filetypes);
-	}
+	if (empty($filetypes))
+		$filetypes = wrap_filetypes_init();
 
 	switch ($action) {
 	case 'read':
@@ -3861,6 +3852,24 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 		}
 		break;
 	}
+}
+
+/**
+ * read filetypes from filetypes.cfg, settings
+ *
+ * @return array
+ */
+function wrap_filetypes_init() {
+	$filetypes = [];
+	$files = wrap_collect_files('configuration/filetypes.cfg', 'modules/custom');
+	foreach ($files as $filename)
+		$filetypes = wrap_filetypes_add($filename, $filetypes);
+	// support changes via settings, too, e. g. filetypes[m4v][multipage_thumbnail_frame] = 50
+	foreach (wrap_setting('filetypes') as $filetype => $config)
+		if (!array_key_exists($filetype, $filetypes)) wrap_error('No filetype %s exists.');
+		else $filetypes[$filetype] = wrap_array_merge($filetypes[$filetype], $config);
+	$filetypes = wrap_filetypes_array($filetypes);
+	return $filetypes;
 }
 
 /**
