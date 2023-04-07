@@ -225,7 +225,7 @@ function wrap_create_id($id_title) {
 function wrap_get_menu($page) {
 	global $zz_page;
 	
-	if ($sql = wrap_sql('menu_hierarchy') AND !empty($zz_page['db']))
+	if ($sql = wrap_sql_query('page_menu_hierarchy') AND !empty($zz_page['db']))
 		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql_fields('page_id')], $sql);
 	else
 		$hierarchy = [];
@@ -309,10 +309,10 @@ function wrap_get_menu($page) {
  */
 function wrap_get_menu_navigation() {
 	// no menu query, so we don't have a menu
-	if (!wrap_sql('menu')) return [];
+	if (!wrap_sql_query('page_menu')) return [];
 
 	// get data from database
-	$unsorted_menu = wrap_db_fetch(wrap_sql('menu'), 'nav_id');
+	$unsorted_menu = wrap_db_fetch(wrap_sql_query('page_menu'), 'nav_id');
 	// translation if there's a function for it
 	if (function_exists('wrap_translate_menu'))
 		$unsorted_menu = wrap_translate_menu($unsorted_menu);
@@ -339,7 +339,7 @@ function wrap_get_menu_navigation() {
  */
 function wrap_get_menu_webpages() {
 	// no menu query, so we don't have a menu
-	if (!$sql = wrap_sql('menu')) return []; 
+	if (!$sql = wrap_sql_query('page_menu')) return []; 
 
 	$menu = [];
 	// get top menus
@@ -368,7 +368,7 @@ function wrap_get_menu_webpages() {
 	// get second (and third or fourth) hierarchy level
 	$levels = [2, 3, 4];
 	foreach ($levels as $level) {
-		if (!$sql = wrap_sql('menu_level'.$level)) continue;
+		if (!$sql = wrap_sql_query('page_menu_level'.$level)) continue;
 		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
 		$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 		if ($menu_table = wrap_sql_table('page_menu'))
@@ -652,7 +652,7 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  */
 function wrap_get_breadcrumbs($page_id) {
-	if (!($sql = wrap_sql('breadcrumbs'))) return [];
+	if (!($sql = wrap_sql_query('page_breadcrumbs'))) return [];
 	global $zz_page;
 
 	$breadcrumbs = [];
@@ -791,7 +791,7 @@ function wrap_nav_base() {
  * @return array authors, person = name, initials = initials, lowercase
  */
 function wrap_get_authors($brick_authors, $author_id = false) {
-	if (!($sql = wrap_sql('authors'))) return false;
+	if (!($sql = wrap_sql_query('page_authors'))) return false;
 
 	// add to extra page author to authors from brick_format()
 	if ($author_id) $brick_authors[] = $author_id;

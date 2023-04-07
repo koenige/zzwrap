@@ -263,7 +263,7 @@ function wrap_url_expand($url = false) {
  */
 function wrap_look_for_page($zz_page) {
 	// no database connection or settings are missing
-	if (!wrap_sql('pages')) wrap_quit(503);
+	if (!wrap_sql_query('core_pages')) wrap_quit(503);
 
 	// Prepare URL for database request
 	$url = wrap_read_url($zz_page['url']);
@@ -308,7 +308,7 @@ function wrap_look_for_page($zz_page) {
 		$urls[$index] = $line['url'];
 	}
 	$identifiers = array_unique($identifiers);
-	$sql = sprintf(wrap_sql('pages'), implode(',', $identifiers));
+	$sql = sprintf(wrap_sql_query('core_pages'), implode(',', $identifiers));
 	if (!wrap_rights('preview')) {
 		$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	}
@@ -881,7 +881,7 @@ function wrap_check_redirects($page_url) {
 		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql_fields('core_redirects_old_url')
 			, wrap_db_escape($url['db']), wrap_db_escape($_GET['lang']))
 		: '';
-	$sql = sprintf(wrap_sql('redirects')
+	$sql = sprintf(wrap_sql_query('core_redirects')
 		, '/'.wrap_db_escape($url['db'])
 		, '/'.wrap_db_escape($url['db'])
 		, '/'.wrap_db_escape($url['db']), $where_language
@@ -895,7 +895,7 @@ function wrap_check_redirects($page_url) {
 	// check full URL with query strings or ending for migration from a different CMS
 	$check = $url['full']['path'].(!empty($url['full']['query']) ? '?'.$url['full']['query'] : '');
 	$check = wrap_db_escape($check);
-	$sql = sprintf(wrap_sql('redirects'), $check, $check, $check, $where_language);
+	$sql = sprintf(wrap_sql_query('core_redirects'), $check, $check, $check, $where_language);
 	$redir = wrap_db_fetch($sql);
 	if ($redir) return $redir;
 
@@ -924,16 +924,16 @@ function wrap_check_redirects_placeholder($url, $position) {
 
 	switch ($position) {
 	case 'before':
-		$r_query = 'redirects*_';
+		$r_query = 'core_redirects*_';
 		break;
 	case 'behind':
-		$r_query = 'redirects_*';
+		$r_query = 'core_redirects_*';
 		break;
 	}
 
 	while (!$found) {
 		$current_path = sprintf('/%s', wrap_db_escape($url['db']));
-		$sql = sprintf(wrap_sql($r_query), $current_path);
+		$sql = sprintf(wrap_sql_query($r_query), $current_path);
 		$redir = wrap_db_fetch($sql);
 		if ($redir) break; // we have a result, get out of this loop!
 		$last_pos = 0;
@@ -1718,10 +1718,10 @@ function wrap_file_send($file) {
 	if (!empty($filetype_cfg['mime'][0])) {
 		$zz_page['content_type'] = $filetype_cfg['mime'][0];
 	} else {
-		$sql = sprintf(wrap_sql('filetypes'), $suffix);
+		$sql = sprintf(wrap_sql_query('core_filetypes'), $suffix);
 		$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 		if (!$zz_page['content_type']) {
-			$sql = sprintf(wrap_sql('filetypes'), $suffix_canonical);
+			$sql = sprintf(wrap_sql_query('core_filetypes'), $suffix_canonical);
 			$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 		}
 	}

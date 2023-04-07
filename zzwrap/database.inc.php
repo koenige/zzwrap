@@ -18,7 +18,7 @@
  *
  *	SQL functions
  *	- wrap_edit_sql()
- *	- wrap_sql()
+ *	- wrap_sql_query()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2023 Gustaf Mossakowski
@@ -973,96 +973,34 @@ function wrap_edit_sql_statement($sql, $statement) {
 }
 
 /**
- * Local database structure, modifications to SQL queries and field_names
+ * modify some queries if there are mulitple websites hosted
  *
- * wrap_get_menu_navigation():
- * $zz_sql['menu'] expects: nav_id, title, main_nav_id, url
- *		optional parameters: id_title, rest is free
- * wrap_get_menu_wepages():
- * $zz_sql['menu'] expects: page_id, title, mother_page_id, url, menu
- * $zz_sql['menu_level2'] expects: page_id, title, (id_title), mother_page_id, 
- *		url (function_url), menu
- * $zz_sql['authors'] person_id = ID, person = name of author
  * @param string $key
- * @param string $mode (optional: get(default), set, add, overwrite)
- * @return mixed true: set was succesful; string: SQL query or field name 
- *		corresponding to $key
+ * @param array $queries
+ * @return string
  */
-function wrap_sql($key, $mode = 'get', $value = false) {
-	static $zz_sql;
-	static $set;
+function wrap_sql_modify($key, $queries) {
 	static $modifications;
+	if (!wrap_setting('multiple_websites')) return $queries[$key];
 	if (empty($modifications)) $modifications = [];
-	if (!isset($zz_sql)) $zz_sql = [];
+	if (in_array($key, $modifications)) return $queries[$key];
 
-	// set variables
-	switch ($mode) {
-	case 'get':
-		// return variables
-		if (isset($zz_sql[$key])) return $zz_sql[$key];
-		else return NULL;
-	case 'set':
-		switch ($key) {
-		case 'core':
-			if (!empty($set['core'])) return true;
-			$set['core'] = true;
-			$zz_sql += wrap_system_sql('core');
-			break;
-		case 'page':
-			if (!empty($set['page'])) return true;
-			$set['page'] = true;
-			$zz_sql += wrap_system_sql('page');
-			break;
-		default:
-			if (!empty($set[$key])) return true;
-			$set[$key] = true;
-			$zz_sql += wrap_system_sql($key);
-			break;
-		}
-		if (file_exists(wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php')
-			AND wrap_db_connection())
-			require_once wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php';
-		
-		if (wrap_setting('multiple_websites')) {
-			$modify_queries = [
-				'pages', 'redirects', 'redirects_*', 'redirects*_', 'breadcrumbs',
-				'menu'
-			];
-			foreach ($modify_queries as $key) {
-				if (!in_array($key, $modifications) AND !empty($zz_sql[$key])) {
-					if (isset($zz_sql[$key.'_websites_where'])) {
-						// allow local modifications, e. g. menu_websites_where
-						if ($zz_sql[$key.'_websites_where']) {
-							$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
-								, $zz_sql[$key.'_websites_where']
-							);
-						}
-					} else {
-						$zz_sql[$key] = wrap_edit_sql($zz_sql[$key], 'WHERE'
-							, sprintf('website_id = %d', wrap_setting('website_id'))
-						);
-					}
-					$modifications[] = $key;
-				}
-			}
-		}
-		return true;
-	case 'add':
-		if (empty($zz_sql[$key])) {
-			$zz_sql[$key] = [$value];
-			return true;
-		}
-		if (is_array($zz_sql[$key])) {
-			$zz_sql[$key][] = $value;
-			return true;
-		}
-		return false;
-	case 'overwrite':
-		$zz_sql[$key] = $value;
-		return true;
-	default:
-		return false;	
+	$modify_queries = [
+		'core_pages', 'core_redirects', 'core_redirects_*', 'core_redirects*_',
+		'page_breadcrumbs','page_menu'
+	];
+	if (!in_array($key, $modify_queries)) return $queries[$key];
+	
+	$modifications[] = $key;
+	$where_key = $key.'_websites_where';
+	if (array_key_exists($where_key, $queries)) {
+		// allow local modifications, e. g. page_menu_websites_where
+		if (!$queries[$where_key]) return $queries[$key];
+		return wrap_edit_sql($queries[$key], 'WHERE', $queries[$where_key]);
 	}
+	return wrap_edit_sql($queries[$key], 'WHERE'
+		, sprintf('website_id = %d', wrap_setting('website_id'))
+	);
 }
 
 /**
@@ -1131,6 +1069,7 @@ function wrap_sql_query($key, $file = 'queries') {
 	if ($replace_key = wrap_setting('sql_query_key['.$key.']'))
 		$key = $replace_key;
 	if (!array_key_exists($key, $queries)) return '';
+	$queries[$key] = wrap_sql_modify($key, $queries);
 	$queries[$key] = wrap_sql_placeholders($queries[$key]);
 	if (count($queries[$key]) > 1) return $queries[$key];
 	return $queries[$key][0];

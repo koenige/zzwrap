@@ -47,11 +47,6 @@ function zzwrap() {
 	if (wrap_setting('multiple_websites'))
 		wrap_config('write', wrap_setting('site'));
 
-	// local modifications to SQL queries
-	// may need db connection
-	wrap_sql('core', 'set');
-	wrap_sql('page', 'set');
-	
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_check_request(); // affects $zz_page
 
