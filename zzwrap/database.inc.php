@@ -1133,6 +1133,8 @@ function wrap_sql_query($key, $file = 'queries') {
 			$collected[] = $package.'-'.$filename;
 		}
 	}
+	if ($replace_key = wrap_setting('sql_query_key['.$key.']'))
+		$key = $replace_key;
 	if (!array_key_exists($key, $queries)) return '';
 	$queries[$key] = wrap_sql_placeholders($queries[$key]);
 	if (count($queries[$key]) > 1) return $queries[$key];
