@@ -667,9 +667,9 @@ function wrap_login_http_auth() {
  */
 function wrap_login_http_oauth($access_token) {
 	if (wrap_setting('login_with_contact_id'))
-		$sql = wrap_sql_query('auth_acces_token_contact');
+		$sql = wrap_sql_query('auth_access_token_contact');
 	else
-		$sql = wrap_sql_query('auth_acces_token');
+		$sql = wrap_sql_query('auth_access_token');
 	$sql = sprintf($sql, wrap_db_escape($access_token));
 	$login['username'] = wrap_db_fetch($sql, '', 'single value');
 	if (!$login['username']) return wrap_login_http_auth_request();
