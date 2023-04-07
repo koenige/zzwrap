@@ -1017,8 +1017,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			if (!empty($set['auth'])) return true;
 			$set['auth'] = true;
 			$zz_sql += wrap_system_sql('auth');
-			if (empty($zz_sql['domain']))
-				$zz_sql['domain'] = [wrap_setting('hostname')];
 			break;
 		default:
 			if (!empty($set[$key])) return true;
@@ -1029,9 +1027,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 		if (file_exists(wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php')
 			AND wrap_db_connection())
 			require_once wrap_setting('custom_wrap_sql_dir').'/sql-'.$key.'.inc.php';
-
-		if (!empty($zz_sql['domain']) AND !is_array($zz_sql['domain']))
-			$zz_sql['domain'] = [$zz_sql['domain']];
 		
 		if (wrap_setting('multiple_websites')) {
 			$modify_queries = [

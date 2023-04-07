@@ -145,7 +145,7 @@ function wrap_auth_logged_in($now) {
 
 	// logged in, but under different domain?
 	if (isset($_SESSION['domain'])) {
-		if (in_array($_SESSION['domain'], wrap_sql('domain'))) return true;
+		if (in_array($_SESSION['domain'], wrap_setting('domains'))) return true;
 		// is it just not the canonical hostname?
 		$canonical_hostname = wrap_canonical_hostname();
 		if ($canonical_hostname
