@@ -87,9 +87,9 @@ function wrap_session_stop() {
 	}
 
 	// update login db if logged in, set to logged out
-	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql('logout'))
+	if (!empty($_SESSION['login_id']) AND $sql = wrap_sql_query('auth_logout'))
 		$sql = sprintf($sql, $_SESSION['login_id']);
-	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade'))
+	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql_query('auth_last_masquerade'))
 		$sql_mask = sprintf($sql_mask, 'NOW()', $_SESSION['mask_id']);
 	// Unset all of the session variables.
 	$_SESSION = [];

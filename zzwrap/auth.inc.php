@@ -50,9 +50,6 @@ function wrap_auth($force = false) {
 	// if cookie is needed
 	header('P3P: CP="This site does not have a p3p policy."');
 
-	// Local modifications to SQL queries
-	wrap_sql('auth', 'set');
-
 	// check if current URL needs authentication
 	if (!$force) {
 		$authentication = false;
@@ -112,11 +109,11 @@ function wrap_auth($force = false) {
 	// save successful request in database to prolong login time
 	$_SESSION['last_click_at'] = $now;
 	if (!empty($_SESSION['login_id'])) {
-		$sql = sprintf(wrap_sql('last_click'), $now, $_SESSION['login_id']);
+		$sql = sprintf(wrap_sql_query('auth_last_click'), $now, $_SESSION['login_id']);
 		// it's not important if an error occurs here
 		wrap_db_query($sql, E_USER_NOTICE);
 	}
-	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql('last_masquerade')) {
+	if (!empty($_SESSION['mask_id']) AND $sql_mask = wrap_sql_query('auth_last_masquerade')) {
 		$logout = (time() + wrap_setting('logout_inactive_after') * 60);
 		$keep_alive = date('Y-m-d H:i:s', $logout);
 		$sql_mask = sprintf($sql_mask, '"'.$keep_alive.'"', $_SESSION['mask_id']);
@@ -219,9 +216,6 @@ function wrap_authenticate_url($url = false, $no_auth_urls = []) {
  * @return - (redirect to main page)
  */
 function cms_logout($params) {
-	// Local modifications to SQL queries
-	wrap_sql('auth', 'set');
-	
 	// Stop the session, delete all session data
 	wrap_session_stop();
 
@@ -260,9 +254,6 @@ function cms_login($params, $settings = []) {
 		$url = cms_login_redirect_url();
 		if ($url) return cms_login_redirect($url);
 	}
-
-	// Local modifications to SQL queries
-	wrap_sql('auth', 'set');
 
 	// Set try_login to true if login credentials shall be checked
 	// if set to false, first show login form
@@ -609,7 +600,7 @@ function wrap_domain_path($setting) {
  * @return bool true: login was successful
  */
 function wrap_login_ip() {
-	$sql = wrap_sql('login_ip');
+	$sql = wrap_sql_query('auth_login_ip');
 	if (!$sql) return false;
 	$sql = sprintf($sql, wrap_db_escape(inet_pton($_SERVER['REMOTE_ADDR'])));
 	$username = wrap_db_fetch($sql, '', 'single value');
@@ -721,12 +712,9 @@ function wrap_login_hash($hash, $login) {
  * Writes SESSION-variables specific to different user ID
  *
  * @param int $user_id
- * @param array (optional) $data result of wrap_sql('login') or custom LDAP function
+ * @param array (optional) $data result of wrap_sql_query('auth_login') or custom LDAP function
  */
 function wrap_register($user_id = false, $data = []) {
-	// Local modifications to SQL queries
-	wrap_sql('auth', 'set');
-
 	if (!$data) {
 		// keep login ID
 		$login_id = $_SESSION['login_id'];
@@ -735,7 +723,7 @@ function wrap_register($user_id = false, $data = []) {
 		$_SESSION['login_id'] = $login_id;
 		$_SESSION['user_id'] = $user_id;
 		// masquerade login
-		if ($sql = wrap_sql('login_masquerade')) {
+		if ($sql = wrap_sql_query('auth_login_masquerade')) {
 			$sql = sprintf($sql, $user_id);
 			$data = wrap_db_fetch($sql);
 			$_SESSION['masquerade'] = true;
@@ -751,7 +739,7 @@ function wrap_register($user_id = false, $data = []) {
 	// Login: no user_id set so far, get it from SESSION
 	if (!$user_id) $user_id = $_SESSION['user_id'];
 
-	if ($sql = wrap_sql('login_settings') AND !empty($user_id)) {
+	if ($sql = wrap_sql_query('auth_login_settings') AND !empty($user_id)) {
 		$sql = sprintf($sql, $user_id);
 		$_SESSION['settings'] = wrap_db_fetch($sql, 'dummy_id', 'key/value');
 	}
@@ -874,7 +862,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 		// get password, even if it is empty
 		$sql = sprintf(wrap_sql_login(), $username);
 		$userdata = wrap_db_fetch($sql);
-		if (!$userdata AND $sql = wrap_sql('login_foreign')) {
+		if (!$userdata AND $sql = wrap_sql_query('auth_login_foreign')) {
 			if ($login_foreign_ids = wrap_setting('login_foreign_ids')) {
 				foreach ($login_foreign_ids as $id) {
 					$sql = sprintf($sql, $id, $username);
@@ -886,7 +874,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 				$userdata = wrap_db_fetch($sql);
 			}
 		}
-		if (!$userdata AND $sql = wrap_sql('login_user_id')) {
+		if (!$userdata AND $sql = wrap_sql_query('auth_login_user_id')) {
 			$sql = sprintf($sql, $username);
 			$userdata = wrap_db_fetch($sql);
 		}
@@ -907,7 +895,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
  * @return bool
  */
 function wrap_password_reminder($address, $additional_data = []) {
-	$sql = wrap_sql('password_reminder');
+	$sql = wrap_sql_query('auth_password_reminder');
 	// add address twice, if it's only once in the query, last parameter gets ignored
 	$sql = sprintf($sql, wrap_db_escape($address), wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);

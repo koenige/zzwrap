@@ -1274,10 +1274,10 @@ function wrap_sql_ignores($module = '', $table = '') {
  */
 function wrap_sql_login() {
 	if (wrap_setting('login_with_email'))
-		return wrap_sql('login_email');
+		return wrap_sql_query('auth_login_email');
 	if (wrap_setting('login_with_contact_id'))
-		return wrap_sql('login_contact');
-	return wrap_sql('login');
+		return wrap_sql_query('auth_login_contact');
+	return wrap_sql_query('auth_login');
 }
 
 /**
