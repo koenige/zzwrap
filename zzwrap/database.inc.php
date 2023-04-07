@@ -1013,11 +1013,6 @@ function wrap_sql($key, $mode = 'get', $value = false) {
 			$set['page'] = true;
 			$zz_sql += wrap_system_sql('page');
 			break;
-		case 'auth':
-			if (!empty($set['auth'])) return true;
-			$set['auth'] = true;
-			$zz_sql += wrap_system_sql('auth');
-			break;
 		default:
 			if (!empty($set[$key])) return true;
 			$set[$key] = true;
