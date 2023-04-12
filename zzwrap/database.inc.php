@@ -996,11 +996,13 @@ function wrap_sql_modify($key, $queries) {
 	if (array_key_exists($where_key, $queries)) {
 		// allow local modifications, e. g. page_menu_websites_where
 		if (!$queries[$where_key]) return $queries[$key];
-		return wrap_edit_sql($queries[$key], 'WHERE', $queries[$where_key]);
+		$condition = $queries[$where_key][0];
+	} else {
+		$condition = sprintf('website_id = %d', wrap_setting('website_id'));
 	}
-	return wrap_edit_sql($queries[$key], 'WHERE'
-		, sprintf('website_id = %d', wrap_setting('website_id'))
-	);
+	foreach ($queries[$key] as $index => $query)
+		$queries[$key][$index] = wrap_edit_sql($query, 'WHERE', $condition);
+	return $queries[$key];
 }
 
 /**
