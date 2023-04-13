@@ -1020,7 +1020,7 @@ function wrap_sql_query($key, $file = 'queries') {
 
 	$prefix = $package = substr($key, 0, strpos($key, '_'));
 	if (in_array($package, ['page', 'auth', 'core', 'ids'])) {
-		$package = 'default';
+		$package = 'modules';
 		$file = 'system';
 		$prefix_check = ['page', 'auth', 'core', 'ids'];
 	} else {
@@ -1056,8 +1056,7 @@ function wrap_sql_query($key, $file = 'queries') {
 	
 	if (!in_array($package.'-'.$filename, $collected)) {
 		$files = wrap_collect_files($filename, $package);
-		if ($files) {
-			$file = reset($files);
+		foreach ($files as $file) {
 			$package_queries = wrap_sql_file($file);
 			foreach ($package_queries as $p_key => $p_query) {
 				$p_query_prefix = substr($p_key, 0, strpos($p_key, '_'));
@@ -1065,8 +1064,8 @@ function wrap_sql_query($key, $file = 'queries') {
 				if (array_key_exists($p_key, $queries)) continue;
 				$queries[$p_key] = $p_query;
 			}
-			$collected[] = $package.'-'.$filename;
 		}
+		$collected[] = $package.'-'.$filename;
 	}
 	if ($replace_key = wrap_setting('sql_query_key['.$key.']'))
 		$key = $replace_key;
