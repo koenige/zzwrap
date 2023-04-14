@@ -713,6 +713,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	}
 
 	$user = wrap_username();
+	if (!$user) $user = wrap_setting('remote_ip');
 	$line = sprintf('[%s] %s %s: %s'
 		, date('d-M-Y H:i:s')
 		, $module
