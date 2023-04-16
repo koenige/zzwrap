@@ -1056,6 +1056,9 @@ function wrap_sql_query($key, $file = 'queries') {
 	
 	if (!in_array($package.'-'.$filename, $collected)) {
 		$files = wrap_collect_files($filename, $package);
+		// move default to end
+		if (array_key_exists('default', $files))
+			$files['default'] = array_shift($files);
 		foreach ($files as $file) {
 			$package_queries = wrap_sql_file($file);
 			foreach ($package_queries as $p_key => $p_query) {
