@@ -473,8 +473,8 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		if (in_array($menu_name, $menus)) return false;
 	}
 	
-	// no menu_name: use default menu name
-	if (!$menu_name)
+	// no menu_name: use default menu name but only if it exists, otherwise keep ''
+	if (!$menu_name AND wrap_setting('main_menu'))
 		$menu_name = wrap_setting('main_menu');
 
 	if (!$menu_name OR is_numeric($menu_name)) {
