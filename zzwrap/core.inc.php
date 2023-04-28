@@ -3125,6 +3125,40 @@ function wrap_mkdir($folder) {
 }
 
 /**
+ * call a job in the background, either with job manager or directly
+ *
+ * @param string $url
+ * @param array $data (optional, further values for _jobqueue table)
+ * @return bool
+ */
+function wrap_job($url, $data = []) {
+	$path = wrap_path('jobmanager', '', false);
+	if (!$path) $path = $url;
+	$data['url'] = $url;
+	list($status, $headers, $response) = wrap_get_protected_url($path, [], 'POST', $data);
+	if ($status === 200) return true;
+	wrap_error(sprintf('Job with URL %s failed.', $url));
+	return false;
+}
+
+/**
+ * add scheme and hostname to URL if missing
+ * look for `admin_hostname`
+ *
+ * @param string $url
+ * @return string
+ */
+function wrap_job_url_base($url) {
+	if (!str_starts_with($url, '/')) return $url;
+	if (!wrap_setting('admin_hostname')) return wrap_setting('host_base').$url;
+
+	$hostname = wrap_setting('admin_hostname');
+	if (str_ends_with(wrap_setting('hostname'), '.local')) $hostname .= '.local';
+	elseif (str_starts_with(wrap_setting('hostname'), 'dev.')) $hostname = 'dev.'.$hostname;
+	return wrap_setting('protocol').'://'.$hostname.$url;
+}
+
+/**
  * call a website in the background via http
  * https is not supported
  *
@@ -3213,7 +3247,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 	if (!$username) $username = wrap_username();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
-	if (substr($url, 0, 1) === '/') $url = wrap_setting('host_base').$url;
+	$url = wrap_job_url_base($url);
 
 	require_once __DIR__.'/syndication.inc.php';
 	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
