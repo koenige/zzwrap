@@ -562,7 +562,7 @@ function wrap_login($login) {
  * @return array $data
  */
 function wrap_login_db($login) {
-	$sql = sprintf(wrap_sql_login(), wrap_db_escape($login['username']));
+	$sql = sprintf(wrap_sql_login(), wrap_db_escape(strtolower($login['username'])));
 	$data = wrap_db_fetch($sql);
 	if (!$data) return [];
 
