@@ -21,7 +21,8 @@
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
- *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end'
+ *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end',
+ *		string 'class'
  * @global array $zz_page
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
@@ -157,7 +158,8 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		} else {
 			$msg = wrap_html_escape($msg);
 		}
-		$zz_page['error_msg'] .= '<p class="error">'
+		$class = $settings['class'] ?? 'error';
+		$zz_page['error_msg'] .= '<p class="'.$class.'">'
 			.str_replace("\n", "<br>", $msg).'</p>';
 		break;
 	default:
@@ -169,6 +171,35 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_errorpage($page, $zz_page, false);
 		exit;
 	}
+}
+
+/**
+ * log SQL query and time passed
+ *
+ * @param string $sql SQL query
+ * @param int $time time when query started
+ */
+function wrap_error_sql($sql, $time) {
+	$time = microtime(true) - $time;
+	wrap_error(
+		'-- SQL query in '.$time." --\n".$sql,
+		E_USER_NOTICE,
+		['class' => wrap_error_sql_class($time)]
+	);
+}
+
+/**
+ * add CSS class depending on time passed
+ *
+ * @param int $time time passed
+ * @return string
+ */
+function wrap_error_sql_class($time) {
+	if ($time > 0.1) return 'error';
+	if ($time > 0.01) return 'warning';
+	if ($time > 0.001) return 'notice';
+	return 'good';
+
 }
 
 /**

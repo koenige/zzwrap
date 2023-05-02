@@ -214,10 +214,8 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 
 	$sql = wrap_db_prefix($sql);
 	$result = mysqli_query(wrap_db_connection(), $sql);
-	if (wrap_setting('debug')) {
-		$time = microtime(true) - $time;
-		wrap_error('SQL query in '.$time.' - '.$sql, E_USER_NOTICE);
-	}
+	if (wrap_setting('debug'))
+		wrap_error_sql($sql, $time);
 	$tokens = explode(' ', $sql);
 	// @todo remove SET from token list after NO_ZERO_IN_DATE is not used
 	// by any application anymore
