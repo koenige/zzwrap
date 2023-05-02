@@ -907,7 +907,12 @@ function wrap_password_reminder($address, $additional_data = []) {
 		return false;
 	}
 	$data = array_merge($additional_data, $data);
-	$data['token'] = $data['username'].'-'.wrap_password_token($data['username'], 'password_key');
+	$token = wrap_password_token($data['username'], 'password_key');
+	if (!$token) {
+		wrap_error('Password reminder cannot be sent, no token was generated.', E_USER_WARNING);
+		return false;
+	}
+	$data['token'] = $data['username'].'-'.$token;
 	if (empty($data['subject'])) $data['subject'] = 'Forgotten Password';
 
 	$mail = [];
