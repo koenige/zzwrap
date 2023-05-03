@@ -3447,6 +3447,7 @@ function wrap_setting_key_array($key) {
  * allows settings from db to be in the format [1, 2, 3]; first \ will be
  * removed and allows settings starting with [
  *
+ * list items inside [] are allowed to be enclosed in "" to preserve spaces
  * @param string $setting
  * @return mixed
  */
@@ -3467,6 +3468,8 @@ function wrap_setting_value($setting) {
 		$settings = explode(',', $setting);
 		foreach ($settings as $index => $setting) {
 			$settings[$index] = trim($setting);
+			if (str_starts_with($settings[$index], '"') AND str_ends_with($settings[$index], '"'))
+				$settings[$index] = trim($settings[$index], '"');
 		}
 		return $settings;
 	case '?':
