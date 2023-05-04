@@ -945,6 +945,18 @@ function wrap_get_page() {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 
+	$page['title']		= wrap_page_h1($page);
+	!empty($page['project']) OR $page['project'] = wrap_text(wrap_setting('project'));
+	$page['pagetitle']	= wrap_page_title($page);
+
+	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json')) {
+		$page['text'] = json_encode([
+			$page['content_type_original'] => $page['text'],
+			'title' => wrap_page_title($page),
+			'url' => !empty($page['url']) ? $page['url'] : wrap_setting('request_uri')
+		]);
+	}
+
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
 		if (empty($page['headers'])) $page['headers'] = [];
 		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers']);
@@ -953,9 +965,6 @@ function wrap_get_page() {
 	$page['status']		= 200; // Seiteninhalt vorhanden!
 	!empty($page['lang']) OR $page['lang'] = wrap_setting('lang');
 	$page['media']		= wrap_page_media($page);
-	$page['title']		= wrap_page_h1($page);
-	!empty($page['project']) OR $page['project'] = wrap_text(wrap_setting('project'));
-	$page['pagetitle']	= wrap_page_title($page);
 	$page[wrap_sql_fields('page_last_update')] = wrap_page_last_update($page);
 	if (!empty($zz_page['db'][wrap_sql_fields('page_author_id')]))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql_fields('page_author_id')]);

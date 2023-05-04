@@ -1453,6 +1453,12 @@ function wrap_https_redirect() {
 function wrap_check_request() {
 	global $zz_page;
 
+	// check Accept Header
+	if (!empty($_SERVER['HTTP_ACCEPT']) AND $_SERVER['HTTP_ACCEPT'] === 'application/json') {
+		wrap_setting('cache', false);
+		wrap_setting('send_as_json', true);
+	}
+
 	// check REQUEST_METHOD, quit if inappropriate
 	wrap_check_http_request_method();
 
@@ -3247,6 +3253,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 	if (!$username) $username = wrap_username();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
+	$headers[] = 'Accept: application/json';
 	$url = wrap_job_url_base($url);
 
 	require_once __DIR__.'/syndication.inc.php';
