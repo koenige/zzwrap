@@ -3165,6 +3165,58 @@ function wrap_job_url_base($url) {
 }
 
 /**
+ * check if a job can be started
+ *
+ * @param string $type
+ * @return array
+ */
+function wrap_job_check($type) {
+	if (!wrap_job_page($type)) return true;
+	return mod_default_make_jobmanager_check();
+}
+
+/**
+ * automatically finish a job
+ *
+ * @param array $job
+ * @param string $type
+ * @param array $content
+ * @return void
+ */
+function wrap_job_finish($job, $type, $content) {
+	if (!wrap_job_page($type)) return true;
+	
+	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
+		$content['text'] = json_decode($content['text']);
+	
+	mod_default_make_jobmanager_finish(
+		$job,
+		$content['status'] ?? 200,
+		$content['extra']['job'] !== true ? $content['extra']['job'] : $content['text']
+	);
+}
+
+/**
+ * is page a job page?
+ *
+ * @param string $type
+ * @return bool
+ */
+function wrap_job_page($type) {
+	global $zz_page;
+	if ($type !== 'make') return false;
+	if (empty($zz_page['db']['parameters'])) return false;
+	parse_str($zz_page['db']['parameters'], $parameters);
+	if (empty($parameters['job'])) return false;
+	
+	$path = wrap_path('jobmanager', '', false);
+	if (!$path) return false; // no job manager active
+
+	wrap_include_files('zzbrick_make/jobmanager', 'default');
+	return true;
+}
+
+/**
  * call a website in the background via http
  * https is not supported
  *
