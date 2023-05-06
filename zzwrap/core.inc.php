@@ -3518,6 +3518,10 @@ function wrap_setting_value($setting) {
 	}
 	$setting = wrap_setting_value_placeholder($setting);
 
+	// if setting value is a constant, convert it to its numerical value	
+	if (preg_match('/^[A-Z_]+$/', $setting) AND defined($setting))
+		return constant($setting);
+
 	switch (substr($setting, 0, 1)) {
 	case '\\':
 		return substr($setting, 1);
