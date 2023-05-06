@@ -3144,7 +3144,7 @@ function wrap_job($url, $data = []) {
 	$data['url'] = $url;
 	list($status, $headers, $response) = wrap_get_protected_url($path, [], 'POST', $data);
 	if ($status === 200) return true;
-	wrap_error(sprintf('Job with URL %s failed.', $url));
+	wrap_error(sprintf('Job with URL %s failed. (Status: %d, Headers: %s)', $url, $status, json_encode($headers)));
 	return false;
 }
 
