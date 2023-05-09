@@ -311,7 +311,7 @@ function cms_login($params, $settings = []) {
 	// someone tried to login via POST
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['zz_action'])
 		AND empty($_POST['zz_review_via_login'])) {
-		wrap_include_files('functions', 'zzform');
+		wrap_include_files('session', 'zzform');
 		$loginform['hidden_fields'] = zz_session_via_login();
 	} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['request_password'])) {
 		$loginform['name'] = !empty($_POST['name']) ? $_POST['name'] : '';
