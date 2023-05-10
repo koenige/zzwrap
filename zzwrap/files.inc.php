@@ -138,7 +138,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
  */
 function wrap_tsv_parse($filename, $paths = '') {
 	$filename = sprintf('configuration/%s.tsv', $filename);
-	$files = wrap_collect_files($filename, $paths);
+	$files = $paths ? wrap_collect_files($filename, $paths) : wrap_collect_files($filename);
 	if (!$files) return [];
 	$data = [];
 	foreach ($files as $file) {
