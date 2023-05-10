@@ -3852,13 +3852,15 @@ function wrap_path_placeholder($path, $char = '%s') {
 	global $zz_page;
 	if (empty($zz_page['url_placeholders'])) return $path;
 	foreach (array_keys($zz_page['url_placeholders']) as $placeholder) {
-		$placeholder = sprintf('%%%s%%', $placeholder);
+		$placeholder = sprintf($char === '*' ? '/%%%s%%' : '%%%s%%', $placeholder);
 		if (!strstr($path, $placeholder)) continue;
 		$path = str_replace($placeholder, $char, $path);
 	}
 	// remove duplicate *
 	while (strstr($path, $char.'/'.$char))
 		$path = str_replace($char.'/'.$char, $char, $path);
+	while (strstr($path, $char.$char))
+		$path = str_replace($char.$char, $char, $path);
 	return $path;
 }
 
