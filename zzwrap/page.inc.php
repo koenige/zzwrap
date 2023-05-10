@@ -742,17 +742,38 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			$formatted_breadcrumbs[] = $crumb;
 			continue;
 		}
+		if (array_key_exists('linktext', $crumb)) {
+			// @deprecated notation
+			$crumb = [
+				'url_path' => $crumb['url'] ?? '',
+				'title' => $crumb['linktext'],
+				'title_attr' => $crumb['title'] ?? ''
+			];
+			wrap_error('Use notation with `title` and `url_path` instead of `linktext` and `url`', E_USER_DEPRECATED);
+		}
 		// don't show placeholder paths
 		$paths = explode('/', $crumb['url_path']);
 		foreach ($paths as $path) {
 			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
 		}
-		$current = ($base.$crumb['url_path'] === wrap_setting('request_uri') ? true : false);
-		$formatted_breadcrumbs[] = 
-			(($current OR !$crumb['url_path'])
-				? '<strong>' : '<a href="'.$base.$crumb['url_path'].'">')
-			.$crumb['title']
-			.(($current OR !$crumb['url_path']) ? '</strong>' : '</a>');
+		$crumb['url_path'] = $base.$crumb['url_path'];
+		$current = ($crumb['url_path'] === wrap_setting('request_uri') ? true : false);
+		if ($current) $crumb['url_path'] = '';
+
+		if ($crumb['url_path'] AND !empty($crumb['title_attr']))
+			$formatted_breadcrumbs[] = sprintf('<a href="%s" title="%s">%s</a>',
+				$crumb['url_path'], $crumb['title_attr'], $crumb['title']
+			);
+		elseif ($crumb['url_path'])
+			$formatted_breadcrumbs[] = sprintf('<a href="%s">%s</a>',
+				$crumb['url_path'], $crumb['title']
+			);
+		elseif (!empty($crumb['title_attr']))
+			$formatted_breadcrumbs[] = sprintf('<strong title="%s">%s</strong>',
+				$crumb['title_attr'], $crumb['title']
+			);
+		else
+			$formatted_breadcrumbs[] = sprintf('<strong>%s</strong>', $crumb['title']);
 	}
 	if (!$formatted_breadcrumbs) return '';
 	return implode(' '.wrap_setting('breadcrumbs_separator').' ', $formatted_breadcrumbs);
