@@ -752,6 +752,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 			wrap_error('Use notation with `title` and `url_path` instead of `linktext` and `url`', E_USER_DEPRECATED);
 		}
 		// don't show placeholder paths
+		if (!isset($crumb['url_path'])) $crumb['url_path'] = '';
 		$paths = explode('/', $crumb['url_path']);
 		foreach ($paths as $path) {
 			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
