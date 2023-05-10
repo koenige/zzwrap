@@ -393,8 +393,6 @@ function wrap_set_defaults_post_conf() {
 		if (file_exists($dir = wrap_setting('modules_dir').'/zzform/zzform')) {
 			$zz_conf['dir']				= $dir;
 		}
-	if (empty($zz_conf['dir_custom']))
-		$zz_conf['dir_custom']		= wrap_setting('custom').'/zzform';
 	
 	// zzform db scripts
 	if (empty($zz_conf['form_scripts']))
