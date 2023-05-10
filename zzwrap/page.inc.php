@@ -668,8 +668,36 @@ function wrap_get_breadcrumbs($page_id) {
 	// check for placeholders
 	$breadcrumb_placeholder = $zz_page['breadcrumb_placeholder'] ?? [];
 	$placeholder_url_paths = [];
-	foreach ($breadcrumb_placeholder as $placeholder)
+	foreach ($breadcrumb_placeholder as $index => $placeholder) {
 		$placeholder_url_paths[] = $placeholder['url_path'];
+		if (!empty($placeholder['add_next'])) {
+			$breadcrumbs = array_reverse($breadcrumbs);
+			$append = false;
+			$b_index = 0;
+			$pos = $index + 1;
+			while ($b_index < count($breadcrumbs)) {
+				if (substr_count($breadcrumbs[$b_index]['url_path'], '*') < $pos) {
+					// not interesting so far
+					$b_index++;
+					continue;
+				}
+				if (!$append) {
+					// ok, first element, will be duplicated
+					array_splice($breadcrumbs, $b_index, 0, [$breadcrumbs[$b_index]]);
+					$append = true;
+					$b_index++;
+					// no duplication of asterisks, therefore continue
+					continue;
+				}
+				// duplicate asterisks at position
+				$url_path = explode('*', $breadcrumbs[$b_index]['url_path']);
+				$url_path[$pos] = '*'.$url_path[$pos];
+				$breadcrumbs[$b_index]['url_path'] = implode('*', $url_path);
+				$b_index++;
+			}
+			$breadcrumbs = array_reverse($breadcrumbs);
+		}
+	}
 	foreach ($breadcrumbs as $index => &$breadcrumb) {
 		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
 		if ($breadcrumb_placeholder) {
