@@ -2790,30 +2790,31 @@ function wrap_static($var, $key = '', $value = NULL, $action = 'set') {
 	static $data = [];
 	if (!array_key_exists($var, $data)) $data[$var] = [];
 	
-	if ($value === NULL) return $data[$var];
-	switch ($action) {
-	case 'init':
-		$data[$var] = $value;
-		break;
-	case 'set':
-		$data[$var][$key] = $value;
-		break;
-	case 'add':
-		if (!array_key_exists($key, $data[$var])) $data[$var][$key] = [];
-		if (is_array($value)) $data[$var][$key] = array_merge($data[$var][$key], $value);
-		else $data[$var][$key][] = $value;
-		break;
-	case 'prepend':
-		if (empty($data[$var][$key])) $data[$var][$key] = $value;
-		else $data[$var][$key] = $value.$data[$var][$key];
-		break;
-	case 'append':
-		if (empty($data[$var][$key])) $data[$var][$key] = $value;
-		else $data[$var][$key] .= $value;
-		break;
-	case 'delete':
-		unset($data[$var][$key]);
-		break;
+	if ($value !== NULL) {
+		switch ($action) {
+		case 'init':
+			$data[$var] = $value;
+			break;
+		case 'set':
+			$data[$var][$key] = $value;
+			break;
+		case 'add':
+			if (!array_key_exists($key, $data[$var])) $data[$var][$key] = [];
+			if (is_array($value)) $data[$var][$key] = array_merge($data[$var][$key], $value);
+			else $data[$var][$key][] = $value;
+			break;
+		case 'prepend':
+			if (empty($data[$var][$key])) $data[$var][$key] = $value;
+			else $data[$var][$key] = $value.$data[$var][$key];
+			break;
+		case 'append':
+			if (empty($data[$var][$key])) $data[$var][$key] = $value;
+			else $data[$var][$key] .= $value;
+			break;
+		case 'delete':
+			unset($data[$var][$key]);
+			break;
+		}
 	}
 
 	if (!$key) return $data[$var];
