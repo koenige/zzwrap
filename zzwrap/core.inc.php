@@ -3187,7 +3187,10 @@ function wrap_job($url, $data = []) {
 	$path = wrap_path('jobmanager', '', false);
 	if (!$path) $path = $url;
 	$data['url'] = $url;
-	list($status, $headers, $response) = wrap_get_protected_url($path, [], 'POST', $data);
+	if (!empty($data['trigger']))
+		list($status, $headers, $response) = wrap_trigger_protected_url($path);
+	else
+		list($status, $headers, $response) = wrap_get_protected_url($path, [], 'POST', $data);
 	if ($status === 200) return true;
 	wrap_error(sprintf('Job with URL %s failed. (Status: %d, Headers: %s)', $url, $status, json_encode($headers)));
 	return false;
