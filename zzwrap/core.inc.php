@@ -3188,7 +3188,7 @@ function wrap_job($url, $data = []) {
 	if (!$path) $path = $url;
 	$data['url'] = $url;
 	if (!empty($data['trigger']))
-		list($status, $headers, $response) = wrap_trigger_protected_url($path);
+		list($status, $headers, $response) = wrap_trigger_protected_url($path, false, true, $data);
 	else
 		list($status, $headers, $response) = wrap_get_protected_url($path, [], 'POST', $data);
 	if ($status === 200) return true;
@@ -3221,6 +3221,9 @@ function wrap_job_url_base($url) {
  */
 function wrap_job_check($type) {
 	if (!wrap_job_page($type)) return true;
+	// check if jobmanager is present; since function is called regularly,
+	// do not use wrap_path() which needs a database connection
+	if (!wrap_setting('jobmanager_path')) return false;
 	return mod_default_make_jobmanager_check();
 }
 
@@ -3234,6 +3237,7 @@ function wrap_job_check($type) {
  */
 function wrap_job_finish($job, $type, $content) {
 	if (!wrap_job_page($type)) return true;
+	if (!wrap_setting('jobmanager_path')) return false;
 	
 	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
 		$content['text'] = json_decode($content['text']);
@@ -3319,9 +3323,10 @@ function wrap_trigger_url($url) {
  * @param string $url
  * @param string $username (optional)
  * @param bool $send_lock defaults to true, send lock hash to child process
+ * @param array $data (optional)
  * @return array from wrap_syndication_retrieve_via_http()
  */
-function wrap_trigger_protected_url($url, $username = false, $send_lock = true) {
+function wrap_trigger_protected_url($url, $username = false, $send_lock = true, $data = []) {
 	if (!$username)
 		$username = wrap_setting('log_username');
 	if (wrap_setting('log_trigger')) {
@@ -3335,7 +3340,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true) 
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
 		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
 	}
-	return wrap_get_protected_url($url, $headers, 'POST', [], $username);
+	return wrap_get_protected_url($url, $headers, 'POST', $data, $username);
 }
 
 /**
