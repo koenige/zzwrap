@@ -646,22 +646,56 @@ function wrap_get_top_nav_recursive($menu, $nav_id = false) {
 //
 
 /**
+ * set breadcrumbs for page
+ * merge breadcrumbs from database with breadcrumbs from script (if any)
+ * set breadcrumbs for error pages
+ *
+ * @param array $page_breadcrumbs
+ * @param int $status
+ * @return string
+ */
+function wrap_breadcrumbs($page_breadcrumbs, $status) {
+	global $zz_page;
+
+	$page_id = $zz_page['db'][wrap_sql_fields('page_id')] ?? false;
+	if ($page_id) {
+		// read breadcrumbs from database
+		$breadcrumbs = wrap_get_breadcrumbs($page_id);
+		// if there are breadcrumbs returned from brick_format, remove the last
+		// and append these breadcrumbs instead
+		if ($page_breadcrumbs) array_pop($breadcrumbs);
+	} else {
+		// page not in database/no database connection = error page
+		$breadcrumbs = [];
+		if (!wrap_setting('error_breadcrumbs_without_homepage_url')) {
+			$breadcrumbs[] = [
+				'url_path' => wrap_setting('homepage_url'),
+				'title' => wrap_setting('project')
+			];
+		}
+		$status = wrap_http_status_list($status);
+		$breadcrumbs[]['title'] = wrap_text($status['text']);
+	}
+	$breadcrumbs = array_merge($breadcrumbs, $page_breadcrumbs);
+	return wrap_htmlout_breadcrumbs($breadcrumbs);
+}
+
+/**
  * Reads webpages from database, creates breadcrumbs hierarchy
  * 
  * @param int $page_id ID of current webpage in database
  * @return array breadcrumbs, hierarchical ('title' => title of menu, 'url_path' = link)
  */
 function wrap_get_breadcrumbs($page_id) {
-	if (!($sql = wrap_sql_query('page_breadcrumbs'))) return [];
+	if (!$sql = wrap_sql_query('page_breadcrumbs')) return [];
 	global $zz_page;
 
 	$breadcrumbs = [];
 	// get all webpages
 	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	$pages = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
-	if (wrap_setting('translate_fields')) {
+	if (wrap_setting('translate_fields'))
 		$pages = wrap_translate($pages, wrap_sql_table('default_translation_breadcrumbs'), '', false);
-	}
 
 	// get all breadcrumbs recursively
 	$breadcrumbs = wrap_get_breadcrumbs_recursive($page_id, $pages);
@@ -742,27 +776,15 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 }
 
 /**
- * Creates html output of breadcrumbs, retrieves breadcrumbs from database
+ * Creates HTML output of breadcrumbs
  * 
- * @param int $page_id ID of webpage in hierarchy in database
- * @param array $brick_breadcrumbs Array of additional breadcrumbs from brick_format()
+ * @param array $breadcrumbs
  * @return string HTML output, plain linear, of breadcrumbs
  */
- function wrap_htmlout_breadcrumbs($page_id, $brick_breadcrumbs) {
-	// get breadcrumbs from database
-	$breadcrumbs = wrap_get_breadcrumbs($page_id);
-	if (!$breadcrumbs) return '';
-
+ function wrap_htmlout_breadcrumbs($breadcrumbs) {
 	// set default values
 	$base = wrap_nav_base();
 
-	// if there are breadcrumbs returned from brick_format, remove the last
-	// and append these breadcrumbs instead
-	if (!empty($brick_breadcrumbs)) {
-		array_pop($breadcrumbs);
-		$breadcrumbs = array_merge($breadcrumbs, $brick_breadcrumbs);
-	}
-	
 	// format breadcrumbs
 	$formatted_breadcrumbs = [];
 	foreach ($breadcrumbs as $crumb) {
@@ -1081,9 +1103,8 @@ function wrap_htmlout_page($page) {
 	// init page
 	if (file_exists($file = wrap_setting('custom').'/zzbrick_page/_init.inc.php'))
 		require_once $file;
-	if (empty($page['description'])) {
+	if (empty($page['description']))
 		$page['description'] = $zz_page['db']['description'] ?? '';
-	}
 
 	// bring together page output
 	// do not modify html, since this is a template
@@ -1098,10 +1119,8 @@ function wrap_htmlout_page($page) {
 	}
 	
 	$blocks = wrap_check_blocks(wrap_setting('template'));
-	if (in_array('breadcrumbs', $blocks)
-		AND (empty($page['breadcrumbs']) OR is_array($page['breadcrumbs']))) {
-		$page['breadcrumbs'] = wrap_htmlout_breadcrumbs($zz_page['db'][wrap_sql_fields('page_id')], $page['breadcrumbs']);
-	}
+	if (in_array('breadcrumbs', $blocks))
+		$page['breadcrumbs'] = wrap_breadcrumbs($page['breadcrumbs'] ?? [], $page['status']);
 	if (in_array('nav', $blocks) AND wrap_db_connection()) {
 		// get menus, if database connection active
 		$page = wrap_get_menu($page);

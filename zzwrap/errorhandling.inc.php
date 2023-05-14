@@ -296,13 +296,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	if (empty($page['lang'])) $page['lang'] = wrap_setting('lang');
 	$page['last_update'] = false;
-	if (!wrap_setting('error_breadcrumbs_without_homepage_url')) {
-		$page['breadcrumbs'] = '<strong><a href="'.wrap_setting('homepage_url').'">'
-			.wrap_setting('project').'</a></strong> '.wrap_setting('breadcrumbs_separator').' ';
-	} else {
-		$page['breadcrumbs'] = '';
-	}
-	$page['breadcrumbs'] .= wrap_text($status['text']);
 	$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle')
 		, $page['status'].' '.wrap_text($status['text'])
 		, wrap_text(wrap_setting('project'))
