@@ -112,6 +112,7 @@ function zzwrap() {
 	wrap_set_units();
 	if (!empty($_SESSION['logged_in'])) session_write_close();
 	$page = wrap_get_page();
+	$page = wrap_page_defaults($page);
 	
 	// output of content if not already sent by wrap_get_page()
 	wrap_htmlout_page($page);

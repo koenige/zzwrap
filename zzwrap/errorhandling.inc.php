@@ -296,11 +296,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	
 	if (empty($page['lang'])) $page['lang'] = wrap_setting('lang');
 	$page['last_update'] = false;
-	$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle')
-		, $page['status'].' '.wrap_text($status['text'])
-		, wrap_text(wrap_setting('project'))
-	);
-	$page['h1'] = wrap_text($status['text']);
+	if (empty($page['text'])) $page['error_no_content'] = true; // do not show title etc. from db
+	$page['error_title'] = wrap_text($status['text']);
 	$page['error_description'] = sprintf(wrap_text($status['description']), 
 		$_SERVER['REQUEST_METHOD']);
 	if (in_array($page['status'], $extra_description_codes)) {
@@ -339,6 +336,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 
 	// -- 5. output page
 	
+	$page = wrap_page_defaults($page);
 	wrap_htmlout_page($page);
 	exit;
 }
@@ -361,7 +359,7 @@ function wrap_errorpage_log($status, $page) {
 	
 	$log_encoding = wrap_log_encoding();
 
-	$msg = html_entity_decode(strip_tags($page['h1'])."\n\n"
+	$msg = html_entity_decode(strip_tags($page['error_title'])."\n\n"
 		.strip_tags($page['error_description'])."\n"
 		.strip_tags($page['error_explanation'])."\n\n", ENT_QUOTES, $log_encoding);
 	$settings = [];

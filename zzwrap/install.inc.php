@@ -50,8 +50,8 @@ function wrap_install() {
 		return false;
 	}
 	
-	$page['status'] = 200;
 	wrap_set_encoding('utf-8');
+	$page = wrap_page_defaults($page);
 	wrap_htmlout_page($page);
 	exit;
 }
