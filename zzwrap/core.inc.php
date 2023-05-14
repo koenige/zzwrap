@@ -3242,11 +3242,7 @@ function wrap_job_finish($job, $type, $content) {
 	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
 		$content['text'] = json_decode($content['text']);
 	
-	mod_default_make_jobmanager_finish(
-		$job,
-		$content['status'] ?? 200,
-		$content['extra']['job'] !== true ? $content['extra']['job'] : $content['text']
-	);
+	mod_default_make_jobmanager_finish($job, $content['status'] ?? 200, $content['text']);
 }
 
 /**
