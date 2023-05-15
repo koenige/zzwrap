@@ -24,11 +24,6 @@
 function zzwrap() {
 	global $zz_page;		// page variables
 
-	if (!empty($_SERVER['HTTP_X_TIMEOUT_IGNORE'])) {
-		ignore_user_abort(true);
-		set_time_limit(0);
-	}
-
 	wrap_includes();
 	wrap_set_defaults();
 	wrap_restrict_ip();

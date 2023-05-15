@@ -273,6 +273,16 @@ function wrap_set_defaults_post_conf() {
 		date_default_timezone_set(wrap_setting('timezone'));
 
 	// -------------------------------------------------------------------------
+	// Background jobs
+	// -------------------------------------------------------------------------
+
+	if (!empty($_SERVER['HTTP_X_TIMEOUT_IGNORE'])) {
+		ignore_user_abort(true);
+		set_time_limit(0);
+		wrap_setting('background_job', 1);
+	}
+
+	// -------------------------------------------------------------------------
 	// Request method
 	// -------------------------------------------------------------------------
 	
@@ -389,12 +399,14 @@ function wrap_set_defaults_post_conf() {
 	wrap_setting('core', __DIR__);
 	
 	// zzform path
+	// @deprecated
 	if (empty($zz_conf['dir']))
 		if (file_exists($dir = wrap_setting('modules_dir').'/zzform/zzform')) {
 			$zz_conf['dir']				= $dir;
 		}
 	
 	// zzform db scripts
+	// @deprecated
 	if (empty($zz_conf['form_scripts']))
 		$zz_conf['form_scripts']	= wrap_setting('custom').'/zzbrick_tables';
 	
@@ -427,18 +439,6 @@ function wrap_set_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	// Page
 	// -------------------------------------------------------------------------
-	
-	// @deprecated
-	$deprecated_zz_page = [
-		'breadcrumbs_separator', 'template_pagetitle', 'template_pagetitle_home',
-		'dont_show_h1', 'h1_via_template', 'template'
-	];
-	foreach ($deprecated_zz_page as $deprecated) {
-		if (empty($zz_page)) continue;
-		if (!array_key_exists($deprecated, $zz_page)) continue;
-		wrap_error(sprintf('@deprecated: $zz_page["%s"] is now $zz_setting["%s"]', $deprecated, $deprecated), E_USER_DEPRECATED);
-		wrap_setting($deprecated, $zz_page[$deprecated]);
-	}
 	
 	// Theme
 	if (wrap_setting('active_theme'))
