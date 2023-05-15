@@ -676,14 +676,22 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
  * unlock a realm
  *
  * @param string $realm
+ * @param string $mode
  * @return bool
  */
-function wrap_unlock($realm) {
+function wrap_unlock($realm, $mode = 'clear') {
 	$lockfile = wrap_lock_file($realm);
 	$hash = wrap_lock_hash();
 	$locking_hash = trim(file_get_contents($lockfile));
 	if ($locking_hash !== $hash) return false;
-	file_put_contents($lockfile, '');
+	switch ($mode) {
+	case 'clear':
+		file_put_contents($lockfile, '');
+		break;
+	case 'delete':
+		unlink($lockfile);
+		break;
+	}
 	return true;
 }
 
