@@ -226,7 +226,7 @@ function wrap_session_cookietest_end($token, $qs) {
 /**
  * expand URL (default = own URL)
  * shortcuts allowed: starting / = own server; ? = append query string
- * # = append anchor
+ * # = append anchor; ?? append query string and remove existing query string
  *
  * @param string $url
  * @return string
@@ -236,7 +236,11 @@ function wrap_url_expand($url = false) {
 		$url = wrap_setting('host_base').wrap_setting('request_uri');
 	elseif (substr($url, 0, 1) === '#')
 		$url = wrap_setting('host_base').wrap_setting('request_uri').$url;
-	elseif (substr($url, 0, 1) === '?') {
+	elseif (substr($url, 0, 2) === '??') {
+		$request_uri = wrap_setting('request_uri');
+		if ($pos = strpos($request_uri, '?')) $request_uri = substr($request_uri, 0, $pos);
+		$url = wrap_setting('host_base').$request_uri.substr($url, 1);
+	} elseif (substr($url, 0, 1) === '?') {
 		$request_uri = wrap_setting('request_uri');
 		if (strstr($request_uri, '?')) {
 			$qs = parse_url($request_uri, PHP_URL_QUERY);
