@@ -527,6 +527,8 @@ function wrap_mail_queue_send() {
 	if ($success) {
 		foreach ($used_logfiles as $logfile) unlink($logfile);
 	}
+	if (str_starts_with($old_mail_subject_prefix, '['))
+		$old_mail_subject_prefix = '\\'.$old_mail_subject_prefix;
 	wrap_setting('mail_subject_prefix', $old_mail_subject_prefix);
 	wrap_setting_delete('brick_url_parameter'); // needs to be set later on
 	
