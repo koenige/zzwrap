@@ -807,7 +807,7 @@ function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
 		foreach ($paths as $path) {
 			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
 		}
-		$crumb['url_path'] = $base.$crumb['url_path'];
+		if ($crumb['url_path']) $crumb['url_path'] = $base.$crumb['url_path'];
 		$current = ($crumb['url_path'] === wrap_setting('request_uri') ? true : false);
 		if ($current) $crumb['url_path'] = '';
 
