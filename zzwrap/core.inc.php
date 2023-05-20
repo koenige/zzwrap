@@ -1461,7 +1461,7 @@ function wrap_check_request() {
 
 	// check Accept Header
 	if (!empty($_SERVER['HTTP_ACCEPT']) AND $_SERVER['HTTP_ACCEPT'] === 'application/json') {
-		wrap_setting('cache', false);
+		wrap_setting('cache_extension', 'json');
 		wrap_setting('send_as_json', true);
 	}
 
@@ -2690,6 +2690,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$url['query'] = str_replace('%5B', '[', $url['query']);
 		$url['query'] = str_replace('%5D', ']', $url['query']);
 	}
+	$url['path'] = wrap_cache_extension($url['host'], $url['path']);
 	if (wrap_setting('cache_directories')) {
 		$url['path'] = explode('/', $url['path']);
 		foreach ($url['path'] as $index => $path) {
@@ -2714,6 +2715,27 @@ function wrap_cache_filename($type = 'url', $url = '') {
 
 	return false;
 }
+
+/**
+ * add extension to cache file in some cases
+ *
+ * @param string $host
+ * @param string $path
+ * @return string
+ */
+function wrap_cache_extension($host, $path) {
+	if (!$ext = wrap_setting('cache_extension')) return $path;
+	// only for localhost
+	if ($host !== wrap_setting('hostname')) return $path;
+	$ext = '.'.$ext;
+	if (str_ends_with($path, '/'))
+		return substr($path, 0, -1).$ext;
+	$parts = explode('/', $path);
+	// does it have already a file extension?
+	if (strstr(end($parts), '.')) return $path;
+	return $path.$ext;
+}
+
 
 /*
  * --------------------------------------------------------------------
