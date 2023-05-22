@@ -3383,12 +3383,46 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 	if (!$username) $username = wrap_username();
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
-	$headers[] = 'Accept: application/json';
+	// localhost: JSON
+	if (wrap_get_protected_url_local($url) AND wrap_get_protected_url_html($url))
+		$headers[] = 'Accept: application/json';
 	$url = wrap_job_url_base($url);
 
 	require_once __DIR__.'/syndication.inc.php';
 	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
 	return $result;
+}
+
+/**
+ * is URL on a local or admin server?
+ *
+ * @param string $url
+ * @return bool true: local or admin server, false: remote server
+ */
+function wrap_get_protected_url_local($url) {
+	if (str_starts_with($url, '/')) return true;
+	if (!wrap_setting('admin_hostname')) return false;
+	if (str_starts_with($url, wrap_setting('protocol').'://'.wrap_setting('admin_hostname').'/')) return true;
+	if (str_starts_with($url, wrap_setting('protocol').'://dev.'.wrap_setting('admin_hostname').'/')) return true;
+	if (str_starts_with($url, wrap_setting('protocol').'://'.wrap_setting('admin_hostname').'.local/')) return true;
+	return false;		
+}
+
+/**
+ * is URL most likely a HTML resource? check ending for that
+ *
+ * @param string $url
+ * @return bool true: probably is HTML, false: no HTML
+ */
+function wrap_get_protected_url_html($url) {
+	$parts = parse_url($url);
+	if (empty($parts['path'])) return true; // homepage
+	if (str_ends_with($parts['path'], '/')) return true;
+	if (str_ends_with($parts['path'], '.html')) return true;
+	if (str_ends_with($parts['path'], '.htm')) return true;
+	$path = explode('/', $parts['path']);
+	if (!strstr(end($path), '.')) return true;
+	return false;
 }
 
 /**
