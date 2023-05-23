@@ -59,6 +59,11 @@ msgstr ""
 msgid "Access to this website for your IP address is restricted."
 msgstr ""
 
+# check request
+#: zzwrap/core.inc.php
+msgid "URIs with more than %d slashes are not processed."
+msgstr ""
+
 # HTTP Status Code 300
 #: zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"

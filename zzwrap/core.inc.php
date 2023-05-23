@@ -1477,6 +1477,9 @@ function wrap_check_request() {
 	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
 	wrap_setting('request_uri', wrap_percent_encode_non_ascii(wrap_setting('request_uri')));
 	
+	if (wrap_setting('url_path_max_parts') AND substr_count(wrap_setting('request_uri'), '/') > wrap_setting('url_path_max_parts'))
+		wrap_quit(414, sprintf(wrap_text('URIs with more than %d slashes are not processed.'), wrap_setting('url_path_max_parts')));
+	
 	if (empty($zz_page['url']['full'])) {
 		$zz_page['url']['full'] = parse_url(wrap_setting('host_base').wrap_setting('request_uri'));
 		if (empty($zz_page['url']['full']['path'])) {

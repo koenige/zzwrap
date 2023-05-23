@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.1\n"
+"X-Generator: Poedit 1.8.12\n"
 
 #: zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
@@ -58,6 +58,11 @@ msgstr "Vorübergehend ist keine Anmeldung möglich."
 #: zzwrap/core.inc.php
 msgid "Access to this website for your IP address is restricted."
 msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
+
+# check request
+#: zzwrap/core.inc.php
+msgid "URIs with more than %d slashes are not processed."
+msgstr "URIs mit mehr als %d Schrägstrichen werden nicht verarbeitet."
 
 # HTTP Status Code 300
 #: zzwrap/errorhandling.inc.php
@@ -225,11 +230,11 @@ msgstr "Übergebene Daten zu groß"
 # HTTP Status Code 413
 #: zzwrap/errorhandling.inc.php
 msgid ""
-"The %s-method does not allow the data transmitted, or the data volume exceeds "
-"the capacity limit."
+"The %s-method does not allow the data transmitted, or the data volume "
+"exceeds the capacity limit."
 msgstr ""
-"Die bei der Anfrage übermittelten Daten sind für die %s-Methode nicht erlaubt "
-"oder die Datenmenge hat das Maximum überschritten."
+"Die bei der Anfrage übermittelten Daten sind für die %s-Methode nicht "
+"erlaubt oder die Datenmenge hat das Maximum überschritten."
 
 # HTTP Status Code 414
 #: zzwrap/errorhandling.inc.php
@@ -306,8 +311,8 @@ msgstr "Fehlerhaftes Gateway"
 #: zzwrap/errorhandling.inc.php
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr ""
-"Der Proxy-Server erhielt eine fehlerhafte Antwort eines übergeordneten Servers "
-"oder Proxies."
+"Der Proxy-Server erhielt eine fehlerhafte Antwort eines übergeordneten "
+"Servers oder Proxies."
 
 # HTTP Status Code 503
 #: zzwrap/errorhandling.inc.php
@@ -321,8 +326,8 @@ msgid ""
 "downtime or capacity problems. Please try again later."
 msgstr ""
 "Der Server kann zur Zeit Ihre Anfrage nicht bearbeiten. Grund kann eine "
-"Überlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es später "
-"noch einmal."
+"Überlastung oder eine Wartung des Servers sein. Bitte versuchen Sie es "
+"später noch einmal."
 
 # HTTP Status Code 504
 #: zzwrap/errorhandling.inc.php
