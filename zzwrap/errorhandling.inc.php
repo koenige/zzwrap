@@ -337,6 +337,18 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// -- 5. output page
 	
 	$page = wrap_page_defaults($page);
+
+	if (wrap_setting('send_as_json')) {
+		$page['text'] = [
+			'status' => $page['status'],
+			'title' => $page['error_title'],
+			'error_description' => $page['error_description'],
+			'error_explanation' => $page['error_explanation'] ?? '',
+			'url' => !empty($page['url']) ? $page['url'] : wrap_setting('request_uri')
+		];
+		return wrap_send_text(json_encode($page['text']), 'json', $page['status'], $page['headers'] ?? []);
+		exit;
+	}
 	wrap_htmlout_page($page);
 	exit;
 }
