@@ -732,6 +732,12 @@ function wrap_get_breadcrumbs($page_id) {
 			$breadcrumbs = array_reverse($breadcrumbs);
 		}
 	}
+	// only unique URL paths
+	$last_url = '';
+	foreach ($breadcrumbs as $index => $breadcrumb) {
+		if ($breadcrumb['url_path'] === $last_url) unset($breadcrumbs[$index]);
+		$last_url = $breadcrumb['url_path'];
+	}
 	foreach ($breadcrumbs as $index => &$breadcrumb) {
 		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
 		if ($breadcrumb_placeholder) {
