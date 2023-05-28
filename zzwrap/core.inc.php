@@ -3692,9 +3692,7 @@ function wrap_setting_register($config) {
 	$zzform_cfg = file_exists($zzform_cfg) ? parse_ini_file($zzform_cfg, true) : [];
 
 	foreach ($config as $skey => $value) {
-		if (str_starts_with($skey, 'zzform_')
-			AND (empty($zzform_cfg[$skey]) OR empty($zzform_cfg[$skey]['no_conf']))
-		) {
+		if (wrap_setting_zzconf($zzform_cfg, $skey)) {
 			$skey = substr($skey, 7);
 			$var = 'zz_conf';
 		} else {
@@ -3712,6 +3710,21 @@ function wrap_setting_register($config) {
 				$$var[$key] = array_merge_recursive($$var[$key], $value);
 		}
 	}
+}
+
+/**
+ * for zzform, check if key belongs to $zz_conf or to $zz_setting
+ *
+ * @param array $cfg
+ * @param string $key
+ * @return bool
+ */
+function wrap_setting_zzconf($cfg, $key) {
+	if (!str_starts_with($key, 'zzform_')) return false;
+	$key_short = ($pos = strpos($key, '[')) ? substr($key, 0, $pos) : '';
+	if ($key_short AND !empty($cfg[$key_short]['no_conf'])) return false;
+	if (!empty($cfg[$key]['no_conf'])) return false;
+	return true;
 }
 
 /**
