@@ -77,6 +77,7 @@ function wrap_db_connect() {
 function wrap_db_connection($db = []) {
 	static $connection;
 	if ($db === false) {
+		mysqli_close($connection);
 		$connection = NULL;
 		return NULL;
 	}
@@ -287,10 +288,8 @@ function wrap_db_error_no() {
 	];
 
 	$error_no = mysqli_errno(wrap_db_connection());
-	if (in_array($error_no, $close_connection_errors)) {
-		mysqli_close(wrap_db_connection());
+	if (in_array($error_no, $close_connection_errors))
 		wrap_db_connection(false);
-	}
 	return $error_no;
 }
 
