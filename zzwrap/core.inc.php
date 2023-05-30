@@ -3268,7 +3268,11 @@ function wrap_job_check($type) {
 function wrap_job_finish($job, $type, $content) {
 	if (!wrap_job_page($type)) return true;
 	if (!wrap_setting('jobmanager_path')) return false;
-	if (!$content) return false;
+
+	if (!$content) {
+		$content['status'] = 404;
+		$content['text'] = wrap_text('not found');
+	}
 	
 	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
 		$content['text'] = json_decode($content['text']);
