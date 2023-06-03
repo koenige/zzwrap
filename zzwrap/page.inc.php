@@ -944,7 +944,7 @@ function wrap_page_title($page) {
 	if (wrap_setting('translate_page_title') OR !empty($status))
 		$page['title'] = wrap_text($page['title']);
 
-	if (!empty($zz_page['url']) AND $zz_page['url']['full']['path'] === '/' AND empty($page['extra']['not_home'])) {
+	if (!empty($zz_page['db']) AND $zz_page['url']['full']['path'] === '/' AND empty($page['extra']['not_home'])) {
 		$page['pagetitle'] = strip_tags($zz_page['db'][wrap_sql_fields('page_title')]);
 		$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle_home'), $page['pagetitle'], $page['project']);
 	} else {
@@ -1220,6 +1220,7 @@ function wrap_check_blocks($template) {
 	if (empty($includes)) $includes = [];
 
 	$file = wrap_template_file($template);
+	if (!$file) return [];
 	$file = file_get_contents($file);
 	$blocks = [];
 	if (strstr($file, '%%% page breadcrumbs')) $blocks[] = 'breadcrumbs';
