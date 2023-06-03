@@ -357,7 +357,7 @@ msgstr ""
 " з IP-адресою %s\n"
 "Браузер %s\n"
 "\n"
-", але не вдалося знайти на сервері"
+"– але не вдалося знайти на сервері"
 
 #: zzwrap/errorhandling.inc.php
 msgid "Error on website"

@@ -377,6 +377,14 @@ msgstr ""
 msgid "Error on website"
 msgstr "Fehler auf der Website"
 
+#: zzwrap/files.inc.php
+msgid ""
+"The required library %s was not found. Please install it in the `_inc/"
+"library` folder."
+msgstr ""
+"Die erforderliche Bibliothek %s wurde nicht gefunden. Bitte installieren Sie "
+"sie im Ordner `_inc/library`."
+
 # Points of the compass (abbreviation, space, long form)
 #: zzwrap/format.inc.php
 msgid "N North"

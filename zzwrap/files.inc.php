@@ -220,7 +220,7 @@ function wrap_lib($libraries = []) {
 			}
 		}
 		if (!$found)
-			wrap_error(sprintf(wrap_text('Required library %s does not exist.'), '`'.$function.'`'), E_USER_ERROR);
+			wrap_error(sprintf(wrap_text('The required library %s does not exist. Please install it in the `_inc/library` folder.'), '`'.$function.'`'), E_USER_ERROR);
 
 		$included[] = $function;
 	}
