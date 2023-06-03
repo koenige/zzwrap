@@ -98,7 +98,7 @@ function wrap_template($template, $data = [], $mode = false) {
  */
 function wrap_template_file($template, $show_error = true) {
 	if (wrap_setting('active_theme')) {
-		$tpl_file = wrap_template_file_per_folder($template, wrap_setting('inc').'/themes/'.wrap_setting('active_theme').'/templates');
+		$tpl_file = wrap_template_file_per_folder($template, wrap_setting('themes_dir').'/'.wrap_setting('active_theme').'/templates');
 		if ($tpl_file) return $tpl_file;
 	}
 	
@@ -135,9 +135,7 @@ function wrap_template_file($template, $show_error = true) {
 		if ($tpl_file) $found[$package] = $tpl_file;
 	}
 	// ignore default template if there’s another template from a module
-	if (count($found) === 2 AND array_key_exists('default', $found)) {
-		unset($found['default']);
-	}
+	$found = wrap_template_file_decide($found);
 	
 	if (count($found) !== 1) {
 		if (!$show_error) return false;
@@ -162,6 +160,30 @@ function wrap_template_file($template, $show_error = true) {
 		$tpl_file = reset($found);
 	}
 	return $tpl_file;
+}
+
+/**
+ * decide if more than one template was found which one to use
+ *
+ * @param array $founde
+ * @return array
+ */
+function wrap_template_file_decide($found) {
+	if (count($found) <= 1) return $found;
+	
+	// remove inactive themes
+	foreach ($found as $package => $path) {
+		if (!str_starts_with($path, wrap_setting('themes_dir'))) continue;
+		if ($package === wrap_setting('active_theme')) continue;
+		unset($found[$package]);
+	}
+	if (count($found) <= 1) return $found;
+	
+	// two templates found? always overwrite default module
+	if (count($found) === 2 AND array_key_exists('default', $found))
+		unset($found['default']);
+
+	return $found;
 }
 
 /**
