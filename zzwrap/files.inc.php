@@ -158,7 +158,7 @@ function wrap_tsv_parse($filename, $paths = '') {
 				$data[trim($line[0])] = $line;
 				if ($head) {
 					foreach ($head as $index => $title)
-						$data[$line[0]][$title] = trim($line[$index]);
+						$data[$line[0]][$title] = !empty($line[$index]) ? trim($line[$index]) : '';
 				}
 			}
 		}
