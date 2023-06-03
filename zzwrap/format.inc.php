@@ -787,13 +787,10 @@ function wrap_normalize($input) {
 	}
 	
 	if (!$replacements) {
+		$normalization = wrap_tsv_parse('unicode-normalization');
 		$replacements = [];
-		$file = __DIR__.'/unicode-normalization.tsv';
-		$handle = fopen($file, 'r');
-		while (!feof($handle)) {
-			$line = fgetcsv($handle, 256, "\t");
-			if (empty($line[0])) continue;
-			if (substr($line[0], 0, 1) === '#') continue;
+		foreach ($normalization as $line) {
+			if ($line[0] === '-') continue;
 			$replacements[wrap_hex2chars($line[0])] = wrap_hex2chars($line[3]);
 		}
 	}
