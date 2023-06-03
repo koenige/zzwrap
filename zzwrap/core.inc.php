@@ -1314,39 +1314,15 @@ function wrap_http_status_header($code) {
 }
 
 /**
- * reads HTTP status codes from http-statuscodes.txt
+ * reads HTTP status codes from http-statuscodes.tsv
  *
  * @return array $codes
  */
 function wrap_http_status_list($code) {
-	$status = [];
-	
-	// read error codes from file
-	$pos[0] = 'code';
-	$pos[1] = 'text';
-	$pos[2] = 'description';
-	$codes_from_file = file(__DIR__.'/http-statuscodes.txt');
-	foreach ($codes_from_file as $line) {
-		if (str_starts_with($line, '#')) continue;	// Lines with # will be ignored
-		elseif (!trim($line)) continue;				// empty lines will be ignored
-		if (!str_starts_with($line, $code.'')) continue;
-		$values = explode("\t", trim($line));
-		$i = 0;
-		$code = '';
-		foreach ($values as $val) {
-			if (trim($val)) {
-				if (!$i) $code = trim($val);
-				$status[$pos[$i]] = trim($val);
-				$i++;
-			}
-		}
-		if ($i < 3) {
-			for ($i; $i < 3; $i++) {
-				$status[$pos[$i]] = '';
-			}
-		}
-	}
-	return $status;
+	static $data = [];
+	if (!$data) $data = wrap_tsv_parse('http-statuscodes');
+	if (!array_key_exists($code, $data)) return [];
+	return $data[$code];
 }
 
 /**
