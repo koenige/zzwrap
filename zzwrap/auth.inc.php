@@ -951,3 +951,35 @@ function wrap_sso_login($login_url, $dest_url = '/') {
 	);
 	return wrap_redirect($url, 307, false);
 }
+
+/**
+ * authentication via login form on remote server
+ *
+ * @param array $login
+ * 		string username
+ * 		string password
+ *		bool different_sign_on
+ * @param array $settings
+ *		string form_url
+ *		string form_sso_url
+ * @return array data from remote server
+ */
+function wrap_auth_form($login, $settings) {
+	require_once wrap_setting('core').'/syndication.inc.php';
+	
+	if (!empty($login['sso_token'])) {
+		$url = sprintf($settings['form_sso_url'], 'sso_'.$login['username'].'-'.$login['sso_token']);
+		list($status, $headers, $data)
+			= wrap_syndication_retrieve_via_http($url);
+	} else {
+		list($status, $headers, $data)
+			= wrap_syndication_retrieve_via_http($settings['form_url'], [], 'POST', $login);
+	}
+	if ($status !== 200) {
+		wrap_error(sprintf('FORMAUTH login failed. Status %s, Headers %s, Data %s',
+			$status, json_encode($headers), json_encode($data)
+		));
+		return [];
+	}
+	return json_decode($data, true);
+}
