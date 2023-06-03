@@ -123,15 +123,9 @@ function wrap_set_encoding($character_encoding) {
 function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	static $characters;
 
-	if (!$characters) {
-		$data = file(__DIR__.'/transliteration-characters.tsv');
-		foreach ($data as $line) {
-			if (!trim($line)) continue;
-			if (substr($line, 0, 1) === '#') continue;
-			$line = explode("\t", $line);
-			$characters[trim($line[0])] = trim($line[1]);
-		}
-	}
+	if (!$characters)
+		$characters = wrap_tsv_parse('transliteration-characters');
+	
 	$str = wrap_convert_string($str, 'UTF-8');
 	wrap_set_encoding('utf-8');
 	$str = trim($str);
