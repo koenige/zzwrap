@@ -253,18 +253,11 @@ function wrap_install_settings_write() {
  * @return bool
  */
 function wrap_install_settings_folders() {
-	global $zz_setting;
-	global $zz_conf;
+	$cfg = wrap_cfg_files('settings');
+	foreach ($cfg as $key => $definitions)
+		if (empty($definitions['install_folder'])) continue;
+		else wrap_mkdir(wrap_setting($key));
 
-	$configs = ['zz_setting', 'zz_conf'];
-	foreach ($configs as $config) {
-		foreach ($$config as $key => $value) {
-			if (!str_ends_with($key, '_dir')
-				AND !str_ends_with($key, '_folder')) continue;
-			if (file_exists($value)) continue;
-			wrap_mkdir($value);
-		}
-	}
 	$folders = [
 		'_inc/custom/zzbrick_forms', '_inc/custom/zzbrick_make', 
 		'_inc/custom/zzbrick_page', '_inc/custom/zzbrick_request', 
