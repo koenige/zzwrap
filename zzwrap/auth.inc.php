@@ -547,6 +547,10 @@ function wrap_login($login) {
 		$data = cms_login_formauth($login);
 		if ($data) $logged_in = true;
 	}
+	if (wrap_category_id('logins', 'check') AND !$logged_in) {
+		$data = wrap_login_external($login);
+		if ($data) $logged_in = true;
+	}
 	if (!$logged_in) return false;
 	wrap_register(false, $data);
 	return true;
@@ -706,6 +710,76 @@ function wrap_login_hash($hash, $login) {
 	$login['change_password'] = true;
 	$login['dont_require_old_password'] = true;
 	return $login;
+}
+
+/**
+ * external login via category_id
+ *
+ * @param array $login
+ * @return array
+ */
+function wrap_login_external($login) {
+	$servers = wrap_category_id('logins', 'list');
+	if (count($servers) === 1) return [];
+	
+	$sql = 'SELECT category_id, category, parameters
+		FROM categories
+		WHERE main_category_id = %d';
+	$sql = sprintf($sql, wrap_category_id('logins'));
+	$servers = wrap_db_fetch($sql, 'category_id');
+	
+	$data = [];
+	foreach ($servers as $server) {
+		parse_str($server['parameters'], $server['parameters']);
+		if (empty($server['parameters']['type'])) continue;
+		$server['parameters']['category_id'] = $server['category_id'];
+		switch ($server['parameters']['type']) {
+			case 'formauth':
+				$data = wrap_auth_form($login, $server['parameters']);
+				if ($data) continue 2;
+				break;
+			case 'ldap':
+			default:
+				wrap_error(sprintf('Login via %s is currently not supported.', strtoupper($server['parameters']['type'])), E_USER_ERROR);
+		}
+	}
+	if ($data) {
+		unset($data['login_id']);
+		unset($data['domain']);
+		$data['login_id'] = wrap_login_external_sync($data, $server['parameters']);
+	}
+	return $data;
+}
+
+/**
+ * sync external login data, save or update in local database
+ *
+ * @param array $data
+ * @return void
+ */
+function wrap_login_external_sync($data, $settings) {
+	$sql = 'SELECT login_id
+		FROM /*_PREFIX_*/logins
+		WHERE username = "%s"
+		AND login_category_id = %d';
+	$sql = sprintf($sql
+		, wrap_db_escape($data['username'])
+		, $settings['category_id']
+	);
+	$login_id = wrap_db_fetch($sql, '', 'single value');
+	if ($login_id) return $login_id;
+
+	$values = [];
+	$values['action'] = 'insert';
+	$values['POST']['username'] = $data['username'];
+	// @todo allow more sophisticated mapping of login_rights depending on remote data
+	$values['POST']['login_rights'] = $data['login_rights'] ?? wrap_setting('login_rights_default_external');
+	$values['POST']['password'] = wrap_random_hash(24);
+	$values['POST']['login_category_id'] = $settings['category_id'];
+	$ops = zzform_multi('logins', $values);
+	if (!$ops['id'])
+		wrap_error(sprintf('Unable to add external login for username %s and category ID %d', $data['username'], $settings['category_id']), E_USER_ERROR);
+	return $ops['id'];
 }
 
 /**
