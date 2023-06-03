@@ -31,6 +31,10 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	static $collect_messages;
 	static $collect_error_type;
 
+	if (wrap_setting('install')) {
+		echo $msg;
+		exit;
+	}
 	wrap_lib(); // for mail template, maybe zzbrick is used
 
 	if (!empty($settings['collect_start'])) {

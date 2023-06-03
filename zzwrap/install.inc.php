@@ -16,6 +16,7 @@
 function wrap_install() {
 	if (!wrap_setting('local_access')) return;
 	wrap_setting('log_username', 'Crew droid Robot 571');
+	wrap_setting('install', true);
 
 	wrap_setting('template', 'install-page');
 	wrap_lib();
