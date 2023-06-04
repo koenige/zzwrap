@@ -769,6 +769,7 @@ function wrap_login_external_sync($data, $settings) {
 	$login_id = wrap_db_fetch($sql, '', 'single value');
 	if ($login_id) return $login_id;
 
+	wrap_setting('log_username', $data['username']);
 	$values = [];
 	$values['action'] = 'insert';
 	$values['POST']['username'] = $data['username'];
