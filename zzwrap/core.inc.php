@@ -4078,7 +4078,7 @@ function wrap_filetypes_init() {
 	// support changes via settings, too, e. g. filetypes[m4v][multipage_thumbnail_frame] = 50
 	foreach (wrap_setting('filetypes') as $filetype => $config)
 		if (!array_key_exists($filetype, $filetypes))
-			wrap_error(sprintf('No filetype %s exists.', $filetype));
+			wrap_error(sprintf('No filetype `%s` exists.', $filetype));
 		else $filetypes[$filetype] = wrap_array_merge($filetypes[$filetype], $config);
 	$filetypes = wrap_filetypes_array($filetypes);
 	return $filetypes;
