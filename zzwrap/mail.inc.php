@@ -247,6 +247,7 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	if ($mail_check_mx AND !wrap_setting('mail_dont_check_mx')) {
 		$host = explode('@', $e_mail);
 		if (count($host) !== 2) return false;
+		if (in_array($host[1], wrap_setting('mail_mx_whitelist'))) return $e_mail;
 		// trailing dot to get a FQDN
 		if (substr($host[1], -1) !== '.') $host[1] .= '.';
 		// MX record is not obligatory, so use ANY
