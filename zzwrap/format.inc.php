@@ -593,6 +593,7 @@ function wrap_currency($currency) {
  * @return string
  */
 function wrap_html_escape($string) {
+	if (!$string) return $string;
 	// overwrite default character set UTF-8 because htmlspecialchars will
 	// return NULL if character set is unknown
 	switch (wrap_setting('character_set')) {
