@@ -1708,8 +1708,7 @@ function wrap_file_send($file) {
 	$filetype_cfg = wrap_filetypes($suffix_canonical);
 	if (!empty($filetype_cfg['mime'][0])) {
 		$zz_page['content_type'] = $filetype_cfg['mime'][0];
-	} else {
-		$sql = sprintf(wrap_sql_query('core_filetypes'), $suffix);
+	} elseif ($sql = sprintf(wrap_sql_query('core_filetypes'), $suffix)) {
 		$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
 		if (!$zz_page['content_type']) {
 			$sql = sprintf(wrap_sql_query('core_filetypes'), $suffix_canonical);
