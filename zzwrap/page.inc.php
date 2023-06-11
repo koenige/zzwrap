@@ -1040,7 +1040,7 @@ function wrap_get_page() {
 
 	$page['media']		= wrap_page_media($page);
 	$page[wrap_sql_fields('page_last_update')] = wrap_page_last_update($page);
-	if (!empty($zz_page['db'][wrap_sql_fields('page_author_id')]))
+	if (!empty($zz_page['db'][wrap_sql_fields('page_author_id')]) AND !empty($page['authors']))
 		$page['authors'] = wrap_get_authors($page['authors'], $zz_page['db'][wrap_sql_fields('page_author_id')]);
 
 	return $page;
