@@ -212,7 +212,7 @@ function wrap_session_cookietest_end($token, $qs) {
 	// return cookie missing message
 	$page['dont_show_h1'] = true;
 	$page['meta'][] = ['name' => 'robots', 'content' => 'noindex'];
-	$page['breadcrumbs'][] = 'Cookies';
+	$page['breadcrumbs'][]['title'] = 'Cookies';
 	$page['text'] = wrap_template('cookie', $data);
 	return $page;
 }
