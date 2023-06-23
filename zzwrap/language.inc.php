@@ -295,12 +295,24 @@ function wrap_text($string, $params = []) {
  * @param array $text
  * @param string $key
  * @param array $params
+ * @return string
  */
 function wrap_text_values($text, $key, $params) {
 	$string = $text[$key] ?? $key;
 	if (empty($params['values'])) return $string;
 	if (!is_array($params['values'])) $params['values'] = [$params['values']];
 	return vsprintf($string, $params['values']);
+}
+
+/**
+ * set a new key for a text
+ * shortcut for wrap_text()
+ *
+ * @param string $old
+ * @param string $new
+ */
+function wrap_text_set($old, $new) {
+	wrap_text($old, ['set' => $new]);
 }
 
 /**
