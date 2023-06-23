@@ -165,6 +165,7 @@ function wrap_text($string, $params = []) {
 	static $context;
 	static $replacements = [];
 	static $deprecation_error = false;
+	static $plurals = [];
 	
 	if (!$string) return $string;
 	if (wrap_setting('character_set') !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true))
@@ -228,10 +229,12 @@ function wrap_text($string, $params = []) {
 			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.wrap_setting('language_variation').'.po';
 		}
 
+		$plurals[$language] = [];
 		foreach ($files as $file) {
 			if (substr($file, -3) === '.po') {
 				$po_text = wrap_po_parse($file);
-				// @todo plurals
+				if (!empty($po_text['_po_header']['Language']))
+					$plurals[$po_text['_po_header']['Language']] = $po_text['_plural_forms'];
 				if (!empty($po_text['_global'])) {
 					$text = array_merge($text, $po_text['_global']);
 				}
@@ -268,6 +271,8 @@ function wrap_text($string, $params = []) {
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
 	
+	$params['plurals'] = $plurals[$language] ?? [];
+	
 	if (!empty($params['context']))
 		if (array_key_exists($params['context'], $context))
 			if (array_key_exists($string, $context[$params['context']]))
@@ -298,10 +303,34 @@ function wrap_text($string, $params = []) {
  * @return string
  */
 function wrap_text_values($text, $key, $params) {
-	$string = $text[$key] ?? $key;
-	if (empty($params['values'])) return $string;
+	$translation = $text[$key] ?? $key;
+	if (!isset($params['values'])) return $translation;
 	if (!is_array($params['values'])) $params['values'] = [$params['values']];
-	return vsprintf($string, $params['values']);
+	if (!is_array($translation)) return vsprintf($translation, $params['values']);
+	// @todo check for %d and support strings with more than one placeholder
+	// currently, has to be first placeholder
+	$counter = reset($params['values']);
+	$index = wrap_text_plurals($counter, $params['plurals']);
+	return vsprintf($translation[$index], $params['values']);
+}
+
+/**
+ * check if there is a plural form for a certain value
+ *
+ * @param int $counter
+ * @param array $plurals
+ * @return int
+ */
+function wrap_text_plurals($counter, $plurals) {
+	if (!$plurals) return 1; // no .po-file: return plural
+	
+	foreach ($plurals as $index => $plural) {
+		$check = str_replace('n', $counter, $plural);
+		// since we create the .po files, eval is not evil here
+		$result = eval("return $check;");
+		if ($result) return $index;
+	}
+	return $index; // return last index
 }
 
 /**
@@ -838,7 +867,7 @@ function wrap_po_parse($file) {
 				$text[$context][$chunk['msgid']] = $chunk['msgstr'];
 			}
 		} else {
-			$text[$context][$chunk['msgid']] = $chunk['msgstr[0]'];
+			$text[$context][$chunk['msgid_plural']][0] = $chunk['msgstr[0]'];
 			$i = 1;
 			while (isset($chunk['msgstr['.$i.']'])) {
 				$text[$context][$chunk['msgid_plural']][$i] = $chunk['msgstr['.$i.']'];
@@ -852,10 +881,45 @@ function wrap_po_parse($file) {
 		}
 	}
 	if (!empty($header['Plural-Forms'])) {
-		$text['_plural_forms'] = $header['Plural-Forms'];
+		$text['_plural_forms'] = wrap_po_plurals($header['Plural-Forms']);
 	}
 	$text['_po_header'] = $header;
 	return $text;
+}
+
+/**
+ * parse PO plural forms
+ *
+ * @param string $definition
+ * @return array
+ */
+function wrap_po_plurals($definition) {
+	$plurals = [];
+
+	$def = explode(';', trim($definition, ';'));
+	// get no. of plurals
+	$no = intval(trim($def[0], 'nplurals='));
+
+	// get bare calculation
+	$plurals = trim($def[1]);
+	$plurals = ltrim($plurals, 'plural=(');
+	$plurals = rtrim($plurals, ')');
+	$plurals = explode(':', $plurals);
+
+	if (count($plurals) === 1 AND $no === 2) {
+		array_unshift($plurals, '');
+		$plurals = array_reverse($plurals, true);
+	} else
+		while (count($plurals) !== $no)
+			$plurals[] = '';
+
+	// we only support plural definitions in correct order
+	foreach ($plurals as $index => &$plural) {
+		$plural = trim($plural);
+		if (str_ends_with($plural, ' ? '.$index))
+			$plural = rtrim($plural, ' ? '.$index);
+	}
+	return $plurals;
 }
 
 /**
@@ -909,11 +973,20 @@ function wrap_po_chunks($file) {
 function wrap_po_headers($headers) {
 	$my_headers = [];
 	$my_headers['X-Character-Encoding'] = '';
+	$append_header = '';
 	foreach ($headers as $header) {
+		if ($append_header) $header = $append_header.$header;
+		if (substr($header, -2) !== '\n') {
+			$append_header = $header;
+			continue;
+		} else {
+			$append_header = '';
+			$header = substr($header, 0, -2);
+		}
 		if (substr($header, -2) === '\n') $header = substr($header, 0, -2);
 		$tokens = explode(': ', $header);
 		$key = array_shift($tokens);
-		$my_headers[$key] = implode(' ', $tokens);
+		$my_headers[$key] = implode(': ', $tokens);
 		if ($key === 'Content-Type') {
 			if (substr($my_headers[$key], 0, 20) !== 'text/plain; charset=') continue;
 			$my_headers['X-Character-Encoding'] = strtolower(substr($my_headers[$key], 20));
