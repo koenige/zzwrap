@@ -867,12 +867,15 @@ function wrap_po_parse($file) {
 				$text[$context][$chunk['msgid']] = $chunk['msgstr'];
 			}
 		} else {
-			$text[$context][$chunk['msgid_plural']][0] = $chunk['msgstr[0]'];
+			$text[$context][$chunk['msgid_plural']][0] = $chunk['msgstr[0]'] ?? $chunk['msgid'];
 			$i = 1;
 			while (isset($chunk['msgstr['.$i.']'])) {
 				$text[$context][$chunk['msgid_plural']][$i] = $chunk['msgstr['.$i.']'];
 				$i++;
 			}
+			// set english plural
+			if ($i === 1)
+				$text[$context][$chunk['msgid_plural']][1] = $chunk['msgid_plural'];
 			$text['_plural'][$context][$chunk['msgid_plural']] = true;
 		}
 		if ($format) {
