@@ -153,7 +153,6 @@ function wrap_language_get_text($language) {
  *		actively used language on website @deprecated)
  * @global array $zz_conf	configuration variables
  * @return string $string	Translation of text
- * @see zz_text()
  */
 function wrap_text($string, $params = []) {
 	global $zz_conf;
@@ -161,11 +160,12 @@ function wrap_text($string, $params = []) {
 	static $text_included;
 	static $module_text;
 	static $context;
+	static $replacements = [];
+	static $deprecation_error = false;
 	
 	if (!$string) return $string;
-	if (wrap_setting('character_set') !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true)) {
+	if (wrap_setting('character_set') !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true))
 		$string = wrap_text_recode($string, 'utf-8');
-	}
 
 	// @deprecated
 	if (!is_array($params)) $params = ['lang' => $params];
@@ -177,6 +177,24 @@ function wrap_text($string, $params = []) {
 		$language = wrap_setting('lang');
 	if (wrap_setting('language_default_for['.$language.']'))
 		$language = wrap_setting('language_default_for['.$language.']');
+
+	// replacements?
+	if (!empty($params['replace']))
+		$replacements[$string] = $params['replace'];
+	if (!empty($zz_conf['text'][$language])) {
+		// @deprecated
+		if (!$deprecation_error)
+			wrap_error('Deprecated use of $zz_conf["text"]["'.$language.'"], use wrap_text() with replace instead.', E_USER_DEPRECATED);
+		$deprecation_error = true;
+		$replacements = array_merge($replacements, $zz_conf['text'][$language]);
+	}
+	if (!empty($zz_conf['text']['--'])) {
+		// @deprecated
+		if (!$deprecation_error)
+			wrap_error('Deprecated use of $zz_conf["text"]["--"], use wrap_text() with replace instead.', E_USER_DEPRECATED);
+		$deprecation_error = true;
+		$replacements = array_merge($replacements, $zz_conf['text']['--']);
+	}
 
 	if (empty($text_included) OR $text_included !== $language) {
 		$text = [];
@@ -238,17 +256,11 @@ function wrap_text($string, $params = []) {
 
 	$my_text = $text;
 	// active module?
-	if (wrap_setting('active_module') AND !empty($module_text[wrap_setting('active_module')])) {
+	if (wrap_setting('active_module') AND !empty($module_text[wrap_setting('active_module')]))
 		$my_text = array_merge($module_text[wrap_setting('active_module')], $text);
-	}
-	if (!empty($zz_conf['text'][$language])) {
-		$my_text = array_merge($my_text, $zz_conf['text'][$language]);
-	}
-	if (!empty($zz_conf['text']['--'])) {
-		foreach ($zz_conf['text']['--'] as $old => $new) {
-			$my_text[$old] = $my_text[$new];
-		}
-	}
+	// replacements?
+	foreach ($replacements as $old => $new)
+		$my_text[$old] = $my_text[$new] ?? $new;
 
 	// if string came from preg_replace_callback, it might be an array
 	if (is_array($string) AND !empty($string[1])) $string = $string[1];
