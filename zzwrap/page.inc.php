@@ -141,9 +141,9 @@ function wrap_template_file($template, $show_error = true) {
 		if (!$show_error) return false;
 		global $zz_page;
 		if (!$found) {
-			$error_msg = sprintf(wrap_text('Template <code>%s</code> does not exist.'), wrap_html_escape($template));
+			$error_msg = wrap_text('Template <code>%s</code> does not exist.', ['values' => wrap_html_escape($template)]);
 		} else {
-			$error_msg = sprintf(wrap_text('More than one template with the name <code>%s</code> exists.'), wrap_html_escape($template));
+			$error_msg = wrap_text('More than one template with the name <code>%s</code> exists.', ['values' => wrap_html_escape($template)]);
 		}
 		if (!empty($zz_page['error_code'])) {
 			echo $error_msg;
@@ -989,7 +989,7 @@ function wrap_page_check_if_error($page) {
 
 	if (!empty($page['error']['level'])) {
 		if (!empty($page['error']['msg_text']) AND !empty($page['error']['msg_vars'])) {
-			$msg = vsprintf(wrap_text($page['error']['msg_text']), $page['error']['msg_vars']);
+			$msg = wrap_text($page['error']['msg_text'], ['values' => $page['error']['msg_vars']]);
 		} elseif (!empty($page['error']['msg_text'])) {
 			$msg = wrap_text($page['error']['msg_text']);
 		} else {

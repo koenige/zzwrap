@@ -5,10 +5,10 @@
  * File functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2017, 2020 Gustaf Mossakowski
+ * @copyright Copyright © 2017, 2020, 2023 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -21,10 +21,9 @@
  * @return string
  */
 function wrap_file_delete_line($file, $lines) {
-
 	// check if file exists and is writable
 	if (!is_writable($file))
-		return sprintf(wrap_text('File %s is not writable.'), $file);
+		return wrap_text('File %s is not writable.', ['values' => $file]);
 
 	$deleted = 0;
 	$content = file($file);
@@ -43,11 +42,11 @@ function wrap_file_delete_line($file, $lines) {
 
 	// open file for writing
 	if (!$handle = fopen($file, 'w+'))
-		return sprintf(wrap_text('Cannot open %s for writing.'), $file);
+		return wrap_text('Cannot open %s for writing.', ['values' => $file]);
 
 	foreach($content as $line)
 		fwrite($handle, $line);
 
 	fclose($handle);
-	return sprintf(wrap_text('%s lines deleted.'), $deleted);
+	return wrap_text('%s lines deleted.', ['values' => $deleted]);
 }

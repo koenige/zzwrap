@@ -302,12 +302,12 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	$page['last_update'] = false;
 	if (empty($page['text'])) $page['error_no_content'] = true; // do not show title etc. from db
 	$page['error_title'] = wrap_text($status['text']);
-	$page['error_description'] = sprintf(wrap_text($status['description']), 
-		$_SERVER['REQUEST_METHOD']);
+	$page['error_description'] = wrap_text($status['description'], ['values' =>  
+		$_SERVER['REQUEST_METHOD']]);
 	if (in_array($page['status'], $extra_description_codes)) {
-		$page['error_explanation'] = ' '.sprintf(wrap_text('Please try to find the '
-			.'content you were looking for from our <a href="%s">main page</a>.'),
-			wrap_setting('homepage_url'));
+		$page['error_explanation'] = ' '.wrap_text('Please try to find the '
+			.'content you were looking for from our <a href="%s">main page</a>.',
+			['values' => wrap_setting('homepage_url')]);
 	} else {
 		$page['error_explanation'] = '';
 	}
@@ -391,10 +391,10 @@ function wrap_errorpage_log($status, $page) {
 		// own error message!
 		$requested = $zz_page['url']['full']['scheme'].'://'
 			.wrap_setting('hostname').wrap_setting('request_uri');
-		$msg = sprintf(wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
+		$msg = wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
-			." but could not be found on the server"), $requested, 
-			$_SERVER['HTTP_REFERER'], wrap_setting('remote_ip'), $_SERVER['HTTP_USER_AGENT']);
+			." but could not be found on the server", ['values' => [$requested, 
+			$_SERVER['HTTP_REFERER'], wrap_setting('remote_ip'), $_SERVER['HTTP_USER_AGENT']]]);
 		if (!empty($_POST)) {
 			$msg .= "\n\n".wrap_print($_POST, false, false);
 		}

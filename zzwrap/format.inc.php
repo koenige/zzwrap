@@ -497,9 +497,9 @@ function wrap_number($number, $format = false) {
 			// if it's a valid number, no character may remain
 			if ($number) $error = true;
 			if ($error) {
-				wrap_error(sprintf(wrap_text(
+				wrap_error(wrap_text(
 					'Sorry, <strong>%s</strong> appears not to be a valid roman number.'
-				), wrap_html_escape($input)), E_USER_NOTICE);
+				, ['values' => wrap_html_escape($input)]), E_USER_NOTICE);
 				return '';
 			}
 		}
@@ -520,8 +520,8 @@ function wrap_number($number, $format = false) {
 		}
 		return $output;
 	default:
-		wrap_error(sprintf(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.'),
-			wrap_html_escape($format)), E_USER_NOTICE);
+		wrap_error(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.',
+			['values' => wrap_html_escape($format)]), E_USER_NOTICE);
 		return '';
 	}
 }
@@ -931,7 +931,7 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
 		foreach ($data as $type => $count) {
 			if (!$count) continue;
 			if ($count === 1) $out[] = wrap_text('1 '.$type);
-			else $out[] = sprintf(wrap_text('%d '.$type.'s'), $count);
+			else $out[] = wrap_text('%d '.$type.'s', ['values' => $count]);
 		}
 		return implode(', ', $out);
 	case 'H:i':

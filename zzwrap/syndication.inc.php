@@ -902,7 +902,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		// file was changed, remove old line, add new line
 		unset($watched_files[$remove]);
 		if (!$handle = fopen($logfile, 'w+'))
-			return false; //sprintf(wrap_text('Cannot open %s for writing.'), $file);
+			return false; //wrap_text('Cannot open %s for writing.', ['values' => $file]);
 		foreach ($watched_files as $line)
 			fwrite($handle, $line);
 		fclose($handle);

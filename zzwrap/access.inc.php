@@ -371,14 +371,14 @@ function wrap_test_secret_key($secret_key) {
 function wrap_restrict_ip_access($ip_list) {
 	$ip_list = wrap_setting($ip_list);
 	if ($ip_list === NULL) {
-		wrap_error(sprintf(wrap_text('List of allowed IPs not found in configuration (%s).'),
-			$ip_list), E_USER_NOTICE);
+		wrap_error(wrap_text('List of allowed IPs not found in configuration (%s).',
+			 ['values' => $ip_list]), E_USER_NOTICE);
 		wrap_quit(403);
 	}
 	if (!is_array($ip_list)) $ip_list = [$ip_list];
 	if (!in_array($_SERVER['REMOTE_ADDR'], $ip_list)) {
-		wrap_error(sprintf(wrap_text('Your IP address %s is not in the allowed range.'),
-			wrap_html_escape($_SERVER['REMOTE_ADDR'])), E_USER_NOTICE);
+		wrap_error(wrap_text('Your IP address %s is not in the allowed range.',
+			 ['values' => wrap_html_escape($_SERVER['REMOTE_ADDR'])]), E_USER_NOTICE);
 		wrap_quit(403);
 	}
 	return true;
