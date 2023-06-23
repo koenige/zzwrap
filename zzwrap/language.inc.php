@@ -149,6 +149,9 @@ function wrap_language_get_text($language) {
  * @param string $string	Text string to be translated
  * @param mixed $params
  *		array list of parameters
+ *			'lang': different language
+ *			'set': set new key for translation
+ *			'values': values for sprintf() use
  *		string	Language to translate into (if different from
  *		actively used language on website @deprecated)
  * @global array $zz_conf	configuration variables
@@ -179,8 +182,8 @@ function wrap_text($string, $params = []) {
 		$language = wrap_setting('language_default_for['.$language.']');
 
 	// replacements?
-	if (!empty($params['replace']))
-		$replacements[$string] = $params['replace'];
+	if (!empty($params['set']))
+		$replacements[$string] = $params['set'];
 	if (!empty($zz_conf['text'][$language])) {
 		// @deprecated
 		if (!$deprecation_error)
