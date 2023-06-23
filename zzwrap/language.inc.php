@@ -268,7 +268,7 @@ function wrap_text($string, $params = []) {
 	if (!empty($params['context']))
 		if (array_key_exists($params['context'], $context))
 			if (array_key_exists($string, $context[$params['context']]))
-				return $context[$params['context']][$string];
+				return wrap_text_values($context[$params['context']], $string, $params);
 	
 	if (!array_key_exists($string, $my_text)) {
 		// write missing translation to somewhere.
@@ -281,9 +281,23 @@ function wrap_text($string, $params = []) {
 			error_log($log_message, 3, $log_file);
 			chmod($log_file, 0664);
 		}
-		return $string;
+		return wrap_text_values([], $string, $params);
 	}
-	return $my_text[$string];
+	return wrap_text_values($my_text, $string, $params);
+}
+
+/**
+ * format string with sprintf
+ *
+ * @param array $text
+ * @param string $key
+ * @param array $params
+ */
+function wrap_text_values($text, $key, $params) {
+	$string = $text[$key] ?? $key;
+	if (empty($params['values'])) return $string;
+	if (!is_array($params['values'])) $params['values'] = [$params['values']];
+	return vsprintf($string, $params['values']);
 }
 
 /**
