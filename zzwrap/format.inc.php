@@ -748,22 +748,35 @@ function wrap_bearing($value, $precision = 1) {
  * format a geographical coordinate (latitude)
  * 
  * @param double $value
+ * @param string $format
  * @return string
  */
-function wrap_latitude($value) {
-	if (!$files = wrap_include_files('geo', 'zzform')) return $value; // @todo
-	return zz_geo_coord_out($value, 'lat', 'dms');
+function wrap_latitude($value, $format = 'dms') {
+	return wrap_coordinate($value, 'lat', $format);
 }
 
 /**
  * format a geographical coordinate (longitude)
  * 
  * @param double $value
+ * @param string $format
  * @return string
  */
-function wrap_longitude($value) {
+function wrap_longitude($value, $format = 'dms') {
+	return wrap_coordinate($value, 'lon', $format);
+}
+
+/**
+ * format a geographical coordinate (latitude or longitude)
+ * 
+ * @param double $value
+ * @param string $orientation
+ * @param string $format
+ * @return string
+ */
+function wrap_coordinate($value, $orientation, $format) {
 	if (!$files = wrap_include_files('geo', 'zzform')) return $value; // @todo
-	return zz_geo_coord_out($value, 'lon', 'dms');
+	return zz_geo_coord_out($value, $orientation, $format);
 }
 
 /**
