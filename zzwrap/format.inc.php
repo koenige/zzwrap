@@ -767,16 +767,94 @@ function wrap_longitude($value, $format = 'dms') {
 }
 
 /**
- * format a geographical coordinate (latitude or longitude)
- * 
- * @param double $value
- * @param string $orientation
- * @param string $format
+ * output of a geographical coordinate (latitude or longitude)
+ * 19°41'59"N 98°50'38"W / 19.6996°N 98.8440°W / 19.6996; -98.8440
+ *
+ * @param double $value value of coordinate, e. g. 69.34829922
+ * @param string $orientation ('lat' or 'lon')
+ * @param string $format output
+ *		'dms' = degree + minute + second; 'deg' = degree, 'dm' = degree + minute,
+ *		'dec' = decimal value; all may be appended by =other, e. g. dms=deg
  * @return string
  */
 function wrap_coordinate($value, $orientation, $format) {
-	if (!$files = wrap_include_files('geo', 'zzform')) return $value; // @todo
-	return zz_geo_coord_out($value, $orientation, $format);
+	if ($value === NULL) return '';
+	if ($value === false) return '';
+	
+	$hemisphere = ($value >= 0) ? '+' : '-';
+	if ($value < 0) $value = substr($value, 1); // get rid of - sign)
+	switch ($orientation) {
+		case 'latitude':
+		case 'lat':
+			$hemisphere_text = $hemisphere === '+' ? 'North' : 'South';
+			break;
+		case 'longitude':
+		case 'lon':
+			$hemisphere_text = $hemisphere === '+' ? 'East' : 'West';
+			break;
+		default:
+			return '';
+	}
+	$hemisphere_text = wrap_text(substr($hemisphere_text, 0, 1), ['context' => $hemisphere_text]);
+/*
+	@todo allow HTML abbreviation, but this would rather be in zzwrap/format.inc.php
+	$hemisphere_text = sprintf('<abbr title="%s">%s</abbr>'
+		, wrap_text($hemisphere_text), wrap_text(substr($hemisphere_text, 0, 1), ['context' => $hemisphere_text])
+	);
+*/
+
+	// Output in desired format
+	$coord = [];
+	$formats = explode('=', $format);
+	foreach ($formats as $format) {
+		switch ($format) {
+		case 'o':
+			$coord[] = $hemisphere_text;
+			break;
+		case 'deg':	// 98.8440°W
+			$coord[] = wrap_coordinate_decimal($value).'&#176;'.wrap_setting('geo_spacer').$hemisphere_text;
+			break;
+		case 'dec':	// -98.8440
+			$coord[] = $hemisphere.wrap_coordinate_decimal($value);
+			break;
+		case 'dm':	// 98°50.6333'W
+			$min = wrap_coordinate_decimal(round(($value - floor($value)) * 60, wrap_setting('geo_rounding')));
+			$coord[] = floor($value).'&#176;'.wrap_setting('geo_spacer').($min ? $min.'&#8242;'.wrap_setting('geo_spacer') : '').$hemisphere_text;
+			break;
+		case 'dms':	// 98°50'38"W
+		default:
+			if (!is_numeric($value)) return $value;
+			// transform decimal value to seconds and round first!
+			$deg = intval($value);
+			$sec = round(($value - $deg) * 3600, wrap_setting('geo_rounding'));
+			$min = intval($sec) - (intval($sec) % 60); // min in seconds
+			$sec = $sec - $min;
+			$min /= 60;
+			$coord[] = $deg.'&#176;'.wrap_setting('geo_spacer')
+				.(($min OR $sec) ? $min.'&#8242;'.wrap_setting('geo_spacer') : '')
+				.($sec ? wrap_coordinate_decimal($sec).'&#8243;'.wrap_setting('geo_spacer') : '')
+				.$hemisphere_text;
+			break;
+		}
+	}
+	if (!$coord) return false;
+	if (count($coord) == 1)
+		$coord = $coord[0];
+	else
+		$coord = '('.$coord[0].' = '.$coord[1].')';
+	return $coord;
+}
+
+/**
+ * formats a number depending on language with . or ,
+ *
+ * @param string $number
+ * @return string $number
+ */
+function wrap_coordinate_decimal($number) {
+	// replace . with , where appropriate
+	$number = str_replace('.', wrap_setting('decimal_point'), $number);
+	return $number;
 }
 
 /**
