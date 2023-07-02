@@ -72,17 +72,22 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	$return = false;
 	switch ($error_type) {
+	case E_ERROR:
 	case E_USER_ERROR: // critical error: stop!
 		if (wrap_setting('error_exit_503')) $settings['no_return'] = true;
-		$level = 'error';
+		$level = ($error_type === E_USER_ERROR ? 'error' : 'fatal');
 		if (empty($settings['no_return'])) 
 			$return = 'exit'; // get out of this function immediately
 		wrap_setting('error_exit_503', true);
 		break;
 	default:
+	case E_WARNING:
+	case E_RECOVERABLE_ERROR:
 	case E_USER_WARNING: // acceptable error, go on
 		$level = 'warning';
 		break;
+	case E_NOTICE:
+	case E_DEPRECATED:
 	case E_USER_NOTICE:
 	case E_USER_DEPRECATED:
 		// unimportant error only show in debug mode
@@ -738,17 +743,22 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		$line = sprintf('POST[json] %s', json_encode($_POST));
 		$postdata = true; // just log POST data once per request
 	}
+	if (strstr($line, "\n"))
+		$line = str_replace("\n", '; ', $line);
 
 	switch ($level) {
+		case E_ERROR: $level = 'fatal'; break;
 		case E_USER_ERROR: $level = 'error'; break;
-		case E_USER_WARNING: $level = 'warning'; break;
-		case E_USER_NOTICE: $level = 'notice'; break;
-		case E_USER_DEPRECATED: $level = 'deprecated'; break;
+		case E_WARNING: case E_USER_WARNING: $level = 'warning'; break;
+		case E_NOTICE: case E_USER_NOTICE: $level = 'notice'; break;
+		case E_DEPRECATED: case E_USER_DEPRECATED: $level = 'deprecated'; break;
+		case E_RECOVERABLE_ERROR: $level = 'recoverable error'; break;
 	}
 
-	if (!$module) {
+	if (!in_array($level, [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED]))
+		$module = 'PHP';
+	elseif (!$module)
 		$module = wrap_setting('active_module') ? wrap_setting('active_module') : 'custom';
-	}
 
 	$user = wrap_username();
 	if (!$user) $user = wrap_setting('remote_ip');
@@ -761,7 +771,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	$line = substr($line, 0, wrap_setting('log_errors_max_len') - (strlen($user) + 4));
 	$line .= sprintf(" [%s]\n", $user);
 	if (!$file) {
-		if (in_array($module, ['zzform', 'zzwrap'])
+		if (in_array($module, ['zzform', 'zzwrap', 'PHP'])
 			AND wrap_setting('error_log['.$level.']'))
 			$file = wrap_setting('error_log['.$level.']');
 		else {
@@ -786,4 +796,30 @@ function wrap_log_encoding() {
 	if (!$log_recode = wrap_setting('log_recode')) return $log_encoding;
 	if (!array_key_exists($log_encoding, $log_recode)) return $log_encoding;
 	return $log_recode[$log_encoding];
+}
+
+/**
+ * shutdown function, checks if there is a severe error not handled by error_handler
+ * calls error_handler with this error
+ */
+function wrap_shutdown() {
+    $error = error_get_last();
+    if (!$error) return;
+    wrap_error_handler($error['type'], $error['message'], $error['file'], $error['line']);
+}
+
+/**
+ * custom error handler
+ *
+ * @param int $type
+ * @param string $message
+ * @param string $file
+ * @param int $line
+ * @return bool
+ */
+function wrap_error_handler($type, $message, $file, $line) {
+	if (!strstr($message, $file))
+		$message = sprintf('%s in %s:%d', $message, $file, $line);
+	wrap_error($message, $type);
+	return true;
 }
