@@ -1084,11 +1084,12 @@ function wrap_redirect($location = false, $status = 302, $cache = true) {
 
 /**
  * Redirects after something was POSTed
+ * won‘t be cached
  * 
  * @param string $url (default = own URL)
  */
 function wrap_redirect_change($url = false) {
-	return wrap_redirect($url, 303, true);
+	return wrap_redirect($url, 303, false);
 }
 
 /**
