@@ -3438,6 +3438,8 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$new_setting = wrap_setting_key($key, wrap_setting_value($value));
 		if ($existing_setting === $new_setting) return false;
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
+		if (wrap_setting('multiple_websites'))
+			$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
 		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, $login_id ? 'logins' : '');
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
@@ -3450,9 +3452,15 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$cfg = wrap_cfg_files('settings');
 		$explanation = (in_array($key, array_keys($cfg)) AND !empty($cfg[$key]['description']))
 			? sprintf('"%s"', $cfg[$key]['description'])  : 'NULL';
-		$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation) VALUES ("%s", "%s", %s)';
+		if (wrap_setting('multiple_websites'))
+			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, %d)';
+		else
+			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation) VALUES ("%s", "%s", %s)';
 		$sql = wrap_db_prefix($sql);
-		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation);
+		if (wrap_setting('multiple_websites'))
+			$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation, wrap_setting('website_id'));
+		else
+			$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation);
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
@@ -3500,6 +3508,8 @@ function wrap_setting_read($key, $login_id = 0) {
 	$sql = 'SELECT setting_key, setting_value
 		FROM /*_PREFIX_*/%s_settings
 		WHERE setting_key %%s "%%s"';
+	if (wrap_setting('multiple_websites'))
+		$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
 	$sql = sprintf($sql, $login_id ? 'logins' : '');
 	if (substr($key, -1) === '*') {
 		$sql = sprintf($sql, 'LIKE', substr($key, 0, -1).'%');
