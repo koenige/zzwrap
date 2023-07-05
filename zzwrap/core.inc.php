@@ -3046,10 +3046,10 @@ function wrap_setting_log_missing($key, $cfg) {
  * 
  * @param array $old			Old array
  * @param array $new			New array
- * @param bool $no_overwrite_with_empty (optional, if true: empty values do not overwrite existing ones)
+ * @param bool $overwrite_with_empty (optional, if false: empty values do not overwrite existing ones)
  * @return array $merged		Merged array
  */
-function wrap_array_merge($old, $new, $no_overwrite_with_empty = false) {
+function wrap_array_merge($old, $new, $overwrite_with_empty = true) {
 	foreach ($new as $index => $value) {
 		if (is_array($value)) {
 			if (!empty($old[$index])) {
@@ -3062,7 +3062,7 @@ function wrap_array_merge($old, $new, $no_overwrite_with_empty = false) {
 				$old[] = $value;
 			} else {
 				// named keys will be replaced
-				if ($no_overwrite_with_empty OR $value OR empty($old[$index]))
+				if ($overwrite_with_empty OR $value OR empty($old[$index]))
 					$old[$index] = $value;
 			}
 		}
