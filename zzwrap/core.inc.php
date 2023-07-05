@@ -3053,7 +3053,7 @@ function wrap_array_merge($old, $new, $overwrite_with_empty = true) {
 	foreach ($new as $index => $value) {
 		if (is_array($value)) {
 			if (!empty($old[$index])) {
-				$old[$index] = wrap_array_merge($old[$index], $new[$index], $no_overwrite_with_empty);
+				$old[$index] = wrap_array_merge($old[$index], $new[$index], $overwrite_with_empty);
 			} else
 				$old[$index] = $new[$index];
 		} else {
