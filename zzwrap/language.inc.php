@@ -814,7 +814,7 @@ function wrap_set_units() {
  * @return string
  */
 function wrap_text_recode($str, $in_charset) {
-	$translated = @iconv($in_charset, wrap_setting('character_set'), $str);
+	$translated = mb_convert_encoding($str, wrap_setting('character_set'), $in_charset);
 	if (!$translated) {
 		// characters which are not defined in the desired character set
 		// replace with htmlentities
