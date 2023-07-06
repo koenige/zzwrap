@@ -30,6 +30,8 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	}
 	$doc = wrap_cache_filename('url', $url);
 	$head = wrap_cache_filename('headers', $url);
+	// URL with 'filename.ext/': both doc and head are false
+	if (!$doc and !$head) return false;
 	if (strlen(basename($head)) > 255) {
 		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $head), E_USER_NOTICE);
 		return false;
@@ -325,6 +327,7 @@ function wrap_send_cache($age = 0) {
 
 	$files = [wrap_cache_filename(), wrap_cache_filename('headers')];
 	// $files[0] might not exist (redirect!)
+	if (!$files[1]) return false; // invalid URL with slash behind URL path with .
 	if (!file_exists($files[1])) return false;
 	$has_content = file_exists($files[0]);
 	if (!$has_content AND $filename = wrap_cache_get_header($files[1], 'X-Local-Filename')) {
@@ -535,10 +538,25 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		foreach ($url['path'] as $index => $path) {
 			$url['path'][$index] = urlencode($path);
 		}
+		$last_path = $url['path'][count($url['path']) - 2];
 		$url['path'] = implode('/', $url['path']);
 		$file .= $base.$url['path'];
-		if (str_ends_with($file, '/'))
+		if (str_ends_with($file, '/')) {
+			// check if it is not some super clever search engine that adds a /
+			// to a filename (dot showing this is)
+			if (strstr($last_path, '.')) {
+				$last_path = explode('.', $last_path);
+				if (array_key_exists(end($last_path), wrap_filetypes())) {
+					if (file_exists(substr($file, 0, -1))) return false;
+					wrap_error(wrap_text(
+						'Caching for URL %s disabled, looks like filename with / at the end?',
+						['values' => wrap_setting('request_uri')]
+					), E_USER_NOTICE);
+					return false;
+				}
+			}
 			$file .= 'index';
+		}
 	} else {
 		$file .= '/'.urlencode($base.$url['path']);
 	}
