@@ -124,6 +124,7 @@ function wrap_includes() {
 	require_once __DIR__.'/errorhandling.inc.php';
 	require_once __DIR__.'/database.inc.php';
 	require_once __DIR__.'/core.inc.php';
+	require_once __DIR__.'/cache.inc.php';
 	require_once __DIR__.'/mail.inc.php';
 	require_once __DIR__.'/access.inc.php';
 	require_once __DIR__.'/language.inc.php';
