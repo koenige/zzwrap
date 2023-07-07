@@ -447,8 +447,7 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
 	}
 	// get name of function either from sql query
 	// (for multilingual pages) or from the part until *
-	$url = (!empty($line['function_url']) ? $line['function_url'] 
-		: substr($line['url'], 0, strrpos($line['url'], '*')+1));
+	$url = $line['function_url'] ?? substr($line['url'], 0, strrpos($line['url'], '*')+1);
 	$url = substr($url, 1, -1);
 	if (strstr($url, '/')) {
 		$url = str_replace('/', '_', $url);
@@ -462,8 +461,7 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
 			$menu[$menu_key] = $menu_entries;
 		}
 	}
-	if (!empty($menu[$menu_key])) return $menu[$menu_key];
-	return false;
+	return $menu[$menu_key] ?? false;
 }
 
 /**
@@ -579,7 +577,7 @@ function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $av
 		$item['menu_'.$menu_name] = true;
 		$menu[] = $item;
 	}
-	$menu['pos'] = !empty($nav[$menu_name]['pos']) ? $nav[$menu_name]['pos'] : false;
+	$menu['pos'] = $nav[$menu_name]['pos'] ?? false;
 	$menu['level'] = $level;
 	$menu['menu_'.$menu_name] = true;
 	if ($level) $menu['is_submenu'] = true;
@@ -919,9 +917,7 @@ function wrap_get_authors($brick_authors, $author_id = false) {
  */
 function wrap_page_last_update($page) {
 	global $zz_page;
-	$last_update = '';
-	if (!empty($page['last_update']))
-		$last_update = $page['last_update'];
+	$last_update = $page['last_update'] ?? '';
 	if (!$last_update AND !empty($zz_page['db']))
 		$last_update = $zz_page['db'][wrap_sql_fields('page_last_update')];
 	return wrap_date($last_update);
@@ -936,7 +932,7 @@ function wrap_page_last_update($page) {
  */
 function wrap_page_media($page) {
 	global $zz_page;
-	$media = !empty($page['media']) ? $page['media'] : [];
+	$media = $page['media'] ?? [];
 	$page_id = $zz_page['db'][wrap_sql_fields('page_id')] ?? false;
 	if (!$page_id) return $media;
 	if (!function_exists('wrap_get_media')) return $media;
@@ -1106,7 +1102,7 @@ function wrap_htmlout_page($page) {
 		$page['text'] = json_encode([
 			$page['content_type_original'] => $page['text'],
 			'title' => $page['pagetitle'],
-			'url' => !empty($page['url']) ? $page['url'] : wrap_setting('request_uri')
+			'url' => $page['url'] ?? wrap_setting('request_uri')
 		]);
 	}
 

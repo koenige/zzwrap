@@ -175,10 +175,7 @@ function wrap_text($string, $params = []) {
 	if (!is_array($params)) $params = ['lang' => $params];
 
 	// get filename for translated texts
-	if (!empty($params['lang']))
-		$language = $params['lang'];
-	else
-		$language = wrap_setting('lang');
+	$language = $params['lang'] ??  wrap_setting('lang');
 	if (wrap_setting('language_default_for['.$language.']'))
 		$language = wrap_setting('language_default_for['.$language.']');
 

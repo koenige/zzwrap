@@ -828,11 +828,11 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	// do something
 	if (str_starts_with($destination, 'ftp://')) {
 		$url = parse_url($destination);
-		$ftp_stream = ftp_connect($url['host'], !empty($url['port']) ? $url['port'] : 21);
+		$ftp_stream = ftp_connect($url['host'], $url['port'] ?? 21);
 		if (!$ftp_stream) {
 			wrap_error(sprintf(
 				'FTP: Failed to connect to %s (Port: %d)',
-				$url['host'], !empty($url['port']) ? $url['port'] : 21
+				$url['host'], $url['port'] ?? 21
 			));
 			return false;
 		}

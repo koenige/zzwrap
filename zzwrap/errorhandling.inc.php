@@ -353,7 +353,7 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 			'title' => $page['error_title'],
 			'error_description' => $page['error_description'],
 			'error_explanation' => $page['error_explanation'] ?? '',
-			'url' => !empty($page['url']) ? $page['url'] : wrap_setting('request_uri')
+			'url' => $page['url'] ?? wrap_setting('request_uri')
 		];
 		return wrap_send_text(json_encode($page['text']), 'json', $page['status'], $page['headers'] ?? []);
 		exit;
@@ -407,11 +407,11 @@ function wrap_errorpage_log($status, $page) {
 		$settings['mail_no_ip'] = true;
 		$settings['mail_no_user_agent'] = true;
 		$settings['logfile'] = '['.$status.']';
-		wrap_error($msg, !empty($page['error_type']) ? $page['error_type'] : E_USER_WARNING, $settings);
+		wrap_error($msg, $page['error_type'] ?? E_USER_WARNING, $settings);
 		break;
 	case 403:
 		$settings['logfile'] .= ' (User agent: '
-			.(!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown').')';
+			.($_SERVER['HTTP_USER_AGENT'] ?? 'unknown').')';
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 410:
@@ -424,7 +424,7 @@ function wrap_errorpage_log($status, $page) {
 		if (empty($_SERVER['PHP_AUTH_USER']) AND empty($_SERVER['PHP_AUTH_PW'])) break;
 		$msg .= sprintf(' (IP: %s, User agent: %s)'
 			, $_SERVER['REMOTE_ADDR']
-			, (!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown')
+			, $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
 		);
 	case 400:
 	case 405:

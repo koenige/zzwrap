@@ -352,7 +352,7 @@ function wrap_install_cfg($table) {
 
 	// read definitions
 	$data = wrap_cfg_files('install-'.$table);
-	$fields = !empty($data['_table_definition']['fields']) ? $data['_table_definition']['fields'] : [];
+	$fields = $data['_table_definition']['fields'] ?? [];
 	$tables = [];
 	foreach ($fields as $index => $field) {
 		if (!strstr($field, '.')) continue;
@@ -361,13 +361,13 @@ function wrap_install_cfg($table) {
 		$fields[$index] = $field[1];
 	}
 
-	$removes = !empty($data['_table_definition']['remove']) ? $data['_table_definition']['remove'] : [];
-	$prefixes = !empty($data['_table_definition']['prefix']) ? $data['_table_definition']['prefix'] : [];
-	$no_prefixes_if_start = !empty($data['_table_definition']['no_prefix_if_begin']) ? $data['_table_definition']['no_prefix_if_begin'] : [];
-	$replaces = !empty($data['_table_definition']['replace']) ? $data['_table_definition']['replace'] : [];
-	$keys = !empty($data['_table_definition']['keys']) ? $data['_table_definition']['keys'] : [];
-	$hierarchy = !empty($data['_table_definition']['hierarchy_field']) ? $data['_table_definition']['hierarchy_field'] : false;
-	$hierarchy_source = !empty($data['_table_definition']['hierarchy_source']) ? $data['_table_definition']['hierarchy_source'] : false;
+	$removes = $data['_table_definition']['remove'] ?? [];
+	$prefixes = $data['_table_definition']['prefix'] ?? [];
+	$no_prefixes_if_start = $data['_table_definition']['no_prefix_if_begin'] ?? [];
+	$replaces = $data['_table_definition']['replace'] ?? [];
+	$keys = !$data['_table_definition']['keys'] ?? [];
+	$hierarchy = $data['_table_definition']['hierarchy_field'] ?? false;
+	$hierarchy_source = $data['_table_definition']['hierarchy_source'] ?? false;
 	unset($data['_table_definition']);
 
 	$subkeys = []; // for use with subtables

@@ -265,7 +265,7 @@ function cms_login($params, $settings = []) {
 
 	$loginform = [];
 	$loginform['msg'] = false;
-	$loginform['action_url'] = !empty($settings['action_url']) ? $settings['action_url'] : './';
+	$loginform['action_url'] = $settings['action_url'] ?? './';
 	$loginform['password_link'] = wrap_setting('password_link');
 	if ($loginform['password_link'] === true) {
 		$loginform['password_link'] = $loginform['action_url'].'?password';
@@ -314,13 +314,13 @@ function cms_login($params, $settings = []) {
 		wrap_include_files('session', 'zzform');
 		$loginform['hidden_fields'] = zz_session_via_login();
 	} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['request_password'])) {
-		$loginform['name'] = !empty($_POST['name']) ? $_POST['name'] : '';
+		$loginform['name'] = $_POST['name'] ?? '';
 		if (!empty($_POST['mail'])) {
 			$loginform['mail'] = trim($_POST['mail']);
 			if (wrap_mail_valid($loginform['mail'])) {
 				$loginform['mail_sent'] = true;
 				$loginform['login_link_valid'] = wrap_setting('password_key_validity_in_minutes');
-				wrap_password_reminder($loginform['mail'], !empty($settings['reminder_data']) ? $settings['reminder_data'] : []);
+				wrap_password_reminder($loginform['mail'], $settings['reminder_data'] ?? []);
 			} else {
 				$loginform['mail_invalid'] = true;
 				wrap_error(sprintf(
@@ -451,8 +451,7 @@ function cms_login($params, $settings = []) {
 			'title' => wrap_text($login_field.':'),
 			'fieldname' => strtolower($login_field),
 			// separate input, e. g. dropdown etc.
-			'output' => !empty($login_fields_output[$login_field])
-				? $login_fields_output[$login_field] : '',
+			'output' => $login_fields_output[$login_field] ?? '',
 			// text input
 			'value' => !empty($_POST[strtolower($login_field)])
 				? wrap_html_escape($_POST[strtolower($login_field)]) : ''

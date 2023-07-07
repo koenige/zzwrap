@@ -863,9 +863,9 @@ function wrap_build_url($parts) {
 		.(!empty($parts['host']) ? '//' : '')
 		.(!empty($parts['user']) ? $parts['user']
 			.(!empty($parts['pass']) ? ':'.$parts['pass'] : '').'@' : '')
-		.(!empty($parts['host']) ? $parts['host'] : '')
+		.($parts['host'] ?? '')
 		.(!empty($parts['port']) ? ':'.$parts['port'] : '')
-		.(!empty($parts['path']) ? $parts['path'] : '')
+		.($parts['path'] ?? '')
 		.(!empty($parts['query']) ? '?'.$parts['query'] : '')
 		.(!empty($parts['fragment']) ? '#'.$parts['fragment'] : '');
 	return $url;
@@ -1027,7 +1027,7 @@ function wrap_log_uri($status = 0) {
 	global $zz_page;
 	
 	if (!$status)
-		$status = !empty($zz_page['error_code']) ? $zz_page['error_code'] : 200;
+		$status = $zz_page['error_code'] ?? 200;
 
 	if (wrap_setting('http_log')) {
 		$logdir = sprintf('%s/access/%s/%s'
@@ -1045,16 +1045,15 @@ function wrap_log_uri($status = 0) {
 		$line = sprintf(
 			'%s - %s [%s] "%s %s %s" %d %d "%s" "%s" %s'."\n"
 			, wrap_setting('remote_ip')
-			, !empty($_SESSION['username']) ? $_SESSION['username']
-				: (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '-')
+			, $_SESSION['username'] ?? $_SERVER['REMOTE_USER'] ?? '-'
 			, date('d/M/Y:H:i:s O', $_SERVER['REQUEST_TIME'])
 			, $_SERVER['REQUEST_METHOD']
 			, $_SERVER['REQUEST_URI']
 			, $_SERVER['SERVER_PROTOCOL']
 			, $status
-			, !empty($zz_page['content_length']) ? $zz_page['content_length'] : 0
-			, !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '-'
-			, !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-'
+			, $zz_page['content_length'] ?? 0
+			, $_SERVER['HTTP_REFERER'] ?? '-'
+			, $_SERVER['HTTP_USER_AGENT'] ?? '-'
 			, wrap_setting('hostname')
 		);
 		error_log($line, 3, $logfile);
@@ -1070,17 +1069,13 @@ function wrap_log_uri($status = 0) {
 	$query = !empty($zz_page['url']['full']['query'])
 		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
 		: 'NULL';
-	$etag = !empty($zz_page['etag'])
-		? $zz_page['etag']
-		: 'NULL';
+	$etag = $zz_page['etag'] ?? 'NULL';
 	if (substr($etag, 0, 1) !== '"' AND $etag !== 'NULL')
 		$etag = '"'.$etag.'"';
 	$last_modified = !empty($zz_page['last_modified'])
 		? '"'.wrap_date($zz_page['last_modified'], 'rfc1123->datetime').'"'
 		: 'NULL';
-	$content_type = !empty($zz_page['content_type'])
-		? $zz_page['content_type']
-		: 'unknown';
+	$content_type = $zz_page['content_type'] ?? 'unknown';
 	$encoding = !empty($zz_page['character_set'])
 		? '"'.$zz_page['character_set'].'"'
 		: 'NULL';
@@ -1129,7 +1124,7 @@ function wrap_log_uri($status = 0) {
 			"%s", %s, "%s", %s, %d, %d, %s, %s, 1, NOW(), NOW(), NOW())';
 		$sql = sprintf($sql,
 			$scheme, $host, $path, $query, $content_type, $encoding
-			, (!empty($zz_page['content_length']) ? $zz_page['content_length'] : 0)
+			, ($zz_page['content_length'] ?? 0)
 			, $status, $etag, $last_modified
 		);
 		wrap_db_query($sql, E_USER_NOTICE);
@@ -1678,7 +1673,7 @@ function wrap_file_send($file) {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
-	$suffix = !empty($file['ext']) ? $file['ext'] : wrap_file_extension($file['name']);
+	$suffix = $file['ext'] ?? wrap_file_extension($file['name']);
 	if (!str_ends_with($file['send_as'], '.'.$suffix))
 		$file['send_as'] .= '.'.$suffix;
 	if (!isset($file['caching'])) $file['caching'] = true;
@@ -2081,7 +2076,7 @@ function wrap_ranges_check($zz_page) {
 		// go on
 	} elseif (!empty($_SERVER['HTTP_IF_RANGE'])) {
 		// Range + If-Range (ETag or Date)
-		$etag_header = wrap_etag_header(!empty($zz_page['etag']) ? $zz_page['etag'] : '');
+		$etag_header = wrap_etag_header($zz_page['etag'] ?? '');
 		$time = wrap_date($_SERVER['HTTP_IF_RANGE'], 'rfc1123->timestamp');
 		if ($_SERVER['HTTP_IF_RANGE'] === $etag_header['std']
 			OR $_SERVER['HTTP_IF_RANGE'] === $etag_header['gz']) {
@@ -2898,7 +2893,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
-		$id = !empty($result['id']) ? $result['id'] : false;
+		$id = $result['id'] ?? false;
 		if ($files = wrap_include_files('database', 'zzform')) {
 			wrap_setting('log_username_default', 'Servant Robot 247');
 			zz_log_sql($sql, '', $id);
