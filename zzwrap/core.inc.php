@@ -3106,8 +3106,7 @@ function wrap_setting_register($config) {
 	global $zz_setting;
 	global $zz_conf;
 	
-	$zzform_cfg = $zz_setting['cms_dir'].'/_inc/modules/zzform/configuration/settings.cfg';
-	$zzform_cfg = file_exists($zzform_cfg) ? parse_ini_file($zzform_cfg, true) : [];
+	$zzform_cfg = wrap_cfg_files('settings', ['package' => 'zzform']);
 
 	foreach ($config as $skey => $value) {
 		if (wrap_setting_zzconf($zzform_cfg, $skey)) {
