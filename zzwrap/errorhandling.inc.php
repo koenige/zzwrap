@@ -503,6 +503,14 @@ function wrap_error_ignore($status, $string = false) {
 				return true;
 			}
 			break;
+		case 'string_regex':
+			if (substr($line['string'], 0, 1) !== substr($line['string'], -1)) {
+				$line['string'] = sprintf('/%s/', str_replace('/', '\/', $line['string']));
+			}
+			if (preg_match($line['string'], $string)) {
+				return true;
+			}
+			break;
 		case 'all':
 			if ($_SERVER['REQUEST_URI'] === $line['string']) {
 				return true;
