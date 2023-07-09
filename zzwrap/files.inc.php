@@ -144,21 +144,45 @@ function wrap_tsv_parse($filename, $paths = '') {
 	foreach ($files as $file) {
 		$content = file($file);
 		$head = [];
+		$i = 0;
+		$key_index = [0];
+		$subkey = NULL;
 		foreach ($content as $line) {
 			if (!trim($line)) continue;
-			if (str_starts_with($line, '#:')) {
+			if (str_starts_with($line, '#:'))
 				$head = explode("\t", trim(substr($line, 2)));
-			}
+			if (str_starts_with($line, '#key'))
+				$key_index = explode(' ', trim(substr($line, 4)));
 			if (str_starts_with($line, '#')) continue;
+			$i++;
 			$line = explode("\t", trim($line));
+			if (count($key_index) === 2 AND $key_index[1] === 'numeric') {
+				$key = $line[0];
+				$subkey = $i;
+			} elseif ($key_index[0] === 'numeric') {
+				$key = $i;
+			} elseif (array_key_exists($key_index[0], $line)) {
+				$key = trim($line[$key_index[0]]);
+			} else {
+				$key = trim($line[0]);
+			}
 			if (count($line) === 2 and !$head) {
 				// key/value
-				$data[trim($line[0])] = trim($line[1]);
+				$data[$key] = trim($line[1]);
+			} elseif (!is_null($subkey)) {
+				if ($head) {
+					$this_line = [];
+					foreach ($head as $index => $title)
+						$this_line[$title] = trim($line[$index] ?? '');
+					$data[$key][] = $this_line;
+				} else {
+					$data[$key][] = $line;
+				}
 			} else {
-				$data[trim($line[0])] = $line;
+				$data[$key] = $line;
 				if ($head) {
 					foreach ($head as $index => $title)
-						$data[trim($line[0])][$title] = !empty($line[$index]) ? trim($line[$index]) : '';
+						$data[$key][$title] = trim($line[$index] ?? '');
 				}
 			}
 		}
