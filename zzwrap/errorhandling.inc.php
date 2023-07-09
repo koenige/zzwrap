@@ -114,17 +114,13 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	if (empty($_POST)) $settings['log_post_data'] = false;
 	elseif (!wrap_setting('error_log_post')) $settings['log_post_data'] = false;
 
-	// reformat log output
-	$module = !in_array($error_type, [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED]) ? 'PHP' : 'zzwrap';
-	if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
-		wrap_log((!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output, $level, $module);
-		if ($settings['log_post_data']) wrap_log('postdata', 'notice', $module);
-	}
-		
-	if (wrap_setting('debug'))
-		wrap_setting('error_handling', 'output');
+	$error_handling = wrap_setting('error_handling');
+	if (wrap_setting('debug')) $error_handling = 'output';
 
-	switch (wrap_setting('error_handling')) {
+	$log_status = wrap_error_log($log_output, $error_type, $level, $settings);
+	if ($log_status === false) $error_handling = false;
+
+	switch ($error_handling) {
 	case 'mail_summary':
 		if (!in_array($level, wrap_setting('error_mail_level'))) break;
 		wrap_error_summary($msg, $level);
@@ -181,6 +177,36 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_errorpage($page, $zz_page, false);
 		exit;
 	}
+}
+
+/**
+ * log an error
+ *
+ * @param string $log_output
+ * @param int $error_type
+ * @param string $level
+ * @param array $settings
+ * @return mixed bool or NULL
+ */
+function wrap_error_log($log_output, $error_type, $level, $settings) {
+	if (!wrap_setting('log_errors')) return NULL;
+	if (!wrap_setting('error_log['.$level.']')) return NULL;
+
+	switch ($error_type) {
+	case E_USER_ERROR:
+	case E_USER_WARNING:
+	case E_USER_NOTICE:
+	case E_USER_DEPRECATED:
+		$module = 'zzwrap';
+		break;
+	default:
+		$module = 'PHP';
+	}
+	if (wrap_error_ignore($module, $log_output)) return false;
+
+	wrap_log(trim(($settings['logfile'] ?? '').' '.$log_output), $level, $module);
+	if ($settings['log_post_data']) wrap_log('postdata', 'notice', $module);
+	return true;
 }
 
 /**
