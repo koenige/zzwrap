@@ -374,10 +374,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 function wrap_errorpage_log($status, $page) {
 	global $zz_page;
 
-	if (in_array($status, [401, 403, 404, 410, 503])) {
-		$ignore = wrap_errorpage_ignore($status);
-		if ($ignore) return false;
-	}
+	if (in_array($status, [401, 403, 404, 410, 503]))
+		if (wrap_error_ignore($status)) return false;
 	
 	$log_encoding = wrap_log_encoding();
 
@@ -463,68 +461,64 @@ function wrap_errorpage_log($status, $page) {
  * @param string $string (optional) string to compare
  * @return bool true: ignore for logging, false: log error
  */
-function wrap_errorpage_ignore($status, $string = false) {
-	$files = wrap_collect_files('errors-not-logged.txt', 'default/custom');
-	foreach ($files as $file) {
-		$handle = fopen($file, 'r');
-		$i = 0;
-		while (!feof($handle)) {
-			$i++;
-			$line = fgetcsv($handle, 8192, "\t");
-			if (!$line) continue;
-			if ($line[0] != $status) continue;
-			if (count($line) !== 3) {
-				wrap_error(sprintf('File %s is wrong in line %s.', $file, $i), E_USER_NOTICE);
+function wrap_error_ignore($status, $string = false) {
+	$ignores = wrap_tsv_parse('errors-not-logged');
+	$status = strtolower($status);
+	if (!array_key_exists($status, $ignores)) return false;
+
+	foreach ($ignores[$status] as $line) {
+		if (count($line) !== 3) {
+			wrap_error(sprintf('File %s is wrong in line %s.', $file, implode(' ', $line)), E_USER_NOTICE);
+			continue;
+		}
+		switch ($line['type']) {
+		case 'string':
+			if ($string === $line['string']) {
+				return true;
 			}
-			switch ($line[1]) {
-			case 'string':
-				if ($string === $line[2]) {
-					return true;
-				}
-				break;
-			case 'all':
-				if ($_SERVER['REQUEST_URI'] === $line[2]) {
-					return true;
-				}
-				break;
-			case 'end':
-				if (substr($_SERVER['REQUEST_URI'], -(strlen($line[2]))) === $line[2]) {
-					return true;
-				}
-				break;
-			case 'begin':
-				if (substr($_SERVER['REQUEST_URI'], 0, (strlen($line[2]))) === $line[2]) {
-					return true;
-				}
-				break;
-			case 'regex':
-				if (preg_match($line[2], $_SERVER['REQUEST_URI'])) {
-					return true;
-				}
-				break;
-			case 'request':
-				if (wrap_error_checkmatch(wrap_setting('request_uri'), $line[2])) return true;
-				break;
-			case 'ip':
-				if (substr(wrap_setting('remote_ip'), 0, (strlen($line[2]))) === $line[2]) {
-					return true;
-				}
-				break;
-			case 'ua':
-				if (empty($_SERVER['HTTP_USER_AGENT'])) break;
-				if (wrap_error_checkmatch($_SERVER['HTTP_USER_AGENT'], $line[2])) return true;
-				break;
-			case 'referer':
-				if (empty($_SERVER['HTTP_REFERER'])) break;
-				if (wrap_error_checkmatch($_SERVER['HTTP_REFERER'], $line[2])) return true;
-				break;
-			case 'post':
-				if (empty($_POST)) break;
-				if (wrap_error_checkmatch(json_encode($_POST), $line[2])) return true;
-				break;
-			default:
-				wrap_error(sprintf('Case %s in file %s in line %s not supported.', $line[1], $file, $i), E_USER_NOTICE);
+			break;
+		case 'all':
+			if ($_SERVER['REQUEST_URI'] === $line['string']) {
+				return true;
 			}
+			break;
+		case 'end':
+			if (substr($_SERVER['REQUEST_URI'], -(strlen($line['string']))) === $line['string']) {
+				return true;
+			}
+			break;
+		case 'begin':
+			if (substr($_SERVER['REQUEST_URI'], 0, (strlen($line['string']))) === $line['string']) {
+				return true;
+			}
+			break;
+		case 'regex':
+			if (preg_match($line['string'], $_SERVER['REQUEST_URI'])) {
+				return true;
+			}
+			break;
+		case 'request':
+			if (wrap_error_checkmatch(wrap_setting('request_uri'), $line['string'])) return true;
+			break;
+		case 'ip':
+			if (substr(wrap_setting('remote_ip'), 0, (strlen($line['string']))) === $line['string']) {
+				return true;
+			}
+			break;
+		case 'ua':
+			if (empty($_SERVER['HTTP_USER_AGENT'])) break;
+			if (wrap_error_checkmatch($_SERVER['HTTP_USER_AGENT'], $line['string'])) return true;
+			break;
+		case 'referer':
+			if (empty($_SERVER['HTTP_REFERER'])) break;
+			if (wrap_error_checkmatch($_SERVER['HTTP_REFERER'], $line['string'])) return true;
+			break;
+		case 'post':
+			if (empty($_POST)) break;
+			if (wrap_error_checkmatch(json_encode($_POST), $line['string'])) return true;
+			break;
+		default:
+			wrap_error(sprintf('Case %s in line %s not supported.', $line['type'], implode(' ', $line)), E_USER_NOTICE);
 		}
 	}
 	return false;
