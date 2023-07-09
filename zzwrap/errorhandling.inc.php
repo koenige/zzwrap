@@ -115,9 +115,10 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	elseif (!wrap_setting('error_log_post')) $settings['log_post_data'] = false;
 
 	// reformat log output
+	$module = !in_array($error_type, [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED]) ? 'PHP' : 'zzwrap';
 	if (wrap_setting('error_log['.$level.']') AND wrap_setting('log_errors')) {
-		wrap_log((!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output, $level, 'zzwrap');
-		if ($settings['log_post_data']) wrap_log('postdata', 'notice', 'zzwrap');
+		wrap_log((!empty($settings['logfile']) ? $settings['logfile'].' ' : '').$log_output, $level, $module);
+		if ($settings['log_post_data']) wrap_log('postdata', 'notice', $module);
 	}
 		
 	if (wrap_setting('debug'))
@@ -743,8 +744,6 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		$line = sprintf('POST[json] %s', json_encode($_POST));
 		$postdata = true; // just log POST data once per request
 	}
-	if (strstr($line, "\n"))
-		$line = str_replace("\n", '; ', $line);
 
 	switch ($level) {
 		case E_ERROR: $level = 'fatal'; break;
@@ -755,9 +754,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		case E_RECOVERABLE_ERROR: $level = 'recoverable error'; break;
 	}
 
-	if (!in_array($level, [E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE, E_USER_DEPRECATED]))
-		$module = 'PHP';
-	elseif (!$module)
+	if (!$module)
 		$module = wrap_setting('active_module') ? wrap_setting('active_module') : 'custom';
 
 	$user = wrap_username();
