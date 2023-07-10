@@ -777,7 +777,7 @@ function wrap_longitude($value, $format = 'dms') {
  *		'dec' = decimal value; all may be appended by =other, e. g. dms=deg
  * @return string
  */
-function wrap_coordinate($value, $orientation, $format) {
+function wrap_coordinate($value, $orientation, $format = 'dms') {
 	if ($value === NULL) return '';
 	if ($value === false) return '';
 	
