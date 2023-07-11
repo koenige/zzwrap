@@ -633,3 +633,20 @@ function wrap_mail_mailboxes($search) {
 	}
 	return '';
 }
+
+/**
+ * open an IMAP mailbox
+ *
+ * @return stream
+ */
+function wrap_mail_mailbox_open() {
+	$mailbox = sprintf('{%s:%d/imap/ssl}INBOX', wrap_setting('mail_imap'), wrap_setting('mail_imap_port'));
+	$mbox = imap_open($mailbox, wrap_setting('mail_username'), wrap_setting('mail_password'));
+	if (!$mbox) {
+		wrap_error(wrap_text(
+			'Unable to open mailbox %s (Server: %s)',
+			['values' => [wrap_setting('mail_username'), wrap_setting('mail_imap')]]
+		), E_USER_ERROR);
+	}
+	return $mbox;
+}

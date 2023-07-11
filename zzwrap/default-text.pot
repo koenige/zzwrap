@@ -482,6 +482,10 @@ msgstr ""
 msgid "1 second"
 msgstr ""
 
+#: zzwrap/mail.inc.php
+msgid "Unable to open mailbox %s (Server: %s)"
+msgstr ""
+
 # Weekdays, abbreviated
 msgid "Mon"
 msgstr ""
