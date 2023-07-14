@@ -205,9 +205,10 @@ function wrap_text($string, $params = []) {
 		$files[] = wrap_setting('custom_wrap_dir').'/text-en.inc.php';
 		$files[] = wrap_setting('custom_wrap_dir').'/text-en.po';
 		// default translated text
-		$files[] = __DIR__.'/default-text-'.$language.'.po';
+		$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
 		// module text(s)
 		foreach (wrap_setting('modules') as $module) {
+			if ($module === 'zzwrap') continue;
 			$modules_dir = wrap_setting('modules_dir').'/'.$module.'/'.$module;
 			// zzform: for historical reasons, include -en text here as well
 			if ($module === 'zzform' AND $language !== 'en')
