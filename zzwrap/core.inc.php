@@ -2870,7 +2870,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$new_setting = wrap_setting_key($key, wrap_setting_value($value));
 		if ($existing_setting === $new_setting) return false;
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
-		if (wrap_setting('multiple_websites'))
+		if (wrap_setting('multiple_websites') AND !$login_id)
 			$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
 		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, $login_id ? 'logins' : '');
@@ -2940,7 +2940,7 @@ function wrap_setting_read($key, $login_id = 0) {
 	$sql = 'SELECT setting_key, setting_value
 		FROM /*_PREFIX_*/%s_settings
 		WHERE setting_key %%s "%%s"';
-	if (wrap_setting('multiple_websites'))
+	if (wrap_setting('multiple_websites') AND !$login_setting_table)
 		$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
 	$sql = sprintf($sql, $login_id ? 'logins' : '');
 	if (substr($key, -1) === '*') {
