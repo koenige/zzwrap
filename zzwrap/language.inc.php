@@ -202,29 +202,35 @@ function wrap_text($string, $params = []) {
 		$module_text = [];
 		$context = [];
 		// standard text english
-		$files[] = wrap_setting('custom_wrap_dir').'/text-en.inc.php';
-		$files[] = wrap_setting('custom_wrap_dir').'/text-en.po';
+		$files[] = wrap_setting('custom_wrap_dir').'/text-en.inc.php'; // @deprecated
+		$files[] = wrap_setting('custom_wrap_dir').'/text-en.po'; // @deprecated
+		$files[] = wrap_setting('custom').'/languages/text-en.po';
 		// default translated text
 		$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
 		// module text(s)
 		foreach (wrap_setting('modules') as $module) {
 			if ($module === 'zzwrap') continue;
-			$modules_dir = wrap_setting('modules_dir').'/'.$module.'/'.$module;
+			$modules_dir_deprecated = wrap_setting('modules_dir').'/'.$module.'/'.$module;
+			$modules_dir = wrap_setting('modules_dir').'/'.$module.'/languages';
 			// zzform: for historical reasons, include -en text here as well
 			if ($module === 'zzform' AND $language !== 'en')
 				$files[] = $modules_dir.'/'.$module.'-en.po';
+			$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'.po'; // @deprecated
 			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
 			if (wrap_setting('language_variation')) {
+				$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
 				$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
 			}
 		}
 		// standard translated text 
-		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php';
-		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po';
+		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php'; // @deprecated
+		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po'; // @deprecated
+		$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
 		if (wrap_setting('language_variation')) {
 			// language variantes contain only some translations
 			// and are added on top of the existing translations
-			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.wrap_setting('language_variation').'.po';
+			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
+			$files[] = wrap_setting('custom').'/languages/text-'.$language.'-'.wrap_setting('language_variation').'.po';
 		}
 
 		$plurals[$language] = [];
