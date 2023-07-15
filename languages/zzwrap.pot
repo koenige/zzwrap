@@ -64,6 +64,20 @@ msgstr ""
 msgid "URIs with more than %d slashes are not processed."
 msgstr ""
 
+#: zzwrap/file.inc.php
+msgid "File %s is not writable."
+msgstr ""
+
+#: zzwrap/file.inc.php
+msgid "Cannot open %s for writing."
+msgstr ""
+
+#: zzwrap/file.inc.php
+msgid "1 line deleted."
+msgid_plural "%d lines deleted."
+msgstr[0] ""
+msgstr[1] ""
+
 # HTTP Status Code 300
 #: zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"

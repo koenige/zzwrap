@@ -48,5 +48,5 @@ function wrap_file_delete_line($file, $lines) {
 		fwrite($handle, $line);
 
 	fclose($handle);
-	return wrap_text('%s lines deleted.', ['values' => $deleted]);
+	return wrap_text('%d lines deleted.', ['values' => $deleted]);
 }

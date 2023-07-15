@@ -64,6 +64,20 @@ msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
 msgid "URIs with more than %d slashes are not processed."
 msgstr "URIs mit mehr als %d Schrägstrichen werden nicht verarbeitet."
 
+#: zzwrap/file.inc.php
+msgid "File %s is not writable."
+msgstr "Datei %s ist nicht schreibbar."
+
+#: zzwrap/file.inc.php
+msgid "Cannot open %s for writing."
+msgstr "Die Datei %s lässt sich nicht zum Schreiben öffnen."
+
+#: zzwrap/file.inc.php
+msgid "1 line deleted."
+msgid_plural "%d lines deleted."
+msgstr[0] "1 Zeile gelöscht."
+msgstr[1] "%d Zeilen gelöscht"
+
 # HTTP Status Code 300
 #: zzwrap/errorhandling.inc.php
 msgid "Multiple Choices"
@@ -524,6 +538,10 @@ msgstr "%d Sekunden"
 #: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 Sekunde"
+
+#: zzwrap/mail.inc.php
+msgid "Unable to open mailbox %s (Server: %s)"
+msgstr "Postfach %s kann nicht geöffnet werden (Server: %s)"
 
 # Weekdays, abbreviated
 msgid "Mon"
