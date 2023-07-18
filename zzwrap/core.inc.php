@@ -1533,7 +1533,14 @@ function wrap_url_normalize($url) {
 	// Normally, the browser will already do that
 	if (strstr($url['path'], '/../')) {
 		// /path/../ = /
-		// @todo implement that
+		// while, not foreach, takes into account multiple occurences of /../../
+		while (strstr($url['path'], '/../')) {
+			$path = explode('/', $url['path']);
+			$index = array_search('..', $path);
+			unset($path[$index]);
+			if (array_key_exists($index - 1, $path)) unset($path[$index - 1]);
+			$url['path'] = implode('/', $path);
+		}
 	}
 	if (strstr($url['path'], '/./')) {
 		// /path/./ = /path/
