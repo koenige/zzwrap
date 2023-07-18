@@ -157,8 +157,11 @@ function wrap_ressource_by_url($zz_page, $quit = true) {
 	} else {
 		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
 		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
-		if (!empty($_GET['lang']) AND in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list'))))
-			wrap_setting('lang', $_GET['lang']);
+		if (!empty($_GET['lang']))
+			if (in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list'))))
+				wrap_setting('lang', $_GET['lang']);
+			else
+				wrap_quit();
 	}
 	return $zz_page;
 }
