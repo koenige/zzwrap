@@ -723,6 +723,7 @@ function wrap_check_canonical($zz_page, $page) {
 	}
 	if (!empty($zz_page['url']['full']['query'])) {
 		parse_str($zz_page['url']['full']['query'], $params);
+		$wrong_qs = [];
 		foreach (array_keys($params) as $param) {
 			if (in_array($param, $page['query_strings'])) continue;
 			if (wrap_setting('no_query_strings_redirect')) {
@@ -736,13 +737,16 @@ function wrap_check_canonical($zz_page, $page) {
 			// no error logging for query strings which shall be redirected
 			if (in_array($param, $page['query_strings_redirect'])) continue;
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
-			if (!wrap_error_ignore('qs', $param)) {
-				wrap_error(sprintf('Wrong URL: query string %s=%s [%s], Referer: %s'
-					, $param, $param_value, wrap_setting('request_uri')
-					, isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '--'
-				), E_USER_NOTICE);
-			}
+			if (!wrap_error_ignore('qs', $param))
+				$wrong_qs[] = sprintf('%s=%s', $param, $param_value);
 		}
+		if ($wrong_qs)
+			wrap_error(sprintf('Wrong URL: query string %s [%s], Referer: %s'
+				, implode('&', $wrong_qs)
+				, wrap_setting('request_uri')
+				, $_SERVER['HTTP_REFERER'] ?? '--'
+			), E_USER_NOTICE);
+
 		$zz_page['url']['full']['query'] = http_build_query($params);
 	}
 	return $zz_page['url'];
