@@ -2658,6 +2658,7 @@ function wrap_job_url_base($url) {
 	$hostname = wrap_setting('admin_hostname');
 	if (str_ends_with(wrap_setting('hostname'), '.local')) $hostname .= '.local';
 	elseif (str_starts_with(wrap_setting('hostname'), 'dev.')) $hostname = 'dev.'.$hostname;
+	elseif (str_starts_with(wrap_setting('hostname'), 'dev-')) $hostname = 'dev-'.$hostname;
 	return wrap_setting('protocol').'://'.$hostname.$url;
 }
 
