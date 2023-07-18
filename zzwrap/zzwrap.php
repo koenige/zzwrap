@@ -162,6 +162,14 @@ function wrap_ressource_by_url($zz_page, $quit = true) {
 				wrap_setting('lang', $_GET['lang']);
 			else
 				wrap_quit();
+		if (!empty($_GET)) {
+			$cacheable = ['lang'];
+			foreach (array_keys($_GET) as $key) {
+				if (in_array($key, $cacheable)) continue;
+				wrap_setting('cache', false);
+				break;
+			}
+		}
 	}
 	return $zz_page;
 }
