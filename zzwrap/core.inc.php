@@ -1783,7 +1783,7 @@ function wrap_file_cleanup($file) {
 	// clean up
 	unlink($file['name']);
 	if (!empty($file['cleanup_dir'])) {
-		$files = scandir($file['cleanup_dir'], ['.', '..']);
+		$files = array_diff(scandir($file['cleanup_dir']), ['.', '..']);
 		if (!$files) rmdir($file['cleanup_dir']);
 	}
 	return true;
