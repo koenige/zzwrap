@@ -232,11 +232,11 @@ function wrap_session_cookietest_end($token, $qs) {
  * @return string
  */
 function wrap_url_expand($url = false) {
-	if (!$url)
+	if (!$url) {
 		$url = wrap_setting('host_base').wrap_setting('request_uri');
-	elseif (substr($url, 0, 1) === '#')
+	} elseif (substr($url, 0, 1) === '#') {
 		$url = wrap_setting('host_base').wrap_setting('request_uri').$url;
-	elseif (substr($url, 0, 2) === '??') {
+	} elseif (substr($url, 0, 2) === '??') {
 		$request_uri = wrap_setting('request_uri');
 		if ($pos = strpos($request_uri, '?')) $request_uri = substr($request_uri, 0, $pos);
 		$url = wrap_setting('host_base').$request_uri.substr($url, 1);
@@ -253,8 +253,26 @@ function wrap_url_expand($url = false) {
 			$url = '';
 		}
 		$url = wrap_setting('host_base').$request_uri.$url;
-	} elseif (substr($url, 0, 1) === '/')
+	} elseif (substr($url, 0, 1) === '/') {
 		$url = wrap_setting('host_base').$url;
+	} elseif (str_starts_with($url, './')) {
+		$request_path = parse_url(wrap_setting('request_uri'), PHP_URL_PATH);
+		$request_path = substr($request_path, 0, strrpos($request_path, '/') + 1);
+		$url = wrap_setting('host_base').$request_path.substr($url, 2);
+	} elseif (str_starts_with($url, '../')) {
+		$request_path = parse_url(wrap_setting('request_uri'), PHP_URL_PATH);
+		$this_url = $url;
+		while (str_starts_with($this_url, '../')) {
+			$this_url = substr($this_url, 3);
+			$request_path = substr($request_path, 0, strrpos($request_path, '/'));
+			$request_path = substr($request_path, 0, strrpos($request_path, '/') + 1);
+			if (!$request_path) {
+				wrap_error(wrap_text('Wrong relative path: %s', ['values' => $url]));
+				$request_path = '/';
+			}
+		}
+		$url = wrap_setting('host_base').$request_path.$this_url;
+	}
 	return $url;
 }
 
