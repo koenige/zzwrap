@@ -160,6 +160,8 @@ function wrap_ressource_by_url($zz_page, $quit = true) {
 		if (!empty($_GET['lang']))
 			if (in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list'))))
 				wrap_setting('lang', $_GET['lang']);
+			elseif (in_array($_GET['lang'], array_keys(wrap_id('languages_2c', '', 'list'))))
+				wrap_setting('lang', $_GET['lang']);
 			else
 				wrap_quit();
 		if (!empty($_GET)) {
