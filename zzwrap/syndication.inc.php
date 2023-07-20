@@ -498,9 +498,9 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			// ignore verification on development server if target is
 			// development server, too
 			if (wrap_setting('local_access')) {
-				$remote_url_parts = parse_url($url);
-				if (str_ends_with($remote_url_parts['host'], '.local')
-				    OR str_starts_with($remote_url_parts['host'], 'dev.')) {
+				$remote_host = parse_url($url, PHP_URL_HOST);
+				if (str_ends_with($remote_host, '.local')
+				    OR str_starts_with($remote_host, 'dev.')) {
 					$old_curl_ignore_ssl_verifyresult = wrap_setting('curl_ignore_ssl_verifyresult');
 					wrap_setting('curl_ignore_ssl_verifyresult', true);
 				}

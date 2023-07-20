@@ -508,13 +508,8 @@ function cms_login_redirect($url, $querystring = []) {
 	// if not, add no-cookie to URL so that wrap_auth() can hand that
 	// back over to cms_login() if login was unsuccessful because of
 	// lack of acceptance of cookies
-	if (empty($_COOKIE) OR isset($querystring['no-cookie'])) {
-		$redir_query_string = parse_url($host_base.$url);
-		if (!empty($redir_query_string['query']))
-			$url .= '&no-cookie';
-		else
-			$url .= '?no-cookie';
-	}
+	if (empty($_COOKIE) OR isset($querystring['no-cookie']))
+		$url .= sprintf('%no-cookie', parse_url($host_base.$url, PHP_URL_QUERY) ? '&' : '?');
 	wrap_redirect_change($url);
 	exit;
 }

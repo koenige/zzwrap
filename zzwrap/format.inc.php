@@ -934,9 +934,9 @@ function wrap_punycode_encode($string) {
  * @return string
  */
 function wrap_punycode_decode($string) {
-	$url = parse_url($string);
-	if (empty($url['host'])) return $string;
-	$host = explode('.', $url['host']);
+	$host = parse_url($string, PHP_URL_HOST);
+	if (!$host) return $string;
+	$host = explode('.', $host);
 	foreach ($host as $index => $part) {
 		if (substr($part, 0, 4) !== 'xn--') continue;
 		if (!function_exists('idn_to_utf8')) {
@@ -945,9 +945,9 @@ function wrap_punycode_decode($string) {
 		}
 		$host[$index] = idn_to_utf8($part);
 	}
-	$url['host_new'] = implode('.', $host);
-	if ($url['host_new'] === $url['host']) return $string;
-	$string = str_replace($url['host'], $url['host_new'], $string);
+	$host_new = implode('.', $host);
+	if ($host_new === $host) return $string;
+	$string = str_replace($host, $host_new, $string);
 	return $string;
 }
 

@@ -1270,8 +1270,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 			$field_name = wrap_sql_fields('core_redirects_new_url');
 			$new = $redir[$field_name];
 		}
-		$newurl = parse_url($new);
-		if (empty($newurl['scheme'])) {
+		if (!parse_url($new, PHP_URL_SCHEME)) {
 			if (wrap_setting('base') AND file_exists(wrap_setting('root_dir').'/'.$new)) {
 				// no language redirect if it's an existing file
 				$new = wrap_setting('host_base').$new;
@@ -2859,12 +2858,12 @@ function wrap_get_protected_url_local($url) {
  * @return bool true: probably is HTML, false: no HTML
  */
 function wrap_get_protected_url_html($url) {
-	$parts = parse_url($url);
-	if (empty($parts['path'])) return true; // homepage
-	if (str_ends_with($parts['path'], '/')) return true;
-	if (str_ends_with($parts['path'], '.html')) return true;
-	if (str_ends_with($parts['path'], '.htm')) return true;
-	$path = explode('/', $parts['path']);
+	$path = parse_url($url, PHP_URL_PATH);
+	if (!$path) return true; // homepage
+	if (str_ends_with($path, '/')) return true;
+	if (str_ends_with($path, '.html')) return true;
+	if (str_ends_with($path, '.htm')) return true;
+	$path = explode('/', $path);
 	if (!strstr(end($path), '.')) return true;
 	return false;
 }
