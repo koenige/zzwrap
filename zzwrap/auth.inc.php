@@ -509,7 +509,7 @@ function cms_login_redirect($url, $querystring = []) {
 	// back over to cms_login() if login was unsuccessful because of
 	// lack of acceptance of cookies
 	if (empty($_COOKIE) OR isset($querystring['no-cookie']))
-		$url .= sprintf('%no-cookie', parse_url($host_base.$url, PHP_URL_QUERY) ? '&' : '?');
+		$url .= sprintf('%sno-cookie', parse_url($host_base.$url, PHP_URL_QUERY) ? '&' : '?');
 	wrap_redirect_change($url);
 	exit;
 }
