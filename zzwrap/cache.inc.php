@@ -14,6 +14,22 @@
 
 
 /**
+ * cache a local ressource
+ * in some cases, never cache a ressource
+ *
+ * @param string $text (optional)
+ * @param string $existing_etag (optional)
+ * @param string $url (optional)
+ * @param array $headers (optional)
+ * @return bool, NULL if caching is disabled for this request
+ */
+function wrap_cache($text = '', $existing_etag = '', $url = false, $headers = []) {
+	if (!empty($_SESSION['logged_in'])) return NULL;
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') return NULL;
+	return wrap_cache_ressource($text, $existing_etag, $url, $headers);
+}
+
+/**
  * cache a ressource if it not exists or a stale cache exists
  *
  * @param string $text ressource to be cached
@@ -31,10 +47,10 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	$doc = wrap_cache_filename('url', $url);
 	$head = wrap_cache_filename('headers', $url);
 	// URL with 'filename.ext/': both doc and head are false
-	if (!$doc and !$head) return false;
+	if (!$doc and !$head) return NULL;
 	if (strlen(basename($head)) > 255) {
 		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $head), E_USER_NOTICE);
-		return false;
+		return NULL;
 	}
 	if (file_exists($head)) {
 		// check if something with the same ETag has already been cached
@@ -67,7 +83,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	// for which a cache already exists, do not cache this redirect because it is
 	// impossible to save example/index and example at the same time (example being folder
 	// and file)
-	if (is_file(dirname($head)) AND !$text) return false;
+	if (is_file(dirname($head)) AND !$text) return NULL;
 	file_put_contents($head, implode("\r\n", $headers));
 	return true;
 }

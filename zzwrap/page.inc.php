@@ -1067,10 +1067,9 @@ function wrap_redirect($location = false, $status = 302, $cache = true) {
 	wrap_http_status_header($status);
 	$header = sprintf('Location: %s', wrap_url_expand($location));
 	wrap_setting_add('headers', $header);
-	if ($cache AND wrap_setting('cache')
-		AND empty($_SESSION['logged_in']) AND empty($_POST)) {
+	if ($cache AND wrap_setting('cache')) {
 		// provide cache URL since internal URL might already be rewritten
-		wrap_cache_ressource('', '', wrap_setting('host_base').wrap_setting('request_uri'));
+		wrap_cache('', '', wrap_setting('host_base').wrap_setting('request_uri'));
 	}
 	wrap_log_uri($status);
 	wrap_cache_header();

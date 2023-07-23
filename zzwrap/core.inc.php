@@ -1781,9 +1781,9 @@ function wrap_file_send($file) {
 		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', wrap_setting('cache_control_file')));
 
 	// Caching?
-	if (wrap_setting('cache') AND empty($_SESSION['logged_in']) AND empty($_POST)) {
+	if (wrap_setting('cache')) {
 		wrap_cache_header('X-Local-Filename: '.$file['name']);
-		wrap_cache_ressource();
+		wrap_cache();
 	}
 
 	wrap_send_ressource('file', $file);
@@ -1910,10 +1910,9 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	}
 
 	// Caching?
-	if (wrap_setting('cache') AND empty($_SESSION['logged_in'])
-		AND empty($_POST) AND $status === 200) {
-		$cache_saved = wrap_cache_ressource($text, $zz_page['etag']);
-		if (!$cache_saved) {
+	if (wrap_setting('cache') AND $status === 200) {
+		$cache_saved = wrap_cache($text, $zz_page['etag']);
+		if ($cache_saved === false) {
 			// identical cache file exists
 			// set older value for Last-Modified header
 			$doc = wrap_cache_filename();
