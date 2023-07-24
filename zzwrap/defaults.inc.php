@@ -166,11 +166,11 @@ function wrap_config_read() {
 		wrap_config_read_file(wrap_config_filename('site'));
 
 	// per module
-	$files = wrap_collect_files('configuration/config.json', 'modules');
+	$files = wrap_collect_files('configuration/modules.json', 'modules');
 	foreach ($files as $file)
 		wrap_config_read_file($file);
 
-	$files = wrap_collect_files('configuration/config.cfg', 'modules');
+	$files = wrap_collect_files('configuration/modules.cfg', 'modules');
 	foreach ($files as $file)
 		wrap_config_read_file($file);
 }
