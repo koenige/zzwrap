@@ -3153,6 +3153,10 @@ function wrap_setting_register($config) {
 		} else {
 			$var = 'zz_setting';
 		}
+		if (is_array($value) AND reset($value) === '__defaults__') {
+			$$var[$skey] = wrap_setting($skey);
+			array_shift($value);
+		}
 		$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
 		foreach ($keys_values as $key => $value) {
 			if (!is_array($value)) {
