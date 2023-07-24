@@ -165,8 +165,18 @@ function wrap_packages($type, $folder) {
 function wrap_config_read() {
 	wrap_config_read_file(wrap_config_filename());
 
+	// per site
 	if (wrap_setting('multiple_websites'))
 		wrap_config_read_file(wrap_config_filename('site'));
+
+	// per module
+	$files = wrap_collect_files('configuration/config.json', 'modules');
+	foreach ($files as $file)
+		wrap_config_read_file($file);
+
+	$files = wrap_collect_files('configuration/config.cfg', 'modules');
+	foreach ($files as $file)
+		wrap_config_read_file($file);
 }
 
 /**
@@ -178,8 +188,12 @@ function wrap_config_read() {
 function wrap_config_read_file($file) {
 	if (!file_exists($file)) return;
 	
-	$config = file_get_contents($file);
-	$config = json_decode($config, true);
+	if (str_ends_with($file, '.json')) {
+		$config = file_get_contents($file);
+		$config = json_decode($config, true);
+	} elseif (str_ends_with($file, '.cfg')) {
+		$config = parse_ini_file($file);
+	}
 	if (!$config) return;
 	
 	wrap_setting_register($config);
