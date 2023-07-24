@@ -163,13 +163,10 @@ function wrap_packages($type, $folder) {
  *
  */
 function wrap_config_read() {
-	$file = sprintf('%s/config.json', wrap_setting('inc'));
-	wrap_config_read_file($file);
+	wrap_config_read_file(wrap_config_filename());
 
-	if (wrap_setting('multiple_websites')) {
-		$file = sprintf('%s/config-%s.json', wrap_setting('log_dir'), str_replace('/', '-', wrap_setting('site')));
-		wrap_config_read_file($file);
-	}
+	if (wrap_setting('multiple_websites'))
+		wrap_config_read_file(wrap_config_filename('site'));
 }
 
 /**
@@ -229,9 +226,9 @@ function wrap_config_write($site = '') {
 	}
 
 	if ($site) {
-		$file = wrap_setting('log_dir').'/config-'.str_replace('/', '-', $site).'.json';
+		$file = wrap_config_filename('site');
 	} else {
-		$file = wrap_setting('inc').'/config.json';
+		$file = wrap_config_filename();
 	}
 	if (!file_exists($file)) {
 		$existing_config = [];
@@ -259,6 +256,20 @@ function wrap_config_write($site = '') {
 		file_put_contents($file, $new_config);
 	if ($re_read_config)
 		wrap_config_read_file($file);
+}
+
+/**
+ * get filename for configuration file
+ *
+ * @param string $type
+ * @return string
+ */
+function wrap_config_filename($type = 'main') {
+	switch ($type) {
+		case 'main': return sprintf('%s/config.json', wrap_setting('inc'));
+		case 'site': return sprintf('%s/config-%s.json', wrap_setting('log_dir'), str_replace('/', '-', wrap_setting('site')));
+		default: return '';
+	}
 }
 
 /**
