@@ -202,7 +202,7 @@ function wrap_install_settings() {
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_settings_write();
 		wrap_install_settings_folders();
-		wrap_config('write');
+		wrap_config_write();
 		$_SESSION['step'] = 4;
 		return true;
 	}

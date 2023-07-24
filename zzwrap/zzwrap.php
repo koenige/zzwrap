@@ -40,9 +40,9 @@ function zzwrap() {
 	}
 
 	wrap_tests();
-	wrap_config('write');
+	wrap_config_write();
 	if (wrap_setting('multiple_websites'))
-		wrap_config('write', wrap_setting('site'));
+		wrap_config_write(wrap_setting('site'));
 
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_check_request(); // affects $zz_page

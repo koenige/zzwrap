@@ -28,9 +28,7 @@ function wrap_set_defaults() {
 	// configuration settings, defaults
 	wrap_set_defaults_paths();
 	wrap_set_defaults_pre_conf();
-	wrap_config('read');
-	if (wrap_setting('multiple_websites'))
-		wrap_config('read', wrap_setting('site'));
+	wrap_config_read();
 	if (file_exists($file = wrap_setting('inc').'/config.inc.php'))
 		require_once $file;
 	wrap_set_defaults_post_conf();
@@ -161,22 +159,47 @@ function wrap_packages($type, $folder) {
 }
 
 /**
+ * read all configuration files
+ *
+ */
+function wrap_config_read() {
+	$file = sprintf('%s/config.json', wrap_setting('inc'));
+	wrap_config_read_file($file);
+
+	if (wrap_setting('multiple_websites')) {
+		$file = sprintf('%s/config-%s.json', wrap_setting('log_dir'), str_replace('/', '-', wrap_setting('site')));
+		wrap_config_read_file($file);
+	}
+}
+
+/**
  * read configuration from JSON file
  *
- * @param string $mode (read, write)
+ * @param string $file path to file
+ * @return void
+ */
+function wrap_config_read_file($file) {
+	if (!file_exists($file)) return;
+	
+	$config = file_get_contents($file);
+	$config = json_decode($config, true);
+	if (!$config) return;
+	
+	wrap_setting_register($config);
+}
+
+/**
+ * write configuration to JSON file
+ *
  * @param string $site (optional)
  * @return void
  */
-function wrap_config($mode, $site = '') {
+function wrap_config_write($site = '') {
+	static $website_checked = false;
 	$re_read_config = false;
-	if (wrap_db_connection() AND $site AND !wrap_setting('websites')) {
-		// multiple websites on server?
-		// only possible to check after db connection was established
-		$sql = 'SHOW TABLES';
-		$tables = wrap_db_fetch($sql, '_dummy_key_', 'single value');
-		$websites_table = wrap_setting('db_prefix').'websites';
-		if (in_array($websites_table, $tables)) {
-			wrap_setting('websites', true);
+	if (wrap_db_connection() AND $site AND !$website_checked) {
+		if (wrap_database_table_check('websites')) {
+			$website_checked = true;
 
 			$sql = sprintf('SELECT website_id
 				FROM websites WHERE domain = "%s"', wrap_db_escape($site));
@@ -202,8 +225,6 @@ function wrap_config($mode, $site = '') {
 					$re_read_config = true;
 				}
 			}
-		} else {
-			wrap_setting('websites', false);
 		}
 	}
 
@@ -213,41 +234,31 @@ function wrap_config($mode, $site = '') {
 		$file = wrap_setting('inc').'/config.json';
 	}
 	if (!file_exists($file)) {
-		if ($mode === 'read') return;
 		$existing_config = [];
 	} else {
 		$existing_config = file_get_contents($file);
 	}
 
-	switch ($mode) {
-	case 'read':
-		$existing_config = json_decode($existing_config, true);
-		if (!$existing_config) return;
-		wrap_setting_register($existing_config);
-		break;
-	case 'write':
-		if (!wrap_database_table_check('_settings', true)) break;
-		
-		if (wrap_setting('multiple_websites')) {
-			if (empty($website_id)) $website_id = 1;
-			wrap_setting('website_id', $website_id);
-			$sql = sprintf('SELECT setting_key, setting_value
-				FROM /*_PREFIX_*/_settings
-				WHERE website_id = %d
-				ORDER BY setting_key', $website_id);
-		} else {
-			$sql = 'SELECT setting_key, setting_value
-				FROM /*_PREFIX_*/_settings ORDER BY setting_key';
-		}
-		$settings = wrap_db_fetch($sql, '_dummy_', 'key/value');
-		if (!$settings) break;
-		$new_config = json_encode($settings, JSON_PRETTY_PRINT + JSON_NUMERIC_CHECK);
-		if ($new_config !== $existing_config)
-			file_put_contents($file, $new_config);
-		if ($re_read_config)
-			wrap_config('read', $site);
-		break;
+	if (!wrap_database_table_check('_settings', true)) return;
+	
+	if (wrap_setting('multiple_websites')) {
+		if (empty($website_id)) $website_id = 1;
+		wrap_setting('website_id', $website_id);
+		$sql = sprintf('SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/_settings
+			WHERE website_id = %d
+			ORDER BY setting_key', $website_id);
+	} else {
+		$sql = 'SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/_settings ORDER BY setting_key';
 	}
+	$settings = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	if (!$settings) return;
+	$new_config = json_encode($settings, JSON_PRETTY_PRINT + JSON_NUMERIC_CHECK);
+	if ($new_config !== $existing_config)
+		file_put_contents($file, $new_config);
+	if ($re_read_config)
+		wrap_config_read_file($file);
 }
 
 /**
