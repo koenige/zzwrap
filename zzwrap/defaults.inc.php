@@ -193,50 +193,42 @@ function wrap_config_read_file($file) {
  */
 function wrap_config_write($site = '') {
 	static $website_checked = false;
+	if (!wrap_db_connection()) return;
+
 	$re_read_config = false;
-	if (wrap_db_connection() AND $site AND !$website_checked) {
-		if (wrap_database_table_check('websites')) {
-			$website_checked = true;
+	if ($site AND !$website_checked AND wrap_database_table_check('websites')) {
+		$website_checked = true;
 
-			$sql = sprintf('SELECT website_id
-				FROM websites WHERE domain = "%s"', wrap_db_escape($site));
-			$website_id = wrap_db_fetch($sql, '', 'single value');
+		$sql = sprintf('SELECT website_id
+			FROM websites WHERE domain = "%s"', wrap_db_escape($site));
+		$website_id = wrap_db_fetch($sql, '', 'single value');
 
-			if (!$website_id) {
-				// no website, but maybe it’s a redirect hostname?
+		if (!$website_id) {
+			// no website, but maybe it’s a redirect hostname?
+			$sql = sprintf('SELECT website_id, domain
+				FROM /*_PREFIX_*/websites
+				LEFT JOIN /*_PREFIX_*/_settings USING (website_id)
+				WHERE setting_key = "external_redirect_hostnames"
+				AND setting_value LIKE "[%%%s%%]"', wrap_db_escape($site));
+			$website = wrap_db_fetch($sql);
+			if (!$website AND wrap_setting('website_id_default')) {
 				$sql = sprintf('SELECT website_id, domain
-					FROM /*_PREFIX_*/websites
-					LEFT JOIN /*_PREFIX_*/_settings USING (website_id)
-					WHERE setting_key = "external_redirect_hostnames"
-					AND setting_value LIKE "[%%%s%%]"', wrap_db_escape($site));
+					FROM websites WHERE website_id = %d', wrap_setting('website_id_default'));
 				$website = wrap_db_fetch($sql);
-				if (!$website AND wrap_setting('website_id_default')) {
-					$sql = sprintf('SELECT website_id, domain
-						FROM websites WHERE website_id = %d', wrap_setting('website_id_default'));
-					$website = wrap_db_fetch($sql);
-				}
-				if ($website) {
-					// different site, read config for this site
-					$website_id = $website['website_id'];
-					$site = wrap_setting('site', $website['domain']);
-					$re_read_config = true;
-				}
+			}
+			if ($website) {
+				// different site, read config for this site
+				$website_id = $website['website_id'];
+				wrap_setting('site', $website['domain']);
+				$re_read_config = true;
 			}
 		}
 	}
 
-	if ($site) {
-		$file = wrap_config_filename('site');
-	} else {
-		$file = wrap_config_filename();
-	}
-	if (!file_exists($file)) {
-		$existing_config = [];
-	} else {
-		$existing_config = file_get_contents($file);
-	}
-
 	if (!wrap_database_table_check('_settings', true)) return;
+
+	$file = wrap_config_filename($site ? 'site' : 'main');
+	$existing_config = file_exists($file) ? file_get_contents($file) : [];
 	
 	if (wrap_setting('multiple_websites')) {
 		if (empty($website_id)) $website_id = 1;
