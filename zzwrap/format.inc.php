@@ -669,6 +669,28 @@ function wrap_bytes($bytes, $precision = 1) {
 }
 
 /**
+ * format abbreviated byte sizes into integer values
+ *
+ * @param string $value
+ * @return int
+ */
+function wrap_byte_to_int($value) {
+	switch (substr($value, -1)) {
+		case 'K': return substr($value, 0, -1) * 1024;
+		case 'M': return substr($value, 0, -1) * pow(1024, 2);
+		case 'G': return substr($value, 0, -1) * pow(1024, 3);
+		case 'T': return substr($value, 0, -1) * pow(1024, 4);
+		case 'P': return substr($value, 0, -1) * pow(1024, 5);
+		case 'E': return substr($value, 0, -1) * pow(1024, 6);
+		case 'Z': return substr($value, 0, -1) * pow(1024, 7);
+		case 'Y': return substr($value, 0, -1) * pow(1024, 8);
+		case 'R': return substr($value, 0, -1) * pow(1024, 9);
+		case 'Q': return substr($value, 0, -1) * pow(1024, 10);
+	}
+	return $value;
+}
+
+/**
  * formats a numeric value into a readable gram representation
  *
  * @param int $gram

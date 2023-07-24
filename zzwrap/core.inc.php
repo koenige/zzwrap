@@ -2457,6 +2457,13 @@ function wrap_get_setting_default($key, $params) {
  */
 function wrap_get_setting_prepare($setting, $key, $cfg) {
 	if (!array_key_exists($key, $cfg)) return $setting;
+
+	// depending on type
+	if (!empty($cfg[$key]['type']))
+		switch ($cfg[$key]['type']) {
+			case 'bytes': $setting = wrap_byte_to_int($setting); break;
+		}
+	
 	// list = 1 means values need to be array!
 	if (!empty($cfg[$key]['list']) AND !is_array($setting)) {
 		if (!empty($cfg[$key]['levels'])) {
