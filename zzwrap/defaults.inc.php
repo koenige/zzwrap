@@ -33,12 +33,8 @@ function wrap_set_defaults() {
 		require_once $file;
 	wrap_set_defaults_post_conf();
 
-	// module configs
+	// module configs, will overwrite standard config
 	$module_config_included = wrap_include_files('./config', 'modules');
-	// module config will overwrite standard config
-	// so make it possible to overwrite module config
-	if ($module_config_included AND file_exists($file = wrap_setting('inc').'/config-modules.inc.php'))
-		require_once $file;
 }
 
 /**
