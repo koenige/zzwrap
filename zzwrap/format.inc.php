@@ -958,16 +958,16 @@ function wrap_punycode_encode($string) {
 function wrap_punycode_decode($string) {
 	$host = parse_url($string, PHP_URL_HOST);
 	if (!$host) return $string;
-	$host = explode('.', $host);
-	foreach ($host as $index => $part) {
+	$subdomains = explode('.', $host);
+	foreach ($subdomains as $index => $part) {
 		if (substr($part, 0, 4) !== 'xn--') continue;
 		if (!function_exists('idn_to_utf8')) {
 			wrap_error('missing function `idn_to_utf8`', E_USER_NOTICE);
 			continue;
 		}
-		$host[$index] = idn_to_utf8($part);
+		$subdomains[$index] = idn_to_utf8($part);
 	}
-	$host_new = implode('.', $host);
+	$host_new = implode('.', $subdomains);
 	if ($host_new === $host) return $string;
 	$string = str_replace($host, $host_new, $string);
 	return $string;
