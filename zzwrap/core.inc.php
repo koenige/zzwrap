@@ -2850,6 +2850,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
  */
 function wrap_get_protected_url_local($url) {
 	if (str_starts_with($url, '/')) return true;
+	if (str_starts_with($url, wrap_setting('host_base'))) return true;
 	if (!wrap_setting('admin_hostname')) return false;
 	if (str_starts_with($url, wrap_setting('protocol').'://'.wrap_setting('admin_hostname').'/')) return true;
 	if (str_starts_with($url, wrap_setting('protocol').'://dev.'.wrap_setting('admin_hostname').'/')) return true;
