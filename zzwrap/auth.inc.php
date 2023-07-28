@@ -38,7 +38,7 @@
  */
 function wrap_auth($force = false) {
 	global $zz_page;
-	static $authentication_was_called;
+	static $authentication_was_called = false;
 
 	if (!$force AND $authentication_was_called) return true; // don't run this function twice
 	$authentication_was_called = true;
@@ -914,8 +914,7 @@ function wrap_password_hash($pass) {
  * @return string
  */
 function wrap_password_token($username = '', $secret_key = 'login_key') {
-	static $tokens;
-	if (empty($tokens)) $tokens = [];
+	static $tokens = [];
 	
 	if (!$username) {
 		$username = wrap_username();
