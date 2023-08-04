@@ -89,6 +89,23 @@ function wrap_access($area, $detail = '', $conditions = true) {
 }
 
 /**
+ * quit with a 403 if access rights are not met
+ *
+ * @param string $area
+ * @param string $detail (optional, e. g. event_id:234 or event:2022/test)
+ * @param bool $conditions check conditions or not
+ * @return bool
+ */
+function wrap_access_quit($area, $detail = '', $conditions = true) {
+	$access = wrap_access($area, $detail, $conditions);
+	if (!$access)
+		wrap_quit(403, wrap_text('You need `%s` access rights. (Login: %s)'
+			, ['values' => [$area, wrap_username()]]
+		));
+	return $access;
+}
+
+/**
  * check condition if access is granted
  *
  * @param array $config

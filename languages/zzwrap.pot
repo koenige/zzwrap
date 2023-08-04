@@ -22,6 +22,10 @@ msgstr ""
 "Language: \n"
 "X-Generator: Poedit 1.6.4\n"
 
+#: zzwrap/access.inc.php
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr ""
+
 #: zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
 msgstr ""

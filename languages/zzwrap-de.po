@@ -22,6 +22,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.12\n"
 
+#: zzwrap/access.inc.php
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr "Sie benötigen `%s` Zugriffsrechte. (Login: %s)"
+
 #: zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
 msgstr "Passwort oder Benutzername falsch. Bitte versuchen Sie es erneut."
