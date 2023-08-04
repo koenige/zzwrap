@@ -576,12 +576,11 @@ function wrap_login_db($login) {
 /**
  * return URL bound to specific domain
  *
- * @param string $setting, e. g. login_entry_url, change_password_url
+ * @param string $setting, e. g. login_entry_path, change_password_path
  * @return string
  */
 function wrap_domain_path($setting) {
-	// @todo rename login_entryurl to login_entry_url
-	$setting .= ($setting === 'login_entry' ? 'url' : '_url');
+	$setting .= '_path';
 	$domain_url = wrap_setting($setting);
 	if (!is_array($domain_url))
 		return $domain_url;
