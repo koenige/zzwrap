@@ -77,7 +77,7 @@ function wrap_db_connect() {
 function wrap_db_connection($db = []) {
 	static $connection;
 	if ($db === false) {
-		mysqli_close($connection);
+		if ($connection) mysqli_close($connection);
 		$connection = NULL;
 		return NULL;
 	}
