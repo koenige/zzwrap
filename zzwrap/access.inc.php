@@ -115,8 +115,21 @@ function wrap_access_quit($area, $detail = '', $conditions = true) {
 function wrap_conditions($config, $detail) {
 	static $data;
 	if (empty($data)) $data = [];
+
+	$definitions = [
+		'condition', 'condition_unless', 'condition_if_setting', 'condition_if_lib'
+	];
+	foreach ($definitions as $def) {
+		if (empty($config[$def])) $config[$def] = [];
+		elseif (!is_array($config[$def])) $config[$def] = [$config[$def]];
+	}
+
+	// check if library exists
+	foreach ($config['condition_if_lib'] as $condition)
+		if (!is_dir(wrap_setting('lib').'/'.$condition)) return NULL; // not applicable = 404
+
 	if (!$detail) return true;
-	if (empty($config['condition'])) return true;
+	if (!$config['condition']) return true;
 	$module = $config['condition_queries_module'] ?? $config['package'];
 	if (!$module) $module = 'custom';
 	if (!empty($config['condition_query']))
@@ -139,22 +152,13 @@ function wrap_conditions($config, $detail) {
 			wrap_error(sprintf('No query for %s found.', $keys[0]));
 		}
 	}
-	if (!is_array($config['condition']))
-		$config['condition'] = [$config['condition']];
+
 	foreach ($config['condition'] as $condition)
 		if (empty($data[$key][$condition])) return NULL; // not applicable = 404
-
-	if (empty($config['condition_unless']))
-		$config['condition_unless'] = [];
-	elseif (!is_array($config['condition_unless']))
-		$config['condition_unless'] = [$config['condition_unless']];
+	
 	foreach ($config['condition_unless'] as $condition)
 		if (!empty($data[$key][$condition])) return NULL; // not applicable = 404
 
-	if (empty($config['condition_if_setting']))
-		$config['condition_if_setting'] = [];
-	elseif (!is_array($config['condition_if_setting']))
-		$config['condition_if_setting'] = [$config['condition_if_setting']];
 	foreach ($config['condition_if_setting'] as $condition)
 		if (!wrap_setting($condition)) return NULL; // not applicable = 404
 
