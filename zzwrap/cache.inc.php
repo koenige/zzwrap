@@ -52,7 +52,7 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $head), E_USER_NOTICE);
 		return NULL;
 	}
-	if (file_exists($head)) {
+	if (file_exists($head) AND file_exists($doc)) {
 		// check if something with the same ETag has already been cached
 		// no need to rewrite cache, it's possible to send a Last-Modified
 		// header along
