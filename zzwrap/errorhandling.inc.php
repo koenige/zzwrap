@@ -453,6 +453,7 @@ function wrap_errorpage_log($status, $page) {
 		);
 	case 400:
 	case 405:
+	case 414:
 	case 501:
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
