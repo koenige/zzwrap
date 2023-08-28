@@ -1330,6 +1330,34 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
 }
 
 /**
+ * set $page['link'] for single item
+ *
+ * @param array $data (_next_identifier, _next_title, _prev_identifier, _prev_title,
+ *		_main_identifier or identifier, _main_title)
+ * @param string $path
+ * @param string $path_overview
+ * @return array
+ */
+function wrap_page_links($data, $path, $path_overview) {
+	$link = [];
+	if (!empty($data['_next_identifier'])) {
+		$link['next'][0]['href'] = wrap_path($path, $data['_next_identifier']);	
+		$link['next'][0]['title'] = $data['_next_title'];
+	} else {
+		$link['next'][0]['href'] = wrap_path($path_overview, $data['_main_identifier'] ?? dirname($data['identifier']));
+		$link['next'][0]['title'] = $data['_main_title'] ?? wrap_text('Overview');
+	}
+	if (!empty($data['_prev_identifier'])) {
+		$link['prev'][0]['href'] = wrap_path($path, $data['_prev_identifier']);	
+		$link['prev'][0]['title'] = $data['_prev_title'];
+	} else {
+		$link['prev'][0]['href'] = wrap_path($path_overview, $data['_main_identifier'] ?? dirname($data['identifier']));
+		$link['prev'][0]['title'] = $data['_main_title'] ?? wrap_text('Overview');
+	}
+	return $link;
+}
+
+/**
  * include format.inc.php file from custom project or active module
  *
  * @return void
