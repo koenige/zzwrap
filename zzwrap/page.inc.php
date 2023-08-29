@@ -1338,7 +1338,8 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
  * @param string $path_overview
  * @return array
  */
-function wrap_page_links($data, $path, $path_overview) {
+function wrap_page_links($data, $path, $path_overview = false) {
+	if (!$path_overview) $path_overview = $path;
 	$link = [];
 	if (!empty($data['_next_identifier'])) {
 		$link['next'][0]['href'] = wrap_path($path, $data['_next_identifier']);	
