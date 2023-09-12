@@ -319,8 +319,14 @@ function wrap_mail_phpmailer($msg, $list) {
 	wrap_lib('phpmailer');
 	
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
+	if (wrap_setting('mail_phpmailer_debug')) {
+		$mail->SMTPDebug = 3; // direct output
+		wrap_setting('gzip_encode', false);
+	}
+
 	$mail->isSMTP();  
 	$mail->Host = wrap_setting('mail_host');
+	$mail->Port = wrap_setting('mail_smtp_port');
 	$mail->SMTPAuth = true;
 	$mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; 
 	$mail->Username = wrap_setting('mail_username');
