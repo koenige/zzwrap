@@ -321,7 +321,7 @@ function wrap_mail_phpmailer($msg, $list) {
 	$mail = new PHPMailer\PHPMailer\PHPMailer(true);
 	if (wrap_setting('mail_phpmailer_debug')) {
 		$mail->SMTPDebug = 3; // direct output
-		wrap_setting('gzip_encode', false);
+		$mail->Debugoutput = 'wrap_mail_phpmailer_error';
 	}
 
 	$mail->isSMTP();  
@@ -427,6 +427,17 @@ function wrap_mail_phpmailer($msg, $list) {
 	}
 
 	return true;
+}
+
+/**
+ * catch debug errors from PHPMailer and send them to wrap_error()
+ *
+ * @param string $msg
+ * @param int $level
+ * @return void
+ */
+function wrap_mail_phpmailer_error($msg, $level) {
+	wrap_error('PHPMailer '.$msg);
 }
 
 /**
