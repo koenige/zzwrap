@@ -1246,6 +1246,7 @@ function wrap_page_extra(&$page, $zz_page) {
 	}
 	
 	// check extra, write to extra_body_attributes
+	if (empty($page['extra'])) return true;
 	$attributes = [];
 	if (!empty($page['extra_body_attributes'])) {
 		// deprecated
