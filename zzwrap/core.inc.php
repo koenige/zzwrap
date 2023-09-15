@@ -347,7 +347,12 @@ function wrap_look_for_page($zz_page) {
 			$page = $this_page;
 		}
 	}
-	if (!empty($page['parameters'])) wrap_page_parameters($page['parameters']);
+	if (!empty($page['parameters'])) {
+		parse_str($page['parameters'], $page['parameters']);
+		wrap_page_parameters($page['parameters']);
+	} else {
+		$page['parameters'] = [];
+	}
 	if (empty($page)) return false;
 
 	$page['parameter'] = implode('/', $data[$found]['params']);
@@ -513,7 +518,6 @@ function wrap_url_cut($url, $params) {
  * @return bool
  */
 function wrap_page_parameters($params) {
-	parse_str($params, $params);
 	if (!$params) return false;
 	$cfg = wrap_cfg_files('settings');
 	
