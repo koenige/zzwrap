@@ -1236,8 +1236,7 @@ function wrap_htmlout_page($page) {
  * @return array
  */
 function wrap_page_extra(&$page, $zz_page) {
-	if (!$zz_page) return false;
-	if (!$zz_page['db']['parameters']) return false;
+	if (empty($zz_page['db']['parameters'])) return false;
 
 	// check webpages.parameters
 	foreach (wrap_setting('page_extra_parameters') as $key) {
