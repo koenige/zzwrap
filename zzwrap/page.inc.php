@@ -1096,6 +1096,7 @@ function wrap_redirect_change($url = false) {
  */
 function wrap_htmlout_page($page) {
 	global $zz_page;
+	wrap_page_extra($page, $zz_page);
 
 	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json')) {
 		$page['text'] = json_encode([
@@ -1225,6 +1226,48 @@ function wrap_htmlout_page($page) {
 	}
 
 	wrap_send_text($text, 'html', $page['status']);
+}
+
+/**
+ * write some keys from webpages.parameters to $page['extra']
+ *
+ * @param array $page
+ * @param array $zz_page
+ * @return array
+ */
+function wrap_page_extra(&$page, $zz_page) {
+	if (!$zz_page) return false;
+	if (!$zz_page['db']['parameters']) return false;
+
+	// check webpages.parameters
+	foreach (wrap_setting('page_extra_parameters') as $key) {
+		if (!array_key_exists($key, $zz_page['db']['parameters'])) continue;
+		$page['extra'][$key] = $zz_page['db']['parameters'][$key];
+		$page['extra_'.$key] = is_array($page['extra'][$key]) ? true : $page['extra'][$key];
+	}
+	
+	// check extra, write to extra_body_attributes
+	$attributes = [];
+	if (!empty($page['extra_body_attributes'])) {
+		// deprecated
+		preg_match_all('/([a-z]+)="([^"]+)"/', $page['extra_body_attributes'], $matches);
+		if (!empty($matches[1]) AND !empty($matches[2])) {
+			foreach ($matches[1] as $index => $key)
+				$attributes[$key][] = $matches[2][$index];
+		}
+	}
+	foreach (wrap_setting('page_extra_attributes') as $key) {
+		if (!array_key_exists($key, $page['extra'])) continue;
+		if (is_array($page['extra'][$key]))
+			$attributes[$key] = array_merge($attributes[$key], $page['extra'][$key]);
+		else
+			$attributes[$key][] = $page['extra'][$key];
+	}
+	$page['extra_body_attributes'] = [];
+	foreach ($attributes as $key => $values)
+		$page['extra_body_attributes'][] = sprintf('%s="%s"', $key, implode(' ', $values));
+	$page['extra_body_attributes'] = ' '.implode(' ', $page['extra_body_attributes']);
+	return true;
 }
 
 /**
