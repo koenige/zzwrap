@@ -2736,8 +2736,7 @@ function wrap_job_page($type) {
 	global $zz_page;
 	if ($type !== 'make') return false;
 	if (empty($zz_page['db']['parameters'])) return false;
-	parse_str($zz_page['db']['parameters'], $parameters);
-	if (empty($parameters['job'])) return false;
+	if (empty($zz_page['db']['parameters']['job'])) return false;
 	
 	$path = wrap_path('jobmanager', '', false);
 	if (!$path) return false; // no job manager active
