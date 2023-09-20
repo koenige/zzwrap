@@ -27,9 +27,9 @@
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	global $zz_page;
-	static $collect;
-	static $collect_messages;
-	static $collect_error_type;
+	static $collect = false;
+	static $collect_messages = [];
+	static $collect_error_type = NULL;
 
 	if (wrap_setting('install')) {
 		echo $msg;
@@ -51,7 +51,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			$collect_messages[$mymsg] = $mymsg.'. ';
 		}
 		$msg = false;
-		if (!empty($collect_error_type)) {
+		if ($collect_error_type) {
 			if ($collect_error_type < $error_type) {
 				$collect_error_type = $error_type;
 			}
@@ -64,7 +64,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		$collect = false;
 		$msg = implode('', $collect_messages);
 		$collect_messages = NULL;
-		if (!empty($collect_error_type)) {
+		if ($collect_error_type) {
 			$error_type = $collect_error_type;
 		}
 	}
