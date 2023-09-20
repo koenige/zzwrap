@@ -1236,13 +1236,13 @@ function wrap_htmlout_page($page) {
  * @return array
  */
 function wrap_page_extra(&$page, $zz_page) {
-	if (empty($zz_page['db']['parameters'])) return false;
-
 	// check webpages.parameters
-	foreach (wrap_setting('page_extra_parameters') as $key) {
-		if (!array_key_exists($key, $zz_page['db']['parameters'])) continue;
-		$page['extra'][$key] = $zz_page['db']['parameters'][$key];
-		$page['extra_'.$key] = is_array($page['extra'][$key]) ? true : $page['extra'][$key];
+	if (!empty($zz_page['db']['parameters'])) {
+		foreach (wrap_setting('page_extra_parameters') as $key) {
+			if (!array_key_exists($key, $zz_page['db']['parameters'])) continue;
+			$page['extra'][$key] = $zz_page['db']['parameters'][$key];
+			$page['extra_'.$key] = is_array($page['extra'][$key]) ? true : $page['extra'][$key];
+		}
 	}
 	
 	// check extra, write to extra_body_attributes
