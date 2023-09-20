@@ -2735,7 +2735,6 @@ function wrap_job_finish($job, $type, $content) {
 function wrap_job_page($type) {
 	global $zz_page;
 	if ($type !== 'make') return false;
-	if (empty($zz_page['db']['parameters'])) return false;
 	if (empty($zz_page['db']['parameters']['job'])) return false;
 	
 	$path = wrap_path('jobmanager', '', false);
