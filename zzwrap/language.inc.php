@@ -159,7 +159,7 @@ function wrap_language_get_text($language) {
  */
 function wrap_text($string, $params = []) {
 	global $zz_conf;
-	static $text;
+	static $text = [];
 	static $text_included = '';
 	static $module_text = [];
 	static $context = [];
