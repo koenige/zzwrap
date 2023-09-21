@@ -484,14 +484,12 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
  * @return string HTML-Output
  */
 function wrap_htmlout_menu(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_duplicates = true) {
-	static $menus;
+	static $menus = [];
 
 	if (!$nav) return false;
 	// avoid duplicate menus
-	if ($avoid_duplicates) {
-		if (empty($menus)) $menus = [];
+	if ($avoid_duplicates)
 		if (in_array($menu_name, $menus)) return false;
-	}
 	
 	// no menu_name: use default menu name but only if it exists, otherwise keep ''
 	if (!$menu_name AND wrap_setting('main_menu'))
@@ -1277,8 +1275,7 @@ function wrap_page_extra(&$page, $zz_page) {
  * @return array
  */
 function wrap_check_blocks($template) {
-	static $includes;
-	if (empty($includes)) $includes = [];
+	static $includes = [];
 
 	$file = wrap_template_file($template);
 	if (!$file) return [];
@@ -1407,8 +1404,7 @@ function wrap_page_links($data, $path, $path_overview = false) {
  * @return void
  */
 function wrap_page_format_files() {
-	static $included;
-	if (empty($included)) $included = [];
+	static $included = [];
 	$format_files = wrap_collect_files('format', 'custom');
 	$format_files += wrap_collect_files('format', 'active');
 	foreach ($format_files as $package => $format_file) {

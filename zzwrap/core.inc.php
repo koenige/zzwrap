@@ -431,11 +431,9 @@ function wrap_url_params_leftovers($leftovers) {
  * @return array
  */
 function wrap_url_cut($url, $params) {
-	static $counter;
-	static $counter_end;
-	static $last_url;
-	if (empty($counter)) $counter = 0;
-	if (empty($last_url)) $last_url = '';
+	static $counter = 0;
+	static $counter_end = 0;
+	static $last_url = '';
 	$replaced = [];
 	$my_params = [];
 	
@@ -538,8 +536,7 @@ function wrap_page_parameters($params) {
  * @return bool
  */
 function wrap_module_parameters($module, $params) {
-	static $unchanged;
-	if (empty($unchanged)) $unchanged = [];
+	static $unchanged = [];
 	$changed = [];
 	
 	if (!$params) return false;
@@ -2960,10 +2957,9 @@ function wrap_setting_write($key, $value, $login_id = 0) {
  * @return array
  */
 function wrap_setting_read($key, $login_id = 0) {
-	static $setting_table;
-	static $login_setting_table;
-	static $settings;
-	if (empty($settings)) $settings = [];
+	static $setting_table = '';
+	static $login_setting_table = '';
+	static $settings = [];
 	if (array_key_exists($login_id, $settings))
 		if (array_key_exists($key, $settings[$login_id]))
 			return $settings[$login_id][$key];
@@ -3225,14 +3221,14 @@ function wrap_setting_backend() {
  * @return array
  */
 function wrap_cfg_files($type, $settings = []) {
-	static $cfg;
-	static $single_cfg;
-	static $translated;
+	static $cfg = [];
+	static $single_cfg = [];
+	static $translated = false;
 
 	// check if wrap_cfg_files() was called without database connection
 	// then translate all config variables read so far
 
-	if (!$translated AND wrap_db_connection() AND !empty($cfg) AND !empty($settings['translate'])) {
+	if (!$translated AND wrap_db_connection() AND $cfg AND !empty($settings['translate'])) {
 		foreach (array_keys($cfg) as $this_type) {
 			wrap_cfg_translate($cfg[$this_type]);
 		}
@@ -3332,8 +3328,7 @@ function wrap_cfg_translate(&$cfg) {
  * @return bool
  */
 function wrap_setting_path($setting_key, $brick = '', $params = []) {
-	static $tries;
-	if (empty($tries)) $tries = [];
+	static $tries = [];
 	if (in_array($setting_key, $tries)) return false; // do not try more than once per request
 	$tries[] = $setting_key;
 	
@@ -3460,8 +3455,7 @@ function wrap_path_placeholder($path, $char = '%s') {
  * @return string
  */
 function wrap_host_base($website_id) {
-	static $host_bases;
-	if (empty($host_bases)) $host_bases = [];
+	static $host_bases = [];
 	if (array_key_exists($website_id, $host_bases))
 		return $host_bases[$website_id];
 
@@ -3504,10 +3498,8 @@ function wrap_unlink_recursive($folder) {
  * @return 
  */
 function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
-	static $filetypes;
-	
-	if (empty($filetypes))
-		$filetypes = wrap_filetypes_init();
+	static $filetypes = [];
+	if (!$filetypes) $filetypes = wrap_filetypes_init();
 
 	switch ($action) {
 	case 'read':

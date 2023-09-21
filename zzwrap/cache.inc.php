@@ -484,7 +484,7 @@ function wrap_cache_send_if_newer($datetime) {
  * @return string $value
  */
 function wrap_cache_get_header($file, $type, $send = false) {
-	static $sent;
+	static $sent = false;
 	global $zz_page;
 	$type = strtolower($type);
 	$headers = file_get_contents($file);

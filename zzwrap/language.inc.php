@@ -160,9 +160,9 @@ function wrap_language_get_text($language) {
 function wrap_text($string, $params = []) {
 	global $zz_conf;
 	static $text;
-	static $text_included;
-	static $module_text;
-	static $context;
+	static $text_included = '';
+	static $module_text = [];
+	static $context = [];
 	static $replacements = [];
 	static $deprecation_error = false;
 	static $plurals = [];
@@ -197,7 +197,7 @@ function wrap_text($string, $params = []) {
 		$replacements = array_merge($replacements, $zz_conf['text']['--']);
 	}
 
-	if (empty($text_included) OR $text_included !== $language) {
+	if (!$text_included OR $text_included !== $language) {
 		$text = [];
 		$module_text = [];
 		$context = [];
@@ -568,7 +568,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
  * @return array
  */
 function wrap_translate_field_list($field_key, $db_field) {
-	static $data;
+	static $data = [];
 	$key = sprintf('%s/%s', $field_key, $db_field);
 	if (isset($data[$key])) return $data[$key];
 
@@ -689,8 +689,8 @@ function wrap_translate_url_other() {
  * @return array
  */
 function wrap_translate_identifier_field() {
-	static $field;
-	if (!empty($field)) return $field;
+	static $field = [];
+	if ($field) return $field;
 
 	$field = wrap_translate_field_list('field_name',
 		wrap_setting('db_name').'./*_PREFIX_*/webpages.identifier'

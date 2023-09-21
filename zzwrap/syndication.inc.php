@@ -713,7 +713,7 @@ function wrap_lock_wait($realm, $sec) {
  * @return string
  */
 function wrap_lock_hash() {
-	static $hash;
+	static $hash = '';
 	if ($hash) return $hash;
 	if (!empty($_SERVER['HTTP_X_LOCK_HASH'])) {
 		return $_SERVER['HTTP_X_LOCK_HASH'];

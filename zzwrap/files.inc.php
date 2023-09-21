@@ -203,8 +203,7 @@ function wrap_tsv_parse($filename, $paths = '') {
  * @return void
  */
 function wrap_lib($libraries = []) {
-	static $included;
-	if (empty($included)) $included = [];
+	static $included = [];
 
 	if (!$libraries)
 		$libraries = wrap_setting('ext_libraries');

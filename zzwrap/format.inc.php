@@ -121,8 +121,7 @@ function wrap_set_encoding($character_encoding) {
  * @return string
  */
 function wrap_filename($str, $spaceChar = '-', $replacements = []) {
-	static $characters;
-
+	static $characters = [];
 	if (!$characters)
 		$characters = wrap_tsv_parse('transliteration-characters');
 	
@@ -573,10 +572,10 @@ function wrap_money_format($number, $format = false) {
  * @todo some currencies have different symbols for singular and plural
  */
 function wrap_currency($currency) {
-	static $currencies;
-	if (empty($currencies)) {
+	static $currencies = [];
+	if (!$currencies)
 		$currencies = wrap_tsv_parse('currencies', 'default/custom');
-	}
+
 	if (!array_key_exists($currency, $currencies)) return $currency;
 	$text = sprintf('<abbr title="%s (%s)">%s</abbr>'
 		, $currencies[$currency]['Currency']
@@ -887,7 +886,7 @@ function wrap_coordinate_decimal($number) {
  * @return string
  */
 function wrap_normalize($input) {
-	static $replacements;
+	static $replacements = [];
 
 	if (wrap_setting('character_set') !== 'utf-8') return $input;
 	if (!$input) return $input;
@@ -902,7 +901,6 @@ function wrap_normalize($input) {
 	
 	if (!$replacements) {
 		$normalization = wrap_tsv_parse('unicode-normalization');
-		$replacements = [];
 		foreach ($normalization as $line) {
 			if ($line[0] === '-') continue;
 			$replacements[wrap_hex2chars($line[0])] = wrap_hex2chars($line[3]);

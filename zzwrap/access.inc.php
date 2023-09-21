@@ -23,10 +23,9 @@
  */
 function wrap_access($area, $detail = '', $conditions = true) {
 	global $zz_conf;
-	static $config;
-	static $usergroups;
-	if (empty($config)) $config = wrap_cfg_files('access');
-	if (empty($usergroups)) $usergroups = [];
+	static $config = [];
+	static $usergroups = [];
+	if (!$config) $config = wrap_cfg_files('access');
 	$area_short = substr($area, 0, strpos($area, '['));
 
 	// no access rights function: allow everything	
@@ -113,8 +112,7 @@ function wrap_access_quit($area, $detail = '', $conditions = true) {
  * @return bool
  */
 function wrap_conditions($config, $detail) {
-	static $data;
-	if (empty($data)) $data = [];
+	static $data = [];
 
 	$definitions = [
 		'condition', 'condition_unless', 'condition_if_setting', 'condition_if_lib'
@@ -191,13 +189,13 @@ function wrap_parameters($fields) {
  * @return bool
  */
 function wrap_access_page($parameters, $details = [], $quit = true) {
-	static $config;
+	static $config = [];
 	if (!$parameters) return true;
 	if (is_string($parameters))
 		parse_str($parameters, $parameters);
 	if (empty($parameters['access'])) return true;
 	// check later with placeholders?
-	if (empty($config)) $config = wrap_cfg_files('access');
+	if (!$config) $config = wrap_cfg_files('access');
 	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
 	return wrap_access_details($parameters['access'], $details, 'OR', $quit);
 }
@@ -242,7 +240,7 @@ function wrap_access_details($access_key, $details = [], $operand = 'AND', $quit
  * @param string $value (optional): in combination with set, sets value to right
  */
 function wrap_rights($right, $mode = 'get', $value = NULL) {
-	static $rights;
+	static $rights = [];
 	switch ($mode) {
 	case 'get':
 		if (isset($rights[$right])) return $rights[$right];

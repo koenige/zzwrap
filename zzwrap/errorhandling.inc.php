@@ -249,10 +249,8 @@ function wrap_error_sql_class($time) {
  * @see wrap_error()
  */
 function wrap_error_summary($line = '', $error_level = '', $prefix_line = false) {
-	static $log;
-	static $prefixes;
-	if (empty($log)) $log = [];
-	if (empty($prefixes)) $prefixes = [];
+	static $log = [];
+	static $prefixes = [];
 	if ($line) {
 		if ($prefix_line) $prefixes[$error_level] = $line;
 		else $log[$error_level] = $line;
@@ -489,7 +487,8 @@ function wrap_errorpage_log($status, $page) {
  * @return bool true: ignore for logging, false: log error
  */
 function wrap_error_ignore($status, $string = false) {
-	$ignores = wrap_tsv_parse('errors-not-logged');
+	static $ignores = [];
+	if (!$ignores) $ignores = wrap_tsv_parse('errors-not-logged');
 	$status = strtolower($status);
 	if (!array_key_exists($status, $ignores)) return false;
 
@@ -767,9 +766,9 @@ function wrap_error_url_decode($url) {
  * @return string
  */
 function wrap_log($line, $level = 'notice', $module = '', $file = false) {
-	static $postdata;
+	static $postdata = false;
 	if ($line === 'postdata') {
-		if (!empty($postdata)) return false;
+		if ($postdata) return false;
 		$line = sprintf('POST[json] %s', json_encode($_POST));
 		$postdata = true; // just log POST data once per request
 	}

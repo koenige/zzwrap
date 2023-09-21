@@ -75,7 +75,7 @@ function wrap_db_connect() {
  * @return object
  */
 function wrap_db_connection($db = []) {
-	static $connection;
+	static $connection = NULL;
 	if ($db === false) {
 		if ($connection) mysqli_close($connection);
 		$connection = NULL;
@@ -94,8 +94,8 @@ function wrap_db_connection($db = []) {
  * @return array
  */
 function wrap_db_credentials() {
-	static $db;
-	if (!empty($db)) return $db;
+	static $db = [];
+	if ($db) return $db;
 	
 	$db_password_files = wrap_setting('db_password_files');
 	$db_password_files[] = '';
@@ -977,9 +977,8 @@ function wrap_edit_sql_statement($sql, $statement) {
  * @return string
  */
 function wrap_sql_modify($key, $queries) {
-	static $modifications;
+	static $modifications = [];
 	if (!wrap_setting('multiple_websites')) return $queries[$key];
-	if (empty($modifications)) $modifications = [];
 	if (in_array($key, $modifications)) return $queries[$key];
 
 	$modify_queries = [
@@ -1010,10 +1009,8 @@ function wrap_sql_modify($key, $queries) {
  * @return mixed
  */
 function wrap_sql_query($key, $file = 'queries') {
-	static $queries;
-	static $collected;
-	if (empty($queries)) $queries = [];
-	if (empty($collected)) $collected = [];
+	static $queries = [];
+	static $collected = [];
 
 	$prefix = $package = substr($key, 0, strpos($key, '_'));
 	if (in_array($package, ['page', 'auth', 'core', 'ids'])) {
@@ -1180,10 +1177,10 @@ function wrap_sql_file($filename, $key_separator = '') {
  * @return bool true: please ignore
  */
 function wrap_sql_ignores($module = '', $table = '') {
-	static $ignores;
+	static $ignores = [];
 	
 	if ($module and $table) {
-		if (empty($ignores)) return false;
+		if (!$ignores) return false;
 		if (!array_key_exists($module, $ignores)) return false;
 		if (empty($ignores[$module][$table])) return false;
 		return true;
@@ -1222,14 +1219,12 @@ function wrap_sql_login() {
  * @return array
  */
 function wrap_system_sql($subtree) {
-	static $data;
+	static $data = [];
 
-	if (empty($data)) {
-		$data = [];
+	if (!$data) {
 		$files = wrap_collect_files('configuration/system.sql', 'modules/custom');
-		foreach ($files as $filename) {
+		foreach ($files as $filename)
 			$data = wrap_array_merge($data, wrap_sql_file($filename, '_'));
-		}
 	}
 
 	if (!array_key_exists($subtree, $data)) return [];
@@ -1430,7 +1425,7 @@ function wrap_filetype_id($filetype, $action = 'read') {
  * @return mixed
  */
 function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') {
-	static $data;
+	static $data = [];
 
 	if (!wrap_database_table_check('categories', true)) return [];
 
