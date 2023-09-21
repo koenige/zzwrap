@@ -593,6 +593,9 @@ function wrap_errorpage_logignore() {
 
 	// access without USER_AGENT will be ignored, badly programmed script
 	if (empty($_SERVER['HTTP_USER_AGENT'])) return true;
+	
+	// hostname is IP
+	if (wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
 
 	// access from the same existing page to this page nonexisting
 	// is impossible (there are some special circumstances, e. g. a 
