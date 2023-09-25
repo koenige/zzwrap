@@ -255,18 +255,24 @@ function wrap_db_query($sql, $error = E_USER_ERROR) {
 	$error_no = wrap_db_error_no();
 	if ($error_no === 2006 AND in_array($tokens[0], ['SET', 'SELECT'])) {
 		// retry connection
-		wrap_db_connect();
-		$result = mysqli_query(wrap_db_connection(), $sql);
-		if ($result) return $result;
-		wrap_db_error_no();
+		$success = wrap_db_connect();
+		if ($success) {
+			$result = mysqli_query(wrap_db_connection(), $sql);
+			if ($result) return $result;
+			wrap_db_error_no();
+		}
 	}
-	$error_msg = mysqli_error(wrap_db_connection());
-	
-	if (function_exists('wrap_error') AND !$warnings) {
-		wrap_error('['.$_SERVER['REQUEST_URI'].'] '
-			.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
+	if (!wrap_db_connection()) {
+		// try to send file from cache
+		wrap_send_cache();
+		// if there’s no cache, send error
+		wrap_error('['.$_SERVER['REQUEST_URI'].'] Database server has gone away', $error);
 	} else {
-		if (wrap_setting('error_handling') === 'output') {
+		$error_msg = mysqli_error(wrap_db_connection());
+		if (!$warnings) {
+			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
+				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
+		} elseif (wrap_setting('error_handling') === 'output') {
 			global $zz_page;
 			$zz_page['error_msg'] = '<p class="error">'.$error_msg.'<br>'.$sql.'</p>';
 		}
