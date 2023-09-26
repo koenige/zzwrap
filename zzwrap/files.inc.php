@@ -166,7 +166,9 @@ function wrap_tsv_parse($filename, $paths = '') {
 			} else {
 				$key = trim($line[0]);
 			}
-			if (count($line) === 2 and !$head) {
+			if (count($line) === 1 and !$head) {
+				$data[] = trim($line[0]);
+			} elseif (count($line) === 2 and !$head) {
 				// key/value
 				$data[$key] = trim($line[1]);
 			} elseif (!is_null($subkey)) {
