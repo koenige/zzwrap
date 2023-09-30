@@ -221,11 +221,15 @@ function wrap_text($string, $params = []) {
 				$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
 				$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
 			}
+			if ($language === 'en') // plurals
+				$files[] = $modules_dir.'/'.$module.'.pot';
 		}
 		// standard translated text 
 		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php'; // @deprecated
 		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po'; // @deprecated
 		$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
+		if ($language === 'en') // plurals
+			$files[] = wrap_setting('custom').'/languages/text.pot';
 		if (wrap_setting('language_variation')) {
 			// language variantes contain only some translations
 			// and are added on top of the existing translations
@@ -235,7 +239,12 @@ function wrap_text($string, $params = []) {
 
 		$plurals[$language] = [];
 		foreach ($files as $file) {
-			if (substr($file, -3) === '.po') {
+			if (str_ends_with($file, '.po') OR str_ends_with($file, '.pot')) {
+				if (!file_exists($file)) continue;
+				if (str_ends_with($file, '.pot')) {// get english language plurals
+					$english_file = substr($file, 0, -4).'-en.po';
+					if (file_exists($english_file)) continue;
+				}
 				$po_text = wrap_po_parse($file);
 				if (!empty($po_text['_po_header']['Language']))
 					$plurals[$po_text['_po_header']['Language']] = $po_text['_plural_forms'];
@@ -834,7 +843,6 @@ function wrap_text_recode($str, $in_charset) {
  * @return array
  */
 function wrap_po_parse($file) {
-	if (!file_exists($file)) return [];
 	$chunks = wrap_po_chunks($file);
 	
 	foreach ($chunks as $index => $chunk) {
