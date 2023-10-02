@@ -343,7 +343,10 @@ function wrap_mail_phpmailer($msg, $list) {
 				wrap_error('File not found. '.$file['path_local']);
 				continue;
 			}
-			$mail->addEmbeddedImage($file['path_local'], $file['cid']);
+			if ($file['disposition'] === 'inline')
+				$mail->addEmbeddedImage($file['path_local'], $file['cid']);
+			else
+				$mail->addAttachment($file['path_local'], $file['title'].'.'.$file['extension']);
 		}
 	}
 	foreach ($msg['headers'] as $field_name => $field_body) {
