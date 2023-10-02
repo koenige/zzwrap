@@ -530,6 +530,8 @@ function wrap_mail_queue_send() {
 	wrap_setting('mail_subject_prefix', false);
 	$lines = explode("\n", $mail['message']);
 	foreach ($lines as $line) {
+		if (!$line) continue;
+		if (!strstr($line, ':')) continue;
 		foreach ($headers as $header) {
 			if (str_starts_with($line, $header.': ')) {
 				$mail[strtolower($header)] = substr($line, strlen($header.': '));
