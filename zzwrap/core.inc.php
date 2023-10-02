@@ -3456,6 +3456,7 @@ function wrap_path_placeholder($path, $char = '%s') {
  */
 function wrap_host_base($website_id) {
 	static $host_bases = [];
+	if (!$website_id) return ''; // probably database disconnected
 	if (array_key_exists($website_id, $host_bases))
 		return $host_bases[$website_id];
 
