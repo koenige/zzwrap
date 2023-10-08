@@ -42,9 +42,8 @@ function wrap_data_ids($data, $id_field_name = '') {
 function wrap_data_langs($data, $lang_field_name = '') {
 	if (!$lang_field_name) return [wrap_setting('lang')];
 
-	foreach ($data as $id => $line) {
+	foreach ($data as $id => $line)
 		$langs[$line[$lang_field_name]] = $line[$lang_field_name];
-	}
 	return $langs;
 }	
 
@@ -60,14 +59,12 @@ function wrap_data_langs($data, $lang_field_name = '') {
  */
 function wrap_data_media($data, $ids, $langs, $table, $id_field) {
 	$mediadata = wrap_get_media(array_unique($ids), $table, $id_field);
+	$id_field = sprintf('%s_id', $id_field);
 	foreach ($langs as $lang) {
-		$media[$lang] = wrap_translate($mediadata, 'media', 'medium_id', true, $lang);
-	}
-	foreach ($media as $lang => $media_per_lang) {
-		foreach ($media_per_lang as $line_id => $line_media) {
-			foreach ($langs as $lang) {
-				$data[$lang][$line_id] += $line_media;
-			}
+		$media = wrap_translate($mediadata, 'media', 'medium_id', true, $lang);
+		foreach ($data[$lang] as $line_id => $line) {
+			if (!array_key_exists($line[$id_field], $media)) continue;
+			$data[$lang][$line_id] += $media[$line[$id_field]];
 		}
 	}
 	return $data;
