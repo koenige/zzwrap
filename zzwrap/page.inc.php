@@ -1094,7 +1094,6 @@ function wrap_redirect_change($url = false) {
  */
 function wrap_htmlout_page($page) {
 	global $zz_page;
-	wrap_page_extra($page, $zz_page);
 
 	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json')) {
 		$page['text'] = json_encode([
@@ -1117,6 +1116,7 @@ function wrap_htmlout_page($page) {
 	// init page
 	if (file_exists($file = wrap_setting('custom').'/zzbrick_page/_init.inc.php'))
 		require_once $file;
+	wrap_page_extra($page, $zz_page);
 	if (empty($page['description']))
 		$page['description'] = $zz_page['db']['description'] ?? '';
 
