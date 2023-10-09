@@ -59,6 +59,7 @@ function wrap_data_langs($data, $lang_field_name = '') {
  */
 function wrap_data_media($data, $ids, $langs, $table, $id_field) {
 	$mediadata = wrap_get_media(array_unique($ids), $table, $id_field);
+	if (!$mediadata) return $data;
 	$id_field = sprintf('%s_id', $id_field);
 	foreach ($langs as $lang) {
 		$media = wrap_translate($mediadata, 'media', 'medium_id', true, $lang);
