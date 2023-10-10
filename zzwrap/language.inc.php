@@ -324,6 +324,8 @@ function wrap_text_values($text, $key, $params) {
 	// currently, has to be first placeholder
 	$counter = reset($params['values']);
 	$index = wrap_text_plurals($counter, $params['plurals']);
+	// translation might be missing, other language might only have one plural
+	if (!array_key_exists($index, $translation)) $index = 1;
 	return vsprintf($translation[$index], $params['values']);
 }
 
