@@ -595,7 +595,7 @@ function wrap_errorpage_logignore() {
 	if (empty($_SERVER['HTTP_USER_AGENT'])) return true;
 	
 	// hostname is IP
-	if (wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
+	if (!empty($_SERVER['SERVER_ADDR']) AND wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
 
 	// access from the same existing page to this page nonexisting
 	// is impossible (there are some special circumstances, e. g. a 
