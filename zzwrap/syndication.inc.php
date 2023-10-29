@@ -43,7 +43,7 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 			wrap_cache_filename('headers', $cache_filename)
 		];
 		// does a cache file exist?
-		if (file_exists($files[0]) AND file_exists($files[1])) {
+		if ($files[1] AND file_exists($files[0]) AND file_exists($files[1])) {
 			$fresh = wrap_cache_freshness($files, $cache_age_syndication);
 			$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
 			if (!$last_modified)
@@ -72,7 +72,7 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 		switch ($status) {
 		case 200:
 			$my_etag = substr(wrap_syndication_http_header('ETag', $headers), 1, -1);
-			if ($data and wrap_setting('cache')) {
+			if ($data and wrap_setting('cache') AND $files[1]) {
 				if ($cache_filename !== $url) {
 					$headers[] = sprintf('X-Source-URL: %s', $url);
 				}

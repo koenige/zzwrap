@@ -48,10 +48,6 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	$head = wrap_cache_filename('headers', $url);
 	// URL with 'filename.ext/': both doc and head are false
 	if (!$doc and !$head) return NULL;
-	if (strlen(basename($head)) > 255) {
-		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $head), E_USER_NOTICE);
-		return NULL;
-	}
 	if (file_exists($head) AND file_exists($doc)) {
 		// check if something with the same ETag has already been cached
 		// no need to rewrite cache, it's possible to send a Last-Modified
@@ -173,6 +169,7 @@ function wrap_cache_delete($status, $url = false) {
 
 	$doc = wrap_cache_filename('url', $url);
 	$head = wrap_cache_filename('headers', $url);
+	if (!$head) return false;
 	if (file_exists($head)) unlink($head);
 	if (file_exists($doc)) {
 		// might be directory, if there was a URL ending example/
@@ -577,6 +574,10 @@ function wrap_cache_filename($type = 'url', $url = '') {
 		$file .= '/'.urlencode($base.$url['path']);
 	}
 	if (!empty($url['query'])) $file .= urlencode('?'.$url['query']);
+	if (strlen(basename($file)) > (255 - 8)) {
+		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $file), E_USER_NOTICE);
+		return false;
+	}
 	if ($type === 'url') {
 		if (wrap_setting('cache_directories') AND !strstr(basename($file), '.'))
 			$file .= '.html'; // to avoid conflicts with directories

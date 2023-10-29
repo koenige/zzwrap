@@ -1030,6 +1030,7 @@ function wrap_check_redirect_from_cache($page, $url) {
 		$url['path'] = substr($url['path'], 0, -strlen($ending));
 		$new_url = wrap_glue_url($url);
 		$filename = wrap_cache_filename('url', $new_url);
+		if (!$filename) continue;
 		if (!file_exists($filename)) continue;
 		$page['status'] = 307;
 		$page['redirect'] = $new_url;
