@@ -44,6 +44,11 @@ function wrap_session_start() {
 	$last_error = error_get_last();
 	// don't collide with other PHPSESSID on the same server, set own name:
 	session_name('zugzwang_sid');
+	// check if not illegal characters in session cookie
+	if (!empty($_COOKIE['zugzwang_sid']) AND !preg_match('/^[A-Za-z0-9-,]+$/', $_COOKIE['zugzwang_sid'])) {
+		wrap_error(sprintf('Illegal session cookie value found: %s', $_COOKIE['zugzwang_sid']), E_USER_NOTICE);
+		unset($_COOKIE['zugzwang_sid']);
+	}
 	$success = session_start();
 	// try it twice, some providers have problems with ps_files_cleanup_dir()
 	// accessing the /tmp-directory and failing temporarily with
