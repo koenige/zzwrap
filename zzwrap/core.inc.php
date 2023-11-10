@@ -310,12 +310,21 @@ function wrap_look_for_page($zz_page) {
 		$index = 0;
 		$params = [];
 		$replaced = [];
+		$extension = pathinfo($my_url['path'], PATHINFO_EXTENSION);
 		while ($my_url['path'] !== false) {
-			if (!array_intersect($replaced, $my_url['placeholders']))
-				$data[$i + $index * count($full_url)]
-					= wrap_url_params($my_url['path'], $replaced, $leftovers[$i] ?? []);
-			else
-				$data[$i + $index * count($full_url)] = [];
+			$idf = !array_intersect($replaced, $my_url['placeholders']) 
+				? wrap_url_params($my_url['path'], $replaced, $leftovers[$i] ?? []): [];
+			if ($extension AND $idf AND $idf['params']) {
+				$extension_idf = [
+					'url' => sprintf('%s.%s', $idf['url'], $extension),
+					'params' => $idf['params']
+				];
+				$last = array_pop($extension_idf['params']);
+				$extension_idf['params'][] = pathinfo($last, PATHINFO_FILENAME);
+				$data[$i + $index * count($full_url)] = $extension_idf;
+				$index++;
+			}
+			$data[$i + $index * count($full_url)] = $idf;
 			list($my_url['path'], $params, $replaced) = wrap_url_cut($my_url['path'], $params);
 			$index++;
 		}
