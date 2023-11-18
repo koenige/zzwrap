@@ -1219,7 +1219,12 @@ function wrap_htmlout_page($page) {
 			'title' => $page['pagetitle'],
 			'url' => $page['url']
 		];
-		wrap_send_text(json_encode($output), 'json', $page['status']);
+		$json = json_encode($output);
+		if ($output and !$json) {
+			wrap_quit(503, 'JSON error: '.json_last_error_msg());
+			exit;
+		}
+		wrap_send_text($json, 'json', $page['status']);
 		exit;
 	}
 
