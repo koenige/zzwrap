@@ -160,7 +160,7 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	$_str = str_replace("{$spaceChar}{$spaceChar}", "{$spaceChar}",	$_str);
 	$_str = str_replace("{$spaceChar}-", '-',	$_str);
 	$_str = str_replace("-{$spaceChar}", '-',	$_str);
-	$_str = trim($_str, $spaceChar);
+	$_str = rtrim($_str, $spaceChar);
 	// require at least one character
 	if (!$_str) $_str = wrap_setting('format_filename_empty') ?? $spaceChar;
 
