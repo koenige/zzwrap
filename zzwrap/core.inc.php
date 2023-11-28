@@ -3663,3 +3663,17 @@ function wrap_username() {
 
 	return $username;
 }
+
+/**
+ * check if a file of a given filetype can be used as webimage
+ *
+ * @param string $filetype
+ * @return bool
+ */
+function wrap_webimage($filetype) {
+	$def = wrap_filetypes($filetype);
+	if (!$def) return false;
+	if (!empty($def['php'])) return true;
+	if (!empty($def['webimage'])) return true;
+	return false;
+}
