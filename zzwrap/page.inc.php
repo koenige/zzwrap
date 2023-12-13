@@ -251,6 +251,8 @@ function wrap_get_menu($page) {
 		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql_fields('page_id')], $sql);
 	else
 		$hierarchy = [];
+	if (!empty($page['extra']['menu_hierarchy']))
+		$hierarchy = array_merge($hierarchy, $page['extra']['menu_hierarchy']);
 	
 	$page['current_navitem'] = 0;
 	$page['current_menu'] = '';
@@ -305,7 +307,7 @@ function wrap_get_menu($page) {
 					$menu[$id][$nav_id]['below'] = false;
 				} else {
 					$menu[$id][$nav_id]['below']
-						= (substr(wrap_setting('request_uri'), 0, ($item['url'] ? strlen($item['url']) : 0)) === $item['url']) ? true
+						= (str_starts_with(wrap_setting('request_uri'), $item['url'])) ? true
 						: (in_array($item[wrap_sql_fields('page_id')], $hierarchy) ? true : false);
 				}
 			}
