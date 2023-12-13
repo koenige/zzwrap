@@ -3464,6 +3464,52 @@ function wrap_path_placeholder($path, $char = '%s') {
 }
 
 /**
+ * get additional page IDs for menu hierarchy
+ *
+ * @param string $area
+ * @param array $paths (optional)
+ * @param string $setting_key (optional, defaults to category=)
+ * @return array
+ */
+function wrap_menu_hierarchy($area, $paths = [], $setting_key = '') {
+	sort($paths);
+	$setting = sprintf('%s_page_id[%s]', $area, implode(';', $paths));
+	if ($id = wrap_setting($setting)) return $id;
+	
+	// get brick
+	$cfg = wrap_cfg_files('settings');
+	if (empty($cfg[$area.'_path']['brick'])) return false;
+	$block = $cfg[$area.'_path']['brick'];
+	
+	// get all matching pages
+	$sql = 'SELECT page_id, content
+		FROM /*_PREFIX_*/webpages
+		WHERE content LIKE "%%\%%\%%\%% %s %%"';
+	$sql = sprintf($sql, $block);
+	$pages = wrap_db_fetch($sql, 'page_id');
+	if (!$pages) return wrap_setting($setting, []);
+
+	// prepare blocks for comparison
+	if ($setting_key)
+		foreach ($paths as $index => $path)
+			$paths[$index] = sprintf('%s=%s', $setting_key, $path);
+	$block = sprintf('%s %s', $block, implode(' ', $paths));
+
+	$page_ids = [];
+	foreach ($pages as $page) {
+		preg_match_all('/%%%(.+?)%%%/', $page['content'], $matches);
+		if (empty($matches[1])) continue;
+		foreach ($matches[1] as $match_block) {
+			$match = brick_blocks_match($block, $match_block);
+			if (!$match) continue;
+			$page_ids[] = $page['page_id'];
+		}
+	}
+	wrap_setting_write($setting, sprintf('[%s]', implode(',', $page_ids)));
+	return $page_ids;
+}
+
+/**
  * get hostname for website ID
  *
  * @param int $website_id
