@@ -302,7 +302,7 @@ function wrap_get_menu($page) {
 				}
 			}
 			if (!isset($menu[$id][$nav_id]['below'])) {
-				if ($item['url'] === wrap_setting('base').'/') {
+				if ($item['url'] === wrap_setting('base_path').'/') {
 					// all pages are below homepage, don't highlight this
 					$menu[$id][$nav_id]['below'] = false;
 				} else {
