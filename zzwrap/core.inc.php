@@ -3398,7 +3398,7 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 function wrap_path($area, $value = [], $check_rights = true) {
 	// check rights
 	$detail = is_bool($check_rights) ? '' : $check_rights;
-	if ($check_rights AND !wrap_access($area, $detail)) return false;
+	if ($check_rights AND !wrap_access($area, $detail)) return NULL;
 
 	// add _path to setting, check if it exists
 	$check = false;
@@ -3413,7 +3413,7 @@ function wrap_path($area, $value = [], $check_rights = true) {
 
 	if ($check) {
 		$success = wrap_setting_path($setting);
-		if (!$success) return false;
+		if (!$success) return NULL;
 	}
 	$this_setting = wrap_setting($setting);
 	if (!$this_setting) return '';
