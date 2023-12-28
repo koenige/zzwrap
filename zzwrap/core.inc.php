@@ -1837,6 +1837,8 @@ function wrap_file_cleanup($file) {
 function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	global $zz_page;
 
+	$filetype_cfg = wrap_filetypes($type);
+
 	// positions: text might be array
 	if (is_array($text) AND count($text) === 1) $text = array_shift($text);
 	if (is_array($text) AND $type !== 'html') {
@@ -1846,16 +1848,14 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		else 
 			$text = array_shift($text);
 	}
-	if ($type !== 'csv') {
+	if (empty($filetype_cfg['no_trim']))
 		$text = trim($text);
-	}
 
 	if (wrap_setting('gzip_encode'))
 		wrap_cache_header('Vary: Accept-Encoding');
 	header_remove('Accept-Ranges');
 
 	// Content-Type HTTP header
-	$filetype_cfg = wrap_filetypes($type);
 	if ($filetype_cfg) {
 		$zz_page['content_type'] = $filetype_cfg['mime'][0];
 		$mime = explode('/', $zz_page['content_type']);
