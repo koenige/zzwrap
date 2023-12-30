@@ -2757,6 +2757,17 @@ function wrap_job_page($type) {
 }
 
 /**
+ * trigger next job, independent from current/last job
+ * use new hash for that
+ *
+ * @param string $url
+ * @return void
+ */
+function wrap_job_next($url) {
+	wrap_trigger_protected_url($url, false, true, ['regenerate_hash' => 1]);
+}
+
+/**
  * call a website in the background via http
  * https is not supported
  *
@@ -2825,7 +2836,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
 	}
 	$headers[] = 'X-Timeout-Ignore: 1';
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
-		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash());
+		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash($data['regnerate_hash'] ?? false));
 	}
 	return wrap_get_protected_url($url, $headers, 'POST', $data, $username);
 }
