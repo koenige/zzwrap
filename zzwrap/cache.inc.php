@@ -362,7 +362,7 @@ function wrap_send_cache($age = 0) {
 		wrap_cache_header('Vary: Accept-Encoding');
 
 	// Log if cached version is used because there's no connection to database
-	if (!wrap_db_connection()) {
+	if (!wrap_db_connection() AND !$age) {
 		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
 		wrap_error(false, false, ['collect_end' => true]);
 	}
