@@ -1186,12 +1186,19 @@ function wrap_log_uri($status = 0) {
  */
 function wrap_remove_query_strings($url, $objectionable_qs = []) {
 	if (empty($url['full']['query'])) return $url;
-	if (empty($objectionable_qs)) {
+
+	// ignore_query_string = query string is ignored, without redirect
+	$ext = wrap_file_extension($url['full']['path']);
+	if ($ext) $filetype_config = wrap_filetypes($ext);
+	if (!empty($filetype_config['ignore_query_string'])) {
+		$url['full']['query'] = NULL;
+		return $url;
+	}
+
+	if (empty($objectionable_qs))
 		$objectionable_qs = ['PHPSESSID'];
-	}
-	if (!is_array($objectionable_qs)) {
+	if (!is_array($objectionable_qs))
 		$objectionable_qs = [$objectionable_qs];
-	}
 	parse_str($url['full']['query'], $query);
 	// furthermore, keys with % signs are not allowed (propably errors in
 	// some parsing script)
