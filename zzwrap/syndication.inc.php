@@ -710,13 +710,15 @@ function wrap_lock_wait($realm, $sec) {
 /**
  * generate a hash for this request
  *
+ * @param bool $regenerate
  * @return string
  */
-function wrap_lock_hash() {
+function wrap_lock_hash($regenerate = false) {
 	static $hash = '';
-	if ($hash) return $hash;
-	if (!empty($_SERVER['HTTP_X_LOCK_HASH'])) {
-		return $_SERVER['HTTP_X_LOCK_HASH'];
+	if (!$regenerate) {
+		if ($hash) return $hash;
+		if (!empty($_SERVER['HTTP_X_LOCK_HASH']))
+			return $_SERVER['HTTP_X_LOCK_HASH'];
 	}
 	$hash = wrap_random_hash(32);
 	return $hash;
