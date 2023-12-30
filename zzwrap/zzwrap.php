@@ -32,6 +32,22 @@ function zzwrap() {
 	wrap_includes_postconf();
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
 
+	// check HTTP request, build URL, set language according to URL and request
+	wrap_check_request(); // affects $zz_page
+
+	// page offline?
+	if (wrap_setting('site_offline')) {
+		if ($tpl = wrap_setting('site_offline_template')) {
+			wrap_setting('template', $tpl);
+		}
+		wrap_quit(503, wrap_text('This page is currently offline.'));
+		exit;
+	}
+
+	wrap_tests();
+	if (wrap_setting('cache_age'))
+		wrap_send_cache(wrap_setting('cache_age'));
+
 	// establish database connection
 	wrap_db_connect();
 	if (!wrap_setting('db_name')) {
@@ -39,13 +55,9 @@ function zzwrap() {
 		wrap_install();
 	}
 
-	wrap_tests();
 	wrap_config_write();
 	if (wrap_setting('multiple_websites'))
 		wrap_config_write(wrap_setting('site'));
-
-	// check HTTP request, build URL, set language according to URL and request
-	wrap_check_request(); // affects $zz_page
 
 	// errorpages
 	// only if accessed without rewriting, 'code' may be used as a query string
@@ -62,15 +74,6 @@ function zzwrap() {
 	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
 	
-	// page offline?
-	if (wrap_setting('site_offline')) {
-		if ($tpl = wrap_setting('site_offline_template')) {
-			wrap_setting('template', $tpl);
-		}
-		wrap_quit(503, wrap_text('This page is currently offline.'));
-		exit;
-	}
-
 	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
 	// Veröffentlichung freigegebene Seiten angeschaut werden können.
 	if (wrap_setting('secret_key') AND !wrap_rights('preview'))
@@ -87,10 +90,6 @@ function zzwrap() {
 		wrap_access_page($zz_page['db']['parameters'] ?? []);
 	}
 	wrap_check_https($zz_page);
-
-	// @todo check if we can start this earlier
-	if (wrap_setting('cache_age'))
-		wrap_send_cache(wrap_setting('cache_age'));
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
