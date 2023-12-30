@@ -770,8 +770,11 @@ function wrap_check_canonical($zz_page, $page) {
 			// no error logging for query strings which shall be redirected
 			if (in_array($param, $page['query_strings_redirect'])) continue;
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
-			if (!wrap_error_ignore('qs', $param))
-				$wrong_qs[] = sprintf('%s=%s', $param, $param_value);
+			$qs_key_value = sprintf('%s=%s', $param, $param_value);
+			if (!wrap_error_ignore('qs', $qs_key_value))
+				$wrong_qs[] = $qs_key_value;
+			elseif (!wrap_error_ignore('qs', $param))
+				$wrong_qs[] = $qs_key_value;
 		}
 		if ($wrong_qs)
 			wrap_error(sprintf('Wrong URL: query string %s [%s], Referer: %s'
