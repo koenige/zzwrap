@@ -817,20 +817,16 @@ function wrap_check_canonical_ending($ending, $url) {
 	// no changes for root path
 	if ($url['full']['path'] === '/') return $url;
 	if ($ending === 'ignore') return $url;
-	$new = false;
-	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0'];
-	foreach ($possible_endings as $p_ending) {
-		if (!str_ends_with($url['full']['path'], $p_ending)) continue;
-		if ($p_ending === $ending) return $url;
-		$url['full']['path'] = substr($url['full']['path'], 0, -strlen($p_ending));
-		$new = true;
-		break;
-	}
-	if (!in_array($ending, ['none', 'keine'])) {
-		$url['full']['path'] .= $ending;
-		$new = true;
-	}
-	if (!$new) return $url;
+
+	// get correct path
+	$path = wrap_url_ending($url['full']['path']);
+	if (!in_array($ending, ['none', 'keine']))
+		$path .= $ending;
+
+	// path is already correct? don’t do anything
+	if ($path === $url['full']['path']) return $url;
+
+	$url['full']['path'] = $path;
 	$url['redirect'] = true;
 	$url['redirect_cache'] = true;
 	return $url;
@@ -855,18 +851,28 @@ function wrap_read_url($url) {
 	if (substr($url['db'], 0, 1) === '/') {
 		$url['db'] = substr($url['db'], 1);
 	}
-	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0'];
-	foreach ($possible_endings as $p_ending) {
-		if (substr($url['db'], -strlen($p_ending)) !== $p_ending) continue;
-		$url['db'] = substr($url['db'], 0, -strlen($p_ending));
-		break; // just one!
-	}
+	$url['db'] = wrap_url_ending($url['db']);
 	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
 		if (substr($url['db'], -$url['suffix_length']) === '.html.'.$_GET['lang']) {
 			$url['db'] = substr($url['db'], 0, -$url['suffix_length']);
 		}
 	}
 	return $url;
+}
+
+/**
+ * remove ending that indicates it is text content from URL path
+ *
+ * @param string $path
+ * @return string
+ */
+function wrap_url_ending($path) {
+	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0', '/&nbsp;'];
+	foreach ($possible_endings as $ending) {
+		if (!str_ends_with($path, $ending)) continue;
+		return substr($path, 0, -strlen($ending));
+	}
+	return $path;
 }
 
 /**
