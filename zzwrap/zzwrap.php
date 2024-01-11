@@ -131,6 +131,8 @@ function wrap_includes() {
 	require_once __DIR__.'/format.inc.php';
 	require_once __DIR__.'/defaults.inc.php';
 	require_once __DIR__.'/files.inc.php';
+	if (file_exists(__DIR__.'/compatibility.inc.php'))
+		require_once __DIR__.'/compatibility.inc.php';
 }
 
 /**
