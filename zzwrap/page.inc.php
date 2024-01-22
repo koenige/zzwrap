@@ -19,7 +19,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -302,14 +302,15 @@ function wrap_get_menu($page) {
 				}
 			}
 			if (!isset($menu[$id][$nav_id]['below'])) {
-				if ($item['url'] === wrap_setting('base_path').'/') {
+				if (!$item['url'])
+					$menu[$id][$nav_id]['below'] = false;
+				elseif ($item['url'] === wrap_setting('base_path').'/')
 					// all pages are below homepage, don't highlight this
 					$menu[$id][$nav_id]['below'] = false;
-				} else {
+				else
 					$menu[$id][$nav_id]['below']
 						= (str_starts_with(wrap_setting('request_uri'), $item['url'])) ? true
 						: (in_array($item[wrap_sql_fields('page_id')], $hierarchy) ? true : false);
-				}
 			}
 			if ($menu[$id][$nav_id]['below'] OR $menu[$id][$nav_id]['current_page']) {
 				$menu[$id]['pos'] = $i + 1;
