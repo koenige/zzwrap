@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -31,6 +31,9 @@ function zzwrap() {
 	wrap_restrict_ip();
 	wrap_includes_postconf();
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
+
+	// make all _function files available, check_request() might already quit and needs a page
+	wrap_include_files('_functions', 'custom/modules/themes');
 
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_check_request(); // affects $zz_page
@@ -67,8 +70,6 @@ function zzwrap() {
 		wrap_errorpage([], $zz_page);
 		exit;
 	}
-	
-	wrap_include_files('_functions', 'custom/modules/themes');
 
 	// do not check if database connection is established until now
 	// to avoid infinite recursion due to calling the error page
