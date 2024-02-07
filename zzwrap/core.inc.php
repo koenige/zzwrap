@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -3194,7 +3194,7 @@ function wrap_setting_register($config) {
 }
 
 /**
- * for zzform, check if key belongs to $zz_conf or to $zz_setting
+ * for zzform, check if key belongs to $zz_conf or to wrap_setting()
  *
  * @param array $cfg
  * @param string $key
@@ -3203,8 +3203,8 @@ function wrap_setting_register($config) {
 function wrap_setting_zzconf($cfg, $key) {
 	if (!str_starts_with($key, 'zzform_')) return false;
 	$key_short = ($pos = strpos($key, '[')) ? substr($key, 0, $pos) : '';
-	if ($key_short AND !empty($cfg[$key_short]['no_conf'])) return false;
-	if (!empty($cfg[$key]['no_conf'])) return false;
+	if ($key_short AND empty($cfg[$key_short]['zz_conf'])) return false;
+	if (empty($cfg[$key]['zz_conf'])) return false;
 	return true;
 }
 
