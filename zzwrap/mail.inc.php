@@ -37,6 +37,10 @@ function wrap_mail($mail, $list = []) {
 				wrap_error('File not found. '.$file['path_local']);
 			}
 		}
+		if (!isset($mail['multipart']['text'])) {
+			$mail['multipart']['text'] = $mail['message'];
+			$mail['message'] = '';
+		}
 		$mail['message'] .= trim(wrap_template('mail-multipart', $mail['multipart']));
 	}
 
