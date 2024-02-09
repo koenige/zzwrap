@@ -1198,7 +1198,7 @@ function wrap_remove_query_strings($url, $objectionable_qs = []) {
 
 	// ignore_query_string = query string is ignored, without redirect
 	$ext = wrap_file_extension($url['full']['path']);
-	if ($ext) $filetype_config = wrap_filetypes($ext);
+	if ($ext) $filetype_config = wrap_filetypes($ext, 'check-per-extension');
 	if (!empty($filetype_config['ignore_query_string'])) {
 		$url['full']['query'] = NULL;
 		return $url;
@@ -1733,9 +1733,9 @@ function wrap_file_send($file) {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
-	$suffix = $file['ext'] ?? wrap_file_extension($file['name']);
-	if (!str_ends_with($file['send_as'], '.'.$suffix))
-		$file['send_as'] .= '.'.$suffix;
+	$extension = $file['ext'] ?? wrap_file_extension($file['name']);
+	if (!str_ends_with($file['send_as'], '.'.$extension))
+		$file['send_as'] .= '.'.$extension;
 	if (!isset($file['caching'])) $file['caching'] = true;
 
 	// Accept-Ranges HTTP header
@@ -1754,22 +1754,11 @@ function wrap_file_send($file) {
 	// Content-Type HTTP header
 	// Read mime type from .cfg or database
 	// Canonicalize suffices
-	$suffix_map = [
-		'jpg' => 'jpeg',
-		'tif' => 'tiff'
-	];
-	$suffix_canonical = in_array($suffix, array_keys($suffix_map))
-		? $suffix_map[$suffix] : $suffix;
-	$filetype_cfg = wrap_filetypes($suffix_canonical);
-	if (!empty($filetype_cfg['mime'][0])) {
+	$filetype_cfg = wrap_filetypes($extension, 'read-per-extension');
+	if (!empty($filetype_cfg['mime'][0]))
 		$zz_page['content_type'] = $filetype_cfg['mime'][0];
-	} elseif ($sql = sprintf(wrap_sql_query('core_filetypes'), $suffix)) {
+	elseif ($sql = sprintf(wrap_sql_query('core_filetypes'), $extension))
 		$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
-		if (!$zz_page['content_type']) {
-			$sql = sprintf(wrap_sql_query('core_filetypes'), $suffix_canonical);
-			$zz_page['content_type'] = wrap_db_fetch($sql, '', 'single value');
-		}
-	}
 	if (!$zz_page['content_type']) $zz_page['content_type'] = 'application/octet-stream';
 	wrap_cache_header('Content-Type: '.$zz_page['content_type']);
 
@@ -3576,6 +3565,17 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 		if (!$filetype) return $filetypes;
 		if (!array_key_exists($filetype, $filetypes)) return [];
 		return $filetypes[$filetype];
+	case 'read-per-extension':
+	case 'check-per-extension':
+		$found = [];
+		foreach ($filetypes as $ftype => $filetype_def) {
+			if (!in_array($filetype, $filetype_def['extension'])) continue;
+			$found[] = $ftype;
+		}
+		if (count($found) === 1) return $filetypes[$found[0]];
+		if ($action === 'read-per-extension')
+			wrap_error(sprintf('Cannot determine filetype by extension: `%s`', $filetype));
+		break;
 	case 'write':
 		// @todo not yet supported
 		break;

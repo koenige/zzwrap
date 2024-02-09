@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -558,8 +558,8 @@ function wrap_cache_filename($type = 'url', $url = '') {
 			// check if it is not some super clever search engine that adds a /
 			// to a filename (dot showing this is)
 			if (strstr($last_path, '.')) {
-				$last_path = explode('.', $last_path);
-				if (array_key_exists(end($last_path), wrap_filetypes())) {
+				$extension = wrap_file_extension($last_path);
+				if (wrap_filetypes($extension, 'check-per-extension')) {
 					if (file_exists(substr($file, 0, -1))) return false;
 					wrap_error(wrap_text(
 						'Caching for URL %s disabled, looks like filename with / at the end?',
