@@ -1395,6 +1395,19 @@ function wrap_http_remote_ip() {
 }
 
 /**
+ * is access from localhost?
+ *
+ * @return bool
+ */
+function wrap_localhost_ip() {
+	if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1') return true;
+	if ($_SERVER['REMOTE_ADDR'] === '::1') return true;
+	if (empty($_SERVER['SERVER_ADDR'])) return false;
+	if ($_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR']) return true;
+	return false;
+}
+
+/**
  * restrict access to website per IP
  *
  * @return void
