@@ -591,6 +591,7 @@ function wrap_mail_reply_to($headers) {
 		$headers['Reply-To']['name'] = $headers['From']['name'];
 	}
 	$headers['From']['e_mail'] = $e_mail;
+	$headers['From']['name'] = wrap_setting('project');
 	return $headers;
 }
 
