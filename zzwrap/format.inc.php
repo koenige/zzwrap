@@ -1351,7 +1351,7 @@ function wrap_cfg_quote($string) {
  */
 function wrap_profiles($data) {
 	$profiles = wrap_cfg_files('profiles');
-	$profiles = array_merge($profiles, wrap_setting('profiles'));
+	$profiles = wrap_array_merge($profiles, wrap_setting('profiles'));
 
 	$my_profiles = [];
 	foreach ($profiles as $profile) {
