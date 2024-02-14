@@ -2,7 +2,7 @@
 
 /**
  * zzwrap
- * Formatting functions for strings
+ * Formatting functions for strings and other data
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/projects/zzwrap
@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1329,4 +1329,81 @@ function wrap_cfg_quote($string) {
 		return sprintf('"%s"', $string);
 	}
 	return $string;
+}
+
+/**
+ * get profile links from profiles (setting or configuration)
+ *
+ * reads data from profiles.cfg, will be overwritten with general setting `profiles`
+ * via settings table, modules.json or wrap_setting()
+ *
+ * format:
+ * [unique_internal_key]
+ * url = https://example.org/%s
+ * title = profile for club on example.org
+ * scope[] = contact/club
+ * active = 1
+ * fields[] = identifiers[identifier]
+ * fields_scope = identifiers/code
+ * @param array $data
+ *		requires fields category_id, identifier, further fields in fields[] definition
+ * @return array
+ */
+function wrap_profiles($data) {
+	$profiles = wrap_cfg_files('profiles');
+	$profiles = array_merge($profiles, wrap_setting('profiles'));
+
+	$my_profiles = [];
+	foreach ($profiles as $profile) {
+		if (!is_array($profile)) $profile = ['url' => $profile];
+		if (isset($profile['active']) AND !$profile['active']) continue;
+		if (isset($profile['scope'])) {
+			$scope_found = false;
+			foreach ($profile['scope'] as $scope) {
+				if ($data['category_id'] !== wrap_category_id($scope)) continue;
+				$scope_found = true;
+			}
+			if (!$scope_found) continue;
+		}
+		$title = isset($profile['title']) ? wrap_profiles_lang($profile['title']) : NULL;
+		$url = wrap_profiles_lang($profile['url']);
+		$fields = $profile['fields'] ?? ['identifier'];
+		$values = [];
+		foreach ($fields as $field) {
+			if (strstr($field, '[')) {
+				$field = explode('[', $field);
+				if (!array_key_exists($field[0], $data)) continue 2;
+				$field[1] = rtrim($field[1], ']');
+				foreach ($data[$field[0]] as $line) {
+					if (!isset($line[$field[1]])) continue 3;
+					if (!isset($profile['fields_scope'])) {
+						$values[] = $line[$field[1]];
+						continue 3;
+					}
+					if ($line['category_id'] !== wrap_category_id($profile['fields_scope'])) continue;
+					$values[] = $line[$field[1]];
+				}
+			} else {
+				if (!array_key_exists($field, $data)) continue 2;
+				$values[] = $data[$field];
+			}
+		}
+		$url = vsprintf($url, $values);
+		$my_profiles[] = ['title' => $title, 'url' => $url];
+	}
+	return $my_profiles;
+}
+
+/**
+ * get correct key per language
+ *
+ * @param mixed $value
+ * @return string
+ */
+function wrap_profiles_lang($value) {
+	if (!is_array($value)) return $value;
+	// language?
+	if (array_key_exists(wrap_setting('lang'), $value)) return $value[wrap_setting('lang')];
+	// language not found, return first element
+	return reset($value);
 }
