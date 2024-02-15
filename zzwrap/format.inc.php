@@ -1389,6 +1389,7 @@ function wrap_profiles($data) {
 				$values[] = $data[$field];
 			}
 		}
+		if (!$values) continue;
 		$url = vsprintf($url, $values);
 		$my_profiles[] = ['title' => $title, 'url' => $url];
 	}
