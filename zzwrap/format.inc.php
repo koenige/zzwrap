@@ -847,7 +847,8 @@ function wrap_coordinate($value, $orientation, $format = 'dms') {
 			$deg = intval($value);
 			$sec = round(($value - $deg) * 3600, wrap_setting('geo_rounding'));
 			$min = intval($sec) - (intval($sec) % 60); // min in seconds
-			$sec = $sec - $min;
+			// sec can now have up to 14 decimal places because of float operations, round last two to get sensible value
+			$sec = round($sec - $min, 12);
 			$min /= 60;
 			$coord[] = $deg.'&#176;'.wrap_setting('geo_spacer')
 				.(($min OR $sec) ? $min.'&#8242;'.wrap_setting('geo_spacer') : '')
