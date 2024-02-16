@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -446,7 +446,7 @@ function wrap_errorpage_log($status, $page) {
 		// do not log an error if no credentials were send
 		if (empty($_SERVER['PHP_AUTH_USER']) AND empty($_SERVER['PHP_AUTH_PW'])) break;
 		$msg .= sprintf(' (IP: %s, User agent: %s)'
-			, $_SERVER['REMOTE_ADDR']
+			, wrap_http_remote_ip()
 			, $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
 		);
 	case 400:
