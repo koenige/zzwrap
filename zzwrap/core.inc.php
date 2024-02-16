@@ -3582,7 +3582,8 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 	case 'check-per-extension':
 		$found = [];
 		foreach ($filetypes as $ftype => $filetype_def) {
-			if (!in_array($filetype, $filetype_def['extension'])) continue;
+			if (empty($filetype_def['extension']) AND $filetype !== $ftype) continue;
+			elseif (!in_array($filetype, $filetype_def['extension'])) continue;
 			$found[] = $ftype;
 		}
 		if (count($found) === 1) return $filetypes[$found[0]];
