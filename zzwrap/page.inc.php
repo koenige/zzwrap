@@ -1009,7 +1009,12 @@ function wrap_page_check_if_error($page) {
 function wrap_get_page() {
 	global $zz_page;
 
-	if (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
+	if (!empty($_POST['httpRequest']) AND is_array($_POST['httpRequest'])) {
+		$page['status'] = 400;
+		$page['error']['level'] = E_USER_NOTICE;
+		$page['error']['msg_text'] = 'Illegal value for XML HTTP request: %s';
+		$page['error']['msg_vars'] = [json_encode($_POST['httpRequest'])];
+	} elseif (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
 		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
 		$page['url_ending'] = 'ignore';
 	} elseif (array_key_exists('well_known', $zz_page)) {
