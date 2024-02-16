@@ -125,6 +125,10 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 	if (!$characters)
 		$characters = wrap_tsv_parse('transliteration-characters');
 	
+	if (is_array($str)) {
+		wrap_error('wrap_filename() only accepts strings: '.json_encode($str));
+		$str = 'unknown';
+	}
 	$str = wrap_convert_string($str, 'UTF-8');
 	wrap_set_encoding('utf-8');
 	$str = trim($str);
