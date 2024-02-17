@@ -446,7 +446,7 @@ function wrap_errorpage_log($status, $page) {
 		// do not log an error if no credentials were send
 		if (empty($_SERVER['PHP_AUTH_USER']) AND empty($_SERVER['PHP_AUTH_PW'])) break;
 		$msg .= sprintf(' (IP: %s, User agent: %s)'
-			, wrap_http_remote_ip()
+			, wrap_setting('remote_ip')
 			, $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
 		);
 	case 400:
