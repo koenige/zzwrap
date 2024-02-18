@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -178,12 +178,10 @@ function wrap_syndication_errors($errno, $errstr, $errfile = '', $errline = 0, $
  */
 function wrap_syndication_geocode($address) {
 	$add[0] = '';
-	if (isset($address['locality'])) {
+	if (isset($address['locality']))
 		$add[0] = trim(urlencode($address['locality']));
-	}
-	if (!empty($address['postal_code'])) {
+	if (!empty($address['postal_code']))
 		$add[0] = trim(urlencode($address['postal_code'])).($add[0] ? '+' : '').$add[0];
-	}
 	$is_postbox = false;
 	if (!empty($address['street_name'])) {
 		$street = explode("\n", $address['street_name']);
@@ -207,9 +205,8 @@ function wrap_syndication_geocode($address) {
 			.(isset($address['street_number']) ? ' '.$address['street_number'] : ''))
 			.($add[0] ? ',' : '').$add[0];
 	}
-	if (!empty($address['state'])) {
+	if (!empty($address['state']))
 		$add[0] .= ','.urlencode($address['state']);
-	}
 	$region = isset($address['country']) ? $address['country'] : '';
 	// virtual place?
 	if ($region === '-' OR $region === '--' OR $region === '---') return [];
@@ -360,6 +357,11 @@ function wrap_syndication_geocode($address) {
 			}
 			break;
 		}
+	}
+	if (!$results AND !empty($address['street_number'])) {
+		// try again without street number
+		unset($address['street_number']);
+		return wrap_syndication_geocode($address);
 	}
 	if (!$results) return [];
 	if (count($results) === 1) return $results[0];
