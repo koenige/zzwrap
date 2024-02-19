@@ -171,12 +171,13 @@ function wrap_syndication_errors($errno, $errstr, $errfile = '', $errline = 0, $
  *	string 'postal_code' (optional)
  *	string 'street_name' (optional)
  *	string 'street_number' (optional)
+ * @param bool $error_check (optional)
  * @return array
  *		double 'longitude'
  *		double 'latitude'
  *		string 'postal_code'
  */
-function wrap_syndication_geocode($address) {
+function wrap_syndication_geocode($address, $error_check = true) {
 	$add[0] = '';
 	if (isset($address['locality']))
 		$add[0] = trim(urlencode($address['locality']));
@@ -358,12 +359,10 @@ function wrap_syndication_geocode($address) {
 			break;
 		}
 	}
-	if (!$results AND !empty($address['street_number'])) {
-		// try again without street number
-		unset($address['street_number']);
-		return wrap_syndication_geocode($address);
+	if (!$results) {
+		if (!$error_check) return [];
+		return wrap_syndication_geocode_retry($address);
 	}
-	if (!$results) return [];
 	if (count($results) === 1) return $results[0];
 
 	$remove = [',', '.', '/', '-', '(', ')', '?'];
@@ -397,6 +396,32 @@ function wrap_syndication_geocode($address) {
 	}
 
 	return $results[$result_index];
+}
+
+/**
+ * re-try geocoding with error variants
+ *
+ * @param array $address
+ * @return array
+ */
+function wrap_syndication_geocode_retry($address) {
+	if (!empty($address['street_number'])) {
+		// try again without street number
+		unset($address['street_number']);
+		$results = wrap_syndication_geocode($address, false);
+		if ($results) return $results;
+	}
+	$typos = wrap_cfg_files('geocoding-typos');
+	foreach ($typos as $area => $values) {
+		if (empty($address[$area])) continue;
+		foreach ($values as $search => $replace) {
+			if (!strstr($address[$area], $search)) continue;
+			$address[$area] = str_replace($search, $replace, $address[$area]);
+			$results = wrap_syndication_geocode($address, false);
+			if ($results) return $results;
+		}
+	}
+	return [];
 }
 
 /**
