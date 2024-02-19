@@ -405,6 +405,11 @@ function wrap_syndication_geocode($address, $error_check = true) {
  * @return array
  */
 function wrap_syndication_geocode_retry($address) {
+	if (!empty($address['locality']) AND $pos = strpos($address['locality'], '-')) {
+		$address['locality'] = substr($address['locality'], 0, $pos);
+		$results = wrap_syndication_geocode($address, false);
+		if ($results) return $results;
+	}
 	if (!empty($address['street_number'])) {
 		// try again without street number
 		unset($address['street_number']);
