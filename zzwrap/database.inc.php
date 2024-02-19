@@ -21,7 +21,7 @@
  *	- wrap_sql_query()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1451,7 +1451,7 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 				wrap_error(sprintf(
 					'ID value for table `%s`, key `%s` not found.', $table, $identifier
 				));
-			return false;
+			return NULL;
 		}
 		return $data[$table][$identifier];
 	case 'list':
@@ -1462,7 +1462,7 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 		}
 		return $my_data;
 	default:
-		return false;
+		return NULL;
 	}
 }
 
