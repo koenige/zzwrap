@@ -327,10 +327,11 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
  * send cached data instead of data from database
  * (e. g. if connection is broken)
  *
- * @param int $age maximum acceptable cache age in seconds
+ * @param int $age (optional) maximum acceptable cache age in seconds
+ * @param bool $log_error (optional)
  * @return void
  */
-function wrap_send_cache($age = 0) {
+function wrap_send_cache($age = 0, $log_error = true) {
 	global $zz_page;
 	
 	// Some cases in which we do not cache
@@ -338,9 +339,9 @@ function wrap_send_cache($age = 0) {
 	if (!empty($_SESSION)) return false;
 	if (!empty($_POST)) return false;
 
-	$files = [wrap_cache_filename(), wrap_cache_filename('headers')];
+	$files = [wrap_cache_filename('url', '', $log_error), wrap_cache_filename('headers', '', $log_error)];
 	// $files[0] might not exist (redirect!)
-	if (!$files[1]) return false; // invalid URL with slash behind URL path with .
+	if (!$files[1]) return false; // invalid URL or URL too long
 	if (!file_exists($files[1])) return false;
 	$has_content = file_exists($files[0]);
 	if (!$has_content AND $filename = wrap_cache_get_header($files[1], 'X-Local-Filename')) {
@@ -524,7 +525,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
  * @global array $zz_page ($zz_page['url']['full'])
  * @return string filename
  */
-function wrap_cache_filename($type = 'url', $url = '') {
+function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 	global $zz_page;
 
 	if (!$url) {
@@ -561,7 +562,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 				$extension = wrap_file_extension($last_path);
 				if (wrap_filetypes($extension, 'check-per-extension')) {
 					if (file_exists(substr($file, 0, -1))) return false;
-					wrap_error(wrap_text(
+					if ($log_error) wrap_error(wrap_text(
 						'Caching for URL %s disabled, looks like filename with / at the end?',
 						['values' => wrap_setting('request_uri')]
 					), E_USER_NOTICE);
@@ -575,7 +576,7 @@ function wrap_cache_filename($type = 'url', $url = '') {
 	}
 	if (!empty($url['query'])) $file .= urlencode('?'.$url['query']);
 	if (strlen(basename($file)) > (255 - 8)) {
-		wrap_error(sprintf('Cache filename too long, caching disabled: %s', $file), E_USER_NOTICE);
+		if ($log_error) wrap_error(sprintf('Cache filename too long, caching disabled: %s', $file), E_USER_NOTICE);
 		return false;
 	}
 	if ($type === 'url') {

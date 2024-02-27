@@ -49,7 +49,7 @@ function zzwrap() {
 
 	wrap_tests();
 	if (wrap_setting('cache_age'))
-		wrap_send_cache(wrap_setting('cache_age'));
+		wrap_send_cache(wrap_setting('cache_age'), false);
 
 	// establish database connection
 	wrap_db_connect();
