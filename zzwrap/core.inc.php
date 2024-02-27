@@ -554,8 +554,10 @@ function wrap_module_parameters($module, $params) {
 	$changed = [];
 	
 	if (!$params) return false;
-	parse_str($params, $params);
-	if (!$params) return false;
+	if (!is_array($params)) {
+		parse_str($params, $params);
+		if (!$params) return false;
+	}
 
 	$cfg = wrap_cfg_files('settings');
 	foreach ($params as $key => $value) {
