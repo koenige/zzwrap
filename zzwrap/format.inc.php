@@ -644,6 +644,7 @@ function wrap_js_nl2br($string) {
  * @return string
  */
 function wrap_unit_format($value, $precision, $units, $factor = 1000) {
+    if (!is_numeric($value)) return $value;
     $value = max($value, 0);
     $pow = floor(($value ? log($value) : 0) / log($factor)); 
     $pow = min($pow, count($units) - 1); 
