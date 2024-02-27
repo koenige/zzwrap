@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2020, 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -58,6 +58,7 @@ function wrap_data_langs($data, $lang_field_name = '') {
  * @return array
  */
 function wrap_data_media($data, $ids, $langs, $table, $id_field) {
+	if (!function_exists('wrap_get_media')) return $data;
 	$mediadata = wrap_get_media(array_unique($ids), $table, $id_field);
 	if (!$mediadata) return $data;
 	$id_field = sprintf('%s_id', $id_field);
@@ -86,10 +87,35 @@ function wrap_data_merge($data, $new_data, $id_field_name = '', $lang_field_name
 			$lang = $line[$lang_field_name];
 		else
 			$lang = wrap_setting('lang');
+		if (empty($new_data[$lang][$id])) continue;
 		if ($id_field_name)
 			$data[$id] = array_merge($new_data[$lang][$line[$id_field_name]], $line);
 		else
 			$data[$id] = array_merge($new_data[$lang][$id], $line);
+	}
+	return $data;
+}
+
+/**
+ * cleanup data e. g. for API output
+ * (id fields, parameters, internal remarks)
+ *
+ * @param array $data
+ * @return array
+ */
+function wrap_data_cleanup($data) {
+	foreach ($data as $index => &$line) {
+		foreach ($line as $key => &$value) {
+			foreach (wrap_setting('data_cleanup_ignore') as $field_name) {
+				if (str_starts_with($field_name, '_')) {
+					if (str_ends_with($key, $field_name)) unset($line[$key]);
+				} else {
+					if ($key === $field_name) unset($line[$key]);
+					elseif (str_ends_with($key, '_'.$field_name)) unset($line[$key]);
+				}
+			}
+			if (is_array($value)) $value = wrap_data_cleanup($value);
+		}
 	}
 	return $data;
 }
