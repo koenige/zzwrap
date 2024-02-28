@@ -105,6 +105,7 @@ function wrap_data_merge($data, $new_data, $id_field_name = '', $lang_field_name
  */
 function wrap_data_cleanup($data) {
 	foreach ($data as $index => &$line) {
+		if (!is_array($line)) continue;
 		foreach ($line as $key => &$value) {
 			foreach (wrap_setting('data_cleanup_ignore') as $field_name) {
 				if (str_starts_with($field_name, '_')) {
