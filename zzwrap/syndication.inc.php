@@ -775,14 +775,13 @@ function wrap_lock_file($realm) {
  *		array 'destination' vsprintf fields from $my to filename
  *		bool 'log_destination' logs destination as well (in case the same file
  *			has to be put to multiple destinations)
- * @param bool $delete delete source file?
+ *		string 'action': do not move file, but call this function
+ *			if = 'delete': delete source file by renaming it
  * @return bool true: file was moved to destination, false: either
  *		an error occured or source file does not exist or source file is equal
  *		to destination, nothing was transfered
  */
-function wrap_watchdog($source, $destination, $params = [], $delete = false) {
-	require_once __DIR__.'/file.inc.php';
-
+function wrap_watchdog($source, $destination, $params = []) {
 	$source = wrap_watchdog_source_cleanup($source);
 	$file['source'] = wrap_watchdog_source_file($source);
 	if (!$file['source']) return false;
@@ -801,6 +800,7 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 		$destination = vsprintf($destination, $substitutes);
 	}
 	$file['destination'] = !empty($params['log_destination']) ? $destination : '';
+	$action = $params['action'] ?? ''; 
 
 	$changed = wrap_watchdog_log('check', $source, $file);
 	if (!$changed) return false;
@@ -808,8 +808,10 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	// do something
 	if (str_starts_with($destination, 'ftp://'))
 		$success = wrap_watchdog_move_ftp($file['source'], $destination);
-	elseif ($delete)
+	elseif ($action === 'delete')
 		$success = wrap_watchdog_move_file($file['source'], $destination, 'rename');
+	elseif ($action AND function_exists($action))
+		$success = $action($file['source'], $destination);
 	else
 		$success = wrap_watchdog_move_file($file['source'], $destination, 'copy');
 	if (!$success) return false;
@@ -968,6 +970,7 @@ function wrap_watchdog_log($action, $source, $file) {
 		if (!file_exists($logfile)) touch($logfile);
 		$watched_files = file($logfile);
 	}
+	require_once __DIR__.'/file.inc.php';
 	
 	switch ($action) {
 	case 'check':
