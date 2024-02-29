@@ -782,15 +782,70 @@ function wrap_lock_file($realm) {
  */
 function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 	require_once __DIR__.'/file.inc.php';
-	$logfile = wrap_setting('log_dir').'/watchdog.log';
-	if (!file_exists($logfile)) touch($logfile);
 
+	$source = wrap_watchdog_source_cleanup($source);
+	$file['source'] = wrap_watchdog_source_file($source);
+	if (!$file['source']) return false;
+	
+	$file['sha1'] = sha1_file($file['source']);
+	$file['timestamp'] = filemtime($file['source']);
+	// beware, there is a lot of buggy software that changes timestamps after
+	// e. g. FTP upload to some date in the past
+	if (filectime($file['source']) > $file['timestamp'])
+		$file['timestamp'] = filectime($file['source']);
+
+	if (!empty($params['destination'])) {
+		$substitutes = [];
+		foreach ($params['destination'] as $var)
+			$substitutes[] = $file[$var];
+		$destination = vsprintf($destination, $substitutes);
+	}
+	$file['destination'] = !empty($params['log_destination']) ? $destination : '';
+
+	$changed = wrap_watchdog_log('check', $source, $file);
+	if (!$changed) return false;
+
+	// do something
+	if (str_starts_with($destination, 'ftp://'))
+		$success = wrap_watchdog_move_ftp($file['source'], $destination);
+	elseif ($delete)
+		$success = wrap_watchdog_move_file($file['source'], $destination, 'rename');
+	else
+		$success = wrap_watchdog_move_file($file['source'], $destination, 'copy');
+	if (!$success) return false;
+	
+	// move was successful
+	wrap_watchdog_log('remove', $source, $file);
+	wrap_watchdog_log('log', $source, $file);
+	return true;
+}
+
+/**
+ * remove development URL parts from source if it is a http URL
+ *
+ * @param string @source
+ * @return string
+ */
+function wrap_watchdog_source_cleanup($source) {
 	if (str_starts_with($source, 'http://')
 		OR str_starts_with($source, 'https://')) {
 		$source = str_replace('.local', '', $source);
 		$source = str_replace('://dev.', '://', $source);
+	}
+	return $source;
+}
+
+/**
+ * get source filename, create local copy of source if necessary
+ * 
+ * @param string $source
+ * @return string
+ */
+function wrap_watchdog_source_file($source) {
+	if (str_starts_with($source, 'http://')
+		OR str_starts_with($source, 'https://')) {
 		$data = wrap_syndication_get($source, 'file');
-		if (empty($data['_']['filename'])) return false;
+		if (empty($data['_']['filename'])) return '';
 		$source_file = $data['_']['filename'];
 	} elseif (str_starts_with($source, 'brick ')) {
 		$source_file = wrap_setting('tmp_dir').'/'.str_replace(' ', '/', $source);
@@ -800,153 +855,161 @@ function wrap_watchdog($source, $destination, $params = [], $delete = false) {
 			wrap_mkdir(dirname($source_file));
 		} else {
 			// equal?
-			if (filemtime($source_file) === time()) return false;
+			if (filemtime($source_file) === time()) return '';
 		} 
 		$content = brick_format('%%% request '.substr($source, 6).' %%%');
-		if (!$content) return false;
+		if (!$content) return '';
 		if (!file_exists($source_file)) {
 			$stale = true;
 		} else {
 			$stale = md5_file($source_file) === md5($content['text']) ? false : true;
 		}
-		if (!$stale) return false;
+		if (!$stale) return '';
 		file_put_contents($source_file, $content['text']);
 	} else {
 		$source_file = $source;
 	}
-	if (!file_exists($source_file)) return false;
-	
-	$my['sha1'] = sha1_file($source_file);
-	$my['timestamp'] = filemtime($source_file);
-	// beware, there is a lot of buggy software that changes timestamps after
-	// e. g. FTP upload to some date in the past
-	if (filectime($source_file) > $my['timestamp'])
-		$my['timestamp'] = filectime($source_file);
-	if (!empty($params['destination'])) {
-		$substitutes = [];
-		foreach ($params['destination'] as $var) {
-			$substitutes[] = $my[$var];
-		}
-		$destination = vsprintf($destination, $substitutes);
-	}
+	if (!file_exists($source_file)) return '';
+	return $source_file;
+}
 
-	// check log
-	$watched_files = file($logfile);
-	$remove = false;
-	$delete_lines = [];
-	foreach ($watched_files as $index => $line) {
-		if (str_starts_with($line, hex2bin('00000000'))) {
-			$delete_lines[] = $index;
-			continue;
-		}
-		$file = explode(' ', trim($line)); // 0 = timestamp, 1 = sha1, 2 = filename
-		if (empty($file[2])) {
-			$delete_lines[] = $index;
-			continue;
-		}
-		if ($file[2] !== $source) continue;
-		if (!empty($params['log_destination'])) {
-			if ($file[3] !== $destination) continue;
-		}
-		if ($file[1] === $my['sha1']) {
-			// file was not changed, do nothing
-			return false;
-		}
-		$remove = $index;
-		break;
+/**
+ * move a source file to a destination on an FTP server
+ *
+ * @param string $source
+ * @param string $destination
+ * @return bool
+ */
+function wrap_watchdog_move_ftp($source, $destination) {
+	$url = parse_url($destination);
+	$ftp_stream = ftp_connect($url['host'], $url['port'] ?? 21);
+	if (!$ftp_stream) {
+		wrap_error(sprintf(
+			'FTP: Failed to connect to %s (Port: %d)',
+			$url['host'], $url['port'] ?? 21
+		));
+		return false;
 	}
-	if ($delete_lines) {
-		wrap_file_delete_line($logfile, $delete_lines);
+	$success = ftp_login($ftp_stream, $url['user'], $url['pass']);
+	if (!$success) {
+		wrap_error(sprintf(
+			'FTP: Failed login to %s (User: %s, Password: %s)',
+			$url['host'], $url['user'], $url['pass']
+		));
+		return false;
 	}
-	
-	// do something
-	if (str_starts_with($destination, 'ftp://')) {
-		$url = parse_url($destination);
-		$ftp_stream = ftp_connect($url['host'], $url['port'] ?? 21);
-		if (!$ftp_stream) {
-			wrap_error(sprintf(
-				'FTP: Failed to connect to %s (Port: %d)',
-				$url['host'], $url['port'] ?? 21
-			));
-			return false;
+	$dir = dirname($url['path']);
+	$success = @ftp_chdir($ftp_stream, $dir);
+	if (!$success) {
+		// check folder hierarchy if all folders exist, top to bottom
+		$folders = explode('/', substr($dir, 1));
+		$my_dir = '';
+		foreach ($folders as $folder) {
+			$my_dir .= '/'.$folder;
+			$success = @ftp_chdir($ftp_stream, $my_dir);
+			if (!$success) ftp_mkdir($ftp_stream, $my_dir);
 		}
-		$success = ftp_login($ftp_stream, $url['user'], $url['pass']);
-		if (!$success) {
-			wrap_error(sprintf(
-				'FTP: Failed login to %s (User: %s, Password: %s)',
-				$url['host'], $url['user'], $url['pass']
-			));
-			return false;
-		}
-		$dir = dirname($url['path']);
-		$success = @ftp_chdir($ftp_stream, $dir);
-		if (!$success) {
-			// check folder hierarchy if all folders exist, top to bottom
-			$folders = explode('/', substr($dir, 1));
-			$my_dir = '';
-			foreach ($folders as $folder) {
-				$my_dir .= '/'.$folder;
-				$success = @ftp_chdir($ftp_stream, $my_dir);
-				if (!$success) ftp_mkdir($ftp_stream, $my_dir);
-			}
-		}
-		if (!$success) {
-			wrap_error(sprintf(
-				'FTP: Directory was not changed to %s',
-				dirname($url['path'])
-			));
-			return false;
-		}
-		ftp_pasv($ftp_stream, true);
-		$upload = ftp_put($ftp_stream, basename($url['path']), $source_file, FTP_BINARY);
-		if (!$upload) {
-			wrap_error(sprintf(
-				'FTP: Upload local file %s to remote file %s failed',
-				$source_file, basename($url['path'])
-			));
-			return false;
-		}
-		ftp_close($ftp_stream);
-	} else {
-		wrap_mkdir(dirname($destination));
-		if ($delete) {
-			$success = rename($source_file, $destination);
-			if (!$success) {
-				wrap_error(sprintf(
-					'It was not possible to rename file %s to file %s',
-					$source_file, $destination
-				));
-				return false;
-			}
-		} else {
-			$success = copy($source_file, $destination);
-			if (!$success) {
-				wrap_error(sprintf(
-					'It was not possible to copy file %s to file %s',
-					$source_file, $destination
-				));
-				return false;
-			}
-		}
+	}
+	if (!$success) {
+		wrap_error(sprintf(
+			'FTP: Directory was not changed to %s',
+			dirname($url['path'])
+		));
+		return false;
+	}
+	ftp_pasv($ftp_stream, true);
+	$upload = ftp_put($ftp_stream, basename($url['path']), $source, FTP_BINARY);
+	if (!$upload) {
+		wrap_error(sprintf(
+			'FTP: Upload local file %s to remote file %s failed',
+			$source, basename($url['path'])
+		));
+		return false;
+	}
+	ftp_close($ftp_stream);
+	return true;
+}
+
+/**
+ * move a file in the local filesystem
+ *
+ * @param string $source
+ * @param string $destination
+ * @param string $function
+ * @return bool
+ */
+function wrap_watchdog_move_file($source, $destination, $function) {
+	wrap_mkdir(dirname($destination));
+	$success = $function($source, $destination);
+	if (!$success) {
+		wrap_error(sprintf(
+			'It was not possible to %s file %s to file %s',
+			$function, $source, $destination
+		));
+		return false;
+	}
+	return true;
+}
+
+/**
+ * logfile operations for watchdog
+ *
+ * @param string $action
+ * @param string $source
+ * @param array $file
+ * @return bool
+ */
+function wrap_watchdog_log($action, $source, $file) {
+	static $logfile = '';
+	static $watched_files = [];
+	static $remove = false;
+	if (!$logfile) {
+		$logfile = wrap_setting('log_dir').'/watchdog.log';
+		if (!file_exists($logfile)) touch($logfile);
+		$watched_files = file($logfile);
 	}
 	
-	// after successful moving of file, remove old log and write new one
-	// so when moving fails, next call of function tries to move file again
-	if ($remove !== false) {
+	switch ($action) {
+	case 'check':
+		$delete_lines = [];
+		foreach ($watched_files as $index => $line) {
+			if (str_starts_with($line, hex2bin('00000000'))) {
+				$delete_lines[] = $index;
+				continue;
+			}
+			$line = explode(' ', trim($line)); // 0 = timestamp, 1 = sha1, 2 = filename
+			if (empty($line[2])) {
+				$delete_lines[] = $index;
+				continue;
+			}
+			if ($line[2] !== $source) continue;
+			if ($file['destination'] AND $line[3] !== $file['destination']) continue;
+			if ($line[1] === $file['sha1']) {
+				// file was not changed, do nothing
+				return false;
+			}
+			$remove = $index;
+		}
+		if ($delete_lines)
+			wrap_file_delete_line($logfile, $delete_lines);
+		return true;
+	case 'remove':
+		// after successful moving of file, remove old log and write new one
+		// so when moving fails, next call of function tries to move file again
+		if ($remove === false) return false;
 		// file was changed, remove old line, add new line
 		unset($watched_files[$remove]);
 		if (!$handle = fopen($logfile, 'w+'))
-			return false; //wrap_text('Cannot open %s for writing.', ['values' => $file]);
+			return false; //wrap_text('Cannot open %s for writing.', ['values' => $logfile]);
 		foreach ($watched_files as $line)
 			fwrite($handle, $line);
 		fclose($handle);
+		return true;
+	case 'log':
+		if ($file['destination'])
+			error_log(sprintf("%s %s %s %s\n", $file['timestamp'], $file['sha1'], $source, $file['destination']), 3, $logfile);
+		else
+			error_log(sprintf("%s %s %s\n", $file['timestamp'], $file['sha1'], $source), 3, $logfile);
+		return true;
 	}
-	if (!empty($params['log_destination'])) {
-		error_log(sprintf("%s %s %s %s\n", $my['timestamp'], $my['sha1'], $source, $destination), 3, $logfile);
-	} else {
-		error_log(sprintf("%s %s %s\n", $my['timestamp'], $my['sha1'], $source), 3, $logfile);
-	}
-
-	// move was successful
-	return true;
 }
