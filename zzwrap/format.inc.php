@@ -1414,3 +1414,22 @@ function wrap_profiles_lang($value) {
 	// language not found, return first element
 	return reset($value);
 }
+
+/**
+ * hyphenate some very long strings (add &shy)
+ * (if hyphens: auto is not wanted or hyphens: manual is used)
+ *
+ * @param string $word
+ * @return string
+ */
+function wrap_hyphenate($word) {
+	foreach (wrap_setting('hyphenate_before') as $string) {
+		if (!strstr($word, $string)) continue;
+		$word = str_replace($string, '&shy;'.$string, $word);
+	}
+	foreach (wrap_setting('hyphenate_after') as $string) {
+		if (!strstr($word, $string)) continue;
+		$word = str_replace($string, $string.'&shy;', $word);
+	}
+	return $word;
+}
