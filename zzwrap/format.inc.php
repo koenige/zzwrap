@@ -1433,3 +1433,20 @@ function wrap_hyphenate($word) {
 	}
 	return $word;
 }
+
+/**
+ * adds id to headings
+ *
+ * @param string $text
+ * @return string
+ */
+function wrap_heading_id($text) {
+	if (!$text) return $text;
+	$text = preg_replace_callback('~###(.*)~', 'wrap_heading_id_set', $text);
+	$text = markdown($text);
+	return $text;
+}
+
+function wrap_heading_id_set($string) {
+	return trim($string[0]).' {#'.strtolower(wrap_filename($string[1])).'}';
+}
