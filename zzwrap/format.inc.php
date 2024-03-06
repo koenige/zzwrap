@@ -209,12 +209,13 @@ function wrap_mailto($person, $mail, $attributes = false) {
 function wrap_date($date, $format = false) {
 	if (!$date) return '';
 
-	if (!$format AND !is_null(wrap_setting('date_format')))
-		$format = wrap_setting('date_format');
 	if (!$format) {
-		wrap_error('Please set at least a default format for wrap_date().
-			via setting "date_format" = "dates-de" or so');
-		return $date;
+		$format = wrap_setting('date_format');
+		if (!$format) {
+			wrap_error('Please set at least a default format for wrap_date().
+				via setting "date_format" = "dates-de" or so');
+			return $date;
+		}
 	}
 	
 	if (strstr($format, '->')) {
