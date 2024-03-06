@@ -2934,13 +2934,11 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
 		if (wrap_setting('multiple_websites') AND !$login_id)
 			$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
-		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, $login_id ? 'logins' : '');
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 		$sql .= wrap_setting_login_id($login_id);
 	} elseif ($login_id) {
 		$sql = 'INSERT INTO /*_PREFIX_*/logins_settings (setting_value, setting_key, login_id) VALUES ("%s", "%s", %s)';
-		$sql = wrap_db_prefix($sql);
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $login_id);
 	} else {
 		$cfg = wrap_cfg_files('settings');
@@ -2950,7 +2948,6 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, %d)';
 		else
 			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation) VALUES ("%s", "%s", %s)';
-		$sql = wrap_db_prefix($sql);
 		if (wrap_setting('multiple_websites'))
 			$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation, wrap_setting('website_id'));
 		else
@@ -2958,10 +2955,9 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
-		$id = $result['id'] ?? false;
 		if ($files = wrap_include_files('database', 'zzform')) {
 			wrap_setting('log_username_default', 'Servant Robot 247');
-			zz_log_sql($sql, '', $id);
+			zz_log_sql($sql, '', $result['id'] ?? false);
 			wrap_setting_delete('log_username_default');
 		}
 		// activate setting

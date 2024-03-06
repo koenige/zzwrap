@@ -184,24 +184,36 @@ function wrap_db_charset($charset = '') {
  */
 function wrap_db_prefix($sql) {
 	if (!$sql) return $sql;
-	
 	$prefix = '/*_PREFIX_*/';
-	if (strstr($sql, $prefix)) {
-		$sql = str_replace($prefix, wrap_setting('db_prefix'), $sql);
-	}
-	return $sql;
+	if (!strstr($sql, $prefix)) return $sql;
+	return str_replace($prefix, wrap_setting('db_prefix'), $sql);
+}
+
+/**
+ * remove table prefix at the beginning
+ *
+ * @param string $sql
+ * @return string
+ */
+function wrap_db_prefix_remove($sql) {
+	if (!$sql) return $sql;
+	$prefix = '/*_PREFIX_*/';
+	if (!str_starts_with($sql, $prefix)) return $sql;
+	return substr($sql, strlen($prefix));
 }
 
 /**
  * queries database and does the error handling in case an error occurs
+ * the query will be changed: trimmed and prefix is replaced
  *
- * $param string $sql
+ * @param string $sql
+ * @param int $error (optional) error code
  * @return mixed
  *		bool: false = query failed, true = query was succesful
  *		array:	'id' => on INSERT: inserted ID if applicable
  *				'rows' => number of inserted/deleted/updated rows
  */
-function wrap_db_query($sql, $error = E_USER_ERROR) {
+function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 	if (!wrap_db_connection()) return false;
 
 	$sql = trim($sql);
@@ -1332,9 +1344,7 @@ function wrap_sql_placeholders($queries) {
 
 	$placeholders = ['ID', 'SETTING'];
 	foreach ($queries as $key => $query) {
-		if (strstr($query, '/*_PREFIX_*/')) {
-			$query = $queries[$key] = str_replace('/*_PREFIX_*/', wrap_setting('db_prefix'), $query);
-		}
+		$queries[$key] = wrap_db_prefix($query); // query is changed, too
 		foreach ($placeholders as $placeholder) {
 			if (!strstr($query, '/*_'.$placeholder)) continue;
 			$parts = explode('/*_'.$placeholder, $query);
@@ -1611,8 +1621,7 @@ function wrap_id_tree($table, $path) {
  */
 function wrap_database_table_check($table, $only_if_install = false) {
 	if ($only_if_install AND empty($_SESSION['cms_install'])) return true;
-	if (str_starts_with($table, '/*_PREFIX_*/'))
-		$table = substr($table, strlen('/*_PREFIX_*/'));
+	$table = wrap_db_prefix_remove($table);
 	
 	$sql = 'SELECT DATABASE()';
 	$database = wrap_db_fetch($sql, '', 'single value');
