@@ -333,7 +333,8 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 	if (!$result) return [];
 
 	$lines = wrap_db_fetch_values($result, $id_field_name, $format);
-	if (is_string($lines))
+	$errors = wrap_db_error_log('', 'clear');
+	foreach ($errors as $error)
 		wrap_error($lines, E_USER_WARNING);
 	return $lines;
 }
@@ -344,7 +345,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
  * @param resource $result
  * @param mixed $id_field_name
  * @param string $format
- * @return mixed array = data, string = error message
+ * @return mixed
  */
 function wrap_db_fetch_values($result, $id_field_name, $format) {
 	$lines = [];
@@ -476,16 +477,37 @@ function wrap_db_fetch_values($result, $id_field_name, $format) {
  *
  * @param mixed $fields
  * @param array $record
- * @return string (error message or '' if everything is okay)
+ * @return bool
  */
 function wrap_db_fields_in_record($fields, $record) {
 	if (!is_array($fields)) $fields = [$fields];
 	$missing_fields = array_diff($fields, array_keys($record));
-	if (!$missing_fields) return '';
+	if ($missing_fields)
+		wrap_db_error_log(wrap_text('Fields <code>%s</code> are missing in SQL query'
+			, ['values' => implode(', ', $missing_fields)]
+		));
+	return false;
+}
 
-	return wrap_text('Fields <code>%s</code> are missing in SQL query'
-		, ['values' => implode(', ', $missing_fields)]
-	);
+/**
+ * log errors in database operations for later use
+ *
+ * @param string $error_msg
+ * @return array
+ */
+function wrap_db_error_log($error_msg = '', $action = 'add') {
+	static $errors = [];
+	switch ($action) {
+	case 'add':
+		if (!$error_msg) break;
+		$errors[] = $error_msg;
+		break;
+	case 'clear':
+		$return = $errors;
+		$errors = [];
+		return $return;
+	}
+	return $errors;
 }
 
 /**
