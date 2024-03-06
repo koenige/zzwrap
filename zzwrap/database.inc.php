@@ -324,14 +324,12 @@ function wrap_db_error_no() {
  *	for direct use in zzbrick templates, e. g. 0 => [
  *		field_name_1 = value, field_name_2 = []], 1 => ..
  * @param int $error_type let's you set error level, default = E_USER_ERROR
- * @return array with queried database content, NULL if query failed
+ * @return array with queried database content
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_type = E_USER_ERROR) {
-	if (!wrap_db_connection()) return [];
-	
 	$result = wrap_db_query($sql, $error_type);
-	if (!$result) return NULL;
+	if (!$result) return [];
 
 	$lines = [];
 

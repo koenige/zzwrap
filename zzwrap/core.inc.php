@@ -1147,7 +1147,7 @@ function wrap_log_uri($status = 0) {
 	}
 	$uri_id = wrap_db_fetch($sql, '', 'single value', E_USER_NOTICE);
 	
-	if (is_null($uri_id)) {
+	if (!wrap_db_connection()) {
 		return false;
 	} elseif ($uri_id) {
 		$sql = 'UPDATE /*_PREFIX_*/_uris
