@@ -202,16 +202,15 @@ function wrap_db_prefix($sql) {
  *				'rows' => number of inserted/deleted/updated rows
  */
 function wrap_db_query($sql, $error = E_USER_ERROR) {
-	if (wrap_setting('debug')) {
-		$time = microtime(true);
-	}
 	if (!wrap_db_connection()) return false;
+
 	$sql = trim($sql);
 	
 	if (str_starts_with($sql, 'SET NAMES ')) {
 		$charset = trim(substr($sql, 10));
 		return wrap_db_charset($charset);
 	}
+	if (wrap_setting('debug')) $time = microtime(true);
 
 	$sql = wrap_db_prefix($sql);
 	$result = mysqli_query(wrap_db_connection(), $sql);
@@ -315,6 +314,8 @@ function wrap_db_error_no() {
  *  if it's an array with two strings, this will be used to construct a 
  *  hierarchical array for the returned array with both keys
  * @param string $format optional, currently implemented
+ *  'count' = returns count of rows
+ *	'id as key' = returns [$id_field_value => true]
  *	"key/value" = returns [$key => $value]
  *	"key/values" = returns [$key => [$values]]
  *	"single value" = returns $value
@@ -331,7 +332,23 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 	$result = wrap_db_query($sql, $error_type);
 	if (!$result) return [];
 
+	$lines = wrap_db_fetch_values($result, $id_field_name, $format);
+	if (is_string($lines))
+		wrap_error($lines, E_USER_WARNING);
+	return $lines;
+}
+
+/**
+ * get values from database
+ *
+ * @param resource $result
+ * @param mixed $id_field_name
+ * @param string $format
+ * @return mixed array = data, string = error message
+ */
+function wrap_db_fetch_values($result, $id_field_name, $format) {
 	$lines = [];
+	$error = NULL;
 
 	if (!$id_field_name) {
 		// only one record
@@ -349,6 +366,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 	} elseif (is_array($id_field_name) AND mysqli_num_rows($result)) {
 		if ($format === 'object') {
 			while ($line = mysqli_fetch_object($result)) {
+				if (is_null($error) AND $error = wrap_db_fields_in_record($id_field_name, $line)) return $error;
 				if (count($id_field_name) === 3) {
 					$lines[$line->$id_field_name[0]][$line->$id_field_name[1]][$line->$id_field_name[2]] = $line;
 				} else {
@@ -386,6 +404,7 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 				} else {
 					$values = $line;
 				}
+				if (is_null($error) AND $error = wrap_db_fields_in_record($id_field_name, $line)) return $error;
 				if (count($id_field_name) === 4) {
 					if ($format === 'key/values') {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]][] = $line[$id_field_name[3]];
@@ -402,16 +421,14 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 					} else {
 						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]][$line[$id_field_name[2]]] = $values;
 					}
+				} elseif ($format === 'key/values') {
+					$lines[$line[$id_field_name[0]]][] = $line[$id_field_name[1]];
+				} elseif ($format === 'key/value') {
+					$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
+				} elseif ($format === 'numeric') {
+					$lines[$line[$id_field_name[0]]][] = $values;
 				} else {
-					if ($format === 'key/values') {
-						$lines[$line[$id_field_name[0]]][] = $line[$id_field_name[1]];
-					} elseif ($format === 'key/value') {
-						$lines[$line[$id_field_name[0]]] = $line[$id_field_name[1]];
-					} elseif ($format === 'numeric') {
-						$lines[$line[$id_field_name[0]]][] = $values;
-					} else {
-						$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
-					}
+					$lines[$line[$id_field_name[0]]][$line[$id_field_name[1]]] = $values;
 				}
 			}
 		}
@@ -425,21 +442,30 @@ function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_typ
 				if (!$line[0]) continue;
 				$lines[$line[0]] = $line[0];
 			}
+		} elseif ($format === 'id as key') {
+			while ($line = mysqli_fetch_array($result)) {
+				if (is_null($error) AND $error = wrap_db_fields_in_record($id_field_name, $line)) return $error;
+				$lines[$line[$id_field_name]] = true;
+			}
 		} elseif ($format === 'key/value') {
 			// return array in pairs
 			while ($line = mysqli_fetch_array($result)) {
 				$lines[$line[0]] = $line[1];
 			}
 		} elseif ($format === 'object') {
-			while ($line = mysqli_fetch_object($result))
+			while ($line = mysqli_fetch_object($result)) {
+				if (is_null($error) AND $error = wrap_db_fields_in_record($id_field_name, $line)) return $error;
 				$lines[$line->$id_field_name] = $line;
+			}
 		} elseif ($format === 'numeric') {
 			while ($line = mysqli_fetch_assoc($result))
 				$lines[] = $line;
 		} else {
 			// default or unknown format
-			while ($line = mysqli_fetch_assoc($result))
+			while ($line = mysqli_fetch_assoc($result)) {
+				if (is_null($error) AND $error = wrap_db_fields_in_record($id_field_name, $line)) return $error;
 				$lines[$line[$id_field_name]] = $line;
+			}
 		}
 	}
 	return $lines;
