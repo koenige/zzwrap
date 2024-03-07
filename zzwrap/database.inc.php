@@ -217,23 +217,19 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 	if (!wrap_db_connection()) return false;
 
 	$sql = trim($sql);
-	
 	if (str_starts_with($sql, 'SET NAMES ')) {
 		$charset = trim(substr($sql, 10));
 		return wrap_db_charset($charset);
 	}
-	if (wrap_setting('debug')) $time = microtime(true);
 
 	$sql = wrap_sql_placeholders($sql);
+	$statement = wrap_sql_statement($sql);		
+
+	wrap_db_warnings('delete');
+	if (wrap_setting('debug')) $time = microtime(true);
 	$result = mysqli_query(wrap_db_connection(), $sql);
-	if (wrap_setting('debug'))
-		wrap_error_sql($sql, $time);
+	if (wrap_setting('debug')) wrap_error_sql($sql, $time);
 	
-	$statement = wrap_sql_statement($sql);
-	// @todo remove SET from statement list after NO_ZERO_IN_DATE is not used
-	// by any application anymore
-	// SELECT is there for performance reasons
-	$warnings = [];
 	$return = [];
 	switch ($statement) {
 	case 'INSERT':
@@ -245,19 +241,21 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 		$return['rows'] = mysqli_affected_rows(wrap_db_connection());
 		break;
 	}
-	if (!in_array($statement, ['SET', 'SELECT'])
-		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
-		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
-		$db_msg = [];
-		$warning_error = E_USER_WARNING;
-		foreach ($warnings as $warning) {
-			$db_msg[] = $warning['Level'].': '.$warning['Message'];
-			if ($warning['Level'] === 'Error') $warning_error = $error;
+	if (!in_array($statement, ['SET', 'SELECT']) AND $sql !== 'SHOW WARNINGS') {
+		$warnings = wrap_db_warnings();
+		if ($warnings) {
+			$db_msg = [];
+			$warning_error = E_USER_WARNING;
+			foreach ($warnings as $warning) {
+				$db_msg[] = $warning['Level'].': '.$warning['Message'];
+				if ($warning['Level'] === 'Error') $warning_error = $error;
+			}
+			if ($db_msg and $error)
+				wrap_error('['.$_SERVER['REQUEST_URI'].'] MySQL reports a problem.'
+					.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), $warning_error);
 		}
-		if ($db_msg) {
-			wrap_error('['.$_SERVER['REQUEST_URI'].'] MySQL reports a problem.'
-				.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), $warning_error);
-		}
+	} else {
+		$warnings = [];
 	}
 	if ($result) {
 		if ($return) return $return;
@@ -279,7 +277,7 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 		wrap_send_cache();
 		// if there’s no cache, send error
 		wrap_error('['.$_SERVER['REQUEST_URI'].'] Database server has gone away', $error);
-	} else {
+	} elseif ($error) {
 		$error_msg = mysqli_error(wrap_db_connection());
 		if (!$warnings) {
 			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
@@ -290,6 +288,31 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 		}
 	}
 	return false;	
+}
+
+/**
+ * get warnings from database
+ *
+ * @param int $error (optional)
+ * @param string $action (optional)
+ * @return array
+ */
+function wrap_db_warnings($action = 'check') {
+	static $saved_warnings = [];
+	
+	switch ($action) {
+	case 'check':
+		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
+		foreach ($warnings as $warning)
+			$saved_warnings[] = $warning;
+		break;
+	case 'list':
+		break;
+	case 'delete':
+		$saved_warnings = [];
+		break;
+	}
+	return $saved_warnings;
 }
 
 /**
