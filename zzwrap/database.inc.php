@@ -228,13 +228,14 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 	$result = mysqli_query(wrap_db_connection(), $sql);
 	if (wrap_setting('debug'))
 		wrap_error_sql($sql, $time);
-	$tokens = explode(' ', $sql);
-	// @todo remove SET from token list after NO_ZERO_IN_DATE is not used
+	
+	$statement = wrap_sql_statement($sql);
+	// @todo remove SET from statement list after NO_ZERO_IN_DATE is not used
 	// by any application anymore
 	// SELECT is there for performance reasons
 	$warnings = [];
 	$return = [];
-	switch ($tokens[0]) {
+	switch ($statement) {
 	case 'INSERT':
 		// return inserted ID
 		$return['id'] = mysqli_insert_id(wrap_db_connection());
@@ -244,7 +245,7 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 		$return['rows'] = mysqli_affected_rows(wrap_db_connection());
 		break;
 	}
-	if (!in_array($tokens[0], ['SET', 'SELECT'])
+	if (!in_array($statement, ['SET', 'SELECT'])
 		AND function_exists('wrap_error') AND $sql !== 'SHOW WARNINGS') {
 		$warnings = wrap_db_fetch('SHOW WARNINGS', '_dummy_', 'numeric');
 		$db_msg = [];
@@ -264,7 +265,7 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 	}
 
 	$error_no = wrap_db_error_no();
-	if ($error_no === 2006 AND in_array($tokens[0], ['SET', 'SELECT'])) {
+	if ($error_no === 2006 AND in_array($statement, ['SET', 'SELECT'])) {
 		// retry connection
 		$success = wrap_db_connect();
 		if ($success) {
@@ -1686,4 +1687,24 @@ function wrap_sql_replace($search, $replace, $sql) {
 		$sql['no_strings'][$index] = str_replace($search, $replace, $part);
 	}
 	return wrap_sql_concat($sql);
+}
+
+/**
+ * get SQL statement from query
+ *
+ * @param string $sql
+ * @return string
+ */
+function wrap_sql_statement($sql) {
+	// get rid of extra whitespace, just to check statements
+	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
+	$tokens = explode(' ', $sql_ws);
+	$multitokens = [
+		'UNION', 'CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE', 'LOAD'
+	];
+	if (in_array($tokens[0], $multitokens))
+		$keyword = sprintf('%s %s', $tokens[0], $tokens[1]);
+	else
+		$keyword = $tokens[0];
+	return strtoupper($keyword);
 }
