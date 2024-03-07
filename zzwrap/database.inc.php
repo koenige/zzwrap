@@ -186,7 +186,7 @@ function wrap_db_prefix($sql) {
 	if (!$sql) return $sql;
 	$prefix = '/*_PREFIX_*/';
 	if (!strstr($sql, $prefix)) return $sql;
-	return str_replace($prefix, wrap_setting('db_prefix'), $sql);
+	return wrap_sql_replace($prefix, wrap_setting('db_prefix'), $sql);
 }
 
 /**
@@ -224,7 +224,7 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 	}
 	if (wrap_setting('debug')) $time = microtime(true);
 
-	$sql = wrap_db_prefix($sql);
+	$sql = wrap_sql_placeholders($sql);
 	$result = mysqli_query(wrap_db_connection(), $sql);
 	if (wrap_setting('debug'))
 		wrap_error_sql($sql, $time);
@@ -1342,53 +1342,53 @@ function wrap_sql_placeholders($queries) {
 		$single_query = false;
 	}
 
-	$placeholders = ['ID', 'SETTING'];
-	foreach ($queries as $key => $query) {
-		$queries[$key] = wrap_db_prefix($query); // query is changed, too
-		foreach ($placeholders as $placeholder) {
-			if (!strstr($query, '/*_'.$placeholder)) continue;
-			$parts = explode('/*_'.$placeholder, $query);
-			$query = '';
-			foreach ($parts as $index => $part) {
-				if (!$index) {
-					$query .= $part;
-					continue;
-				}
-				$part = explode('_*/', $part);
-				$part[0] = trim(strtolower($part[0]));
-				$part[0] = explode(' ', $part[0]);
-				$val = false;
-				switch ($placeholder) {
-				case 'ID':
-					if (count($part[0]) === 3 AND $part[0][1] === 'setting') {
-						$val = wrap_id($part[0][0], wrap_setting($part[0][2]), 'check');
-					} else {
-						$val = wrap_id($part[0][0], $part[0][1], 'check');
-					}
-					break;
-				case 'SETTING':
-					$val = wrap_setting($part[0][0]);
-					break;
-				}
-				if ($val) $part[0] = $val;
-				else {
-					if ($placeholder === 'SETTING') {
-						// no value available
-						wrap_error(sprintf(
-							'Unable to replace placeholder %s (%s)'
-							, $placeholder, implode(': ', $part[0])
-						));
-					} // do not log if ID is missing
-					$part[0] = 0;
-				}
-				$query .= implode('', $part);
+	$pattern_template = '~/\*_%s (.+?)_\*/~';
+	$keywords = ['id', 'setting'];
+	
+	foreach ($queries as $key => &$query) {
+		$query = wrap_db_prefix($query);
+		foreach ($keywords as $keyword) {
+			$pattern = sprintf($pattern_template, strtoupper($keyword));
+			preg_match_all($pattern, $query, $matches);
+			if (!$matches[1]) continue;
+			foreach ($matches[1] as $index => $match) {
+				$replace = wrap_sql_placeholders_replace($keyword, $match);
+				$query = wrap_sql_replace($matches[0][$index], $replace, $query);
 			}
-			$queries[$key] = $query;
 		}
 	}
 	
 	if ($single_query) return reset($queries);
 	return $queries;
+}
+
+/**
+ * find replacements for placholders
+ *
+ * @param stryng $keyword
+ * @param string $match
+ * @return string
+ */
+function wrap_sql_placeholders_replace($keyword, $match) {
+	$match = explode(' ', trim(strtolower($match)));
+	switch ($keyword) {
+	case 'id':
+		if (count($match) === 3 AND $match[1] === 'setting')
+			$value = wrap_id($match[0], wrap_setting($match[2]), 'check');
+		else
+			$value = wrap_id($match[0], $match[1], 'check');
+		if (!$value) $value = 0;
+		return $value;
+	case 'setting':
+		$value = wrap_setting($match[0]);
+		if (is_null($value))
+			wrap_error(sprintf(
+				'Unable to replace placeholder %s (%s)'
+				, $keyword, implode(': ', $match)
+			));
+		return $value;
+	}
+	return '';
 }
 
 /**
@@ -1622,14 +1622,68 @@ function wrap_id_tree($table, $path) {
 function wrap_database_table_check($table, $only_if_install = false) {
 	if ($only_if_install AND empty($_SESSION['cms_install'])) return true;
 	$table = wrap_db_prefix_remove($table);
+	$table = wrap_db_prefix(sprintf('/*_PREFIX_*/%s', $table));
 	
 	$sql = 'SELECT DATABASE()';
 	$database = wrap_db_fetch($sql, '', 'single value');
 	if (!$database) return false;
 	
-	$sql = 'SHOW TABLES LIKE "/*_PREFIX_*/%s"';
+	$sql = 'SHOW TABLES LIKE "%s"';
 	$sql = sprintf($sql, $table);
 	$table_exists = wrap_db_fetch($sql);
 	if (!$table_exists) return false;
 	return true;
+}
+
+/**
+ * split query in string and non-string parts
+ * to replace some placeholders only in non-string parts
+ *
+ * @param string $sql
+ * @return array
+ */
+function wrap_sql_split($sql) {
+    $pattern = '/(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")|([^\'"]+)/';
+    preg_match_all($pattern, $sql, $matches);
+    return [
+        'strings' => $matches[1],
+        'no_strings' => $matches[2]
+    ];
+}
+
+/**
+ * concatenate parts of query
+ *
+ * @param array $matches
+ * @return string
+ */
+function wrap_sql_concat($matches) {
+    $sql = [];
+    $count = max(count($matches['strings']), count($matches['no_strings']));
+
+    for ($i = 0; $i < $count; $i++) {
+        if (isset($matches['no_strings'][$i]))
+            $sql[] = $matches['no_strings'][$i];
+        if (isset($matches['strings'][$i]))
+            $sql[] = $matches['strings'][$i];
+    }
+    return implode('', $sql);
+}
+
+/**
+ * replace parts outside strings in SQL queries
+ *
+ * @param string $search
+ * @param string $replace
+ * @param string $sql
+ * @return string
+ */
+function wrap_sql_replace($search, $replace, $sql) {
+	$sql = wrap_sql_split($sql);
+	foreach ($sql['no_strings'] as $index => $part) {
+		if (!$part) continue;
+		if (!strstr($part, $search)) continue;
+		$sql['no_strings'][$index] = str_replace($search, $replace, $part);
+	}
+	return wrap_sql_concat($sql);
 }
