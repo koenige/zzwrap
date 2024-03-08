@@ -87,11 +87,13 @@ function wrap_data_merge($data, $new_data, $id_field_name = '', $lang_field_name
 			$lang = $line[$lang_field_name];
 		else
 			$lang = wrap_setting('lang');
-		if (empty($new_data[$lang][$id])) continue;
-		if ($id_field_name)
+		if ($id_field_name) {
+			if (empty($new_data[$lang][$line[$id_field_name]])) continue;
 			$data[$id] = array_merge($new_data[$lang][$line[$id_field_name]], $line);
-		else
+		} else {
+			if (empty($new_data[$lang][$id])) continue;
 			$data[$id] = array_merge($new_data[$lang][$id], $line);
+		}
 	}
 	return $data;
 }
