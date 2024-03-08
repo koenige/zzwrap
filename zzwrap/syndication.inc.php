@@ -36,23 +36,20 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 	$cache_filename = $settings['cache_filename'] ?? $url;
 	$cache_age_syndication = $settings['cache_age_syndication'] ?? wrap_setting('cache_age_syndication');
 
-	$files = [];
+	$cache = [];
 	if (wrap_setting('cache')) {
-		$files = [
-			wrap_cache_filename('url', $cache_filename),
-			wrap_cache_filename('headers', $cache_filename)
-		];
+		$cache = wrap_cache_filenames($cache_filename);
 		// does a cache file exist?
-		if ($files[1] AND file_exists($files[0]) AND file_exists($files[1])) {
-			$fresh = wrap_cache_freshness($files, $cache_age_syndication);
-			$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+		if ($cache['headers'] AND file_exists($cache['url']) AND file_exists($cache['headers'])) {
+			$fresh = wrap_cache_freshness($cache, $cache_age_syndication);
+			$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			if (!$last_modified)
-				$last_modified = wrap_date(filemtime($files[0]), 'timestamp->rfc1123');
+				$last_modified = wrap_date(filemtime($cache['url']), 'timestamp->rfc1123');
 			if ($fresh) {
-				$data = file_get_contents($files[0]);
+				$data = file_get_contents($cache['url']);
 			} else {
 				// get ETag and Last-Modified from cache file
-				$etag = wrap_cache_get_header($files[1], 'ETag');
+				$etag = wrap_cache_get_header($cache['headers'], 'ETag');
 			}
 		}
 	}
@@ -72,22 +69,22 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 		switch ($status) {
 		case 200:
 			$my_etag = substr(wrap_syndication_http_header('ETag', $headers), 1, -1);
-			if ($data and wrap_setting('cache') AND $files[1]) {
+			if ($data and wrap_setting('cache') AND $cache['headers']) {
 				if ($cache_filename !== $url) {
 					$headers[] = sprintf('X-Source-URL: %s', $url);
 				}
 				wrap_cache_ressource($data, $my_etag, $cache_filename, $headers);
-				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+				$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			}
 			break;
 		case 304:
 			// cache file must exist, we would not have an etag header
 			// so use it
-			$data = file_get_contents($files[0]);
+			$data = file_get_contents($cache['url']);
 			if (wrap_setting('cache')) {
-				$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+				$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			}
-			wrap_cache_revalidated($files[1]);
+			wrap_cache_revalidated($cache['headers']);
 			break;
 		case 302:
 		case 303:
@@ -102,15 +99,15 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 			$data = [];
 			break;
 		default:
-			if (!empty($files[0]) AND file_exists($files[0])) {
+			if (!empty($cache['url']) AND file_exists($cache['url'])) {
 				// connection error, use (possibly stale) cache file
-				$data = file_get_contents($files[0]);
+				$data = file_get_contents($cache['url']);
 				wrap_error(sprintf(
 					'Syndication from URL %s failed. Status code %s. Using cached file instead.',
 					$url, $status
 				), E_USER_NOTICE);
 				if (wrap_setting('cache'))
-					$last_modified = wrap_cache_get_header($files[1], 'Last-Modified');
+					$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			} else {
 				$data = NULL;
 				wrap_error(sprintf(
@@ -145,8 +142,8 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 	default:
 		$object = [];
 		$object['_']['data'] = true;
-		if (!empty($files[0])) {
-			$object['_']['filename'] = $files[0];
+		if (!empty($cache['url'])) {
+			$object['_']['filename'] = $cache['url'];
 		}
 		if ($last_modified) {
 			$object['_']['Last-Modified'] = $last_modified;

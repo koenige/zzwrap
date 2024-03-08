@@ -39,34 +39,32 @@ function wrap_cache($text = '', $existing_etag = '', $url = false, $headers = []
  * @return bool false: no new cache file was written, true: new cache file created
  */
 function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $headers = []) {
-	$host = wrap_cache_filename('domain', $url);
-	if (!file_exists($host)) {
-		$success = wrap_mkdir($host);
-		if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $host), E_USER_NOTICE);
+	$cache = wrap_cache_filenames($url);
+	if (!file_exists($cache['domain'])) {
+		$success = wrap_mkdir($cache['domain']);
+		if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $cache['domain']), E_USER_NOTICE);
 	}
-	$doc = wrap_cache_filename('url', $url);
-	$head = wrap_cache_filename('headers', $url);
 	// URL with 'filename.ext/': both doc and head are false
-	if (!$doc and !$head) return NULL;
-	if (file_exists($head) AND file_exists($doc)) {
+	if (!$cache['url'] and !$cache['headers']) return NULL;
+	if (file_exists($cache['headers']) AND file_exists($cache['url'])) {
 		// check if something with the same ETag has already been cached
 		// no need to rewrite cache, it's possible to send a Last-Modified
 		// header along
-		$etag = wrap_cache_get_header($head, 'ETag');
+		$etag = wrap_cache_get_header($cache['headers'], 'ETag');
 		if ($etag AND $etag === $existing_etag) {
-			wrap_cache_revalidated($head);
+			wrap_cache_revalidated($cache['headers']);
 			return false;
 		}
 	}
 	// create folder, but not if it is a file
-	if (!is_file(dirname($head))) wrap_mkdir(dirname($head));
+	if (!is_file(dirname($cache['headers']))) wrap_mkdir(dirname($cache['headers']));
 	// save document
 	if ($text) {
-		file_put_contents($doc, $text);
-	} elseif (file_exists($doc)) {
-		// here: only remove $doc if this was a URL with an old cache file
+		file_put_contents($cache['url'], $text);
+	} elseif (file_exists($cache['url'])) {
+		// here: only remove $cache['url'] if this was a URL with an old cache file
 		// directory = no, this is just a redirect to a URL with trailing slash
-		if (!is_dir($doc)) unlink($doc);
+		if (!is_dir($cache['url'])) unlink($cache['url']);
 	}
 	// save headers
 	// without '-gz'
@@ -79,8 +77,8 @@ function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $he
 	// for which a cache already exists, do not cache this redirect because it is
 	// impossible to save example/index and example at the same time (example being folder
 	// and file)
-	if (is_file(dirname($head)) AND !$text) return NULL;
-	file_put_contents($head, implode("\r\n", $headers));
+	if (is_file(dirname($cache['headers'])) AND !$text) return NULL;
+	file_put_contents($cache['headers'], implode("\r\n", $headers));
 	return true;
 }
 
@@ -167,17 +165,16 @@ function wrap_cache_delete($status, $url = false) {
 	$delete_cache = [401, 402, 403, 404, 410];
 	if (!in_array($status, $delete_cache)) return false;
 
-	$doc = wrap_cache_filename('url', $url);
-	$head = wrap_cache_filename('headers', $url);
-	if (!$head) return false;
-	if (file_exists($head)) unlink($head);
-	if (file_exists($doc)) {
+	$cache = wrap_cache_filenames($url);
+	if (!$cache['headers']) return false;
+	if (file_exists($cache['headers'])) unlink($cache['headers']);
+	if (file_exists($cache['url'])) {
 		// might be directory, if there was a URL ending example/
 		// and now example, redirecting to example/, is also removed
-		if (is_dir($doc)) {
-			$files = scandir($doc);
-			if (count($files) <= 2) rmdir($doc); // ., ..
-		} else unlink($doc);
+		if (is_dir($cache['url'])) {
+			$files = scandir($cache['url']);
+			if (count($files) <= 2) rmdir($cache['url']); // ., ..
+		} else unlink($cache['url']);
 	}
 	return true;
 }
@@ -339,25 +336,22 @@ function wrap_send_cache($age = 0, $log_error = true) {
 	if (!empty($_SESSION)) return false;
 	if (!empty($_POST)) return false;
 
-	$files = [wrap_cache_filename('url', '', $log_error), wrap_cache_filename('headers', '', $log_error)];
-	// $files[0] might not exist (redirect!)
-	if (!$files[1]) return false; // invalid URL or URL too long
-	if (!file_exists($files[1])) return false;
-	$has_content = file_exists($files[0]);
-	if (!$has_content AND $filename = wrap_cache_get_header($files[1], 'X-Local-Filename')) {
-		$has_content = true;
-		$files[0] = $filename;
-	}
+	$cache = wrap_cache_filenames('', $log_error);
+	// $cache['url'] might not exist (redirect!)
+	if (!$cache['headers']) return false; // invalid URL or URL too long
+	if (!file_exists($cache['headers'])) return false;
+	$has_content = wrap_cache_exists($cache);
+	if ($has_content) $cache['url'] = $has_content;
 
 	if ($age) {
 		// return cached files if they're still fresh enough
-		$fresh = wrap_cache_freshness($files, $age, $has_content);
+		$fresh = wrap_cache_freshness($cache, $age, $has_content);
 		if (!$fresh) return false;
 	}
 
 	// get cached headers, send them as headers and write them to $zz_page
 	// Content-Type HTTP header etc.
-	wrap_cache_get_header($files[1], '', true);
+	wrap_cache_get_header($cache['headers'], '', true);
 
 	if (wrap_setting('gzip_encode'))
 		wrap_cache_header('Vary: Accept-Encoding');
@@ -373,19 +367,19 @@ function wrap_send_cache($age = 0, $log_error = true) {
 
 	// Content-Length HTTP header
 	if (empty($zz_page['content_length'])) {
-		$zz_page['content_length'] = sprintf("%u", filesize($files[0]));
+		$zz_page['content_length'] = sprintf("%u", filesize($cache['url']));
 		wrap_cache_header('Content-Length: '.$zz_page['content_length']);
 	}
 
 	// ETag HTTP header
 	if (empty($zz_page['etag'])) {
-		$zz_page['etag'] = md5_file($files[0]);
+		$zz_page['etag'] = md5_file($cache['url']);
 	}
 	$etag_header = wrap_if_none_match($zz_page['etag']);
 
 	// Last-Modified HTTP header
 	if (empty($zz_page['last_modified'])) {
-		$last_modified_time = filemtime($files[0]);
+		$last_modified_time = filemtime($cache['url']);
 	} else {
 		$last_modified_time = wrap_date(
 			$zz_page['last_modified'], 'rfc1123->timestamp'
@@ -394,7 +388,7 @@ function wrap_send_cache($age = 0, $log_error = true) {
 	wrap_if_modified_since($last_modified_time);
 
 	$file = [
-		'name' => $files[0],
+		'name' => $cache['url'],
 		'gzip' => true
 	];
 	wrap_cache_header();
@@ -406,33 +400,33 @@ function wrap_send_cache($age = 0, $log_error = true) {
  * timeframe (positive values for $age) or if it was created after a given 
  * timestamp (negative values for $age)
  *
- * @param array $files list of files
+ * @param array $cache list of files
  * @param int $age (negative -1: don't care about freshness; other values: check)
  * @param bool $has_content if false, it's only a redirect
  * @return bool false: not fresh, true: cache is fresh
  */
-function wrap_cache_freshness($files, $age, $has_content = true) {
+function wrap_cache_freshness($cache, $age, $has_content = true) {
 	// -1: cache will always considered to be fresh
 	if ($age === -1) return true;
 	$now = time();
 	if ($age < 0) {
 		// check if there's a cache that was not modified later than $age
-		$last_mod = wrap_cache_get_header($files[1], 'Last-Modified');
+		$last_mod = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 		$last_mod_timestamp = wrap_date($last_mod, 'rfc1123->timestamp');
 		if ($last_mod_timestamp > $now + $age) {
 			return true;
 		}
-		if ($has_content AND filemtime($files[0]) > $now + $age) return true;
+		if ($has_content AND filemtime($cache['url']) > $now + $age) return true;
 	} else {
-		$host = substr($files[0], strlen(wrap_setting('cache_dir_zz')) + 1);
+		$host = substr($cache['url'], strlen(wrap_setting('cache_dir_zz')) + 1);
 		$host = substr($host, 0, strpos($host, '/'));
 		if ($host !== wrap_setting('hostname')) {
 			// remote access, check cache-control of remote server
-			$cache_control = wrap_cache_get_header($files[1], 'Cache-Control');
+			$cache_control = wrap_cache_get_header($cache['headers'], 'Cache-Control');
 			parse_str($cache_control, $cache_control);
 			if (!empty($cache_control['max-age']) AND $cache_control['max-age'] > $age) {
 				$age = $cache_control['max-age'];
-				$date = wrap_date(wrap_cache_get_header($files[1], 'Date'), 'rfc1123->timestamp');
+				$date = wrap_date(wrap_cache_get_header($cache['headers'], 'Date'), 'rfc1123->timestamp');
 				// sometimes, Date header is missing in cache file (why?)
 				// then get new data
 				if (!$date) return false;
@@ -441,7 +435,7 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 		}
 		// 0 or positive values: cache files will be checked
 		// check if X-Revalidated is set
-		$revalidated = wrap_cache_get_header($files[1], 'X-Revalidated');
+		$revalidated = wrap_cache_get_header($cache['headers'], 'X-Revalidated');
 		$revalidated_timestamp = wrap_date($revalidated, 'rfc1123->timestamp');
 		if ($revalidated_timestamp AND $revalidated_timestamp + $age > $now) {
 			// thought of putting in Age, but Date has to be changed accordingly
@@ -449,7 +443,7 @@ function wrap_cache_freshness($files, $age, $has_content = true) {
 			return true;
 		}
 		// check if cached files date is fresh
-		if ($has_content AND filemtime($files[0]) + $age > $now) return true;
+		if ($has_content AND filemtime($cache['url']) + $age > $now) return true;
 	}
 	return false;
 }
@@ -592,6 +586,21 @@ function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 }
 
 /**
+ * get all cache filenames for a URL at once
+ *
+ * @param string $url (optional)
+ * @param bool $log_error (optional)
+ * @return array
+ */
+function wrap_cache_filenames($url = '', $log_error = true) {
+	return [
+		'domain' => wrap_cache_filename('domain', $url, $log_error),
+		'url' => wrap_cache_filename('url', $url, $log_error),
+		'headers' => wrap_cache_filename('headers', $url, $log_error)
+	];
+}
+
+/**
  * add extension to cache file in some cases
  *
  * @param string $host
@@ -609,4 +618,19 @@ function wrap_cache_extension($host, $path) {
 	// does it have already a file extension?
 	if (strstr(end($parts), '.')) return $path;
 	return $path.$ext;
+}
+
+/**
+ * check if a cache for a ressource exists
+ *
+ * @param array $cache = result of wrap_cache_filenames()
+ * @return bool
+ */
+function wrap_cache_exists($cache) {
+	if (!$cache) return '';
+	if (file_exists($cache['url'])) return $cache['url'];
+	if (!file_exists($cache['headers'])) return '';
+	if (!$file = wrap_cache_get_header($cache['headers'], 'X-Local-Filename')) return '';
+	if (file_exists($file)) return $file;
+	return '';
 }
