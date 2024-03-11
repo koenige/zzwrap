@@ -277,13 +277,8 @@ function wrap_config_filename($type = 'main') {
 /**
  * Default variables, post config
  *
- * @global array $zz_conf
- * @global array $zz_page
  */
 function wrap_set_defaults_post_conf() {
-	global $zz_conf;
-	global $zz_page;
-
 	// -------------------------------------------------------------------------
 	// Internationalization, Language, Character Encoding
 	// -------------------------------------------------------------------------
@@ -417,18 +412,6 @@ function wrap_set_defaults_post_conf() {
 
 	// cms core
 	wrap_setting('core', __DIR__);
-	
-	// zzform path
-	// @deprecated
-	if (empty($zz_conf['dir']))
-		if (file_exists($dir = wrap_setting('modules_dir').'/zzform/zzform')) {
-			$zz_conf['dir']				= $dir;
-		}
-	
-	// zzform db scripts
-	// @deprecated
-	if (empty($zz_conf['form_scripts']))
-		$zz_conf['form_scripts']	= wrap_setting('custom').'/zzbrick_tables';
 	
 	// local pwd
 	if (!wrap_setting('local_pwd'))
