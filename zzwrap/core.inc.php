@@ -1498,7 +1498,7 @@ function wrap_check_request() {
 	global $zz_page;
 
 	// check Accept Header
-	if (!empty($_SERVER['HTTP_ACCEPT']) AND $_SERVER['HTTP_ACCEPT'] === 'application/json') {
+	if (wrap_send_as_json()) {
 		wrap_setting('cache_extension', 'json');
 		wrap_setting('send_as_json', true);
 	}
@@ -1569,6 +1569,17 @@ function wrap_check_request() {
 		else
 			$zz_page['deep'] = '/';
 	}
+}
+
+/**
+ * determine whether to send content in JSON format
+ *
+ * @return bool
+ */
+function wrap_send_as_json() {
+	if (!empty($_SERVER['HTTP_ACCEPT']) AND $_SERVER['HTTP_ACCEPT'] === 'application/json') return true;
+	if (!empty($_SERVER['REMOTE_ADDR']) AND $_SERVER['REMOTE_ADDR'] === wrap_setting('cron_ip')) return true;
+	return false;
 }
 
 /**
