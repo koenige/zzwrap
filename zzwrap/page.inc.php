@@ -790,6 +790,7 @@ function wrap_get_breadcrumbs($page_id) {
  * @return array breadcrumbs ('title' => title of menu, 'url_path' = link)
  */
 function wrap_get_breadcrumbs_recursive($page_id, &$pages) {
+	if (empty($pages[$page_id])) return []; // database connection failed
 	$breadcrumbs[] = [
 		'title' => $pages[$page_id]['title'],
 		'url_path' => wrap_path_placeholder($pages[$page_id]['identifier'].($pages[$page_id]['ending'] ?? ''), '*'),
