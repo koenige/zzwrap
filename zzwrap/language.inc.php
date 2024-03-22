@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018, 2020-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018, 2020-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -317,7 +317,10 @@ function wrap_text($string, $params = []) {
  */
 function wrap_text_values($text, $key, $params) {
 	$translation = $text[$key] ?? $key;
-	if (!isset($params['values'])) return $translation;
+	if (!isset($params['values'])) {
+		if (!is_array($translation)) return $translation;
+		$params['values'] = [0]; // array = plural, no value = plural for 0 occurences
+	}
 	if (!is_array($params['values'])) $params['values'] = [$params['values']];
 	if (!is_array($translation)) return vsprintf($translation, $params['values']);
 	// @todo check for %d and support strings with more than one placeholder
