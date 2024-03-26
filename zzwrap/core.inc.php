@@ -546,10 +546,12 @@ function wrap_page_parameters($params) {
  *
  * whitelist of possible parameters is generated from settings.cfg in modules
  * setting needs scope = module
- * @param string $params
+ * @param string $module
+ * @param mixed $params
+ * @param bool $reset reset values from other functions in each call
  * @return bool
  */
-function wrap_module_parameters($module, $params) {
+function wrap_module_parameters($module, $params, $reset = true) {
 	static $unchanged = [];
 	$changed = [];
 	
@@ -576,9 +578,11 @@ function wrap_module_parameters($module, $params) {
 		}
 	}
 	// multiple calls: change unchanged parameters back to original value
-	foreach (array_keys($unchanged) as $key) {
-		if (in_array($key, $changed)) continue;
-		wrap_setting($key, $unchanged[$key]);
+	if ($reset) {
+		foreach (array_keys($unchanged) as $key) {
+			if (in_array($key, $changed)) continue;
+			wrap_setting($key, $unchanged[$key]);
+		}
 	}
 	return true;
 }
