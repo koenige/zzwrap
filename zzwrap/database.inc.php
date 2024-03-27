@@ -1551,6 +1551,10 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 			return NULL;
 		}
 		return $data[$table][$identifier];
+	case 'read-id':
+		foreach ($data[$table] as $key => $value)
+			if ($value.'' === $identifier.'') return $key;
+		return NULL;
 	case 'list':
 		if (!$identifier) return $data[$table];
 		$my_data = [];
