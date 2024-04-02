@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -75,7 +75,8 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		}
 	} else {
 		$group_rights = $config[$area]['group'] ?? $config[$area_short]['group'];
-		if ($group_rights === 'public') $access = true;
+		if (!is_array($group_rights)) $group_rights = [$group_rights];
+		if (in_array('public', $group_rights)) $access = true;
 		else $access = brick_access_rights($group_rights);
 	}
 	if (!$access) return false;
