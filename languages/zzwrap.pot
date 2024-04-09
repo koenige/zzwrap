@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -500,34 +500,161 @@ msgstr ""
 msgid "1 second"
 msgstr ""
 
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "January"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "February"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "March"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "April"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "May"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "June"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "July"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "August"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "September"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "October"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "November"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "December"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jan"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Feb"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Mar"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Apr"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "May"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jun"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jul"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Aug"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Sep"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Oct"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Nov"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Dec"
+msgstr ""
+
 #: zzwrap/mail.inc.php
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Mon"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Tue"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Wed"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Thu"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Fri"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Sat"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Sun"
 msgstr ""

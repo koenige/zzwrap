@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: zzwrap/access.inc.php
 msgid "You need `%s` access rights. (Login: %s)"
@@ -80,7 +80,7 @@ msgstr "Die Datei %s lässt sich nicht zum Schreiben öffnen."
 msgid "1 line deleted."
 msgid_plural "%d lines deleted."
 msgstr[0] "1 Zeile gelöscht."
-msgstr[1] "%d Zeilen gelöscht"
+msgstr[1] "%d Zeilen gelöscht."
 
 # HTTP Status Code 300
 #: zzwrap/errorhandling.inc.php
@@ -335,7 +335,7 @@ msgstr ""
 # HTTP Status Code 503
 #: zzwrap/errorhandling.inc.php
 msgid "Service Unavailable"
-msgstr "Dienst steht nicht zur Verfügung."
+msgstr "Dienst steht nicht zur Verfügung"
 
 # HTTP Status Code 503
 #: zzwrap/errorhandling.inc.php
@@ -359,11 +359,11 @@ msgstr "HTTP-Version nicht unterstützt"
 
 #: zzwrap/errorhandling.inc.php
 msgid ""
-"Please try to find the content you were looking for from our <a href=\"%s"
-"\">main page</a>."
+"Please try to find the content you were looking for from our <a "
+"href=\"%s\">main page</a>."
 msgstr ""
-"Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, über <a href=\"%s"
-"\">unsere Hauptseite</a> zu finden."
+"Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, über <a "
+"href=\"%s\">unsere Hauptseite</a> zu finden."
 
 #: zzwrap/errorhandling.inc.php
 msgid "User"
@@ -389,7 +389,7 @@ msgstr ""
 "mit der IP-Adresse %s\n"
 "Browser %s\n"
 "\n"
-"angefordert, konnte auf dem Server aber nicht gefunden werden!"
+"angefordert, konnte auf dem Server aber nicht gefunden werden"
 
 #: zzwrap/errorhandling.inc.php
 msgid "Error on website"
@@ -543,34 +543,161 @@ msgstr "%d Sekunden"
 msgid "1 second"
 msgstr "1 Sekunde"
 
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "January"
+msgstr "Januar"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "February"
+msgstr "Februar"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "March"
+msgstr "März"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "April"
+msgstr "April"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "May"
+msgstr "Mai"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "June"
+msgstr "Juni"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "July"
+msgstr "Juli"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "August"
+msgstr "August"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "September"
+msgstr "September"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "October"
+msgstr "Oktober"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "November"
+msgstr "November"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "December"
+msgstr "Dezember"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jan"
+msgstr "Jan"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Feb"
+msgstr "Feb"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Mar"
+msgstr "Mär"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Apr"
+msgstr "Apr"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "May"
+msgstr "Mai"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jun"
+msgstr "Jun"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jul"
+msgstr "Jul"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Aug"
+msgstr "Aug"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Sep"
+msgstr "Sep"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Oct"
+msgstr "Okt"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Nov"
+msgstr "Nov"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Dec"
+msgstr "Dez"
+
 #: zzwrap/mail.inc.php
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr "Postfach %s kann nicht geöffnet werden (Server: %s)"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Mon"
 msgstr "Mo"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Tue"
 msgstr "Di"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Wed"
 msgstr "Mi"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Thu"
 msgstr "Do"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Fri"
 msgstr "Fr"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Sat"
 msgstr "Sa"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Sun"
 msgstr "So"

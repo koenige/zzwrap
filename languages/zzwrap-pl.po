@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/projects/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2023 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2024 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -21,7 +21,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: zzwrap/access.inc.php
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr ""
 
 #: zzwrap/auth.inc.php
 msgid "Password or username incorrect. Please try again."
@@ -265,7 +269,7 @@ msgstr ""
 # HTTP Status Code 415
 #: zzwrap/errorhandling.inc.php
 msgid "Unsupported Media Type"
-msgstr "Nieobsługiwany typ nośnika."
+msgstr "Nieobsługiwany typ nośnika"
 
 # HTTP Status Code 415
 #: zzwrap/errorhandling.inc.php
@@ -347,8 +351,8 @@ msgstr "Wersja http nie jest obsługiwana"
 
 #: zzwrap/errorhandling.inc.php
 msgid ""
-"Please try to find the content you were looking for from our <a href=\"%s"
-"\">main page</a>."
+"Please try to find the content you were looking for from our <a "
+"href=\"%s\">main page</a>."
 msgstr ""
 "Spróbuj znaleźć treści, których szukałeś, z naszej <a href=\"%s\">strony "
 "głównej</a>."
@@ -529,34 +533,161 @@ msgstr "%d sekund"
 msgid "1 second"
 msgstr "1 sekunda"
 
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "January"
+msgstr "styczeń"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "February"
+msgstr "luty"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "March"
+msgstr "marec"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "April"
+msgstr "kwiecień"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "May"
+msgstr "maj"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "June"
+msgstr "czerwiec"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "July"
+msgstr "lipiec"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "August"
+msgstr "sierpień"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "September"
+msgstr "wrzesień"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "October"
+msgstr "październik"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "November"
+msgstr "listopad"
+
+#: zzwrap/format.inc.php
+msgctxt "months"
+msgid "December"
+msgstr "grudzień"
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jan"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Feb"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Mar"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Apr"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "May"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jun"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Jul"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Aug"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Sep"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Oct"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Nov"
+msgstr ""
+
+#: zzwrap/format.inc.php
+msgctxt "months_short"
+msgid "Dec"
+msgstr ""
+
 #: zzwrap/mail.inc.php
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Mon"
 msgstr "pon"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Tue"
 msgstr "wt"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Wed"
 msgstr "śr"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Thu"
 msgstr "czw"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Fri"
 msgstr "pt"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Sat"
 msgstr "sob"
 
 # Weekdays, abbreviated
+msgctxt "weekday"
 msgid "Sun"
 msgstr "nd"

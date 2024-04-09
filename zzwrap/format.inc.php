@@ -274,15 +274,19 @@ function wrap_date($date, $format = false) {
 	}
 	if (substr($output_format, 0, 6) == 'dates-') {
 		$lang = substr($output_format, 6);
+		$p = ['lang' => $lang, 'context' => 'months'];
+		$set['months_long'] = [
+			1 => wrap_text('January', $p), 2 => wrap_text('February', $p),
+			3 => wrap_text('March', $p), 4 => wrap_text('April', $p),
+			5 => wrap_text('May', $p), 6 => wrap_text('June', $p),
+			7 => wrap_text('July', $p), 8 => wrap_text('August', $p),
+			9 => wrap_text('September', $p), 10 => wrap_text('October', $p),
+			11 => wrap_text('November', $p), 12 => wrap_text('December', $p)
+		];
 		$output_format = 'dates';
 		switch ($lang) {
 			case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
-				$set['months_if_no_day'] = $set['months_long'] = [
-					1 => 'Januar', 2 => 'Februar', 3 => 'März', 4 => 'April',
-					5 => 'Mai', 6 => 'Juni', 7 => 'Juli', 8 => 'August',
-					9 => 'September', 10 => 'Oktober', 11 => 'November',
-					12 => 'Dezember'
-				];
+				$set['months_if_no_day'] = $set['months_long'];
 				if ($type === 'long') $set['sep'] = ['. ', ' '];
 				break; // dd.mm.yyyy
 			case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
@@ -293,13 +297,11 @@ function wrap_date($date, $format = false) {
 					6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct',
 					11 => 'Nov', 12 => 'Dec'
 				];
-				$set['months_long'] = [
-					1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-					5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-					9 => 'September', 10 => 'October', 11 => 'November',
-					12 => 'December'
-				];
 				break; // dd/mm/yyyy
+			case 'pl':		$set['sep'] = '.'; $set['order'] = 'DMY';
+				$set['months_if_no_day'] = $set['months_long'];
+				if ($type === 'long') $set['sep'] = ['. ', ' '];
+				break;
 			default:
 				wrap_error(sprintf('Language %s currently not supported', $lang));
 				break;
@@ -1064,14 +1066,16 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
  */
 function wrap_weekday($day, $lang = '') {
 	switch ($day) {
-		case 1: return wrap_text('Sun', $lang);
-		case 2: return wrap_text('Mon', $lang);
-		case 3: return wrap_text('Tue', $lang);
-		case 4: return wrap_text('Wed', $lang);
-		case 5: return wrap_text('Thu', $lang);
-		case 6: return wrap_text('Fri', $lang);
-		case 7: return wrap_text('Sat', $lang);
+		case 1: $short = 'Sun'; break;
+		case 2: $short = 'Mon'; break;
+		case 3: $short = 'Tue'; break;
+		case 4: $short = 'Wed'; break;
+		case 5: $short = 'Thu'; break;
+		case 6: $short = 'Fri'; break;
+		case 7: $short = 'Sat'; break;
 	}
+	if (isset($short))
+		return wrap_text($short, ['lang' => $lang, 'context' => 'weekdays']);
 	return $day;
 }
 
