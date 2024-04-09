@@ -341,6 +341,14 @@ function wrap_text_values($text, $key, $params) {
  */
 function wrap_text_plurals($counter, $plurals) {
 	if (!$plurals) return 1; // no .po-file: return plural
+	if (is_array($counter)) {
+		// happens if we have several placeholder values
+		$array = $counter;
+		while ($array) {
+			$counter = array_pop($array);
+			if (is_numeric($counter)) break;
+		}
+	}
 	
 	foreach ($plurals as $index => $plural) {
 		$check = str_replace('n', $counter, $plural);
