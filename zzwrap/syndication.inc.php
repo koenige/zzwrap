@@ -635,7 +635,10 @@ function wrap_syndication_http_post($data) {
 	if (!is_array($data)) return $data;
 	$postdata = [];
 	foreach ($data as $key => $value) {
-		$postdata[] = urlencode($key).'='.urlencode($value);
+		$postdata[] = sprintf('%s=%s'
+			, $key ? urlencode($key) : ''
+			, $value ? urlencode($value) : ''
+		);
 	}
 	return implode('&', $postdata);
 }
