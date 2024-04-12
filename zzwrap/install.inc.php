@@ -8,7 +8,7 @@
  * http://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -169,22 +169,19 @@ function wrap_install_user() {
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_zzform();
-		$values = [];
-		$values['action'] = 'insert';
-		$values['POST']['username'] = $_POST['username'];
+		$line = [
+			'username' => $_POST['username'],
+			'password' => $_POST['password'],
+			'password_change' => 'no'
+		];
 		if (!wrap_setting('install_without_login_rights'))
-			$values['POST']['login_rights'] = 'admin';
-		$values['POST']['password'] = $_POST['password'];
-		$values['POST']['password_change'] = 'no';
-		$ops = zzform_multi('logins', $values);
-		if ($ops['id']) {
-			$_SESSION['step'] = 3;
-			return true;
-		} else {
-			echo wrap_print($values);
-			echo wrap_print($ops);
-			exit;
-		}
+			$line['login_rights'] = 'admin';
+		$login_id = zzform_insert('logins', $line);
+		if (!$login_id)
+			wrap_quit(503, wrap_text('The main user could not be created.'));
+
+		$_SESSION['step'] = 3;
+		return true;
 	}
 	$page['text'] = wrap_template('install-user');
 	return $page;

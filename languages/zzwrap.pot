@@ -620,6 +620,10 @@ msgctxt "months_short"
 msgid "Dec"
 msgstr ""
 
+#: zzwrap/install.inc.php
+msgid "The main user could not be created."
+msgstr ""
+
 #: zzwrap/mail.inc.php
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
