@@ -180,19 +180,26 @@ function wrap_text($string, $params = []) {
 		$language = wrap_setting('language_default_for['.$language.']');
 
 	// replacements?
-	if (!empty($params['set']))
-		$replacements[$string] = $params['set'];
+	if (!empty($params['set'])) {
+		if (is_array($params['set'])) {
+			if (array_key_exists($language, $params['set']))
+				$replacements[$string] = $params['set'][$language];
+		} else {
+			$replacements[$string] = $params['set'];
+		}
+	}
+
 	if (!empty($zz_conf['text'][$language])) {
 		// @deprecated
 		if (!$deprecation_error)
-			wrap_error('Deprecated use of $zz_conf["text"]["'.$language.'"], use wrap_text() with replace instead.', E_USER_DEPRECATED);
+			wrap_error('Deprecated use of $zz_conf["text"]["'.$language.'"], use wrap_text_set() instead.', E_USER_DEPRECATED);
 		$deprecation_error = true;
 		$replacements = array_merge($replacements, $zz_conf['text'][$language]);
 	}
 	if (!empty($zz_conf['text']['--'])) {
 		// @deprecated
 		if (!$deprecation_error)
-			wrap_error('Deprecated use of $zz_conf["text"]["--"], use wrap_text() with replace instead.', E_USER_DEPRECATED);
+			wrap_error('Deprecated use of $zz_conf["text"]["--"], use wrap_text_set() instead.', E_USER_DEPRECATED);
 		$deprecation_error = true;
 		$replacements = array_merge($replacements, $zz_conf['text']['--']);
 	}
