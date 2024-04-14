@@ -19,7 +19,7 @@
  *		- cms_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -763,17 +763,17 @@ function wrap_login_external_sync($data, $settings) {
 	if ($login_id) return $login_id;
 
 	wrap_setting('log_username', $data['username']);
-	$values = [];
-	$values['action'] = 'insert';
-	$values['POST']['username'] = $data['username'];
-	// @todo allow more sophisticated mapping of login_rights depending on remote data
-	$values['POST']['login_rights'] = $data['login_rights'] ?? wrap_setting('login_rights_default_external');
-	$values['POST']['password'] = wrap_random_hash(24);
-	$values['POST']['login_category_id'] = $settings['category_id'];
-	$ops = zzform_multi('logins', $values);
-	if (!$ops['id'])
+	$line = [
+		'username' => $data['username'],
+		// @todo allow more sophisticated mapping of login_rights depending on remote data
+		'login_rights' => $data['login_rights'] ?? wrap_setting('login_rights_default_external'),
+		'password' => wrap_random_hash(24),
+		'login_category_id' => $settings['category_id']
+	];
+	$login_id = zzform_insert('logins', $values);
+	if (!$login_id)
 		wrap_error(sprintf('Unable to add external login for username %s and category ID %d', $data['username'], $settings['category_id']), E_USER_ERROR);
-	return $ops['id'];
+	return $login_id;
 }
 
 /**
@@ -866,11 +866,12 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
 		// to transfer old double md5 hashed logins without salt to more secure logins
 		if (!$hasher->CheckPassword(md5($pass), $hash)) return false;
 		// Update existing password
-		$values['action'] = 'update';
-		$values['POST']['login_id'] = $login_id;
-		$values['POST']['secure_password'] = 'yes';
-		$values['POST'][wrap_sql_fields('auth_password')] = $pass;
-		$ops = zzform_multi('logins', $values);
+		$line = [
+			'login_id' => $login_id,
+			'secure_password' => 'yes',
+			wrap_sql_fields('auth_password') => $pass
+		];
+		zzform_update('logins', $line);
 		return true;
 	default:
 		if ($hash === wrap_password_hash($pass)) return true;
