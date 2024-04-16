@@ -197,6 +197,10 @@ function wrap_access_page($parameters, $details = [], $quit = true) {
 	if (empty($parameters['access'])) return true;
 	// check later with placeholders?
 	if (!$config) $config = wrap_cfg_files('access');
+	// allow to have access restrictions for different no. of placeholders
+	// here only the first restriction is considered
+	if (is_array($parameters['access']))
+		$parameters['access'] = reset($parameters['access']);
 	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
 	return wrap_access_details($parameters['access'], $details, 'OR', $quit);
 }
