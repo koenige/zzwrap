@@ -2460,7 +2460,7 @@ function wrap_get_setting_default($key, $params) {
 	} elseif (!empty($params['default_from_setting'])) {
 		if (str_starts_with($params['default_from_setting'], 'zzform_')) {
 			$default_setting_key = substr($params['default_from_setting'], 7);
-			if (array_key_exists($default_setting_key, $zz_conf))
+			if (is_array($zz_conf) AND array_key_exists($default_setting_key, $zz_conf))
 				return $zz_conf[$default_setting_key];
 			else
 				return wrap_setting($params['default_from_setting']);
