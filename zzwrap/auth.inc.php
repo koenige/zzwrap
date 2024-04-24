@@ -200,8 +200,15 @@ function wrap_authenticate_url($url = false, $no_auth_urls = []) {
 	global $zz_page;
 	if (!$url)
 		$url = $zz_page['url']['full']['path'];
-	if (!$no_auth_urls)
+	if (!$no_auth_urls) {
 		$no_auth_urls = wrap_setting('no_auth_urls');
+		$default_paths = wrap_setting('no_auth_urls_from_setting');
+		foreach ($default_paths as $path) {
+			$paths = wrap_setting($path);
+			if (!is_array($paths)) $no_auth_urls[] = $paths;
+			else $no_auth_urls = array_merge($no_auth_urls, $paths);
+		}
+	}
 	foreach ($no_auth_urls AS $test_url)
 		// no authentication required
 		if (str_starts_with($url, $test_url)) return false;
