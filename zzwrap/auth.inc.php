@@ -347,7 +347,7 @@ function cms_login($params, $settings = []) {
 		
 		// get password and username
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			if (empty($_POST['username']) OR empty($_POST['password']))
+			if (empty($_POST['username']) OR empty($_POST['password']) OR is_array($_POST['password']))
 				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
 			$full_login = [];
 			foreach (wrap_setting('login_fields') AS $login_field) {
@@ -359,7 +359,7 @@ function cms_login($params, $settings = []) {
 					$full_login[] = wrap_setting('remote_ip');
 				}
 			}
-			if (!empty($_POST['password'])) {
+			if (!empty($_POST['password']) AND !is_array($_POST['password'])) {
 				$login['password'] = $_POST['password'];
 				// remove pwd so we don't log it accidentally --> error_log_post
 				unset($_POST['password']);
