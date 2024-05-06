@@ -756,7 +756,7 @@ function wrap_error_url_decode($url) {
 		$i++;
 		if ($i > 10) break;
 	}
-	return preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_all_decode', $url);
+	return wrap_url_normalize_percent_encoding($url, 'all');
 }
 
 /**

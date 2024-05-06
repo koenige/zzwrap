@@ -1630,13 +1630,22 @@ function wrap_url_normalize($url) {
 	}
 
 	// RFC 3986 Section 6.2.2.2. Percent-Encoding Normalization
-	if (strstr($url['path'], '%')) {
-		$url['path'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_path_decode', $url['path']);
-	}
-	if (!empty($url['query']) AND strstr($url['query'], '%')) {
-		$url['query'] = preg_replace_callback('/%[2-7][0-9A-F]/i', 'wrap_url_query_decode', $url['query']);
-	}
+	$url['path'] = wrap_url_normalize_percent_encoding($url['path'], 'path');
+	$url['query'] = wrap_url_normalize_percent_encoding($url['query'] ?? '', 'query');
 	return $url;
+}
+
+/**
+ * normalize path of URL
+ *
+ * @param string $path
+ * @param string $type (path, query or all)
+ * @return string
+ */
+function wrap_url_normalize_percent_encoding($string, $type) {
+	if (!$string) return '';
+	if (!strstr($string, '%')) return $string;
+	return preg_replace_callback('/%[2-7][0-9A-F]/i', sprintf('wrap_url_%s_decode', $type), $string);
 }
 
 function wrap_url_query_decode($input) {
