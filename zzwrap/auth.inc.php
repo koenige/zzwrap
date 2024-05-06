@@ -356,7 +356,7 @@ function cms_login($params, $settings = []) {
 					$login[$login_field] = wrap_login_format($_POST[$login_field], $login_field);
 					$full_login[] = $login[$login_field];
 				} else {
-					$full_login[] = '%empty%';
+					$full_login[] = wrap_setting('remote_ip');
 				}
 			}
 			if (!empty($_POST['password'])) {
