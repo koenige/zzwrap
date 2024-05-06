@@ -323,6 +323,7 @@ function cms_login($params, $settings = []) {
 	} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' AND !empty($_POST['request_password'])) {
 		$loginform['name'] = $_POST['name'] ?? '';
 		if (!empty($_POST['mail'])) {
+			if (is_array($_POST['mail'])) wrap_quit(400, 'Invalid data sent for mail address.');
 			$loginform['mail'] = trim($_POST['mail']);
 			if (wrap_mail_valid($loginform['mail'])) {
 				$loginform['mail_sent'] = true;
