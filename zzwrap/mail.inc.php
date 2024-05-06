@@ -249,10 +249,13 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 		.'@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
 	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
 
+	$host = explode('@', $e_mail);
+	if (count($host) !== 2) return false;
+	foreach (wrap_setting('mail_invalid_domains') as $domain)
+		if (str_ends_with($host[1], $domain)) return false;
+
 	// check if hostname has MX record
 	if ($mail_check_mx AND !wrap_setting('mail_dont_check_mx')) {
-		$host = explode('@', $e_mail);
-		if (count($host) !== 2) return false;
 		if (in_array($host[1], wrap_setting('mail_mx_whitelist'))) return $e_mail;
 		// trailing dot to get a FQDN
 		if (substr($host[1], -1) !== '.') $host[1] .= '.';
