@@ -332,11 +332,29 @@ function wrap_text_values($text, $key, $params) {
 	if (!is_array($translation)) return vsprintf($translation, $params['values']);
 	// @todo check for %d and support strings with more than one placeholder
 	// currently, has to be first placeholder
-	$counter = reset($params['values']);
+	$counter = wrap_text_counter($params['values']);
 	$index = wrap_text_plurals($counter, $params['plurals']);
 	// translation might be missing, other language might only have one plural
 	if (!array_key_exists($index, $translation)) $index = 1;
 	return vsprintf($translation[$index], $params['values']);
+}
+
+/**
+ * get counter for plurals
+ *
+ * @param array $values
+ * @return int
+ */
+function wrap_text_counter($values) {
+	$counter = '';
+	while (!is_numeric($counter)) {
+		if (!$values) {
+			$counter = 0;
+			break;
+		}
+		$counter = array_shift($values);
+	}
+	return $counter;
 }
 
 /**
