@@ -970,39 +970,55 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 /**
  * put a list of fields in an SQL query into an array of fields
  *
- * @param string $fields part after SELECT and before FROM
+ * @param string $string part after SELECT and before FROM
  * @return array
  */
-function wrap_edit_sql_fieldlist($fields) {
-	$fields = explode(',', $fields);
-	$append_next = false;
-	$open = 0;
+function wrap_edit_sql_fieldlist($string) {
+	$fields = [];
+	$i = 0;
+	$fields[$i] = '';
+	$strings = mb_str_split($string);
+	$stop = false;
+	$last_string = '';
+	$inside_string = false;
+	$inside_brackets = 0;
+	foreach ($strings as $string) {
+		switch ($string) {
+		case ',':
+			if ($inside_string) break;
+			if ($inside_brackets) break;
+			$stop = true;
+			break;
+		case '"':
+			if ($last_string === '\\') break;
+			$inside_string = $inside_string ? false : true;
+			break;
+		case '(':
+			if ($inside_string) break;
+			$inside_brackets++;
+			break;
+		case ')':
+			if ($inside_string) break;
+			$inside_brackets--;
+			break;
+		}
+		if ($stop) {
+			$i++;
+			$fields[$i] = '';
+			$stop = false;
+			continue;
+		}
+		$last_string = $string;
+		$fields[$i] .= $string;
+	}
+	
+	$new = [];
 	foreach ($fields as $index => $field) {
 		$field = trim($field);
-		$count_open = substr_count($field, '(');
-		$count_close = substr_count($field, ')');
-		$count = $count_close - $count_open;
-
-		if ($append_next !== false) {
-			$fields[$append_next] .= ', '.$field;
-			if ($count > 0) {
-				if ($open) $open -= $count;
-				if (!$open) $append_next = false;
-			}
-			unset($fields[$index]);
-		} else {
-			$fields[$index] = $field;
-		}
-		if ($count < 0) {
-			$open -= $count;
-			if (!$append_next) $append_next = $index;
-		}
-	}
-	$fields = array_values($fields);
-	foreach ($fields as $index => $field) {
-		if ($pos = stripos($field, ' AS ')) {
-			$new[$index]['field_name'] = substr($field, 0, $pos);
-			$new[$index]['as'] = substr($field, $pos + 4);
+		preg_match('/^(.+) AS ([a-z_]+)$/i', $field, $matches);
+		if ($matches) {
+			$new[$index]['field_name'] = $matches[1];
+			$new[$index]['as'] = $matches[2];
 		} else {
 			$new[$index]['field_name'] = $new[$index]['as'] = $field;
 		}
