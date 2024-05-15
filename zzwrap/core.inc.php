@@ -2075,15 +2075,19 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 		// If it's a large file, readfile might not be able to do it in one go, so:
 		if ($zz_page['content_length'] > $chunksize) {
 			$handle = fopen($content['name'], 'rb');
-			$buffer = '';
-			ob_start();
-			while (!feof($handle) AND !connection_aborted()) {
-				$buffer = fread($handle, $chunksize);
-				print $buffer;
-				ob_flush();
-				flush();
+			if ($handle) {
+				$buffer = '';
+				ob_start();
+				while (!feof($handle) AND !connection_aborted()) {
+					$buffer = fread($handle, $chunksize);
+					print $buffer;
+					ob_flush();
+					flush();
+				}
+				fclose($handle);
+			} else {
+				wrap_error(wrap_text('Unable to open file %s', ['values' => [$content['name']]]), E_USER_ERROR);
 			}
-			fclose($handle);
 		} else {
 			readfile($content['name']);
 		}
