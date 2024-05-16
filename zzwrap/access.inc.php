@@ -82,9 +82,11 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	if (!$access) return false;
 	
 	// check if there are conditions if access is granted
-	if ($conditions AND array_key_exists($area, $config))
-		$access = wrap_conditions($config[$area], $detail);
-	
+	if ($conditions AND array_key_exists($area, $config)) {
+		$condition = wrap_conditions($config[$area], $detail);
+		if (!$condition) return NULL;
+	}
+
 	return $access;
 }
 
@@ -125,7 +127,7 @@ function wrap_conditions($config, $detail) {
 
 	// check if library exists
 	foreach ($config['condition_if_lib'] as $condition)
-		if (!is_dir(wrap_setting('lib').'/'.$condition)) return NULL; // not applicable = 404
+		if (!is_dir(wrap_setting('lib').'/'.$condition)) return false; // not applicable = 404
 
 	if (!$detail) return true;
 	if (!$config['condition']) return true;
@@ -153,13 +155,13 @@ function wrap_conditions($config, $detail) {
 	}
 
 	foreach ($config['condition'] as $condition)
-		if (empty($data[$key][$condition])) return NULL; // not applicable = 404
+		if (empty($data[$key][$condition])) return false; // not applicable = 404
 	
 	foreach ($config['condition_unless'] as $condition)
-		if (!empty($data[$key][$condition])) return NULL; // not applicable = 404
+		if (!empty($data[$key][$condition])) return false; // not applicable = 404
 
 	foreach ($config['condition_if_setting'] as $condition)
-		if (!wrap_setting($condition)) return NULL; // not applicable = 404
+		if (!wrap_setting($condition)) return false; // not applicable = 404
 
 	return true;
 }
@@ -215,13 +217,20 @@ function wrap_access_page($parameters, $details = [], $quit = true) {
  * @return bool
  */
 function wrap_access_details($access_key, $details = [], $operand = 'AND', $quit = true) {
+	static $config = [];
+	if (!$config) $config = wrap_cfg_files('access');
+
 	$access = false;
 	if ($details)
 		foreach ($details as $index => $detail) {
 			if (!$detail) continue; // do not check if nothing is defined
 			// check condition only for first detail
 			// do not go on if condition check was false (return = NULL)
-			$access = wrap_access($access_key, $detail, ($index ? false : true));
+			$access = wrap_access($access_key, $detail, false);
+			if (!$index AND array_key_exists($access_key, $config)) {
+				$condition = wrap_conditions($config[$access_key], $detail);
+				if (!$condition) $access = NULL;
+			}
 			if (is_null($access)) break;
 			if ($operand === 'OR' AND $access) break;
 			if ($operand === 'AND' AND !$access) break;
