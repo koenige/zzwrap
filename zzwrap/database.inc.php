@@ -706,6 +706,10 @@ function wrap_db_parents($id, $sql) {
  * @return mixed false: no sync neccessary, datetime: date of last update in tables
  */
 function wrap_db_tables_last_update($tables, $last_sync = false) {
+	static $updates = [];
+	$key = json_encode($tables);
+	if (array_key_exists($key, $updates)) return $updates[$key];
+	
 	if (!is_array($tables)) $tables = [$tables];
 	foreach ($tables as $table) {
 		$table = wrap_db_prefix($table);
@@ -732,9 +736,10 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
 	
 	if ($last_sync AND strtotime($last_update) <= strtotime($last_sync))
 		// database on the other end is already up to date
-		return false;
+		$updates[$key] = false;
 	else
-		return $last_update;
+		$updates[$key] = $last_update;
+	return $updates[$key];
 }
 
 /**
