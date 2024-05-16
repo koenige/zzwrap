@@ -3438,9 +3438,10 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * @param string $area
  * @param mixed $value (optional)
  * @param mixed $check_rights (optional) false: no check; array: use as details
+ * @param bool $testing (optional) true: checks if path exists, regardless of values
  * @return string
  */
-function wrap_path($area, $value = [], $check_rights = true) {
+function wrap_path($area, $value = [], $check_rights = true, $testing = false) {
 	// check rights
 	$detail = is_bool($check_rights) ? '' : $check_rights;
 	if ($check_rights AND !wrap_access($area, $detail)) return NULL;
@@ -3471,8 +3472,11 @@ function wrap_path($area, $value = [], $check_rights = true) {
 	if (count($value) < $required_count) {
 		if (wrap_setting('backend_path'))
 			array_unshift($value, wrap_setting('backend_path'));
-		if (count($value) < $required_count)
-			return '';
+		if (count($value) < $required_count) {
+			if (!$testing) return '';
+			while (count($value) < $required_count)
+				$value[] = 'testing';
+		}
 	}
 	$path = vsprintf(wrap_setting('base').$this_setting, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
