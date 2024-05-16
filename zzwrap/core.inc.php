@@ -3387,34 +3387,44 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 		$cfg = wrap_cfg_files('settings');
 		if (empty($cfg[$setting_key]['brick'])) return false;
 		$brick = $cfg[$setting_key]['brick'];
+		if (!$params)
+			$params = $cfg[$setting_key]['brick_local_settings'] ?? [];
 	}
 	
-	$path = '';
+	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path, content
+		FROM /*_PREFIX_*/webpages
+		WHERE content LIKE "%\%\%\% '.$brick.'% \%\%\%%"';
 	if (wrap_setting('website_id'))
-		$website_sql = sprintf(' AND website_id = %d', wrap_setting('website_id'));
-	else
-		$website_sql = '';
-	if (!empty($params)) {
-		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-			FROM /*_PREFIX_*/webpages
-			WHERE content LIKE "%\%\%\% '.$brick.' * '.http_build_query($params).'% %\%\%%"
-		'.$website_sql;
-		$path = wrap_db_fetch($sql, '', 'single value');
+		$sql .= sprintf(' AND website_id = %d', wrap_setting('website_id'));
+	$paths = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	
+	// build parameters
+	$no_params = [];
+	foreach ($params as $key => $value) {
+		if ($value) continue;
+		$no_params[] = $key;
+		unset($params[$key]);
 	}
-	if (!$path) {
-		$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-			FROM /*_PREFIX_*/webpages
-			WHERE content LIKE "%\%\%\% '.$brick.' *% \%\%\%%"'.$website_sql;
-		$path = wrap_db_fetch($sql, '', 'single value');
-		if (!$path) {
-			// try without asterisk
-			$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-				FROM /*_PREFIX_*/webpages
-				WHERE content LIKE "%\%\%\% '.$brick.'% \%\%\%%"'.$website_sql;
-			$path = wrap_db_fetch($sql, '', 'single value');
+	$params = $params ? http_build_query($params) : '';
+	$params = explode('&', $params);
+	foreach ($params as $param) {
+		// if parameter: only leave pages having this parameter
+		foreach ($paths as $index => $path) {
+			if (strstr($path['content'], $param)) continue;
+			unset($paths[$index]);
 		}
 	}
-	if (!$path) return false;
+	foreach ($no_params as $param) {
+		// if parameter=0: only leave pages without this parameter
+		$param .= '=';
+		foreach ($paths as $index => $path) {
+			if (!strstr($path['content'], $param)) continue;
+			unset($paths[$index]);
+		}
+	}
+	if (count($paths) !== 1) return false;
+	$path = reset($paths);
+	$path = $path['path'];
 	$path = str_replace('*', '/%s', $path);
 	wrap_setting_write($setting_key, $path);
 	return true;
