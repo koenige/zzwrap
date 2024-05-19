@@ -77,6 +77,7 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		$group_rights = $config[$area]['group'] ?? $config[$area_short]['group'];
 		if (!is_array($group_rights)) $group_rights = [$group_rights];
 		if (in_array('public', $group_rights)) $access = true;
+		elseif (in_array('localhost', $group_rights) AND wrap_localhost_ip()) $access = true;
 		else $access = brick_access_rights($group_rights);
 	}
 	if (!$access) return false;
