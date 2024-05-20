@@ -1228,6 +1228,10 @@ function wrap_htmlout_page($page) {
 			'title' => $page['pagetitle'],
 			'url' => $page['url']
 		];
+		if (!empty($page['data']))
+			foreach ($page['data'] as $key => $data)
+				$output[$key] = $data;
+
 		$json = json_encode($output);
 		if ($output and !$json) {
 			wrap_quit(503, 'JSON error: '.json_last_error_msg());
