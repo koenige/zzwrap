@@ -312,7 +312,8 @@ function wrap_install_remote_db() {
 		if (empty($_POST['db_host'])) $all = false;
 		if ($all) {
 			$data = json_encode($_POST, JSON_PRETTY_PRINT);
-			$filename = wrap_setting('custom_wrap_sql_dir').'/pwd.json';
+			wrap_mkdir(wrap_setting('config_dir'));
+			$filename = wrap_setting('config_dir').'/pwd.json';
 			file_put_contents($filename, $data);
 			return wrap_install_finish();
 		}

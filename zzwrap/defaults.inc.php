@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -268,10 +268,29 @@ function wrap_config_write($site = '') {
  */
 function wrap_config_filename($type = 'main') {
 	switch ($type) {
-		case 'main': return sprintf('%s/config.json', wrap_setting('inc'));
-		case 'site': return sprintf('%s/config-%s.json', wrap_setting('log_dir'), str_replace('/', '-', wrap_setting('site')));
-		default: return '';
+		case 'main':
+			$template = '%s/config.json';
+			$deprecated = sprintf($template, wrap_setting('inc'));
+			break;
+		case 'site':
+			$template = '%%s/config-%s.json';
+			$template = sprintf($template, str_replace('/', '-', wrap_setting('site')));
+			$deprecated = sprintf($template, wrap_setting('log_dir'));
+			break;
+		case 'pwd':
+		default:
+			if (!str_starts_with($type, 'pwd')) return '';
+			$template = '%%s/%s.json';
+			$template = sprintf($template, $type);
+			$deprecated = sprintf($template, wrap_setting('custom_wrap_sql_dir'));
+			break;
 	}
+	$preferred = sprintf($template, wrap_setting('config_dir'));
+	if (file_exists($deprecated)) {
+		wrap_mkdir(dirname($preferred));
+		rename($deprecated, $preferred);
+	}
+	return $preferred;
 }
 
 /**

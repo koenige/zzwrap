@@ -108,7 +108,7 @@ function wrap_db_credentials() {
 		if (substr($file, 0, 1) !== '/') {
 			$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.inc.php';
 			if (!file_exists($filename)) {
-				$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.json';
+				$filename = wrap_config_filename('pwd'.$file);
 				if (!file_exists($filename)) continue;
 				$db = json_decode(file_get_contents($filename), true);
 				wrap_setting('db_name', $db['db_name']);
