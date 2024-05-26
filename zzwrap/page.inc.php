@@ -1423,44 +1423,12 @@ function wrap_page_links($data, $path, $path_overview = false) {
  */
 function wrap_page_format_files() {
 	static $included = [];
-	$format_files = wrap_collect_files('format', 'custom');
-	$format_files += wrap_collect_files('format', 'active');
-	foreach ($format_files as $package => $format_file) {
-		if (in_array($package, $included)) continue;
-		$included[] = $package;
-		$new_functions = wrap_page_new_functions($format_file);
-		$prefix = $package === 'custom' ? 'my' : 'mf_'.$package;
-		wrap_page_add_format_functions($new_functions, $prefix);
-	}
-}
-
-/**
- * get all function names in a file
- *
- * @param string $filed filename
- * @return array
- */
-function wrap_page_new_functions($file) {
-	$existing = get_defined_functions();
-	require_once $file;
-	$new = get_defined_functions();
-	$diff = array_diff($new['user'], $existing['user']);
-	return $diff;
-}
-
-/**
- * add functions to brick_formatting_functions, register prefix
- *
- * @param string $filed filename
- * @return array
- */
-function wrap_page_add_format_functions($functions, $prefix) {
-	foreach ($functions as $function) {
-		if (str_starts_with($function, $prefix.'_')) {
-			$function = substr($function, strlen($prefix.'_'));
-			wrap_setting_add('brick_formatting_functions_prefix', [$function => $prefix]);
+	$files = wrap_include('format', 'custom/active');
+	foreach ($files['functions'] as $function) {
+		if (!empty($function['prefix'])) {
+			wrap_setting_add('brick_formatting_functions_prefix', [$function['short'] => $function['prefix']]);
 		}
-		wrap_setting_add('brick_formatting_functions', $function);
+		wrap_setting_add('brick_formatting_functions', $function['short'] ?? $function['function']);
 	}
 }
 
