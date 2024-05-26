@@ -44,6 +44,7 @@ function wrap_include($filename, $paths = 'custom/modules') {
 			$data[$filename]['functions'][$index]['package'] = $package;
 			if (!str_starts_with($function, $prefix)) continue;
 			$data[$filename]['functions'][$index]['short'] = substr($function, strlen($prefix));
+			$data[$filename]['functions'][$index]['prefix'] = substr($prefix, 0, -1);
 		}
 	}
 	return $data[$filename];
