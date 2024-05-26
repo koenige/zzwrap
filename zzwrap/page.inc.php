@@ -1424,11 +1424,14 @@ function wrap_page_links($data, $path, $path_overview = false) {
 function wrap_page_format_files() {
 	static $included = [];
 	$files = wrap_include('format', 'custom/active');
+	if (!$files) return;
 	foreach ($files['functions'] as $function) {
-		if (!empty($function['prefix'])) {
+		if (!empty($function['short'])) {
 			wrap_setting_add('brick_formatting_functions_prefix', [$function['short'] => $function['prefix']]);
+			wrap_setting_add('brick_formatting_functions', $function['short']);
+		} else {
+			wrap_setting_add('brick_formatting_functions', $function['function']);
 		}
-		wrap_setting_add('brick_formatting_functions', $function['short'] ?? $function['function']);
 	}
 }
 
