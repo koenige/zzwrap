@@ -157,7 +157,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
 		if (file_exists($file)) {
 			if (str_starts_with($search, 'custom/')) {
-				array_unshift($files, $file);
+				$files = array_merge(['custom' => $file], $files);
 			} else {
 				$files['custom'] = $file;
 			}
