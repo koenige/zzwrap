@@ -2780,7 +2780,7 @@ function wrap_job_page($type) {
 	$path = wrap_path('jobmanager', '', false);
 	if (!$path) return false; // no job manager active
 
-	wrap_include_files('zzbrick_make/jobmanager', 'default');
+	wrap_include('zzbrick_make/jobmanager', 'default');
 	return true;
 }
 
@@ -2982,7 +2982,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
-		if ($files = wrap_include_files('database', 'zzform')) {
+		if (wrap_include('database', 'zzform')) {
 			wrap_setting('log_username_default', 'Servant Robot 247');
 			zz_log_sql($sql, '', $result['id'] ?? false);
 			wrap_setting_delete('log_username_default');

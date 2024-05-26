@@ -104,7 +104,7 @@ function wrap_install_dbname() {
  * @return bool
  */
 function wrap_install_module($module) {
-	wrap_include_files('database', 'zzform');
+	wrap_include('database', 'zzform');
 
 	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
 	
@@ -165,7 +165,7 @@ function wrap_install_zzform() {
  * @return mixed
  */
 function wrap_install_user() {
-	wrap_include_files('_functions', 'zzform');
+	wrap_include('_functions', 'zzform');
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_install_zzform();

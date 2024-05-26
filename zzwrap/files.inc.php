@@ -14,11 +14,48 @@
 
 
 /**
+ * include files matching file name from inside one or more packages
+ * returning a list of included packages, files and functions
+ *
+ * @param string $file name of file, with path, unless in standard folder, without .inc.php
+ * @param array $paths custom/modules, modules/custom, custom or name of module
+ * @return array
+ */
+function wrap_include($filename, $paths = 'custom/modules') {
+	static $data = [];
+	$files = wrap_collect_files($filename, $paths);
+	if (!$files) return false;
+	if (!array_key_exists($filename, $data)) {
+		$data[$filename] = [
+			'packages' => [],
+			'functions' => []
+		];
+	}
+	foreach ($files as $package => $file) {
+		if (array_key_exists($package, $data[$filename]['packages'])) continue;
+		$data[$filename]['packages'][$package] = $file;
+		$existing = get_defined_functions();
+		if((include_once $file) === false) continue;
+		$new = get_defined_functions();
+		$diff = array_diff($new['user'], $existing['user']);
+		$prefix = wrap_function_prefix($package);
+		foreach ($diff as $index => $function) {
+			$data[$filename]['functions'][$index]['function'] = $function;
+			$data[$filename]['functions'][$index]['package'] = $package;
+			if (!str_starts_with($function, $prefix)) continue;
+			$data[$filename]['functions'][$index]['short'] = substr($function, strlen($prefix));
+		}
+	}
+	return $data[$filename];
+}
+
+/**
  * include a file from inside one or more modules
  *
  * @param string $file name of file, with path, unless in standard folder, without .inc.php
  * @param array $paths custom/modules, modules/custom, custom or name of module
  * @return array list of included files
+ * @deprecated use wrap_include() instead
  */
 function wrap_include_files($filename, $paths = 'custom/modules') {
 	global $zz_setting;
@@ -127,6 +164,24 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	}
 
 	return $files;
+}
+
+/**
+ * get a list of functions that match from a list of recently included files
+ *
+ * @param array $files
+ * @param string $match
+ * @return array
+ */
+function wrap_functions($files, $match) {
+	$matches = [];
+	foreach ($files['functions'] as $function) {
+		if (!str_starts_with($function['short'], $match)) continue;
+		$suffix = substr($function['short'], strlen($match) + 1);
+		$function['suffix'] = $suffix ? $suffix : NULL;
+		$matches[] = $function;
+	}
+	return $matches;
 }
 
 /**
@@ -287,7 +342,22 @@ function wrap_package_activate($package, $type = 'module') {
 	
 	switch ($type) {
 	case 'module':
-		wrap_include_files('functions', $package);
+		wrap_include('functions', $package);
 		break;
+	}
+}
+
+/**
+ * get function prefix per package
+ *
+ * @param string $package
+ * @return string
+ */
+function wrap_function_prefix($package) {
+	switch ($package) {
+		case 'zzwrap': return 'wrap_';
+		case 'zzform': return 'zz_';
+		case 'custom': return 'my_';
+		default: return sprintf('mf_%s_', $package);
 	}
 }

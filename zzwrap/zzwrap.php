@@ -33,7 +33,7 @@ function zzwrap() {
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
 
 	// make all _function files available, check_request() might already quit and needs a page
-	wrap_include_files('_functions', 'custom/modules/themes');
+	wrap_include('_functions', 'custom/modules/themes');
 
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_check_request(); // affects $zz_page
@@ -84,7 +84,7 @@ function zzwrap() {
 	wrap_language_redirect();
 
 	// Functions which might be executed always, before possible login
-	wrap_include_files('start');
+	wrap_include('start');
 	
 	if (wrap_setting('authentication_possible')) {
 		wrap_auth();
@@ -96,7 +96,7 @@ function zzwrap() {
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
 	wrap_lib();
 
-	wrap_include_files('_settings_post_login');
+	wrap_include('_settings_post_login');
 
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects

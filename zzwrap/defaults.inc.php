@@ -34,7 +34,7 @@ function wrap_set_defaults() {
 	wrap_set_defaults_post_conf();
 
 	// module configs, will overwrite standard config
-	$module_config_included = wrap_include_files('./config', 'modules');
+	wrap_include('./config', 'modules');
 }
 
 /**
