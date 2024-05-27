@@ -1903,13 +1903,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 		$zz_page['content_type'] = $filetype_cfg['mime'][0];
 		$mime = explode('/', $zz_page['content_type']);
 		if (in_array($mime[0], ['text', 'application'])) {
-			if (!empty($filetype_cfg['encoding'])) {
-				$zz_page['character_set'] = $filetype_cfg['encoding'];
-			} elseif (!empty($headers['character_set'])) {
-				$zz_page['character_set'] = $headers['character_set'];
-			} else {
-				$zz_page['character_set'] = wrap_setting('character_set');
-			}
+			$zz_page['character_set']
+				= $filetype_cfg['encoding'] ?? $headers['character_set'] ?? wrap_setting('character_set');
 			if ($zz_page['character_set'] === 'utf-16le') {
 				// Add BOM, little endian
 				$text = chr(255).chr(254).$text;
@@ -1927,7 +1922,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	if (!empty($filetype_cfg['content_disposition'])) {
 		wrap_http_content_disposition(
 			$filetype_cfg['content_disposition'],
-			isset($headers['filename']) ? $headers['filename'] : 'download.'.$filetype_cfg['extension'][0]
+			$headers['filename'] ?? 'download.'.$filetype_cfg['extension'][0]
 		);
 	}
 	if ($type === 'csv') {
