@@ -2638,7 +2638,8 @@ function wrap_mkdir($folder) {
 		$basefolders = [];
 		foreach ($allowed_dirs as $dir) {
 			if (substr($folder, 0, strlen($dir)) === $dir) {
-				$basefolders = explode('/', $dir);
+				$basefolders = array_filter(explode('/', $dir), 'strlen');
+				$basefolders = array_values($basefolders);
 				break;
 			}
 		}
