@@ -2643,24 +2643,18 @@ function wrap_mkdir($folder) {
 			}
 		}
 	}
-	$subfolders = explode('/', $folder);
+	$parts = array_filter(explode('/', $folder), 'strlen');
 	$current_folder = '';
 
 	// get rid of .. and .
-	foreach ($subfolders as $index => $subfolder) {
-		if ($subfolder === '') continue;
-		if ($subfolder === '..') {
-			unset($subfolders[$index]);
-			unset($subfolders[$index - 1]);
-			continue;
-		} elseif ($subfolder === '.') {
-			unset($subfolders[$index]);
-			continue;
-		}
-	}
-
-	// get indices straight
-	$subfolders = array_values($subfolders);
+    $subfolders = [];
+    foreach ($parts as $part) {
+        if ($part === '.') continue;
+        if ($part === '..')
+            array_pop($subfolders);
+        else
+            $subfolders[] = $part;
+    }
 
 	foreach ($subfolders as $index => $subfolder) {
 		if ($subfolder === '') continue;
