@@ -1859,7 +1859,9 @@ function wrap_file_cleanup($file) {
 	// clean up
 	unlink($file['name']);
 	if (!empty($file['cleanup_dir'])) {
-		$files = array_diff(scandir($file['cleanup_dir']), ['.', '..']);
+		if (!file_exists($file['cleanup_dir'])) return false; // some parallel process
+		$files = scandir($file['cleanup_dir']);
+		if ($files) $files = array_diff($files, ['.', '..']);
 		if (!$files) rmdir($file['cleanup_dir']);
 	}
 	return true;
