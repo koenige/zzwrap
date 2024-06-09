@@ -254,21 +254,36 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	foreach (wrap_setting('mail_invalid_domains') as $domain)
 		if (str_ends_with($host[1], $domain)) return false;
 
-	// check if hostname has MX record
-	if ($mail_check_mx AND !wrap_setting('mail_dont_check_mx')) {
-		if (in_array($host[1], wrap_setting('mail_mx_whitelist'))) return $e_mail;
-		// trailing dot to get a FQDN
-		if (substr($host[1], -1) !== '.') $host[1] .= '.';
-		// MX record is not obligatory, so use ANY
-		$time = microtime(true);
-		$exists = checkdnsrr($host[1], 'ANY');
-		if ($wait_ms = wrap_setting('mail_mx_check_wait_ms') AND microtime(true) - $time > $wait_ms / 1000) {
-			wrap_error('Checking DNS record took to long, so probably it is a timeout: '.$e_mail.' host:'.$host[1]);
-			return $e_mail;
-		}
-		if (!$exists) return false;
-	}
+	if (!$mail_check_mx) return $e_mail;
+	if (wrap_setting('mail_dont_check_mx')) return $e_mail;
 
+	// check if hostname has MX record
+	if (in_array($host[1], wrap_setting('mail_mx_whitelist'))) return $e_mail;
+	// trailing dot to get a FQDN
+	if (substr($host[1], -1) !== '.') $host[1] .= '.';
+	
+	wrap_include('file', 'zzwrap');
+	$lines = wrap_file_log('maildomain');
+	foreach ($lines as $line) {
+		if ($line['domain'] !== $host[1]) continue;
+		if ($line['status'] === 'invalid') return false;
+		if ($line['status'] === 'valid') return $e_mail;
+		// timeout: retry
+	}
+	
+	$time = microtime(true);
+	// MX record is not obligatory, so use ANY
+	$exists = checkdnsrr($host[1], 'ANY');
+	if ($wait_ms = wrap_setting('mail_mx_check_wait_ms') AND microtime(true) - $time > $wait_ms / 1000) {
+		wrap_error('Checking DNS record took to long, so probably it is a timeout: '.$e_mail.' host:'.$host[1]);
+		$status = 'timeout';
+	} elseif ($exists) {
+		$status = 'valid';
+	} else {
+		$status = 'invalid';
+	}
+	wrap_file_log('maildomain', 'write', [time(), $host[1], $status]);
+	if ($status === 'invalid') return false;
 	return $e_mail;
 }
 
