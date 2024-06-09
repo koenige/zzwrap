@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2017, 2020, 2023 Gustaf Mossakowski
+ * @copyright Copyright © 2023-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -49,4 +49,56 @@ function wrap_file_delete_line($file, $lines) {
 
 	fclose($handle);
 	return wrap_text('%d lines deleted.', ['values' => $deleted]);
+}
+
+/**
+ * read custom log files, separated by space
+ *
+ * @param string $name
+ * @param string $action
+ * @return array
+ */
+function wrap_file_log($name, $action = 'read', $values = []) {
+	$data = [];
+	if (!wrap_setting('logfile_'.$name)) return $data;
+	$fields = wrap_setting('logfile_'.$name.'_fields') ?? [];
+	$validity_seconds = wrap_setting('logfile_'.$name.'_validity_in_minutes') * 60;
+	if (!$validity_seconds) return $data;
+
+	$logfile = sprintf('%s/%s.log', wrap_setting('log_dir'), $name);
+	if (!file_exists($logfile)) touch($logfile);
+
+	switch ($action) {
+	case 'read':
+		$lines = file($logfile);
+		$delete_lines = [];
+		foreach ($lines as $index => $line) {
+			if (str_starts_with($line, hex2bin('00000000'))) {
+				$delete_lines[] = $index;
+				continue;
+			}
+			$line = explode(' ', trim($line));
+			if (count($line) !== count($fields)) {
+				$delete_lines[] = $index;
+				continue;
+			}
+			foreach ($fields as $field_index => $field)
+				$values[$field] = $line[$field_index];
+			if (array_key_exists('timestamp', $values)) {
+				if ($values['timestamp'] < time() - $validity_seconds) {
+					$delete_lines[] = $index;
+					continue;
+				}
+			}
+			$data[] = $values;
+		}
+		if ($delete_lines)
+			wrap_file_delete_line($logfile, $delete_lines);
+		break;
+	case 'write':
+		$line = implode(' ', $values)."\n";
+		error_log($line, 3, $logfile);
+		break;
+	}
+	return $data;
 }
