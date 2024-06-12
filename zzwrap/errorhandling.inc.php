@@ -416,8 +416,6 @@ function wrap_errorpage_log($status, $page) {
 		break;
 	case 404:
 		if (wrap_errorpage_logignore()) return false;
-		// send mail?
-		wrap_error_repeated_404();
 		// own error message!
 		$requested = $zz_page['url']['full']['scheme'].'://'
 			.wrap_setting('hostname').wrap_setting('request_uri');
@@ -432,7 +430,9 @@ function wrap_errorpage_log($status, $page) {
 		$settings['mail_no_ip'] = true;
 		$settings['mail_no_user_agent'] = true;
 		$settings['logfile'] = '['.$status.']';
-		wrap_error($msg, $page['error_type'] ?? E_USER_WARNING, $settings);
+		$error_type = $page['error_type'] ?? E_USER_WARNING;
+		if (wrap_error_repeated_404()) $error_type = E_USER_NOTICE;
+		wrap_error($msg, $error_type, $settings);
 		break;
 	case 403:
 		$settings['logfile'] .= ' (User agent: '
@@ -481,21 +481,19 @@ function wrap_errorpage_log($status, $page) {
  * log no. of 404 errors per IP, disable error mails if no. is too high
  *
  * @param void
- * @return void
+ * @return bool
  */
 function wrap_error_repeated_404() {
 	wrap_include('file', 'zzwrap');
-	if (in_array(wrap_setting('error_handling'), ['mail', 'mail_summary'])) {
-		$lines = wrap_file_log('error404');
-		$count = 0;
-		foreach ($lines as $line) {
-			if ($line['ip'] !== wrap_setting('remote_ip')) continue;
-			$count++;
-		}
-		if ($count >= wrap_setting('logfile_error404_stop_mail_after_requests'))
-			wrap_setting('error_handling', false);
+	$lines = wrap_file_log('error404');
+	$count = 0;
+	foreach ($lines as $line) {
+		if ($line['ip'] !== wrap_setting('remote_ip')) continue;
+		$count++;
 	}
 	wrap_file_log('error404', 'write', [time(), wrap_setting('remote_ip'), wrap_setting('request_uri')]);
+	if ($count >= wrap_setting('logfile_error404_stop_mail_after_requests')) return true;
+	return false;
 }
 
 /**
