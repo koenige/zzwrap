@@ -1653,7 +1653,8 @@ function wrap_id_tree($table, $path) {
 		$item_path = substr($item, strlen($path));
 		if (substr_count($item_path, '/') <= 1) continue;
 		$parent_path = substr($item, 0, strrpos($item, '/'));
-		$ids[] = $list[$parent_path];
+		if (array_key_exists($parent_path, $list)) // should exist, but path might be not hierarchical
+			$ids[] = $list[$parent_path];
 	}
 	$ids = array_unique($ids);
 	return $ids;
