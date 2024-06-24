@@ -1051,7 +1051,7 @@ function wrap_po_headers($headers) {
  * @todo log missing text in a .pot file
  */
 function wrap_text_log($string, $source = '') {
-//	if (!wrap_setting('log_missing_text')) return false;
+	if (!wrap_setting('log_missing_text')) return false;
 	wrap_include('file', 'zzwrap');
 
 	$calls = debug_backtrace();
