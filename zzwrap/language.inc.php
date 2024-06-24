@@ -299,16 +299,7 @@ function wrap_text($string, $params = []) {
 				return wrap_text_values($context[$params['context']], $string, $params);
 	
 	if (!array_key_exists($string, $my_text)) {
-		// write missing translation to somewhere.
-		// @todo check logfile for duplicates
-		// @todo optional log directly in database
-		// @todo log missing text in a .pot file
-		if (wrap_setting('log_missing_text')) {
-			$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
-			$log_file = sprintf(wrap_setting('log_missing_text_file'), $language);
-			error_log($log_message, 3, $log_file);
-			chmod($log_file, 0664);
-		}
+		wrap_text_log($string);
 		return wrap_text_values([], $string, $params);
 	}
 	return wrap_text_values($my_text, $string, $params);
@@ -1046,4 +1037,22 @@ function wrap_po_headers($headers) {
 		}
 	}
 	return $my_headers;
+}
+
+/**
+ * write missing translation to somewhere.
+ *
+ * @param string $string
+ * @return bool
+ * @todo check logfile for duplicates
+ * @todo optional log directly in database
+ * @todo log missing text in a .pot file
+ */
+function wrap_text_log($string) {
+	if (!wrap_setting('log_missing_text')) return false;
+	$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
+	$log_file = sprintf(wrap_setting('log_missing_text_file'), $language);
+	error_log($log_message, 3, $log_file);
+	chmod($log_file, 0664);
+	return true;
 }
