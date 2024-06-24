@@ -39,6 +39,7 @@ function wrap_template($template, $data = [], $mode = false) {
 
 	if (strstr($template, "\n")) {
 		wrap_setting('current_template', '(from variable)');
+		wrap_setting('current_template_file', '');
 		$template = explode("\n", $template);
 		// add newline that explode removed to each line
 		foreach (array_keys($template) as $no) {
@@ -47,11 +48,13 @@ function wrap_template($template, $data = [], $mode = false) {
 	} elseif (str_starts_with($template, '/') AND file_exists($template)) {
 		$tpl_file = $template;
 		wrap_setting('current_template', $template);
+		wrap_setting('current_template_file', $tpl_file);
 		$template = file($tpl_file);
 	} else {
 		$tpl_file = wrap_template_file($template);
 		if (!$tpl_file) return false;
 		wrap_setting('current_template', $template);
+		wrap_setting('current_template_file', $tpl_file);
 		$template = file($tpl_file);
 	}
 	// remove comments and next empty line from the start
@@ -962,7 +965,7 @@ function wrap_page_title($page) {
 		}
 	}
 	if (wrap_setting('translate_page_title') OR !empty($status))
-		$page['title'] = wrap_text($page['title']);
+		$page['title'] = wrap_text($page['title'], ['ignore_missing_translation' => true]);
 
 	if (!empty($zz_page['db']) AND $zz_page['url']['full']['path'] === '/' AND empty($page['extra']['not_home'])) {
 		$page['pagetitle'] = strip_tags($zz_page['db'][wrap_sql_fields('page_title')]);
@@ -1056,7 +1059,7 @@ function wrap_get_page() {
  * @return array
  */
 function wrap_page_defaults($page) {
-	!empty($page['project']) OR $page['project'] = wrap_text(wrap_setting('project'));
+	!empty($page['project']) OR $page['project'] = wrap_text(wrap_setting('project'), ['ignore_missing_translation' => true]);
 	!empty($page['status']) OR $page['status'] = 200;
 	!empty($page['lang']) OR $page['lang'] = wrap_setting('lang');
 	$page = wrap_page_title($page);

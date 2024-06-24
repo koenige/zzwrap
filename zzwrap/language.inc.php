@@ -299,7 +299,8 @@ function wrap_text($string, $params = []) {
 				return wrap_text_values($context[$params['context']], $string, $params);
 	
 	if (!array_key_exists($string, $my_text)) {
-		wrap_text_log($string);
+		if (empty($params['ignore_missing_translation']))
+			wrap_text_log($string, $params['source'] ?? '');
 		return wrap_text_values([], $string, $params);
 	}
 	return wrap_text_values($my_text, $string, $params);
@@ -1043,16 +1044,74 @@ function wrap_po_headers($headers) {
  * write missing translation to somewhere.
  *
  * @param string $string
+ * @param string $source (optional) source file name
  * @return bool
  * @todo check logfile for duplicates
  * @todo optional log directly in database
  * @todo log missing text in a .pot file
  */
-function wrap_text_log($string) {
-	if (!wrap_setting('log_missing_text')) return false;
-	$log_message = '$text["'.addslashes($string).'"] = "'.$string.'";'."\n";
-	$log_file = sprintf(wrap_setting('log_missing_text_file'), $language);
-	error_log($log_message, 3, $log_file);
-	chmod($log_file, 0664);
-	return true;
+function wrap_text_log($string, $source = '') {
+//	if (!wrap_setting('log_missing_text')) return false;
+	wrap_include('file', 'zzwrap');
+
+	$calls = debug_backtrace();
+	$log = [];
+	foreach ($calls as $index => $call) {
+		switch ($call['function']) {
+		case 'wrap_text':
+		case 'wrap_text_log':
+			continue 2;
+		case 'brick_text':
+			// from template
+			// @todo does not work 100% if templates are included in other templates
+			$log = wrap_file_package(wrap_setting('current_template_file'));
+			$log['line'] = false;
+			break 2;
+		case 'wrap_cfg_translate':
+			if (!$source) break 2;
+			$log = wrap_file_package($source);
+			$log['line'] = false;
+			break 2;
+		default:
+			if ($source) {
+				$log = wrap_file_package($source);
+				$log['line'] = false;
+				break 2;
+			}
+			// get last item
+			$log = wrap_file_package($calls[$index - 1]['file']);
+			if (!$log) {
+				wrap_error('Unable to determine translation log: '.json_encode($call));
+				return false;
+			}
+			$log['line'] = $calls[$index - 1]['line'];
+			break 2;
+		}
+	}
+	if (!$log) return false;
+	
+	if ($log['package'] === 'custom')
+		$pot_file = sprintf('%s/languages/text.pot', wrap_setting('custom'));
+	else
+		$pot_file = sprintf('%s/%s/languages/%s.pot', wrap_setting('modules_dir'), $log['package'], $log['package']);
+	if (!file_exists($pot_file)) {
+		wrap_mkdir(dirname($pot_file));
+		touch($pot_file);
+	}
+
+	$translation = [];
+	$translation[] = '';
+	if ($log['line'])
+		$translation[] = sprintf('#: %s:%d', $log['path'], $log['line']);
+	else
+		$translation[] = sprintf('#: %s', $log['path']);
+	$translation[] = sprintf('msgid "%s"', $string);
+	$translation[] = 'msgstr ""';
+	$translation[] = '';
+	$translation = implode("\n", $translation);
+	
+	$pot_contents = file_get_contents($pot_file);
+	if (strstr($pot_contents, $translation)) return;
+	
+	file_put_contents($pot_file, $translation, FILE_APPEND);
 }

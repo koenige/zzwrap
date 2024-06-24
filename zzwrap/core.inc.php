@@ -3277,11 +3277,11 @@ function wrap_cfg_files($type, $settings = []) {
 
 	if (!$translated AND wrap_db_connection() AND $cfg AND !empty($settings['translate'])) {
 		foreach (array_keys($cfg) as $this_type) {
-			wrap_cfg_translate($cfg[$this_type]);
+			wrap_cfg_translate($cfg[$this_type], $this_type);
 		}
 		foreach ($single_cfg as $this_type => $this_config) {
 			foreach (array_keys($this_config) as $this_module) {
-				wrap_cfg_translate($single_cfg[$this_type][$this_module]);
+				wrap_cfg_translate($single_cfg[$this_type][$this_module], $this_type);
 			}
 		}
 		$translated = true;
@@ -3334,7 +3334,7 @@ function wrap_cfg_files_parse($type) {
 			$single_cfg[$package][$index]['package'] = $package;
 		// might be called before database connection exists
 		if (wrap_db_connection()) {
-			wrap_cfg_translate($single_cfg[$package]);
+			wrap_cfg_translate($single_cfg[$package], $cfg_file);
 			$translated = true;
 		}
 		// no merging, let custom cfg overwrite single settings from modules
@@ -3355,13 +3355,17 @@ function wrap_cfg_files_parse($type) {
  * translate description per config
  *
  * @param array $cfg
+ * @param string $filename
  * @return array
  */
-function wrap_cfg_translate(&$cfg) {
+function wrap_cfg_translate(&$cfg, $filename) {
+	$my_filename = $filename;
 	foreach ($cfg as $index => $config) {
 		if (empty($config['description'])) continue;
 		if (is_array($config['description'])) continue;
-		$cfg[$index]['description'] = wrap_text($config['description']);
+		if (!str_starts_with($filename, '/'))
+			$my_filename = sprintf('%s/%s/configuration/%s.cfg', wrap_setting('modules_dir'), $config['package'], $filename);
+		$cfg[$index]['description'] = wrap_text($config['description'], ['source' => $my_filename]);
 	}
 	return $cfg;
 }
