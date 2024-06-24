@@ -102,3 +102,27 @@ function wrap_file_log($name, $action = 'read', $values = []) {
 	}
 	return $data;
 }
+
+/**
+ * get package and path inside package
+ *
+ * @param string filename
+ * @return array
+ */
+function wrap_file_package($filename) {
+	if (str_starts_with($filename, wrap_setting('modules_dir').'/'))
+		$prefix_len = strlen(wrap_setting('modules_dir'));
+	elseif (str_starts_with($filename, wrap_setting('custom')))
+		$prefix_len = strlen(wrap_setting('custom'));
+	elseif (str_starts_with($filename, wrap_setting('themes_dir')))
+		$prefix_len = strlen(wrap_setting('themes_dir'));
+	else {
+		wrap_error(sprintf('Unable to determine which file this package belongs to: %s', $filename));
+		return [];
+	}
+	$filename = substr($filename, $prefix_len + 1);
+	return [
+		'package' => substr($filename, 0, strpos($filename, '/')),
+		'path' => substr($filename, strpos($filename, '/') + 1)
+	];
+}
