@@ -1451,3 +1451,30 @@ function wrap_page_replace($page) {
 		$page = $function($page);
 	return $page;
 }
+
+/**
+ * check if there are hook functions in other packages
+ *
+ * @param array $settings
+ *		string hook = name of package to look for a hook function
+ * @return array
+ */
+function wrap_hook($settings) {
+	$hook = [];
+	$hook_types = ['init', 'finish'];
+	foreach ($hook_types as $hook_type)
+		$hook[$hook_type] = NULL;
+	if (!array_key_exists('hook', $settings)) return $hook;
+
+	$functions = debug_backtrace();
+	$filename = basename($functions[0]['file']);
+	$filename = substr($filename, 0, strpos($filename, '.'));
+	$files = wrap_include($filename, $settings['hook']);
+	foreach ($files['functions'] as $function) {
+		foreach ($hook_types as $hook_type) {
+			if ($function['short'] === sprintf('%s_%s', $filename, $hook_type))
+				$hook[$hook_type] = $function['function'];
+		}
+	}
+	return $hook;
+}
