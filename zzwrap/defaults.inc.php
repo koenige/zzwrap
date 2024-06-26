@@ -20,18 +20,19 @@
  * @global array $zz_conf		might change in config.inc.php
  * @global array $zz_page		might change in config.inc.php
  */
-function wrap_set_defaults() {
+function wrap_defaults() {
 	global $zz_setting;
 	global $zz_conf;
 	global $zz_page;
 
 	// configuration settings, defaults
-	wrap_set_defaults_paths();
-	wrap_set_defaults_pre_conf();
+	wrap_defaults_paths();
+	wrap_defaults_auto();
+	wrap_defaults_pre_conf();
 	wrap_config_read();
 	if (file_exists($file = wrap_setting('inc').'/config.inc.php'))
 		require_once $file;
-	wrap_set_defaults_post_conf();
+	wrap_defaults_post_conf();
 
 	// module configs, will overwrite standard config
 	wrap_include('./config', 'modules');
@@ -42,7 +43,7 @@ function wrap_set_defaults() {
  *
  * @global array $zz_setting
  */
-function wrap_set_defaults_paths() {
+function wrap_defaults_paths() {
 	global $zz_setting;
 
 // -------------------------------------------------------------------------
@@ -89,10 +90,25 @@ function wrap_set_defaults_paths() {
 }
 
 /**
+ * auto intialise config variables from settings.cfg
+ *
+ */
+function wrap_defaults_auto() {
+	$cfg = wrap_cfg_files('settings');
+	$settings = [];
+	foreach ($cfg as $setting => $definition) {
+		if (empty($definition['auto_init'])) continue;
+		if (empty($definition['default'])) continue;
+		$settings[$setting] = $definition['default'];
+	}
+	wrap_setting_register($settings);
+}
+
+/**
  * Default variables, pre config
  *
  */
-function wrap_set_defaults_pre_conf() {
+function wrap_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 // Hostname
 // -------------------------------------------------------------------------
@@ -310,7 +326,7 @@ function wrap_config_filename($type = 'main') {
  * Default variables, post config
  *
  */
-function wrap_set_defaults_post_conf() {
+function wrap_defaults_post_conf() {
 	// -------------------------------------------------------------------------
 	// Internationalization, Language, Character Encoding
 	// -------------------------------------------------------------------------

@@ -27,7 +27,7 @@ function zzwrap() {
 	wrap_includes();
 	set_error_handler('wrap_error_handler');
 	register_shutdown_function('wrap_shutdown');
-	wrap_set_defaults();
+	wrap_defaults();
 	wrap_restrict_ip();
 	wrap_includes_postconf();
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
