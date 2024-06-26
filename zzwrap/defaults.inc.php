@@ -60,6 +60,19 @@ function wrap_set_defaults_paths() {
 	if (!isset($zz_setting['inc']))
 		$zz_setting['inc'] = $zz_setting['cms_dir'].'/_inc';
 	$zz_setting['inc'] = realpath($zz_setting['inc']);
+	if (!$zz_setting['inc']) {
+		$dir = explode('/', __DIR__);
+		array_pop($dir); // zzwrap
+		array_pop($dir); // zzwrap
+		array_pop($dir); // modules
+		array_pop($dir); // _inc
+		$zz_setting['cms_dir'] = implode('/', $dir);
+		$zz_setting['inc'] = realpath($zz_setting['cms_dir'].'/_inc');
+		if (!$zz_setting['inc']) {
+			echo 'Missing correct `cms_dir`, please set it.';
+			exit;
+		}
+	}
 
 // -------------------------------------------------------------------------
 // System paths
