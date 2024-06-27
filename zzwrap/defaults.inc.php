@@ -55,24 +55,19 @@ function wrap_defaults_paths() {
 		$zz_setting['root_dir'] = $_SERVER['DOCUMENT_ROOT'];
 	if (str_ends_with($zz_setting['root_dir'], '/'))
 		$zz_setting['root_dir'] = substr($zz_setting['root_dir'], 0, -1);
+
 	// includes
-	if (!isset($zz_setting['cms_dir']))
-		$zz_setting['cms_dir'] = realpath($zz_setting['root_dir'].'/..');
+	if (!isset($zz_setting['cms_dir'])) {
+		$dir = explode('/', __DIR__);
+		$dir = array_slice($dir, 0, -4); // _inc/modules/zzwrap/zzwrap
+		$zz_setting['cms_dir'] = implode('/', $dir);
+	}
 	if (!isset($zz_setting['inc']))
 		$zz_setting['inc'] = $zz_setting['cms_dir'].'/_inc';
 	$zz_setting['inc'] = realpath($zz_setting['inc']);
 	if (!$zz_setting['inc']) {
-		$dir = explode('/', __DIR__);
-		array_pop($dir); // zzwrap
-		array_pop($dir); // zzwrap
-		array_pop($dir); // modules
-		array_pop($dir); // _inc
-		$zz_setting['cms_dir'] = implode('/', $dir);
-		$zz_setting['inc'] = realpath($zz_setting['cms_dir'].'/_inc');
-		if (!$zz_setting['inc']) {
-			echo 'Missing correct `cms_dir`, please set it.';
-			exit;
-		}
+		echo 'Missing correct `cms_dir`, please set it.';
+		exit;
 	}
 
 // -------------------------------------------------------------------------
