@@ -793,7 +793,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	static $postdata = false;
 	if ($line === 'postdata') {
 		if ($postdata) return false;
-		$line = sprintf('POST[json] %s', json_encode($_POST));
+		$line = sprintf('POST[json] %s', json_encode($_POST, JSON_INVALID_UTF8_IGNORE));
 		$postdata = true; // just log POST data once per request
 	}
 
