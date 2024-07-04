@@ -373,41 +373,7 @@ function wrap_mail_phpmailer($msg, $list) {
 				$mail->addAttachment($file['path_local'], $file['title'].'.'.$file['extension']);
 		}
 	}
-	foreach ($msg['headers'] as $field_name => $field_body) {
-		if (!$field_body) continue;
-		switch ($field_name) {
-		case 'From':
-			list($from_mail, $from_name) = wrap_mail_split($field_body);
-			$mail->setFrom($from_mail, $from_name);
-			break;
-		case 'Content-Type':
-			if (substr($field_body, 0, 20) === 'text/plain; charset=')
-				$mail->CharSet = substr($field_body, 20);
-			break;
-		case 'MIME-Version':
-		case 'Content-Transfer-Encoding':
-			break;
-		case 'Bcc':
-		case 'BCC':
-			list($this_mail, $this_name) = wrap_mail_split($field_body);
-			$mail->addBCC($this_mail, $this_name);
-			break;
-		case 'Cc':
-		case 'CC':
-			list($this_mail, $this_name) = wrap_mail_split($field_body);
-			$mail->addCC($this_mail, $this_name);
-			break;
-		case 'Reply-To':
-			list($this_mail, $this_name) = wrap_mail_split($field_body);
-			$mail->addReplyTo($this_mail, $this_name);
-			break;
-		case 'Date':
-			break; // never add second Date header, some ISPs don’t like that
-		default:
-			$mail->addCustomHeader($field_name, $field_body);
-			break;
-		}
-	}
+	wrap_mail_phpmailer_headers($mail, $msg['headers']);
 
 	if (!$list) $list[] = $msg;
 	foreach ($list as $item) {
@@ -418,6 +384,8 @@ function wrap_mail_phpmailer($msg, $list) {
 		} else {
 			$mail->Body = $item['message'];
 		}
+		if (!empty($item['headers']))
+			wrap_mail_phpmailer_headers($mail, $item['headers']);
 		$to = wrap_mail_name($item['to']);
 		if (substr_count($to, '@') > 1)
 			// @todo make sure beforehands, that there is no input like
@@ -454,6 +422,50 @@ function wrap_mail_phpmailer($msg, $list) {
 	}
 
 	return true;
+}
+
+/**
+ * set mail headers for phpmailer
+ *
+ * @param object $mail
+ * @param array $headers
+ */
+function wrap_mail_phpmailer_headers(&$mail, $headers) {
+	foreach ($headers as $field_name => $field_body) {
+		if (!$field_body) continue;
+		switch ($field_name) {
+		case 'From':
+			list($from_mail, $from_name) = wrap_mail_split($field_body);
+			$mail->setFrom($from_mail, $from_name);
+			break;
+		case 'Content-Type':
+			if (substr($field_body, 0, 20) === 'text/plain; charset=')
+				$mail->CharSet = substr($field_body, 20);
+			break;
+		case 'MIME-Version':
+		case 'Content-Transfer-Encoding':
+			break;
+		case 'Bcc':
+		case 'BCC':
+			list($this_mail, $this_name) = wrap_mail_split($field_body);
+			$mail->addBCC($this_mail, $this_name);
+			break;
+		case 'Cc':
+		case 'CC':
+			list($this_mail, $this_name) = wrap_mail_split($field_body);
+			$mail->addCC($this_mail, $this_name);
+			break;
+		case 'Reply-To':
+			list($this_mail, $this_name) = wrap_mail_split($field_body);
+			$mail->addReplyTo($this_mail, $this_name);
+			break;
+		case 'Date':
+			break; // never add second Date header, some ISPs don’t like that
+		default:
+			$mail->addCustomHeader($field_name, $field_body);
+			break;
+		}
+	}
 }
 
 /**
