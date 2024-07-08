@@ -337,6 +337,7 @@ function wrap_mail_php($mail, $additional_headers) {
  * for support of using an external SMTP server
  *
  * @param array $msg
+ * @param array $list data for sending several mails
  * @return bool
  */
 function wrap_mail_phpmailer($msg, $list) {
@@ -385,7 +386,7 @@ function wrap_mail_phpmailer($msg, $list) {
 			$mail->Body = $item['message'];
 		}
 		if (!empty($item['headers']))
-			wrap_mail_phpmailer_headers($mail, $item['headers']);
+			wrap_mail_phpmailer_headers($mail, $item['headers'], true);
 		$to = wrap_mail_name($item['to']);
 		if (substr_count($to, '@') > 1)
 			// @todo make sure beforehands, that there is no input like
@@ -429,8 +430,9 @@ function wrap_mail_phpmailer($msg, $list) {
  *
  * @param object $mail
  * @param array $headers
+ * @param int $clear_headers (optional) clear headers
  */
-function wrap_mail_phpmailer_headers(&$mail, $headers) {
+function wrap_mail_phpmailer_headers(&$mail, $headers, $clear_headers = false) {
 	foreach ($headers as $field_name => $field_body) {
 		if (!$field_body) continue;
 		switch ($field_name) {
@@ -462,6 +464,8 @@ function wrap_mail_phpmailer_headers(&$mail, $headers) {
 		case 'Date':
 			break; // never add second Date header, some ISPs don’t like that
 		default:
+			if ($clear_headers)
+				$mail->clearCustomHeader($field_name);
 			$mail->addCustomHeader($field_name, $field_body);
 			break;
 		}
