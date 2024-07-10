@@ -634,7 +634,7 @@ msgid "check MX record for the domain part of each mail address"
 msgstr ""
 
 #: configuration/settings.cfg
-msgid "mail header lines should be separated by \r\n; some postfix versions handle mail internally with \n and replace \n with \r\n for outgoing mail, ending with \r\r\n = CRCRLF"
+msgid "mail header lines should be separated by CRLF; some postfix versions handle mail internally with LF and replace LF with CRLF for outgoing mail, ending with CRCRLF"
 msgstr ""
 
 #: configuration/settings.cfg
@@ -1596,4 +1596,16 @@ msgstr ""
 # Weekdays, abbreviated
 msgctxt "weekday"
 msgid "Sun"
+msgstr ""
+
+#: zzwrap/page.inc.php:147
+msgid "Template <code>%s</code> does not exist."
+msgstr ""
+
+#: zzwrap/page.inc.php:149
+msgid "More than one template with the name <code>%s</code> exists."
+msgstr ""
+
+#: zzwrap/page.inc.php:1311
+msgid "Template %s includes itself"
 msgstr ""
