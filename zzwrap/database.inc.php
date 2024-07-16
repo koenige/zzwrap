@@ -365,7 +365,10 @@ function wrap_db_error_no() {
  * @todo give a more detailed explanation of how function works
  */
 function wrap_db_fetch($sql, $id_field_name = false, $format = false, $error_type = E_USER_ERROR) {
+	static $last_query;
+	if ($sql === 'last_query') return $last_query;
 	$result = wrap_db_query($sql, $error_type);
+	$last_query = $sql;
 	if (!$result) return [];
 
 	$lines = wrap_db_fetch_values($result, $id_field_name, $format);
