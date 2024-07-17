@@ -1107,17 +1107,11 @@ function wrap_redirect_change($url = false) {
 function wrap_htmlout_page($page) {
 	global $zz_page;
 
-	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json')) {
-		$page['text'] = json_encode([
-			$page['content_type_original'] => $page['text'],
-			'title' => $page['pagetitle'],
-			'url' => $page['url'] ?? wrap_setting('request_uri')
-		]);
-	}
+	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json'))
+		$page['text'] = wrap_page_json($page);
 
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
-		if (empty($page['headers'])) $page['headers'] = [];
-		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers']);
+		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers'] ?? []);
 		exit;
 	}
 	
@@ -1226,25 +1220,36 @@ function wrap_htmlout_page($page) {
 		$text = str_replace('%\%\%', '%%%', $text);
 	}
 	if (!empty($page['send_as_json'])) {
-		$output = [
-			'html' => $text,
-			'title' => $page['pagetitle'],
-			'url' => $page['url']
-		];
-		if (!empty($page['data']))
-			foreach ($page['data'] as $key => $data)
-				$output[$key] = $data;
-
-		$json = json_encode($output);
-		if ($output and !$json) {
-			wrap_quit(503, 'JSON error: '.json_last_error_msg());
-			exit;
-		}
-		wrap_send_text($json, 'json', $page['status']);
+		wrap_send_text(wrap_page_json($page, $text), 'json', $page['status']);
 		exit;
 	}
 
 	wrap_send_text($text, 'html', $page['status']);
+}
+
+/**
+ * send page as JSON
+ *
+ * @param array $page
+ * @param string $text (optional)
+ * @return string
+ */
+function wrap_page_json($page, $text = NULL) {
+	$content = $page['content_type_original'] ?? 'html';
+	$output = [
+		$content => $text ?? $page['text'],
+		'title' => $page['pagetitle'],
+		'url' => $page['url'] ?? wrap_setting('request_uri')
+	];
+	if (!empty($page['data']))
+		foreach ($page['data'] as $key => $data)
+			$output[$key] = $data;
+	$json = json_encode($output);
+	if ($output and !$json) {
+		wrap_quit(503, 'JSON error: '.json_last_error_msg());
+		exit;
+	}
+	return $json;
 }
 
 /**
