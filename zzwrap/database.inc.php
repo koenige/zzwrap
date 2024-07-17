@@ -1193,11 +1193,28 @@ function wrap_sql_query($key, $file = 'queries') {
 		}
 		$collected[] = $package.'-'.$filename;
 	}
-	if ($replace_key = wrap_setting('sql_query_key['.$key.']'))
-		$key = $replace_key;
-	if (!array_key_exists($key, $queries)) return '';
-	$queries[$key] = wrap_sql_modify($key, $queries);
-	$queries[$key] = wrap_sql_placeholders($queries[$key]);
+	if (str_ends_with($key, '**')) {
+		foreach (array_keys($queries) as $query_key) {
+			if (!str_starts_with($query_key, substr($key, 0, -2))) continue;
+			$keys[] = $query_key;
+		}
+	} else {
+		$keys = [$key];
+	}
+
+	foreach ($keys as $my_key) {
+		if ($replace_key = wrap_setting('sql_query_key['.$my_key.']'))
+			$my_key = $replace_key;
+		if (!array_key_exists($my_key, $queries)) return '';
+		$queries[$my_key] = wrap_sql_modify($my_key, $queries);
+		$queries[$my_key] = wrap_sql_placeholders($queries[$my_key]);
+	}
+	if (str_ends_with($key, '**')) {
+		$selected_queries = [];
+		foreach ($keys as $my_key)
+			$selected_queries[$my_key] = $queries[$my_key];
+		return $selected_queries;
+	}
 	if (count($queries[$key]) > 1) return $queries[$key];
 	return $queries[$key][0];
 }
