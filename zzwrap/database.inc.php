@@ -1203,10 +1203,11 @@ function wrap_sql_query($key, $file = 'queries') {
 	}
 
 	foreach ($keys as $my_key) {
+		$my_key_new = $my_key; // keep key for replacements
 		if ($replace_key = wrap_setting('sql_query_key['.$my_key.']'))
-			$my_key = $replace_key;
-		if (!array_key_exists($my_key, $queries)) return '';
-		$queries[$my_key] = wrap_sql_modify($my_key, $queries);
+			$my_key_new = $replace_key;
+		if (!array_key_exists($my_key_new, $queries)) return '';
+		$queries[$my_key] = wrap_sql_modify($my_key_new, $queries);
 		$queries[$my_key] = wrap_sql_placeholders($queries[$my_key]);
 	}
 	if (str_ends_with($key, '**')) {
