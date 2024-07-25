@@ -1395,6 +1395,13 @@ function wrap_http_remote_ip() {
 		// do not forward connections that say they're localhost
 		if ($remote_ip === '::1') $remote_ip = '';
 		if (substr($remote_ip, 0, 4) === '127.') $remote_ip = '';
+		if (!filter_var($remote_ip, FILTER_VALIDATE_IP)) {
+			wrap_error(sprintf(
+				'IP spoofing attempt. REMOTE_ADDR: %s, HTTP_X_FORWARDED_FOR: %s'
+				, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_X_FORWARDED_FOR']
+			));
+			$remote_ip = '';
+		}
 		if ($remote_ip) return $remote_ip;
 	}
 	if (empty($_SERVER['REMOTE_ADDR']))
