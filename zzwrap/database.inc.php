@@ -1396,6 +1396,7 @@ function wrap_system_sql($subtree) {
  * _ID LANGUAGES ENG_ with wrap_id('languages', 'eng')
  * _ID LANGUAGES SETTING LANG3_ with wrap_id('languages', wrap_setting('lang3'))
  * _SETTING LANG3_ with wrap_setting('lang3')
+ * _TABLE zzform_logging_ with wrap_sql_table('zzform_logging')
  *
  * @param mixed $queries
  * @return array
@@ -1409,7 +1410,7 @@ function wrap_sql_placeholders($queries) {
 	}
 
 	$pattern_template = '~/\*_%s (.+?)_\*/~';
-	$keywords = ['id', 'setting'];
+	$keywords = ['id', 'setting', 'table'];
 	
 	foreach ($queries as $key => &$query) {
 		$query = wrap_db_prefix($query);
@@ -1453,6 +1454,8 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 				, $keyword, implode(': ', $match)
 			));
 		return $value;
+	case 'table':
+		return wrap_sql_table($match[0]);
 	}
 	return '';
 }
