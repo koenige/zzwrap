@@ -356,7 +356,7 @@ function wrap_page_check_if_error($page) {
 function wrap_get_page() {
 	global $zz_page;
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-		$zz_page['url'] = wrap_check_canonical_hostname($zz_page);
+		$zz_page['url'] = wrap_check_canonical_hostname($zz_page['url']);
 		// redirect will kill POST data
 		// this is a feature, since a POST from a non-accessible URL is not possible
 		wrap_canonical_redirect($zz_page['url']);
