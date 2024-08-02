@@ -722,12 +722,7 @@ function wrap_look_for_placeholders($zz_page, $full_url) {
  */
 function wrap_check_canonical($zz_page, $page) {
 	// canonical hostname?
-	$canonical = wrap_canonical_hostname();
-	if ($canonical AND wrap_setting('hostname') !== $canonical) {
-		$zz_page['url']['full']['host'] = $canonical;
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
-	}
+	$zz_page['url'] = wrap_check_canonical_hostname($zz_page['url']);
 	
 	// if database allows field 'ending', check if the URL is canonical
 	// just for HTML output!
@@ -798,6 +793,23 @@ function wrap_check_canonical($zz_page, $page) {
 }
 
 /**
+ * check if canonical hostname is used
+ *
+ * @param array $url
+ * @return array
+ */
+function wrap_check_canonical_hostname($url) {
+	$canonical = wrap_canonical_hostname();
+	if (!$canonical) return $url;
+	if (wrap_setting('hostname') === $canonical) return $url;
+
+	$url['full']['host'] = $canonical;
+	$url['redirect'] = true;
+	$url['redirect_cache'] = false;
+	return $url;
+}
+
+/**
  * get canonical hostname, care for development server
  *
  * @return string
@@ -839,6 +851,17 @@ function wrap_check_canonical_ending($ending, $url) {
 	$url['redirect'] = true;
 	$url['redirect_cache'] = true;
 	return $url;
+}
+
+/**
+ * redirect to canonical URL or URL with language code
+ *
+ * @param array $url
+ * @return bool
+ */
+function wrap_canonical_redirect($url) {
+	if (empty($url['redirect'])) return false;
+	wrap_redirect(wrap_glue_url($url['full']), 301, $url['redirect_cache']);
 }
 
 /**
