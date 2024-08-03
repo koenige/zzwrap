@@ -3457,6 +3457,7 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	$path = reset($paths);
 	$path = $path['path'];
 	$path = str_replace('*', '/%s', $path);
+	$path = str_replace('//', '/', $path);
 	wrap_setting_write($setting_key, $path);
 	return true;
 }
