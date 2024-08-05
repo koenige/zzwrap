@@ -3453,6 +3453,13 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 			unset($paths[$index]);
 		}
 	}
+
+	if (count($paths) !== 1 AND !str_ends_with($setting_key, '*')) {
+		// check if one ends with asterisk
+		foreach ($paths as $index => $path) {
+			if (strstr($path['content'], $brick.' *')) unset($paths[$index]);
+		}
+	}
 	if (count($paths) !== 1) return false;
 	$path = reset($paths);
 	$path = $path['path'];
