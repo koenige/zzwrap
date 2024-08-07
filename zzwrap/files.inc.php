@@ -147,8 +147,16 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 			continue;
 		$type = in_array($package, $zz_setting['modules']) ? 'modules' : 'themes';
 		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $package, $this_path, $filename);
-		if (file_exists($file))
-			$files[$package] = $file;
+		if (strstr($filename, '*')) {
+			$matches = glob($file);
+			foreach ($matches as $index => $file) {
+				if (str_starts_with(basename($file), '.')) continue;
+				$files[$package.'/'.$index] = $file;
+			}
+		} else {
+			if (file_exists($file))
+				$files[$package] = $file;
+		}
 	}
 
 	if ($custom) {
