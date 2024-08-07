@@ -2575,7 +2575,7 @@ function wrap_setting_log_missing($key, $cfg) {
 	if (!$log_dir AND !empty($cfg['log_dir']['default']))
 		$log_dir = wrap_setting_value_placeholder($cfg['log_dir']['default']);
 	if (!$log_dir) return;
-	error_log(sprintf("Setting %s not found in settings.cfg.\n", $base_key), 3, $log_dir.'/settings.log');
+	error_log(sprintf("%s: Setting %s not found in settings.cfg [%s].\n", date('Y-m-d H:i:s'), $base_key, $_SESSION['username'] ?? wrap_setting('remote_ip')), 3, $log_dir.'/settings.log');
 }
 
 
