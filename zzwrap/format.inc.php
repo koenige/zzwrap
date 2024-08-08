@@ -192,6 +192,19 @@ function wrap_mailto($person, $mail, $attributes = false) {
 }
 
 /**
+ * Format an e-mail link, without name
+ *
+ * @param string $mail
+ * @return string
+ */
+function wrap_mail_format($mail) {
+	$mailto = str_replace('@', '&#64;', urlencode($mail));
+	$mail = str_replace('@', '&#64;', $mail);
+	$output = sprintf('<a href="&#109;&#x61;&#105;&#x6c;t&#111;&#x3a;%s">%s</a>', $mailto, $mail);
+	return $output;
+}
+
+/**
  * Format a date
  *
  * @param string $date
