@@ -1298,7 +1298,6 @@ function wrap_sql_file($filename, $key_separator = '') {
 				$index[$key] = 0;
 			}
 			if ($key_separator) {
-				$line = rtrim($line, ';');
 				$data[$key][$subkey] .= $line.' ';
 			} else {
 				if (str_ends_with($key, '__fields') OR str_ends_with($key, '__table'))
