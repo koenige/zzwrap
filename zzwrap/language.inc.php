@@ -612,17 +612,18 @@ function wrap_translate_field_list($field_key, $db_field) {
 	if (isset($data[$key])) return $data[$key];
 
 	$field = explode('.', $db_field);
+	$field[1] = wrap_db_prefix($field[1]);
 	if (end($field) === '*') {
 		array_pop($field);
 		$sql = 'SELECT translationfield_id, %s AS field_key, field_type
-			FROM %s
+			FROM /*_TABLE default_translationfields _*/
 			WHERE db_name = "%%s" AND table_name = "%%s"';
 	} else {
 		$sql = 'SELECT translationfield_id, %s AS field_key, field_type
-			FROM %s
+			FROM /*_TABLE default_translationfields _*/
 			WHERE db_name = "%%s" AND table_name = "%%s" AND field_name = "%%s"';
 	}
-	$sql = sprintf($sql, $field_key, wrap_sql_table('default_translationfields'));
+	$sql = sprintf($sql, $field_key);
 	$sql = vsprintf($sql, $field);
 	$data[$key] = wrap_db_fetch($sql, ['field_type', 'translationfield_id']);
 	return $data[$key];
@@ -662,9 +663,8 @@ function wrap_translate_url($data) {
 	if (!$field) return $data;
 	
 	$identifiers = [];
-	foreach ($data as $line) {
+	foreach ($data as $line)
 		$identifiers[] = sprintf('/%s', $line['url']);
-	}
 
 	$sql = 'SELECT translation, identifier
 		FROM /*_PREFIX_*/_translations_%s translations
