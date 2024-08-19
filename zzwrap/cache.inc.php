@@ -547,7 +547,7 @@ function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 		foreach ($url['path'] as $index => $path) {
 			$url['path'][$index] = urlencode($path);
 		}
-		$last_path = $url['path'][count($url['path']) - 2];
+		$last_path = $url['path'][count($url['path']) - 2] ?? '';
 		$url['path'] = implode('/', $url['path']);
 		$file .= $base.$url['path'];
 		if (str_ends_with($file, '/')) {
