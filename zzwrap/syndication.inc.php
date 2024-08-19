@@ -128,6 +128,8 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 			// maybe this PHP version does not know how to handle strings
 			// so convert it into an array
 			$object = json_decode('['.$data.']', true);
+			if (!$object)
+				wrap_error(sprintf('Syndication: Cannot convert JSON data %s', $data), E_USER_ERROR);
 			// convert it back to a string
 			if (count($object) == 1 AND isset($object[0]))
 				$object = $object[0];
