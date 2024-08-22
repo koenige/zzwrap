@@ -29,6 +29,8 @@
 function wrap_mail($mail, $list = []) {
 	// multipart?
 	if (!empty($mail['multipart']) AND !wrap_setting('use_library_phpmailer')) {
+		if (empty($mail['multipart']['files'])) $mail['multipart']['files'] = [];
+		if (empty($mail['multipart']['blobs'])) $mail['multipart']['blobs'] = [];
 		foreach ($mail['multipart']['files'] as $index => $file) {
 			if (file_exists($file['path_local'])) {
 				$binary = fread(fopen($file['path_local'], "r"), filesize($file['path_local']));
@@ -36,6 +38,10 @@ function wrap_mail($mail, $list = []) {
 			} else {
 				wrap_error('File not found. '.$file['path_local']);
 			}
+		}
+		foreach ($mail['multipart']['blobs'] as $index => $file) {
+			$file['file_base64_encoded'] = chunk_split(base64_encode($file['blob']));
+			$mail['multipart']['files'][] = $file;
 		}
 		if (!isset($mail['multipart']['text'])) {
 			$mail['multipart']['text'] = $mail['message'];
@@ -372,6 +378,10 @@ function wrap_mail_phpmailer($msg, $list) {
 				$mail->addEmbeddedImage($file['path_local'], $file['cid']);
 			else
 				$mail->addAttachment($file['path_local'], $file['title'].'.'.$file['extension']);
+		}
+		foreach ($mail['multipart']['blobs'] as $index => $file) {
+			$mail-> addStringAttachment($file['blob'], $file['title'].'.'.$file['extension'],
+				PHPMailer\PHPMailer\PHPMailer::ENCODING_BASE64, $file['mime_content_type'].'/'.$file['mime_subtype'], $file['disposition']);
 		}
 	}
 	wrap_mail_phpmailer_headers($mail, $msg['headers']);
