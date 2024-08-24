@@ -54,19 +54,31 @@ function wrap_file_delete_line($file, $lines) {
 /**
  * read custom log files, separated by space
  *
- * @param string $name
+ * @param string $file
  * @param string $action
  * @return array
  */
-function wrap_file_log($name, $action = 'read', $values = []) {
+function wrap_file_log($file, $action = 'read', $values = []) {
 	$data = [];
-	if (!wrap_setting('logfile_'.$name)) return $data;
-	$fields = wrap_setting('logfile_'.$name.'_fields') ?? [];
-	$validity_seconds = wrap_setting('logfile_'.$name.'_validity_in_minutes') * 60;
+	$logprefix = 'logfile_';
+	if (strstr($file, '/')) {
+		list($folder, $name) = explode('/', $file);
+		$logprefix = sprintf('%s_%s', $folder, $logprefix);
+		$folder .= '/';
+	} else {
+		$name = $file;
+		$folder = '';
+	}
+	if (!wrap_setting($logprefix.$name)) return $data;
+	$fields = wrap_setting($logprefix.$name.'_fields') ?? [];
+	$validity_seconds = wrap_setting($logprefix.$name.'_validity_in_minutes') * 60;
 	if (!$validity_seconds) return $data;
 
-	$logfile = sprintf('%s/%s.log', wrap_setting('log_dir'), $name);
-	if (!file_exists($logfile)) touch($logfile);
+	$logfile = sprintf('%s/%s%s.log', wrap_setting('log_dir'), $folder, $name);
+	if (!file_exists($logfile)) {
+		wrap_mkdir(dirname($logfile));
+		touch($logfile);
+	}
 
 	switch ($action) {
 	case 'read':
