@@ -3439,6 +3439,7 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	$params = $params ? http_build_query($params) : '';
 	$params = explode('&', $params);
 	foreach ($params as $param) {
+		if (!$param) continue;
 		// if parameter: only leave pages having this parameter
 		foreach ($paths as $index => $path) {
 			if (strstr($path['content'], $param)) continue;
