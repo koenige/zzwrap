@@ -1785,12 +1785,13 @@ function wrap_sql_statement($sql) {
  * get plural from field name for table
  *
  * @param string $field_name
+ * @param bool $shorten shorten the field name, by cutting part before last _ off
  * @return string
  */
-function wrap_sql_plural($field_name) {
+function wrap_sql_plural($field_name, $shorten = true) {
 	if (str_ends_with($field_name, '_id'))
 		$field_name = substr($field_name, 0, -3);
-	if (strstr($field_name, '_'))
+	if ($shorten AND strstr($field_name, '_'))
 		$field_name = substr($field_name, strrpos($field_name, '_') + 1);
 
 	if (str_ends_with($field_name, 'y')) // country = countries
