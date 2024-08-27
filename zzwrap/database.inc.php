@@ -1780,3 +1780,22 @@ function wrap_sql_statement($sql) {
 		$keyword = $tokens[0];
 	return strtoupper($keyword);
 }
+
+/**
+ * get plural from field name for table
+ *
+ * @param string $field_name
+ * @return string
+ */
+function wrap_sql_plural($field_name) {
+	if (str_ends_with($field_name, '_id'))
+		$field_name = substr($field_name, 0, -3);
+	if (strstr($field_name, '_'))
+		$field_name = substr($field_name, strrpos($field_name, '_') + 1);
+
+	if (str_ends_with($field_name, 'y')) // country = countries
+		return substr($field_name, 0, -1).'ies';
+	if (str_ends_with($field_name, 's')) // class = classes
+		return $field_name.'es';
+	return $field_name.'s';
+}
