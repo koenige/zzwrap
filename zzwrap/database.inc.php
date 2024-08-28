@@ -1307,11 +1307,15 @@ function wrap_sql_file($filename, $key_separator = '') {
 				if (empty($data[$key][$index[$key]])) {
 					$data[$key][$index[$key]] = '';
 				}
-				$data[$key][$index[$key]] .= rtrim($line, ';').' ';
+				$data[$key][$index[$key]] .= $line.' ';
 				if (substr($line, -1) === ';') $index[$key]++;
 			}
 		}
 	}
+	// remove trailing semicola per query
+	foreach ($data as $key => $queries)
+		foreach ($queries as $index => $query)
+			$data[$key][$index] = rtrim(trim($query), ';');
 	return $data;
 }
 
