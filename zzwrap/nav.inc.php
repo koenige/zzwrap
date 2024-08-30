@@ -386,13 +386,18 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 			$item['submenu'] = wrap_menu_out($nav, $id, false, $level + 1, $avoid_duplicates);
 		}
 		$item['menu_'.$menu_name] = true;
+		$item['identifier'] = wrap_filename(substr($item['url'], 1));
 		$menu[] = $item;
 	}
 	$menu['pos'] = $nav[$menu_name]['pos'] ?? false;
 	$menu['level'] = $level;
 	$menu['menu_'.$menu_name] = true;
+	$menu['template'] = 'menu-'.$menu_name;
 	if ($level) $menu['is_submenu'] = true;
-	$output = wrap_template('menu', $menu);
+	if (wrap_template_file($menu['template'], false))
+		$output = wrap_template($menu['template'], $menu);
+	else
+		$output = wrap_template('menu', $menu);
 	if ($avoid_duplicates) {
 		$menus[] = $menu_name;
 	}
