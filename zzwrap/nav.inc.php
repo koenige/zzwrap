@@ -157,8 +157,10 @@ function wrap_menu_navigation() {
  */
 function wrap_menu_webpages() {
 	// no menu query, so we don't have a menu
-	if (!$sql = wrap_sql_query('page_menu')) return []; 
-
+	if (!$sql = wrap_sql_query('page_menu')) return [];
+	
+	if (!wrap_database_table_check('/*_PREFIX_*/webpages_categories')) return [];
+	
 	$menu = [];
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
@@ -168,14 +170,9 @@ function wrap_menu_webpages() {
 		$entries = wrap_menu_shorten($entries, $sql);
 	}
 	foreach ($entries as $line) {
-		if (strstr($line['menu'], ',')) {
-			$mymenus = explode(',', $line['menu']);
-			foreach ($mymenus as $menu_key) {
-				$line['menu'] = $menu_key;
-				if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
-					$menu[$menu_key] = $my_item;
-			}
-		} else {
+		$items = wrap_menu_webpages_category($line['menu']);
+		foreach ($items as $item) {
+			$line['menu'] = $item;
 			if ($my_item = wrap_menu_asterisk_check($line, $menu, $line['menu']))
 				$menu[$line['menu']] = $my_item;
 		}
@@ -196,13 +193,33 @@ function wrap_menu_webpages() {
 				// backwards compatibility
 				$line['top_ids'] = $line['mother_page_id'];
 			}
-			$menu_key = $line['menu'].'-'.$line['top_ids'];
-			// URLs ending in * or */ or *.html are different
-			if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
-				$menu[$menu_key] = $my_item;
+			$items = wrap_menu_webpages_category($line['menu']);
+			foreach ($items as $item) {
+				$menu_key = $item.'-'.$line['top_ids'];
+				// URLs ending in * or */ or *.html are different
+				if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
+					$menu[$menu_key] = $my_item;
+			}
 		}
 	}
 	return $menu;
+}
+
+/**
+ * read all aliases per menu category ID
+ *
+ * @param string $menu
+ * @return array
+ */
+function wrap_menu_webpages_category($menu) {
+	$menu_ids = wrap_category_id('menu', 'list');
+	$menu = explode(',', $menu);
+	$keys = [];
+	foreach ($menu as $category_id) {
+		foreach ($menu_ids as $key => $id)
+			if ($id === $category_id) $keys[] = substr($key, strpos($key, '/') + 1);
+	}
+	return $keys;
 }
 
 /**
