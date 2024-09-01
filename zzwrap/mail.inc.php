@@ -379,7 +379,7 @@ function wrap_mail_phpmailer($msg, $list) {
 			else
 				$mail->addAttachment($file['path_local'], $file['title'].'.'.$file['extension']);
 		}
-		foreach ($mail['multipart']['blobs'] as $index => $file) {
+		if (!empty($msg['multipart']['blobs'])) foreach ($msg['multipart']['blobs'] as $index => $file) {
 			$mail-> addStringAttachment($file['blob'], $file['title'].'.'.$file['extension'],
 				PHPMailer\PHPMailer\PHPMailer::ENCODING_BASE64, $file['mime_content_type'].'/'.$file['mime_subtype'], $file['disposition']);
 		}
