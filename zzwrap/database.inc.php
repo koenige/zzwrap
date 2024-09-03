@@ -1578,11 +1578,11 @@ function wrap_filetype_id($filetype, $action = 'read') {
 function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') {
 	static $data = [];
 
-	if (!wrap_database_table_check('categories', true)) return [];
+	if (!wrap_database_table_check('categories', true)) return NULL;
 
 	if (empty($data[$table])) {
 		$data[$table] = wrap_id_read($table, $sql);
-		if (!$data[$table]) return [];
+		if (!$data[$table]) return NULL;
 	}
 
 	switch ($action) {
@@ -1625,8 +1625,10 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 function wrap_id_read($table, $sql) {
 	if (!$sql) {
 		$queries = wrap_system_sql('ids');
-		if (array_key_exists($table, $queries)) {
+		if (array_key_exists($table, $queries) AND $queries[$table]) {
 			$sql = $queries[$table];
+			$sql_table = wrap_edit_sql($sql, 'FROM', false, 'list');
+			if (!wrap_database_table_check($sql_table[0])) return [];
 		} else {
 			wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
 			return [];
@@ -1697,6 +1699,8 @@ function wrap_id_tree($table, $path) {
  * @return bool true: exists (or go on with code, won’t check)
  */
 function wrap_database_table_check($table, $only_if_install = false) {
+	static $table_exists = [];
+	if (array_key_exists($table, $table_exists)) return $table_exists[$table] ? true : false;
 	if ($only_if_install AND empty($_SESSION['cms_install'])) return true;
 	$table = wrap_db_prefix_remove($table);
 	$table = wrap_db_prefix(sprintf('/*_PREFIX_*/%s', $table));
@@ -1705,10 +1709,9 @@ function wrap_database_table_check($table, $only_if_install = false) {
 	$database = wrap_db_fetch($sql, '', 'single value');
 	if (!$database) return false;
 	
-	$sql = 'SHOW TABLES LIKE "%s"';
-	$sql = sprintf($sql, $table);
-	$table_exists = wrap_db_fetch($sql);
-	if (!$table_exists) return false;
+	$sql = 'SHOW TABLES';
+	$table_exists += wrap_db_fetch($sql, '_dummy_', 'single value');
+	if (!$table_exists[$table]) return false;
 	return true;
 }
 
