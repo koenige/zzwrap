@@ -1314,8 +1314,14 @@ function wrap_sql_file($filename, $key_separator = '') {
 	}
 	// remove trailing semicola per query
 	foreach ($data as $key => $queries)
-		foreach ($queries as $index => $query)
-			$data[$key][$index] = rtrim(trim($query), ';');
+		foreach ($queries as $index => $query) {
+			if (is_array($query)) {
+				foreach ($query as $subindex => $subquery)
+					$data[$key][$index][$subindex] = rtrim(trim($subquery), ';');
+			} else {
+				$data[$key][$index] = rtrim(trim($query), ';');
+			}
+		}
 	return $data;
 }
 
