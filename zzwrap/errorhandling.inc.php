@@ -650,6 +650,9 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	// there's always a path if referer is created by browser
 	if (empty($referer['path'])) return false;
 
+	// some people are too lazy to replace placeholders for host names
+	if (!filter_var($referer['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) return false;
+	
 	// referer from external domain?
 	$external_request = false;
 	if (strtolower(wrap_setting('hostname')) !== strtolower($referer['host'])) {
