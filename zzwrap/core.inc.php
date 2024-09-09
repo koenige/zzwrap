@@ -3461,9 +3461,16 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 			if (strstr($path['content'], $brick.' *')) unset($paths[$index]);
 		}
 	}
-	if (count($paths) !== 1) return false;
-	$path = reset($paths);
-	$path = $path['path'];
+	if (count($paths) !== 1) {
+		$brick = explode(' ', $brick);
+		if (count($brick) !== 2) return false;
+		if ($brick[0] !== 'tables') return false;
+		$path = wrap_path('default_tables', $brick[1]);
+		if (!$path) return false;
+	} else {
+		$path = reset($paths);
+		$path = $path['path'];
+	}
 	$path = str_replace('*', '/%s', $path);
 	$path = str_replace('//', '/', $path);
 	wrap_setting_write($setting_key, $path);
