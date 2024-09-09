@@ -386,7 +386,7 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 			$item['submenu'] = wrap_menu_out($nav, $id, false, $level + 1, $avoid_duplicates);
 		}
 		$item['menu_'.$menu_name] = true;
-		$item['identifier'] = wrap_filename(substr($item['url'], 1));
+		$item['identifier'] = $item['url'] ? wrap_filename(substr($item['url'], 1)) : $item['id'];
 		$menu[] = $item;
 	}
 	$menu['pos'] = $nav[$menu_name]['pos'] ?? false;
