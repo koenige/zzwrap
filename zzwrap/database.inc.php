@@ -1717,7 +1717,7 @@ function wrap_database_table_check($table, $only_if_install = false) {
 	
 	$sql = 'SHOW TABLES';
 	$table_exists += wrap_db_fetch($sql, '_dummy_', 'single value');
-	if (!$table_exists[$table]) return false;
+	if (!array_key_exists($table, $table_exists)) return false;
 	return true;
 }
 
