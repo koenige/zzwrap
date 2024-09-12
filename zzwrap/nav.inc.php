@@ -183,6 +183,7 @@ function wrap_menu_webpages() {
 	// get second (and third or fourth) hierarchy level
 	$levels = [2, 3, 4];
 	foreach ($levels as $level) {
+		if (!wrap_setting('menu_level_'.$level)) continue;
 		if (!$sql = wrap_sql_query('page_menu_level'.$level)) continue;
 		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
 		$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
