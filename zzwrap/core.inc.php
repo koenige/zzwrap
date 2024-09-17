@@ -2789,6 +2789,12 @@ function wrap_job_finish($job, $type, $content) {
 	
 	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
 		$content['text'] = json_decode($content['text']);
+	if (!empty($_POST['job_logfile_result'])) {
+		wrap_include('file', 'zzwrap');
+		wrap_file_log($_POST['job_logfile_result'], 'write', [time(), $content['extra']['job'] ?? 'job', json_encode($content['data'] ?? $content['text'])]);
+	}
+	if (!empty($_POST['job_url_next']))
+		wrap_trigger_protected_url($_POST['job_url_next'], wrap_username($job['username'] ?? '', false));
 	
 	mod_default_make_jobmanager_finish($job, $content['status'] ?? 200, $content['text']);
 }
