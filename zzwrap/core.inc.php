@@ -2880,8 +2880,7 @@ function wrap_trigger_url($url) {
  * @return array from wrap_syndication_retrieve_via_http()
  */
 function wrap_trigger_protected_url($url, $username = false, $send_lock = true, $data = []) {
-	if (!$username)
-		$username = wrap_setting('log_username');
+	$username = wrap_username($username, false);
 	if (wrap_setting('log_trigger')) {
 		$logfile = wrap_setting('log_trigger') === true ? '' : wrap_setting('log_trigger');
 		wrap_log(
@@ -2909,7 +2908,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
  */
 
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
-	if (!$username) $username = wrap_username();
+	$username = wrap_username($username, false);
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	// localhost: JSON
@@ -3796,12 +3795,14 @@ function wrap_filetypes_array($filetypes) {
 /**
  * username inside system
  *
- * @param array $register (optional)
+ * @param string $username (optional)
+ * @param bool $add_suffix (optional)
  * @return string
  */
-function wrap_username() {
-	$username = '';
-	if (wrap_setting('log_username'))
+function wrap_username($username = '', $add_suffix = true) {
+	if ($username)
+		$username = $username;
+	elseif (wrap_setting('log_username'))
 		$username = wrap_setting('log_username');
 	elseif (!empty($_SESSION['username']))
 		$username = $_SESSION['username'];
@@ -3811,9 +3812,15 @@ function wrap_username() {
 		$username = wrap_setting('log_username_default');
 	
 	// suffix?
-	if ($suffix = wrap_setting('log_username_suffix'))
-		if ($username) $username = sprintf('%s (%s)', $username, $suffix);
-		else $username = wrap_setting('log_username_suffix');
+	if ($suffix = wrap_setting('log_username_suffix')) {
+		// remove existing
+		$suffix_end = sprintf(' (%s)', $suffix);
+		if ($username AND str_ends_with($username, $suffix_end))
+			$username = substr($username, 0, strlen($suffix_end));
+		// add new in case there is one
+		if ($username AND $add_suffix) $username = sprintf('%s (%s)', $username, $suffix);
+		elseif (!$username) $username = wrap_setting('log_username_suffix');
+	}
 
 	return $username;
 }
