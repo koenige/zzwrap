@@ -399,7 +399,7 @@ function cms_login($params, $settings = []) {
 				$user .= "\n";
 			} else {
 				// Log failed login name in user name column, once.
-				wrap_setting('log_username', $user);
+				wrap_setting('log_username', sprintf('%s (IP: %s)', $user, wrap_setting('remote_ip')));
 				$user = '';
 			}
 			$error_settings = [
