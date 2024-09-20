@@ -560,7 +560,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 					if (!empty($tl['source_language'])) {
 						// language information if inside query, otherwise existing information
 						// in $data will be left as is
-						$data[$tl_id]['wrap_source_language'][$field_name] = $tl['source_language'];
+						$data[$tl_id]['wrap_source_language'][$field_name] = wrap_sql_placeholders($tl['source_language']);
 						$data[$tl_id]['wrap_source_content'][$field_name] = $data[$tl_id][$field_name];
 					}
 					// only save fields that already existed beforehands
