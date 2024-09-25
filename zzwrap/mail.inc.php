@@ -631,6 +631,8 @@ function wrap_mail_reply_to($headers) {
 	if ($from['e_mail'] === $e_mail) return $headers;
 	$headers['From'] = $from;
 	if (empty($headers['Reply-To'])) {
+		// might be empty string if generated via template
+		if (isset($headers['Reply-To'])) $headers['Reply-To'] = [];
 		$headers['Reply-To']['e_mail'] = $headers['From']['e_mail'];
 		$headers['Reply-To']['name'] = $headers['From']['name'];
 	}
