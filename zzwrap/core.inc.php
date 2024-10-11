@@ -664,6 +664,7 @@ function wrap_look_for_file($url_path) {
  * @return string
  */
 function wrap_file_extension($file) {
+	if (!strstr($file, '.')) return NULL;
 	$file = explode('.', $file);
 	return array_pop($file);
 }
