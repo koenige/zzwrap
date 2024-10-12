@@ -1588,7 +1588,7 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 
 	if (empty($data[$table])) {
 		$data[$table] = wrap_id_read($table, $sql);
-		if (!$data[$table]) return NULL;
+		if (!$data[$table]) return []; // array, eases check
 	}
 
 	switch ($action) {
