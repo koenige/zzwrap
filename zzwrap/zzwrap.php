@@ -159,13 +159,17 @@ function wrap_ressource_by_url($zz_page, $quit = true) {
 	} else {
 		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
 		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
-		if (!empty($_GET['lang']))
+		if (!empty($_GET['lang'])) {
+			if (!preg_match('/^[a-z]{2}(-[A-Z]{2})?$/', $_GET['lang'])) wrap_quit();
+			// @todo the following check is not a good solution since languages_2c is only
+			// used on systems with languages with three letters
 			if (in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list'))))
 				wrap_setting('lang', $_GET['lang']);
 			elseif (in_array($_GET['lang'], array_keys(wrap_id('languages_2c', '', 'list'))))
 				wrap_setting('lang', $_GET['lang']);
 			else
 				wrap_quit();
+		}
 		if (!empty($_GET)) {
 			$cacheable = ['lang'];
 			foreach (array_keys($_GET) as $key) {
