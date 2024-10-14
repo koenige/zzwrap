@@ -2423,6 +2423,7 @@ function wrap_get_setting($key, $login_id = 0) {
 	global $zz_setting;
 
 	$cfg = wrap_cfg_files('settings');
+	if (!$login_id AND $value = wrap_get_setting_local($key, $cfg)) return $value;
 
 	// check if in settings.cfg
 	wrap_setting_log_missing($key, $cfg);
@@ -2484,6 +2485,25 @@ function wrap_get_setting($key, $login_id = 0) {
 		if (isset($zz_setting[$key])) return $zz_setting[$key];
 	}
 	return NULL;
+}
+
+/**
+ * check if a local setting is available
+ * ending with _local
+ *
+ * @param string $key
+ * @param array $cfg
+ * @return mixed
+ */
+function wrap_get_setting_local($key, $cfg) {
+	global $zz_setting;
+	if (empty($zz_setting['local_access'])) return NULL;
+	$parts = explode('[', $key);
+	if (str_ends_with($parts[0], '_local')) return NULL; // is already local
+	$parts[0] .= '_local';
+	$key = implode('[', $parts);
+	if (!array_key_exists($key, $cfg)) return NULL;
+	return wrap_get_setting($key);
 }
 
 /**
