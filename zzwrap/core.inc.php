@@ -2498,6 +2498,11 @@ function wrap_get_setting($key, $login_id = 0) {
 function wrap_get_setting_local($key, $cfg) {
 	global $zz_setting;
 	if (empty($zz_setting['local_access'])) return NULL;
+
+	static $keys = [];
+	if (in_array($key, $keys)) return NULL; // already tried
+	$keys[] = $key;
+
 	$parts = explode('[', $key);
 	if (str_ends_with($parts[0], '_local')) return NULL; // is already local
 	$parts[0] .= '_local';
