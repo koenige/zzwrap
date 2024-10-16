@@ -614,6 +614,7 @@ function wrap_errorpage_logignore() {
 
 	// access without USER_AGENT will be ignored, badly programmed script
 	if (empty($_SERVER['HTTP_USER_AGENT'])) return true;
+	if (!preg_match('/^[\x20-\x7E]+$/', $_SERVER['HTTP_USER_AGENT'])) return true;
 	
 	// hostname is IP
 	if (!empty($_SERVER['SERVER_ADDR']) AND wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
