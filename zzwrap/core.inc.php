@@ -939,7 +939,7 @@ function wrap_glue_url($url) {
  * @return string
  */
 function wrap_build_url($parts) {
-	$url = $parts['scheme'].':'
+	$url = (!empty($parts['scheme']) ? $parts['scheme'].':' : '')
 		.(!empty($parts['host']) ? '//' : '')
 		.(!empty($parts['user']) ? $parts['user']
 			.(!empty($parts['pass']) ? ':'.$parts['pass'] : '').'@' : '')
@@ -1715,7 +1715,7 @@ function wrap_url_decode($input, $type = 'path') {
 	if (hexdec($codepoint) < hexdec('20')) return '%'.$codepoint;
 	if (hexdec($codepoint) > hexdec('7E')) return '%'.$codepoint;
 	$dont_encode = [
-		'20', '22', '23', '25', '2F',
+		'20', '22', '23', '2F',
 		'3C', '3E', '3F',
 		'5C', '5E',
 		'60',
@@ -1723,6 +1723,7 @@ function wrap_url_decode($input, $type = 'path') {
 	];
 	switch ($type) {
 	case 'path':
+		$dont_encode[] = '25'; // /
 		$dont_encode[] = '5B';
 		$dont_encode[] = '5D';
 		break;
