@@ -470,7 +470,7 @@ function cms_login($params, $settings = []) {
 	];
 	if (isset($_GET['password'])) {
 		$page['text'] = wrap_template('login-password', $loginform);
-		$page['breadcrumbs'][] = sprintf('<a href="./">%s</a>', wrap_text('Login'));
+		$page['breadcrumbs'][] = ['title' => wrap_text('Login'), 'url_path' => './'];
 		$page['breadcrumbs'][]['title'] = wrap_text('Request password');
 	} elseif (isset($_GET['via'])) {
 		$page['status'] = 403;
