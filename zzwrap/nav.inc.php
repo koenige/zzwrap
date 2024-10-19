@@ -13,7 +13,6 @@
  *	wrap_menu_out()				-- outputs menu in HTML
  *	wrap_breadcrumbs_read()		-- gets breadcrumbs from database
  *		wrap_breadcrumbs_read_recursive()	-- recursively gets breadcrumbs
- *	wrap_breadcrumbs_out()		-- outputs breadcrumbs in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2024 Gustaf Mossakowski
@@ -442,7 +441,8 @@ function wrap_breadcrumbs($page) {
 		$breadcrumbs[]['title'] = wrap_text($status['text']);
 	}
 	$breadcrumbs = array_merge($breadcrumbs, $page_breadcrumbs);
-	return wrap_breadcrumbs_out($breadcrumbs);
+	$breadcrumbs = wrap_breadcrumbs_prepare($breadcrumbs);
+	return wrap_template('breadcrumbs', $breadcrumbs);
 }
 
 /**
@@ -548,60 +548,66 @@ function wrap_breadcrumbs_read_recursive($page_id, &$pages) {
 }
 
 /**
- * Creates HTML output of breadcrumbs
- * 
+ * check different deprecated notations for breadcrumbs and rewrite these
+ * remove links that are just placeholders
+ *
  * @param array $breadcrumbs
- * @return string HTML output, plain linear, of breadcrumbs
+ * @return array
  */
- function wrap_breadcrumbs_out($breadcrumbs) {
-	// set default values
-	$base = wrap_nav_base();
-
-	// format breadcrumbs
-	$formatted_breadcrumbs = [];
-	foreach ($breadcrumbs as $crumb) {
-		if (!is_array($crumb)) { // from $brick_breadcrumbs
-			$formatted_breadcrumbs[] = $crumb;
-			continue;
-		}
-		if (array_key_exists('linktext', $crumb)) {
+function wrap_breadcrumbs_prepare($breadcrumbs) {
+	$new = [];
+	foreach ($breadcrumbs as $index => $breadcrumb) {
+		if (!is_array($breadcrumb)) {
+			preg_match('/<a href="(.+)">(.+)<\/a>/', $breadcrumb, $matches);
+			if (count($matches) === 3) {
+				$new[$index] = [
+					'title' => $matches[2],
+					'url_path' => $matches[1]
+				];
+			} else {
+				wrap_error(wrap_text('Unable to parse this breadcrumb : %s', ['values' => [$breadcrumb]]));
+				$new[$index] = [
+					'html' => $breadcrumb
+				];
+			}
+		} elseif (array_key_exists('linktext', $breadcrumb)) {
 			// @deprecated notation
-			$crumb = [
-				'url_path' => $crumb['url'] ?? '',
+			$new[$index] = [
 				'title' => $crumb['linktext'],
+				'url_path' => $crumb['url'] ?? '',
 				'title_attr' => $crumb['title'] ?? ''
 			];
 			wrap_error('Use notation with `title` and `url_path` instead of `linktext` and `url`', E_USER_DEPRECATED);
+		} else {
+			$new[$index] = $breadcrumb;
 		}
-		// don't show placeholder paths
-		if (!isset($crumb['url_path'])) $crumb['url_path'] = '';
-		$paths = explode('/', $crumb['url_path']);
-		foreach ($paths as $path) {
-			if (substr($path, 0, 1) === '%' AND substr($path, -1) === '%') continue 2;
+		if (!empty($breadcrumb['url_path'])) {
+			$link = wrap_breadcrumbs_link($breadcrumb['url_path']);
+			if (is_null($link)) unset($new[$index]);
+			else $new[$index]['url_path'] = $link;
 		}
-		if ($crumb['url_path']) $crumb['url_path'] = $base.$crumb['url_path'];
-		$current = ($crumb['url_path'] === wrap_setting('request_uri') ? true : false);
-		if ($current) $crumb['url_path'] = '';
-
-		if ($crumb['url_path'] AND !empty($crumb['title_attr']))
-			$formatted_breadcrumbs[] = sprintf('<a href="%s" title="%s">%s</a>',
-				$crumb['url_path'], $crumb['title_attr'], $crumb['title']
-			);
-		elseif ($crumb['url_path'])
-			$formatted_breadcrumbs[] = sprintf('<a href="%s">%s</a>',
-				$crumb['url_path'], $crumb['title']
-			);
-		elseif (!empty($crumb['title_attr']))
-			$formatted_breadcrumbs[] = sprintf('<strong title="%s">%s</strong>',
-				$crumb['title_attr'], $crumb['title']
-			);
-		else
-			$formatted_breadcrumbs[] = sprintf('<strong>%s</strong>', $crumb['title']);
 	}
-	if (!$formatted_breadcrumbs) return '';
-	return implode(' '.wrap_setting('breadcrumbs_separator').' ', $formatted_breadcrumbs);
+	return $new;
 }
 
+/**
+ * do some link checks for breadcrumbs, add base if applicable
+ *
+ * @param string $url_path
+ * @return mixed
+ */
+function wrap_breadcrumbs_link($url_path) {
+	// don't show placeholder paths
+	$paths = explode('/', $url_path);
+	foreach ($paths as $path)
+		if (str_starts_with($path, '%') AND str_ends_with($path, '%')) return NULL;
+	if (str_starts_with($url_path, '.')) return $url_path;
+
+	$url_path = wrap_nav_base().$url_path;
+	$current = ($url_path === wrap_setting('request_uri') ? true : false);
+	if ($current) return '';
+	return $url_path;
+}
 
 //
 //	common functions
