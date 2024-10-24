@@ -871,9 +871,12 @@ function wrap_shutdown() {
  * @param int $line
  * @return bool
  */
-function wrap_error_handler($type, $message, $file, $line) {
+function wrap_error_handler($type = 0, $message = '', $file = '', $line = 0) {
+	static $last_error = [];
+	if ($type === 'last_error') return $last_error;
 	if (!strstr($message, $file))
 		$message = sprintf('%s in %s:%d', $message, $file, $line);
+	$last_error = ['type' => $type, 'message' => $message, 'file' => $file, 'line' => $line];
 	wrap_error($message, $type);
 	return true;
 }
