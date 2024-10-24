@@ -41,7 +41,7 @@ function wrap_session_start() {
 	// Cookie: httpOnly, i. e. no access for JavaScript if browser supports this
 	$last_error = false;
 	session_set_cookie_params(0, '/', wrap_setting('hostname'), wrap_setting('session_secure_cookie'), true);
-	$last_error = error_get_last();
+	$last_error = wrap_error_handler('last_error');
 	// don't collide with other PHPSESSID on the same server, set own name:
 	session_name('zugzwang_sid');
 	// check if not illegal characters in session cookie
@@ -56,7 +56,7 @@ function wrap_session_start() {
 	// only throw 503 error if authentication is a MUST HAVE
 	// otherwise, page might still be accessible without authentication
 	if (wrap_setting('authentication_possible') AND wrap_authenticate_url()) {
-		$session_error = error_get_last();
+		$session_error = wrap_error_handler('last_error');
 		if ($last_error != $session_error
 			AND str_starts_with($session_error['message'], 'session_start()')) {
 			wrap_error('Session start not possible: '.json_encode($session_error));
