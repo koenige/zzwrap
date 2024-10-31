@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/projects/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2023 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2024 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -84,8 +84,11 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	$packages = [];
 	$custom = false;
 	$files = [];
+	$media = false;
 
 	switch ($search) {
+	case 'media/custom/modules/themes':
+		$media = true;
 	case 'modules/themes/custom':
 	case 'custom/modules/themes':
 		$packages = $zz_setting['themes'];
@@ -164,11 +167,27 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		$this_path = $path ? $path : 'custom';
 		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
 		if (file_exists($file)) {
-			if (str_starts_with($search, 'custom/')) {
+			if (str_starts_with($search, 'custom/')
+				OR str_starts_with($search, 'media/custom/')) {
 				$files = array_merge(['custom' => $file], $files);
 			} else {
 				$files['custom'] = $file;
 			}
+		}
+	}
+	if ($media AND wrap_setting('media_folder')) {
+		if ($extension = wrap_setting('media_original_filename_extension')) {
+			$filename = explode('.', $filename);
+			array_splice($filename, count($filename) - 1, 0, $extension);
+			$filename = implode('.', $filename);
+		}
+		if ($path)
+			$file = sprintf('%s/%s/%s', wrap_setting('media_folder'), $path, $filename);
+		else
+			$file = sprintf('%s/%s', wrap_setting('media_folder'), $filename);
+		if (file_exists($file)) {
+			// @todo support `media` at other positions than first
+			$files = array_merge(['media' => $file], $files);
 		}
 	}
 
