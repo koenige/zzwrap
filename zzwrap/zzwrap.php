@@ -95,7 +95,7 @@ function zzwrap() {
 		wrap_auth();
 		wrap_access_page($zz_page['db']['parameters'] ?? []);
 	}
-	wrap_check_https($zz_page);
+	wrap_https_check($zz_page);
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)

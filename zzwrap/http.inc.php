@@ -78,3 +78,70 @@ function wrap_http_request_method() {
 	}
 	wrap_quit(501); // 501 Not Implemented
 }
+
+/**
+ * check if server (or proxy server) uses https
+ *
+ * @return bool
+ */
+function wrap_https() {
+	if (array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER))
+		if ($_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') return true;
+	if (array_key_exists('HTTPS', $_SERVER))
+		if ($_SERVER['HTTPS'] === 'on') return true;
+	return false;
+}
+
+/**
+ * Checks if HTTP request should be HTTPS request instead and vice versa
+ * 
+ * Function will redirect request to the same URL except for the scheme part
+ * Attention: POST variables will get lost
+ * @param array $zz_page Array with full URL in $zz_page['url']['full'], 
+ *		this is the result of parse_url()
+ * @return redirect header
+ */
+function wrap_https_check($zz_page) {
+	// if it doesn't matter, get out of here
+	if (wrap_setting('ignore_scheme')) return true;
+	foreach (wrap_setting('ignore_scheme_paths') as $path) {
+		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
+	}
+
+	// change from http to https or vice versa
+	// attention: $_POST will not be preserved
+	if (wrap_https()) {
+		if (wrap_setting('protocol') === 'https') return true;
+		// if user is logged in, do not redirect
+		if (!empty($_SESSION)) return true;
+	} else {
+		if (wrap_setting('protocol') === 'http') return true;
+	}
+	$url = $zz_page['url']['full'];
+	$url['scheme'] = wrap_setting('protocol');
+	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
+	exit;
+}
+
+/**
+ * redirects to https URL, only if explicitly called
+ *
+ * @global array $zz_page
+ * @return bool
+ * @deprecated all websites should use https
+ */
+function wrap_https_redirect() {
+	global $zz_page;
+
+	// access must be possible via both http and https
+	// check to avoid infinite redirection
+	if (!wrap_setting('ignore_scheme')) return false;
+	// connection is already via https?
+	if (wrap_setting('https')) return false;
+	// local connection?
+	if (wrap_setting('local_access') AND !wrap_setting('local_https')) return false;
+
+	$url = $zz_page['url']['full'];
+	$url['scheme'] = 'https';
+	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
+}
