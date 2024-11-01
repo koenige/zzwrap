@@ -144,9 +144,9 @@ function wrap_auth_logged_in($now) {
 	if (isset($_SESSION['domain'])) {
 		if (in_array($_SESSION['domain'], wrap_setting('domains'))) return true;
 		// is it just not the canonical hostname?
-		$canonical_hostname = wrap_canonical_hostname();
+		$canonical_hostname = wrap_url_canonical_hostname();
 		if ($canonical_hostname
-			AND wrap_setting('hostname') !== wrap_canonical_hostname()
+			AND wrap_setting('hostname') !== wrap_url_canonical_hostname()
 			AND $_SESSION['domain'] === $canonical_hostname
 		) return true;
 		return false;
