@@ -1176,19 +1176,6 @@ function wrap_localhost_ip() {
 }
 
 /**
- * restrict access to website per IP
- *
- * @return void
- */
-function wrap_restrict_ip() {
-	if (!$access_restricted_ips = wrap_setting('access_restricted_ips')) return;
-	if (!in_array(wrap_setting('remote_ip'), $access_restricted_ips)) return;
-	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('layout_path'))) return;
-	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('behaviour_path'))) return;
-	wrap_quit(403, wrap_text('Access to this website for your IP address is restricted.'));
-}
-
-/**
  * Checks if HTTP request should be HTTPS request instead and vice versa
  * 
  * Function will redirect request to the same URL except for the scheme part
@@ -1252,80 +1239,6 @@ function wrap_https_redirect() {
 	$url = $zz_page['url']['full'];
 	$url['scheme'] = 'https';
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
-}
-
-
-/**
- * checks the HTTP request made, builds URL
- * sets language according to URL and request
- *
- * @global array $zz_page
- */
-function wrap_check_request() {
-	global $zz_page;
-
-	// check Accept Header
-	if (wrap_send_as_json()) {
-		wrap_setting('cache_extension', 'json');
-		wrap_setting('send_as_json', true);
-	}
-
-	// check REQUEST_METHOD, quit if inappropriate
-	wrap_check_http_request_method();
-
-	// check if REMOTE_ADDR is valid IP
-	if (!filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
-		wrap_quit(400, sprintf('Request with a malformed IP address: %s', wrap_html_escape($_SERVER['REMOTE_ADDR'])));
-
-	// check REQUEST_URI
-	wrap_url_encode();
-	wrap_url_slashes();
-	wrap_url_read();
-	wrap_url_forwarded();
-	wrap_url_check();
-
-	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
-	
-	// get rid of unwanted query strings, set redirect if necessary
-	$zz_page['url'] = wrap_url_remove_query_strings($zz_page['url']);
-
-	// check language
-	wrap_set_language();
-
-	// Relative linking
-	wrap_url_relative();
-}
-
-/**
- * determine whether to send content in JSON format
- *
- * @return bool
- */
-function wrap_send_as_json() {
-	if (!empty($_SERVER['HTTP_ACCEPT']) AND $_SERVER['HTTP_ACCEPT'] === 'application/json') return true;
-	if (!empty($_SERVER['REMOTE_ADDR']) AND $_SERVER['REMOTE_ADDR'] === wrap_setting('cron_ip')) return true;
-	return false;
-}
-
-/**
- * Test HTTP REQUEST method
- * 
- * @return void
- */
-function wrap_check_http_request_method() {
-	if (in_array($_SERVER['REQUEST_METHOD'], wrap_setting('http[allowed]'))) {
-		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'OPTIONS') return true;
-		if (wrap_is_dav_url()) return true;
-		// @todo allow checking request methods depending on ressources
-		// e. g. GET only ressources may forbid POST
-		header('Allow: '.implode(',', wrap_setting('http[allowed]')));
-		header('Content-Length: 0');
-		exit;
-	}
-	if (in_array($_SERVER['REQUEST_METHOD'], wrap_setting('http[not_allowed]'))) {
-		wrap_quit(405);	// 405 Not Allowed
-	}
-	wrap_quit(501); // 501 Not Implemented
 }
 
 /*

@@ -28,7 +28,7 @@ function zzwrap() {
 	set_error_handler('wrap_error_handler');
 	register_shutdown_function('wrap_shutdown');
 	wrap_defaults();
-	wrap_restrict_ip();
+	wrap_http_restrict_ip();
 	wrap_includes_postconf();
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
 
@@ -36,7 +36,12 @@ function zzwrap() {
 	wrap_include('_functions', 'custom/modules/themes');
 
 	// check HTTP request, build URL, set language according to URL and request
-	wrap_check_request(); // affects $zz_page
+	wrap_http_check_request();
+	wrap_url_prepare(); // affects $zz_page
+	// check language
+	wrap_language_set();
+	// Relative linking
+	wrap_url_relative();
 
 	// page offline?
 	if (wrap_setting('site_offline')) {
@@ -132,6 +137,7 @@ function wrap_includes() {
 	require_once __DIR__.'/format.inc.php';
 	require_once __DIR__.'/defaults.inc.php';
 	require_once __DIR__.'/files.inc.php';
+	require_once __DIR__.'/http.inc.php';
 	require_once __DIR__.'/url.inc.php';
 	require_once __DIR__.'/session.inc.php';
 	if (file_exists(__DIR__.'/compatibility.inc.php'))

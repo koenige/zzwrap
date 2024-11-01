@@ -23,7 +23,7 @@
  *		'url', 'redirect'
  * @return bool true: ok.
  */
-function wrap_set_language() {
+function wrap_language_set() {
 	global $zz_page;
 
 	// check for language code in URL

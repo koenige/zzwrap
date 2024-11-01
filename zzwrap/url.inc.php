@@ -14,6 +14,25 @@
 
 
 /**
+ * read and prepare URL
+ */
+function wrap_url_prepare() {
+	global $zz_page;
+
+	// check REQUEST_URI
+	wrap_url_encode();
+	wrap_url_slashes();
+	wrap_url_read();
+	wrap_url_forwarded();
+	wrap_url_check();
+
+	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
+	
+	// get rid of unwanted query strings, set redirect if necessary
+	$zz_page['url'] = wrap_url_remove_query_strings($zz_page['url']);
+}
+
+/**
  * sometimes, Apache decodes URL parts, e. g. %E2 is changed to a latin-1
  * character, encode that again
  *
