@@ -1216,50 +1216,6 @@ function wrap_log_uri($status = 0) {
 	return true;
 }
 
-/**
- * Get rid of unwanted query strings
- * 
- * since we do not use session-IDs in the URL, get rid of these since sometimes
- * they might be used for session_start()
- * e. g. GET http://example.com/?PHPSESSID=5gh6ncjh00043PQTHTTGY%40DJJGV%5D
- * @param array $url ($zz_page['url'])
- * @param array $objectionable_qs key names of query strings
- * @todo get objectionable querystrings from setting
- */
-function wrap_remove_query_strings($url, $objectionable_qs = []) {
-	if (empty($url['full']['query'])) return $url;
-
-	// ignore_query_string = query string is ignored, without redirect
-	$ext = wrap_file_extension($url['full']['path']);
-	if ($ext) $filetype_config = wrap_filetypes($ext, 'check-per-extension');
-	if (!empty($filetype_config['ignore_query_string'])) {
-		$url['full']['query'] = NULL;
-		return $url;
-	}
-
-	if (empty($objectionable_qs))
-		$objectionable_qs = ['PHPSESSID'];
-	if (!is_array($objectionable_qs))
-		$objectionable_qs = [$objectionable_qs];
-	parse_str($url['full']['query'], $query);
-	// furthermore, keys with % signs are not allowed (propably errors in
-	// some parsing script)
-	foreach (array_keys($query) AS $key) {
-		if (strstr($key, '%')) $objectionable_qs[] = $key;
-	}
-	if ($remove = array_intersect(array_keys($query), $objectionable_qs)) {
-		foreach ($remove as $key) {
-			unset($query[$key]);
-			unset($_GET[$key]);
-			unset($_REQUEST[$key]);
-		}
-		$url['full']['query'] = http_build_query($query);
-		$url['redirect'] = true;
-		$url['redirect_cache'] = false;
-	}
-	return $url;
-}
-
 /*
  * --------------------------------------------------------------------
  * HTTP: checks
@@ -1550,64 +1506,22 @@ function wrap_check_request() {
 		wrap_quit(400, sprintf('Request with a malformed IP address: %s', wrap_html_escape($_SERVER['REMOTE_ADDR'])));
 
 	// check REQUEST_URI
-	// Base URL, allow it to be set manually (handle with care!)
-	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
-	wrap_setting('request_uri', wrap_percent_encode_non_ascii(wrap_setting('request_uri')));
-	
-	if (wrap_setting('url_path_max_parts') AND substr_count(wrap_setting('request_uri'), '/') > wrap_setting('url_path_max_parts'))
-		wrap_quit(414, wrap_text('URIs with more than %d slashes are not processed.', ['values' => wrap_setting('url_path_max_parts')]));
-	
-	if (empty($zz_page['url']['full'])) {
-		$zz_page['url']['full'] = parse_url(wrap_setting('host_base').wrap_setting('request_uri'));
-		if (empty($zz_page['url']['full']['path'])) {
-			// in case, some script requests GET ? HTTP/1.1 or so:
-			$zz_page['url']['full']['path'] = '/';
-			$zz_page['url']['redirect'] = true;
-			$zz_page['url']['redirect_cache'] = false;
-		} elseif (strstr($zz_page['url']['full']['path'], '//')) {
-			// replace duplicate slashes for getting path, some bots add one
-			// redirect later if content was found
-			$zz_page['url']['full']['path'] = str_replace('//', '/', $zz_page['url']['full']['path']);
-			$zz_page['url']['redirect'] = true;
-			$zz_page['url']['redirect_cache'] = false;
-		}
-		if (!empty($_SERVER['HTTP_X_FORWARDED_HOST']) AND wrap_setting('hostname_in_url')) {
-			$forwarded_host = '/'.$_SERVER['HTTP_X_FORWARDED_HOST'];
-			if (wrap_setting('local_access') AND substr($forwarded_host, -6) === '.local') {
-				$forwarded_host = substr($forwarded_host, 0, -6);
-			} elseif (wrap_setting('local_access') AND str_starts_with($forwarded_host, 'dev.')) {
-				$forwarded_host = substr($forwarded_host, 4);
-			}
-			if (str_starts_with($zz_page['url']['full']['path'], $forwarded_host)) {
-				$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
-				wrap_setting('request_uri', substr(wrap_setting('request_uri'), strlen($forwarded_host)));
-			}
-		}
-	}
-
-	// return 404 if path or query includes Unicode Replacement Character 
-	// U+FFFD (hex EF BF BD, dec 239 191 189)
-	// since that does not make sense
-	if (strstr($zz_page['url']['full']['path'], '%EF%BF%BD')) wrap_quit(404);
-	if (!empty($zz_page['url']['full']['query'])) {
-		if (strstr($zz_page['url']['full']['query'], '%EF%BF%BD')) wrap_quit(404);
-	}
+	wrap_url_encode();
+	wrap_url_slashes();
+	wrap_url_read();
+	wrap_url_forwarded();
+	wrap_url_check();
 
 	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
 	
 	// get rid of unwanted query strings, set redirect if necessary
-	$zz_page['url'] = wrap_remove_query_strings($zz_page['url']);
+	$zz_page['url'] = wrap_url_remove_query_strings($zz_page['url']);
 
 	// check language
 	wrap_set_language();
 
 	// Relative linking
-	if (empty($zz_page['deep'])) {
-		if (!empty($zz_page['url']['full']['path']))
-			$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
-		else
-			$zz_page['deep'] = '/';
-	}
+	wrap_url_relative();
 }
 
 /**
@@ -1619,126 +1533,6 @@ function wrap_send_as_json() {
 	if (!empty($_SERVER['HTTP_ACCEPT']) AND $_SERVER['HTTP_ACCEPT'] === 'application/json') return true;
 	if (!empty($_SERVER['REMOTE_ADDR']) AND $_SERVER['REMOTE_ADDR'] === wrap_setting('cron_ip')) return true;
 	return false;
-}
-
-/**
- * sometimes, Apache decodes URL parts, e. g. %E2 is changed to a latin-1
- * character, encode that again
- *
- * @param string $path
- * @return string
- */
-function wrap_percent_encode_non_ascii($path) {
-	$new_path = '';
-	for ($i = 0; $i < strlen($path); $i++) {
-		if (ord(substr($path, $i, 1)) < 128)
-			$new_path .= substr($path, $i, 1);
-		else
-			$new_path .= urlencode(substr($path, $i, 1)); 
-	}
-	return $new_path;
-}
-
-/**
- * normalizes a URL
- *
- * @param array $url (scheme, host, path, ...)
- * @return array
- */
-function wrap_url_normalize($url) {
-	// RFC 3986 Section 6.2.2.3. Path Segment Normalization
-	// Normally, the browser will already do that
-	if (strstr($url['path'], '/../')) {
-		// /path/../ = /
-		// while, not foreach, takes into account multiple occurences of /../../
-		while (strstr($url['path'], '/../')) {
-			$path = explode('/', $url['path']);
-			$index = array_search('..', $path);
-			unset($path[$index]);
-			if (array_key_exists($index - 1, $path)) unset($path[$index - 1]);
-			$url['path'] = implode('/', $path);
-		}
-	}
-	if (strstr($url['path'], '/./')) {
-		// /path/./ = /path/
-		$url['path'] = str_replace('/./', '/', $url['path']);
-	}
-
-	// RFC 3986 Section 6.2.2.2. Percent-Encoding Normalization
-	$url['path'] = wrap_url_normalize_percent_encoding($url['path'], 'path');
-	$url['query'] = wrap_url_normalize_percent_encoding($url['query'] ?? '', 'query');
-	return $url;
-}
-
-/**
- * normalize path of URL
- *
- * @param string $path
- * @param string $type (path, query or all)
- * @return string
- */
-function wrap_url_normalize_percent_encoding($string, $type) {
-	if (!$string) return '';
-	if (!strstr($string, '%')) return $string;
-	return preg_replace_callback('/%[2-7][0-9A-F]/i', sprintf('wrap_url_%s_decode', $type), $string);
-}
-
-function wrap_url_query_decode($input) {
-	return wrap_url_decode($input, 'query');
-}
-
-function wrap_url_path_decode($input) {
-	return wrap_url_decode($input, 'path');
-}
-
-function wrap_url_all_decode($input) {
-	return wrap_url_decode($input, 'all');
-}
-
-/**
- * Normalizes percent encoded characters in URL path or query string into 
- * equivalent characters if encoding is superfluous
- * @see RFC 3986 Section 6.2.2.2. Percent-Encoding Normalization
- *
- * Characters which will remain percent encoded (range: 0020 - 007F) are
- * 0020    0022 "  0023 #  0025 %  002F /
- * 003C <  003E >  003F ?
- * 005B [  005C \  005D ]  005E ^
- * 0060 `  
- * 007B {  007C |  007D }  007F [DEL]
- *
- * @param $input array
- * @return string
- */
-function wrap_url_decode($input, $type = 'path') {
-	$codepoint = substr(strtoupper($input[0]), 1);
-	if (hexdec($codepoint) < hexdec('20')) return '%'.$codepoint;
-	if (hexdec($codepoint) > hexdec('7E')) return '%'.$codepoint;
-	$dont_encode = [
-		'20', '22', '23', '2F',
-		'3C', '3E', '3F',
-		'5C', '5E',
-		'60',
-		'7B', '7C', '7D'
-	];
-	switch ($type) {
-	case 'path':
-		$dont_encode[] = '25'; // /
-		$dont_encode[] = '5B';
-		$dont_encode[] = '5D';
-		break;
-	case 'query':
-		$dont_encode[] = '3D'; // =
-		$dont_encode[] = '26'; // &
-		break;
-	case 'all':
-		$dont_encode = [];
-		break;
-	}
-	if (in_array($codepoint, $dont_encode)) {
-		return '%'.$codepoint;
-	}
-	return chr(hexdec($codepoint));
 }
 
 /**
