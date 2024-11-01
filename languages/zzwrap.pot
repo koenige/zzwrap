@@ -994,7 +994,7 @@ msgid "Temporarily, a login is not possible."
 msgstr ""
 
 # access
-#: zzwrap/core.inc.php
+#: zzwrap/http.inc.php
 msgid "Access to this website for your IP address is restricted."
 msgstr ""
 

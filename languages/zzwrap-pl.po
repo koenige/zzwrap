@@ -60,7 +60,7 @@ msgid "Temporarily, a login is not possible."
 msgstr "Chwilowo logowanie nie jest możliwe."
 
 # access
-#: zzwrap/core.inc.php
+#: zzwrap/http.inc.php
 msgid "Access to this website for your IP address is restricted."
 msgstr "Dostęp do tej witryny dla twojego adresu IP jest ograniczony."
 

@@ -1080,7 +1080,7 @@ msgid "Temporarily, a login is not possible."
 msgstr "Vorübergehend ist keine Anmeldung möglich."
 
 # access
-#: zzwrap/core.inc.php
+#: zzwrap/http.inc.php
 msgid "Access to this website for your IP address is restricted."
 msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
 
