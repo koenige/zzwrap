@@ -380,26 +380,6 @@ function wrap_module_parameters($module, $params, $reset = true) {
 }
 
 /**
- * support some standard URLs if there’s no entry in webpages table for them
- *
- * @param array $url
- * @return mixed false: nothing found, array: $page
- */
-function wrap_well_known_url($url) {
-	switch ($url['path']) {
-	case '/robots.txt':
-		$page['content_type'] = 'txt';
-		$page['text'] = '# robots.txt for '.wrap_setting('site');
-		$page['status'] = 200;
-		return $page;
-	case '/.well-known/change-password':
-		if (!$path = wrap_domain_path('change_password')) return false;
-		wrap_redirect_change($path);
-	}
-	return false;
-}
-
-/**
  * check if there's a layout or behaviour file in one of the modules
  * then send it out
  *
@@ -1033,7 +1013,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 
 	// for pages matching every URL, check if there’s a ressource somewhere else
 	if (!empty($zz_page['db']['identifier']) AND $zz_page['db']['identifier'] === '/*' AND $statuscode === 404) {
-		$zz_page = wrap_ressource_by_url($zz_page, false);
+		$zz_page = wrap_url_from_ressource($zz_page, false);
 	}
 
 	if ($canonical_hostname = wrap_canonical_hostname()) {

@@ -101,7 +101,7 @@ function zzwrap() {
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
 	if (!$zz_page['db']) {
-		$zz_page = wrap_ressource_by_url($zz_page);
+		$zz_page = wrap_url_from_ressource($zz_page);
 	}
 	
 	wrap_set_encoding(wrap_setting('character_set'));
@@ -144,33 +144,4 @@ function wrap_includes() {
 function wrap_includes_postconf() {
 	if (wrap_setting('authentication_possible'))
 		require_once __DIR__.'/auth.inc.php';
-}
-
-/**
- * if page is not found, after all files are included,
- * check 1. well known URLs, 2. template files, 3. redirects
- *
- * @param array $zz_page
- * @param bool $quit (optional) true: call wrap_quit(), false: just return
- * @return array
- */
-function wrap_ressource_by_url($zz_page, $quit = true) {
-	$well_known = wrap_well_known_url($zz_page['url']['full']);
-	if ($well_known) {
-		$zz_page['well_known'] = $well_known;
-	} else {
-		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
-		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
-		$languagecheck = wrap_url_language();
-		if (!$languagecheck AND $quit) wrap_quit();
-		if (!empty($_GET)) {
-			$cacheable = ['lang'];
-			foreach (array_keys($_GET) as $key) {
-				if (in_array($key, $cacheable)) continue;
-				wrap_setting('cache', false);
-				break;
-			}
-		}
-	}
-	return $zz_page;
 }
