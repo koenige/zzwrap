@@ -410,7 +410,7 @@ function wrap_defaults_post_conf() {
 	}
 	// connections from local don’t need to go via https
 	// makes it easier for some things
-	if (wrap_localhost_ip()) wrap_setting('ignore_scheme', true);
+	if (wrap_http_localhost_ip()) wrap_setting('ignore_scheme', true);
 
 	// explicitly do not want https even for authentication (not recommended)
 	if (wrap_setting('no_https')) wrap_setting('https', false);

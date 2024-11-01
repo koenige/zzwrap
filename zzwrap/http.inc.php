@@ -145,3 +145,82 @@ function wrap_https_redirect() {
 	$url['scheme'] = 'https';
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 }
+
+/**
+ * sends a HTTP status header corresponding to server settings and HTTP version
+ *
+ * @param int $code
+ * @return bool true if header was sent, false if not
+ */
+function wrap_http_status_header($code) {
+	// Set protocol
+	$protocol = $_SERVER['SERVER_PROTOCOL'];
+	if (!$protocol) $protocol = 'HTTP/1.0'; // default value
+	if (str_starts_with(php_sapi_name(), 'cgi')) $protocol = 'Status:';
+	
+	if ($protocol === 'HTTP/1.0' AND in_array($code, [302, 303, 307])) {
+		header($protocol.' 302 Moved Temporarily');
+		return true;
+	}
+	$status = wrap_http_status_list($code);
+	if ($status) {
+		$header = $protocol.' '.$status['code'].' '.$status['text'];
+		header($header);
+		wrap_setting_add('headers', $header);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * reads HTTP status codes from http-statuscodes.tsv
+ *
+ * @return array $codes
+ */
+function wrap_http_status_list($code) {
+	static $data = [];
+	if (!$data) $data = wrap_tsv_parse('http-statuscodes');
+	if (!array_key_exists($code, $data)) return [];
+	return $data[$code];
+}
+
+/**
+ * get remote IP address even if behind proxy
+ *
+ * @return string
+ */
+function wrap_http_remote_ip() {
+	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		if ($pos = strpos($remote_ip, ',')) {
+			$remote_ip = substr($remote_ip, 0, $pos);
+		}
+		// do not forward connections that say they're localhost
+		if ($remote_ip === '::1') $remote_ip = '';
+		if (substr($remote_ip, 0, 4) === '127.') $remote_ip = '';
+		if (!filter_var($remote_ip, FILTER_VALIDATE_IP)) {
+			wrap_error(sprintf(
+				'IP spoofing attempt. REMOTE_ADDR: %s, HTTP_X_FORWARDED_FOR: %s'
+				, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_X_FORWARDED_FOR']
+			));
+			$remote_ip = '';
+		}
+		if ($remote_ip) return $remote_ip;
+	}
+	if (empty($_SERVER['REMOTE_ADDR']))
+		return '';
+	return $_SERVER['REMOTE_ADDR'];
+}
+
+/**
+ * is access from localhost?
+ *
+ * @return bool
+ */
+function wrap_http_localhost_ip() {
+	if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1') return true;
+	if ($_SERVER['REMOTE_ADDR'] === '::1') return true;
+	if (empty($_SERVER['SERVER_ADDR'])) return false;
+	if ($_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR']) return true;
+	return false;
+}
