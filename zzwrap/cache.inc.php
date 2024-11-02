@@ -219,7 +219,7 @@ function wrap_if_none_match($etag, $file = []) {
 			// but we ignore it because if the Entity is identical, it does
 			// not really matter if the modification date is different
 			if (in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'])) {
-				if ($file) wrap_file_cleanup($file);
+				if ($file) wrap_send_file_cleanup($file);
 				wrap_log_uri();
 				wrap_cache_header('ETag: '.$etag_header['std']);
 				wrap_quit(304);
@@ -311,7 +311,7 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
 		);
 		if ($time <= $requested_time) {
 			wrap_cache_header('Last-Modified: '.$zz_page['last_modified']);
-			if ($file) wrap_file_cleanup($file);
+			if ($file) wrap_send_file_cleanup($file);
 			wrap_log_uri();
 			wrap_quit(304);
 		}

@@ -29,7 +29,7 @@
  * @todo send pragma public header only if browser that is affected by this bug
  * @todo implement Ranges for bytes
  */
-function wrap_file_send($file) {
+function wrap_send_file($file) {
 	global $zz_page;
 
 	if (is_dir($file['name'])) {
@@ -44,7 +44,7 @@ function wrap_file_send($file) {
 			}
 			wrap_quit($file['error_code']);
 		}
-		wrap_file_cleanup($file);
+		wrap_send_file_cleanup($file);
 		if (wrap_setting('cache')) wrap_cache_delete(404);
 		return false;
 	}
@@ -130,12 +130,21 @@ function wrap_file_send($file) {
 }
 
 /**
+ * old function name
+ * @deprecated
+ */
+function wrap_file_send($file) {
+	wrap_error('Please use wrap_send_file() instead of wrap_file_send().', E_USER_DEPRECATED);
+	return wrap_send_file($file);
+}
+
+/**
  * does cleanup after a file was sent
  *
  * @param array $file
  * @return bool
  */
-function wrap_file_cleanup($file) {
+function wrap_send_file_cleanup($file) {
 	if (empty($file['cleanup'])) return false;
 	// clean up
 	unlink($file['name']);
@@ -310,7 +319,7 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 
 	// HEAD HTTP request
 	if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
-		if ($type === 'file') wrap_file_cleanup($content);
+		if ($type === 'file') wrap_send_file_cleanup($content);
 		wrap_log_uri();
 		exit;
 	}
@@ -421,7 +430,7 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 		if (count($ranges) !== 1) echo $bottom;
 		fclose($handle);
 	}
-	wrap_file_cleanup($content);
+	wrap_send_file_cleanup($content);
 	exit;
 }
 

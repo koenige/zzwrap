@@ -336,7 +336,7 @@ function wrap_match_file($url_path) {
 			$file['name'] = sprintf('%s/%s%s', wrap_setting('themes_dir'), wrap_setting('active_theme'), $path);
 			if (file_exists($file['name'])) {
 				$file['etag_generate_md5'] = true;
-				wrap_file_send($file);
+				wrap_send_file($file);
 			}
 		}
 	}
@@ -362,7 +362,7 @@ function wrap_match_file($url_path) {
 			return $file['name'];
 		}
 		$file['etag_generate_md5'] = true;
-		wrap_file_send($file);
+		wrap_send_file($file);
 	}
 	return false;
 }
