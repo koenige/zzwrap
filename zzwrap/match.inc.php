@@ -37,6 +37,8 @@ function wrap_match_page($zz_page) {
 	$identifier_template = wrap_sql_fields('core_pages');
 	$data = [];
 	foreach ($full_url as $i => $my_url) {
+		// add prefix to find matches for * on top level, too
+		$my_url['path'] = wrap_match_prefix($my_url['path'], 'add');
 		$index = 0;
 		$params = [];
 		$replaced = [];
@@ -44,6 +46,8 @@ function wrap_match_page($zz_page) {
 		while ($my_url['path'] !== false) {
 			$idf = !array_intersect($replaced, $my_url['placeholders']) 
 				? wrap_match_params($my_url['path'], $replaced, $leftovers[$i] ?? []): [];
+			if ($idf['url'] === '*') break;
+			$idf['url'] = wrap_match_prefix($idf['url'], 'remove');
 			if ($extension AND $idf AND $idf['params']) {
 				$extension_idf = [
 					'url' => sprintf('%s.%s', $idf['url'], $extension),
@@ -55,7 +59,7 @@ function wrap_match_page($zz_page) {
 				$index++;
 			}
 			$data[$i + $index * count($full_url)] = $idf;
-			list($my_url['path'], $params, $replaced) = wrap_match_url_cut($my_url['path'], $params);
+			list($my_url['path'], $params, $replaced) = wrap_match_cut_path($my_url['path'], $params);
 			$index++;
 		}
 	}
@@ -109,6 +113,20 @@ function wrap_match_page($zz_page) {
 		if (str_starts_with($zz_page['url']['full']['path'], wrap_setting('behaviour_path'))) return false;
 	}
 	return $page;
+}
+
+/**
+ * add and remove prefix for URL matching
+ *
+ * @param string $url
+ * @param string $action
+ * @return string
+ */
+function wrap_match_prefix($url, $action) {
+	if ($action === 'add') return '_prefix_/'.$url;
+	if (str_starts_with($url, '_prefix_/')) return substr($url, 9);
+	if (str_starts_with($url, '_prefix_')) return substr($url, 8);
+	return $url;
 }
 
 /**
@@ -174,7 +192,7 @@ function wrap_match_params_leftovers($leftovers) {
  * @param array $params
  * @return array
  */
-function wrap_match_url_cut($url, $params) {
+function wrap_match_cut_path($url, $params) {
 	static $counter = 0;
 	static $counter_end = 0;
 	static $last_url = '';
