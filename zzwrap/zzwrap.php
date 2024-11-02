@@ -40,6 +40,7 @@ function zzwrap() {
 	wrap_url_prepare(); // affects $zz_page
 	// check language
 	wrap_language_set();
+	wrap_url_match();
 	// Relative linking
 	wrap_url_relative();
 
@@ -85,7 +86,7 @@ function zzwrap() {
 	if (wrap_setting('secret_key') AND !wrap_rights('preview'))
 		wrap_rights('preview', 'set', wrap_test_secret_key(wrap_setting('secret_key')));
 
-	$zz_page['db'] = wrap_look_for_page($zz_page);
+	$zz_page['db'] = wrap_match_page($zz_page);
 	wrap_language_redirect();
 
 	// Functions which might be executed always, before possible login
@@ -106,7 +107,7 @@ function zzwrap() {
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
 	if (!$zz_page['db']) {
-		$zz_page = wrap_url_from_ressource($zz_page);
+		$zz_page = wrap_match_ressource($zz_page);
 	}
 	
 	wrap_set_encoding(wrap_setting('character_set'));
@@ -133,6 +134,7 @@ function wrap_includes() {
 	require_once __DIR__.'/mail.inc.php';
 	require_once __DIR__.'/access.inc.php';
 	require_once __DIR__.'/language.inc.php';
+	require_once __DIR__.'/match.inc.php';
 	require_once __DIR__.'/page.inc.php';
 	require_once __DIR__.'/template.inc.php';
 	require_once __DIR__.'/format.inc.php';

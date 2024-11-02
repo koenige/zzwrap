@@ -272,6 +272,25 @@ function wrap_url_remove_query_strings($url, $objectionable_qs = []) {
 }
 
 /**
+ * builds URL from REQUEST
+ * better than mod_rewrite, because '&' won't always be treated correctly
+ * 
+ * @param array $url $url['full'] with result from parse_url
+ * @return array $url with new keys ['db'] (URL in database)
+ */
+function wrap_url_match() {
+	global $zz_page;
+	
+	$zz_page['url']['db'] = trim($zz_page['url']['full']['path'], '/');
+	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
+		$lang_suffix = '.'.$_GET['lang'];
+		if (str_ends_with($zz_page['url']['db'], $lang_suffix))
+			$zz_page['url']['db'] = substr($zz_page['url']['db'], 0, -strlen($lang_suffix));
+	}
+	$zz_page['url']['db'] = wrap_url_ending($zz_page['url']['db']);
+}
+
+/**
  * set relative path to root
  *
  * @global array $zz_page
@@ -283,55 +302,6 @@ function wrap_url_relative() {
 		$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
 	else
 		$zz_page['deep'] = '/';
-}
-
-/**
- * if page is not found, after all files are included,
- * check 1. well known URLs, 2. template files, 3. redirects
- *
- * @param array $zz_page
- * @param bool $quit (optional) true: call wrap_quit(), false: just return
- * @return array
- */
-function wrap_url_from_ressource($zz_page, $quit = true) {
-	$well_known = wrap_url_well_known($zz_page['url']['full']);
-	if ($well_known) {
-		$zz_page['well_known'] = $well_known;
-	} else {
-		$zz_page['tpl_file'] = wrap_look_for_file($zz_page['url']['full']['path']);
-		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
-		$languagecheck = wrap_url_language();
-		if (!$languagecheck AND $quit) wrap_quit();
-		if (!empty($_GET)) {
-			$cacheable = ['lang'];
-			foreach (array_keys($_GET) as $key) {
-				if (in_array($key, $cacheable)) continue;
-				wrap_setting('cache', false);
-				break;
-			}
-		}
-	}
-	return $zz_page;
-}
-
-/**
- * support some standard URLs if there’s no entry in webpages table for them
- *
- * @param array $url
- * @return mixed false: nothing found, array: $page
- */
-function wrap_url_well_known($url) {
-	switch ($url['path']) {
-	case '/robots.txt':
-		$page['content_type'] = 'txt';
-		$page['text'] = '# robots.txt for '.wrap_setting('site');
-		$page['status'] = 200;
-		return $page;
-	case '/.well-known/change-password':
-		if (!$path = wrap_domain_path('change_password')) return false;
-		wrap_redirect_change($path);
-	}
-	return false;
 }
 
 /**
@@ -353,6 +323,21 @@ function wrap_url_language() {
 		return true;
 	}
 	return false;
+}
+
+/**
+ * remove ending that indicates it is text content from URL path
+ *
+ * @param string $path
+ * @return string
+ */
+function wrap_url_ending($path) {
+	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0', '/&nbsp;'];
+	foreach ($possible_endings as $ending) {
+		if (!str_ends_with($path, $ending)) continue;
+		return substr($path, 0, -strlen($ending));
+	}
+	return $path;
 }
 
 /**

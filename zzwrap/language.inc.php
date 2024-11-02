@@ -630,7 +630,7 @@ function wrap_translate_field_list($field_key, $db_field) {
 }
 
 /** 
- * translate page (that was not possible in wrap_look_for_page() because we
+ * translate page (that was not possible in wrap_match_page() because we
  * did not have complete language information then.
  *
  * @global array $zz_page (array 'db' will be changed)
