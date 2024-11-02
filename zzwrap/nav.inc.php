@@ -512,6 +512,8 @@ function wrap_breadcrumbs_read($page_id) {
 			while ($count > count($placeholder_url_paths))
 				$placeholder_url_paths[] = '*';
 			$breadcrumb['url_path'] = vsprintf($breadcrumb['url_path'], $placeholder_url_paths);
+			if (str_starts_with($breadcrumb['url_path'], '//')) // URL match starts with * placeholder
+				$breadcrumb['url_path'] = substr($breadcrumb['url_path'], 1);
 		}
 		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
 		// remove breadcrumbs with * in URL except for current page
