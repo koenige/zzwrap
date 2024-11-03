@@ -46,20 +46,22 @@ function wrap_match_page($zz_page) {
 		while ($my_url['path'] !== false) {
 			$idf = !array_intersect($replaced, $my_url['placeholders']) 
 				? wrap_match_params($my_url['path'], $replaced, $leftovers[$i] ?? []): [];
-			if ($idf['url'] === '*') break;
-			$idf['url'] = wrap_match_prefix($idf['url'], 'remove');
-			if ($extension AND $idf AND $idf['params']) {
-				$extension_idf = [
-					'url' => sprintf('%s.%s', $idf['url'], $extension),
-					'params' => $idf['params']
-				];
-				$last = array_pop($extension_idf['params']);
-				$extension_idf['params'][] = pathinfo($last, PATHINFO_FILENAME);
-				$data[$i + $index * count($full_url)] = $extension_idf;
-				$index++;
+			if ($idf) {
+				if ($idf['url'] === '*') break;
+				$idf['url'] = wrap_match_prefix($idf['url'], 'remove');
+				if ($extension AND $idf['params']) {
+					$extension_idf = [
+						'url' => sprintf('%s.%s', $idf['url'], $extension),
+						'params' => $idf['params']
+					];
+					$last = array_pop($extension_idf['params']);
+					$extension_idf['params'][] = pathinfo($last, PATHINFO_FILENAME);
+					$data[$i + $index * count($full_url)] = $extension_idf;
+					$index++;
+				}
+				if ($idf['url'])
+					$data[$i + $index * count($full_url)] = $idf;
 			}
-			if ($idf['url'])
-				$data[$i + $index * count($full_url)] = $idf;
 			list($my_url['path'], $params, $replaced) = wrap_match_cut_path($my_url['path'], $params);
 			$index++;
 		}
