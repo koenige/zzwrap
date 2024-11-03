@@ -34,7 +34,11 @@ function wrap_send_file($file) {
 
 	if (is_dir($file['name'])) {
 		if (wrap_setting('cache')) wrap_cache_delete(404);
-		return false;
+		wrap_error(wrap_text(
+			'Unable to send file: %s is a folder, not a file.',
+			['values' => [$file['name']]]
+		));
+		wrap_quit(503);
 	}
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
@@ -46,7 +50,11 @@ function wrap_send_file($file) {
 		}
 		wrap_send_file_cleanup($file);
 		if (wrap_setting('cache')) wrap_cache_delete(404);
-		return false;
+		wrap_error(wrap_text(
+			'Unable to send file: %s does not exist',
+			['values' => [$file['name']]]
+		));
+		wrap_quit(404);
 	}
 	if (!empty($zz_page['url']['redirect'])) {
 		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
