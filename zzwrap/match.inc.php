@@ -58,7 +58,8 @@ function wrap_match_page($zz_page) {
 				$data[$i + $index * count($full_url)] = $extension_idf;
 				$index++;
 			}
-			$data[$i + $index * count($full_url)] = $idf;
+			if ($idf['url'])
+				$data[$i + $index * count($full_url)] = $idf;
 			list($my_url['path'], $params, $replaced) = wrap_match_cut_path($my_url['path'], $params);
 			$index++;
 		}
