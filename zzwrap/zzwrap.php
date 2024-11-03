@@ -145,6 +145,7 @@ function wrap_includes() {
 	require_once __DIR__.'/url.inc.php';
 	require_once __DIR__.'/send.inc.php';
 	require_once __DIR__.'/session.inc.php';
+	require_once __DIR__.'/background.inc.php';
 	if (file_exists(__DIR__.'/compatibility.inc.php'))
 		require_once __DIR__.'/compatibility.inc.php';
 }
