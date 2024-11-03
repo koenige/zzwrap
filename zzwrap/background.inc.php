@@ -24,6 +24,8 @@ function wrap_job($url, $data = []) {
 	$path = wrap_path('jobmanager', '', false);
 	if (!$path) $path = $url;
 	$data['url'] = $url;
+	// sequential: always use trigger
+	if (!empty($data['sequential'])) $data['trigger'] = true;
 	if (!empty($data['trigger']))
 		list($status, $headers, $response) = wrap_trigger_protected_url($path, false, true, $data);
 	else
@@ -77,12 +79,11 @@ function wrap_job_finish($job, $type, $content) {
 	if (!wrap_job_page($type)) return true;
 	if (!wrap_setting('jobmanager_path')) return false;
 
-	if (!$content) {
+	if (!$content)
 		$content = [
 			'status' => 404,
 			'text' => wrap_text('not found')
 		];
-	}
 	
 	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
 		$content['text'] = json_decode($content['text']);
@@ -90,9 +91,14 @@ function wrap_job_finish($job, $type, $content) {
 		wrap_include('file', 'zzwrap');
 		wrap_file_log($_POST['job_logfile_result'], 'write', [time(), $content['extra']['job'] ?? 'job', json_encode($content['data'] ?? $content['text'])]);
 	}
-	if (!empty($_POST['job_url_next']))
-		wrap_trigger_protected_url($_POST['job_url_next'], wrap_username($job['username'] ?? '', false));
-	
+
+	$url_next = $_POST['job_url_next'] ?? $content['extra']['job_continue'] ?? '';
+	if ($url_next) {
+		if ($url_next === true) $url_next = $job['job_url'] ?? ''; // empty if job was stopped
+		wrap_trigger_protected_url($url_next, wrap_username($job['username'] ?? '', false));
+		// do not mark job as stopped if sequential mode
+		if (!empty($job['postdata']['sequential'])) return true;
+	}
 	mod_default_make_jobmanager_finish($job, $content['status'] ?? 200, $content['text']);
 }
 
