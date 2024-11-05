@@ -160,6 +160,8 @@ function wrap_menu_webpages() {
 	
 	if (!wrap_database_table_check('/*_PREFIX_*/webpages_categories')) return [];
 	
+	wrap_menu_webpages_register();
+
 	$menu = [];
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
@@ -221,6 +223,37 @@ function wrap_menu_webpages_category($menu) {
 	}
 	return $keys;
 }
+
+/**
+ * check for main_menu = and the likes in menu categories
+ * and register menus accordingly
+ *
+ */
+function wrap_menu_webpages_register() {
+	$sql = 'SELECT category_id, SUBSTRING_INDEX(path, "/", -1) AS path, parameters
+		FROM /*_PREFIX_*/webpages_categories
+		LEFT JOIN /*_PREFIX_*/categories USING (category_id)
+		WHERE main_category_id = /*_ID categories menu _*/';
+	$menus = wrap_db_fetch($sql, 'category_id');
+	if (!$menus) return;
+	$cfg = wrap_cfg_files('settings');
+	foreach ($cfg as $key => $settings) {
+		if (!str_ends_with($key, '_menu')) unset($cfg[$key]);
+		elseif (empty($settings['scope'])) unset($cfg[$key]);
+		elseif (!in_array('categories', $settings['scope'])) unset($cfg[$key]);
+	}
+	foreach ($menus as $menu) {
+		if (!$menu['parameters']) continue;
+		parse_str($menu['parameters'], $menu['parameters']);
+		foreach ($cfg as $key => $settings) {
+			if (!array_key_exists($key, $menu['parameters'])) continue;
+			$menu_name = $menu['parameters']['alias'] ?? $menu['path'];
+			if ($pos = strpos($menu_name, '/')) $menu_name = substr($menu_name, $pos + 1);
+			wrap_setting($key, $menu_name);
+		}
+	}
+}
+
 
 /**
  * shorten translated menu entries
