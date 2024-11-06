@@ -560,7 +560,7 @@ function wrap_match_redirects_placeholder($url, $position) {
 function wrap_match_redirects_from_cache($page, $url) {
 	// %E2%80%8B = zero width space, sometimes added to URL from some systems
 	$redirect_endings = [
-		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B', '%C2%A0'
+		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B', '%C2%A0', ';', '!'
 	];
 	foreach ($redirect_endings as $ending) {
 		if (substr($url['path'], -strlen($ending)) !== $ending) continue;
