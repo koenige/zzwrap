@@ -219,6 +219,8 @@ function wrap_text($string, $params = []) {
 			if ($module === 'zzwrap') continue;
 			$modules_dir_deprecated = wrap_setting('modules_dir').'/'.$module.'/'.$module;
 			$modules_dir = wrap_setting('modules_dir').'/'.$module.'/languages';
+			if ($language === 'en') // plurals, if .po file exists, included below, overwrite
+				$files[] = $modules_dir.'/'.$module.'.pot';
 			// zzform: for historical reasons, include -en text here as well
 			if ($module === 'zzform' AND $language !== 'en')
 				$files[] = $modules_dir.'/'.$module.'-en.po';
@@ -228,15 +230,13 @@ function wrap_text($string, $params = []) {
 				$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
 				$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
 			}
-			if ($language === 'en') // plurals
-				$files[] = $modules_dir.'/'.$module.'.pot';
 		}
 		// standard translated text 
 		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php'; // @deprecated
 		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po'; // @deprecated
-		$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
-		if ($language === 'en') // plurals
+		if ($language === 'en') // plurals, if .po file exists, included below, overwrite
 			$files[] = wrap_setting('custom').'/languages/text.pot';
+		$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
 		if (wrap_setting('language_variation')) {
 			// language variantes contain only some translations
 			// and are added on top of the existing translations
@@ -248,10 +248,6 @@ function wrap_text($string, $params = []) {
 		foreach ($files as $file) {
 			if (str_ends_with($file, '.po') OR str_ends_with($file, '.pot')) {
 				if (!file_exists($file)) continue;
-				if (str_ends_with($file, '.pot')) {// get english language plurals
-					$english_file = substr($file, 0, -4).'-en.po';
-					if (file_exists($english_file)) continue;
-				}
 				$po_text = wrap_po_parse($file);
 				if (!empty($po_text['_po_header']['Language']))
 					$plurals[$po_text['_po_header']['Language']] = $po_text['_plural_forms'];
@@ -272,7 +268,7 @@ function wrap_text($string, $params = []) {
 		
 		// set text as 'included' before database operation so if
 		// database crashes just while reading values, it won't do it over and
-		// over again		
+		// over again
 		$text_included = $language;
 
 		// get translations from database
@@ -873,6 +869,7 @@ function wrap_text_recode($str, $in_charset) {
  * @return array
  */
 function wrap_po_parse($file) {
+	$is_language_variation = str_ends_with($file, wrap_setting('language_variation').'.po') ? true : false;
 	$chunks = wrap_po_chunks($file);
 	
 	foreach ($chunks as $index => $chunk) {
@@ -904,11 +901,11 @@ function wrap_po_parse($file) {
 				$format = true; break;
 			}
 		}
-		if (!$plurals) {
-			if ($chunk['msgstr']) {
-				$text[$context][$chunk['msgid']] = $chunk['msgstr'];
-			}
-		} else {
+		if (!$plurals AND $chunk['msgstr']) {
+			// singular, there is a translation:
+			$text[$context][$chunk['msgid']] = $chunk['msgstr'];
+		} elseif ($plurals AND (!$is_language_variation OR !empty($chunk['msgstr[0]']))) {
+			// plural, there is a translation
 			$text[$context][$chunk['msgid_plural']][0] = $chunk['msgstr[0]'] ?? $chunk['msgid'];
 			$i = 1;
 			while (isset($chunk['msgstr['.$i.']'])) {
