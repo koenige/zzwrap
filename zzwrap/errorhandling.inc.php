@@ -619,6 +619,18 @@ function wrap_errorpage_logignore() {
 	// hostname is IP
 	if (!empty($_SERVER['SERVER_ADDR']) AND wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
 
+	if (!empty($_SERVER['SERVER_NAME'])) {
+		$possible_host_names = wrap_setting('external_redirect_hostnames');
+		$possible_host_names[] = wrap_setting('canonical_hostname');
+		if (!in_array($_SERVER['SERVER_NAME'], $possible_host_names)) {
+			wrap_error(wrap_text(
+				'The server responds to the hostname %s, but this is not in the list of possible hostnames.',
+				['values' => $_SERVER['SERVER_NAME']]
+			));
+			return true;
+		}
+	}
+
 	// access from the same existing page to this page nonexisting
 	// is impossible (there are some special circumstances, e. g. a 
 	// script behaves differently the next time it was uploaded, but we
