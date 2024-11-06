@@ -663,6 +663,9 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	// there's always a path if referer is created by browser
 	if (empty($referer['path'])) return false;
 
+	// scheme: ignore errors where scheme is longer than 16 characters, probably nonsense
+	if (strlen($referer['scheme']) > 16) return false;
+	if (!preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $referer['scheme'])) return false;
 	// some people are too lazy to replace placeholders for host names
 	if (!filter_var($referer['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) return false;
 	
