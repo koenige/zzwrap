@@ -441,6 +441,8 @@ function wrap_match_placeholders($zz_page, $full_url) {
  */
 function wrap_match_redirects($page_url) {
 	global $zz_page;
+	// if 'db' is not set yet, the URL was considered malformed, no redirects for that
+	if (empty($zz_page['url']['db'])) return false;
 
 	if (!wrap_setting('check_redirects')) return false;
 	$where_language = (!empty($_GET['lang']) AND !is_array($_GET['lang']))
