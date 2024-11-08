@@ -620,9 +620,7 @@ function wrap_errorpage_logignore() {
 	if (!empty($_SERVER['SERVER_ADDR']) AND wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
 
 	if (!empty($_SERVER['SERVER_NAME'])) {
-		$possible_host_names = wrap_setting('external_redirect_hostnames');
-		$possible_host_names[] = wrap_setting('canonical_hostname');
-		if (!in_array($_SERVER['SERVER_NAME'], $possible_host_names)) {
+		if (!in_array(strtolower($_SERVER['SERVER_NAME']), wrap_error_hostnames())) {
 			wrap_error(wrap_text(
 				'The server responds to the hostname %s, but this is not in the list of possible hostnames.',
 				['values' => $_SERVER['SERVER_NAME']]
@@ -639,6 +637,25 @@ function wrap_errorpage_logignore() {
 	$valid = wrap_error_referer_valid();
 	if (!$valid) return true;
 	return false;
+}
+
+/**
+ * create a list of possible hostnames the website should respond to
+ *
+ * @return array
+ */
+function wrap_error_hostnames() {
+	static $hostnames = [];
+	if ($hostnames) return $hostnames;
+	$hostnames = wrap_setting('external_redirect_hostnames');
+	if (wrap_setting('canonical_hostname'))
+		$hostnames[] = wrap_setting('canonical_hostname');
+	// always add www. or non-www. version
+	if (str_starts_with(wrap_setting('canonical_hostname'), 'www.'))
+		$hostnames[] = substr(wrap_setting('canonical_hostname'), 4);
+	else
+		$hostnames[] = sprintf('www.%s', wrap_setting('canonical_hostname'));
+	return $hostnames;
 }
 
 /**
@@ -753,14 +770,8 @@ function wrap_error_referer_local_redirect($referer_host) {
 	if (!empty($_SERVER['SERVER_ADDR']) AND $referer_host === $_SERVER['SERVER_ADDR']) return true;
 
 	// referer from canonical hostname
-	$hostnames = [];
-	if (wrap_setting('canonical_hostname'))
-		$hostnames[] = wrap_setting('canonical_hostname');
-	if (wrap_setting('external_redirect_hostnames')) // external redirects
-		$hostnames = array_merge($hostnames, wrap_setting('external_redirect_hostnames'));
-	foreach ($hostnames as $hostname) {
+	foreach (wrap_error_hostnames() as $hostname)
 		if (strtolower($hostname) === strtolower($referer_host)) return true;
-	}
 	return false;
 }
 
