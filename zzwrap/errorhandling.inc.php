@@ -648,13 +648,14 @@ function wrap_error_hostnames() {
 	static $hostnames = [];
 	if ($hostnames) return $hostnames;
 	$hostnames = wrap_setting('external_redirect_hostnames');
-	if (wrap_setting('canonical_hostname'))
+	if (wrap_setting('canonical_hostname')) {
 		$hostnames[] = wrap_setting('canonical_hostname');
-	// always add www. or non-www. version
-	if (str_starts_with(wrap_setting('canonical_hostname'), 'www.'))
-		$hostnames[] = substr(wrap_setting('canonical_hostname'), 4);
-	else
-		$hostnames[] = sprintf('www.%s', wrap_setting('canonical_hostname'));
+		// always add www. or non-www. version
+		if (str_starts_with(wrap_setting('canonical_hostname'), 'www.'))
+			$hostnames[] = substr(wrap_setting('canonical_hostname'), 4);
+		else
+			$hostnames[] = sprintf('www.%s', wrap_setting('canonical_hostname'));
+	}
 	return $hostnames;
 }
 
