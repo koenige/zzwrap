@@ -104,9 +104,12 @@ function wrap_defaults_auto() {
  *
  */
 function wrap_defaults_pre_conf() {
+	wrap_setting('zzwrap_id', rand());
+
 // -------------------------------------------------------------------------
 // Hostname
 // -------------------------------------------------------------------------
+
 	// HTTP_HOST, check against XSS
 	if (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
 		wrap_setting('hostname', $_SERVER['HTTP_HOST']);
