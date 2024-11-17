@@ -1477,6 +1477,7 @@ function wrap_heading_id_set($string) {
  * @return mixed
  */
 function wrap_filepath($paths, $return = 'string') {
+	if (!$paths) return $paths;
 	if (!is_array($paths))
 		$paths = [$paths];
 	else
