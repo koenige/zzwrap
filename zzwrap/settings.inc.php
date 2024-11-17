@@ -163,9 +163,10 @@ function wrap_get_setting_local($key, $cfg) {
 	$parts = explode('[', $key);
 	if (str_ends_with($parts[0], '_local')) return NULL; // is already local
 	$parts[0] .= '_local';
-	$key = implode('[', $parts);
-	if (!array_key_exists($key, $cfg)) return NULL;
-	return wrap_get_setting($key);
+	$new_key = implode('[', $parts);
+	if (!array_key_exists($new_key, $cfg)) return NULL;
+	wrap_setting($key, wrap_setting($new_key)); // write local value back to normal value
+	return wrap_get_setting($new_key);
 }
 
 /**
