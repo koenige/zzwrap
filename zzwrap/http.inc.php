@@ -192,24 +192,55 @@ function wrap_http_status_list($code) {
 function wrap_http_remote_ip() {
 	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 		$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		if ($pos = strpos($remote_ip, ',')) {
+		if ($pos = strpos($remote_ip, ','))
 			$remote_ip = substr($remote_ip, 0, $pos);
-		}
+
 		// do not forward connections that say they're localhost
-		if ($remote_ip === '::1') $remote_ip = '';
-		if (substr($remote_ip, 0, 4) === '127.') $remote_ip = '';
-		if (!filter_var($remote_ip, FILTER_VALIDATE_IP)) {
-			wrap_error(sprintf(
-				'IP spoofing attempt. REMOTE_ADDR: %s, HTTP_X_FORWARDED_FOR: %s'
-				, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_X_FORWARDED_FOR']
-			));
-			$remote_ip = '';
-		}
-		if ($remote_ip) return $remote_ip;
+		wrap_http_forward_localhost($remote_ip);
+		// ignore invalid IPs
+		wrap_http_forward_valid($remote_ip);
+		return $remote_ip;
 	}
 	if (empty($_SERVER['REMOTE_ADDR']))
 		return '';
 	return $_SERVER['REMOTE_ADDR'];
+}
+
+/**
+ * check if forwarded IP equals localhost
+ *
+ * @param string $remote_ip
+ * @return bool
+ */
+function wrap_http_forward_localhost($remote_ip) {
+	// if the access comes from the server itself, a localhost forward is legal
+	if (wrap_http_localhost_ip()) return false;
+
+	$local = false;
+	if ($remote_ip === '::1') $local = true;
+	if (substr($remote_ip, 0, 4) === '127.') $local = true;
+	if (!$local) return false;
+
+	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
+	wrap_quit(403, wrap_text(
+		'HTTP Header spoofing detected. The client is attempting to impersonate localhost.'
+	));
+}
+
+/**
+ * check if forwarded IP is valid
+ *
+ * @param string $remote_ip
+ * @return bool
+ */
+function wrap_http_forward_valid($remote_ip) {
+	if (filter_var($remote_ip, FILTER_VALIDATE_IP)) return true;
+
+	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
+	wrap_quit(400, wrap_text(
+		'HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s',
+		['values' => [$_SERVER['HTTP_X_FORWARDED_FOR']]]
+	));
 }
 
 /**
@@ -218,6 +249,7 @@ function wrap_http_remote_ip() {
  * @return bool
  */
 function wrap_http_localhost_ip() {
+	if (empty($_SERVER['REMOTE_ADDR'])) return false;
 	if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1') return true;
 	if ($_SERVER['REMOTE_ADDR'] === '::1') return true;
 	if (empty($_SERVER['SERVER_ADDR'])) return false;
