@@ -319,23 +319,12 @@ function wrap_mkdir($folder) {
 			}
 		}
 	}
-	$parts = array_filter(explode('/', $folder), 'strlen');
 	$current_folder = '';
-
-	// get rid of .. and .
-    $subfolders = [];
-    foreach ($parts as $part) {
-        if ($part === '.') continue;
-        if ($part === '..')
-            array_pop($subfolders);
-        else
-            $subfolders[] = $part;
-    }
-
-	foreach ($subfolders as $index => $subfolder) {
-		if ($subfolder === '') continue;
-		$current_folder .= '/'.$subfolder;
-		if (!empty($basefolders[$index]) AND $basefolders[$index] === $subfolder) {
+	$folders = wrap_filepath($folder, 'array');
+	foreach ($folders as $index => $folder) {
+		if ($folder === '') continue;
+		$current_folder .= '/'.$folder;
+		if (!empty($basefolders[$index]) AND $basefolders[$index] === $folder) {
 			// it's in open_basedir, so folder should exist and we cannot
 			// test whether it exists anyways
 			continue;

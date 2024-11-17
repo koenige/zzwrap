@@ -1468,3 +1468,38 @@ function wrap_heading_id($text) {
 function wrap_heading_id_set($string) {
 	return trim($string[0]).' {#'.strtolower(wrap_filename($string[1])).'}';
 }
+
+/**
+ * normalize file path, i. e. get rid of .. and .
+ *
+ * @param mixed $paths
+ * @param string $return return as string or array, defaults to string
+ * @return mixed
+ */
+function wrap_filepath($paths, $return = 'string') {
+	if (!is_array($paths))
+		$paths = [$paths];
+	else
+		$return = 'multiarray';
+
+	foreach ($paths as $index => $path) {
+		$start_slash = str_starts_with($path, '/') ? '/' : '';
+		$parts = array_filter(explode('/', $path), 'strlen');
+		// get rid of .. and .
+		$folders = [];
+		foreach ($parts as $part) {
+			if ($part === '.') continue;
+			if ($part === '..')
+				array_pop($folders);
+			else
+				$folders[] = $part;
+		}
+		$new_paths[$index] = $folders;
+		$new_paths_combined[$index] = $start_slash.implode('/', $folders);
+	}
+	switch ($return) {
+		case 'array': return reset($new_paths);
+		case 'multiarray': return $new_paths_combined;
+		default: return reset($new_paths_combined);
+	}
+}
