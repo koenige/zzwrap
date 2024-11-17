@@ -221,6 +221,7 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 	if (!empty($cfg[$key]['type']))
 		switch ($cfg[$key]['type']) {
 			case 'bytes': $setting = wrap_byte_to_int($setting); break;
+			case 'folder': $setting = wrap_filepath($setting); break;
 		}
 	
 	// list = 1 means values need to be array!
