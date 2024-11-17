@@ -377,6 +377,7 @@ function wrap_match_file($url_path) {
 		$dir = in_array($folder, wrap_setting('themes')) ? wrap_setting('themes_dir') : wrap_setting('modules_dir');
 		$file['name'] = sprintf('%s/%s/%s/%s',
 			$dir, $folder, $path, implode('/', $url_folders));
+		if (!is_file($file['name'])) continue;
 		if (in_array($ext = wrap_file_extension($file['name']), ['css', 'js'])) {
 			wrap_cache_allow_private();
 			return $file['name'];
