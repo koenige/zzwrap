@@ -56,9 +56,10 @@ function wrap_file_delete_line($file, $lines) {
  *
  * @param string $file
  * @param string $action
+ * @param array $input
  * @return array
  */
-function wrap_file_log($file, $action = 'read', $values = []) {
+function wrap_file_log($file, $action = 'read', $input = []) {
 	$data = [];
 	$logprefix = 'logfile_';
 	if (strstr($file, '/')) {
@@ -82,6 +83,7 @@ function wrap_file_log($file, $action = 'read', $values = []) {
 
 	switch ($action) {
 	case 'read':
+	case 'delete':
 		$lines = file($logfile);
 		$delete_lines = [];
 		foreach ($lines as $index => $line) {
@@ -102,13 +104,20 @@ function wrap_file_log($file, $action = 'read', $values = []) {
 					continue;
 				}
 			}
-			$data[] = $values;
+			$found = false;
+			if ($action === 'delete') {
+				$found = true;
+				foreach ($input as $field_name => $value)
+					if ($values[$field_name] !== $value) $found = false;
+				if ($found) $delete_lines[] = $index;
+			}
+			if (!$found) $data[] = $values;
 		}
 		if ($delete_lines)
 			wrap_file_delete_line($logfile, $delete_lines);
 		break;
 	case 'write':
-		$line = implode(' ', $values)."\n";
+		$line = implode(' ', $input)."\n";
 		error_log($line, 3, $logfile);
 		break;
 	}
