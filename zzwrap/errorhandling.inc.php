@@ -648,6 +648,8 @@ function wrap_error_hostnames() {
 	static $hostnames = [];
 	if ($hostnames) return $hostnames;
 	$hostnames = wrap_setting('external_redirect_hostnames');
+	if (wrap_setting('proxy_hostnames'))
+		$hostnames = array_merge($hostnames, wrap_setting('proxy_hostnames'));
 	if (wrap_setting('canonical_hostname')) {
 		$hostnames[] = wrap_setting('canonical_hostname');
 		// always add www. or non-www. version
