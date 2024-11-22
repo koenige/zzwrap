@@ -304,7 +304,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	if ($result) {
 		if (wrap_include('database', 'zzform')) {
 			wrap_setting('log_username_default', 'Servant Robot 247');
-			zz_log_sql($sql, '', $result['id'] ?? false);
+			zz_db_log($sql, '', $result['id'] ?? false);
 			wrap_setting_delete('log_username_default');
 		}
 		// activate setting

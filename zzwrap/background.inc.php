@@ -26,6 +26,7 @@ function wrap_job($url, $data = []) {
 	$data['url'] = $url;
 	// sequential: always use trigger
 	if (!empty($data['sequential'])) $data['trigger'] = true;
+	if (!empty($data['single'])) $data['trigger'] = true;
 	if (!empty($data['trigger']))
 		list($status, $headers, $response) = wrap_trigger_protected_url($path, false, true, $data);
 	else

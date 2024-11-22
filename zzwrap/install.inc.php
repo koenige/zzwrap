@@ -132,7 +132,7 @@ function wrap_install_module($module) {
 			}
 			$success = wrap_db_query($query);
 			if ($success)
-				zz_log_sql($query, 'Crew droid Robot 571');
+				zz_db_log($query, 'Crew droid Robot 571');
 		}
 	}
 	wrap_setting_write('mod_'.$module.'_install_date', date('Y-m-d H:i:s'));

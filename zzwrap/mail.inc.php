@@ -414,8 +414,8 @@ function wrap_mail_phpmailer($msg, $list) {
 			$mail->send();
 			if (!empty($item['sql_on_success'])) {
 				wrap_db_query($item['sql_on_success']);
-				if (function_exists('zz_log_sql'))
-					zz_log_sql($item['sql_on_success'], 'Messenger Robot 329');
+				if (function_exists('zz_db_log'))
+					zz_db_log($item['sql_on_success'], 'Messenger Robot 329');
 			}
 			// write to db that message was sent
 		} catch (Exception $e) {
