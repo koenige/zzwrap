@@ -564,23 +564,59 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
  * @param string $path_overview
  * @return array
  */
-function wrap_page_links($data, $path, $path_overview = false) {
+function wrap_page_links($data, $path = false, $path_overview = false) {
+	global $zz_page;
+	if (!$path) {
+		if (empty($zz_page['db']['url'])) return [];
+		$path = str_replace('*', '/%s', $zz_page['db']['url']);
+		$ending = $zz_page['db']['ending'];
+		if ($ending === 'none') $ending = '';
+		$path = sprintf('/%s%s', $path, $ending);
+	}
 	if (!$path_overview) $path_overview = $path;
 	$link = [];
 	if (!empty($data['_next_identifier'])) {
-		$link['next'][0]['href'] = wrap_path($path, $data['_next_identifier']);	
-		$link['next'][0]['title'] = $data['_next_title'];
+		$href = wrap_page_links_path($path, $data['_next_identifier']);
+		if ($href) {
+			$link['next'][0]['href'] = $href;	
+			$link['next'][0]['title'] = $data['_next_title'];
+		}
 	} else {
-		$link['next'][0]['href'] = wrap_path($path_overview, $data['_main_identifier'] ?? dirname($data['identifier']));
-		$link['next'][0]['title'] = $data['_main_title'] ?? wrap_text('Overview');
+		$href = wrap_page_links_path($path_overview, $data['_main_identifier'] ?? dirname($data['identifier']));
+		if ($href) {
+			$link['next'][0]['href'] = $href;
+			$link['next'][0]['title'] = $data['_main_title'] ?? wrap_text('Overview');
+		}
 	}
 	if (!empty($data['_prev_identifier'])) {
-		$link['prev'][0]['href'] = wrap_path($path, $data['_prev_identifier']);	
-		$link['prev'][0]['title'] = $data['_prev_title'];
+		$href = wrap_page_links_path($path, $data['_prev_identifier']);
+		if ($href) {
+			$link['prev'][0]['href'] = $href;	
+			$link['prev'][0]['title'] = $data['_prev_title'];
+		}
 	} else {
-		$link['prev'][0]['href'] = wrap_path($path_overview, $data['_main_identifier'] ?? dirname($data['identifier']));
-		$link['prev'][0]['title'] = $data['_main_title'] ?? wrap_text('Overview');
+		$href = wrap_page_links_path($path_overview, $data['_main_identifier'] ?? dirname($data['identifier']));
+		if ($href) {
+			$link['prev'][0]['href'] = $href;
+			$link['prev'][0]['title'] = $data['_main_title'] ?? wrap_text('Overview');
+		}
 	}
+	return $link;
+}
+
+/**
+ * return path
+ * if path contains % treat as full path
+ * otherwise use wrap_path()
+ *
+ * @param string $path
+ * @param string $identifier
+ * @return string
+ */
+function wrap_page_links_path($path, $identifier) {
+	if (strstr($path, '%s')) $link = sprintf($path, $identifier);
+	else $link = wrap_path($path, $identifier);
+	if (str_ends_with($link, '//')) $link = substr($link, 0, -1); // top folder
 	return $link;
 }
 
