@@ -125,8 +125,8 @@ function wrap_install_module($module) {
 		foreach ($queries_per_table as $index => $query) {
 			// install already in logging table?
 			if ($logging_table) {
-				$sql = 'SELECT log_id FROM %s WHERE query = "%s"';
-				$sql = sprintf($sql, wrap_sql_table('zzform_logging'), wrap_db_escape($query));
+				$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
+				$sql = sprintf($sql, wrap_db_escape($query));
 				$record = wrap_db_fetch($sql);
 				if ($record) continue;
 			}
