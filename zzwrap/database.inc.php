@@ -1786,7 +1786,7 @@ function wrap_sql_statement($sql) {
 	$tokens = explode(' ', $sql_ws);
 	$multitokens = [
 		'UNION', 'CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE', 'LOAD', 'INSERT',
-		'UPDATE'
+		'DELETE'
 	];
 	if (in_array($tokens[0], $multitokens))
 		$keyword = sprintf('%s %s', $tokens[0], $tokens[1]);
