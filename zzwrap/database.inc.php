@@ -232,11 +232,11 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 	
 	$return = [];
 	switch ($statement) {
-	case 'INSERT':
+	case 'INSERT INTO':
 		// return inserted ID
 		$return['id'] = mysqli_insert_id(wrap_db_connection());
 	case 'UPDATE':
-	case 'DELETE':
+	case 'DELETE FROM':
 		// return number of updated or deleted rows
 		$return['rows'] = mysqli_affected_rows(wrap_db_connection());
 		break;
@@ -1785,7 +1785,8 @@ function wrap_sql_statement($sql) {
 	$sql_ws = preg_replace('~\s~', ' ', trim($sql));
 	$tokens = explode(' ', $sql_ws);
 	$multitokens = [
-		'UNION', 'CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE', 'LOAD'
+		'UNION', 'CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE', 'LOAD', 'INSERT',
+		'UPDATE'
 	];
 	if (in_array($tokens[0], $multitokens))
 		$keyword = sprintf('%s %s', $tokens[0], $tokens[1]);
