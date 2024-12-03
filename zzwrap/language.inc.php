@@ -209,8 +209,8 @@ function wrap_text($string, $params = []) {
 		$module_text = [];
 		$context = [];
 		// standard text english
-		$files[] = wrap_setting('custom_wrap_dir').'/text-en.inc.php'; // @deprecated
-		$files[] = wrap_setting('custom_wrap_dir').'/text-en.po'; // @deprecated
+		$files[] = wrap_setting('custom').'/custom/text-en.inc.php'; // @deprecated
+		$files[] = wrap_setting('custom').'/custom/text-en.po'; // @deprecated
 		$files[] = wrap_setting('custom').'/languages/text-en.po';
 		// default translated text
 		$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
@@ -232,15 +232,15 @@ function wrap_text($string, $params = []) {
 			}
 		}
 		// standard translated text 
-		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.inc.php'; // @deprecated
-		$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'.po'; // @deprecated
+		$files[] = wrap_setting('custom').'/custom/text-'.$language.'.inc.php'; // @deprecated
+		$files[] = wrap_setting('custom').'/custom/text-'.$language.'.po'; // @deprecated
 		if ($language === 'en') // plurals, if .po file exists, included below, overwrite
 			$files[] = wrap_setting('custom').'/languages/text.pot';
 		$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
 		if (wrap_setting('language_variation')) {
 			// language variantes contain only some translations
 			// and are added on top of the existing translations
-			$files[] = wrap_setting('custom_wrap_dir').'/text-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
+			$files[] = wrap_setting('custom').'/custom/text-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
 			$files[] = wrap_setting('custom').'/languages/text-'.$language.'-'.wrap_setting('language_variation').'.po';
 		}
 

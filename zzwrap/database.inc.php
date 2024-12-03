@@ -106,7 +106,7 @@ function wrap_db_credentials() {
 	$rewrite = false;
 	foreach ($db_password_files as $file) {
 		if (substr($file, 0, 1) !== '/') {
-			$filename = wrap_setting('custom_wrap_sql_dir').'/pwd'.$file.'.inc.php';
+			$filename = wrap_setting('custom').'/zzwrap_sql/pwd'.$file.'.inc.php';
 			if (!file_exists($filename)) {
 				$filename = wrap_config_filename('pwd'.$file);
 				if (!file_exists($filename)) continue;

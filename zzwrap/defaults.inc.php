@@ -309,7 +309,7 @@ function wrap_config_filename($type = 'main') {
 			if (!str_starts_with($type, 'pwd')) return '';
 			$template = '%%s/%s.json';
 			$template = sprintf($template, $type);
-			$deprecated = sprintf($template, wrap_setting('custom_wrap_sql_dir'));
+			$deprecated = sprintf($template, wrap_setting('custom').'/zzwrap_sql');
 			break;
 	}
 	$preferred = sprintf($template, wrap_setting('config_dir'));
