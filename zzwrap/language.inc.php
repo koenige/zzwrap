@@ -27,8 +27,7 @@ function wrap_language_set() {
 	global $zz_page;
 
 	// check for language code in URL
-	if (wrap_setting('translate_fields'))
-		$zz_page['url'] = wrap_prepare_url($zz_page['url']);
+	wrap_prepare_url();
 
 	// single language website?
 	if (!wrap_setting('languages_allowed')) return true;
@@ -74,32 +73,27 @@ function wrap_language_redirect() {
 
 /**
  * Reads the language from the URL and returns without it
+ * looking for /en/ or similar
  * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
  * 
  * settings: 'lang' (will be changed), 'base' (will be changed)
- * @param array $url ($zz_page['url'])
- * @return array $url
+ * @return bool
  */
-function wrap_prepare_url($url) {
-	// looking for /en/ or similar
-	if (empty($url['full']['path'])) return $url;
+function wrap_prepare_url() {
+	global $zz_page;
+
+	if (!wrap_setting('languages_allowed')) return false;
+	if (empty($zz_page['url']['full']['path'])) return false;
 	// if /en/ is not there, /en still may be, so check full URL
-	if (!$pos = strpos(substr($url['full']['path'], 1), '/')) {
-		$pos = strlen($url['full']['path']);
+	if (!$pos = strpos(substr($zz_page['url']['full']['path'], 1), '/')) {
+		$pos = strlen($zz_page['url']['full']['path']);
 	}
-	$lang = substr($url['full']['path'], 1, $pos);
+	$lang = substr($zz_page['url']['full']['path'], 1, $pos);
 	// check if it’s a language
-	if (wrap_setting('languages_allowed')) {
-		// read from array
-		if (!in_array($lang, wrap_setting('languages_allowed'))) 
-			$lang = false;
-	} else {
-		// impossible to check, so there's no language
-		$lang = false;
-	}
-	
-	// if no language can be extracted from URL, return URL without changes
-	if (!$lang) return $url;
+	// read from array
+	if (!in_array($lang, wrap_setting('languages_allowed'))) 
+		// if no language can be extracted from URL, return without changes
+		return false;
 		
 	// save language in settings
 	wrap_setting('lang', $lang);
@@ -107,13 +101,13 @@ function wrap_prepare_url($url) {
 	wrap_setting('base', wrap_setting('base').'/'.$lang);
 	// modify internal URL
 	wrap_setting('language_in_url', true);
-	$url['full']['path'] = substr($url['full']['path'], $pos + 1);
-	if (!$url['full']['path']) {
-		$url['full']['path'] = '/';
-		$url['redirect'] = true;
-		$url['redirect_cache'] = false;
+	$zz_page['url']['full']['path'] = substr($zz_page['url']['full']['path'], $pos + 1);
+	if (!$zz_page['url']['full']['path']) {
+		$zz_page['url']['full']['path'] = '/';
+		$zz_page['url']['redirect'] = true;
+		$zz_page['url']['redirect_cache'] = false;
 	}
-	return $url;
+	return true;
 }
 
 /**
@@ -653,6 +647,7 @@ function wrap_translate_page() {
 function wrap_translate_url($data) {
 	// has URL language code in it?
 	if (!wrap_setting('language_in_url')) return $data;
+	if (!wrap_setting('translate_fields')) return $data;
 
 	// are there translations for webpages.identifier?
 	$field = wrap_translate_identifier_field();
@@ -694,6 +689,7 @@ function wrap_translate_url($data) {
  */
 function wrap_translate_url_other() {
 	global $zz_page;
+	if (!wrap_setting('translate_fields')) return [];
 	$field = wrap_translate_identifier_field();
 	if (!$field) return [];
 
