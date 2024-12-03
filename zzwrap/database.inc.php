@@ -1141,11 +1141,12 @@ function wrap_sql_query($key, $file = 'queries') {
 	static $queries = [];
 	static $collected = [];
 
+	$system_prefixes = ['page', 'auth', 'core', 'ids'];
 	$prefix = $package = substr($key, 0, strpos($key, '_'));
-	if (in_array($package, ['page', 'auth', 'core', 'ids'])) {
+	if (in_array($package, $system_prefixes)) {
 		$package = 'modules';
 		$file = 'system';
-		$prefix_check = ['page', 'auth', 'core', 'ids'];
+		$prefix_check = $system_prefixes;
 	} else {
 		$prefix_check = [$package];
 	}
@@ -1757,7 +1758,7 @@ function wrap_sql_concat($matches) {
 }
 
 /**
- * replace parts outside strings in SQL queries
+ * replace parts outside strings or if equal to full strings in SQL queries
  *
  * @param string $search
  * @param string $replace
@@ -1766,10 +1767,24 @@ function wrap_sql_concat($matches) {
  */
 function wrap_sql_replace($search, $replace, $sql) {
 	$sql = wrap_sql_split($sql);
+	// outside strings: replace all values
 	foreach ($sql['no_strings'] as $index => $part) {
 		if (!$part) continue;
 		if (!strstr($part, $search)) continue;
 		$sql['no_strings'][$index] = str_replace($search, $replace, $part);
+	}
+	// inside strings: only replace if searched value is full string
+	// to avoid replacing inside string when describing it
+	$searches = [
+		sprintf('"%s"', $search) => sprintf('"%s"', $replace),
+		sprintf("'%s'", $search) => sprintf("'%s'", $replace)
+	];
+	foreach ($searches as $search => $replace) {
+		foreach ($sql['strings'] as $index => $part) {
+			if (!$part) continue;
+			if ($part !== $search) continue;
+			$sql['strings'][$index] = str_replace($search, $replace, $part);
+		}
 	}
 	return wrap_sql_concat($sql);
 }
