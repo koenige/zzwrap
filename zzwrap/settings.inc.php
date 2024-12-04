@@ -812,6 +812,10 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false) {
 	if (count($value) < $required_count) {
 		if (wrap_setting('backend_path'))
 			array_unshift($value, wrap_setting('backend_path'));
+		if (count($value) < $required_count AND wrap_setting('path_placeholder_function')) {
+			$new_value = wrap_setting('path_placeholder_function')();
+			if ($new_value) array_unshift($value, $new_value);
+		}
 		if (count($value) < $required_count) {
 			if (!$testing) return '';
 			while (count($value) < $required_count)
@@ -850,4 +854,18 @@ function wrap_path_placeholder($path, $char = '%s') {
 	while (strstr($path, $char.$char))
 		$path = str_replace($char.$char, $char, $path);
 	return $path;
+}
+
+/**
+ * get a path for a certain help text
+ *
+ * @param string $helptext
+ * @return string
+ */
+function wrap_path_helptext($help) {
+	$identifier = str_replace('_', '-', $help);
+	wrap_include('zzbrick_request_get/helptexts', 'default');
+	$files = mf_default_helptexts_files();
+	if (!array_key_exists($identifier, $files)) return '';
+	return wrap_path('default_helptext', $help);
 }
