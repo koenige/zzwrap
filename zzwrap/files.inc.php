@@ -77,61 +77,37 @@ function wrap_include_files($filename, $paths = 'custom/modules') {
  * @param string $filename filename to look for, may include path, may omit .inc.php
  * @param string $search where to look for files: custom folder, modules etc.
  * @return array
+ * @todo improve code for search order, use $search here, too
  */
 function wrap_collect_files($filename, $search = 'custom/modules') {
 	global $zz_setting;
 
 	$packages = [];
 	$custom = false;
-	$files = [];
 	$media = false;
-
-	switch ($search) {
-	case 'media/custom/modules/themes':
-		$media = true;
-	case 'modules/themes/custom':
-	case 'custom/modules/themes':
-		$packages = $zz_setting['themes'];
-	case 'custom/modules':
-	case 'modules/custom':
-		$packages = array_merge($packages, $zz_setting['modules']);
-		$custom = true;
-		break;
-	case 'custom':
-		// only look into custom folder
-		$custom = true;
-		break;
-	case 'modules':
-		// only look into modules
-		$packages = $zz_setting['modules'];
-		break;
-	case 'custom/active':
-	case 'active/custom':
-		$custom = true;
-		if (!empty($zz_setting['activated']['modules']))
-			$packages = $zz_setting['activated']['modules'];
-		elseif (!empty($zz_setting['active_module']))
-			$packages = [$zz_setting['active_module']];
-		break;
-	case 'active':
-		if (!empty($zz_setting['activated']['modules']))
-			$packages = $zz_setting['activated']['modules'];
-		elseif (!empty($zz_setting['active_module']))
-			$packages = [$zz_setting['active_module']];
-		else
-			return [];
-		break;
-	case 'default/custom':
-	case 'custom/default':
-		$packages = ['default'];
-		$custom = true;
-		break;
-	default:
-		// only look into single module folder
-		$packages = [$search];
-		break;
-	}
 	
+	$matches = explode('/', $search);
+	if (in_array('files', $matches))
+		$media = true;
+	if (in_array('themes', $matches))
+		$packages = array_merge($packages, $zz_setting['themes']);
+	if (in_array('modules', $matches))
+		$packages = array_merge($packages, $zz_setting['modules']);
+	if (in_array('custom', $matches))
+		$custom = true;
+	if (in_array('active', $matches))
+		if (!empty($zz_setting['activated']['modules']))
+			$packages = array_merge($packages, $zz_setting['activated']['modules']);
+		elseif (!empty($zz_setting['active_module']))
+			$packages[] = $zz_setting['active_module'];
+	$checked = ['files', 'themes', 'modules', 'custom', 'active'];
+	foreach ($checked as $key)
+		unset($matches[$key]);
+	foreach ($matches as $key)
+		$packages[] = $key;
+	
+	if (!$packages AND !$custom AND !$media) return [];
+
 	// has filename path in it?
 	if (strpos($filename, '/')) {
 		$path = dirname($filename);
@@ -141,6 +117,8 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	}
 	// no file extension given? add .inc.php
 	if (!strpos($filename, '.')) $filename = sprintf('%s.inc.php', $filename);
+
+	$files = [];
 
 	// check modules (default always is first module)
 	foreach ($packages as $package) {
@@ -168,7 +146,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
 		if (file_exists($file)) {
 			if (str_starts_with($search, 'custom/')
-				OR str_starts_with($search, 'media/custom/')) {
+				OR str_starts_with($search, 'files/custom/')) {
 				$files = array_merge(['custom' => $file], $files);
 			} else {
 				$files['custom'] = $file;
@@ -187,7 +165,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 			$file = sprintf('%s/%s', wrap_setting('media_folder'), $filename);
 		if (file_exists($file)) {
 			// @todo support `media` at other positions than first
-			$files = array_merge(['media' => $file], $files);
+			$files = array_merge(['files' => $file], $files);
 		}
 	}
 
