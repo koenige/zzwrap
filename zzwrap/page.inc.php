@@ -626,16 +626,18 @@ function wrap_page_links_path($path, $identifier) {
  * @return void
  */
 function wrap_page_format_files() {
-	static $included = [];
-	$files = wrap_include('format', 'custom/active');
+	static $functions = [];
+	$files = wrap_include('format', 'custom/modules/themes');
 	if (!$files) return;
 	foreach ($files['functions'] as $function) {
+		if (in_array($function, $functions)) continue;
 		if (!empty($function['short'])) {
 			wrap_setting_add('brick_formatting_functions_prefix', [$function['short'] => $function['prefix']]);
 			wrap_setting_add('brick_formatting_functions', $function['short']);
 		} else {
 			wrap_setting_add('brick_formatting_functions', $function['function']);
 		}
+		$functions[] = $function;
 	}
 }
 
