@@ -105,6 +105,10 @@ function wrap_match_page($zz_page) {
 	}
 	if (empty($page)) return false;
 
+	// @deprecated: using %language% as placeholder and processing it outside zzwrap
+	// but we do not need this here
+	if (str_starts_with($data[$found]['url'], '%language%'))
+		array_shift($data[$found]['params']);
 	$page['parameter'] = implode('/', $data[$found]['params']);
 	$page['url'] = $data[$found]['url'];
 	
