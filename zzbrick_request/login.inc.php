@@ -251,6 +251,10 @@ function mod_zzwrap_login($params, $settings = []) {
 		'password', 'auth', 'via', 'request', 'add', 'link', 'username', 'token', 'url'
 	];
 	if (isset($_GET['password'])) {
+		if (!wrap_setting('password_link'))
+			wrap_quit(404, wrap_text('The “Forgot password” link is not activated.'));
+		if (!wrap_sql_query('auth_password_reminder'))
+			wrap_quit(404, wrap_text('The “Forgot password” query is missing.'));
 		$page['text'] = wrap_template('login-password', $loginform);
 		$page['breadcrumbs'][] = ['title' => wrap_text('Login'), 'url_path' => './'];
 		$page['breadcrumbs'][]['title'] = wrap_text('Request password');

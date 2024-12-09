@@ -1264,6 +1264,14 @@ msgstr ""
 msgid "HTTP Version Not Supported"
 msgstr ""
 
+#: zzbrick_request/login.inc.php
+msgid "The “Forgot password” link is not activated."
+msgstr ""
+
+#: zzbrick_request/login.inc.php
+msgid "The “Forgot password” query is missing."
+msgstr ""
+
 #: zzwrap/errorhandling.inc.php
 msgid ""
 "Please try to find the content you were looking for from our <a href=\"%s"

@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.5\n"
 
 #: configuration/access.cfg
 msgid "start job manager"
@@ -1377,6 +1377,14 @@ msgstr "Zeitlimit am Netzübergang (<code>gateway</code>) überschritten"
 #: zzwrap/errorhandling.inc.php
 msgid "HTTP Version Not Supported"
 msgstr "HTTP-Version nicht unterstützt"
+
+#: zzbrick_request/login.inc.php
+msgid "The “Forgot password” link is not activated."
+msgstr "Der „Passwort vergessen“-Link ist nicht aktiv."
+
+#: zzbrick_request/login.inc.php
+msgid "The “Forgot password” query is missing."
+msgstr "Die Abfrage „Passwort vergessen“ fehlt."
 
 #: zzwrap/errorhandling.inc.php
 msgid ""

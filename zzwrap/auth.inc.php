@@ -681,6 +681,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
  */
 function wrap_password_reminder($address, $additional_data = []) {
 	$sql = wrap_sql_query('auth_password_reminder');
+	if (!$sql) wrap_quit(503, wrap_text('The “Forgot password” query is missing.'));
 	// add address twice, if it's only once in the query, last parameter gets ignored
 	$sql = sprintf($sql, wrap_db_escape($address), wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
