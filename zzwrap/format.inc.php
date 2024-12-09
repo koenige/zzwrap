@@ -1504,3 +1504,14 @@ function wrap_filepath($paths, $return = 'string') {
 		default: return reset($new_paths_combined);
 	}
 }
+
+/**
+ * clean a string for e-mail
+ *
+ * @param string $string
+ * @return string
+ */
+function wrap_mailclean($string) {
+	if (strstr($string, '.')) $string = str_replace('.', ' ', $string);
+	return $string;
+}
