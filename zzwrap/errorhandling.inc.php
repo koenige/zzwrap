@@ -620,7 +620,7 @@ function wrap_errorpage_logignore() {
 	if (!empty($_SERVER['SERVER_ADDR']) AND wrap_setting('hostname') === $_SERVER['SERVER_ADDR']) return true;
 
 	if (!empty($_SERVER['SERVER_NAME'])) {
-		if (!in_array(strtolower($_SERVER['SERVER_NAME']), wrap_error_hostnames())) {
+		if (!in_array(strtolower(wrap_url_dev_remove($_SERVER['SERVER_NAME'])), wrap_error_hostnames())) {
 			wrap_error(wrap_text(
 				'The server responds to the hostname %s, but this is not in the list of possible hostnames.',
 				['values' => $_SERVER['SERVER_NAME']]
