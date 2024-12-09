@@ -105,12 +105,7 @@ function wrap_url_forwarded() {
 
 	if (empty($_SERVER['HTTP_X_FORWARDED_HOST'])) return;
 	if (!wrap_setting('hostname_in_url')) return;
-	$forwarded_host = $_SERVER['HTTP_X_FORWARDED_HOST'];
-	if (wrap_setting('local_access') AND str_ends_with($forwarded_host, '.local')) {
-		$forwarded_host = substr($forwarded_host, 0, -6);
-	} elseif (wrap_setting('local_access') AND str_starts_with($forwarded_host, 'dev.')) {
-		$forwarded_host = substr($forwarded_host, 4);
-	}
+	$forwarded_host = wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_HOST']);
 	$forwarded_host = sprintf('/%s', $forwarded_host);
 	if (str_starts_with($zz_page['url']['full']['path'], $forwarded_host)) {
 		$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
@@ -477,12 +472,7 @@ function wrap_url_canonical_hostname() {
 	if (!wrap_setting('canonical_hostname')) return '';
 
 	$canonical = wrap_setting('canonical_hostname');
-	if (wrap_setting('local_access')) {
-		if (str_starts_with(wrap_setting('hostname'), 'dev.'))
-			$canonical = 'dev.'.$canonical;
-		else
-			$canonical .= '.local';
-	}
+	$canonical = wrap_url_dev_add($canonical);
 	return $canonical;	
 }
 
@@ -495,4 +485,47 @@ function wrap_url_canonical_hostname() {
 function wrap_url_canonical_redirect($url) {
 	if (empty($url['redirect'])) return false;
 	wrap_redirect(wrap_glue_url($url['full']), 301, $url['redirect_cache']);
+}
+
+/**
+ * check if a hostname is a development hostname
+ * and return position to cut from/to
+ *
+ * @param string hostname
+ * @param bool $check_local (optional, default = check local_access)
+ * @return string
+ */
+function wrap_url_dev($hostname, $check_local = true) {
+	if ($check_local AND !wrap_setting('local_access')) return '';
+	if (str_ends_with($hostname, '.local')) return '.local';
+	if (str_starts_with($hostname, 'dev.')) return 'dev.';
+	if (str_starts_with($hostname, 'dev-')) return 'dev-';
+	return '';
+}
+
+/**
+ * add dev parts to hostname
+ *
+ * @param string $hostname
+ * @return string
+ */
+function wrap_url_dev_add($hostname) {
+	$add = wrap_url_dev(wrap_setting('hostname'));
+	if (!$add) return $hostname;
+	if (str_starts_with($add, '.')) return $hostname.$add;
+	return $add.$hostname;
+}
+
+/**
+ * remove dev parts from hostname
+ *
+ * @param string $hostname
+ * @param bool $check_local (optional, default = check local_access)
+ * @return string
+ */
+function wrap_url_dev_remove($hostname, $check_local = true) {
+	$cut = wrap_url_dev($hostname, $check_local);
+	if (!$cut) return $hostname;
+	if (str_starts_with($cut, '.')) return substr($hostname, 0, -strlen($cut));
+	return substr($hostname, strlen($cut));
 }

@@ -132,12 +132,9 @@ function wrap_defaults_pre_conf() {
 	wrap_setting('site', wrap_setting('hostname'));
 	if (str_starts_with(wrap_setting('site'), 'www.'))
 		wrap_setting('site', substr(wrap_setting('site'), 4));
-	if (str_starts_with(wrap_setting('site'), 'dev.')) {
-		wrap_setting('site', substr(wrap_setting('site'), 4));
-		wrap_setting('local_access', true);
-	}
-	if (str_ends_with(wrap_setting('site'), '.local')) {
-		wrap_setting('site', substr(wrap_setting('site'), 0, -6));
+	$site = wrap_url_dev_remove(wrap_setting('site'), false);
+	if ($site !== wrap_setting('site')) {
+		wrap_setting('site', $site);
 		wrap_setting('local_access', true);
 	}
 
