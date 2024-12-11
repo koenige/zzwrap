@@ -5,7 +5,7 @@
  * Authentication functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  *	- wrap_auth()
  *		- wrap_authenticate_url()

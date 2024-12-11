@@ -5,7 +5,7 @@
  * Database functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  *	Database functions
  *	- wrap_db_connect()

@@ -5,7 +5,7 @@
  * Formatting functions for strings and other data
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  * wrap_convert_string()
  *	wrap_mailto()

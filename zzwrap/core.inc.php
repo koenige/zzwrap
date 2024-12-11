@@ -6,7 +6,7 @@
  * communication, send ressources), common functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2024 Gustaf Mossakowski

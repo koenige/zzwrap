@@ -5,7 +5,7 @@
  * Standard page functions (menu, breadcrumbs, authors, page)
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  *	wrap_page_authors()				-- gets authors from database
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML

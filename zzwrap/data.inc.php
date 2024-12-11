@@ -5,7 +5,7 @@
  * data functions for request_get-functions
  *
  * Part of »Zugzwang Project«
- * http://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2020, 2023-2024 Gustaf Mossakowski

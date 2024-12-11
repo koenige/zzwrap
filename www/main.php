@@ -4,7 +4,7 @@
  * Zugzwang Project
  * Main script sending the requests to the Content Management System
  *
- * http://www.zugzwang.org/projects/zzproject
+ * https://www.zugzwang.org/modules/zzproject
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2012, 2019, 2023 Gustaf Mossakowski

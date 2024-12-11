@@ -5,7 +5,7 @@
  * page navigation (menu, breadcrumbs)
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  *	wrap_menu_get()				-- gets menu from database
  *		wrap_menu_navigation()	-- gets menu from separate navigation table

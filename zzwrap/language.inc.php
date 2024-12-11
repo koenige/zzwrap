@@ -5,7 +5,7 @@
  * Language and internationalization functions
  *
  * Part of »Zugzwang Project«
- * https://www.zugzwang.org/projects/zzwrap
+ * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2011, 2014-2018, 2020-2024 Gustaf Mossakowski
