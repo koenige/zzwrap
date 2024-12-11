@@ -21,6 +21,7 @@
  * @return bool
  */
 function wrap_job($url, $data = []) {
+	wrap_job_debug('CALL JOB '.($url === wrap_setting('request_uri') ? 'self' : $url));
 	$path = wrap_path('jobmanager', '', false);
 	if (!$path) $path = $url;
 	$data['url'] = $url;
@@ -75,6 +76,7 @@ function wrap_job_check($type) {
  * @return void
  */
 function wrap_job_finish($job, $type, $content) {
+	wrap_job_debug('FINISH JOB', $job);
 	if (!wrap_job_page($type)) return true;
 	if (!wrap_setting('jobmanager_path')) return false;
 
@@ -93,11 +95,12 @@ function wrap_job_finish($job, $type, $content) {
 
 	$url_next = $_POST['job_url_next'] ?? $content['extra']['job_continue'] ?? '';
 	if ($url_next) {
+		wrap_job_debug('NEXT JOB '.$url_next);
 		if ($url_next === true) $url_next = $job['job_url'] ?? ''; // empty if job was stopped
 		wrap_trigger_protected_url($url_next, wrap_username($job['username'] ?? '', false));
-		// do not mark job as stopped if sequential mode
-		if (!empty($job['postdata']['sequential'])) return true;
 	}
+	// do not mark job as stopped if sequential mode
+	if (!empty($job['postdata']['sequential'])) return true;
 	mod_default_make_jobmanager_finish($job, $content['status'] ?? 200, $content['text']);
 }
 
@@ -117,6 +120,25 @@ function wrap_job_page($type) {
 
 	wrap_include('zzbrick_make/jobmanager', 'default');
 	return true;
+}
+
+/**
+ * debug job
+ * activate via job_debug=1
+ *
+ * @param string $msg
+ * @param array $data (optional)
+ * @return void
+ */
+function wrap_job_debug($msg, $data = []) {
+	global $zz_page;
+	if (empty($zz_page['db']['parameters']['job_debug'])) return;
+	wrap_error(sprintf('%s %s%s (%s)',
+		wrap_setting('zzwrap_id'),
+		$msg,
+		$data ? ' DATA: '.json_encode($data) : '',
+		wrap_setting('request_uri'),
+	));
 }
 
 /**
