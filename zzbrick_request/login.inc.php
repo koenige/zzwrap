@@ -1,7 +1,7 @@
 <?php 
 
 /**
- * zzwrap module
+ * zzwrap
  * Login to restricted area
  *
  * Part of »Zugzwang Project«

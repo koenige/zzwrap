@@ -1,5 +1,5 @@
 <!--
-# zzwrap module
+# zzwrap
 # about page elements
 #
 # Part of »Zugzwang Project«
