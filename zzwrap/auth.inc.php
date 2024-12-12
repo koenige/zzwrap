@@ -751,7 +751,7 @@ function wrap_sso_login($login_url, $dest_url = '/') {
  * @return array data from remote server
  */
 function wrap_auth_form($login, $settings) {
-	require_once wrap_setting('core').'/syndication.inc.php';
+	wrap_include('syndication', 'zzwrap');
 	
 	if (!empty($login['sso_token'])) {
 		$url = sprintf($settings['form_sso_url'], 'sso_'.$login['username'].'-'.$login['sso_token']);
