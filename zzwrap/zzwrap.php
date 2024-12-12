@@ -31,6 +31,7 @@ function zzwrap() {
 	wrap_http_restrict_ip();
 	wrap_includes_postconf();
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
+	wrap_validate_post();
 
 	// make all _function files available, check_request() might already quit and needs a page
 	wrap_include('_functions', 'custom/modules/themes');

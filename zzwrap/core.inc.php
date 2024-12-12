@@ -641,3 +641,25 @@ function wrap_webimage($filetype) {
 	if (!empty($def['webimage'])) return true;
 	return false;
 }
+
+/**
+ * check if POST data contains malicious data
+ *
+ */
+function wrap_validate_post() {
+	if (empty($_POST)) return true;
+	wrap_validate_post_recursive($_POST);
+}
+
+/**
+ * recursive function to check for malicious data
+ *
+ */
+function wrap_validate_post_recursive($data) {
+    foreach ($data as $key => $value) {
+        if (is_array($value))
+        	wrap_validate_post_recursive($value);
+        elseif (strpos($value, "\0") !== false)
+        	wrap_quit(400, 'You sent the null character in your data. No use for that.');
+	}
+}
