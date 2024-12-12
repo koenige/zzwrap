@@ -88,6 +88,7 @@ function wrap_detect_encoding($data) {
 	$encoding = mb_detect_encoding($test_string, mb_detect_order(), true);
 	// html_entity_decode() and htmlspecialchars() do not work with ASCII
 	if ($encoding === 'ASCII') return 'ISO-8859-1';
+	return $encoding;
 }
 
 /**
