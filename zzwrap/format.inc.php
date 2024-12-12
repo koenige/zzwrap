@@ -614,6 +614,10 @@ function wrap_currency($currency) {
  */
 function wrap_html_escape($string) {
 	if (!$string) return $string;
+	if (is_array($string)) {
+		wrap_error(sprintf('wrap_html_escape() only handles strings (%s)', json_encode($string)));
+		return '';
+	}
 	// overwrite default character set UTF-8 because htmlspecialchars will
 	// return NULL if character set is unknown
 	switch (wrap_setting('character_set')) {
