@@ -551,7 +551,8 @@ function wrap_register($user_id = false, $data = []) {
  * @return string $field_value, reformatted
  */
 function wrap_login_format($field_value, $field_name) {
-	$field_value = wrap_db_escape($field_value);
+	if (is_array($field_value)) $field_value = json_encode($field_value);
+	else $field_value = wrap_db_escape($field_value);
 	
 	if ($function = wrap_setting('login_fields_format'))
 		$field_value = $function($field_value, $field_name);

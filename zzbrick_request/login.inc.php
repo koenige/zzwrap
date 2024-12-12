@@ -130,7 +130,8 @@ function mod_zzwrap_login($params, $settings = []) {
 		
 		// get password and username
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			if (empty($_POST['username']) OR empty($_POST['password']) OR is_array($_POST['password']))
+			if (empty($_POST['username']) OR is_array($_POST['username'])
+				OR empty($_POST['password']) OR is_array($_POST['password']))
 				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
 			$full_login = [];
 			foreach (wrap_setting('login_fields') AS $login_field) {
