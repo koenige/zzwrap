@@ -285,5 +285,6 @@ function mod_zzwrap_login_redirect_url() {
 	if (empty($zz_page['url']['full']['query'])) return false;
 	parse_str($zz_page['url']['full']['query'], $querystring);
 	if (empty($querystring['url'])) return false;
+	if (is_array($querystring['url'])) return false;
 	return $querystring['url'];
 }
