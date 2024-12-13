@@ -443,6 +443,32 @@ function wrap_setting_key_array($key) {
 }
 
 /**
+ * unset a key from an array where the given key is a string that looks like
+ * key[value][value2] etc., done via reference
+ *
+ * example: unset($setting['key[value][value2]']); does, of course, not work
+ * so this works like unset($setting['key']['value']['value2']);
+ *
+ * @param string $key
+ * @param array $settings
+ * @return array
+ */
+function wrap_setting_key_unset($key, $settings) {
+	$old = wrap_setting_key_array($key);
+	if (!count($old)) return $settings;
+
+	$last_key = array_pop($old);
+	$temp = &$settings; // reset reference
+	foreach ($old as $subkey) {
+		// does not exist, nothing to remove?
+		if (!isset($temp[$subkey])) return $settings;
+		$temp = &$temp[$subkey];
+	}
+	unset($temp[$last_key]); 
+	return $settings;
+}
+
+/**
  * allows settings from db to be in the format [1, 2, 3]; first \ will be
  * removed and allows settings starting with [
  *
