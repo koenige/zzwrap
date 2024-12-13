@@ -116,6 +116,23 @@ function wrap_set_encoding($character_encoding) {
 }
 
 /**
+ * convert array to different encoding
+ *
+ * @param array $data
+ * @param string $encoding
+ * @return array
+ */
+function wrap_convert_encoding($data, $encoding) {
+	foreach ($data as $key => &$value) {
+		if (is_array($value))
+			$value = wrap_convert_encoding($value, $encoding);
+		else
+			$value = mb_convert_encoding($value, 'UTF-8');
+	}
+	return $data;
+}
+
+/**
  * convert a string to a filename (just ASCII characters)
  *
  * @param string $str input string

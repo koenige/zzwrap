@@ -406,8 +406,13 @@ function wrap_page_json($page, $text = NULL) {
 			$output[$key] = $data;
 	$json = json_encode($output);
 	if ($output and !$json) {
+		file_put_contents(sprintf('%s/zzwrap/json-error-%s.log', wrap_setting('log_dir'), time()), $output);
+		if (json_last_error() === JSON_ERROR_UTF8) {
+			$output = wrap_convert_encoding($output, 'UTF-8');
+			$json = json_encode($output);
+			if ($json) return $json;
+		}
 		wrap_quit(503, 'JSON error: '.json_last_error_msg());
-		exit;
 	}
 	return $json;
 }
