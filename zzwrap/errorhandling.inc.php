@@ -845,6 +845,11 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	$user = wrap_username();
 	if (!$user) $user = wrap_setting('remote_ip');
 	if (!$user) $user = 'unknown'; // forwared connections from localhost
+	if (is_array($user)) {
+		// @todo avoid this earlier on
+		wrap_error('Username must be string. '.json_encode($user));
+		$user = 'unknown';
+	}
 	$line = sprintf('[%s] %s %s: %s'
 		, date('d-M-Y H:i:s')
 		, $module
