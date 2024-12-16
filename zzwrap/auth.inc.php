@@ -561,6 +561,53 @@ function wrap_login_format($field_value, $field_name) {
 }
 
 /**
+ * limit logins from one IP
+ *
+ * @param string $username (optional)
+ */
+function wrap_login_limit($username = NULL) {
+	if (!wrap_setting('logfile_login')) return;
+	wrap_include('file', 'zzwrap');
+	$logs = wrap_file_log('login');
+	$found = 0;
+	$timestamps = [];
+	foreach ($logs as $log) {
+		if ($log['remote_ip'] !== wrap_setting('remote_ip')) continue;
+		$found++;
+		$timestamps[] = $log['timestamp'];
+	}
+	if (!$found) {
+		wrap_file_log('login', 'write', [time(), wrap_setting('remote_ip'), ($username ?? 'unknown')]);
+		return;
+	}
+
+	$wait = round(pow(wrap_setting('login_wait_base'), $found));
+	// remove last timestamp, so Retry-After shows correct seconds
+	array_pop($timestamps); 
+	$timestamp = array_pop($timestamps);
+	$wait_seconds = $timestamp + $wait - time();
+	if ($wait_seconds <= 0) {
+		wrap_file_log('login', 'write', [time(), wrap_setting('remote_ip'), ($username ?? 'unknown')]);
+		return;
+	}
+
+	header('Retry-After: %d', $wait_seconds);
+	wrap_quit(429, wrap_text(
+		'Too many failed login attempts. Please wait %d seconds.',
+		['values' => $wait_seconds]
+	));
+}
+
+/**
+ * successful login: reset counter
+ *
+ */
+function wrap_login_limit_remove() {
+	wrap_include('file', 'zzwrap');
+	wrap_file_log('login', 'delete', ['remote_ip' => wrap_setting('remote_ip')]);
+}
+
+/**
  * check given password against database password hash
  *
  * @param string $pass password as entered by user

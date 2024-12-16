@@ -130,6 +130,9 @@ function mod_zzwrap_login($params, $settings = []) {
 		
 		// get password and username
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$username = $_POST['username'] ?? NULL;
+			if (is_array($username)) $username = NULL;
+			wrap_login_limit($username);
 			if (empty($_POST['username']) OR is_array($_POST['username'])
 				OR empty($_POST['password']) OR is_array($_POST['password']))
 				$loginform['msg'] = wrap_text('Password or username are empty. Please try again.');
@@ -156,6 +159,7 @@ function mod_zzwrap_login($params, $settings = []) {
 		// Session will be saved in Cookie so check whether we got a cookie or not
 		wrap_session_start();
 		$_SESSION['logged_in'] = wrap_login($login);
+		if ($_SESSION['logged_in']) wrap_login_limit_remove();
 		if (!empty($login['change_password'])) {
 			$_SESSION['change_password'] = true;
 		}
@@ -177,7 +181,7 @@ function mod_zzwrap_login($params, $settings = []) {
 			if (!$loginform['msg'])
 				$loginform['msg'] = wrap_text('Password or username incorrect. Please try again.');
 			$user = implode('.', $full_login);
-			if ($username = wrap_username() AND $username !== $user) {
+			if (wrap_username() AND wrap_username() !== $user) {
 				// alread a user is logged in, tried to log in to another account
 				$user .= "\n";
 			} else {

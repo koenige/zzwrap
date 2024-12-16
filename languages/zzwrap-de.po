@@ -1075,6 +1075,14 @@ msgstr "Der Link fürs Login ist falsch oder abgelaufen."
 msgid "Please get a new one."
 msgstr "Bitte besorgen Sie sich einen neuen."
 
+#: zzwrap/auth.inc.php
+msgid "Too many failed login attempts. Please wait %d second."
+msgid_plural "Too many failed login attempts. Please wait %d seconds."
+msgstr[0] ""
+"Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie %d Sekunde."
+msgstr[1] ""
+"Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie %d Sekunden."
+
 #: zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
 msgstr "Vorübergehend ist keine Anmeldung möglich."
@@ -1104,46 +1112,47 @@ msgstr[0] "1 Zeile gelöscht."
 msgstr[1] "%d Zeilen gelöscht."
 
 # HTTP Status Code 300
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Multiple Choices"
 msgstr "Mehrfachauswahl"
 
 # HTTP Status Code 301
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Moved Permanently"
 msgstr "Dauerhaft verschoben"
 
 # HTTP Status Code 302
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Found"
 msgstr "Umleitung (unbestimmt)"
 
 # HTTP Status Code 303
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "See Other"
 msgstr "Umleitung"
 
 # HTTP Status Code 304
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Modified"
 msgstr "Keine Veränderung"
 
 # HTTP Status Code 305
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Use Proxy"
 msgstr "Proxy benutzen"
 
 # HTTP Status Code 307
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Temporary Redirect"
 msgstr "Vorübergehende Umleitung"
 
 # HTTP Status Code 400
+#: configuration/http-statuscodes.tsv
 msgid "Bad Request"
 msgstr "Fehlerhafte Anfrage"
 
 # HTTP Status Code 400
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
@@ -1151,12 +1160,12 @@ msgstr ""
 "nicht beantwortet werden kann."
 
 # HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Unauthorized"
 msgstr "Anmeldung fehlgeschlagen"
 
 # HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "This server could not verify that you are authorized to access this URL. You "
 "either supplied the wrong credentials (e.g., bad password), or your browser "
@@ -1168,17 +1177,17 @@ msgstr ""
 "übermitteln sind."
 
 # HTTP Status Code 402
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Payment Required"
 msgstr "Bezahlung erforderlich"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Forbidden"
 msgstr "Kein Zugriff"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
@@ -1187,47 +1196,47 @@ msgstr ""
 "vom Server nicht gelesen werden oder er ist zugriffsgeschützt."
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Found"
 msgstr "Inhalt nicht gefunden"
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The requested URL was not found on this server."
 msgstr "Der von Ihnen gewünschte Inhalt konnte nicht gefunden werden."
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Method Not Allowed"
 msgstr "Methode nicht erlaubt"
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "Die %s-Methode ist für die angeforderte URL nicht erlaubt."
 
 # HTTP Status Code 406
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Acceptable"
 msgstr "Nicht verarbeitbar"
 
 # HTTP Status Code 407
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Proxy Authentication Required"
 msgstr "Proxyanmeldung erforderlich"
 
 # HTTP Status Code 409
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Conflict"
 msgstr "Konflikt"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Gone"
 msgstr "Inhalt nicht mehr verfügbar"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
@@ -1236,12 +1245,12 @@ msgstr ""
 "dauerhaft entfernt. Eine Weiterleitungsadresse ist nicht verfügbar."
 
 # HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Length Required"
 msgstr "Content-Length-Angabe fehlerhaft"
 
 # HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
@@ -1250,24 +1259,24 @@ msgstr ""
 "ein korrekter <code>Content-Length</code>-Header angegeben werden."
 
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Precondition Failed"
 msgstr "Vorbedingung verfehlt"
 
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr ""
 "Die für den Abruf der angeforderten URL notwendige Vorbedingung wurde nicht "
 "erfüllt."
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Request Entity Too Large"
 msgstr "Übergebene Daten zu groß"
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The %s-method does not allow the data transmitted, or the data volume "
 "exceeds the capacity limit."
@@ -1276,12 +1285,12 @@ msgstr ""
 "erlaubt oder die Datenmenge hat das Maximum überschritten."
 
 # HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "URI Too Long"
 msgstr "URI zu lang"
 
 # HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
@@ -1290,34 +1299,39 @@ msgstr ""
 "Anfrage kann nicht ausgeführt werden."
 
 # HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Unsupported Media Type"
 msgstr "Nicht unterstütztes Format"
 
 # HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The server does not support the media type transmitted in the request."
 msgstr ""
 "Das bei der Anfrage übermittelte Format (Media Type) wird vom Server nicht "
 "unterstützt."
 
 # HTTP Status Code 416
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Requested Range Not Satisfiable"
 msgstr "Abgefragtes Intervall (<code>range</code>) nicht erfüllbar"
 
 # HTTP Status Code 417
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Expectation Failed"
 msgstr "Erwartung (<code>Expect</code>) fehlgeschlagen"
 
+# HTTP Status Code 417
+#: configuration/http-statuscodes.tsv
+msgid "Too Many Requests"
+msgstr "Zu viele Anfragen"
+
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Internal Server Error"
 msgstr "Serverfehler"
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
@@ -1326,40 +1340,40 @@ msgstr ""
 "aufgetreten ist."
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Unsupported server protocol (%s)"
 msgstr "Server-Protokoll wird nicht unterstützt (%s)"
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Implemented"
 msgstr "Abfrage nicht unterstützt"
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr ""
 "Die vom Browser angeforderte Aktion wird vom Server nicht unterstützt (%s)."
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Bad Gateway"
 msgstr "Fehlerhaftes Gateway"
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr ""
 "Der Proxy-Server erhielt eine fehlerhafte Antwort eines übergeordneten "
 "Servers oder Proxies."
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Service Unavailable"
 msgstr "Dienst steht nicht zur Verfügung"
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
@@ -1369,12 +1383,12 @@ msgstr ""
 "später noch einmal."
 
 # HTTP Status Code 504
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Gateway Timeout"
 msgstr "Zeitlimit am Netzübergang (<code>gateway</code>) überschritten"
 
 # HTTP Status Code 505
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "HTTP Version Not Supported"
 msgstr "HTTP-Version nicht unterstützt"
 
