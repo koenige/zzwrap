@@ -250,7 +250,9 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	if (substr($e_mail, 0, 1) == '<' && substr($e_mail, -1) == '>') 
 		$e_mail = substr($e_mail, 1, -1); 
 
+	if (filter_var($e_mail, FILTER_VALIDATE_EMAIL) === false) return false;
 	// check address if syntactically correct
+	// double check, @todo now with filter_var unnecessary
 	$e_mail_pm = '/^[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+\\/=?^_`{|}~-]+)*'
 		.'@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i';
 	if (!preg_match($e_mail_pm, $e_mail, $check)) return false;
