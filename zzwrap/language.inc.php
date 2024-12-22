@@ -207,6 +207,8 @@ function wrap_text($string, $params = []) {
 		$files[] = wrap_setting('custom').'/custom/text-en.po'; // @deprecated
 		$files[] = wrap_setting('custom').'/languages/text-en.po';
 		// default translated text
+		if ($language === 'en')
+			$files[] = __DIR__.'/../languages/zzwrap.pot';
 		$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
 		// module text(s)
 		foreach (wrap_setting('modules') as $module) {
