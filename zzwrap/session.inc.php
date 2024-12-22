@@ -36,12 +36,8 @@ function wrap_session_start() {
 	session_set_cookie_params(0, '/', wrap_setting('hostname'), wrap_setting('session_secure_cookie'), true);
 	$last_error = wrap_error_handler('last_error');
 	// don't collide with other PHPSESSID on the same server, set own name:
-	session_name('zugzwang_sid');
-	// check if not illegal characters in session cookie
-	if (!empty($_COOKIE['zugzwang_sid']) AND !preg_match('/^[A-Za-z0-9-,]+$/', $_COOKIE['zugzwang_sid'])) {
-		wrap_error(sprintf('Illegal session cookie value found: %s', $_COOKIE['zugzwang_sid']), E_USER_NOTICE);
-		unset($_COOKIE['zugzwang_sid']);
-	}
+	session_name(wrap_setting('session_name'));
+	wrap_session_cookie_injection(wrap_setting('session_name'));
 	$success = session_start();
 	// try it twice, some providers have problems with ps_files_cleanup_dir()
 	// accessing the /tmp-directory and failing temporarily with
@@ -213,4 +209,21 @@ function wrap_session_cookietest_end($token, $qs) {
 	$page['breadcrumbs'][]['title'] = 'Cookies';
 	$page['text'] = wrap_template('cookie', $data);
 	return $page;
+}
+
+/**
+ * check for illegal characters or type of session cookie
+ *
+ * @param string $session_name
+ */
+function wrap_session_cookie_injection($session_name) {
+	if (empty($_COOKIE[$session_name])) return true;
+	if (is_array($_COOKIE[$session_name])) {
+		unset($_COOKIE[$session_name]);
+		wrap_quit(400, 'Don’t crumble my cookies.');
+	}
+	if (!preg_match('/^[A-Za-z0-9-,]+$/', $_COOKIE[$session_name])) {
+		wrap_error(sprintf('Illegal session cookie value found: %s', $_COOKIE[$session_name]), E_USER_NOTICE);
+		unset($_COOKIE[$session_name]);
+	}
 }
