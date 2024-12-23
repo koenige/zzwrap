@@ -333,7 +333,9 @@ function wrap_url_language() {
  * @return string
  */
 function wrap_url_ending($path) {
-	$possible_endings = ['.html', '.html%3E', '.php', '/', '/%3E', '/%C2%A0', '/&nbsp;'];
+	$possible_endings = [
+		'.html/', '.html', '.html%3E', '.php/', '.php', '/', '/%3E', '/%C2%A0', '/&nbsp;'
+	];
 	foreach ($possible_endings as $ending) {
 		if (!str_ends_with($path, $ending)) continue;
 		return substr($path, 0, -strlen($ending));
