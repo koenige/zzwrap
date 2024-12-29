@@ -280,7 +280,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		if ($existing_setting === $new_setting) return false;
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
 		if (wrap_setting('multiple_websites') AND !$login_id)
-			$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
+			$sql .= ' AND website_id IN (1, /*_SETTING website_id _*/)';
 		$sql = sprintf($sql, $login_id ? 'logins' : '');
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key));
 		$sql .= wrap_setting_login_id($login_id);
@@ -292,13 +292,10 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 		$explanation = (in_array($key, array_keys($cfg)) AND !empty($cfg[$key]['description']))
 			? sprintf('"%s"', $cfg[$key]['description'])  : 'NULL';
 		if (wrap_setting('multiple_websites'))
-			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, %d)';
+			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, /*_SETTING website_id _*/)';
 		else
 			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation) VALUES ("%s", "%s", %s)';
-		if (wrap_setting('multiple_websites'))
-			$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation, wrap_setting('website_id'));
-		else
-			$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation);
+		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation);
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
@@ -345,7 +342,7 @@ function wrap_setting_read($key, $login_id = 0) {
 		FROM /*_PREFIX_*/%s_settings
 		WHERE setting_key %%s "%%s"';
 	if (wrap_setting('multiple_websites') AND !$login_setting_table)
-		$sql .= sprintf(' AND website_id IN (1, %d)', wrap_setting('website_id'));
+		$sql .= ' AND website_id IN (1, /*_SETTING website_id _*/)';
 	$sql = sprintf($sql, $login_id ? 'logins' : '');
 	if (substr($key, -1) === '*') {
 		$sql = sprintf($sql, 'LIKE', substr($key, 0, -1).'%');
@@ -599,12 +596,9 @@ function wrap_setting_backend() {
 
 	$sql = 'SELECT setting_key, setting_value
 		FROM /*_PREFIX_*/_settings
-		WHERE website_id = %d
+		WHERE website_id = /*_SETTING backend_website_id _*/
 		AND setting_key IN ("%s")';
-	$sql = sprintf($sql
-		, wrap_setting('backend_website_id')
-		, implode('","', array_keys($cfg))
-	);
+	$sql = sprintf($sql, implode('","', array_keys($cfg)));
 	$extra_settings = wrap_db_fetch($sql, 'setting_key', 'key/value');
 	wrap_setting_register($extra_settings);
 }
@@ -745,7 +739,7 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 		FROM /*_PREFIX_*/webpages
 		WHERE content LIKE "%\%\%\% '.$brick.'% \%\%\%%"';
 	if (wrap_setting('website_id'))
-		$sql .= sprintf(' AND website_id = %d', wrap_setting('website_id'));
+		$sql .= ' AND website_id = /*_SETTING website_id _*/';
 	$paths = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	
 	// build parameters

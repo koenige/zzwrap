@@ -436,8 +436,7 @@ function wrap_login_external($login) {
 	
 	$sql = 'SELECT category_id, category, parameters
 		FROM categories
-		WHERE main_category_id = %d';
-	$sql = sprintf($sql, wrap_category_id('logins'));
+		WHERE main_category_id = /*_ID categories logins _*/';
 	$servers = wrap_db_fetch($sql, 'category_id');
 	
 	$data = [];

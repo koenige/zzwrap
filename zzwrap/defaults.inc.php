@@ -246,8 +246,9 @@ function wrap_config_write($site = '') {
 				AND setting_value LIKE "[%%%s%%]"', wrap_db_escape($site));
 			$website = wrap_db_fetch($sql);
 			if (!$website AND wrap_setting('website_id_default')) {
-				$sql = sprintf('SELECT website_id, domain
-					FROM websites WHERE website_id = %d', wrap_setting('website_id_default'));
+				$sql = 'SELECT website_id, domain
+					FROM websites
+					WHERE website_id = /*_SETTING website_id_default _*/';
 				$website = wrap_db_fetch($sql);
 			}
 			if ($website) {
