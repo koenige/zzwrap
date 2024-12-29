@@ -137,7 +137,7 @@ function wrap_job_debug($msg, $data = []) {
 		wrap_setting('zzwrap_id'),
 		$msg,
 		$data ? ' DATA: '.json_encode($data) : '',
-		wrap_setting('request_uri'),
+		wrap_setting('request_uri')
 	));
 }
 
