@@ -1420,7 +1420,7 @@ function wrap_sql_placeholders($queries) {
 	}
 
 	$pattern_template = '~/\*_%s (.+?)_\*/~';
-	$keywords = ['id', 'setting', 'table'];
+	$keywords = ['id', 'setting', 'table', 'text'];
 	
 	foreach ($queries as $key => &$query) {
 		$query = wrap_db_prefix($query);
@@ -1447,9 +1447,9 @@ function wrap_sql_placeholders($queries) {
  * @return string
  */
 function wrap_sql_placeholders_replace($keyword, $match) {
-	$match = explode(' ', trim(strtolower($match)));
 	switch ($keyword) {
 	case 'id':
+		$match = explode(' ', trim(strtolower($match)));
 		if (count($match) === 3 AND $match[1] === 'setting')
 			$value = wrap_id($match[0], wrap_setting($match[2]), 'check');
 		else
@@ -1457,6 +1457,7 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 		if (!$value) $value = 0;
 		return $value;
 	case 'setting':
+		$match = explode(' ', trim(strtolower($match)));
 		$value = wrap_setting($match[0]);
 		if (is_null($value))
 			wrap_error(sprintf(
@@ -1465,7 +1466,10 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 			));
 		return $value;
 	case 'table':
+		$match = explode(' ', trim(strtolower($match)));
 		return wrap_sql_table($match[0]);
+	case 'text':
+		return wrap_text(trim($match));
 	}
 	return '';
 }
