@@ -11,7 +11,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -289,9 +289,13 @@ function wrap_htmlout_page($page) {
 
 	// Use different template if set in function or _init
 	if (!empty($page['template'])) {
-		if (substr($page['template'], -5) !== '-page')
-			$page['template'] .= '-page';
-		$tpl_file = wrap_template_file($page['template'], false);
+		if (str_starts_with($page['template'], '/')) {
+			$tpl_file = file_exists($page['template']) ? true : false;
+		} else {
+			if (substr($page['template'], -5) !== '-page')
+				$page['template'] .= '-page';
+			$tpl_file = wrap_template_file($page['template'], false);
+		}
 		if ($tpl_file) wrap_setting('template', $page['template']);
 	}
 	
