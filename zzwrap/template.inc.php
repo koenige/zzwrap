@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -90,11 +90,15 @@ function wrap_template($template, $data = [], $mode = false) {
  */
 function wrap_template_file($template, $show_error = true) {
 	if (wrap_setting('active_theme')) {
-		$tpl_file = wrap_template_file_per_folder($template, wrap_setting('themes_dir').'/'.wrap_setting('active_theme').'/templates');
+		$tpl_file = wrap_template_file_per_folder($template,
+			wrap_setting('themes_dir').'/'.wrap_setting('active_theme').'/templates'
+		);
 		if ($tpl_file) return $tpl_file;
 	}
 	
-	$tpl_file = wrap_template_file_per_folder($template, wrap_setting('custom').'/templates');
+	$tpl_file = wrap_template_file_per_folder($template,
+		wrap_setting('custom').'/templates'
+	);
 	if ($tpl_file) return $tpl_file;
 
 	// check if there's a module template
@@ -122,7 +126,9 @@ function wrap_template_file($template, $show_error = true) {
 			// has path and extension = separate file, other folder
 			$tpl_file = sprintf('%s/%s/%s', $dir, $package, $template);
 		} else {
-			$tpl_file = wrap_template_file_per_folder($template, $dir.'/'.$package.'/templates');
+			$tpl_file = wrap_template_file_per_folder($template,
+				$dir.'/'.$package.'/templates'
+			);
 		}
 		if ($tpl_file) $found[$package] = $tpl_file;
 	}
@@ -133,9 +139,15 @@ function wrap_template_file($template, $show_error = true) {
 		if (!$show_error) return false;
 		global $zz_page;
 		if (!$found) {
-			$error_msg = wrap_text('Template <code>%s</code> does not exist.', ['values' => wrap_html_escape($template)]);
+			$error_msg = wrap_text(
+				'Template <code>%s</code> does not exist.',
+				['values' => wrap_html_escape($template)]
+			);
 		} else {
-			$error_msg = wrap_text('More than one template with the name <code>%s</code> exists.', ['values' => wrap_html_escape($template)]);
+			$error_msg = wrap_text(
+				'More than one template with the name <code>%s</code> exists.',
+				['values' => wrap_html_escape($template)]
+			);
 		}
 		if (!empty($zz_page['error_code'])) {
 			echo $error_msg;
