@@ -472,7 +472,7 @@ function wrap_page_extra(&$page, $zz_page) {
 function wrap_check_blocks($template) {
 	static $includes = [];
 
-	$file = wrap_template_file($template);
+	$file = str_starts_with($template, '/') ? $template : wrap_template_file($template);
 	if (!$file) return [];
 	$file = file_get_contents($file);
 	$blocks = [];
