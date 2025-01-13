@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -485,7 +485,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		}
 	} else {
 		// @todo add some method to avoid timeouts because of slow name lookups
-		$protocol = substr($url, 0, strpos($url, ':'));
+		$url_parts = parse_url($url);
 		$ch = curl_init();
 		if (wrap_setting('debug')) {
 			$f = fopen(wrap_setting('tmp_dir').'/curl-request-'.time().'.txt', 'w');
@@ -524,8 +524,11 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		if ($pwd) {
 			curl_setopt($ch, CURLOPT_USERPWD, $pwd);
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		} elseif (!empty($url_parts['user']) AND !empty($url_parts['pass'])) {
+			curl_setopt($ch, CURLOPT_USERPWD, sprintf('%s:%s', $url_parts['pass'], $url_parts['user']));
+			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 		}
-		if ($protocol === 'https') {
+		if ($url_parts['scheme'] === 'https') {
 			// ignore verification on development server if target is
 			// development server, too
 			if (wrap_setting('local_access')) {
@@ -604,6 +607,17 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			$status = 200; // not necessarily true, but we don't want to wait
 			$headers = [];
 			$data = [];
+		}
+		if (!empty($url_parts['user']) AND !empty($url_parts['pass']) AND $status === 200) {
+			$headers = [];
+			$data = explode("\n", $data);
+			foreach ($data as $index => $line) {
+				$line = trim($line);
+				if (!$line) break;
+				$headers[] = $line;
+				unset($data[$index]);
+			}
+			$data = implode("\n", $data);
 		}
 	}
 	return [$status, $headers, $data];
