@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -484,14 +484,6 @@ function wrap_defaults_post_conf() {
 
 
 	// -------------------------------------------------------------------------
-	// Page
-	// -------------------------------------------------------------------------
-	
-	// Theme
-	if (wrap_setting('active_theme'))
-		wrap_package_activate(wrap_setting('active_theme'), 'theme');
-	
-	// -------------------------------------------------------------------------
 	// Development server
 	// -------------------------------------------------------------------------
 	
@@ -509,7 +501,17 @@ function wrap_defaults_post_conf() {
 	if (is_null(wrap_setting('mail_header_eol')))
 		wrap_setting('mail_header_eol', "\r\n");
 
+}
 
+/**
+ * Default variables, post page matching
+ * for parameters that might get changed via webpages.parameters (page_parameter = 1)
+ *
+ */
+function wrap_defaults_post_match() {
+	// Theme
+	if (wrap_setting('active_theme'))
+		wrap_package_activate(wrap_setting('active_theme'), 'theme');
 }
 
 /**

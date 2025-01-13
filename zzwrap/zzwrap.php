@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -88,6 +88,7 @@ function zzwrap() {
 		wrap_rights('preview', 'set', wrap_test_secret_key(wrap_setting('secret_key')));
 
 	$zz_page['db'] = wrap_match_page($zz_page);
+	wrap_defaults_post_match();
 	wrap_language_redirect();
 
 	// Functions which might be executed always, before possible login
