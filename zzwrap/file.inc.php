@@ -92,7 +92,7 @@ function wrap_file_log($file, $action = 'read', $input = []) {
 				continue;
 			}
 			$line = explode(' ', trim($line));
-			if (wrap_setting($logprefix.$name.'_spaces')) {
+			if (wrap_setting($logprefix.$name.'_spaces') AND count($line) > count($fields)) {
 				while (count($line) !== count($fields)) {
 					$last = array_pop($line);
 					$line[count($line) - 1] .= ' '.$last;
