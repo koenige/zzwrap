@@ -92,6 +92,12 @@ function wrap_file_log($file, $action = 'read', $input = []) {
 				continue;
 			}
 			$line = explode(' ', trim($line));
+			if (wrap_setting($logprefix.$name.'_spaces')) {
+				while (count($line) !== count($fields)) {
+					$last = array_pop($line);
+					$line[count($line) - 1] .= ' '.$last;
+				}
+			}
 			if (count($line) !== count($fields)) {
 				$delete_lines[] = $index;
 				continue;
