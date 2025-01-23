@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -144,7 +144,14 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		// check custom folder
 		$this_path = $path ? $path : 'custom';
 		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
-		if (file_exists($file)) {
+		if (strstr($filename, '*')) {
+			$matches = glob($file);
+			foreach ($matches as $index => $file) {
+				if (str_starts_with(basename($file), '.')) continue;
+				$files['custom/'.$index] = $file;
+			}
+			
+		} elseif (file_exists($file)) {
 			if (str_starts_with($search, 'custom/')
 				OR str_starts_with($search, 'files/custom/')) {
 				$files = array_merge(['custom' => $file], $files);
