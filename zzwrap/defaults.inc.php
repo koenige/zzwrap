@@ -111,7 +111,10 @@ function wrap_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	// HTTP_HOST, check against XSS
-	if (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
+	if (!empty($_SERVER['HTTP_X_FORWARDED_SERVER'])
+		AND in_array(wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_SERVER'], false), wrap_setting('forwarded_hostnames')))
+		wrap_setting('hostname', $_SERVER['HTTP_X_FORWARDED_SERVER']);
+	elseif (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
 		wrap_setting('hostname', $_SERVER['HTTP_HOST']);
 	else
 		wrap_setting('hostname', $_SERVER['SERVER_NAME']);
