@@ -193,11 +193,11 @@ function wrap_config_read() {
 		wrap_config_read_file(wrap_config_filename('site'));
 
 	// per module
-	$files = wrap_collect_files('configuration/modules.json', 'modules');
+	$files = wrap_collect_files('configuration/modules.json', 'custom/modules');
 	foreach ($files as $file)
 		wrap_config_read_file($file);
 
-	$files = wrap_collect_files('configuration/modules.cfg', 'modules');
+	$files = wrap_collect_files('configuration/modules.cfg', 'custom/modules');
 	foreach ($files as $file)
 		wrap_config_read_file($file);
 }
