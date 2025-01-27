@@ -21,7 +21,7 @@
  *	- wrap_sql_query()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1832,4 +1832,19 @@ function wrap_sql_plural($field_name, $shorten = true) {
 	if (str_ends_with($field_name, 's')) // class = classes
 		return $field_name.'es';
 	return $field_name.'s';
+}
+
+/**
+ * get auto increment of table
+ *
+ * @param string $table
+ * @return int
+ */
+function wrap_db_increment($table) {
+	$sql = 'SELECT `AUTO_INCREMENT`
+		FROM  INFORMATION_SCHEMA.TABLES
+		WHERE TABLE_SCHEMA = "/*_SETTING db_name _*/"
+		AND   TABLE_NAME   = "%s";';
+	$sql = sprintf($sql, $table);
+	return wrap_db_fetch($sql, '', 'single value');
 }
