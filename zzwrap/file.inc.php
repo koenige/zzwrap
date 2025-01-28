@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2023-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -70,12 +70,18 @@ function wrap_file_log($file, $action = 'read', $input = []) {
 		$name = $file;
 		$folder = '';
 	}
+	if ($pos = strpos($name, '[')) {
+		$detail = '-'.substr($name, $pos + 1, -1);
+		$name = substr($name, 0, $pos);
+	} else {
+		$detail = '';
+	}
 	if (!wrap_setting($logprefix.$name)) return $data;
 	$fields = wrap_setting($logprefix.$name.'_fields') ?? [];
 	$validity_seconds = wrap_setting($logprefix.$name.'_validity_in_minutes') * 60;
 	if (!$validity_seconds) return $data;
 
-	$logfile = sprintf('%s/%s%s.log', wrap_setting('log_dir'), $folder, $name);
+	$logfile = sprintf('%s/%s%s%s.log', wrap_setting('log_dir'), $folder, $name, $detail);
 	if (!file_exists($logfile)) {
 		wrap_mkdir(dirname($logfile));
 		touch($logfile);
