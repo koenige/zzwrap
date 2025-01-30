@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -458,6 +458,9 @@ function wrap_url_canonical_hostname_check($url) {
 	$canonical = wrap_url_canonical_hostname();
 	if (!$canonical) return $url;
 	if (wrap_setting('hostname') === $canonical) return $url;
+	// no redirect if in forwarded_hostnames
+	if (in_array(wrap_url_dev_remove(wrap_setting('hostname')), wrap_setting('forwarded_hostnames')))
+		return $url;
 
 	$url['full']['host'] = $canonical;
 	$url['redirect'] = true;
