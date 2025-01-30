@@ -553,6 +553,10 @@ function wrap_match_redirects_placeholder($url, $position) {
 		$parameter = substr($parameter, 0, -1);
 		$redir[$field_name] = $last_separator.$parameter.substr($redir[$field_name], 1);
 	}
+	if (str_ends_with($url['full']['path'], '/') AND !str_ends_with($redir['new_url'], '/'))
+		$redir['new_url'] .= '/';
+	if ($url['full']['query'])
+		$redir['new_url'] .= sprintf('?%s', $url['full']['query']);
 	return $redir;
 }
 
