@@ -111,9 +111,8 @@ function wrap_defaults_pre_conf() {
 // -------------------------------------------------------------------------
 
 	// HTTP_HOST, check against XSS
-	if (!empty($_SERVER['HTTP_X_FORWARDED_SERVER'])
-		AND in_array(wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_SERVER'], false), wrap_setting('forwarded_hostnames')))
-		wrap_setting('hostname', $_SERVER['HTTP_X_FORWARDED_SERVER']);
+	if ($hostname = wrap_defaults_forwarded_hostname())
+		wrap_setting('hostname', $hostname);
 	elseif (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
 		wrap_setting('hostname', $_SERVER['HTTP_HOST']);
 	else
@@ -151,6 +150,35 @@ function wrap_defaults_pre_conf() {
 	if (!wrap_setting('local_access'))
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
+}
+
+/**
+ * get forwarded hostname, if on whitelist
+ * setting is not read yet
+ *
+ * @return string
+ */
+function wrap_defaults_forwarded_hostname() {
+	if (empty($_SERVER['HTTP_X_FORWARDED_SERVER'])) return '';
+
+	// get config
+	$config = wrap_config_filename();
+	if (!$config) return '';
+	if (!file_exists($config)) return '';
+	$config = json_decode(file_get_contents($config), true);
+	if (!array_key_exists('forwarded_hostnames', $config)) return '';
+
+	// format host names
+	$forwarded_hostnames = $config['forwarded_hostnames'];
+	$forwarded_hostnames = substr($forwarded_hostnames, 1, -1);
+	$forwarded_hostnames = explode(',', $forwarded_hostnames);
+	foreach ($forwarded_hostnames as $index => $hostname)
+		$forwarded_hostnames[$index] = trim($hostname);
+	
+	$given_hostname = wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_SERVER'], false);
+	if (!in_array($given_hostname, $forwarded_hostnames)) return '';
+
+	return $_SERVER['HTTP_X_FORWARDED_SERVER'];
 }
 
 /**
