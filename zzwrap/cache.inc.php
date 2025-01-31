@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -165,7 +165,8 @@ function wrap_cache_delete($status, $url = false) {
 	$delete_cache = [401, 402, 403, 404, 410];
 	if (!in_array($status, $delete_cache)) return false;
 
-	$cache = wrap_cache_filenames($url);
+	// cache filenames: no error if too long, then there is no cache to delete anyways
+	$cache = wrap_cache_filenames($url, false);
 	if (!$cache['headers']) return false;
 	if (file_exists($cache['headers'])) unlink($cache['headers']);
 	if (file_exists($cache['url'])) {
