@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -125,8 +125,10 @@ function wrap_send_file($file) {
 	}
 	
 	wrap_cache_header();
-	if ($file['caching'])
-		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', wrap_setting('cache_control_file')));
+	if ($file['caching']) {
+		$max_age = $filetype_cfg['max-age'] ?? wrap_setting('cache_control_file');
+		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $max_age));
+	}
 
 	// Caching?
 	if (wrap_setting('cache')) {
@@ -258,7 +260,8 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	// send all headers
 	wrap_cache_header();
 	if (wrap_setting('cache') AND !isset($_GET['nocache'])) {
-		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', wrap_setting('cache_control_text')));
+		$max_age = $filetype_cfg['max-age'] ?? wrap_setting('cache_control_text');
+		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $max_age));
 	} else {
 		wrap_cache_header_default('Cache-Control: max-age=0');
 	}
