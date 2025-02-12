@@ -85,51 +85,56 @@ function wrap_template($template, $data = [], $mode = false) {
  * Gets template filename for any given template
  *
  * @param string $template
+ *		'file' or 'package/file' or 'behaviour/file'
+ *		or 'package/behaviour/file'
  * @param bool $show_error return with error 503 if not found or not
  * @return string $filename
  */
 function wrap_template_file($template, $show_error = true) {
+	// is it a full file name coming from 'tpl_file'?
+	// we cannot do anything with this here
+	if (substr($template, 0, 1) === '/') return '';
+
+	$packages = array_merge(wrap_setting('modules'), wrap_setting('themes'));
+
+	// get template info
+	$tpl = pathinfo($template);
+	if (!array_key_exists('extension', $tpl)) $tpl['extension'] = '';
+	$tpl['folder'] = 'templates';
+	$tpl['package'] = '';
+
+	$parts = explode('/', $tpl['dirname']);
+	switch (count($parts)) {
+	case 2:
+		$tpl['package'] = $parts[0];
+		$tpl['folder'] = $parts[1];
+		break;
+	case 1:
+		if (in_array($parts[0], $packages))
+			$tpl['package'] = $parts[0];
+		elseif (in_array($parts[0], ['layout', 'behaviour']))
+			$tpl['folder'] = $parts[0];
+		elseif ($parts[0] AND $parts[0] !== '.')
+			wrap_error(wrap_text('Template name %s not valid.', ['values' => [$template]]));
+		break;
+	}
+
+	// 1 check active theme
 	if (wrap_setting('active_theme')) {
-		$tpl_file = wrap_template_file_per_folder($template,
-			wrap_setting('themes_dir').'/'.wrap_setting('active_theme').'/templates'
-		);
+		$tpl_file = wrap_template_check($tpl, wrap_setting('active_theme'), wrap_setting('themes_dir'));
 		if ($tpl_file) return $tpl_file;
 	}
-	
-	$tpl_file = wrap_template_file_per_folder($template,
-		wrap_setting('custom').'/templates'
-	);
-	if ($tpl_file) return $tpl_file;
 
-	// check if there's a module template
-	if (strstr($template, '/')) {
-		// is it a full file name coming from 'tpl_file'?
-		// we cannot do anything with this here
-		if (substr($template, 0, 1) === '/') return false;
-		$template_parts = explode('/', $template);
-		$my_module = array_shift($template_parts);
-		$template = implode('/', $template_parts);
-	} else {
-		$my_module = '';
-	}
+	// 2 check custom module
+	$tpl_file = wrap_template_check($tpl, wrap_setting('custom'));
+	if ($tpl_file) return $tpl_file;
+	
+	// 3 check all packages
 	$found = [];
-	$packages = array_merge(wrap_setting('modules'), wrap_setting('themes'));
 	foreach ($packages as $package) {
-		if ($my_module AND $package !== $my_module) continue;
 		$dir = in_array($package, wrap_setting('modules'))
 			? wrap_setting('modules_dir') : wrap_setting('themes_dir');
-		$pathinfo = pathinfo($template);
-		if (!empty($pathinfo['dirname'])
-			AND in_array($pathinfo['dirname'], ['layout', 'behaviour'])
-			AND !empty($pathinfo['extension'])
-		) {
-			// has path and extension = separate file, other folder
-			$tpl_file = sprintf('%s/%s/%s', $dir, $package, $template);
-		} else {
-			$tpl_file = wrap_template_file_per_folder($template,
-				$dir.'/'.$package.'/templates'
-			);
-		}
+		$tpl_file = wrap_template_check($tpl, $package, $dir);
 		if ($tpl_file) $found[$package] = $tpl_file;
 	}
 	// ignore default template if there’s another template from a module
@@ -164,6 +169,36 @@ function wrap_template_file($template, $show_error = true) {
 		$tpl_file = reset($found);
 	}
 	return $tpl_file;
+}
+
+/**
+ * check if a template exists
+ *
+ * @param array $tpl
+ * @param string $package
+ * @param string $folder (optional)
+ * @return string
+ */
+function wrap_template_check($tpl, $package, $folder = '') {
+	// template must be part of a certain package?
+	if ($tpl['package'] AND $tpl['package'] !== $package) return '';
+
+	// get folder
+	if ($folder)
+		$folder = sprintf('%s/%s/%s', $folder, $package, $tpl['folder']);
+	else
+		$folder = sprintf('%s/%s', $package, $tpl['folder']);
+
+	// check for file
+	if ($tpl['extension']) {
+		// has path and extension = separate file, other folder
+		$tpl_file = sprintf('%s/%s', $folder, $tpl['basename']);
+		if (!file_exists($tpl_file)) $tpl_file = '';
+	} else {
+		$tpl_file = wrap_template_file_per_folder($tpl['basename'], $folder);
+	}
+	if ($tpl_file) return $tpl_file;
+	return '';
 }
 
 /**
