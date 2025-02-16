@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2020-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -46,7 +46,7 @@ function wrap_install() {
 	}
 
 	if ($page['text'] === true) {
-		return wrap_redirect_change();
+		wrap_redirect_change();
 	} elseif ($page['text'] === false) {
 		return false;
 	}
@@ -335,7 +335,7 @@ function wrap_install_finish() {
 	$success = wrap_setting_write('db_name_local', $_SESSION['db_name_local']);
 	if ($success) {
 		$_SESSION['step'] = 'finish';
-		return wrap_redirect_change(wrap_domain_path('login_entry'));
+		wrap_redirect_change(wrap_domain_path('login_entry'));
 	}
 }
 
