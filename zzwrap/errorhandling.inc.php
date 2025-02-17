@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -629,6 +629,11 @@ function wrap_errorpage_logignore() {
 			return true;
 		}
 	}
+	
+	// check if path is not normalized by browser
+	// bot tests are not interesting
+	if (strstr($_SERVER['REQUEST_URI'], '/../')) return true;
+	if (strstr($_SERVER['REQUEST_URI'], '/./')) return true;
 
 	// access from the same existing page to this page nonexisting
 	// is impossible (there are some special circumstances, e. g. a 
@@ -684,6 +689,11 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	// there's always a path if referer is created by browser
 	if (empty($referer['path'])) return false;
 
+	// invalid URLs as referring URLs are not interesting
+	if (strstr($referer['path'], '//')) return false; // includes duplicate https://https://
+	if (strstr($referer['path'], '/./')) return false;
+	if (strstr($referer['path'], '/../')) return false;
+
 	// scheme: ignore errors where scheme is longer than 16 characters, probably nonsense
 	if (strlen($referer['scheme']) > 16) return false;
 	if (!preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $referer['scheme'])) return false;
@@ -699,7 +709,6 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	}
 	if ($external_request) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) {
-			if (strstr($referer['path'], '../')) return false;
 			if ($referer['host'] === wrap_setting('hostname')
 				AND $referer['path'] !== $zz_page['url']['full']['path']
 				AND $referer['scheme'] !== 'https' AND in_array('/', wrap_setting('https_urls'))
