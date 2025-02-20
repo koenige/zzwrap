@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018, 2020-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018, 2020-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -713,6 +713,61 @@ function wrap_translate_url_other() {
 			= $zz_page['db']['wrap_source_content']['identifier']
 			.($zz_page['db']['ending'] !== 'none' ? $zz_page['db']['ending'] : '');
 	return $translations;
+}
+
+/**
+ * get all translated identifiers for ID
+ *
+ * @param string $identifier
+ * @param string $table
+ * @param string $identifier_field_name (optional)
+ * @return array
+ */
+function wrap_translate_id_identifier($id, $table, $identifier_field_name = 'identifier') {
+	$sql = 'SELECT language_id, translation
+	    FROM _translations_varchar
+		LEFT JOIN /*_TABLE default_translationfields _*/ USING (translationfield_id)
+		WHERE field_id = %d
+		AND db_name = (SELECT DATABASE())
+		AND table_name = "%s"
+		AND field_name = "%s"';
+	$sql = sprintf($sql, $id, $table, $identifier_field_name);
+	return wrap_db_fetch($sql, '_dummy_', 'key/value');
+}
+
+/**
+ * get translated identifier
+ *
+ * @param string $identifier
+ * @param string $id_field_name
+ * @param string $table (optional)
+ * @param string $identifier_field_name (optional)
+ * @return int
+ */
+function wrap_translate_identifier($identifier, $id_field_name, $table = '', $identifier_field_name = 'identifier') {
+	if (!$table) $table = wrap_sql_plural($id_field_name);
+	$language_id = wrap_id('languages', wrap_setting('lang'));
+	$sql = 'SELECT %s
+		FROM _translations_varchar
+		LEFT JOIN /*_TABLE default_translationfields _*/ USING (translationfield_id)
+		LEFT JOIN %s
+			ON %s.%s = _translations_varchar.field_id
+		WHERE translation = "%s"
+		AND db_name = (SELECT DATABASE())
+		AND table_name = "%s"
+		AND field_name = "%s"
+		AND language_id = %d';
+	$sql = sprintf($sql
+		, $identifier_field_name
+		, $table, $table, $id_field_name
+		, wrap_db_escape($identifier)
+		, $table
+		, $identifier_field_name
+		, $language_id
+	);
+	$translated_identifier = wrap_db_fetch($sql, '', 'single value');
+	if ($translated_identifier) return $translated_identifier;
+	return $identifier;
 }
 
 /**
