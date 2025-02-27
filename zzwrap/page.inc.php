@@ -625,7 +625,7 @@ function wrap_page_links($data, $path = false, $path_overview = false) {
 function wrap_page_links_path($path, $identifier) {
 	if (strstr($path, '%s')) $link = sprintf($path, $identifier);
 	else $link = wrap_path($path, $identifier);
-	if (str_ends_with($link, '//')) $link = substr($link, 0, -1); // top folder
+	if ($link AND str_ends_with($link, '//')) $link = substr($link, 0, -1); // top folder
 	return $link;
 }
 
