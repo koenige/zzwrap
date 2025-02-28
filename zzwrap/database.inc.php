@@ -746,6 +746,72 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
 }
 
 /**
+ * Escapes values for database input
+ *
+ * @param string $value
+ * @return string escaped $value
+ */
+function wrap_db_escape($value) {
+	// should never happen, just during development
+	if (!$value AND $value !== '0' AND $value !== 0) return '';
+	if (is_array($value) OR is_object($value)) {
+		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
+		return '';
+	}
+	if (!wrap_db_connection()) {
+		return addslashes($value);
+	}
+	return mysqli_real_escape_string(wrap_db_connection(), $value);
+}
+
+/**
+ * get auto increment value of a table
+ *
+ * @param string $table
+ * @return string
+ */
+function wrap_db_auto_increment($table) {
+	$sql = 'SHOW TABLE STATUS FROM `%s` WHERE `name` LIKE "%s"';
+	$sql = sprintf($sql, wrap_setting('db_name'), $table);
+	$data = wrap_db_fetch($sql);
+	if (empty($data)) return '';
+	return $data['Auto_increment'];
+}
+
+/**
+ * get auto increment of table
+ *
+ * @param string $table
+ * @return int
+ */
+function wrap_db_increment($table) {
+	$sql = 'SELECT `AUTO_INCREMENT`
+		FROM  INFORMATION_SCHEMA.TABLES
+		WHERE TABLE_SCHEMA = "/*_SETTING db_name _*/"
+		AND   TABLE_NAME   = "%s";';
+	$sql = sprintf($sql, $table);
+	return wrap_db_fetch($sql, '', 'single value');
+}
+
+/**
+ * do a simple query (shortcut function)
+ *
+ * @param string $query
+ * @param array $values (optional, values for query)
+ * @return mixed
+ */
+function wrap_db_data($query, $values = []) {
+	$sql = wrap_sql_query($query);
+	if ($values) $sql = vsprintf($sql, $values);
+	$data = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	// one record? only return that
+	if (count($data) === 1) $data = reset($data);
+	// one field? only return that
+	if (count($data) === 1) $data = reset($data);
+	return $data;
+}
+
+/**
  * puts parts of SQL query in correct order when they have to be added
  *
  * this function works only for sql queries without UNION:
@@ -1033,7 +1099,6 @@ function wrap_edit_sql_fieldlist($string) {
 	}
 	return $new;
 }
-
 
 /**
  * get a clean table name without spaces and AS
@@ -1489,25 +1554,6 @@ function wrap_check_db_connection() {
 }
 
 /**
- * Escapes values for database input
- *
- * @param string $value
- * @return string escaped $value
- */
-function wrap_db_escape($value) {
-	// should never happen, just during development
-	if (!$value AND $value !== '0' AND $value !== 0) return '';
-	if (is_array($value) OR is_object($value)) {
-		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
-		return '';
-	}
-	if (!wrap_db_connection()) {
-		return addslashes($value);
-	}
-	return mysqli_real_escape_string(wrap_db_connection(), $value);
-}
-
-/**
  * Change MySQL mode
  *
  * @param void
@@ -1526,20 +1572,6 @@ function wrap_mysql_mode() {
 	$mode = implode(',', $modes);
 	$sql = sprintf("SET SESSION sql_mode = '%s'", $mode);
 	wrap_db_query($sql);
-}
-
-/**
- * get auto increment value of a table
- *
- * @param string $table
- * @return string
- */
-function wrap_db_auto_increment($table) {
-	$sql = 'SHOW TABLE STATUS FROM `%s` WHERE `name` LIKE "%s"';
-	$sql = sprintf($sql, wrap_setting('db_name'), $table);
-	$data = wrap_db_fetch($sql);
-	if (empty($data)) return '';
-	return $data['Auto_increment'];
 }
 
 /**
@@ -1832,19 +1864,4 @@ function wrap_sql_plural($field_name, $shorten = true) {
 	if (str_ends_with($field_name, 's')) // class = classes
 		return $field_name.'es';
 	return $field_name.'s';
-}
-
-/**
- * get auto increment of table
- *
- * @param string $table
- * @return int
- */
-function wrap_db_increment($table) {
-	$sql = 'SELECT `AUTO_INCREMENT`
-		FROM  INFORMATION_SCHEMA.TABLES
-		WHERE TABLE_SCHEMA = "/*_SETTING db_name _*/"
-		AND   TABLE_NAME   = "%s";';
-	$sql = sprintf($sql, $table);
-	return wrap_db_fetch($sql, '', 'single value');
 }
