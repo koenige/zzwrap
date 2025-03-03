@@ -326,6 +326,18 @@ function wrap_lib($libraries = []) {
  */
 
 /**
+ * check if package exists
+ *
+ * @param string $package name of the package
+ * @return string
+ */
+function wrap_package($name) {
+	if (in_array($name, wrap_setting('modules'))) return 'modules';
+	if (in_array($name, wrap_setting('themes'))) return 'themes';
+	return NULL;
+}
+
+/**
  * activate a module or a theme
  *
  * settings active_module, active_theme, activated[modules], activated[themes]
