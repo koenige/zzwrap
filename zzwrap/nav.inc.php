@@ -15,7 +15,7 @@
  *		wrap_breadcrumbs_read_recursive()	-- recursively gets breadcrumbs
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -497,6 +497,10 @@ function wrap_breadcrumbs_read($page_id) {
 
 	// get all breadcrumbs recursively
 	$breadcrumbs = wrap_breadcrumbs_read_recursive($page_id, $pages);
+
+	// check for sequential nav, tied to breadcrumbs
+	wrap_nav_sequential($pages, $breadcrumbs);
+
 	// check for placeholders
 	$breadcrumb_placeholder = $zz_page['breadcrumb_placeholder'] ?? [];
 	$placeholder_url_paths = [];
@@ -742,4 +746,38 @@ function wrap_nav_top_recursive($menu, $nav_id = false) {
 		}
 	}
 	return $main_nav_id;
+}
+
+/**
+ * check for sequential nav
+ *
+ * @param array $pages
+ * @return bool
+ */
+function wrap_nav_sequential($pages, $breadcrumbs) {
+	global $zz_page;
+	// not for error pages
+	if (empty($zz_page['db']['page_id'])) return false;
+
+	$page_ids = array_column($breadcrumbs, 'page_id');
+	$filtered = array_intersect_key(
+		$pages, array_flip(array_intersect($page_ids, array_column($pages, 'page_id')))
+	);
+	// only last two elements are interesting
+	$filtered = array_slice($filtered, -2, 2, true);
+	foreach ($filtered as $page_id => $page) {
+		if (empty($page['parameters'])) continue;
+		parse_str($page['parameters'], $page['parameters']);
+		if (empty($page['parameters']['sequential_nav'])) continue;
+		$sql = wrap_sql_query('page_sequential_nav');
+		$sql = sprintf($sql, $page_id, $page_id, $page_id);
+		$data = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
+		list($zz_page['prev'], $zz_page['next'])
+			= wrap_get_prevnext($data, $zz_page['db']['page_id'], false);
+		$top_id = key($data);
+		if ($zz_page['db']['page_id'] !== $top_id)
+			$zz_page['up'] = $data[$top_id];
+		return true;
+	}
+	return false;
 }

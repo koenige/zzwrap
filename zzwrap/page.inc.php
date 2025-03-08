@@ -304,6 +304,7 @@ function wrap_htmlout_page($page) {
 		require_once __DIR__.'/nav.inc.php';
 		$page['breadcrumbs'] = wrap_breadcrumbs($page);
 	}
+	$page['link'] = wrap_page_sequential($page['link'] ?? []);
 	if (in_array('nav', $blocks) AND wrap_db_connection()) {
 		// get menus, if database connection active
 		require_once __DIR__.'/nav.inc.php';
@@ -662,6 +663,29 @@ function wrap_page_replace($page) {
 	if ($function AND function_exists($function))
 		$page = $function($page);
 	return $page;
+}
+
+/**
+ * create sequential navigation
+ *
+ * @param array $links = $page['links']
+ * @return array
+ */
+function wrap_page_sequential($links) {
+	global $zz_page;
+
+	$link_relations = ['prev', 'next', 'up'];
+	foreach ($link_relations as $rel) {
+		if (empty($zz_page[$rel])) continue;
+		if (!empty($links[$rel])) continue;
+		$links[$rel] = [
+			0 => [
+				'href' => $zz_page[$rel]['url'],
+				'title' => $zz_page[$rel]['title']
+			]
+		];
+	}
+	return $links;
 }
 
 /**
