@@ -774,9 +774,15 @@ function wrap_nav_sequential($pages, $breadcrumbs) {
 		$data = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 		list($zz_page['prev'], $zz_page['next'])
 			= wrap_get_prevnext($data, $zz_page['db']['page_id'], false);
+		if ($zz_page['prev'])
+			$zz_page['prev']['rel_title'] = wrap_text('Previous page');
+		if ($zz_page['next'])
+			$zz_page['next']['rel_title'] = wrap_text('Next page');
 		$top_id = key($data);
-		if ($zz_page['db']['page_id'] !== $top_id)
+		if ($zz_page['db']['page_id'].'' !== $top_id.'') {
 			$zz_page['up'] = $data[$top_id];
+			$zz_page['up']['rel_title'] = wrap_text('Overview');
+		}
 		return true;
 	}
 	return false;

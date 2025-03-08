@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2024 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -21,7 +21,1028 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.5\n"
+
+#: configuration/access.cfg
+msgid "start job manager"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of access areas where access is granted via setting"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"list of IPs that have no access to this site (better use only temporarily, "
+"as IP allocations change)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of active modules"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of active themes"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "identifier of active module"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "identifier of active theme (if there are multiple themes)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "if administration and jobs are running on a different server, hostname"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URLs below which authentication is required"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "can a user authenticate on this website?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"if backend is different from main website, use as path to set backend URL "
+"via placeholder"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"website_id if the website that is worked on in the backend is different from "
+"main website"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "marker if request runs as a background job"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "base URL, e. g. for languages"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"if website does not cover all URLs under a domain, path which belongs to CMS "
+"(no trailing slash!)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL path to public script folder on server, defaults to `/_behaviour`"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTML code that separates one breadcrumb from another"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "cache website content"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "seconds while content is always considered fresh"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"time in seconds how long a syndicated file should be considered as fresh"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"seconds a standard file is considered fresh, sent with cache-control-header"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"seconds a standard text ressource is considered fresh, sent with cache-"
+"control-header"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use directory structure for caching (for larger websites)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "location of cache folder"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "base directory inside cache folder, internal"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "extension of file for caching"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "canonical host name; other host names will redirect to this"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"URL where a user is asked to change her password, might be list for several "
+"domains"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "character encoding of website"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "check redirects table for redirected URLs"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder where CMS is in; recommended: one folder below root folder"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for JSON config files"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder of zzwrap module"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "when using cURL, do not verify SSL connection (for development only)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "part of filename of current template"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "filename where current template is from"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for custom module"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for access rights and usergroups functions"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "customized cms includes, language files"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "customized sql queries, db connection"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "standard formatting of dates"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL path that is used by WebDAV"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"fields or field endings behind _ that are removed from data array by cleanup "
+"function"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "database name on production server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "database name on local development server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of password files to use"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "prefix for all database tables"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "activate debugging"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "decimal point"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use a pre-defined system for access rights"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "if content is translated, default source language, ISO 639-1 code"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of domains a user can log on to (defaults to hostname)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"paths on server where no language negotiation should take place (e. g. files)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"if set to true, h1 is not created and added automatically from webpages.title"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "formatting of a period of time"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"mapping of character enconding; mySQL uses different identifiers for "
+"character encoding than HTML"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "add link to homepage URL in breadcrumbs on error pages"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "exit after a 503 to not get into a loop (internal variable)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"value for admin error logging: false: no output, just write into log if set; "
+"mail: send admin errors via mail, output: send admin erros via html, "
+"save_mail (internal parameter), mail_summary (internal parameter)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of error.log file for logs of type ERROR"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of error.log file for logs of type WARNING"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of error.log file for logs of type NOTICE"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "log posted values if an error occurs (re: data protection)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"delay error mails and combine several to reduce amount of mails sent in case "
+"of error"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "sender of error mails"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "minimum error level for sending errors via mail"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "parameters for error mails"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "where to send errors per mail"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "prefix (text before) for error message"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "external libraries to always include"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "host names that redirect to this webpage"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "like `dont_negotiate_language_paths`, but keep the default paths"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTTP headers to send with each request"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL path under which all media files are located"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of own modifications for filetype.cfg"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"string that is used if there is nothing else left to create a filename from "
+"a string"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "allow login via remote web form (FORMAUTH)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "rounding for geographical coordinates"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "space character between values of geographical coordinates"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of strings that indicate a c/o address line"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of strings that indicate a postbox"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL of Google Maps geocoding service"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"URL of Nominatim geocoding service (@see http://wiki.openstreetmap.org/wiki/"
+"Nominatim_usage_policy)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use gzip to encode text content"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"create h1 heading in page template (otherwise is added to `text` "
+"automatically)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "Base-2 logarithm of the iteration count used for password stretching"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of password hash function to use for passwords"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "extra password salt for **all** passwords, @deprecated"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"if phpass is used: do we require the hashes to be portable to older systems "
+"(less secure)?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTTP headers to send"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"URL of homepage, defaults to /, use if on different path or on other server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "protocol and hostname of website"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "hostname of server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"check for hostname in URL path (for use with proxy server that rewrites "
+"domains)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of HTTP verbs that are allowed"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of HTTP verbs that are explicitly not allowed"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "enable Apache style HTTP logging (e. g. if unavailable from hoster)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use https for connections?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of URLs below which https is required"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of word parts to be followed by a soft hyphen"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of word parts to be preceded by a soft hyphen"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"special paths for system icons (e. g. not for translations, no match for * "
+"URLs)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "ignore whether scheme is http or https"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "paths accessible under both http and https without redirection"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "path to include folder"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "marker that installation is running"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "do not use field logins.login_rights while installing"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "path to job manager"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "language of website, ISO 639-1 code"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"use other language than source language as default if translation do not "
+"exist (iso=>iso)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "is language code part of URL?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "remove language strings from navigation"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "activate variation of language, e. g. `formal` or `informal`"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "which languages are allowed on website? ISO 639-1 code"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URL path to public layout folder on server, defaults to `/_layout`"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use LDAP server for login"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for external libraries"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "is this a development website (ending .local or starting dev.) or not?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use https for local development connections, too"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "full filename of password file on local development server"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for log files"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "write errors in logfile?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maxium length of error log entries"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"log filename if different from module, will be put into module folder inside "
+"logs"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "write all mails sent via website into logfile"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"log missing text for new translations only, should not be used continously"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"if you suspect that the server has problems with mod_rewrite, log these "
+"errors"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"decode and encode logfiles with a certain encoding to a different encoding"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "trigger logfiles, true or filename of log file"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "username for use with internal operations"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"default username for use with internal operations, if no other username is "
+"available (e. g. from SESSION)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"suffix for username for logging, used as username if no other alternative is "
+"available"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use 404 error log to ignore automated 404 requests"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of fields for 404 error log"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "validity of entries in 404 error log"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"no. of 404 requests per validity period from one IP, after which no more "
+"emails are sent to the admin"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use maildomain log"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of fields for maildomain log"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "validity of entries in maildomain log"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"URL you are redirected to after successful login, can be list indexed per "
+"domain"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of fields used for login"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "reformats login field values with custom function"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTML output for each login field"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of IDs to use with `login_foreign`-query"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "secret key which forms a hash that allows a login without password"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "timeframe in minutes during which the login_key is valid"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "default value for logins.login_rights if an external login is used"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "url where to login"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "is every login linked to a contact?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use e-mail address as username"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"Time of inactivity (in minutes) after a user gets logged out automatically"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "url where one can logout from a website"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "check MX record for the domain part of each mail address"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"mail header lines should be separated by CRLF; some postfix versions handle "
+"mail internally with LF and replace LF with CRLF for outgoing mail, ending "
+"with CRCRLF"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "hostname for SMTP server used with PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "hostname for imap mailbox"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "flags for communication with imap mailbox"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "port for imap mailbox"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of mailbox for sent mails"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "copy sent mails to sent folder in mailbox"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of mail domains that are invalid"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"milliseconds of runtime of the checkdnsrr() function, after which a negative "
+"result is considered true"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of domains that regularly fail the DNS check but still exist"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "password for mailbox used with PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "show debug messages for PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"always use `own_e_mail` as From:, re-write different sender to Reply-To:"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "port for sending mails via SMTP"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "subject prefix for all mails sent via website"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "username for mailbox used with PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "add signature below each text mail?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "key of main menu in database"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"how to display submenu items: 'all': always display all submenu items; "
+"'current': only display submenu items when item from menu branch is "
+"selected; 'none'/false: never display submenu items"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of available modules"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "path to modules"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use more than one website with this CMS"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"enable for each URL language negotiation, URL redirects to language prefix "
+"variant"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of access areas where access is denied via setting"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URLs without authentication"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "URLs without authentication, system defaults from setting"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "do not allow https, https is not supported"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "cause no redirects if a query string is not wanted by the system"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "number formatting, in the format input->output, @see wrap_number()"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "own e-mail address"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "own name, sender name for e-mail"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"keys that are read from $page['extra'] and written to "
+"$page['extra_body_attributes']"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"keys that are read from webpages.parameters and written to $page['extra']"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"name of function that edits complete page (e. g. to replace some text blocks)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"Key that encrypts passwords if a login link is sent via the password "
+"forgotten form."
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "timeframe in minutes during which the password login link is valid"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "show a “forgotten password?” link below login form"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of profiles for use with wrap_profiles()"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "title of website project, part of every page title"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTTP protocol of website URL"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"list of query strings that are allowed on a page, others force a redirect"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of query strings that force a redirect but won’t be logged"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "format identifier for quotation marks, e. g. de = de-guillemets"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "IP address of user"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTTP request URI"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"web root = $_SERVER['DOCUMENT_ROOT'], just change if provider has problems "
+"with correct setting of this variable"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "secret key to show non-published pages as preview"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "send content in JSON format (without page template)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "key of menu if you are logged in in database"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of menu where session menu shall appear"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "path where sessions are saved"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use secure session cookies only"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "show mail in browser instead of logging it (development server only)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"secret to share with other server for hashing credentials of single sign on"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "name of website, hostname without www"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "put site offline (return 503 error)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "template to show if site is offline"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of keys that replace a key for an SQL query just for this request"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"secret key which forms a hash that allows a single sign login without "
+"password (must be identical with other server(s))"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "timeframe in minutes during which the sso_key is valid"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "PHP error code to use if there’s an error during syndication of content"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "timeout in miliseconds when requesting a URL with cURL"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"timeout in miliseconds when triggering a URL with cURL, increase on slow "
+"servers"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"website page template, if different from default (needs to end in `-page`)"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "HTML template for page title, max. two variables %1$s + %2$s"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"HTML template for page title on home page, max. two variables %1$s + %2$s"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for website themes"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "thousands separator"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "internal timezone, format: continent/city"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "folder for temporary items"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "translate page titles?"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "translate text via database"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "translate field values in database"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "marker that is set if a translation is not complete"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "list of mySQL sql_modes to disable"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "use uris table for logging of requests"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "maximum parts of path in URL, no. of slashes"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "ID of current website"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid ""
+"if running more than one website with one system, this is the default "
+"website that will answer to unknown domain names"
+msgstr ""
+
+#: configuration/settings.cfg
+msgid "initial installation date of Zugzwang Project CMS (for updates)"
+msgstr ""
 
 #: zzwrap/access.inc.php
 msgid "You need `%s` access rights. (Login: %s)"
@@ -55,6 +1076,13 @@ msgstr "Link do logowania jest błędny lub nieaktualny."
 msgid "Please get a new one."
 msgstr "Poproś o nowy."
 
+#: zzwrap/auth.inc.php
+msgid "Too many failed login attempts. Please wait %d second."
+msgid_plural "Too many failed login attempts. Please wait %d seconds."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
 #: zzwrap/core.inc.php
 msgid "Temporarily, a login is not possible."
 msgstr "Chwilowo logowanie nie jest możliwe."
@@ -85,46 +1113,47 @@ msgstr[1] "Usunięto %d wierszy."
 msgstr[2] "Usunięto %d wierszy."
 
 # HTTP Status Code 300
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Multiple Choices"
 msgstr "Wielokrotny wybór"
 
 # HTTP Status Code 301
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Moved Permanently"
 msgstr "Przeniesiono na stałe"
 
 # HTTP Status Code 302
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Found"
 msgstr "Znalezione"
 
 # HTTP Status Code 303
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "See Other"
 msgstr "Zobacz inne"
 
 # HTTP Status Code 304
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Modified"
 msgstr "Niemodyfikowane"
 
 # HTTP Status Code 305
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Use Proxy"
 msgstr "Użyj proxy"
 
 # HTTP Status Code 307
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Temporary Redirect"
 msgstr "Tymczasowe przekierowanie"
 
 # HTTP Status Code 400
+#: configuration/http-statuscodes.tsv
 msgid "Bad Request"
 msgstr "Wystąpił błąd"
 
 # HTTP Status Code 400
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
@@ -132,12 +1161,12 @@ msgstr ""
 "zinterpretować."
 
 # HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Unauthorized"
 msgstr "Brak uprawnień"
 
 # HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "This server could not verify that you are authorized to access this URL. You "
 "either supplied the wrong credentials (e.g., bad password), or your browser "
@@ -148,17 +1177,17 @@ msgstr ""
 "wie, jak podać wymagane dane logowania."
 
 # HTTP Status Code 402
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Payment Required"
 msgstr "Wymagana płatność"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Forbidden"
 msgstr "Zabronione"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
@@ -167,47 +1196,47 @@ msgstr ""
 "odczytem, albo nie może być odczytany przez serwer."
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Found"
 msgstr "Nie znaleziono"
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The requested URL was not found on this server."
 msgstr "Żądany adres URL nie został znaleziony na tym serwerze."
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Method Not Allowed"
 msgstr "Niedozwolona metoda"
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "Metoda %s jest niedozwolona dla żądanego adresu URL."
 
 # HTTP Status Code 406
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Acceptable"
 msgstr "Niedopuszczalne"
 
 # HTTP Status Code 407
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Proxy Authentication Required"
 msgstr "Wymagane uwierzytelnienie serwera proxy"
 
 # HTTP Status Code 409
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Conflict"
 msgstr "Konflikt"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Gone"
 msgstr "Brak"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
@@ -216,12 +1245,12 @@ msgstr ""
 "przekierowania."
 
 # HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Length Required"
 msgstr "Wymagana długość"
 
 # HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
@@ -229,22 +1258,22 @@ msgstr ""
 "Żądanie z metodą %s wymaga prawidłowego nagłówka <code>Content-Length</code>."
 
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Precondition Failed"
 msgstr "Warunek wstępny nie powiódł się"
 
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr "Warunek wstępny dotyczący żądania adresu URL nie powiódł się."
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Request Entity Too Large"
 msgstr "Podmiot wnioskujący jest za duży"
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The %s-method does not allow the data transmitted, or the data volume "
 "exceeds the capacity limit."
@@ -253,12 +1282,12 @@ msgstr ""
 "limit pojemności."
 
 # HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "URI Too Long"
 msgstr "Zbyt długi identyfikator URI"
 
 # HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
@@ -267,32 +1296,37 @@ msgstr ""
 "Żądanie nie może zostać przetworzone."
 
 # HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Unsupported Media Type"
 msgstr "Nieobsługiwany typ nośnika"
 
 # HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The server does not support the media type transmitted in the request."
 msgstr "Serwer nie obsługuje typu nośnika przesyłanego w żądaniu."
 
 # HTTP Status Code 416
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Requested Range Not Satisfiable"
 msgstr "Żądany zakres jest niedostępny"
 
 # HTTP Status Code 417
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Expectation Failed"
 msgstr "Oczekiwanie nie powiodło się"
 
+# HTTP Status Code 417
+#: configuration/http-statuscodes.tsv
+msgid "Too Many Requests"
+msgstr ""
+
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Internal Server Error"
 msgstr "Wewnętrzny błąd serwera"
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
@@ -301,37 +1335,37 @@ msgstr ""
 "żądania."
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Unsupported server protocol (%s)"
 msgstr "Nieobsługiwany protokół serwera (%s)"
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Not Implemented"
 msgstr "Nie zrealizowano"
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr "Serwer nie obsługuje działania żądanego przez przeglądarkę (%s)."
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Bad Gateway"
 msgstr "Zła bramka"
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr "Serwer proxy otrzymał nieprawidłową odpowiedź z serwera upstream."
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Service Unavailable"
 msgstr "Serwis niedostępny"
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
@@ -340,14 +1374,22 @@ msgstr ""
 "konserwacyjnych lub problemów z wydajnością. Spróbuj ponownie później."
 
 # HTTP Status Code 504
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "Gateway Timeout"
 msgstr "Limit czasu bramki"
 
 # HTTP Status Code 505
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv
 msgid "HTTP Version Not Supported"
 msgstr "Wersja http nie jest obsługiwana"
+
+#: zzbrick_request/login.inc.php
+msgid "The “Forgot password” link is not activated."
+msgstr ""
+
+#: zzbrick_request/login.inc.php
+msgid "The “Forgot password” query is missing."
+msgstr ""
 
 #: zzwrap/errorhandling.inc.php
 msgid ""
@@ -653,9 +1695,25 @@ msgctxt "months_short"
 msgid "Dec"
 msgstr ""
 
+#: zzwrap/install.inc.php
+msgid "The main user could not be created."
+msgstr ""
+
 #: zzwrap/mail.inc.php
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
+
+#: zzwrap/nav.inc.php
+msgid "Previous page"
+msgstr "Poprzednia strona"
+
+#: zzwrap/nav.inc.php
+msgid "Next page"
+msgstr "Następna strona"
+
+#: zzwrap/nav.inc.php
+msgid "Overview"
+msgstr "﻿Przegląd"
 
 # Weekdays, abbreviated
 msgctxt "weekday"
@@ -691,3 +1749,15 @@ msgstr "sob"
 msgctxt "weekday"
 msgid "Sun"
 msgstr "nd"
+
+#: zzwrap/page.inc.php:147
+msgid "Template <code>%s</code> does not exist."
+msgstr ""
+
+#: zzwrap/page.inc.php:149
+msgid "More than one template with the name <code>%s</code> exists."
+msgstr ""
+
+#: zzwrap/page.inc.php:1311
+msgid "Template %s includes itself"
+msgstr ""

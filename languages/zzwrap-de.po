@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023-2024 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023-2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -1713,6 +1713,18 @@ msgstr "Der Hauptbenutzer konnte nicht angelegt werden."
 #: zzwrap/mail.inc.php
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr "Postfach %s kann nicht geöffnet werden (Server: %s)"
+
+#: zzwrap/nav.inc.php
+msgid "Previous page"
+msgstr "Vorige Seite"
+
+#: zzwrap/nav.inc.php
+msgid "Next page"
+msgstr "Nächste Seite"
+
+#: zzwrap/nav.inc.php
+msgid "Overview"
+msgstr "Übersicht"
 
 # Weekdays, abbreviated
 msgctxt "weekday"
