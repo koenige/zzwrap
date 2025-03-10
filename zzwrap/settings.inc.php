@@ -12,7 +12,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -96,7 +96,8 @@ function wrap_get_setting($key, $login_id = 0) {
 
 	// shorthand notation with []?
 	$shorthand = wrap_setting_key_read($zz_setting, $key);
-	if (isset($shorthand)) return $shorthand;
+	if (isset($shorthand))
+		return wrap_get_setting_prepare($shorthand, $key, $cfg);
 
 	// read setting from database
 	if (!wrap_db_connection() AND $login_id) {
@@ -240,6 +241,11 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 			$setting = [];
 		}
 	}
+	if (!empty($cfg[$key]['languages']) AND is_array($setting))
+		if (array_key_exists(wrap_setting('lang'), $setting))
+			return $setting[wrap_setting('lang')];
+		else
+			return NULL;
 	return $setting;
 }
 
