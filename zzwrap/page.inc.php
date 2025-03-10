@@ -126,6 +126,8 @@ function wrap_page_title($page) {
 		$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle_home'), $page['pagetitle'], $page['project']);
 	} else {
 		$page['pagetitle'] = strip_tags($page['title']);
+		if (wrap_setting('page_subtitle'))
+			$page['pagetitle'] .= wrap_setting('page_subtitle_concat').wrap_setting('page_subtitle');
 		if (!empty($status))
 			$page['pagetitle'] = $page['status'].' '.$page['pagetitle'];
 		$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle'), $page['pagetitle'], $page['project']);
@@ -324,7 +326,9 @@ function wrap_htmlout_page($page) {
 		// add title to page, main text block
 		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND !(wrap_setting('h1_via_template'))
 			AND $position === 'text') {
-			$text = "\n".markdown('# '.$page['title']."\n")."\n".$text;
+			$text = "\n".markdown('# '.$page['title']
+				.(wrap_setting('page_subtitle') ? '<br>'.wrap_setting('page_subtitle') : '')
+				."\n")."\n".$text;
 		}
 		// do not overwrite other keys
 		if ($position !== 'text') $position = 'text_'.$position;
