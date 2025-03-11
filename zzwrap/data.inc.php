@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020, 2023-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2020, 2023-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -62,6 +62,8 @@ function wrap_data_media($data, $ids, $langs, $table, $id_field) {
 	$mediadata = wrap_get_media(array_unique($ids), $table, $id_field);
 	if (!$mediadata) return $data;
 	$id_field = sprintf('%s_id', $id_field);
+	// remove database table if in field name
+	if ($pos = strpos($id_field, '.')) $id_field = substr($id_field, $pos + 1);
 	foreach ($langs as $lang) {
 		$media = wrap_translate($mediadata, 'media', 'medium_id', true, $lang);
 		foreach ($data[$lang] as $line_id => $line) {
