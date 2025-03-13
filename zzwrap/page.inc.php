@@ -270,6 +270,7 @@ function wrap_htmlout_page($page) {
 		$page['text'] = wrap_page_json($page);
 
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
+		$page = wrap_page_replace($page);
 		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers'] ?? []);
 		exit;
 	}
@@ -389,6 +390,7 @@ function wrap_htmlout_page($page) {
 		$text = str_replace('%\%\%', '%%%', $text);
 	}
 	if (!empty($page['send_as_json'])) {
+		// @deprecated, check if wrap_setting('send_as_json') is an option
 		wrap_send_text(wrap_page_json($page, $text), 'json', $page['status']);
 		exit;
 	}
