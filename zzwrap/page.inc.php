@@ -266,8 +266,13 @@ function wrap_redirect_change($url = false) {
 function wrap_htmlout_page($page) {
 	global $zz_page;
 
-	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json'))
+	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json')) {
 		$page['text'] = wrap_page_json($page);
+	} elseif (wrap_setting('send_as_json')) {
+		$page['text'] = wrap_page_json($page);
+		$page['content_type_original'] = $page['content_type'];
+		$page['content_type'] = 'json';
+	}
 
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
 		$page = wrap_page_replace($page);
