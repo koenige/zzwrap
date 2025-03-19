@@ -1023,6 +1023,10 @@ msgid_plural "%d lines deleted."
 msgstr[0] ""
 msgstr[1] ""
 
+#: zzwrap/file.inc.php
+msgid "No lines deleted."
+msgstr ""
+
 # HTTP Status Code 300
 #: configuration/http-statuscodes.tsv
 msgid "Multiple Choices"

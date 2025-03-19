@@ -24,6 +24,7 @@ function wrap_file_delete_line($file, $lines) {
 	// check if file exists and is writable
 	if (!is_writable($file))
 		return wrap_text('File %s is not writable.', ['values' => $file]);
+	if (!$lines) return wrap_text('No lines deleted.');
 
 	$deleted = 0;
 	$content = file($file);

@@ -1111,6 +1111,10 @@ msgid_plural "%d lines deleted."
 msgstr[0] "1 Zeile gelöscht."
 msgstr[1] "%d Zeilen gelöscht."
 
+#: zzwrap/file.inc.php
+msgid "No lines deleted."
+msgstr "Keine Zeilen gelöscht."
+
 # HTTP Status Code 300
 #: configuration/http-statuscodes.tsv
 msgid "Multiple Choices"
