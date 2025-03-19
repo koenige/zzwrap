@@ -675,7 +675,7 @@ function wrap_log_uri($status = 0) {
 		);
 		$line = sprintf(
 			'%s - %s [%s] "%s %s %s" %d %d "%s" "%s" %s'."\n"
-			, wrap_setting('remote_ip')
+			, wrap_log_anonymize(wrap_setting('remote_ip'))
 			, $_SESSION['username'] ?? $_SERVER['REMOTE_USER'] ?? '-'
 			, date('d/M/Y:H:i:s O', $_SERVER['REQUEST_TIME'])
 			, $_SERVER['REQUEST_METHOD']
@@ -765,4 +765,54 @@ function wrap_log_uri($status = 0) {
 		wrap_error(sprintf('URI query too long: %s', $query));
 	}
 	return true;
+}
+
+/**
+ * anonymize IP address
+ *
+ * @param string $ip
+ * @return string
+ */
+function wrap_log_anonymize($ip) {
+	if (!wrap_setting('http_log_anonymous')) return $ip;
+	if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+		wrap_error(sprintf('Unknown IP Address: %s', $ip));
+		return $ip;
+	}
+	$http_log_anonymous = wrap_setting('http_log_anonymous');
+	if (!in_array($http_log_anonymous, [1, 2, 3, 4, 5, 6, 7, 8]))
+		$http_log_anonymous = 1;
+
+	if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+		if ($http_log_anonymous > 4) $http_log_anonymous = 4;
+		$concat = '.';
+		$parts = explode('.', $ip);
+	} elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+		$concat = ':';
+		$parts = explode('::', $ip);
+		if (count($parts) === 2) {
+			// add missing hextets
+			$parts[0] = explode(':', $parts[0]);
+			if (!$parts[0][0]) $parts[0][0] = 0;
+			$parts[1] = explode(':', $parts[1]);
+			if (!$parts[1][0]) $parts[1][0] = 0;
+			$missing = 8 - count($parts[0]) - count($parts[1]);
+			while ($missing) {
+				$parts[0][] = 0;
+				$missing--;
+			}
+			$parts = array_merge($parts[0], $parts[1]);
+		} else {
+			$parts = explode(':', $ip);
+		}
+	} else {
+		wrap_error(sprintf('Unknown IP Address: %s', $ip));
+		return $ip;
+	}
+	for ($i = 0; $i < $http_log_anonymous; $i++)
+		array_pop($parts);
+	for ($i = 0; $i < $http_log_anonymous; $i++)
+		$parts[] = 0;
+	// @todo shorten IPv6 address
+	return implode($concat, $parts);
 }
