@@ -1,10 +1,11 @@
 <?php 
 
 /**
- * Zugzwang Project
+ * zzwrap
  * Main script sending the requests to the Content Management System
  *
- * https://www.zugzwang.org/modules/zzproject
+ * Part of »Zugzwang Project«
+ * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2012, 2019, 2023 Gustaf Mossakowski
@@ -12,5 +13,6 @@
  */
 
 
+// modify path if modules reside in a different directory
 require_once $_SERVER['DOCUMENT_ROOT'].'/../_inc/modules/zzwrap/zzwrap/zzwrap.php';
 zzwrap();
