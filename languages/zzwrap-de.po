@@ -801,10 +801,6 @@ msgid "URLs without authentication"
 msgstr ""
 
 #: configuration/settings.cfg
-msgid "URLs without authentication, system defaults from setting"
-msgstr ""
-
-#: configuration/settings.cfg
 msgid "do not allow https, https is not supported"
 msgstr ""
 
