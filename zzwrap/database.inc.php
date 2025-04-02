@@ -1865,3 +1865,64 @@ function wrap_sql_plural($field_name, $shorten = true) {
 		return $field_name.'es';
 	return $field_name.'s';
 }
+
+/**
+ * get definition for fields of a given query
+ *
+ * @param string $sql
+ * @return array
+ */
+function wrap_mysql_fields($sql) {
+	// get all fields
+	$fields = wrap_edit_sql($sql, 'SELECT', '', 'list');
+
+	// get table and character encoding
+	$result = mysqli_query(wrap_db_connection(), $sql);
+	$index = 0;
+	$tables = [];
+	while ($field_info = mysqli_fetch_field($result)) {
+		$fields[$index]['table_alias'] = $field_info->orgtable;
+		$fields[$index]['table'] = $field_info->table;
+		$fields[$index]['type_no'] = $field_info->type;
+		$fields[$index]['character_encoding'] = wrap_mysql_character_encoding($field_info->charsetnr);
+		if ($field_info->table)
+			$tables[] = $field_info->table;
+		$index++;
+	}
+	
+	// get field type
+	foreach ($tables as $table) {
+		$sql = sprintf('SHOW COLUMNS FROM `%s`', $table);
+		$columns = wrap_db_fetch($sql, 'Field');
+		foreach ($fields as $index => $field) {
+			if ($field['table'] !== $table) continue;
+			if (!array_key_exists($field['field_name'], $columns)) continue;
+			$fields[$index]['type'] = $columns[$field['field_name']]['Type'];
+			// remove unsigned attribute
+			if ($pos = strpos($fields[$index]['type'], ' '))
+				$fields[$index]['type'] = substr($fields[$index]['type'], 0, $pos);
+			// remove length
+			if ($pos = strpos($fields[$index]['type'], '('))
+				$fields[$index]['type'] = substr($fields[$index]['type'], 0, $pos);
+		}
+	}
+	return $fields;
+}
+
+/**
+ * get character encoding from charsetnr
+ *
+ * @param int $charsetnr
+ * @return string
+ */
+function wrap_mysql_character_encoding($charsetnr) {
+	static $character_encodings = [];
+	if (!$character_encodings) {
+		$sql = 'SELECT ID, CHARACTER_SET_NAME 
+			FROM information_schema.COLLATIONS 
+			GROUP BY CHARACTER_SET_NAME, ID 
+			ORDER BY ID';
+		$character_encodings = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	}
+	return $character_encodings[$charsetnr] ?? 'unknown';
+}
