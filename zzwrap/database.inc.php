@@ -1877,7 +1877,7 @@ function wrap_mysql_fields($sql) {
 	$fields = wrap_edit_sql($sql, 'SELECT', '', 'list');
 
 	// get table and character encoding
-	$result = mysqli_query(wrap_db_connection(), $sql);
+	$result = wrap_db_query($sql);
 	$index = 0;
 	$tables = [];
 	while ($field_info = mysqli_fetch_field($result)) {
