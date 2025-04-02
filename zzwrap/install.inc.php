@@ -88,6 +88,7 @@ function wrap_install_dbname() {
 				if (in_array($module, ['zzform', 'default'])) continue;
 				wrap_install_module($module);
 			}
+			wrap_install_alter_table();
 			$_SESSION['step'] = 2;
 			return true;
 		}
@@ -106,8 +107,6 @@ function wrap_install_dbname() {
 function wrap_install_module($module) {
 	wrap_include('database', 'zzform');
 
-	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
-	
 	$files = wrap_collect_files('configuration/install.sql', $module);
 	if (!$files) return false;
 	$queries = wrap_sql_file($files[$module]);
@@ -122,20 +121,55 @@ function wrap_install_module($module) {
 			}
 			unset($queries_per_table['query']);
 		}
-		foreach ($queries_per_table as $index => $query) {
-			// install already in logging table?
-			if ($logging_table) {
-				$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
-				$sql = sprintf($sql, wrap_db_escape($query));
-				$record = wrap_db_fetch($sql);
-				if ($record) continue;
-			}
-			$success = wrap_db_query($query);
-			if ($success)
-				zz_db_log($query, 'Crew droid Robot 571');
-		}
+		wrap_install_queries($queries_per_table, 'create');
 	}
 	wrap_setting_write('mod_'.$module.'_install_date', date('Y-m-d H:i:s'));
+	return true;
+}
+
+/**
+ * execute a list of queries, but check if they were alread logged
+ *
+ * @param array $queries
+ * @param string $scope
+ * @return bool
+ */
+function wrap_install_queries($queries, $scope = 'create') {
+	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
+
+	foreach ($queries as $query) {
+		// install already in logging table?
+		if ($logging_table) {
+			$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
+			$sql = sprintf($sql, wrap_db_escape($query));
+			$record = wrap_db_fetch($sql);
+			if ($record) continue;
+		}
+		if ($scope === 'create' AND str_starts_with($query, 'ALTER')) {
+			// do ALTER TABLE etc. later
+			wrap_install_alter_table($query);
+			continue;
+		}
+		$success = wrap_db_query($query);
+		if ($success)
+			zz_db_log($query, 'Crew droid Robot 571');
+	}
+	return true;
+}
+
+/**
+ * save and execute ALTER TABLE queries for later; tables need to be created first
+ *
+ * @param string $query (optional)
+ * @return bool
+ */
+function wrap_install_alter_table($query = '') {
+	static $queries = [];
+	if ($query) {
+		$queries[] = $query;
+		return false;
+	}
+	wrap_install_queries($queries, 'all');
 	return true;
 }
 
