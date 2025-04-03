@@ -1885,8 +1885,8 @@ function wrap_mysql_fields($sql) {
 		$fields[$index]['table'] = $field_info->table;
 		$fields[$index]['type_no'] = $field_info->type;
 		$fields[$index]['character_encoding'] = wrap_mysql_character_encoding($field_info->charsetnr);
-		if ($field_info->table)
-			$tables[] = $field_info->table;
+		if ($field_info->orgtable)
+			$tables[] = $field_info->orgtable;
 		$index++;
 	}
 	
