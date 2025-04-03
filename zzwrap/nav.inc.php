@@ -773,6 +773,8 @@ function wrap_nav_sequential($pages, $breadcrumbs) {
 		$sql = sprintf($sql, $page_id, $page_id, $page_id);
 		$data = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 		$data = wrap_translate($data, 'webpages');
+		foreach ($data as $index => $line)
+			$data[$index]['url'] = wrap_setting('base').$line['url'];
 		list($zz_page['prev'], $zz_page['next'])
 			= wrap_get_prevnext($data, $zz_page['db']['page_id'], false);
 		if ($zz_page['prev'])
