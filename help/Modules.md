@@ -176,7 +176,7 @@ Request functions.
 - Filename for `mod_example_test()` function is `test.inc.php`
 - Include in template via `%%% request test %%%`
 
-### Folder `/zzbrick_request_get`
+### Folder `/zzbrick_request_get`
 
 Request/Get functions. If setting `brick_cms_input` is active, a
 function in this folder is automatically used for request functions to
@@ -184,7 +184,7 @@ read data.
 
 - Function names: start with `mod_example_get`
 
-### Folder `/zzbrick_rights`
+### Folder `/zzbrick_rights`
 
 - `access_rights.inc.php` – define access rights with `brick_access_rights()`
 - `usergroups.inc.php` – register usergroups
