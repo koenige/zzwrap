@@ -1875,6 +1875,8 @@ function wrap_sql_plural($field_name, $shorten = true) {
 function wrap_mysql_fields($sql) {
 	// get all fields
 	$fields = wrap_edit_sql($sql, 'SELECT', '', 'list');
+	// SHOW DATABASE, SHOW TABLES won’t yield any results, then return
+	if (!$fields) return [];
 
 	// get table and character encoding
 	$result = wrap_db_query($sql);
