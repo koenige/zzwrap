@@ -136,8 +136,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		if (empty($settings['mail_no_ip']))
 			$foot .= "\nIP: ".wrap_setting('remote_ip');
 		if (empty($settings['mail_no_user_agent']))
-			$foot .= "\nBrowser: ".(!empty($_SERVER['HTTP_USER_AGENT']) 
-				? $_SERVER['HTTP_USER_AGENT'] : wrap_text('unknown'));	
+			$foot .= "\nBrowser: ".($_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown'));	
 		// add user name to mail message if there is one
 		if ($user = wrap_username()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
 		if ($foot) $msg .= "\n\n-- ".$foot;
@@ -422,7 +421,7 @@ function wrap_errorpage_log($status, $page) {
 		$msg = wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
 			." with the IP address %s\nBrowser %s\n\n"
 			." but could not be found on the server", ['values' => [$requested, 
-			$_SERVER['HTTP_REFERER'], wrap_setting('remote_ip'), $_SERVER['HTTP_USER_AGENT']]]);
+			$_SERVER['HTTP_REFERER'], wrap_setting('remote_ip'), $_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unkown')]]);
 		if (!empty($_POST)) {
 			$msg .= "\n\n".wrap_print($_POST, false, false);
 		}
@@ -435,8 +434,9 @@ function wrap_errorpage_log($status, $page) {
 		wrap_error($msg, $error_type, $settings);
 		break;
 	case 403:
-		$settings['logfile'] .= ' (User agent: '
-			.($_SERVER['HTTP_USER_AGENT'] ?? 'unknown').')';
+		$settings['logfile'] .= sprintf(' (User agent: %s)',
+			$_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown')
+		);
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 410:
@@ -449,7 +449,7 @@ function wrap_errorpage_log($status, $page) {
 		if (empty($_SERVER['PHP_AUTH_USER']) AND empty($_SERVER['PHP_AUTH_PW'])) break;
 		$msg .= sprintf(' (IP: %s, User agent: %s)'
 			, wrap_setting('remote_ip')
-			, $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
+			, $_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown')
 		);
 	case 400:
 	case 405:
