@@ -805,9 +805,10 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * @param mixed $value (optional)
  * @param mixed $check_rights (optional) false: no check; array: use as details
  * @param bool $testing (optional) true: checks if path exists, regardless of values
+ * @param array $settings (optional)
  * @return string
  */
-function wrap_path($area, $value = [], $check_rights = true, $testing = false) {
+function wrap_path($area, $value = [], $check_rights = true, $testing = false, $settings = []) {
 	// check rights
 	$detail = is_bool($check_rights) ? '' : $check_rights;
 	if ($check_rights AND !wrap_access($area, $detail)) return NULL;
@@ -848,7 +849,8 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false) {
 				$value[] = 'testing';
 		}
 	}
-	$path = vsprintf(wrap_setting('base').$this_setting, $value);
+	$base = !empty($settings['no_base']) ? '' : wrap_setting('base');
+	$path = vsprintf($base.$this_setting, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
 	if ($website_id = wrap_setting('backend_website_id')
 		AND $website_id !== wrap_setting('website_id')) {
