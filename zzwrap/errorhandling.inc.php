@@ -415,6 +415,7 @@ function wrap_errorpage_log($status, $page) {
 		break;
 	case 404:
 		if (wrap_errorpage_logignore()) return false;
+		if (wrap_setting('error_ignore_404')) return false;
 		// own error message!
 		$requested = $zz_page['url']['full']['scheme'].'://'
 			.wrap_setting('hostname').wrap_setting('request_uri');
