@@ -1628,6 +1628,8 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 		if (!$data[$table]) return []; // array, eases check
 	}
 
+	$identifier = strtolower($identifier);
+
 	switch ($action) {
 	case 'write':
 		$data[$table][$identifier] = $value;
