@@ -422,7 +422,9 @@ function wrap_page_json($page, $text = NULL) {
 			$output[$key] = $data;
 	$json = json_encode($output);
 	if ($output and !$json) {
-		file_put_contents(sprintf('%s/zzwrap/json-error-%s.log', wrap_setting('log_dir'), time()), $output);
+		$log_dir = sprintf('%s/zzwrap', wrap_setting('log_dir'));
+		if (!file_exists($log_dir)) wrap_mkdir($log_dir);
+		file_put_contents(sprintf('%s/json-error-%s.log', $log_dir, time()), $output);
 		if (json_last_error() === JSON_ERROR_UTF8) {
 			$output = wrap_convert_encoding($output, 'UTF-8');
 			$json = json_encode($output);
