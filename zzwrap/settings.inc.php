@@ -276,9 +276,10 @@ function wrap_setting_log_missing($key, $cfg) {
  * @param string $key
  * @param string $value
  * @param int $login_id (optional)
+ * @param array $settings (optional)
  * @return bool
  */
-function wrap_setting_write($key, $value, $login_id = 0) {
+function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
 		// support for keys that are arrays
@@ -305,7 +306,7 @@ function wrap_setting_write($key, $value, $login_id = 0) {
 	}
 	$result = wrap_db_query($sql);
 	if ($result) {
-		if (wrap_include('database', 'zzform')) {
+		if (wrap_include('database', 'zzform') AND empty($settings['no_logging'])) {
 			wrap_setting('log_username_default', 'Servant Robot 247');
 			zz_db_log($sql, '', $result['id'] ?? false);
 			wrap_setting_delete('log_username_default');
