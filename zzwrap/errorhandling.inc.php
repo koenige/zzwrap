@@ -377,7 +377,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 			'title' => $page['error_title'],
 			'error_description' => $page['error_description'],
 			'error_explanation' => $page['error_explanation'] ?? '',
-			'url' => $page['url'] ?? wrap_setting('request_uri')
+			'url' => $page['url'] ?? wrap_setting('request_uri'),
+			'html' => $page['text'] ?? ''
 		];
 		return wrap_send_text(json_encode($page['text']), 'json', $page['status'], $page['headers'] ?? []);
 		exit;
