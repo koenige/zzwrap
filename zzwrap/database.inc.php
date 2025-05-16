@@ -1889,8 +1889,8 @@ function wrap_mysql_fields($sql) {
 	$index = 0;
 	$tables = [];
 	while ($field_info = mysqli_fetch_field($result)) {
-		$fields[$index]['table_alias'] = $field_info->orgtable;
-		$fields[$index]['table'] = $field_info->table;
+		$fields[$index]['table_alias'] = $field_info->table;
+		$fields[$index]['table'] = $field_info->orgtable;
 		$fields[$index]['type_no'] = $field_info->type;
 		$fields[$index]['character_encoding'] = wrap_mysql_character_encoding($field_info->charsetnr);
 		if ($field_info->orgtable)
