@@ -1681,7 +1681,10 @@ function wrap_id_read($table, $sql) {
 	}
 	$data = wrap_db_fetch($sql, '_dummy_', 'key/value');
 	$queries = wrap_system_sql('ids-aliases');
-	if (!array_key_exists($table, $queries)) return $data;
+	if (!array_key_exists($table, $queries)) {
+		$data = array_change_key_case($data, CASE_LOWER);
+		return $data;
+	}
 
 	$sql_aliases = $queries[$table];
 	if (!$sql_aliases) return $data;
@@ -1707,6 +1710,7 @@ function wrap_id_read($table, $sql) {
 			}
 		}
 	}
+	$data = array_change_key_case($data, CASE_LOWER);
 	return $data;
 }
 
