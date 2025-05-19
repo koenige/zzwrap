@@ -43,8 +43,11 @@ function wrap_language_set() {
 	// Check if redirect is necessary
 	if (!wrap_setting('default_source_language'))
 		wrap_setting('default_source_language', wrap_setting('lang'));
-	$language = wrap_negotiate_language(wrap_setting('languages_allowed'), 
-		wrap_setting('default_source_language'), null, false);
+	if (!empty($_GET['lang']) AND in_array($_GET['lang'], wrap_setting('languages_allowed')))
+		$language = $_GET['lang'];
+	else
+		$language = wrap_negotiate_language(wrap_setting('languages_allowed'), 
+			wrap_setting('default_source_language'), null, false);
 	if (!$language) return false;
 	wrap_setting('lang', $language);
 	// in case there is content, redirect to the language specific content later
@@ -64,6 +67,12 @@ function wrap_language_redirect() {
 	if (!wrap_setting('negotiate_language')) return;
 
 	wrap_setting('base', wrap_setting('base').'/'.wrap_setting('lang'));
+	// remove lang= from URL
+	if (isset($_GET['lang']) AND $zz_page['url']['full']['query']) {
+		parse_str($zz_page['url']['full']['query'], $qs);
+		unset($qs['lang']);
+		$zz_page['url']['full']['query'] = http_build_query($qs);
+	}
 	$zz_page['url']['redirect'] = true;
 	$zz_page['url']['redirect_cache'] = false;
 	// vary header for caching
