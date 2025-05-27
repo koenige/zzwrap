@@ -186,13 +186,7 @@ function wrap_get_page() {
 	} elseif (array_key_exists('well_known', $zz_page)) {
 		$page = $zz_page['well_known'];
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
-		$page['text'] = wrap_template($zz_page['tpl_file']);
-		if (!$page['text']) wrap_quit(404);
-		$page['content_type'] = wrap_file_extension($zz_page['tpl_file']);
-		wrap_setting('character_set', wrap_detect_encoding($page['text']));
-		$page['status'] = 200;
-		$page['query_strings'][] = 'v';
-		$page['query_strings'][] = 'nocache';
+		$page = wrap_page_from_file($zz_page['tpl_file']);
 	} else {
 		$page = brick_format($zz_page['db'][wrap_sql_fields('page_content')], $zz_page['db']['parameter']);
 	}
@@ -222,6 +216,30 @@ function wrap_page_defaults($page) {
 	!empty($page['status']) OR $page['status'] = 200;
 	!empty($page['lang']) OR $page['lang'] = wrap_setting('lang');
 	$page = wrap_page_title($page);
+	return $page;
+}
+
+/**
+ * send page content from file in filesystem
+ * treat as template
+ * 
+ * @param string $filename
+ * @return array
+ */
+function wrap_page_from_file($filename) {
+	$page['text'] = wrap_template($filename);
+	if (!$page['text']) wrap_quit(404);
+	$page['content_type'] = wrap_file_extension($filename);
+	wrap_setting('character_set', wrap_detect_encoding($page['text']));
+	$page['status'] = 200;
+	$page['query_strings'][] = 'v';
+	$page['query_strings'][] = 'nocache';
+	
+	// check filename if it has version no. in it = extend cache to a year
+	// check for 1.0, 1.1.0 etc.
+	$basename = basename($filename);
+	if (preg_match('/\b\d+(?:\.\d+){1,3}\b/', $basename, $matches))
+		$page['headers']['cache_max_age'] = wrap_setting('page_cache_age_from_file_with_version');
 	return $page;
 }
 

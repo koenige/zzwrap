@@ -176,6 +176,7 @@ function wrap_send_file_cleanup($file) {
  * @param array $headers (optional):
  *		'filename': download filename
  *		'character_set': character encoding
+ *		'cache_max_age'
  * @global array $zz_page
  * @return void
  */
@@ -260,7 +261,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	// send all headers
 	wrap_cache_header();
 	if (wrap_setting('cache') AND !isset($_GET['nocache'])) {
-		$max_age = $filetype_cfg['max-age'] ?? wrap_setting('cache_control_text');
+		$max_age = $headers['cache_max_age'] ?? $filetype_cfg['max-age'] ?? wrap_setting('cache_control_text');
 		wrap_cache_header_default(sprintf('Cache-Control: max-age=%d', $max_age));
 	} else {
 		wrap_cache_header_default('Cache-Control: max-age=0');
