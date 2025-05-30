@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -371,11 +371,11 @@ function wrap_match_file($url_path) {
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (!wrap_setting($path.'_path')) continue;
-		if (!str_starts_with($url_path, wrap_setting($path.'_path'))) continue;
-		$url_folders = explode('/', substr($url_path, strlen(wrap_setting($path.'_path'))));
-		if (count($url_folders) < 2) continue;
-		if (!in_array($url_folders[1], $folders)) continue;
+		$url_folders = explode('/', substr($url_path, 1));
+		if ('/'.$url_folders[0] !== wrap_setting($path.'_path')) continue;
 		array_shift($url_folders);
+		if (count($url_folders) < 2) continue;
+		if (!in_array($url_folders[0], $folders)) continue;
 		$folder = array_shift($url_folders);
 		// prefer themes over modules here if name is identical
 		$dir = in_array($folder, wrap_setting('themes')) ? wrap_setting('themes_dir') : wrap_setting('modules_dir');
