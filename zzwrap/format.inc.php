@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -706,7 +706,8 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
  * @return string
  */
 function wrap_bytes($bytes, $precision = 1) { 
-    $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']; 
+    $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    if (!wrap_is_int($bytes)) $bytes = wrap_byte_to_int($bytes);
 	return wrap_unit_format($bytes, $precision, $units, 1024);
 }
 
