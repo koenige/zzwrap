@@ -82,7 +82,7 @@ function wrap_db_connection($db = []) {
 		return NULL;
 	}
 	if (!$db) return $connection;
-	$connection = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], wrap_setting('db_name'), $db['db_port']);
+	$connection = mysqli_connect($db['db_host'], $db['db_user'], $db['db_pwd'], $db['db_name'] ?? wrap_setting('db_name'), $db['db_port']);
 	return $connection;
 }
 
