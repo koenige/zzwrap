@@ -1893,7 +1893,7 @@ function wrap_mysql_fields($sql) {
 		$fields[$index]['table_alias'] = $field_info->table;
 		$fields[$index]['table'] = $field_info->orgtable;
 		$fields[$index]['type_no'] = $field_info->type;
-		$fields[$index]['character_encoding'] = wrap_mysql_character_encoding($field_info->charsetnr);
+		$fields[$index]['character_encoding'] = wrap_mysql_character_encoding($field_info->orgtable, $field_info->orgname);
 		if ($field_info->orgtable)
 			$tables[] = $field_info->orgtable;
 		$index++;
@@ -1921,17 +1921,17 @@ function wrap_mysql_fields($sql) {
 /**
  * get character encoding from charsetnr
  *
- * @param int $charsetnr
+ * @param string $table
+ * @param string $field
  * @return string
  */
-function wrap_mysql_character_encoding($charsetnr) {
+function wrap_mysql_character_encoding($table, $field) {
 	static $character_encodings = [];
 	if (!$character_encodings) {
-		$sql = 'SELECT ID, CHARACTER_SET_NAME 
-			FROM information_schema.COLLATIONS 
-			GROUP BY CHARACTER_SET_NAME, ID 
-			ORDER BY ID';
-		$character_encodings = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		$sql = 'SELECT TABLE_NAME, COLUMN_NAME, CHARACTER_SET_NAME
+			FROM information_schema.COLUMNS 
+			WHERE TABLE_SCHEMA = DATABASE()';
+		$character_encodings = wrap_db_fetch($sql, ['TABLE_NAME', 'COLUMN_NAME', 'CHARACTER_SET_NAME'], 'key/value');
 	}
-	return $character_encodings[$charsetnr] ?? 'unknown';
+	return $character_encodings[$table][$field] ?? 'unknown';
 }
