@@ -174,6 +174,22 @@ function wrap_db_charset($charset = '') {
 }
 
 /**
+ * gets character encoding which is used for current db connection
+ *
+ * @param void
+ * @return string
+ */
+function wrap_db_encoding() {
+	static $character_set = '';
+	if (!$character_set) {
+		$sql = 'SHOW VARIABLES LIKE "character_set_connection"';
+		$data = wrap_db_fetch($sql);
+		$character_set = $data['Value'];
+	}
+	return $character_set;
+}
+
+/**
  * replace table prefix with configuration variable
  *
  * @param string $sql some SQL query or part of it
@@ -1894,6 +1910,9 @@ function wrap_mysql_fields($sql) {
 		$fields[$index]['table'] = $field_info->orgtable;
 		$fields[$index]['type_no'] = $field_info->type;
 		$fields[$index]['character_encoding'] = wrap_mysql_character_encoding($field_info->orgtable, $field_info->orgname);
+		$fields[$index]['character_encoding_prefix'] = '';
+		if ($fields[$index]['character_encoding'] AND $fields[$index]['character_encoding'] !== wrap_db_encoding())
+			$fields[$index]['character_encoding_prefix'] = sprintf('_%s', $fields[$index]['character_encoding']);
 		if ($field_info->orgtable)
 			$tables[] = $field_info->orgtable;
 		$index++;
@@ -1933,5 +1952,5 @@ function wrap_mysql_character_encoding($table, $field) {
 			WHERE TABLE_SCHEMA = DATABASE()';
 		$character_encodings = wrap_db_fetch($sql, ['TABLE_NAME', 'COLUMN_NAME', 'CHARACTER_SET_NAME'], 'key/value');
 	}
-	return $character_encodings[$table][$field] ?? 'unknown';
+	return $character_encodings[$table][$field] ?? NULL;
 }
