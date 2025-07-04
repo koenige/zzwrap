@@ -139,9 +139,10 @@ function wrap_page_title($page) {
  * checks whether there's a reason to send an error back to the visitor
  * 
  * @param array $page
+ * @param string $scope (optional)
  * @return bool true if everything is okay
  */
-function wrap_page_check_if_error($page) {
+function wrap_page_check_if_error($page, $scope = 'page') {
 	if (empty($page)) wrap_quit();
 
 	if (!empty($page['error']['level'])) {
@@ -153,6 +154,18 @@ function wrap_page_check_if_error($page) {
 			$msg = wrap_text('zzbrick returned with an error. Sorry, that’s all we know.');
 		}
 		wrap_error($msg, $page['error']['level']);
+	} elseif ($page['status'] != 200) {
+		if ($scope === 'template') {
+			wrap_error(wrap_text(
+				'An error occurred while filling the template %s. Status code %d',
+				['values' => [wrap_setting('current_template'), $page['status']]]
+			), E_USER_WARNING);
+		} else {
+			wrap_error(wrap_text(
+				'An error occurred while creating the page. Status code %d',
+				['values' => [$page['status']]]
+			), E_USER_WARNING);
+		}
 	}
 	if ($page['status'] != 200) {
 		wrap_quit($page['status'], '', $page);

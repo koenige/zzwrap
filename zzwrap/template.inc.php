@@ -77,7 +77,7 @@ function wrap_template($template, $data = [], $mode = false) {
 		$page['text'] = current($page['text']);
 	}
 	// check if errors occured while filling in the template
-	wrap_page_check_if_error($page);
+	wrap_page_check_if_error($page, 'template');
 	return $page['text'];
 }
 
