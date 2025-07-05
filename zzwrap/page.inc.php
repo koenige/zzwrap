@@ -313,6 +313,7 @@ function wrap_htmlout_page($page) {
 	
 	// if globally dont_show_h1 is set, don't show it
 	if (wrap_setting('dont_show_h1')) $page['dont_show_h1'] = true;
+	if (wrap_setting('h1_via_template')) $page['dont_show_h1'] = true;
 
 	if (!isset($page['text'])) $page['text'] = '';
 	// init page
@@ -339,9 +340,9 @@ function wrap_htmlout_page($page) {
 	}
 	
 	$blocks = wrap_check_blocks(wrap_setting('template'));
-	if (in_array('breadcrumbs', $blocks)) {
+	if (in_array('breadcrumbs', $blocks) OR wrap_setting('breadcrumbs_h1_prefix')) {
 		require_once __DIR__.'/nav.inc.php';
-		$page['breadcrumbs'] = wrap_breadcrumbs($page);
+		list($page['breadcrumbs'], $page['breadcrumbs_h1_prefix']) = wrap_breadcrumbs($page);
 	}
 	$page['link'] = wrap_page_sequential($page['link'] ?? []);
 	if (in_array('nav', $blocks) AND wrap_db_connection()) {
@@ -361,11 +362,11 @@ function wrap_htmlout_page($page) {
 	unset($page['text']);
 	foreach ($textblocks as $position => $text) {
 		// add title to page, main text block
-		if (empty($page['dont_show_h1']) AND !empty($page['title']) AND !(wrap_setting('h1_via_template'))
-			AND $position === 'text') {
-			$text = "\n".markdown('# '.$page['title']
-				.(wrap_setting('page_subtitle') ? '<br>'.wrap_setting('page_subtitle') : '')
-				."\n")."\n".$text;
+		if ($position === 'text') {
+			if (empty($page['dont_show_h1']) AND !empty($page['title']))
+				$text = wrap_template('h1', $page).$text;
+			elseif (!empty($page['breadcrumbs_h1_prefix']))
+				$text = wrap_page_h1_prefix($text, $page['breadcrumbs_h1_prefix']);
 		}
 		// do not overwrite other keys
 		if ($position !== 'text') $position = 'text_'.$position;
@@ -730,6 +731,20 @@ function wrap_page_sequential($links) {
 		];
 	}
 	return $links;
+}
+
+/**
+ * add prefix to first h1 heading
+ *
+ * @param string $text
+ * @param string $prefix
+ * @return string
+ */
+function wrap_page_h1_prefix($text, $prefix) {
+	if (!$prefix) return $text;
+	if (!strstr($text, '<h1')) return $text;
+	$text = preg_replace('/(<h1\b[^>]*>)(.*?<\/h1>)/i', sprintf('$1%s$2', $prefix), $text, 1);
+	return $text;
 }
 
 /**

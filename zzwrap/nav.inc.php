@@ -475,7 +475,10 @@ function wrap_breadcrumbs($page) {
 	}
 	$breadcrumbs = array_merge($breadcrumbs, $page_breadcrumbs);
 	$breadcrumbs = wrap_breadcrumbs_prepare($breadcrumbs);
-	return wrap_template('breadcrumbs', $breadcrumbs);
+	
+	$breadcrumbs_h1_prefix = wrap_breadcrumbs_h1_prefix($breadcrumbs);
+	
+	return [wrap_template('breadcrumbs', $breadcrumbs), $breadcrumbs_h1_prefix];
 }
 
 /**
@@ -646,6 +649,25 @@ function wrap_breadcrumbs_link($url_path) {
 	$current = ($url_path === wrap_setting('request_uri') ? true : false);
 	if ($current) return '';
 	return $url_path;
+}
+
+
+/**
+ * add prefix to h1 with breadcrumbs
+ *
+ * @param array $breadcrumbs
+ * @return string
+ * @todo allow different breadcrumb separators than for normal breadcrumbs
+ */
+function wrap_breadcrumbs_h1_prefix($breadcrumbs) {
+	if (!wrap_setting('breadcrumbs_h1_prefix')) return '';
+	array_pop($breadcrumbs);
+	
+	if (wrap_setting('breadcrumbs_h1_prefix') !== 'all') {
+		while (count($breadcrumbs) > wrap_setting('breadcrumbs_h1_prefix'))
+			array_shift($breadcrumbs);
+	}
+	return wrap_template('breadcrumbs-h1', $breadcrumbs);
 }
 
 //
