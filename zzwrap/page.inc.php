@@ -160,10 +160,10 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 				'An error occurred while filling the template %s. Status code %d',
 				['values' => [wrap_setting('current_template'), $page['status']]]
 			), E_USER_WARNING);
-		} else {
+		} elseif ($page['status'] !== 404) {
 			wrap_error(wrap_text(
-				'An error occurred while creating the page. Status code %d',
-				['values' => [$page['status']]]
+				'An error occurred while creating the ressource %s. Status code %d',
+				['values' => [wrap_setting('request_uri'), $page['status']]]
 			), E_USER_WARNING);
 		}
 	}
