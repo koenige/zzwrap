@@ -313,7 +313,8 @@ function wrap_htmlout_page($page) {
 	
 	// if globally dont_show_h1 is set, don't show it
 	if (wrap_setting('dont_show_h1')) $page['dont_show_h1'] = true;
-	if (wrap_setting('h1_via_template')) $page['dont_show_h1'] = true;
+	$dont_show_h1 = $page['dont_show_h1'] ?? false;
+	if (wrap_setting('h1_via_template')) $dont_show_h1 = true;
 
 	if (!isset($page['text'])) $page['text'] = '';
 	// init page
@@ -363,7 +364,7 @@ function wrap_htmlout_page($page) {
 	foreach ($textblocks as $position => $text) {
 		// add title to page, main text block
 		if ($position === 'text') {
-			if (empty($page['dont_show_h1']) AND !empty($page['title']))
+			if (!$dont_show_h1 AND !empty($page['title']))
 				$text = wrap_template('h1', $page).$text;
 			elseif (!empty($page['breadcrumbs_h1_prefix']))
 				$text = wrap_page_h1_prefix($text, $page['breadcrumbs_h1_prefix']);
