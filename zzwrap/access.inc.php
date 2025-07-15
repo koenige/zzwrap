@@ -22,7 +22,6 @@
  * @return bool true: access granted
  */
 function wrap_access($area, $detail = '', $conditions = true) {
-	global $zz_conf;
 	static $config = [];
 	static $usergroups = [];
 	if (!$config) $config = wrap_cfg_files('access');
@@ -31,13 +30,12 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) return true;
 	
-	// zzform multi?
-	// @todo access rights for local users can be overwritten
+	// @todo global access rights for local users can be overwritten
 	// if user has access to webpages table and can write bricks
-	if (!empty($zz_conf['multi'])) return true;
+	if (wrap_setting('access_global')) return true;
 
 	// read settings from database
-	if (in_array('activities', wrap_setting('modules'))
+	if (wrap_package('activities')
 		AND !array_key_exists($area, $usergroups)
 		AND wrap_setting('mod_activities_install_date')
 	) {
