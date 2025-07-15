@@ -749,6 +749,58 @@ function wrap_page_h1_prefix($text, $prefix) {
 }
 
 /**
+ * limit entries displayed on a page
+ *
+ * @param string $type
+ * @param int $value
+ * @return int
+ * @todo move setting `zzform_limit` to `page_limit`
+ */
+function wrap_page_limit($type = false, $value = false) {
+	static $init = false;
+	static $this_limit = NULL;
+	static $limit_last = false;
+	if (!$init) {
+		$this_limit = wrap_setting('zzform_limit');
+		if (array_key_exists('limit', $_GET)) {
+			if ($_GET['limit'] === 'last') {
+				$limit_last = true;
+			} elseif (!is_array($_GET['limit']) AND intval($_GET['limit']).'' === $_GET['limit']) {
+				$this_limit = intval($_GET['limit']);
+			}
+			if ($this_limit AND $this_limit < wrap_setting('zzform_limit'))
+				$this_limit = wrap_setting('zzform_limit');
+		}
+		$init = true;
+	}
+	
+	switch ($type) {
+	case 'start':
+		if ($value) $limit = $this_limit - $value;
+		else $limit = $this_limit - wrap_setting('zzform_limit');
+		if ($limit < 0) $limit = 0;
+		return $limit;
+	case 'end':
+		if ($value AND $value < $this_limit) return intval($value) - 1;
+		return $this_limit - 1;
+	case 'remove':
+		return $this_limit = NULL;
+	case 'page':
+		if (!$this_limit) return 1;
+		return $this_limit / wrap_setting('zzform_limit');
+	case 'last':
+		// replace keyword limit=last with the correct numeric value 
+		if (!$limit_last) return $this_limit;
+		if ($value <= $this_limit) return $this_limit;
+		return $this_limit = (ceil($value / wrap_setting('zzform_limit')) * wrap_setting('zzform_limit'));
+	case 'last_qs':
+		return $limit_last;
+	default:
+		return $this_limit;
+	}
+}
+
+/**
  * check if there are hook functions in other packages
  *
  * @param array $settings
