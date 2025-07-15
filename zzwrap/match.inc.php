@@ -81,7 +81,7 @@ function wrap_match_page($zz_page) {
 	}
 	$identifiers = array_unique($identifiers);
 	$sql = sprintf(wrap_sql_query('core_pages'), implode(',', $identifiers));
-	if (!wrap_rights('preview')) {
+	if (!wrap_access('preview')) {
 		$sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	}
 	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');

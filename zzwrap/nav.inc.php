@@ -493,7 +493,7 @@ function wrap_breadcrumbs_read($page_id) {
 
 	$breadcrumbs = [];
 	// get all webpages
-	if (!wrap_rights('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
+	if (!wrap_access('preview')) $sql = wrap_edit_sql($sql, 'WHERE', wrap_sql_fields('page_live'));
 	$pages = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 	if (wrap_setting('translate_fields'))
 		$pages = wrap_translate($pages, wrap_sql_table('default_translation_breadcrumbs'), '', false);

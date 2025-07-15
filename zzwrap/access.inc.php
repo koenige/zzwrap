@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -246,29 +246,6 @@ function wrap_access_details($access_key, $details = [], $operand = 'AND', $quit
 }
 
 /**
- * checks or sets rights
- *
- * @param string $right key:
- *		'preview' for preview of not yet published content
- *		'access' for access rights
- * @param string $mode (optional): get, set
- * @param string $value (optional): in combination with set, sets value to right
- */
-function wrap_rights($right, $mode = 'get', $value = NULL) {
-	static $rights = [];
-	switch ($mode) {
-	case 'get':
-		if (isset($rights[$right])) return $rights[$right];
-		else return NULL;
-	case 'set':
-		if ($value === NULL) return false;
-		$rights[$right] = $value;
-		return $value;
-	}
-	return false;
-}
-
-/**
  * checks hash against string
  *
  * @param string $string
@@ -366,31 +343,6 @@ function wrap_base_convert($input, $frombase, $tobase) {
 		$output = $tostring[$divide] . $output;
 	} while ($newlen != 0);
 	return $output;
-}
-
-/**
- * Test whether URL contains a correct secret key to allow page previews
- * 
- * @param string $secret_key shared secret key
- * @param string $_GET['tle'] timestamp, begin of legitimate timeframe
- * @param string $_GET['tld'] timestamp, end of legitimate timeframe
- * @param string $_GET['tlh'] hash
- * @return bool $wrap_page_preview true|false i. e. true means show page, false don't
- * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @todo replace with wrap_check_hash()
- */
-function wrap_test_secret_key($secret_key) {
-	$wrap_page_preview = false;
-	if (empty($_GET['tle'])) return false;
-	if (empty($_GET['tld'])) return false;
-	if (empty($_GET['tlh'])) return false;
-	if (time() > $_GET['tle'] && time() < $_GET['tld'] && 
-		$_GET['tlh'] == md5($_GET['tle'].'&'.$_GET['tld'].'&'.$secret_key)) {
-		wrap_session_start();
-		$_SESSION['wrap_page_preview'] = true;
-		$wrap_page_preview = true;
-	}
-	return $wrap_page_preview;
 }
 
 /**

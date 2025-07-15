@@ -83,11 +83,6 @@ function zzwrap() {
 	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
 	
-	// Secret Key für Vorschaufunktion, damit auch noch nicht zur
-	// Veröffentlichung freigegebene Seiten angeschaut werden können.
-	if (wrap_setting('secret_key') AND !wrap_rights('preview'))
-		wrap_rights('preview', 'set', wrap_test_secret_key(wrap_setting('secret_key')));
-
 	$zz_page['db'] = wrap_match_page($zz_page);
 	wrap_defaults_post_match();
 	wrap_language_redirect();
