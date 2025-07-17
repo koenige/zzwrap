@@ -464,9 +464,11 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	ob_start();
 	print_r($array);
 	$code = ob_get_clean();
-	$code = ltrim($code, "Array\n(");
-	$code = rtrim($code);
-	$code = rtrim($code, ")");
+	if (str_starts_with($code, 'Array')) {
+		$code = ltrim($code, "Array\n(");
+		$code = rtrim($code);
+		$code = rtrim($code, ")");
+	}
 	if ($html) {
 		$codeout = wrap_html_escape($code);
 		if ($code AND !$codeout)
