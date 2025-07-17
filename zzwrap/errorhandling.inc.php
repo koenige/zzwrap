@@ -868,7 +868,6 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 		, ucfirst($level)
 		, preg_replace("/\s+/", " ", $line) 
 	);
-	$line = substr($line, 0, wrap_setting('log_errors_max_len') - (strlen($user) + 4));
 	$line .= sprintf(" [%s]\n", $user);
 	if (!$file) {
 		if (in_array($module, ['zzform', 'zzwrap', 'PHP'])
