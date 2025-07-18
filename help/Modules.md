@@ -21,6 +21,23 @@ have a unique name. It is recommended to install them as submodule via
 
 ## Creation of a module
 
+### Naming of a module
+
+For all packages (modules and themes), it is recommended to use
+lowercase letters from a-z only. 
+
+These names are not allowed for modules or themes:
+
+– active
+- themes
+- modules
+- custom
+- files
+
+A list of existing modules can be found at <https://www.zugzwang.org/modules/>.
+
+### Folder structure
+
 This is the recommended folder structure for a module called `example`:
 
 - `example/behaviour`
