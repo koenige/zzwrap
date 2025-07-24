@@ -122,26 +122,32 @@ function wrap_prepare_url() {
 /**
  * Gets text from a database table
  * 
- * @param string $language (ISO 639-1 two letter code)
+ * @param string $lang (ISO 639-1 two letter code)
  * @return array $text
+ * @todo this is not 100 % correct, because language_variation refers to current language
+ * not to any language
  */
-function wrap_language_get_text($language) {
+function wrap_language_get_text($lang) {
+	static $text = [];
+	$key = sprintf('%s-%s', $lang, wrap_setting('language_variation'));
+	if (array_key_exists($key, $text)) return $text[$key];
+
 	$sql = 'SELECT text_id, text, more_text
 		FROM /*_TABLE default_text _*/';
 	$sourcetext = wrap_db_fetch($sql, 'text_id');
 	if (!$sourcetext) return [];
-	$translations = wrap_translate($sourcetext, wrap_sql_table('default_text'), false, true, $language);
+	$translations = wrap_translate($sourcetext, wrap_sql_table('default_text'), false, true, $lang);
 
-	$text = [];
+	$text[$key] = [];
 	foreach ($sourcetext as $id => $values) {
 		if (!empty($translations[$id]['text']))
-			$text[$values['text']] = $translations[$id]['text']
+			$text[$key][$values['text']] = $translations[$id]['text']
 				.($translations[$id]['more_text'] ? ' '.$translations[$id]['more_text'] : '');
 		else
-			$text[$values['text']] = $values['text']
+			$text[$key][$values['text']] = $values['text']
 				.($values['more_text'] ? ' '.$values['more_text'] : '');
 	}
-	return $text;
+	return $text[$key];
 }
 
 /**
@@ -274,11 +280,11 @@ function wrap_text($string, $params = []) {
 		// database crashes just while reading values, it won't do it over and
 		// over again
 		$text_included = $language;
-
-		// get translations from database
-		if (wrap_setting('translate_text_db'))
-			$text = array_merge($text, wrap_language_get_text($language));
 	}
+
+	// get translations from database
+	if (wrap_setting('translate_text_db'))
+		$text = array_merge($text, wrap_language_get_text($language));
 
 	$my_text = $text;
 	// active module?
