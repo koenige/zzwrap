@@ -301,9 +301,7 @@ function wrap_redirect_change($url = false) {
 function wrap_htmlout_page($page) {
 	global $zz_page;
 
-	if (!empty($page['content_type_original']) AND wrap_setting('send_as_json')) {
-		$page['text'] = wrap_page_json($page);
-	} elseif (wrap_setting('send_as_json')) {
+	if (wrap_setting('send_as_json')) {
 		$page['text'] = wrap_page_json($page);
 		$page['content_type_original'] = $page['content_type'];
 		$page['content_type'] = 'json';
@@ -450,7 +448,7 @@ function wrap_htmlout_page($page) {
 function wrap_page_json($page, $text = NULL) {
 	$content = $page['content_type_original'] ?? 'html';
 	$output = [
-		$content => $text ?? $page['text'],
+		$content => $text ?? $page['text']['text'] ?? $page['text'],
 		'title' => $page['pagetitle'],
 		'url' => $page['url'] ?? wrap_setting('request_uri')
 	];
