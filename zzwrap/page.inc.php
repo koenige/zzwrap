@@ -155,7 +155,11 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 		}
 		wrap_error($msg, $page['error']['level']);
 	} elseif ($page['status'] != 200) {
-		if ($scope === 'template') {
+		if ($scope === 'template' AND wrap_setting('current_template') === '(from variable)'
+			AND $page['status'] === 403) {
+			// allow 403 from variables that are used as templates, i. e. only hidden results
+			$page['status'] = 200;
+		} elseif ($scope === 'template') {
 			wrap_error(wrap_text(
 				'An error occurred while filling the template %s. Status code %d',
 				['values' => [wrap_setting('current_template'), $page['status']]]
