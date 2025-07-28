@@ -259,7 +259,7 @@ function wrap_text($string, $params = []) {
 				if (!file_exists($file)) continue;
 				$po_text = wrap_po_parse($file);
 				if (!empty($po_text['_po_header']['Language']))
-					$plurals[$po_text['_po_header']['Language']] = $po_text['_plural_forms'];
+					$plurals[$po_text['_po_header']['Language']] = $po_text['_plural_forms'] ?? [];
 				if (!empty($po_text['_global'])) {
 					$text = array_merge($text, $po_text['_global']);
 				}
