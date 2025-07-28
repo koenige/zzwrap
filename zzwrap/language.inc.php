@@ -46,8 +46,7 @@ function wrap_language_set() {
 	if (!empty($_GET['lang']) AND in_array($_GET['lang'], wrap_setting('languages_allowed')))
 		$language = $_GET['lang'];
 	else
-		$language = wrap_negotiate_language(wrap_setting('languages_allowed'), 
-			wrap_setting('default_source_language'), null, false);
+		$language = wrap_negotiate_language();
 	if (!$language) return false;
 	wrap_setting('lang', $language);
 	// in case there is content, redirect to the language specific content later
@@ -814,25 +813,22 @@ function wrap_translate_identifier_field() {
  * Example: Accept-Language: da, en-gb;q=0.8, en;q=0.7
  * Reference: <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4>
  *
- * @param array $allowed_languages allowed language codes, lowercase
- * @param string $default_language default language if no language match
- * @param string $accept (optional, if not set, use HTTP_ACCEPT_LANGUAGE)
- * @param bool $strict_mode (optional) follow HTTP specification or not
  * @return array
  */
-function wrap_negotiate_language($allowed_languages, $default_language, $accept = null, $strict_mode = true) {
+function wrap_negotiate_language() {
 	// check accepted languages
-	if ($accept === null AND isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-		$accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-	}
+	$accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? NULL;
 	// if no language information was sent, HTTP 1.1 says, every language is fine
 	// for HTTP 1.0 you could send an 406 instead, but user may be confused by these
-	if (empty($accept)) return $default_language;
+	if (empty($accept)) return wrap_setting('default_source_language');
 	// all tags are case-insensitive
 	$accept = mb_strtolower($accept);
 	$languages = preg_split('/,\s*/', $accept);
+	$allowed_languages = array_diff(
+		wrap_setting('languages_allowed'), wrap_setting('languages_hidden')
+	);
 	
-	$current_lang = $default_language;
+	$current_lang = wrap_setting('default_source_language');
 	$current_q = 0;
 
 	foreach ($languages as $language) {
@@ -863,7 +859,7 @@ function wrap_negotiate_language($allowed_languages, $default_language, $accept 
 				}
 			}
 			// HTTP strict says, don't try to get e. g. 'de' from 'de-at'
-			if ($strict_mode) break;
+			if (wrap_setting('negotiate_language_strict_mode')) break;
 			// try it ;-)
 			array_pop($lang_code);
 		}
@@ -885,6 +881,7 @@ function wrap_set_units() {
 		case 'es':
 		case 'pl':
 		case 'cs':
+		case 'tr':
 			wrap_setting('decimal_point', ',');
 			break;
 		default:
@@ -899,6 +896,7 @@ function wrap_set_units() {
 		case 'es':
 		case 'pl':
 		case 'cs':
+		case 'tr':
 			if (wrap_setting('character_set') === 'utf-8') {
 				wrap_setting('thousands_separator', "\xC2\xA0"); // non-breaking space
 			} else {
