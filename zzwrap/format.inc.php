@@ -468,6 +468,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 		$code = ltrim($code, "Array\n(");
 		$code = rtrim($code);
 		$code = rtrim($code, ")");
+		if (!trim($code)) $code = 'EMPTY';
 	}
 	if ($html) {
 		$codeout = wrap_html_escape($code);
