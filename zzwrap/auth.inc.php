@@ -49,17 +49,17 @@ function wrap_auth($force = false) {
 
 	// check if current URL needs authentication
 	if (!$force) {
-		$zz_page['authenticated'] = false;
+		$zz_page['user_authenticated'] = false;
 		foreach (wrap_setting('auth_urls') as $auth_url) {
 			if (!str_starts_with(strtolower($zz_page['url']['full']['path']), strtolower($auth_url)))
 				continue;
 			if ($zz_page['url']['full']['path'] === wrap_setting('login_url'))
 				continue;
 			if (wrap_authenticate_url())
-				$zz_page['authenticated'] = true;
+				$zz_page['user_authenticated'] = true;
 		}
 
-		if (!$zz_page['authenticated']) {
+		if (!$zz_page['user_authenticated']) {
 			// Keep session if logged in and clicking on the public part of the page
 			// but do not prolong time until automatically logging out someone
 			if (isset($_SESSION)) return false;
