@@ -28,7 +28,11 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	$area_short = substr($area, 0, strpos($area, '['));
 
 	// no access rights function: allow everything	
-	if (!function_exists('brick_access_rights')) return true;
+	if (!function_exists('brick_access_rights')) {
+		// super simple rights system: allow everything, but not preview
+		if ($area === 'preview') return false;
+		return true;
+	}
 	
 	// @todo global access rights for local users can be overwritten
 	// if user has access to webpages table and can write bricks
