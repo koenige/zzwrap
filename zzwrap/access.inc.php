@@ -30,7 +30,10 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) {
 		// super simple rights system: allow everything, but not preview
-		if ($area === 'preview') return false;
+		wrap_session_start();
+		$logged_in = $_SESSION['logged_in'] ?? false;
+		session_write_close();
+		if ($area === 'preview' AND !$logged_in) return false;
 		return true;
 	}
 	
