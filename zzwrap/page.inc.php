@@ -486,6 +486,13 @@ function wrap_page_extra(&$page, $zz_page) {
 			$page['extra_'.$key] = is_array($page['extra'][$key]) ? true : $page['extra'][$key];
 		}
 	}
+	// is page live?
+	if (!empty($zz_page['db']['live']) AND $zz_page['db']['live'] === 'no') {
+		if (!empty($page['extra']['class']) AND !is_array($page['extra']['class']))
+			$page['extra']['class'] = [$page['extra']['class']];
+		if (wrap_setting('page_preview_class'))
+			$page['extra']['class'][] = wrap_setting('page_preview_class');
+	}
 	
 	// check extra, write to extra_body_attributes
 	if (empty($page['extra'])) return true;
@@ -501,7 +508,7 @@ function wrap_page_extra(&$page, $zz_page) {
 	foreach (wrap_setting('page_extra_attributes') as $key) {
 		if (!array_key_exists($key, $page['extra'])) continue;
 		if (is_array($page['extra'][$key]))
-			$attributes[$key] = array_merge($attributes[$key], $page['extra'][$key]);
+			$attributes[$key] = array_merge($attributes[$key] ?? [], $page['extra'][$key]);
 		else
 			$attributes[$key][] = $page['extra'][$key];
 	}
