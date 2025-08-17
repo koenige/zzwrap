@@ -446,8 +446,8 @@ function wrap_date_format($date, $set, $type = 'standard') {
 }
 
 /**
- * debug: print_r included in text so we do not get problems with headers, zip
- * etc.
+ * debug: interactive array debugger with expandable levels
+ * Shows top-level keys/values first, allows clicking to expand nested levels
  *
  * @param array $array
  * @param string $color (optional)
@@ -455,30 +455,79 @@ function wrap_date_format($date, $set, $type = 'standard') {
  * @return string
  */
 function wrap_print($array, $color = 'FFF', $html = true) {
-	if ($html) {
-		$out = '<pre style="text-align: left; background-color: #'.$color
-			.'; position: relative; z-index: 10; white-space: pre-wrap;" class="fullarray">';
-	} else {
-		$out = '';
+	if (!$html) return wrap_print_simple($array);
+	
+	$data = [
+		'color' => $color
+	];
+	
+	if (!is_array($array)) {
+		$data['simple'] = true;
+		$data['content'] = wrap_print_simple($array);
+		$data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
+		return wrap_template('debug-print', $data);
 	}
+	
+	// Generate unique ID for this debug output
+	$data['count'] = count($array);
+	$data['array'] = wrap_print_level($array);
+	return wrap_template('debug-print', $data);
+}
+
+function wrap_print_simple($array) {
 	ob_start();
 	print_r($array);
-	$code = ob_get_clean();
-	if (str_starts_with($code, 'Array')) {
-		$code = ltrim($code, "Array\n(");
-		$code = rtrim($code);
-		$code = rtrim($code, ")");
-		if (!trim($code)) $code = 'EMPTY';
+	return ob_get_clean();
+}
+
+/**
+ * Recursively render array levels for the interactive debugger
+ *
+ * @param array $array
+ * @param int $level
+ * @return string
+ */
+function wrap_print_level($array, $processed = [], $level = 0) {
+	$data = [];
+	$index = 0;
+
+	foreach ($array as $key => $value) {
+		$data[$index]['level'] = $level + 1;
+		$data[$index]['key_is_string'] = is_string($key);
+		$data[$index]['key'] = is_string($key) ? htmlspecialchars($key, ENT_QUOTES, 'UTF-8') : $key;
+		if ((is_array($value) OR is_object($value)) && !empty($value)) {
+			$content_id = is_object($value) ? spl_object_hash($value) : 'array_' . md5(serialize($value));
+			if (in_array($content_id, $processed)) {
+				$data[$index]['type'] = 'recursion';
+			} else {
+				// Array value - make it expandable
+				$data[$index]['item_count'] = count($value);
+				$next_processed = $processed;
+				$next_processed[] = $content_id;
+				$data[$index]['array'] = wrap_print_level($value, $next_processed, $level + 1);
+			}
+		} else {
+			// Simple value - show directly
+			if (is_null($value)) {
+				$data[$index]['type'] = 'null';
+			} elseif (is_bool($value)) {
+				$data[$index]['type'] = 'bool';
+				$data[$index]['value'] = $value;
+			} elseif (is_numeric($value)) {
+				$data[$index]['type'] = 'numeric';
+				$data[$index]['value'] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+			} elseif (is_string($value)) {
+				$data[$index]['type'] = 'string';
+				$data[$index]['value'] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+			} else {
+				$data[$index]['type'] = 'other';
+				$data[$index]['value'] = ucfirst(htmlspecialchars(gettype($value), ENT_QUOTES, 'UTF-8'));
+			}
+		}
+		
+		$index++;
 	}
-	if ($html) {
-		$codeout = wrap_html_escape($code);
-		if ($code AND !$codeout)
-			$codeout = htmlspecialchars($code, ENT_QUOTES, 'iso-8859-1');
-		$out .= $codeout.'</pre>';
-	} else {
-		$out .= $code;
-	}
-	return $out;
+	return wrap_template('debug-print-detail', $data);
 }
 
 /**
@@ -690,18 +739,18 @@ function wrap_js_nl2br($string) {
  * @return string
  */
 function wrap_unit_format($value, $precision, $units, $factor = 1000) {
-    if (!is_numeric($value)) return $value;
-    $value = max($value, 0);
-    $pow = floor(($value ? log($value) : 0) / log($factor)); 
-    $pow = min($pow, count($units) - 1); 
+	if (!is_numeric($value)) return $value;
+	$value = max($value, 0);
+	$pow = floor(($value ? log($value) : 0) / log($factor)); 
+	$pow = min($pow, count($units) - 1); 
 	// does unit for this exist?
 	while (!isset($units[$pow])) $pow--;
 	$value /= pow($factor, $pow);
 
-    $text = round($value, $precision) . html_entity_decode('&nbsp;') . $units[$pow]; 
-    if (wrap_setting('decimal_point') !== '.')
-    	$text = str_replace('.', wrap_setting('decimal_point'), $text);
-    return $text;
+	$text = round($value, $precision) . html_entity_decode('&nbsp;') . $units[$pow]; 
+	if (wrap_setting('decimal_point') !== '.')
+		$text = str_replace('.', wrap_setting('decimal_point'), $text);
+	return $text;
 }
 
 /**
@@ -712,8 +761,8 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
  * @return string
  */
 function wrap_bytes($bytes, $precision = 1) { 
-    $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-    if (!wrap_is_int($bytes)) $bytes = wrap_byte_to_int($bytes);
+	$units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+	if (!wrap_is_int($bytes)) $bytes = wrap_byte_to_int($bytes);
 	return wrap_unit_format($bytes, $precision, $units, 1024);
 }
 
@@ -782,36 +831,36 @@ function wrap_bearing($value, $precision = 1) {
 	}
 	if ($value < 0) $value = 360 - $value;
 	$text = round($value, $precision).'° ';
-    if (wrap_setting('decimal_point') !== '.')
-    	$text = str_replace('.', wrap_setting('decimal_point'), $text);
-    $units = [
-    	  0 => 'N North', '22.5' => 'NNE North-northeast',
-    	 45 => 'NE Northeast', '67.5' => 'ENE East-northeast',
-    	 90 => 'E East', '112.5' => 'ESE East-southeast',
-    	135 => 'SE Southeast', '157.5' => 'SSE South-southeast',
-    	180 => 'S South', '202.5' => 'SSW South-southwest',
-    	225 => 'SW Southwest', '247.5' => 'WSW West-southwest',
-    	270 => 'W West', '292.5' => 'WNW West-northwest',
-    	315 => 'NW Northwest', '337.5' => 'NNW North-northwest'
-    ];
-    $check = $value + 11.25;
-    if ($check >= 360) $check -= 360;
-    foreach ($units as $deg => $direction) {
-    	if ($value == $deg) {
+	if (wrap_setting('decimal_point') !== '.')
+		$text = str_replace('.', wrap_setting('decimal_point'), $text);
+	$units = [
+		  0 => 'N North', '22.5' => 'NNE North-northeast',
+		 45 => 'NE Northeast', '67.5' => 'ENE East-northeast',
+		 90 => 'E East', '112.5' => 'ESE East-southeast',
+		135 => 'SE Southeast', '157.5' => 'SSE South-southeast',
+		180 => 'S South', '202.5' => 'SSW South-southwest',
+		225 => 'SW Southwest', '247.5' => 'WSW West-southwest',
+		270 => 'W West', '292.5' => 'WNW West-northwest',
+		315 => 'NW Northwest', '337.5' => 'NNW North-northwest'
+	];
+	$check = $value + 11.25;
+	if ($check >= 360) $check -= 360;
+	foreach ($units as $deg => $direction) {
+		if ($value == $deg) {
 			$title = $direction;
-    		break;
-    	}
-    	if ($check >= $deg) {
-    		$last_direction = $direction;
-    		continue;
+			break;
 		}
-    }
-    if (empty($title)) $title = $last_direction;
-    $title = wrap_text($title);
-    $title = explode(' ', $title);
-    $abbr = array_shift($title);
-    $title = implode(' ', $title);
-    $text .= sprintf('<abbr title="%s">%s</abbr>', $title, $abbr);
+		if ($check >= $deg) {
+			$last_direction = $direction;
+			continue;
+		}
+	}
+	if (empty($title)) $title = $last_direction;
+	$title = wrap_text($title);
+	$title = explode(' ', $title);
+	$abbr = array_shift($title);
+	$title = implode(' ', $title);
+	$text .= sprintf('<abbr title="%s">%s</abbr>', $title, $abbr);
 	return $text;
 }
 

@@ -1,0 +1,72 @@
+# zzwrap module
+# Template for debug print with wrap_print()
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% if simple %%%
+<pre style="text-align: left; background-color: #%%% item color %%%; position: relative; z-index: 10; white-space: pre-wrap;" class="fullarray">
+%%% item content %%%
+</pre>
+
+%%% else %%%
+<div class="debug-array" style="text-align: left; background-color: #%%% item color %%%; padding: 10px; font-family: monospace; position: relative; z-index: 10;">
+<div class="debug-header" style="margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+<strong>Array Debug (%%% item count %%% items)</strong>
+ <button type="button" onclick="expandAll(this.closest('.debug-array'))" style="margin-left: 10px; padding: 2px 8px;">Expand All</button>
+ <button type="button" onclick="collapseAll(this.closest('.debug-array'))" style="margin-left: 5px; padding: 2px 8px;">Collapse All</button>
+</div>
+%%% item array %%%
+</div>
+
+<script>
+function toggleLevel(toggleBtn) {
+	if (!toggleBtn) return;
+	
+	const content = toggleBtn.parentNode.querySelector(".level-content");
+	if (!content) return;
+	
+	if (content.style.display === "none" || content.style.display === "") {
+		content.style.display = "block";
+		toggleBtn.textContent = "▼";
+		toggleBtn.style.color = "#0066cc";
+	} else {
+		content.style.display = "none";
+		toggleBtn.textContent = "▶";
+		toggleBtn.style.color = "#666";
+	}
+}
+
+function expandAll(debugDiv) {
+	const toggles = debugDiv.querySelectorAll(".toggle-btn");
+	const contents = debugDiv.querySelectorAll(".level-content");
+	
+	toggles.forEach(toggle => {
+		toggle.textContent = "▼";
+		toggle.style.color = "#0066cc";
+	});
+	
+	contents.forEach(content => {
+		content.style.display = "block";
+	});
+}
+
+function collapseAll(debugDiv) {
+	const toggles = debugDiv.querySelectorAll(".toggle-btn");
+	const contents = debugDiv.querySelectorAll(".level-content");
+	
+	toggles.forEach(toggle => {
+		toggle.textContent = "▶";
+		toggle.style.color = "#666";
+	});
+	
+	contents.forEach(content => {
+		content.style.display = "none";
+	});
+}
+</script>
+%%% endif %%%

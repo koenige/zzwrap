@@ -528,7 +528,7 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			curl_setopt($ch, CURLOPT_USERPWD, sprintf('%s:%s', $url_parts['pass'], $url_parts['user']));
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 		}
-		if ($url_parts['scheme'] === 'https') {
+		if (!empty($url_parts['scheme']) AND $url_parts['scheme'] === 'https') {
 			// ignore verification on development server if target is
 			// development server, too
 			if (wrap_setting('local_access')) {

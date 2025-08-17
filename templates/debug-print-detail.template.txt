@@ -1,0 +1,45 @@
+# zzwrap module
+# Template for debug print with wrap_print()
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% loop start %%%
+%%% if array %%%
+<div class="array-item" style="margin: 2px 0;">
+&nbsp;<span class="toggle-btn" onclick="toggleLevel(this)" style="cursor: pointer; color: #666; margin-right: 5px; font-weight: bold;">▶</span>
+<span class="key" style="color: #0066cc; font-weight: bold;">%%% if key_is_string %%%'%%% endif %%%%%% item key %%%%%% if key_is_string %%%'%%% endif %%%</span>
+<span style="color: #666;"> => </span>
+<span style="color: #888;">Array(%%% item item_count %%%)</span>
+<div class="level-content" style="display: none; margin-left: 11px; border-left: 2px solid #ddd; padding-left: 10px;">
+%%% item array %%%
+</div>
+</div>
+
+%%% else %%%
+<div class="array-item" style="margin: 2px 0; text-indent: calc(-40px*%%% item level %%%); padding-left: calc(40px*%%% item level %%%);">
+<span style="margin-right: 5px; color: #666;">&nbsp;&nbsp;</span>
+<span class="key" style="color: #0066cc; font-weight: bold;">%%% if key_is_string %%%'%%% endif %%%%%% item key %%%%%% if key_is_string %%%'%%% endif %%%</span>
+<span style="color: #666;"> => </span>
+%%% switch type %%%
+%%% case null %%%
+<span style="color: #888;">NULL</span>
+%%% case bool %%%
+<span style="color: #cc6600;">%%% if value %%%true%%% elseif %%%false%%% endif %%%</span>
+%%% case numeric %%%
+<span style="color: #cc6600;">%%% item value %%%</span>
+%%% case string %%%
+<span style="color: #006600;">'%%% item value %%%'</span>
+%%% case other %%%
+<span style="color: #666;">%%% item value %%%</span>
+%%% case recursion %%%
+<span style="color: #ff0000;">*RECURSION*</span>
+%%% switch - %%%
+</div>
+
+%%% endif %%%
+%%% loop end %%%
