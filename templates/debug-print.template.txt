@@ -15,14 +15,18 @@
 
 %%% else %%%
 <div class="debug-array" style="text-align: left; background-color: #%%% item color %%%; padding: 10px; font-family: monospace; position: relative; z-index: 10;">
-<div class="debug-header" style="margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
-<strong>Array Debug (%%% item count %%% items)</strong>
+%%% if expand %%%
+<div class="debug-header" style="padding-bottom: 5px;">
+<strong>Array (%%% item count %%% items)</strong>
  <button type="button" onclick="expandAll(this.closest('.debug-array'))" style="margin-left: 10px; padding: 2px 8px;">Expand All</button>
  <button type="button" onclick="collapseAll(this.closest('.debug-array'))" style="margin-left: 5px; padding: 2px 8px;">Collapse All</button>
 </div>
+%%% endif %%%
+<div style="border-bottom: 1px solid #ccc; height: 1px; margin-bottom: 10px;"></div>
 %%% item array %%%
 </div>
 
+%%% if expand & first %%%
 <script>
 function toggleLevel(toggleBtn) {
 	if (!toggleBtn) return;
@@ -69,4 +73,5 @@ function collapseAll(debugDiv) {
 	});
 }
 </script>
+%%% endif %%%
 %%% endif %%%

@@ -455,6 +455,7 @@ function wrap_date_format($date, $set, $type = 'standard') {
  * @return string
  */
 function wrap_print($array, $color = 'FFF', $html = true) {
+	static $calls = 0;
 	if (!$html) return wrap_print_simple($array);
 	
 	$data = [
@@ -470,7 +471,10 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	
 	// Generate unique ID for this debug output
 	$data['count'] = count($array);
-	$data['array'] = wrap_print_level($array);
+	list($data['array'], $data['expand']) = wrap_print_level($array);
+	$data['first'] = $calls ? false : true;
+	if (!$data['expand']) $data['expand'] = NULL;
+	$calls++;
 	return wrap_template('debug-print', $data);
 }
 
@@ -485,7 +489,7 @@ function wrap_print_simple($array) {
  *
  * @param array $array
  * @param int $level
- * @return string
+ * @return array
  */
 function wrap_print_level($array, $processed = [], $level = 0) {
 	$data = [];
@@ -504,7 +508,7 @@ function wrap_print_level($array, $processed = [], $level = 0) {
 				$data[$index]['item_count'] = count($value);
 				$next_processed = $processed;
 				$next_processed[] = $content_id;
-				$data[$index]['array'] = wrap_print_level($value, $next_processed, $level + 1);
+				list($data[$index]['array'], $expand) = wrap_print_level($value, $next_processed, $level + 1);
 			}
 		} else {
 			// Simple value - show directly
@@ -527,7 +531,7 @@ function wrap_print_level($array, $processed = [], $level = 0) {
 		
 		$index++;
 	}
-	return wrap_template('debug-print-detail', $data);
+	return [wrap_template('debug-print-detail', $data), $expand ?? $level];
 }
 
 /**
