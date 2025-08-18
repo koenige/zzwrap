@@ -474,7 +474,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	list($data['array'], $data['expand']) = wrap_print_level($array);
 	$data['first'] = $calls ? false : true;
 	if (!$data['expand']) $data['expand'] = NULL;
-	$calls++;
+	else $calls++;
 	return wrap_template('debug-print', $data);
 }
 
