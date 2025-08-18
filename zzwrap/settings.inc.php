@@ -522,13 +522,24 @@ function wrap_setting_value($setting) {
  */
 function wrap_setting_value_placeholder($string) {
 	if (!is_string($string)) return $string;
-	if (!strstr($string, '%%%')) return $string;
+	if (!strstr($string, '%%% setting')) return $string;
 	$parts = explode('%%%', $string);
-	$parts[1] = trim($parts[1]);
-	if (!str_starts_with($parts[1], 'setting ')) return $string;
-	$setting = substr($parts[1], 8);
-	if (is_null(wrap_setting($setting))) return $string;
-	$parts[1] = wrap_setting($setting);
+	foreach ($parts as $index => $part) {
+		if ($index & 1) {
+			$part = trim($part);
+			// no setting: ignore and pass through
+			if (!str_starts_with($part, 'setting ')) {
+				$parts[$index] = '%%% '.$part.' %%%';
+				continue;
+			}
+			$setting = substr($part, 8);
+			if (is_null(wrap_setting($setting))) {
+				$parts[$index] = '%%% '.$part.' %%%';
+				continue;
+			}
+			$parts[$index] = wrap_setting($setting);
+		}
+	}
 	$string = implode('', $parts);
 	return $string;
 }
