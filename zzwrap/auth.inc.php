@@ -196,7 +196,8 @@ function wrap_auth_loginpage() {
 function wrap_authenticate_url($url = false, $no_auth_urls = []) {
 	global $zz_page;
 	if (!$url)
-		$url = $zz_page['url']['full']['path'];
+		$url = $zz_page['url']['full']['path'] ?? NULL;
+	if (!$url) return false; // 400
 	if (!$no_auth_urls)
 		$no_auth_urls = wrap_setting('no_auth_urls');
 	foreach ($no_auth_urls AS $test_url)
