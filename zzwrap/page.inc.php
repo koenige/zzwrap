@@ -429,11 +429,6 @@ function wrap_htmlout_page($page) {
 	} else {
 		$text = str_replace('%\%\%', '%%%', $text);
 	}
-	if (!empty($page['send_as_json'])) {
-		// @deprecated, check if wrap_setting('send_as_json') is an option
-		wrap_send_text(wrap_page_json($page, $text), 'json', $page['status']);
-		exit;
-	}
 
 	wrap_send_text($text, 'html', $page['status']);
 }
