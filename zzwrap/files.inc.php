@@ -75,7 +75,7 @@ function wrap_include_files($filename, $paths = 'custom/modules') {
  * just modules folders or single module
  *
  * @param string $filename filename to look for, may include path, may omit .inc.php
- * @param string $search where to look for files: custom folder, modules etc.
+ * @param mixed $search where to look for files: custom folder, modules etc.
  * @return array
  * @todo improve code for search order, use $search here, too
  */
@@ -86,7 +86,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	$custom = false;
 	$media = false;
 	
-	$matches = explode('/', $search);
+	$matches = is_array($search) ? $search : explode('/', $search);
 	if (in_array('files', $matches))
 		$media = true;
 	if (in_array('themes', $matches))
@@ -129,7 +129,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		$type = in_array($package, $zz_setting['modules']) ? 'modules' : 'themes';
 		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $package, $this_path, $filename);
 		if (strstr($filename, '*')) {
-			$matches = glob($file);
+			$matches = glob($file, \GLOB_BRACE);
 			foreach ($matches as $index => $file) {
 				if (str_starts_with(basename($file), '.')) continue;
 				$files[$package.'/'.$index] = $file;
