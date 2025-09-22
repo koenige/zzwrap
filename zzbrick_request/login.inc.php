@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -56,6 +56,8 @@ function mod_zzwrap_login($params, $settings = []) {
 	$loginform['msg'] = false;
 	$loginform['action_url'] = $settings['action_url'] ?? './';
 	$loginform['password_link'] = wrap_setting('password_link');
+	if ($loginform['password_link'] AND !wrap_sql_query('auth_password_reminder'))
+		$loginform['password_link'] = false;
 	if ($loginform['password_link'] === true) {
 		$loginform['password_link'] = $loginform['action_url'].'?password';
 	}
