@@ -48,9 +48,16 @@ function wrap_template($template, $data = [], $mode = false) {
 	}
 	// remove comments and next empty line from the start
 	foreach ($template as $index => $line) {
-		if (substr($line, 0, 1) === '#') unset($template[$index]); // comments
-		elseif (!trim($line)) unset($template[$index]); // empty lines
-		else break;
+		if (substr($line, 0, 2) === '\#') {
+			$template[$index] = substr($line, 1);
+			break;
+		} elseif (substr($line, 0, 1) === '#') {
+			unset($template[$index]); // comments
+		} elseif (!trim($line)) {
+			unset($template[$index]); // empty lines
+		} else {
+			break;
+		}
 	}
 	$template = implode("", $template);
 	if (!trim($template)) return '';
