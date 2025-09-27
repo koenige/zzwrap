@@ -732,7 +732,7 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 		// would have been redirected as well
 		if ($referer['path'] !== $zz_page['url']['full']['path']) return false;
 		// local hostnames won’t redirect from a different port, so this is a fake referer
-		if (!empty($referer['port'] AND in_array($referer['port'], [80, 443]))) return false;
+		if (!empty($referer['port']) AND in_array($referer['port'], [80, 443])) return false;
 	}
 	// referer from own domain, but invalid because should be https?
 	if (wrap_error_referer_local_https($referer, $zz_page['url']['full'])) {
