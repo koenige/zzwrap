@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -44,7 +44,8 @@ function wrap_session_start() {
 	// insufficient access rights
 	// only throw 503 error if authentication is a MUST HAVE
 	// otherwise, page might still be accessible without authentication
-	if (wrap_setting('authentication_possible') AND wrap_authenticate_url()) {
+	// function exists: might be called very early when function is not yet available
+	if (wrap_setting('authentication_possible') AND function_exists('wrap_authenticate_url') AND wrap_authenticate_url()) {
 		$session_error = wrap_error_handler('last_error');
 		if ($last_error != $session_error
 			AND str_starts_with($session_error['message'], 'session_start()')) {
