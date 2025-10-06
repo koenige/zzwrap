@@ -2,7 +2,7 @@
 
 /**
  * zzwrap
- * data functions for request_get-functions
+ * collect record data
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -12,6 +12,37 @@
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
+
+/**
+ * collect record data for a list of IDs
+ * including linked data
+ *
+ * @param string $table
+ * @param array $ids
+ * @param array $settings (optional)
+ * @return array
+ */
+function wrap_data($table, $ids, $settings = []) {
+	$files = wrap_include('data/'.$table);
+	if (!$files)
+		wrap_error(sprintf('No data function found for `%s`.', $table), E_USER_ERROR);
+
+	$data_function = NULL;
+	foreach ($files['functions'] as $function) {
+		if (!array_key_exists('short', $function)) {
+			wrap_error(sprintf('Function `%s` uses not recommended naming scheme', $function['function']));
+			continue;
+		}
+		if ($function['package'] === $table AND $function['short'] === 'data')
+			$data_function = $function['function'];
+		elseif ($function['short'] === $table.'_data')
+			$data_function = $function['function'];
+	}
+	if (!$data_function)
+		wrap_error(sprintf('No data function found for `%s`.', $table), E_USER_ERROR);
+	
+	return $data_function($ids, $settings);
+}
 
 /**
  * get list of IDs from data
@@ -118,6 +149,31 @@ function wrap_data_cleanup($data) {
 			}
 		}
 		if (is_array($line)) $line = wrap_data_cleanup($line);
+	}
+	return $data;
+}
+
+/**
+ * get further data from packages
+ *
+ * @param string $key
+ * @param array $data
+ * @param array $ids
+ * @return array
+ */
+function wrap_data_packages($key, $data, $ids) {
+	$files = wrap_include($key);
+	if (!$files) {
+		$data['templates'] = [];
+		return $data;
+	}
+	foreach ($files['packages'] as $package)
+		wrap_package_activate($package);
+
+	foreach ($files['functions'] as $function) {
+		if (empty($function['short'])) continue;
+		if ($function['short'] !== $key) continue;
+		$data = $function['function']($data, $ids);
 	}
 	return $data;
 }
