@@ -18,16 +18,19 @@
  * including linked data
  *
  * @param string $table
- * @param array $ids
+ * @param array $data
  * @param array $settings (optional)
  * @return array
  */
-function wrap_data($table, $ids, $settings = []) {
+function wrap_data($table, $data, $settings = []) {
+	if (!$data) return $data;
+
 	$files = wrap_include('data/'.$table);
 	if (!$files)
 		wrap_error(sprintf('No data function found for `%s`.', $table), E_USER_ERROR);
 
 	$data_function = NULL;
+	$finalize_function = NULL;
 	foreach ($files['functions'] as $function) {
 		if (!array_key_exists('short', $function)) {
 			wrap_error(sprintf('Function `%s` uses not recommended naming scheme', $function['function']));
@@ -35,13 +38,38 @@ function wrap_data($table, $ids, $settings = []) {
 		}
 		if ($function['package'] === $table AND $function['short'] === 'data')
 			$data_function = $function['function'];
+		elseif ($function['package'] === $table AND $function['short'] === 'data_finalize')
+			$finalize_function = $function['function'];
 		elseif ($function['short'] === $table.'_data')
 			$data_function = $function['function'];
+		elseif ($function['short'] === $table.'_data_finalize')
+			$finalize_function = $function['function'];
 	}
 	if (!$data_function)
 		wrap_error(sprintf('No data function found for `%s`.', $table), E_USER_ERROR);
+
+	// (optional, if key does not equal primary key)
+	$id_field_name = $settings['id_field_name'] ?? NULL;
+	// (optional, if not the current language shall be used)
+	$lang_field_name = $settings['lang_field_name'] ?? NULL;
+
+	$ids = wrap_data_ids($data, $id_field_name);
+	$langs = wrap_data_langs($data, $lang_field_name);
 	
-	return $data_function($ids, $settings);
+	$results = $data_function($ids, $langs, $settings);
+	foreach ($results as $key => $result) {
+		if ($key === 'deleted') {
+			foreach ($result as $deleted_id)
+				unset($data[$deleted_id]);
+		} else {
+			$data = wrap_data_merge($data, $result, $id_field_name, $lang_field_name);
+		}
+	}
+	
+	if ($finalize_function)
+		$data = $finalize_function($data, $ids);
+
+	return $data;
 }
 
 /**
