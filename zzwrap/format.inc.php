@@ -319,6 +319,14 @@ function wrap_date($date, $format = false) {
 	return '';
 }
 
+/**
+ * output of a date, formatted for humans
+ *
+ * @param string $begin
+ * @param string $end
+ * @param string output_format
+ * @return string
+ */
 function wrap_date_out($begin, $end, $output_format) {
 	$type = '';
 	if (substr($output_format, -6) == '-short') {
@@ -371,35 +379,35 @@ function wrap_date_out($begin, $end, $output_format) {
 	// decode HTML entities as this function can be used for mails as well
 	$bis = html_entity_decode('&#8239;–&#8239;');
 
-		if (!$end) {
-			// 12.03.2004 or 03.2004 or 2004
-			$output = wrap_date_format($begin, $set, $type);
-		} elseif (substr($begin, 7) === substr($end, 7)
-			AND substr($begin, 0, 4) === substr($end, 0, 4)
-			AND substr($begin, 7) === '-00'
-			AND substr($begin, 4) !== '-00-00') {
-			// 2004-03-00 2004-04-00 = 03-04.2004
-			$output = wrap_date_format('0000'.substr($begin, 4), $set, $type).$bis
-				.wrap_date_format($end, $set, $type);
-		} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
-			AND substr($begin, 7) !== '-00') {
-			// 12.-14.03.2004 -- trim to remove space if '. ' is separator
-			$output = substr($begin, 8)
-				.(strlen($set['sep'][0]) > 1 ? trim($set['sep'][0]) : $set['sep'][0])
-				.$bis.wrap_date_format($end, $set, $type);
-		} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
-			AND substr($begin, 7) !== '-00') {
-			// 12.04.-13.05.2004
-			$output = wrap_date_format($begin, $set, 'noyear'.($type === 'long' ? '-long' : ''))
-				.$bis.wrap_date_format($end, $set, $type);
-		} else {
-			// 2004-03-00 2005-04-00 = 03.2004-04.2005
-			// 2004-00-00 2005-00-00 = 2004-2005
-			// 31.12.2004-06.01.2005
-			$output = wrap_date_format($begin, $set, $type)
-				.$bis.wrap_date_format($end, $set, $type);
-		}
-		return $output;
+	if (!$end) {
+		// 12.03.2004 or 03.2004 or 2004
+		$output = wrap_date_format($begin, $set, $type);
+	} elseif (substr($begin, 7) === substr($end, 7)
+		AND substr($begin, 0, 4) === substr($end, 0, 4)
+		AND substr($begin, 7) === '-00'
+		AND substr($begin, 4) !== '-00-00') {
+		// 2004-03-00 2004-04-00 = 03-04.2004
+		$output = wrap_date_format('0000'.substr($begin, 4), $set, $type).$bis
+			.wrap_date_format($end, $set, $type);
+	} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
+		AND substr($begin, 7) !== '-00') {
+		// 12.-14.03.2004 -- trim to remove space if '. ' is separator
+		$output = substr($begin, 8)
+			.(strlen($set['sep'][0]) > 1 ? trim($set['sep'][0]) : $set['sep'][0])
+			.$bis.wrap_date_format($end, $set, $type);
+	} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
+		AND substr($begin, 7) !== '-00') {
+		// 12.04.-13.05.2004
+		$output = wrap_date_format($begin, $set, 'noyear'.($type === 'long' ? '-long' : ''))
+			.$bis.wrap_date_format($end, $set, $type);
+	} else {
+		// 2004-03-00 2005-04-00 = 03.2004-04.2005
+		// 2004-00-00 2005-00-00 = 2004-2005
+		// 31.12.2004-06.01.2005
+		$output = wrap_date_format($begin, $set, $type)
+			.$bis.wrap_date_format($end, $set, $type);
+	}
+	return $output;
 }
 
 /**
