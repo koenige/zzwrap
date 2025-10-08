@@ -297,6 +297,29 @@ function wrap_date($date, $format = false) {
 		break;
 	}
 
+	if (str_starts_with($output_format, 'dates-')) {
+		$params = $output_format;
+		$output_format = 'dates';
+	}
+
+	switch ($output_format) {
+	case 'dates':
+		return wrap_date_out($begin, $end, $params);
+	case 'datetime':
+		// output 1994-11-06 08:49:37
+		return date('Y-m-d H:i:s', $time);
+	case 'timestamp':
+		// output = 784108177
+		return $time;
+	case 'rfc1123':
+		// output Sun, 06 Nov 1994 08:49:37 GMT
+		return gmdate('D, d M Y H:i:s', $time). ' GMT';
+	}
+	wrap_error(sprintf('Unknown output format %s', $output_format));
+	return '';
+}
+
+function wrap_date_out($begin, $end, $output_format) {
 	$type = '';
 	if (substr($output_format, -6) == '-short') {
 		$output_format = substr($output_format, 0, -6);
@@ -347,8 +370,7 @@ function wrap_date($date, $format = false) {
 	}
 	// decode HTML entities as this function can be used for mails as well
 	$bis = html_entity_decode('&#8239;–&#8239;');
-	switch ($output_format) {
-	case 'dates':
+
 		if (!$end) {
 			// 12.03.2004 or 03.2004 or 2004
 			$output = wrap_date_format($begin, $set, $type);
@@ -378,18 +400,6 @@ function wrap_date($date, $format = false) {
 				.$bis.wrap_date_format($end, $set, $type);
 		}
 		return $output;
-	case 'datetime':
-		// output 1994-11-06 08:49:37
-		return date('Y-m-d H:i:s', $time);
-	case 'timestamp':
-		// output = 784108177
-		return $time;
-	case 'rfc1123':
-		// output Sun, 06 Nov 1994 08:49:37 GMT
-		return gmdate('D, d M Y H:i:s', $time). ' GMT';
-	}
-	wrap_error(sprintf('Unknown output format %s', $output_format));
-	return '';
 }
 
 /**
