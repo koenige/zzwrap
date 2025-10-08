@@ -298,13 +298,13 @@ function wrap_date($date, $format = false) {
 	}
 
 	if (str_starts_with($output_format, 'dates-')) {
-		$params = $output_format;
+		$formats = explode('-', substr($output_format, 6));
 		$output_format = 'dates';
 	}
 
 	switch ($output_format) {
 	case 'dates':
-		return wrap_date_out($begin, $end, $params);
+		return wrap_date_out($begin, $end, $formats);
 	case 'datetime':
 		// output 1994-11-06 08:49:37
 		return date('Y-m-d H:i:s', $time);
@@ -324,34 +324,32 @@ function wrap_date($date, $format = false) {
  *
  * @param string $begin
  * @param string $end
- * @param string output_format
+ * @param string $formats
  * @return string
  */
-function wrap_date_out($begin, $end, $output_format) {
-	$type = '';
-	if (substr($output_format, -6) == '-short') {
-		$output_format = substr($output_format, 0, -6);
-		$type = 'short';
-	} elseif (substr($output_format, -5) == '-long') {
-		$output_format = substr($output_format, 0, -5);
-		$type = 'long';
-	}
+function wrap_date_out($begin, $end, $formats) {
+	$lang = array_pop($formats);
 
-	$lang = substr($output_format, 6);
 	$p = ['lang' => $lang, 'context' => 'months'];
 	$set['months_long'] = [
-		1 => wrap_text('January', $p), 2 => wrap_text('February', $p),
-		3 => wrap_text('March', $p), 4 => wrap_text('April', $p),
-		5 => wrap_text('May', $p), 6 => wrap_text('June', $p),
-		7 => wrap_text('July', $p), 8 => wrap_text('August', $p),
-		9 => wrap_text('September', $p), 10 => wrap_text('October', $p),
-		11 => wrap_text('November', $p), 12 => wrap_text('December', $p)
+		1 => wrap_text('January', $p),
+		2 => wrap_text('February', $p),
+		3 => wrap_text('March', $p),
+		4 => wrap_text('April', $p),
+		5 => wrap_text('May', $p),
+		6 => wrap_text('June', $p),
+		7 => wrap_text('July', $p),
+		8 => wrap_text('August', $p),
+		9 => wrap_text('September', $p),
+		10 => wrap_text('October', $p),
+		11 => wrap_text('November', $p),
+		12 => wrap_text('December', $p)
 	];
 
 	switch ($lang) {
 		case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
 			$set['months_if_no_day'] = $set['months_long'];
-			if ($type === 'long') $set['sep'] = ['. ', ' '];
+			if (in_array('long', $formats)) $set['sep'] = ['. ', ' '];
 			break; // dd.mm.yyyy
 		case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
 			break; // dd-mm-yyyy
@@ -364,14 +362,14 @@ function wrap_date_out($begin, $end, $output_format) {
 			break; // dd/mm/yyyy
 		case 'pl':		$set['sep'] = '.'; $set['order'] = 'DMY';
 			$set['months_if_no_day'] = $set['months_long'];
-			if ($type === 'long') $set['sep'] = ['. ', ' '];
+			if (in_array('long', $formats)) $set['sep'] = ['. ', ' '];
 			break;
 		default:
 			wrap_error(sprintf('Language %s currently not supported', $lang));
 			break;
 	}
 
-	if (!empty($set)) {
+	if (!empty($set['sep'])) {
 		if (!is_array($set['sep']) OR count($set['sep']) !== 2) {
 			$set['sep'][0] = $set['sep'][1] = $set['sep'];
 		}
@@ -381,31 +379,31 @@ function wrap_date_out($begin, $end, $output_format) {
 
 	if (!$end) {
 		// 12.03.2004 or 03.2004 or 2004
-		$output = wrap_date_format($begin, $set, $type);
+		$output = wrap_date_format($begin, $set, $formats);
 	} elseif (substr($begin, 7) === substr($end, 7)
 		AND substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) === '-00'
 		AND substr($begin, 4) !== '-00-00') {
 		// 2004-03-00 2004-04-00 = 03-04.2004
-		$output = wrap_date_format('0000'.substr($begin, 4), $set, $type).$bis
-			.wrap_date_format($end, $set, $type);
+		$output = wrap_date_format('0000'.substr($begin, 4), $set, $formats).$bis
+			.wrap_date_format($end, $set, $formats);
 	} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 		AND substr($begin, 7) !== '-00') {
 		// 12.-14.03.2004 -- trim to remove space if '. ' is separator
 		$output = substr($begin, 8)
 			.(strlen($set['sep'][0]) > 1 ? trim($set['sep'][0]) : $set['sep'][0])
-			.$bis.wrap_date_format($end, $set, $type);
+			.$bis.wrap_date_format($end, $set, $formats);
 	} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) !== '-00') {
 		// 12.04.-13.05.2004
-		$output = wrap_date_format($begin, $set, 'noyear'.($type === 'long' ? '-long' : ''))
-			.$bis.wrap_date_format($end, $set, $type);
+		$output = wrap_date_format($begin, $set, $formats + ['noyear'])
+			.$bis.wrap_date_format($end, $set, $formats);
 	} else {
 		// 2004-03-00 2005-04-00 = 03.2004-04.2005
 		// 2004-00-00 2005-00-00 = 2004-2005
 		// 31.12.2004-06.01.2005
-		$output = wrap_date_format($begin, $set, $type)
-			.$bis.wrap_date_format($end, $set, $type);
+		$output = wrap_date_format($begin, $set, $formats)
+			.$bis.wrap_date_format($end, $set, $formats);
 	}
 	return $output;
 }
@@ -418,23 +416,26 @@ function wrap_date_out($begin, $end, $output_format) {
  * 	array 'sep' separator
  * 	string 'order' 'DMY', 'YMD', 'MDY'
  *  array 'months'
- * @param string $type 'standard', 'long', 'short', 'noyear', 'noyear-long'
+ * @param array $formats 'long', 'short', 'noyear', 'weekday'
+ * @return string
  */
-function wrap_date_format($date, $set, $type = 'standard') {
+function wrap_date_format($date, $set, $formats = []) {
 	if (!$date) return '';
 	list($year, $month, $day) = explode('-', $date);
+
 	while (substr($year, 0, 1) === '0') {
 		// 0800 = 800 etc.
 		$year = substr($year, 1);
 	}
-	switch ($type) {
-		case 'short': $year = substr($year, -2); break;
-		case 'noyear': case 'noyear-long': $year = ''; break;
-	}
+	if (in_array('short', $formats))
+		$year = substr($year, -2);
+	elseif (in_array('noyear', $formats))
+		$year = '';
+	
 	if ($day === '00' AND $month === '00') {
 		return $year;
 	}
-	if (in_array($type, ['long', 'noyear-long']) AND !empty($set['months_long'])) {
+	if (in_array('long', $formats) AND !empty($set['months_long'])) {
 		$month = $set['months_long'][intval($month)];
 	} else {
 		if (!empty($set['months'])) {
