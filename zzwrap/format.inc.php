@@ -336,41 +336,41 @@ function wrap_date_out($begin, $end, $output_format) {
 		$output_format = substr($output_format, 0, -5);
 		$type = 'long';
 	}
-	if (substr($output_format, 0, 6) == 'dates-') {
-		$lang = substr($output_format, 6);
-		$p = ['lang' => $lang, 'context' => 'months'];
-		$set['months_long'] = [
-			1 => wrap_text('January', $p), 2 => wrap_text('February', $p),
-			3 => wrap_text('March', $p), 4 => wrap_text('April', $p),
-			5 => wrap_text('May', $p), 6 => wrap_text('June', $p),
-			7 => wrap_text('July', $p), 8 => wrap_text('August', $p),
-			9 => wrap_text('September', $p), 10 => wrap_text('October', $p),
-			11 => wrap_text('November', $p), 12 => wrap_text('December', $p)
-		];
-		$output_format = 'dates';
-		switch ($lang) {
-			case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
-				$set['months_if_no_day'] = $set['months_long'];
-				if ($type === 'long') $set['sep'] = ['. ', ' '];
-				break; // dd.mm.yyyy
-			case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
-				break; // dd-mm-yyyy
-			case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY'; 
-				$set['months'] = [
-					1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May',
-					6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct',
-					11 => 'Nov', 12 => 'Dec'
-				];
-				break; // dd/mm/yyyy
-			case 'pl':		$set['sep'] = '.'; $set['order'] = 'DMY';
-				$set['months_if_no_day'] = $set['months_long'];
-				if ($type === 'long') $set['sep'] = ['. ', ' '];
-				break;
-			default:
-				wrap_error(sprintf('Language %s currently not supported', $lang));
-				break;
-		}
+
+	$lang = substr($output_format, 6);
+	$p = ['lang' => $lang, 'context' => 'months'];
+	$set['months_long'] = [
+		1 => wrap_text('January', $p), 2 => wrap_text('February', $p),
+		3 => wrap_text('March', $p), 4 => wrap_text('April', $p),
+		5 => wrap_text('May', $p), 6 => wrap_text('June', $p),
+		7 => wrap_text('July', $p), 8 => wrap_text('August', $p),
+		9 => wrap_text('September', $p), 10 => wrap_text('October', $p),
+		11 => wrap_text('November', $p), 12 => wrap_text('December', $p)
+	];
+
+	switch ($lang) {
+		case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
+			$set['months_if_no_day'] = $set['months_long'];
+			if ($type === 'long') $set['sep'] = ['. ', ' '];
+			break; // dd.mm.yyyy
+		case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
+			break; // dd-mm-yyyy
+		case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY'; 
+			$set['months'] = [
+				1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May',
+				6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct',
+				11 => 'Nov', 12 => 'Dec'
+			];
+			break; // dd/mm/yyyy
+		case 'pl':		$set['sep'] = '.'; $set['order'] = 'DMY';
+			$set['months_if_no_day'] = $set['months_long'];
+			if ($type === 'long') $set['sep'] = ['. ', ' '];
+			break;
+		default:
+			wrap_error(sprintf('Language %s currently not supported', $lang));
+			break;
 	}
+
 	if (!empty($set)) {
 		if (!is_array($set['sep']) OR count($set['sep']) !== 2) {
 			$set['sep'][0] = $set['sep'][1] = $set['sep'];
