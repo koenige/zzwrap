@@ -328,22 +328,22 @@ function wrap_date($date, $format = false) {
  * @return string
  */
 function wrap_date_out($begin, $end, $formats) {
-	$lang = array_pop($formats);
+	$lang = array_shift($formats);
 
-	$p = ['lang' => $lang, 'context' => 'months'];
+	$set['p'] = ['lang' => $lang, 'context' => 'months'];
 	$set['months_long'] = [
-		1 => wrap_text('January', $p),
-		2 => wrap_text('February', $p),
-		3 => wrap_text('March', $p),
-		4 => wrap_text('April', $p),
-		5 => wrap_text('May', $p),
-		6 => wrap_text('June', $p),
-		7 => wrap_text('July', $p),
-		8 => wrap_text('August', $p),
-		9 => wrap_text('September', $p),
-		10 => wrap_text('October', $p),
-		11 => wrap_text('November', $p),
-		12 => wrap_text('December', $p)
+		1 => wrap_text('January', $set['p']),
+		2 => wrap_text('February', $set['p']),
+		3 => wrap_text('March', $set['p']),
+		4 => wrap_text('April', $set['p']),
+		5 => wrap_text('May', $set['p']),
+		6 => wrap_text('June', $set['p']),
+		7 => wrap_text('July', $set['p']),
+		8 => wrap_text('August', $set['p']),
+		9 => wrap_text('September', $set['p']),
+		10 => wrap_text('October', $set['p']),
+		11 => wrap_text('November', $set['p']),
+		12 => wrap_text('December', $set['p'])
 	];
 
 	switch ($lang) {
@@ -390,13 +390,12 @@ function wrap_date_out($begin, $end, $formats) {
 	} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 		AND substr($begin, 7) !== '-00') {
 		// 12.-14.03.2004 -- trim to remove space if '. ' is separator
-		$output = substr($begin, 8)
-			.(strlen($set['sep'][0]) > 1 ? trim($set['sep'][0]) : $set['sep'][0])
+		$output = wrap_date_format($begin, $set, array_merge($formats, ['no_month']))
 			.$bis.wrap_date_format($end, $set, $formats);
 	} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) !== '-00') {
 		// 12.04.-13.05.2004
-		$output = wrap_date_format($begin, $set, $formats + ['noyear'])
+		$output = wrap_date_format($begin, $set, array_merge($formats, ['no_year']))
 			.$bis.wrap_date_format($end, $set, $formats);
 	} else {
 		// 2004-03-00 2005-04-00 = 03.2004-04.2005
@@ -429,13 +428,17 @@ function wrap_date_format($date, $set, $formats = []) {
 	}
 	if (in_array('short', $formats))
 		$year = substr($year, -2);
-	elseif (in_array('noyear', $formats))
+	elseif (in_array('no_year', $formats) OR in_array('no_month', $formats))
 		$year = '';
-	
+
 	if ($day === '00' AND $month === '00') {
 		return $year;
 	}
-	if (in_array('long', $formats) AND !empty($set['months_long'])) {
+
+	if (in_array('no_month', $formats)) {
+		$month = '';
+		$set['order'] = 'D';
+	} elseif (in_array('long', $formats) AND !empty($set['months_long'])) {
 		$month = $set['months_long'][intval($month)];
 	} else {
 		if (!empty($set['months'])) {
@@ -449,19 +452,40 @@ function wrap_date_format($date, $set, $formats = []) {
 	case 'DMY':
 		if ($set['sep'][0] === '.' AND $set['sep'][1] === '.') {
 			// let date without year end with dot
-			$date = ($day === '00' ? '' : $day.$set['sep'][0]).$month.$set['sep'][1].$year;
+			$output = ($day === '00' ? '' : $day.$set['sep'][0]).$month.$set['sep'][1].$year;
 		} else {
-			$date = ($day === '00' ? '' : $day.$set['sep'][0]).$month.($year !== '' ? $set['sep'][1].$year : '');
+			$output = ($day === '00' ? '' : $day.$set['sep'][0]).$month.($year !== '' ? $set['sep'][1].$year : '');
 		}
 		break;
 	case 'YMD':
-		$date = ($year !== '' ? $year.$set['sep'][0] : '').$month.($day === '00' ? '' : $set['sep'][1].$day);
+		$output = ($year !== '' ? $year.$set['sep'][0] : '').$month.($day === '00' ? '' : $set['sep'][1].$day);
 		break;
 	case 'MDY':
-		$date = $month.($day === '00' ? '' : $set['sep'][0].$day).($year !== '' ? $set['sep'][1].$year : '');
+		$output = $month.($day === '00' ? '' : $set['sep'][0].$day).($year !== '' ? $set['sep'][1].$year : '');
+		break;
+	case 'D':
+		$output = ($day === '00' ? '' : $day).$set['sep'][0];
 		break;
 	}
-	return $date;
+
+	// Add weekday if requested
+	if (in_array('weekday', $formats) && $day !== '00' && $month !== '00') {
+		$set['p']['context'] = 'weekday';
+		try {
+			$dt = new DateTime($date);
+			$weekdays = [
+				wrap_text('Sun', $set['p']), wrap_text('Mon', $set['p']),
+				wrap_text('Tue', $set['p']), wrap_text('Wed', $set['p']),
+				wrap_text('Thu', $set['p']), wrap_text('Fri', $set['p']),
+				wrap_text('Sat', $set['p'])
+			];
+			$weekday = $weekdays[intval($dt->format('w'))];
+			$output = $weekday . ' ' . $output;
+		} catch (Exception $e) {
+			// ignore invalid date
+		}
+	}
+	return $output;
 }
 
 /**
