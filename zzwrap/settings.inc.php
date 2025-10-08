@@ -38,7 +38,7 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
 			$zz_setting[$key] = $value;
 	}
 	// read
-	return wrap_get_setting($key, $login_id);
+	return wrap_get_setting($key, $login_id, $value);
 }
 
 /**
@@ -73,14 +73,17 @@ function wrap_setting_delete($key) {
  * gets setting from configuration (default: zz_setting)
  *
  * @param string $key
- * @param int $login_id
+ * @param int $login_id (optional)
+ * @param string $set (optional) new value to be set, important for local keys
  * @return mixed $setting (if not found, returns NULL)
  */
-function wrap_get_setting($key, $login_id = 0) {
+function wrap_get_setting($key, $login_id = 0, $set = NULL) {
 	global $zz_setting;
 
 	$cfg = wrap_cfg_files('settings');
-	if (!$login_id AND $value = wrap_get_setting_local($key, $cfg)) return $value;
+	if (is_null($set) AND !$login_id AND $value = wrap_setting_local($key, $cfg)) {
+		if (!is_null($value)) return $value;
+	}
 
 	// check if in settings.cfg
 	wrap_setting_log_missing($key, $cfg);
@@ -147,13 +150,13 @@ function wrap_get_setting($key, $login_id = 0) {
 
 /**
  * check if a local setting is available
- * ending with _local
+ * ending with `_local`, with `local = 1` in settings.cfg
  *
  * @param string $key
  * @param array $cfg
  * @return mixed
  */
-function wrap_get_setting_local($key, $cfg) {
+function wrap_setting_local($key, $cfg) {
 	global $zz_setting;
 	if (empty($zz_setting['local_access'])) return NULL;
 
@@ -163,11 +166,14 @@ function wrap_get_setting_local($key, $cfg) {
 
 	$parts = explode('[', $key);
 	if (str_ends_with($parts[0], '_local')) return NULL; // is already local
+	if (empty($cfg[$parts[0]]['local'])) return NULL;
+
 	$parts[0] .= '_local';
 	$new_key = implode('[', $parts);
-	if (!array_key_exists($new_key, $cfg)) return NULL;
-	wrap_setting($key, wrap_setting($new_key)); // write local value back to normal value
-	return wrap_get_setting($new_key);
+	$value = wrap_get_setting($new_key);
+	if (is_null($value)) return NULL; // value is not set
+	wrap_setting($key, $value); // write local value back to normal value
+	return $value;
 }
 
 /**
@@ -691,8 +697,17 @@ function wrap_cfg_files_parse($type) {
 	$cfg = [];
 	foreach ($files as $package => $cfg_file) {
 		$single_cfg[$package] = parse_ini_file($cfg_file, true);
-		foreach (array_keys($single_cfg[$package]) as $index)
+		foreach ($single_cfg[$package] as $index => $configuration) {
 			$single_cfg[$package][$index]['package'] = $package;
+			// local keys?
+			if (!empty($configuration['local'])) {
+				$index_local = $index.'_local';
+				$single_cfg[$package][$index_local] = $single_cfg[$package][$index];
+				unset($single_cfg[$package][$index_local]['local']);
+				unset($single_cfg[$package][$index_local]['default']);
+			}
+		}
+		
 		// might be called before database connection exists
 		if (wrap_db_connection()) {
 			wrap_cfg_translate($single_cfg[$package], $cfg_file);
