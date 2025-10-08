@@ -808,6 +808,16 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 		}
 	}
 	if (count($paths) !== 1) {
+		$removes = [];
+		foreach ($paths as $index => $path) {
+			// remove paths with parameters
+			if (!strstr($path['content'], '%%% '.$brick.' %%%')) $removes[] = $index;
+		}
+		if (count($removes) + 1 === count($paths)) {
+			foreach ($removes as $index) unset($paths[$index]);
+		}
+	}
+	if (count($paths) !== 1) {
 		$brick = explode(' ', $brick);
 		if (count($brick) !== 2) return false;
 		if ($brick[0] !== 'tables') return false;
