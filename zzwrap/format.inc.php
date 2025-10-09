@@ -329,6 +329,8 @@ function wrap_date($date, $format = false) {
  */
 function wrap_date_out($begin, $end, $formats) {
 	$lang = array_shift($formats);
+	if (strlen(reset($formats)) === 2)
+		$lang .= '-'.array_shift($formats);
 
 	$set['p'] = ['lang' => $lang, 'context' => 'months'];
 	$set['months_long'] = [
@@ -366,6 +368,8 @@ function wrap_date_out($begin, $end, $formats) {
 			break;
 		default:
 			wrap_error(sprintf('Language %s currently not supported', $lang));
+			$set['order'] = 'YMD';
+			$set['sep'] = ' ';
 			break;
 	}
 
