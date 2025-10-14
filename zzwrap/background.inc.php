@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -238,6 +238,11 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
  */
 
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
+	if (!$url) {
+		$caller = debug_backtrace()[1];
+		wrap_error(sprintf('Empty URL given to wrap_get_protected_url(), function: %s', $caller['function']), E_USER_WARNING);
+		return [false, false, false];
+	}
 	$username = wrap_username($username, false);
 	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
