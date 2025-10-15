@@ -160,7 +160,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 			}
 		}
 	}
-	if ($media AND wrap_setting('media_folder')) {
+	if ($media AND wrap_package('media') AND wrap_setting('media_folder')) {
 		if ($extension = wrap_setting('media_original_filename_extension')) {
 			$filename = explode('.', $filename);
 			array_splice($filename, count($filename) - 1, 0, $extension);
