@@ -92,6 +92,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	case E_USER_DEPRECATED:
 		// unimportant error only show in debug mode
 		$level = 'notice';
+		if (!empty($settings['debug'])) $level = 'debug';
 		break;
 	}
 
@@ -219,7 +220,7 @@ function wrap_error_sql($sql, $time) {
 	wrap_error(
 		'-- SQL query in '.$time." --\n".$sql,
 		E_USER_NOTICE,
-		['class' => wrap_error_sql_class($time)]
+		['class' => wrap_error_sql_class($time), 'debug' => 1]
 	);
 }
 
