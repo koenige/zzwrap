@@ -49,7 +49,10 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
  */
 function wrap_setting_add($key, $value) {
 	if (!is_array(wrap_setting($key)))
-		wrap_error(sprintf('Unable to add value %s to key %s, it is not an array.', $key, json_encode($value)), E_USER_WARNING);
+		wrap_error(sprintf(
+			'Unable to add value %s to key %s, it is not an array.'
+			, $key, json_encode($value)), E_USER_WARNING
+		);
 
 	$existing = wrap_setting($key);
 	if (is_array($value))
@@ -133,7 +136,9 @@ function wrap_get_setting($key, $login_id = 0, $set = NULL) {
 
 	$return = [];
 	foreach ($my_keys as $my_key) {
-		$return = array_merge_recursive($return, wrap_setting_key($my_key, wrap_get_setting_default($my_key, $cfg[$my_key])));
+		$return = array_merge_recursive(
+			$return, wrap_setting_key($my_key, wrap_get_setting_default($my_key, $cfg[$my_key]))
+		);
 	}
 	if (!empty($return[$key])) {
 		// check if some of the keys have already been set, overwrite these
@@ -273,7 +278,11 @@ function wrap_setting_log_missing($key, $cfg) {
 	if (!$log_dir AND !empty($cfg['log_dir']['default']))
 		$log_dir = wrap_setting_value_placeholder($cfg['log_dir']['default']);
 	if (!$log_dir) return;
-	error_log(sprintf("%s: Setting %s not found in settings.cfg [%s].\n", date('Y-m-d H:i:s'), $base_key, $_SESSION['username'] ?? wrap_setting('remote_ip')), 3, $log_dir.'/settings.log');
+	error_log(sprintf(
+		"%s: Setting %s not found in settings.cfg [%s].\n"
+		, date('Y-m-d H:i:s'), $base_key
+		, $_SESSION['username'] ?? wrap_setting('remote_ip')), 3, $log_dir.'/settings.log'
+	);
 }
 
 /**
@@ -581,8 +590,15 @@ function wrap_setting_register($config) {
 			}
 			if (empty($$var[$key]) OR !is_array($$var[$key]))
 				$$var[$key] = $value;
-			else
+			else {
+				if (!is_array($value)) {
+					wrap_error(sprintf(
+						'Value for setting %s must be an array: %s', $skey, $value
+					), E_USER_WARNING);
+					$value = [$value];
+				}
 				$$var[$key] = array_merge_recursive($$var[$key], $value);
+			}
 		}
 	}
 }
