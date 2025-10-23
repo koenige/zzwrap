@@ -118,27 +118,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	// no file extension given? add .inc.php
 	if (!strpos($filename, '.')) $filename = sprintf('%s.inc.php', $filename);
 
-	$files = [];
-
-	// check modules (default always is first module)
-	foreach ($packages as $package) {
-		$this_path = $path ? $path : $package;
-		// disable default module?
-		if ($package === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
-			continue;
-		$type = in_array($package, $zz_setting['modules']) ? 'modules' : 'themes';
-		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $package, $this_path, $filename);
-		if (strstr($filename, '*')) {
-			$matches = glob($file, \GLOB_BRACE);
-			foreach ($matches as $index => $file) {
-				if (str_starts_with(basename($file), '.')) continue;
-				$files[$package.'/'.$index] = $file;
-			}
-		} else {
-			if (file_exists($file))
-				$files[$package] = $file;
-		}
-	}
+	$files = wrap_collect_files_list($packages, $filename, $path);
 
 	if ($custom) {
 		// check custom folder
@@ -176,6 +156,44 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		}
 	}
 
+	return $files;
+}
+
+/**
+ * get list of files
+ * check modules (default always is first module)
+ *
+ * @param array $packages
+ * @param string $filename
+ * @param string $path
+ */
+function wrap_collect_files_list($packages, $filename, $path) {
+	global $zz_setting;
+
+	if (count($packages) === 1 AND $packages[0] === '_core') {
+		$files['zzwrap'] = sprintf('%s/%s', __DIR__, $filename);
+		return $files;
+	}
+
+	$files = [];
+	foreach ($packages as $package) {
+		$this_path = $path ? $path : $package;
+		// disable default module?
+		if ($package === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
+			continue;
+		$type = in_array($package, $zz_setting['modules']) ? 'modules' : 'themes';
+		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $package, $this_path, $filename);
+		if (strstr($filename, '*')) {
+			$matches = glob($file, \GLOB_BRACE);
+			foreach ($matches as $index => $file) {
+				if (str_starts_with(basename($file), '.')) continue;
+				$files[$package.'/'.$index] = $file;
+			}
+		} else {
+			if (file_exists($file))
+				$files[$package] = $file;
+		}
+	}
 	return $files;
 }
 

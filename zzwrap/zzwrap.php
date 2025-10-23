@@ -130,13 +130,10 @@ function wrap_includes() {
 	require_once __DIR__.'/core.inc.php';
 	require_once __DIR__.'/settings.inc.php';
 	require_once __DIR__.'/cache.inc.php';
-	require_once __DIR__.'/mail.inc.php';
 	require_once __DIR__.'/access.inc.php';
 	require_once __DIR__.'/language.inc.php';
 	require_once __DIR__.'/match.inc.php';
-	require_once __DIR__.'/page.inc.php';
 	require_once __DIR__.'/template.inc.php';
-	require_once __DIR__.'/format.inc.php';
 	require_once __DIR__.'/defaults.inc.php';
 	require_once __DIR__.'/files.inc.php';
 	require_once __DIR__.'/http.inc.php';
@@ -146,6 +143,10 @@ function wrap_includes() {
 	require_once __DIR__.'/background.inc.php';
 	if (file_exists(__DIR__.'/compatibility.inc.php'))
 		require_once __DIR__.'/compatibility.inc.php';
+
+	wrap_include('mail', '_core');
+	wrap_include('format', '_core');
+	wrap_include('page', '_core');
 }
 
 /**
