@@ -1,0 +1,31 @@
+/*
+ * zzwrap
+ * Cascading Style Sheets (CSS) for tests
+ *
+ * Part of »Zugzwang Project«
+ * https://www.zugzwang.org/modules/zzwrap
+ *
+ * @author Gustaf Mossakowski <gustaf@koenige.org>
+ * @copyright Copyright © 2025 Gustaf Mossakowski
+ * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+ */
+
+
+.tests		{ border-collapse: separate; border-spacing: 0; width: 100%;
+			margin: 1rem 0; }
+.tests th	{ text-align: left; font-weight: bold; }
+.tests th,
+.tests td	{ padding: .5rem 1rem .5rem .5rem; }
+
+/* alternate row colors */
+.tests tbody tr:nth-child(odd) td
+			{ background-color: #F3F3F3; }
+
+tbody tr td:first-child
+			{ border-top-left-radius: 0.5rem; }
+tbody tr td:last-child
+			{ border-top-right-radius: 0.5rem; }
+tbody tr td:first-child
+			{ border-bottom-left-radius: 0.5rem; }
+tbody tr td:last-child
+			{ border-bottom-right-radius: 0.5rem; }

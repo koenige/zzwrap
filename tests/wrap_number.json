@@ -1,0 +1,8 @@
+{
+	"file": "format",
+	"data": [
+		1984, 206, 4000, 3999, 3876, 1999, 1, 12, 46, "MMX", "MCMLX", "XM", "MCMCMCM",
+		"MMMM", "IIIII", "VV", "IL", "Z"
+	],
+	"parameters": "roman->arabic"
+}

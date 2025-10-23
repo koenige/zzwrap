@@ -1,0 +1,38 @@
+# zzwrap module
+# Template for tests
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% if function_found %%%
+<table class="tests">
+<thead>
+<tr>
+<th colspan="2">%%% text Input %%%</th>
+<th>%%% text Output %%%</th>
+</tr>
+</thead>
+<tbody>
+%%% loop lines %%%
+<tr>
+<td>%%% if inputs %%%
+%%% loop inputs %%%
+<em>%%% item key %%%:</em> %%% item value %%%<br>
+%%% loop end %%%
+%%% else %%%%%% item input %%%%%% endif %%%
+%%% if legend %%% (<em>%%% item legend %%%</em>)%%% endif %%%</td>
+<td>%%% item output_pre %%%</td>
+<td>%%% item output %%%</td>
+</tr>
+%%% loop end %%%
+</tbody>
+</table>
+
+%%% else %%%
+<p>%%% text This function was not found. %%%</p>
+
+%%% endif %%%

@@ -1,0 +1,13 @@
+{
+	"file": "mail",
+	"data": [
+		{"name": "First Last", "e_mail": "test@example.org"},
+		{"name": "First \r\\Last", "e_mail": "test@example.org"},
+		{"name": "Jörg Example", "e_mail": "test@example.org"},
+		{"name": "Last, First", "e_mail": "test@example.org"},
+		{"name": "a-z0-9 \t!#$%&'*+-^?=~{|}_`/", "e_mail": "test@example.org"}
+	],
+	"post_functions": [
+		"htmlspecialchars"
+	]
+}

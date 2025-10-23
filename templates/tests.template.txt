@@ -1,0 +1,25 @@
+# zzwrap module
+# Template for tests, overview
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2025 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% if packages %%%
+<ul>
+%%% loop packages %%%
+<li><a href="%%% item package %%%/">%%% item package %%%</a></li>
+%%% loop end %%%
+</ul>
+
+%%% else %%%
+<ul>
+%%% loop files %%%
+<li><a href="%%% item function %%%/">%%% item function %%%</a></li>
+%%% loop end %%%
+</ul>
+
+%%% endif %%%
