@@ -189,24 +189,15 @@ function wrap_setting_local($key, $cfg) {
  * @return mixed $setting (if not found, returns NULL)
  */
 function wrap_get_setting_default($key, $params) {
-	global $zz_conf;
-
 	if (!empty($params['default_from_php_ini']) AND ini_get($params['default_from_php_ini'])) {
 		return ini_get($params['default_from_php_ini']);
 	} elseif (!empty($params['default_empty_string'])) {
 		return '';
 	} elseif (!empty($params['default'])) {
 		return wrap_setting_value($params['default']);
-	} elseif (!empty($params['default_from_setting'])) {
-		if (str_starts_with($params['default_from_setting'], 'zzform_')) {
-			$default_setting_key = substr($params['default_from_setting'], 7);
-			if (is_array($zz_conf) AND array_key_exists($default_setting_key, $zz_conf))
-				return $zz_conf[$default_setting_key];
-			else
-				return wrap_setting($params['default_from_setting']);
-		} elseif (!is_null(wrap_setting($params['default_from_setting']))) {
-			return wrap_setting($params['default_from_setting']);
-		}
+	} elseif (!empty($params['default_from_setting'])
+		AND !is_null(wrap_setting($params['default_from_setting']))) {
+		return wrap_setting($params['default_from_setting']);
 	}
 	if (!empty($params['default_from_function']) AND function_exists($params['default_from_function'])) {
 		return $params['default_from_function']();
@@ -560,26 +551,17 @@ function wrap_setting_value_placeholder($string) {
 }
 
 /**
- * write settings from array to $zz_setting or $zz_conf
+ * write settings from array to $zz_setting
  *
  * @param array $config
  * @return void
  */
 function wrap_setting_register($config) {
 	global $zz_setting;
-	global $zz_conf;
 	
-	$zzform_cfg = wrap_cfg_files('settings', ['package' => 'zzform']);
-
 	foreach ($config as $skey => $value) {
-		if (wrap_setting_zzconf($zzform_cfg, $skey)) {
-			$skey = substr($skey, 7);
-			$var = 'zz_conf';
-		} else {
-			$var = 'zz_setting';
-		}
 		if (is_array($value) AND reset($value) === '__defaults__') {
-			$$var[$skey] = wrap_setting($skey);
+			$zz_setting[$skey] = wrap_setting($skey);
 			array_shift($value);
 		}
 		$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
@@ -588,8 +570,8 @@ function wrap_setting_register($config) {
 				if (!$value OR $value === 'false') $value = false;
 				elseif ($value === 'true') $value = true;
 			}
-			if (empty($$var[$key]) OR !is_array($$var[$key]))
-				$$var[$key] = $value;
+			if (empty($zz_setting[$key]) OR !is_array($zz_setting[$key]))
+				$zz_setting[$key] = $value;
 			else {
 				if (!is_array($value)) {
 					wrap_error(sprintf(
@@ -597,25 +579,10 @@ function wrap_setting_register($config) {
 					), E_USER_WARNING);
 					$value = [$value];
 				}
-				$$var[$key] = array_merge_recursive($$var[$key], $value);
+				$zz_setting[$key] = array_merge_recursive($zz_setting[$key], $value);
 			}
 		}
 	}
-}
-
-/**
- * for zzform, check if key belongs to $zz_conf or to wrap_setting()
- *
- * @param array $cfg
- * @param string $key
- * @return bool
- */
-function wrap_setting_zzconf($cfg, $key) {
-	if (!str_starts_with($key, 'zzform_')) return false;
-	$key_short = ($pos = strpos($key, '[')) ? substr($key, 0, $pos) : '';
-	if ($key_short AND empty($cfg[$key_short]['zz_conf'])) return false;
-	if (empty($cfg[$key]['zz_conf'])) return false;
-	return true;
 }
 
 /**
