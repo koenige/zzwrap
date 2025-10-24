@@ -7,16 +7,16 @@
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
  *
- * wrap_convert_string()
+ *	wrap_convert_string()
  *	wrap_mailto()
  *	wrap_date()
- *		wrap_date_format()
+ *		_wrap_date_format()
  *	wrap_print()
  *  wrap_number()
  *  wrap_money()
  *		wrap_money_format()
  *  wrap_html_escape()
- *	wrap_unit_format()
+ *	_wrap_unit_format()
  *		wrap_bytes()
  *		wrap_gram()
  *		wrap_meters()
@@ -304,7 +304,7 @@ function wrap_date($date, $format = false) {
 
 	switch ($output_format) {
 	case 'dates':
-		return wrap_date_out($begin, $end, $formats);
+		return _wrap_date_out($begin, $end, $formats);
 	case 'datetime':
 		// output 1994-11-06 08:49:37
 		return date('Y-m-d H:i:s', $time);
@@ -327,7 +327,7 @@ function wrap_date($date, $format = false) {
  * @param string $formats
  * @return string
  */
-function wrap_date_out($begin, $end, $formats) {
+function _wrap_date_out($begin, $end, $formats) {
 	$lang = array_shift($formats);
 	if (strlen(reset($formats)) === 2)
 		$lang .= '-'.array_shift($formats);
@@ -383,30 +383,30 @@ function wrap_date_out($begin, $end, $formats) {
 
 	if (!$end) {
 		// 12.03.2004 or 03.2004 or 2004
-		$output = wrap_date_format($begin, $set, $formats);
+		$output = _wrap_date_format($begin, $set, $formats);
 	} elseif (substr($begin, 7) === substr($end, 7)
 		AND substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) === '-00'
 		AND substr($begin, 4) !== '-00-00') {
 		// 2004-03-00 2004-04-00 = 03-04.2004
-		$output = wrap_date_format('0000'.substr($begin, 4), $set, $formats).$bis
-			.wrap_date_format($end, $set, $formats);
+		$output = _wrap_date_format('0000'.substr($begin, 4), $set, $formats).$bis
+			._wrap_date_format($end, $set, $formats);
 	} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 		AND substr($begin, 7) !== '-00') {
 		// 12.-14.03.2004 -- trim to remove space if '. ' is separator
-		$output = wrap_date_format($begin, $set, array_merge($formats, ['no_month']))
-			.$bis.wrap_date_format($end, $set, $formats);
+		$output = _wrap_date_format($begin, $set, array_merge($formats, ['no_month']))
+			.$bis._wrap_date_format($end, $set, $formats);
 	} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) !== '-00') {
 		// 12.04.-13.05.2004
-		$output = wrap_date_format($begin, $set, array_merge($formats, ['no_year']))
-			.$bis.wrap_date_format($end, $set, $formats);
+		$output = _wrap_date_format($begin, $set, array_merge($formats, ['no_year']))
+			.$bis._wrap_date_format($end, $set, $formats);
 	} else {
 		// 2004-03-00 2005-04-00 = 03.2004-04.2005
 		// 2004-00-00 2005-00-00 = 2004-2005
 		// 31.12.2004-06.01.2005
-		$output = wrap_date_format($begin, $set, $formats)
-			.$bis.wrap_date_format($end, $set, $formats);
+		$output = _wrap_date_format($begin, $set, $formats)
+			.$bis._wrap_date_format($end, $set, $formats);
 	}
 	return $output;
 }
@@ -422,7 +422,7 @@ function wrap_date_out($begin, $end, $formats) {
  * @param array $formats 'long', 'short', 'noyear', 'weekday'
  * @return string
  */
-function wrap_date_format($date, $set, $formats = []) {
+function _wrap_date_format($date, $set, $formats = []) {
 	if (!$date) return '';
 	list($year, $month, $day) = explode('-', $date);
 
@@ -503,7 +503,7 @@ function wrap_date_format($date, $set, $formats = []) {
  */
 function wrap_print($array, $color = 'FFF', $html = true) {
 	static $calls = 0;
-	if (!$html) return wrap_print_simple($array);
+	if (!$html) return _wrap_print_simple($array);
 	
 	$data = [
 		'color' => $color
@@ -511,21 +511,21 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	
 	if (!is_array($array)) {
 		$data['simple'] = true;
-		$data['content'] = wrap_print_simple($array);
+		$data['content'] = _wrap_print_simple($array);
 		$data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 		return wrap_template('debug-print', $data);
 	}
 	
 	// Generate unique ID for this debug output
 	$data['count'] = count($array);
-	list($data['array'], $data['expand']) = wrap_print_level($array);
+	list($data['array'], $data['expand']) = _wrap_print_level($array);
 	$data['first'] = $calls ? false : true;
 	if (!$data['expand']) $data['expand'] = NULL;
 	else $calls++;
 	return wrap_template('debug-print', $data);
 }
 
-function wrap_print_simple($array) {
+function _wrap_print_simple($array) {
 	ob_start();
 	print_r($array);
 	return ob_get_clean();
@@ -538,7 +538,7 @@ function wrap_print_simple($array) {
  * @param int $level
  * @return array
  */
-function wrap_print_level($array, $processed = [], $level = 0) {
+function _wrap_print_level($array, $processed = [], $level = 0) {
 	$data = [];
 	$index = 0;
 
@@ -555,7 +555,7 @@ function wrap_print_level($array, $processed = [], $level = 0) {
 				$data[$index]['item_count'] = count($value);
 				$next_processed = $processed;
 				$next_processed[] = $content_id;
-				list($data[$index]['array'], $expand) = wrap_print_level($value, $next_processed, $level + 1);
+				list($data[$index]['array'], $expand) = _wrap_print_level($value, $next_processed, $level + 1);
 			}
 		} else {
 			// Simple value - show directly
@@ -789,7 +789,7 @@ function wrap_js_nl2br($string) {
  * @param int $precision
  * @return string
  */
-function wrap_unit_format($value, $precision, $units, $factor = 1000) {
+function _wrap_unit_format($value, $precision, $units, $factor = 1000) {
 	if (!is_numeric($value)) return $value;
 	$value = max($value, 0);
 	$pow = floor(($value ? log($value) : 0) / log($factor)); 
@@ -814,7 +814,7 @@ function wrap_unit_format($value, $precision, $units, $factor = 1000) {
 function wrap_bytes($bytes, $precision = 1) { 
 	$units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
 	if (!wrap_is_int($bytes)) $bytes = wrap_byte_to_int($bytes);
-	return wrap_unit_format($bytes, $precision, $units, 1024);
+	return _wrap_unit_format($bytes, $precision, $units, 1024);
 }
 
 /**
@@ -851,7 +851,7 @@ function wrap_gram($gram, $precision = 1) {
 		-3 => 'ng', -2 => 'µg', -1 => 'mg', 0 => 'g', 1 => 'kg',
 		2 => 't', 3 => 'kt', 4 => 'Mt', 5 => 'Gt'
 	];
-	return wrap_unit_format($gram, $precision, $units);
+	return _wrap_unit_format($gram, $precision, $units);
 }
 
 /**
@@ -865,7 +865,7 @@ function wrap_meters($meters, $precision = 1) {
 	$units = [
 		-9 => 'nm', -6 => 'µm', -3 => 'mm', -2 => 'cm', 0 => 'm', 3 => 'km'
 	];
-	return wrap_unit_format($meters, $precision, $units, 10);
+	return _wrap_unit_format($meters, $precision, $units, 10);
 }
 
 /**
@@ -983,13 +983,13 @@ function wrap_coordinate($value, $orientation, $format = 'dms') {
 			$coord[] = $hemisphere_text;
 			break;
 		case 'deg':	// 98.8440°W
-			$coord[] = wrap_coordinate_decimal($value).'&#176;'.wrap_setting('geo_spacer').$hemisphere_text;
+			$coord[] = _wrap_coordinate_decimal($value).'&#176;'.wrap_setting('geo_spacer').$hemisphere_text;
 			break;
 		case 'dec':	// -98.8440
-			$coord[] = $hemisphere.wrap_coordinate_decimal($value);
+			$coord[] = $hemisphere._wrap_coordinate_decimal($value);
 			break;
 		case 'dm':	// 98°50.6333'W
-			$min = wrap_coordinate_decimal(round(($value - floor($value)) * 60, wrap_setting('geo_rounding')));
+			$min = _wrap_coordinate_decimal(round(($value - floor($value)) * 60, wrap_setting('geo_rounding')));
 			$coord[] = floor($value).'&#176;'.wrap_setting('geo_spacer').($min ? $min.'&#8242;'.wrap_setting('geo_spacer') : '').$hemisphere_text;
 			break;
 		case 'dms':	// 98°50'38"W
@@ -1004,7 +1004,7 @@ function wrap_coordinate($value, $orientation, $format = 'dms') {
 			$min /= 60;
 			$coord[] = $deg.'&#176;'.wrap_setting('geo_spacer')
 				.(($min OR $sec) ? $min.'&#8242;'.wrap_setting('geo_spacer') : '')
-				.($sec ? wrap_coordinate_decimal($sec).'&#8243;'.wrap_setting('geo_spacer') : '')
+				.($sec ? _wrap_coordinate_decimal($sec).'&#8243;'.wrap_setting('geo_spacer') : '')
 				.$hemisphere_text;
 			break;
 		}
@@ -1023,7 +1023,7 @@ function wrap_coordinate($value, $orientation, $format = 'dms') {
  * @param string $number
  * @return string $number
  */
-function wrap_coordinate_decimal($number) {
+function _wrap_coordinate_decimal($number) {
 	// replace . with , where appropriate
 	$number = str_replace('.', wrap_setting('decimal_point'), $number);
 	return $number;
@@ -1054,7 +1054,7 @@ function wrap_normalize($input) {
 		$normalization = wrap_tsv_parse('unicode-normalization');
 		foreach ($normalization as $line) {
 			if ($line[0] === '-') continue;
-			$replacements[wrap_hex2chars($line[0])] = wrap_hex2chars($line[3]);
+			$replacements[_wrap_hex2chars($line[0])] = _wrap_hex2chars($line[3]);
 		}
 	}
 	foreach ($replacements as $search => $replace) {
@@ -1072,7 +1072,7 @@ function wrap_normalize($input) {
  * @param string $string hexadecimal codepoints separated by space
  * @return string
  */
-function wrap_hex2chars($string) {
+function _wrap_hex2chars($string) {
 	$codes = explode(' ', $string);
 	$string = '';
 	foreach ($codes as $code) {
@@ -1520,8 +1520,8 @@ function wrap_profiles($data) {
 			}
 			if (!$scope_found) continue;
 		}
-		$title = isset($profile['title']) ? wrap_profiles_lang($profile['title']) : NULL;
-		$url = wrap_profiles_lang($profile['url']);
+		$title = isset($profile['title']) ? _wrap_profiles_lang($profile['title']) : NULL;
+		$url = _wrap_profiles_lang($profile['url']);
 		$fields = $profile['fields'] ?? ['identifier'];
 		$values = [];
 		foreach ($fields as $field) {
@@ -1556,7 +1556,7 @@ function wrap_profiles($data) {
  * @param mixed $value
  * @return string
  */
-function wrap_profiles_lang($value) {
+function _wrap_profiles_lang($value) {
 	if (!is_array($value)) return $value;
 	// language?
 	if (array_key_exists(wrap_setting('lang'), $value)) return $value[wrap_setting('lang')];
@@ -1591,12 +1591,12 @@ function wrap_hyphenate($word) {
  */
 function wrap_heading_id($text) {
 	if (!$text) return $text;
-	$text = preg_replace_callback('~###(.*)~', 'wrap_heading_id_set', $text);
+	$text = preg_replace_callback('~###(.*)~', '_wrap_heading_id_set', $text);
 	$text = markdown($text);
 	return $text;
 }
 
-function wrap_heading_id_set($string) {
+function _wrap_heading_id_set($string) {
 	return trim($string[0]).' {#'.strtolower(wrap_filename($string[1])).'}';
 }
 

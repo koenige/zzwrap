@@ -691,6 +691,7 @@ function wrap_page_format_files() {
 	if (!$files) return;
 	foreach ($files['functions'] as $function) {
 		if (in_array($function, $functions)) continue;
+		if (!empty($function['private'])) continue;
 		if (!empty($function['short'])) {
 			wrap_setting_add('brick_formatting_functions_prefix', [$function['short'] => $function['prefix']]);
 			wrap_setting_add('brick_formatting_functions', $function['short']);
