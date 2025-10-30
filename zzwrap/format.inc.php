@@ -506,12 +506,99 @@ function _wrap_date_format($date, $set, $formats = []) {
 				wrap_text('Sat', $set['p'])
 			];
 			$weekday = $weekdays[intval($dt->format('w'))];
-			$output = $weekday . ' ' . $output;
+			$output = sprintf('<span class="weekday">%s</span> %s', $weekday, $output);
 		} catch (Exception $e) {
 			// ignore invalid date
 		}
 	}
 	return $output;
+}
+
+/**
+ * format a date/time period
+ *
+ * show weekdays, show short form of month, do not repeat month/year for start date
+ * do not show seconds
+ *
+ * @param string $period
+ * @return string
+ */
+function wrap_period($period) {
+	$dates = explode('/', $period);
+	foreach ($dates as $index => $part_date) {
+		$part_date = explode('T', $part_date);
+		$date[$index] = $part_date[0] ?? NULL;
+		$time[$index] = $part_date[1] ?? NULL;
+		if (!$time[$index] and strstr($date[$index], ':')) {
+			$time[$index] = $date[$index];
+			$date[$index] = NULL;
+		}
+	}
+	
+	$format = [
+		wrap_setting('lang'), 'weekday'
+	];
+
+	if (count($date) === 1) {
+		if (!$date[0]) return _wrap_period_time($time[0]);
+		if (!$time[0]) return _wrap_date_out(_wrap_dates($date[0], NULL, $format));
+		return _wrap_dates($date[0], NULL, $format).' '._wrap_period_time($time[0]);
+	}
+	if (!$date[0] AND !$date[1])
+		return _wrap_period_times($time[0], $time[1]);
+	if (!$time[0] AND !$time[1])
+		return _wrap_date_out(_wrap_dates($date[0], $date[1], $format));
+	
+	if ($date[0] === $date[1])
+		return _wrap_date_out(_wrap_dates($date[0], NULL, $format)).' '
+			._wrap_period_times($time[0], $time[1]);
+	
+	$dates = _wrap_dates($date[0], $date[1], $format);
+	if ($time[0])
+		$dates[0] .= ' '._wrap_period_time($time[0]);
+	if ($time[1])
+		$dates[1] .= ' '._wrap_period_time($time[1]);
+	return _wrap_date_out($dates);
+}
+
+/**
+ * format time begin
+ *
+ * @param string $time
+ * @return string
+ */
+function _wrap_period_time($time) {
+	$time = _wrap_period_time_format($time);
+	return wrap_text('%s&nbsp;h', ['values' => [$time]]);
+}
+
+/**
+ * format time begin/time end (or just time end)
+ *
+ * @param string $time_begin
+ * @param string $time_end
+ * @return string
+ */
+function _wrap_period_times($time_begin, $time_end) {
+	$time_begin = _wrap_period_time_format($time_begin);
+	$time_end = _wrap_period_time_format($time_end);
+	$text = wrap_text('%s–%s&nbsp;h', ['values' => [$time_begin, $time_end]]);
+	$text = str_replace('–', '<wbr>–', $text);
+	return $text;
+}
+
+/**
+ * format a time string
+ * reduce to the minimal string needed
+ *
+ * @param string $time
+ * @return string
+ */
+function _wrap_period_time_format($time) {
+	if (str_starts_with($time, 'T')) $time = substr($time, 1);
+	$time = explode(':', $time);
+	if ($time[1] === '00') return $time[0];
+	return wrap_text('%s:%s', ['values' => [$time[0], $time[1]], 'context' => 'time']);
 }
 
 /**

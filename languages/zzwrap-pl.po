@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 
 #: configuration/access.cfg
 msgid "start job manager"
@@ -1108,6 +1108,10 @@ msgstr[0] "Usunięto 1 wiersz."
 msgstr[1] "Usunięto %d wierszy."
 msgstr[2] "Usunięto %d wierszy."
 
+#: zzwrap/file.inc.php
+msgid "No lines deleted."
+msgstr ""
+
 # HTTP Status Code 300
 #: configuration/http-statuscodes.tsv
 msgid "Multiple Choices"
@@ -1570,6 +1574,24 @@ msgstr "%d sekund"
 #: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 sekunda"
+
+# duration
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s&nbsp;h"
+msgstr "godz.&nbsp;%s"
+
+# duration
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s–%s&nbsp;h"
+msgstr "godz.&nbsp;%sdo%s"
+
+# Separator for time (hours:minutes)
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s:%s"
+msgstr "%s:%s"
 
 #: zzwrap/format.inc.php
 msgctxt "months"

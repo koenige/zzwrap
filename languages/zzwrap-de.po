@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 
 #: configuration/access.cfg
 msgid "start job manager"
@@ -1585,6 +1585,24 @@ msgstr "%d Sekunden"
 #: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 Sekunde"
+
+# duration
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s&nbsp;h"
+msgstr "%s&nbsp;Uhr"
+
+# duration
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s–%s&nbsp;h"
+msgstr "%s–%s&nbsp;Uhr"
+
+# Separator for time (hours:minutes)
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s:%s"
+msgstr "%s.%s"
 
 #: zzwrap/format.inc.php
 msgctxt "months"

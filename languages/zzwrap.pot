@@ -1455,6 +1455,24 @@ msgstr ""
 msgid "1 second"
 msgstr ""
 
+# duration
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s&nbsp;h"
+msgstr ""
+
+# duration
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s–%s&nbsp;h"
+msgstr ""
+
+# Separator for time (hours:minutes)
+#: zzwrap/format.inc.php
+msgctxt "time"
+msgid "%s:%s"
+msgstr ""
+
 #: zzwrap/format.inc.php
 msgctxt "months"
 msgid "January"
