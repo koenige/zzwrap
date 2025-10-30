@@ -18,6 +18,13 @@ function wrap_install() {
 	wrap_setting('log_username', 'Crew droid Robot 571');
 	wrap_setting('install', true);
 
+	$folders = ['_inc/config', '_cache'];
+	$cms_dir = __DIR__.'/../../../..';
+	foreach ($folders as $folder) {
+		$folder = $cms_dir.'/'.$folder;
+		if (!file_exists($folder)) wrap_mkdir($folder);
+	}
+
 	wrap_setting('template', 'install-page');
 	wrap_lib();
 	wrap_setting('cache', false);
