@@ -569,7 +569,7 @@ function wrap_period($period) {
  */
 function _wrap_period_time($time) {
 	$time = _wrap_period_time_format($time);
-	return wrap_text('%s&nbsp;h', ['values' => [$time]]);
+	return wrap_text('%s&nbsp;h', ['values' => [$time], 'context' => 'time']);
 }
 
 /**
@@ -582,7 +582,7 @@ function _wrap_period_time($time) {
 function _wrap_period_times($time_begin, $time_end) {
 	$time_begin = _wrap_period_time_format($time_begin);
 	$time_end = _wrap_period_time_format($time_end);
-	$text = wrap_text('%s–%s&nbsp;h', ['values' => [$time_begin, $time_end]]);
+	$text = wrap_text('%s–%s&nbsp;h', ['values' => [$time_begin, $time_end], 'context' => 'time']);
 	$text = str_replace('–', '<wbr>–', $text);
 	return $text;
 }
