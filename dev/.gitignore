@@ -1,0 +1,10 @@
+.DS_Store
+/_cache
+/_backup
+/_temp
+/_logs
+/files
+/docs/data
+/docs/screenshots
+/_inc/config
+
