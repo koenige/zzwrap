@@ -70,7 +70,7 @@ This instruction sets up a local instance of `example.org` (replace this
 with your website domain) which can be accessed via
 `http://example.org.local/`.
 
-### Create a Folder
+### Create a Folder
 
 1. Create a folder for the website, like `/var/www/example.org`. Make
 sure it is accessible to the Apache web user, which is on a server
