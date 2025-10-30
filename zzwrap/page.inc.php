@@ -441,7 +441,7 @@ function wrap_htmlout_page($page) {
  * @return string
  */
 function wrap_page_json($page, $text = NULL) {
-	$content = $page['content_type_original'] ?? 'html';
+	$content = $page['content_type'] ?? 'html';
 	$output = [
 		$content => $text ?? $page['text']['text'] ?? $page['text'],
 		'title' => $page['pagetitle'],
