@@ -304,7 +304,7 @@ function wrap_date($date, $format = false) {
 
 	switch ($output_format) {
 	case 'dates':
-		return _wrap_date_out($begin, $end, $formats);
+		return _wrap_date_out(_wrap_dates($begin, $end, $formats));
 	case 'datetime':
 		// output 1994-11-06 08:49:37
 		return date('Y-m-d H:i:s', $time);
@@ -327,7 +327,7 @@ function wrap_date($date, $format = false) {
  * @param string $formats
  * @return string
  */
-function _wrap_date_out($begin, $end, $formats) {
+function _wrap_dates($begin, $end, $formats) {
 	$lang = array_shift($formats);
 	if (strlen(reset($formats)) === 2)
 		$lang .= '-'.array_shift($formats);
@@ -355,6 +355,7 @@ function _wrap_date_out($begin, $end, $formats) {
 			break; // dd.mm.yyyy
 		case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
 			break; // dd-mm-yyyy
+		case 'en':
 		case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY'; 
 			$set['months'] = [
 				1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May',
@@ -378,36 +379,57 @@ function _wrap_date_out($begin, $end, $formats) {
 			$set['sep'][0] = $set['sep'][1] = $set['sep'];
 		}
 	}
-	// decode HTML entities as this function can be used for mails as well
-	$bis = html_entity_decode('&#8239;–&#8239;');
 
 	if (!$end) {
 		// 12.03.2004 or 03.2004 or 2004
-		$output = _wrap_date_format($begin, $set, $formats);
+		return [
+			_wrap_date_format($begin, $set, $formats)
+		];
 	} elseif (substr($begin, 7) === substr($end, 7)
 		AND substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) === '-00'
 		AND substr($begin, 4) !== '-00-00') {
 		// 2004-03-00 2004-04-00 = 03-04.2004
-		$output = _wrap_date_format('0000'.substr($begin, 4), $set, $formats).$bis
-			._wrap_date_format($end, $set, $formats);
+		return [
+			_wrap_date_format('0000'.substr($begin, 4), $set, $formats),
+			_wrap_date_format($end, $set, $formats)
+		];
 	} elseif (substr($begin, 0, 7) === substr($end, 0, 7)
 		AND substr($begin, 7) !== '-00') {
 		// 12.-14.03.2004 -- trim to remove space if '. ' is separator
-		$output = _wrap_date_format($begin, $set, array_merge($formats, ['no_month']))
-			.$bis._wrap_date_format($end, $set, $formats);
+		return [
+			_wrap_date_format($begin, $set, array_merge($formats, ['no_month'])),
+			_wrap_date_format($end, $set, $formats)
+		];
 	} elseif (substr($begin, 0, 4) === substr($end, 0, 4)
 		AND substr($begin, 7) !== '-00') {
 		// 12.04.-13.05.2004
-		$output = _wrap_date_format($begin, $set, array_merge($formats, ['no_year']))
-			.$bis._wrap_date_format($end, $set, $formats);
+		return [
+			_wrap_date_format($begin, $set, array_merge($formats, ['no_year'])),
+			_wrap_date_format($end, $set, $formats)
+		];
 	} else {
 		// 2004-03-00 2005-04-00 = 03.2004-04.2005
 		// 2004-00-00 2005-00-00 = 2004-2005
 		// 31.12.2004-06.01.2005
-		$output = _wrap_date_format($begin, $set, $formats)
-			.$bis._wrap_date_format($end, $set, $formats);
+		return [
+			_wrap_date_format($begin, $set, $formats),
+			_wrap_date_format($end, $set, $formats)
+		];
 	}
+}
+
+/**
+ * create HTML output of date(s), put a divis inbetween
+ *
+ * @param array $dates
+ * @return string
+ */
+function _wrap_date_out($dates) {
+	// decode HTML entities as this function can be used for mails as well
+	$bis = html_entity_decode('</span>&#8239;–&#8239;<span class="date">');
+	$output = implode($bis, $dates);
+	$output = sprintf('<span class="date">%s</span>', $output);
 	return $output;
 }
 
@@ -490,6 +512,46 @@ function _wrap_date_format($date, $set, $formats = []) {
 		}
 	}
 	return $output;
+}
+
+/**
+ * return weekday abbreviation for a given day of the week starting with Sunday = 1
+ *
+ * @param string $day
+ * @param string $lang (optional, uses setting 'lang' as default)
+ * @return string
+ */
+function wrap_weekday($day, $lang = '') {
+	switch ($day) {
+		case 1: $short = 'Sun'; break;
+		case 2: $short = 'Mon'; break;
+		case 3: $short = 'Tue'; break;
+		case 4: $short = 'Wed'; break;
+		case 5: $short = 'Thu'; break;
+		case 6: $short = 'Fri'; break;
+		case 7: $short = 'Sat'; break;
+	}
+	if (isset($short))
+		return wrap_text($short, ['lang' => $lang, 'context' => 'weekdays']);
+	return $day;
+}
+
+/**
+ * replace weekday abbreviations for a data list and certain field names
+ *
+ * @param array $data data indexed by ID
+ * @param array $fields list with name of fields
+ * @param string $lang (optional, uses setting 'lang' as default)
+ * @return array
+ */
+function wrap_weekdays($data, $fields, $lang) {
+	foreach ($data as $id => $line) {
+		foreach ($fields as $field) {
+			if (!array_key_exists($field, $data[$id])) continue;
+			$data[$id][$field] = wrap_weekday($line[$field], $lang);
+		}
+	}
+	return $data;
 }
 
 /**
@@ -1150,7 +1212,7 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
 		'hour' => 0, 'minute' => 0, 'second' => 0
 	];
 	$seconds = [
-		'year' => 86400*365, 'week' => 86400*7, 'day' => 86400,
+		'year' => 86400 * 365, 'week' => 86400 * 7, 'day' => 86400,
 		'hour' => 3600, 'minute' => 60, 'second' => 0
 	];
 	if ($unit !== 'second') {
@@ -1199,46 +1261,6 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
 	case 'H:i':
 		return sprintf('%d:%02d', $data['hour'], $data['minute']);
 	}
-}
-
-/**
- * return weekday abbreviation for a given day of the week starting with Sunday = 1
- *
- * @param string $day
- * @param string $lang (optional, uses setting 'lang' as default)
- * @return string
- */
-function wrap_weekday($day, $lang = '') {
-	switch ($day) {
-		case 1: $short = 'Sun'; break;
-		case 2: $short = 'Mon'; break;
-		case 3: $short = 'Tue'; break;
-		case 4: $short = 'Wed'; break;
-		case 5: $short = 'Thu'; break;
-		case 6: $short = 'Fri'; break;
-		case 7: $short = 'Sat'; break;
-	}
-	if (isset($short))
-		return wrap_text($short, ['lang' => $lang, 'context' => 'weekdays']);
-	return $day;
-}
-
-/**
- * replace weekday abbreviations for a data list and certain field names
- *
- * @param array $data data indexed by ID
- * @param array $fields list with name of fields
- * @param string $lang (optional, uses setting 'lang' as default)
- * @return array
- */
-function wrap_weekdays($data, $fields, $lang) {
-	foreach ($data as $id => $line) {
-		foreach ($fields as $field) {
-			if (!array_key_exists($field, $data[$id])) continue;
-			$data[$id][$field] = wrap_weekday($line[$field], $lang);
-		}
-	}
-	return $data;
 }
 
 /**
