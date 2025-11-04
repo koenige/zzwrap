@@ -47,9 +47,10 @@ function mod_zzwrap_test($params, $settings = []) {
 		if (!empty($data['pre_functions'])) {
 			foreach ($data['pre_functions'] as $function)
 				$output_pre = mf_zzwrap_test_function($function, $output_pre);
+			// just take first key, second might be error message
+			if (is_array($output_pre)) $output_pre = reset($output_pre);
 		}
 		$output = $output_pre;
-		if (is_array($output)) $output = reset($output); // just take first key
 		$output = $data['function']($output, $data['parameters'] ?? NULL);
 		if (!empty($data['post_functions'])) {
 			foreach ($data['post_functions'] as $function)

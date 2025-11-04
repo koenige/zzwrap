@@ -5,9 +5,15 @@
 		{"name": "First \r\\Last", "e_mail": "test@example.org"},
 		{"name": "Jörg Example", "e_mail": "test@example.org"},
 		{"name": "Last, First", "e_mail": "test@example.org"},
-		{"name": "a-z0-9 \t!#$%&'*+-^?=~{|}_`/", "e_mail": "test@example.org"}
+		{"name": "a-z0-9 \t!#$%&'*+-^?=~{|}_`/", "e_mail": "test@example.org"},
+		"test@example.org",
+		"test@example.org, klaus@example.org",
+		"\"Herbert Müller\" <test@example.org>, klaus@example.org",
+		"\"Müller, Herbert\" <test@example.org>, klaus@example.org",
+		{"name": "Herbert Müller", "e_mail": "mail@example.org"},
+		{"name": "Müller, Herbert", "e_mail": "mail@example.org"}
 	],
 	"post_functions": [
-		"htmlspecialchars"
+		"wrap_html_escape"
 	]
 }

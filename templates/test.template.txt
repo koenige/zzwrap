@@ -21,9 +21,9 @@
 <tr>
 <td>%%% if inputs %%%
 %%% loop inputs %%%
-<em>%%% item key %%%:</em> %%% item value %%%<br>
+<em>%%% item key html_escape %%%:</em> %%% item value html_escape %%%<br>
 %%% loop end %%%
-%%% else %%%%%% item input %%%%%% endif %%%
+%%% else %%%%%% item input html_escape %%%%%% endif %%%
 %%% if legend %%% (<em>%%% item legend %%%</em>)%%% endif %%%</td>
 <td>%%% item output_pre %%%</td>
 <td>%%% item output %%%</td>
