@@ -29,3 +29,8 @@ tbody tr td:first-child
 			{ border-bottom-left-radius: 0.5rem; }
 tbody tr td:last-child
 			{ border-bottom-right-radius: 0.5rem; }
+
+.tests tbody tr td.success
+			{ background-color: green; color: white; }
+.tests tbody tr td.fail
+			{ background-color: #C00; color: white; }

@@ -50,8 +50,29 @@ function mod_zzwrap_test($params, $settings = []) {
 			// just take first key, second might be error message
 			if (is_array($output_pre)) $output_pre = reset($output_pre);
 		}
-		$output = $output_pre;
-		$output = $data['function']($output, $data['parameters'] ?? NULL);
+		
+		// Handle functions with multiple parameters via variables
+		if (!empty($data['variables']) && is_array($value)) {
+			$args = [];
+			foreach ($data['variables'] as $var) {
+				if (!array_key_exists($var, $value)) {
+					wrap_error(sprintf('Variable %s not found in test data.', $var), E_USER_ERROR);
+					continue;
+				}
+				$args[] = $value[$var];
+			}
+			$output = call_user_func_array($data['function'], $args);
+			// Check expected result if present
+			if (isset($value['expected']))
+				$expected = $value['expected'];
+		} else {
+			$output = $output_pre;
+			$output = $data['function']($output, $data['parameters'] ?? NULL);
+			$expected = NULL;
+		}
+		if (!is_null($expected))
+			$expected = $output === $expected ? 'success' : 'fail';
+		
 		if (!empty($data['post_functions'])) {
 			foreach ($data['post_functions'] as $function)
 				$output = mf_zzwrap_test_function($function, $output);
@@ -62,21 +83,23 @@ function mod_zzwrap_test($params, $settings = []) {
 			foreach ($value as $key => $sub_value) {
 				$input[] = [
 					'key' => $key,
-					'value' => $sub_value
+					'value' => is_array($sub_value) ? json_encode($sub_value) : $sub_value
 				];
 			}
 			$data['lines'][] = [
 				'inputs' => $input,
 				'output' => $output,
 				'output_pre' => $output_pre !== $value ? $output_pre : NULL,
-				'legend' => $data['legends'][$index] ?? NULL
+				'legend' => $data['legends'][$index] ?? NULL,
+				'expected' => $expected
 			];
 		} else {
 			$data['lines'][] = [
 				'input' => $input,
 				'output' => $output,
 				'output_pre' => $output_pre !== $value ? $output_pre : NULL,
-				'legend' => $data['legends'][$index] ?? NULL
+				'legend' => $data['legends'][$index] ?? NULL,
+				'expected' => $expected
 			];
 		}
 	}

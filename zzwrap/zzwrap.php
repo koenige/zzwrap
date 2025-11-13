@@ -136,14 +136,14 @@ function wrap_includes() {
 	require_once __DIR__.'/template.inc.php';
 	require_once __DIR__.'/defaults.inc.php';
 	require_once __DIR__.'/files.inc.php';
-	require_once __DIR__.'/http.inc.php';
-	require_once __DIR__.'/url.inc.php';
-	require_once __DIR__.'/send.inc.php';
-	require_once __DIR__.'/session.inc.php';
-	require_once __DIR__.'/background.inc.php';
 	if (file_exists(__DIR__.'/compatibility.inc.php'))
 		require_once __DIR__.'/compatibility.inc.php';
 
+	wrap_include('http', '_core');
+	wrap_include('url', '_core');
+	wrap_include('send', '_core');
+	wrap_include('session', '_core');
+	wrap_include('background', '_core');
 	wrap_include('mail', '_core');
 	wrap_include('format', '_core');
 	wrap_include('page', '_core');

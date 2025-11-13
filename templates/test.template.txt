@@ -26,7 +26,7 @@
 %%% else %%%%%% item input html_escape %%%%%% endif %%%
 %%% if legend %%% (<em>%%% item legend %%%</em>)%%% endif %%%</td>
 <td>%%% item output_pre %%%</td>
-<td>%%% item output %%%</td>
+<td%%% if expected %%% class="%%% item expected %%%"%%% endif %%%>%%% item output %%%</td>
 </tr>
 %%% loop end %%%
 </tbody>

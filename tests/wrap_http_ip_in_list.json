@@ -1,0 +1,147 @@
+{
+	"file": "http",
+	"variables": ["ip", "ip_list"],
+	"data": [
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["192.168.1.1"],
+			"expected": true
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["192.168.1.2"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.100",
+			"ip_list": ["192.168.1.0/24"],
+			"expected": true
+		},
+		{
+			"ip": "192.168.2.100",
+			"ip_list": ["192.168.1.0/24"],
+			"expected": false
+		},
+		{
+			"ip": "10.5.5.5",
+			"ip_list": ["10.0.0.0/8"],
+			"expected": true
+		},
+		{
+			"ip": "172.16.1.1",
+			"ip_list": ["172.16.*.*"],
+			"expected": true
+		},
+		{
+			"ip": "172.16.1.1",
+			"ip_list": ["172.17.*.*"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.50",
+			"ip_list": ["192.168.1.0/24", "10.0.0.0/8"],
+			"expected": true
+		},
+		{
+			"ip": "2001:db8::1",
+			"ip_list": ["2001:db8::1"],
+			"expected": true
+		},
+		{
+			"ip": "2001:db8::1",
+			"ip_list": ["2001:db8::2"],
+			"expected": false
+		},
+		{
+			"ip": "2001:db8::100",
+			"ip_list": ["2001:db8::/32"],
+			"expected": true
+		},
+		{
+			"ip": "2001:db9::100",
+			"ip_list": ["2001:db8::/32"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["192.168.1.0/24", "10.0.0.0/8", "172.16.1.1"],
+			"expected": true
+		},
+		{
+			"ip": "8.8.8.8",
+			"ip_list": ["192.168.1.0/24", "10.0.0.0/8"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": [],
+			"expected": false
+		},
+		{
+			"ip": "",
+			"ip_list": ["192.168.1.1"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["192.168.1.0/33"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["192.168.1.0/-1"],
+			"expected": false
+		},
+		{
+			"ip": "2001:db8::1",
+			"ip_list": ["2001:db8::/129"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["invalid"],
+			"expected": false
+		},
+		{
+			"ip": "invalid",
+			"ip_list": ["192.168.1.1"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["2001:db8::/32"],
+			"expected": false
+		},
+		{
+			"ip": "2001:db8::1",
+			"ip_list": ["192.168.1.0/24"],
+			"expected": false
+		},
+		{
+			"ip": "192.168.1.1",
+			"ip_list": ["192.168.1.1", "10.0.0.0/8"],
+			"expected": true
+		},
+		{
+			"ip": "127.0.0.1",
+			"ip_list": ["127.0.0.1"],
+			"expected": true
+		},
+		{
+			"ip": "::1",
+			"ip_list": ["::1"],
+			"expected": true
+		},
+		{
+			"ip": "192.168.0.1",
+			"ip_list": ["192.168.*.*"],
+			"expected": true
+		},
+		{
+			"ip": "192.169.0.1",
+			"ip_list": ["192.168.*.*"],
+			"expected": false
+		}
+	]
+}
+
