@@ -255,3 +255,53 @@ function wrap_http_localhost_ip() {
 	if ($_SERVER['REMOTE_ADDR'] === $_SERVER['SERVER_ADDR']) return true;
 	return false;
 }
+
+/**
+ * anonymize IP address
+ *
+ * @param string $ip
+ * @param int $anonymize_level
+ * @return string
+ */
+function wrap_http_anonymize_ip($ip, $anonymize_level) {
+	if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+		wrap_error(sprintf('Unknown IP Address: %s', $ip));
+		return $ip;
+	}
+	if (!$anonymize_level) return $ip;
+	if (!in_array($anonymize_level, [1, 2, 3, 4, 5, 6, 7, 8]))
+		$anonymize_level = 1;
+
+	if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+		if ($anonymize_level > 4) $anonymize_level = 4;
+		$concat = '.';
+		$parts = explode('.', $ip);
+	} elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+		$concat = ':';
+		$parts = explode('::', $ip);
+		if (count($parts) === 2) {
+			// add missing hextets
+			$parts[0] = explode(':', $parts[0]);
+			if (!$parts[0][0]) $parts[0][0] = 0;
+			$parts[1] = explode(':', $parts[1]);
+			if (!$parts[1][0]) $parts[1][0] = 0;
+			$missing = 8 - count($parts[0]) - count($parts[1]);
+			while ($missing) {
+				$parts[0][] = 0;
+				$missing--;
+			}
+			$parts = array_merge($parts[0], $parts[1]);
+		} else {
+			$parts = explode(':', $ip);
+		}
+	} else {
+		wrap_error(sprintf('Unknown IP Address: %s', $ip));
+		return $ip;
+	}
+	for ($i = 0; $i < $anonymize_level; $i++)
+		array_pop($parts);
+	for ($i = 0; $i < $anonymize_level; $i++)
+		$parts[] = 0;
+	// @todo shorten IPv6 address
+	return implode($concat, $parts);
+}
