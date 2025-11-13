@@ -16,10 +16,15 @@
 /**
  * restrict access to website per IP
  *
+ * Supports CIDR notation subnets (e.g., "192.168.1.0/24", "2001:db8::/32")
+ * and wildcard patterns for IPv4 (e.g., "192.168.*.*")
+ *
  * @return void
  */
 function wrap_http_restrict_ip() {
-	if (!in_array(wrap_setting('remote_ip'), wrap_setting('access_restricted_ips'))) return;
+	$restricted_ips = wrap_setting('access_restricted_ips');
+	if (!$restricted_ips) return;
+	if (!wrap_http_ip_in_list(wrap_setting('remote_ip'), $restricted_ips)) return;
 	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('layout_path'))) return;
 	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('behaviour_path'))) return;
 	wrap_quit(403, wrap_text('Access to this website for your IP address is restricted.'));
