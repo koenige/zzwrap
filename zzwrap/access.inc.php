@@ -354,9 +354,11 @@ function wrap_base_convert($input, $frombase, $tobase) {
  * erlaubt Zugriff nur von berechtigten IP-Adressen, bricht andernfalls mit 403
  * Fehlercode ab
  *
+ * Supports CIDR notation subnets (e.g., "192.168.1.0/24", "2001:db8::/32")
+ * and wildcard patterns for IPv4 (e.g., "192.168.*.*")
+ *
  * @param string $ip_list key in setting, that holds list of allowed IP addresses
  * @return bool true: access granted; exit function: access forbidden
- * @todo make compatible to IPv6
  * @todo combine with ipfilter from zzbrick
  */
 function wrap_restrict_ip_access($ip_list) {
@@ -367,9 +369,10 @@ function wrap_restrict_ip_access($ip_list) {
 		wrap_quit(403);
 	}
 	if (!is_array($ip_list)) $ip_list = [$ip_list];
-	if (!in_array($_SERVER['REMOTE_ADDR'], $ip_list)) {
+	$remote_ip = wrap_http_remote_ip();
+	if (!wrap_http_ip_in_list($remote_ip, $ip_list)) {
 		wrap_error(wrap_text('Your IP address %s is not in the allowed range.',
-			 ['values' => wrap_html_escape($_SERVER['REMOTE_ADDR'])]), E_USER_NOTICE);
+			 ['values' => wrap_html_escape($remote_ip)]), E_USER_NOTICE);
 		wrap_quit(403);
 	}
 	return true;
