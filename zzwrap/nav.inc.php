@@ -504,64 +504,22 @@ function wrap_breadcrumbs_read($page_id) {
 	// check for sequential nav, tied to breadcrumbs
 	wrap_nav_sequential($pages, $breadcrumbs);
 
-	// check for placeholders
-	$breadcrumb_placeholder = $zz_page['breadcrumb_placeholder'] ?? [];
-	$placeholder_url_paths = [];
-	foreach ($breadcrumb_placeholder as $index => $placeholder) {
-		$placeholder_url_paths[] = $placeholder['url_path'];
-		if (!empty($placeholder['add_next'])) {
-			$breadcrumbs = array_reverse($breadcrumbs);
-			$append = false;
-			$b_index = 0;
-			$pos = $index + 1;
-			while ($b_index < count($breadcrumbs)) {
-				if (substr_count($breadcrumbs[$b_index]['url_path'], '*') < $pos) {
-					// not interesting so far
-					$b_index++;
-					continue;
-				}
-				if (!$append) {
-					// ok, first element, will be duplicated
-					array_splice($breadcrumbs, $b_index, 0, [$breadcrumbs[$b_index]]);
-					$append = true;
-					$b_index++;
-					// no duplication of asterisks, therefore continue
-					continue;
-				}
-				// duplicate asterisks at position
-				$url_path = explode('*', $breadcrumbs[$b_index]['url_path']);
-				$url_path[$pos] = '*'.$url_path[$pos];
-				$breadcrumbs[$b_index]['url_path'] = implode('*', $url_path);
-				$b_index++;
-			}
-			$breadcrumbs = array_reverse($breadcrumbs);
-		}
-	}
-	// only unique URL paths
-	$last_url = '';
-	foreach ($breadcrumbs as $index => $breadcrumb) {
-		if ($breadcrumb['url_path'] === $last_url) unset($breadcrumbs[$index]);
-		$last_url = $breadcrumb['url_path'];
-	}
+	$breadcrumbs = array_reverse($breadcrumbs);
+	wrap_breadcrumbs_placeholder($breadcrumbs);
+	wrap_breadcrumbs_unique($breadcrumbs);
+	$breadcrumbs = array_reverse($breadcrumbs);
+
 	foreach ($breadcrumbs as $index => &$breadcrumb) {
-		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
-		if ($breadcrumb_placeholder) {
-			if (str_ends_with($breadcrumb['url_path'], '*/') AND array_key_exists(($count - 1), $breadcrumb_placeholder))
-				$breadcrumb['title'] = $breadcrumb_placeholder[($count - 1)]['title'];
-			$breadcrumb['url_path'] = str_replace('*', '/%s', $breadcrumb['url_path']);
-			while ($count > count($placeholder_url_paths))
-				$placeholder_url_paths[] = '*';
-			$breadcrumb['url_path'] = vsprintf($breadcrumb['url_path'], $placeholder_url_paths);
-			if (str_starts_with($breadcrumb['url_path'], '//')) // URL match starts with * placeholder
-				$breadcrumb['url_path'] = substr($breadcrumb['url_path'], 1);
+		if (!$index) {
+			// remove url_path of current page
+			$breadcrumbs[0]['url_path'] = '';
+			continue; // ignore current page
 		}
-		if (!$count = substr_count($breadcrumb['url_path'], '*')) continue;
-		// remove breadcrumbs with * in URL except for current page
-		if ($index) unset($breadcrumbs[$index]);
+		if (strpos($breadcrumb['url_path'], '*') === false) continue;
+		// remove breadcrumbs with * in URL
+		unset($breadcrumbs[$index]);
 	}
-	// remove url_path of current page, here, not before, because of breadcrumb title!
-	if (array_key_exists(0, $breadcrumbs))
-		$breadcrumbs[0]['url_path'] = '';
+
 	// sort breadcrumbs in descending order
 	krsort($breadcrumbs);
 	// finished!
@@ -587,6 +545,94 @@ function wrap_breadcrumbs_read_recursive($page_id, &$pages) {
 		$breadcrumbs = array_merge($breadcrumbs, 
 			wrap_breadcrumbs_read_recursive($pages[$page_id]['mother_page_id'], $pages));
 	return $breadcrumbs;
+}
+
+/**
+ * Replace * placeholders in breadcrumbs with actual values from breadcrumb_placeholder
+ *
+ * @param array $breadcrumbs
+ * @return void
+ */
+function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
+	global $zz_page;
+	if (empty($zz_page['breadcrumb_placeholder'])) return;
+	$placeholders = array_values($zz_page['breadcrumb_placeholder']);
+
+	// replace first asterisk with placeholder url_path
+	// add further breadcrumbs if `breadcrumb_placeholder` has more than one item
+	$first_replacement_done = false;
+	$last_placeholder = $placeholders[count($placeholders) - 1];
+	foreach ($breadcrumbs as $index => $breadcrumb) {
+		if (strpos($breadcrumb['url_path'], '*') === false) continue;
+		if (!$first_replacement_done) {
+			$first_replacement_done = true;
+
+			// first breadcrumb with *: replace title and url_path with first placeholder
+			$placeholder = array_shift($placeholders);
+			$breadcrumbs[$index]['title'] = $placeholder['title'];
+			$breadcrumbs[$index]['url_path'] = wrap_breadcrumbs_placeholder_path(
+				$breadcrumb['url_path'], $placeholder['url_path']
+			);
+
+			if (!$placeholders) continue;
+
+			// if there are more placeholders,
+			// add them as new breadcrumbs after current one
+			$new_breadcrumbs = [];
+			foreach ($placeholders as $placeholder) {
+				$new_breadcrumbs[] = [
+					'title' => $placeholder['title'],
+					'url_path' => wrap_breadcrumbs_placeholder_path(
+						$breadcrumb['url_path'], $placeholder['url_path']
+					),
+					'page_id' => $breadcrumb['page_id'] ?? null
+				];
+			}
+			
+			// Insert new breadcrumbs after current position
+			array_splice($breadcrumbs, $index + 1, 0, $new_breadcrumbs);
+		} else {
+			// get correct index after placeholders are added
+			$index += count($placeholders);
+			// subsequent breadcrumbs with *:
+			// replace * with last placeholder's url_path only
+			$breadcrumbs[$index]['url_path'] = wrap_breadcrumbs_placeholder_path(
+				$breadcrumb['url_path'], $last_placeholder['url_path']
+			);
+		}
+	}
+}
+
+/**
+ * replace part of breadcrumb path with value from placeholder path
+ *
+ * @param string $breadcrumb_path
+ * @param string $placeholder_path
+ * @return string
+ */
+function wrap_breadcrumbs_placeholder_path($breadcrumb_path, $placeholder_path) {
+	$pos = strpos($breadcrumb_path, '*');
+	return substr_replace($breadcrumb_path, '/'.$placeholder_path, $pos, 1);
+}
+
+/**
+ * remove duplicate url_paths, keeping only the first occurrence
+ *
+ * @param array $breadcrumbs
+ * @return void
+ */
+function wrap_breadcrumbs_unique(&$breadcrumbs) {
+	$seen_urls = [];
+	foreach ($breadcrumbs as $index => $breadcrumb) {
+		if (empty($breadcrumb['url_path'])) continue;
+		if (in_array($breadcrumb['url_path'], $seen_urls)) {
+			unset($breadcrumbs[$index]);
+		} else {
+			$seen_urls[] = $breadcrumb['url_path'];
+		}
+	}
+	// get continuous indexes again
+	$breadcrumbs = array_values($breadcrumbs);
 }
 
 /**
