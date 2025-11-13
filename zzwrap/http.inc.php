@@ -305,3 +305,116 @@ function wrap_http_anonymize_ip($ip, $anonymize_level) {
 	// @todo shorten IPv6 address
 	return implode($concat, $parts);
 }
+
+/**
+ * Check if a given IP address (IPv4 or IPv6) is in an array of IP addresses or subnets
+ *
+ * Supports:
+ * - Exact IP matches (e.g., "192.168.1.1", "2001:db8::1")
+ * - CIDR notation subnets (e.g., "192.168.1.0/24", "2001:db8::/32")
+ * - Wildcard patterns for IPv4 (e.g., "192.168.*.*", "192.168.1.*")
+ *
+ * @param string $ip IP address to check (IPv4 or IPv6)
+ * @param array $ip_list Array of IP addresses or subnets to check against
+ * @return bool True if IP matches any entry in the list, false otherwise
+ */
+function wrap_http_ip_in_list($ip, $ip_list) {
+	if (!$ip || !is_array($ip_list) || empty($ip_list)) {
+		return false;
+	}
+
+	// Validate the IP address
+	$ip_version = false;
+	if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+		$ip_version = 4;
+	} elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+		$ip_version = 6;
+	} else {
+		return false; // Invalid IP address
+	}
+
+	foreach ($ip_list as $entry) {
+		if (!is_string($entry)) continue;
+
+		$entry = trim($entry);
+		if (!$entry) continue;
+
+		// Check for CIDR notation (e.g., 192.168.1.0/24 or 2001:db8::/32)
+		if (strpos($entry, '/') !== false) {
+			list($subnet, $prefix) = explode('/', $entry, 2);
+			$prefix = intval($prefix);
+
+			// Check if IP is in subnet (IP and subnet must be same version)
+			if ($ip_version === 4 && filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+				if (wrap_http_ipv4_in_subnet($ip, $subnet, $prefix)) return true;
+			} elseif ($ip_version === 6 && filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+				if (wrap_http_ipv6_in_subnet($ip, $subnet, $prefix)) return true;
+			}
+		} elseif (strpos($entry, '*') !== false && $ip_version === 4) {
+			// IPv4 wildcard pattern (e.g., 192.168.*.*)
+			$pattern = str_replace(['.', '*'], ['\.', '\d+'], $entry);
+			if (preg_match('/^' . $pattern . '$/', $ip)) {
+				return true;
+			}
+		} else {
+			// Exact IP match
+			if ($ip === $entry) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check if an IPv4 address is within a CIDR subnet
+ *
+ * @param string $ip IPv4 address to check
+ * @param string $subnet IPv4 subnet address
+ * @param int $prefix CIDR prefix length (0-32)
+ * @return bool True if IP is in subnet, false otherwise
+ */
+function wrap_http_ipv4_in_subnet($ip, $subnet, $prefix) {
+	if ($prefix < 0 || $prefix > 32) return false;
+	$ip_long = ip2long($ip);
+	$subnet_long = ip2long($subnet);
+	if ($ip_long === false || $subnet_long === false) return false;
+	$mask = -1 << (32 - $prefix);
+	return ($ip_long & $mask) === ($subnet_long & $mask);
+}
+
+/**
+ * Check if an IPv6 address is within a CIDR subnet
+ *
+ * @param string $ip IPv6 address to check
+ * @param string $subnet IPv6 subnet address
+ * @param int $prefix CIDR prefix length (0-128)
+ * @return bool True if IP is in subnet, false otherwise
+ */
+function wrap_http_ipv6_in_subnet($ip, $subnet, $prefix) {
+	if ($prefix < 0 || $prefix > 128) return false;
+	$ip_bin = inet_pton($ip);
+	$subnet_bin = inet_pton($subnet);
+	if ($ip_bin === false || $subnet_bin === false) return false;
+
+	// Calculate mask bytes
+	$bytes = intval($prefix / 8);
+	$bits = $prefix % 8;
+	$mask = str_repeat("\xff", $bytes);
+	if ($bits > 0) {
+		$mask .= chr(0xff << (8 - $bits));
+	}
+	$mask = str_pad($mask, 16, "\x00");
+
+	// Apply mask and compare byte by byte
+	for ($i = 0; $i < 16; $i++) {
+		$ip_byte = ord($ip_bin[$i]) & ord($mask[$i]);
+		$subnet_byte = ord($subnet_bin[$i]) & ord($mask[$i]);
+		if ($ip_byte !== $subnet_byte) {
+			return false;
+		}
+	}
+	return true;
+}
+
