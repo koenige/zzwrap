@@ -418,7 +418,7 @@ function wrap_text_include($file) {
  * 			[34 => ['field1' = 34, 'field2' = 'text'] ...];
  *			if it's just a single record not indexed by ID, the first field_name
  *			is assumed to carry the ID!
- * @param mixed $matrix (string) name of database.table, translates all fields
+ * @param mixed $translation_map_in (string) name of database.table, translates all fields
  * 			that allow translation, write back to $data[$id][$field_name]
  *			example: ['maincategory' => 'categories.category'] writes value
  *			from table categories, field category to resulting field maincategory
@@ -430,7 +430,7 @@ function wrap_text_include($file) {
  * @return array $data input array with translations where possible, extra array
  *		ID => wrap_source_language => field_name => en [iso_lang]
  */
-function wrap_translate($data, $matrix, $foreign_key_field_name = '',
+function wrap_translate($data, $translation_map_in, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
 	if (!wrap_setting('translate_fields')) return $data;
 	if (!wrap_setting('default_source_language')) return $data;
@@ -441,33 +441,34 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		// if we do not have a language to translate to, return data untranslated
 		if (!$target_language = wrap_setting('lang')) return $data;
 
-	// check the matrix and fill in the blanks
+	// check the translation map and fill in the blanks
 	// cross check against database
-	if (!is_array($matrix)) {
+	if (!is_array($translation_map_in)) {
 		// replace existing prefixes
-		$matrix = wrap_db_prefix($matrix);
+		$translation_map_in = wrap_db_prefix($translation_map_in);
 		// used without other field definitions, one can write done the
 		// sole db_name.table_name as well without .*
-		if (substr_count($matrix, '.') < 2) {
-			$matrix = [0 => $matrix.(substr($matrix, -2) === '.*' ? '' : '.*')];
+		if (substr_count($translation_map_in, '.') < 2) {
+			$translation_map = [0 => $translation_map_in.(substr($translation_map_in, -2) === '.*' ? '' : '.*')];
 		} else {
-			$matrix = [0 => $matrix];
+			$translation_map = [0 => $translation_map_in];
 		}
+	} else {
+		$translation_map = $translation_map_in;
 	}
-	$old_matrix = $matrix;
-	$matrix = [];
-	foreach ($old_matrix as $key => $field) {
+	$translation_fields = [];
+	foreach ($translation_map as $key => $field) {
 		$field = wrap_db_prefix($field);
 		// database name is optional, so add it here for all cases
 		if (substr_count($field, '.') === 1) $field = wrap_setting('db_name').'.'.$field;
 		if (is_numeric($key)) {
 			// numeric key: CMS.seiten.titel, CMS.seiten.*
 			$field_list = wrap_translate_field_list('field_name', $field);
-			if ($field_list) $matrix += $field_list;
+			if ($field_list) $translation_fields += $field_list;
 		} else {
 		// alpha key: title => CMS.seiten.titel or seiten.titel
 			$field_list = wrap_translate_field_list('"'.$key.'"', $field);
-			$matrix = array_merge_recursive($matrix, $field_list);
+			$translation_fields = array_merge_recursive($translation_fields, $field_list);
 		}
 	}
 
@@ -511,10 +512,10 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 		}
 	}
 	// there are no detail records at all?
-	if (empty($data_ids)) $matrix = []; // get out of here
+	if (empty($data_ids)) $translation_fields = []; // get out of here
 	
 	$old_empty_fields = [];
-	foreach ($matrix as $field_type => $fields) {
+	foreach ($translation_fields as $field_type => $fields) {
 		// check if some of the existing fields are empty, to get the correct
 		// number of fields to translate (empty = nothing to translate!)
 		foreach ($fields as $field) {
@@ -526,7 +527,7 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 
 		$all_fields_to_translate += count($fields)*count($data_ids);
 
-		// get translations corresponding to matrix from database
+		// get translations corresponding to translation fields from database
 		$data_ids_flat = array_unique($data_ids);
 		$sql = sprintf($translation_sql, $field_type, implode(',', array_keys($fields)), 
 			implode(',', $data_ids_flat), $target_language);
@@ -592,13 +593,12 @@ function wrap_translate($data, $matrix, $foreign_key_field_name = '',
 	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete)
 		wrap_setting('translation_incomplete', true);
 	// reset if array was simple
-	if ($simple_data) {
+	if ($simple_data)
 		$data = $data[$simple_data];
-	}
-	if (!empty($old_indices)) {
+	if (!empty($old_indices))
 		$data = array_combine($old_indices, $data);
-	}
-	return ($data);
+
+	return $data;
 	
 	// output: @todo, mark text in different languages than page language
 	// as span lang="de" or div lang="de" etc.
