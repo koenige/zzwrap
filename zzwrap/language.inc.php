@@ -590,8 +590,11 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 	$translated_fields += count($old_empty_fields);
 
 	// check if something is untranslated!
-	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete)
+	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete) {
 		wrap_setting('translation_incomplete', true);
+		if (is_string($translation_map_in))
+			$data = wrap_translate_po($translation_map_in, $data, $target_language);
+	}
 	// reset if array was simple
 	if ($simple_data)
 		$data = $data[$simple_data];
@@ -632,6 +635,55 @@ function wrap_translate_field_list($field_key, $db_field) {
 	$sql = vsprintf($sql, $field);
 	$data[$key] = wrap_db_fetch($sql, ['field_type', 'translationfield_id']);
 	return $data[$key];
+}
+
+/**
+ * get translations from .po files per table
+ *
+ * @param string $table
+ * @param array $data
+ * @param string $target_language
+ * @return array
+ */
+function wrap_translate_po($table, $data, $target_language) {
+	$filename = sprintf('languages/%s-%s.po', $table, $target_language);
+	$files = wrap_collect_files($filename);
+	if (!$files) return $data;
+
+	foreach ($files as $file) {
+		$po_text = wrap_po_parse($file);
+		$text = wrap_translate_po_split($table, $po_text);
+		if (!$text) continue;
+		foreach ($data as $id => $line) {
+			if (!array_key_exists($id, $text)) continue;
+			foreach ($text[$id] as $field => $value) {
+				if (!empty($line['wrap_source_content'][$field])) continue;
+				$data[$id]['wrap_source_language'][$field] = wrap_setting('default_source_language');
+				$data[$id]['wrap_source_content'][$field] = $line[$field];
+				$data[$id][$field] = $value;
+			}
+		}
+	}
+	return $data;
+}
+
+/**
+ * split lines into arrays indexed by id with fields
+ *
+ * @param string $table
+ * @param array $po_text
+ * @return array
+ */
+function wrap_translate_po_split($table, $po_text) {
+	$matrix = [];
+	if (!array_key_exists('_database', $po_text)) return [];
+	foreach ($po_text['_database'] as $index => $text) {
+		list($my_table, $rest) = explode('/', $index, 2);
+		if ($my_table !== $table) continue;
+		list($field, $id) = explode(':', $rest, 2);
+		$matrix[$id][$field] = $text;
+	}
+	return $matrix;
 }
 
 /** 
@@ -947,12 +999,20 @@ function wrap_po_parse($file) {
 			continue;
 		}
 		$context = '_global';
+		$db_keys = [];
 		$plurals = false;
 		$format = false;
 		foreach (array_keys($chunk) as $key) {
 			$chunk[$key] = implode('', $chunk[$key]);
 			$chunk[$key] = str_replace('\"', '"', $chunk[$key]);
-			if (in_array($key, ['#:'])) continue;
+			if (in_array($key, ['#:'])) {
+				if (str_starts_with($chunk[$key], 'database/')) {
+					$db_keys = explode(' ', $chunk[$key]);
+					foreach ($db_keys as $index => $db_key)
+						$db_keys[$index] = substr($db_key, 9);
+				}
+				continue;
+			}
 			// does not recognize \n as newline
 			$chunk[$key] = str_replace('\n', "\n", $chunk[$key]);
 			if (wrap_setting('character_set') !== $header['X-Character-Encoding']) {
@@ -969,6 +1029,8 @@ function wrap_po_parse($file) {
 		if (!$plurals AND $chunk['msgstr']) {
 			// singular, there is a translation:
 			$text[$context][$chunk['msgid']] = $chunk['msgstr'];
+			foreach ($db_keys as $db_key)
+				$text['_database'][$db_key] = $chunk['msgstr'];
 		} elseif ($plurals AND (!$is_language_variation OR !empty($chunk['msgstr[0]']))) {
 			// plural, there is a translation
 			$text[$context][$chunk['msgid_plural']][0] = $chunk['msgstr[0]'] ?? $chunk['msgid'];
