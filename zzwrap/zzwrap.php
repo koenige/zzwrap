@@ -125,20 +125,20 @@ function zzwrap() {
  */
 function wrap_includes() {
 	// function library scripts
-	require_once __DIR__.'/errorhandling.inc.php';
-	require_once __DIR__.'/database.inc.php';
-	require_once __DIR__.'/core.inc.php';
-	require_once __DIR__.'/settings.inc.php';
-	require_once __DIR__.'/cache.inc.php';
-	require_once __DIR__.'/access.inc.php';
-	require_once __DIR__.'/language.inc.php';
-	require_once __DIR__.'/match.inc.php';
-	require_once __DIR__.'/template.inc.php';
-	require_once __DIR__.'/defaults.inc.php';
 	require_once __DIR__.'/files.inc.php';
 	if (file_exists(__DIR__.'/compatibility.inc.php'))
 		require_once __DIR__.'/compatibility.inc.php';
 
+	wrap_include('errorhandling', '_core');
+	wrap_include('database', '_core');
+	wrap_include('core', '_core');
+	wrap_include('settings', '_core');
+	wrap_include('cache', '_core');
+	wrap_include('access', '_core');
+	wrap_include('language', '_core');
+	wrap_include('match', '_core');
+	wrap_include('template', '_core');
+	wrap_include('defaults', '_core');
 	wrap_include('http', '_core');
 	wrap_include('url', '_core');
 	wrap_include('send', '_core');
@@ -154,5 +154,5 @@ function wrap_includes() {
  */
 function wrap_includes_postconf() {
 	if (wrap_setting('authentication_possible'))
-		require_once __DIR__.'/auth.inc.php';
+		wrap_include('auth', '_core');
 }
