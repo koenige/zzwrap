@@ -233,6 +233,7 @@ function wrap_mail_format($mail) {
  * @param string $format format which should be used:
  *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
  *			31.12.2004-06.01.2005
+ *		dates-de-plain: same as dates-de but without HTML wrapper
  *		rfc1123->datetime,
  *		rfc1123->timestamp,
  *		timestamp->rfc1123
@@ -304,7 +305,9 @@ function wrap_date($date, $format = false) {
 
 	switch ($output_format) {
 	case 'dates':
-		return _wrap_date_out(_wrap_dates($begin, $end, $formats));
+		$plain = in_array('plain', $formats);
+		if ($plain) $formats = array_diff($formats, ['plain']);
+		return _wrap_date_out(_wrap_dates($begin, $end, $formats), $plain);
 	case 'datetime':
 		// output 1994-11-06 08:49:37
 		return date('Y-m-d H:i:s', $time);
@@ -423,12 +426,14 @@ function _wrap_dates($begin, $end, $formats) {
  * create HTML output of date(s), put a divis inbetween
  *
  * @param array $dates
+ * @param bool $plain (optional) if true, output plain text without HTML
  * @return string
  */
-function _wrap_date_out($dates) {
+function _wrap_date_out($dates, $plain = false) {
 	// decode HTML entities as this function can be used for mails as well
-	$bis = html_entity_decode('</span>&#8239;–&#8239;<span class="date">');
+	$bis = $plain ? ' – ' : html_entity_decode('</span>&#8239;–&#8239;<span class="date">');
 	$output = implode($bis, $dates);
+	if ($plain) return $output;
 	$output = sprintf('<span class="date">%s</span>', $output);
 	return $output;
 }
