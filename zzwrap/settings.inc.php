@@ -221,7 +221,7 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 	if (!array_key_exists($key, $cfg)) return $setting;
 
 	// depending on type
-	if (!empty($cfg[$key]['type']))
+	if (!empty($cfg[$key]['type']) AND !is_null($setting))
 		switch ($cfg[$key]['type']) {
 			case 'bytes': $setting = wrap_byte_to_int($setting); break;
 			case 'folder': $setting = wrap_filepath($setting); break;
