@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2025 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -597,7 +597,11 @@ function wrap_mail_queue_send() {
 		}
 		if ($complete) break;
 	}
-	$mail['message'] = str_replace(wrap_mail_separator(), "\n\n", $mail['message']);
+	$separator = wrap_mail_separator();
+	$last_pos = strrpos($mail['message'], $separator);
+	if ($last_pos !== false) {
+		$mail['message'] = substr_replace($mail['message'], "\n\n", $last_pos, strlen($separator));
+	}
 	$success = wrap_mail($mail);
 	if ($success) {
 		foreach ($used_logfiles as $logfile) unlink($logfile);
