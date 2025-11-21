@@ -323,6 +323,21 @@ function wrap_date($date, $format = false) {
 }
 
 /**
+ * format a date
+ * always return plain text, no HTML
+ *
+ * @param string $date
+ * @return string
+ */
+function wrap_date_plain($date) {
+	$format = wrap_setting('date_format');
+	$format = explode('-', $format);
+	if (!in_array('plain', $format)) $format[] = 'plain';
+	$format = implode('-', $format);
+	return wrap_date($date, $format);
+}
+
+/**
  * output of a date, formatted for humans
  *
  * @param string $begin
