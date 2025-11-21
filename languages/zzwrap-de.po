@@ -1039,6 +1039,38 @@ msgstr ""
 msgid "initial installation date of Zugzwang Project CMS (for updates)"
 msgstr ""
 
+#: templates/error-404-mail.template.txt
+msgid "This URL was not found:"
+msgstr "Diese URL wurde nicht gefunden:"
+
+#: templates/error-404-mail.template.txt
+msgid "It was requested via:"
+msgstr "Es wurde angefordert über:"
+
+#: templates/error-404-mail.template.txt
+msgid "POST data:"
+msgstr "POST-Daten:"
+
+#: templates/error-footer-mail.template.txt
+msgid "URL:"
+msgstr "URL:"
+
+#: templates/error-footer-mail.template.txt
+msgid "Method:"
+msgstr "Methode:"
+
+#: templates/error-footer-mail.template.txt
+msgid "IP:"
+msgstr "IP:"
+
+#: templates/error-footer-mail.template.txt
+msgid "Browser:"
+msgstr "Browser:"
+
+#: templates/error-footer-mail.template.txt
+msgid "User:"
+msgstr "Benutzer:"
+
 #: zzwrap/access.inc.php
 msgid "You need `%s` access rights. (Login: %s)"
 msgstr "Sie benötigen `%s` Zugriffsrechte. (Login: %s)"
@@ -1411,28 +1443,6 @@ msgstr ""
 #: zzwrap/errorhandling.inc.php
 msgid "User"
 msgstr "Nutzer"
-
-#: zzwrap/errorhandling.inc.php
-msgid ""
-"The URL\n"
-"\n"
-"%s\n"
-"\n"
-"was requested via %s\n"
-" with the IP address %s\n"
-"Browser %s\n"
-"\n"
-" but could not be found on the server"
-msgstr ""
-"Die URL\n"
-"\n"
-"%s\n"
-"\n"
-"wurde ueber %s\n"
-"mit der IP-Adresse %s\n"
-"Browser %s\n"
-"\n"
-"angefordert, konnte auf dem Server aber nicht gefunden werden"
 
 #: zzwrap/errorhandling.inc.php
 msgid "Error on website"

@@ -131,16 +131,11 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		if (!wrap_setting('error_mail_to')) break;
 		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
-		$foot = false;
-		if (empty($settings['mail_no_request_uri']))
-			$foot .= "\nURL: ".wrap_setting('host_base').wrap_setting('request_uri');
-		if (empty($settings['mail_no_ip']))
-			$foot .= "\nIP: ".wrap_setting('remote_ip');
-		if (empty($settings['mail_no_user_agent']))
-			$foot .= "\nBrowser: ".($_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown'));	
-		// add user name to mail message if there is one
-		if ($user = wrap_username()) $foot .= sprintf("\n%s: %s", wrap_text('User'), $user);
-		if ($foot) $msg .= "\n\n-- ".$foot;
+		$data = $settings;
+		$data['username'] = wrap_username();
+		$data['http_method'] = $_SERVER['REQUEST_METHOD'] !== 'GET' ? $_SERVER['REQUEST_METHOD'] : NULL;
+		$foot = wrap_template('error-footer-mail', $data);
+		if (trim($foot)) $msg .= "\n\n".$foot;
 
 		$mail['to'] = wrap_setting('error_mail_to');
 		$mail['message'] = $msg;
@@ -204,7 +199,7 @@ function wrap_error_log($log_output, $error_type, $level, $settings) {
 	}
 	if (wrap_error_ignore($module, $log_output)) return false;
 
-	wrap_log(trim(($settings['logfile'] ?? '').' '.$log_output), $level, $module);
+	wrap_log(trim(($settings['logfile'] ?? '').' '.$log_output.' '.($settings['logfile_append'] ?? '')), $level, $module);
 	if ($settings['log_post_data']) wrap_log('postdata', 'notice', $module);
 	return true;
 }
@@ -419,41 +414,28 @@ function wrap_errorpage_log($status, $page) {
 		if (wrap_errorpage_logignore()) return false;
 		if (wrap_setting('error_ignore_404')) return false;
 		// own error message!
-		$requested = $zz_page['url']['full']['scheme'].'://'
-			.wrap_setting('hostname').wrap_setting('request_uri');
-		$msg = wrap_text("The URL\n\n%s\n\nwas requested via %s\n"
-			." with the IP address %s\nBrowser %s\n\n"
-			." but could not be found on the server", ['values' => [$requested, 
-			$_SERVER['HTTP_REFERER'], wrap_setting('remote_ip'), $_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unkown')]]);
-		if (!empty($_POST)) {
-			$msg .= "\n\n".wrap_print($_POST, false, false);
-		}
-		$settings['mail_no_request_uri'] = true;		// we already have these
-		$settings['mail_no_ip'] = true;
-		$settings['mail_no_user_agent'] = true;
+		$data['POST'] = $_POST ?? NULL;
+		$msg = wrap_template('error-404-mail', $data);
+		$settings['mail_no_request_uri'] = true; // we already have this
 		$settings['logfile'] = '['.$status.']';
 		$error_type = $page['error_type'] ?? E_USER_WARNING;
 		if (wrap_error_repeated_404()) $error_type = E_USER_NOTICE;
+		$settings['logfile_append'] = wrap_error_msg(['REMOTE_IP', 'HTTP_USER_AGENT']);
 		wrap_error($msg, $error_type, $settings);
 		break;
 	case 403:
-		$settings['logfile'] .= sprintf(' (User agent: %s)',
-			$_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown')
-		);
+		$settings['logfile'] .= wrap_error_msg(['HTTP_USER_AGENT']);
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 410:
 		if (wrap_errorpage_logignore()) return false;
-		$msg .= ' Referer: '.$_SERVER['HTTP_REFERER'];
+		$msg .= wrap_error_msg(['HTTP_REFERER', 'HTTP_USER_AGENT']);
 		wrap_error($msg, E_USER_NOTICE, $settings);
 		break;
 	case 401:
 		// do not log an error if no credentials were send
 		if (empty($_SERVER['PHP_AUTH_USER']) AND empty($_SERVER['PHP_AUTH_PW'])) break;
-		$msg .= sprintf(' (IP: %s, User agent: %s)'
-			, wrap_setting('remote_ip')
-			, $_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown')
-		);
+		$msg .= wrap_error_msg(['REMOTE_IP', 'HTTP_USER_AGENT']);
 	case 400:
 	case 405:
 	case 414:
@@ -927,4 +909,26 @@ function wrap_error_handler($type = 0, $message = '', $file = '', $line = 0) {
 	$last_error = ['type' => $type, 'message' => $message, 'file' => $file, 'line' => $line];
 	wrap_error($message, $type);
 	return true;
+}
+
+/**
+ * add some keys to error message
+ *
+ * @param array $keys
+ * @return string
+ */
+function wrap_error_msg($keys) {
+	$msg = [];
+	if (in_array('REMOTE_IP', $keys))
+		$msg[wrap_text('IP:')] = wrap_setting('remote_ip');
+	if (in_array('HTTP_USER_AGENT', $keys))
+		$msg[wrap_text('User agent:')] = $_SERVER['HTTP_USER_AGENT'] ?? wrap_text('unknown');
+	if (in_array('HTTP_REFERER', $keys) AND !empty($_SERVER['HTTP_REFERER']))
+		$msg[wrap_text('Referring URL:')] = $_SERVER['HTTP_REFERER'];
+	if (!$msg) return '';
+	
+	$lines = [];
+	foreach ($msg as $key => $value)
+		$lines[] = sprintf('%s %s', $key, $value);
+	return sprintf(' (%s)', implode(' ', $lines));
 }
