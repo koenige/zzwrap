@@ -657,7 +657,7 @@ function wrap_weekdays($data, $fields, $lang) {
  */
 function wrap_print($array, $color = 'FFF', $html = true) {
 	static $calls = 0;
-	if (!$html) return _wrap_print_simple($array);
+	if (!$html) return wrap_print_simple($array);
 	
 	$data = [
 		'color' => $color
@@ -665,7 +665,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	
 	if (!is_array($array)) {
 		$data['simple'] = true;
-		$data['content'] = _wrap_print_simple($array);
+		$data['content'] = wrap_print_simple($array);
 		$data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 		return wrap_template('debug-print', $data);
 	}
@@ -679,7 +679,7 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	return wrap_template('debug-print', $data);
 }
 
-function _wrap_print_simple($array) {
+function wrap_print_simple($array) {
 	ob_start();
 	print_r($array);
 	return ob_get_clean();
