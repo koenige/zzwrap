@@ -958,7 +958,7 @@ msgid "This URL was not found:"
 msgstr ""
 
 #: templates/error-404-mail.template.txt
-msgid "It was requested via:"
+msgid "The URL was requested via:"
 msgstr ""
 
 #: templates/error-404-mail.template.txt

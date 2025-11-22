@@ -338,28 +338,6 @@ msgid "User"
 msgstr "Користувач"
 
 #: zzwrap/errorhandling.inc.php
-msgid ""
-"The URL\n"
-"\n"
-"%s\n"
-"\n"
-"was requested via %s\n"
-" with the IP address %s\n"
-"Browser %s\n"
-"\n"
-" but could not be found on the server"
-msgstr ""
-"URL-адресу\n"
-"\n"
-"%s\n"
-"\n"
-" було запрошено через %s\n"
-" з IP-адресою %s\n"
-"Браузер %s\n"
-"\n"
-"– але не вдалося знайти на сервері"
-
-#: zzwrap/errorhandling.inc.php
 msgid "Error on website"
 msgstr "Помилка на сайті"
 

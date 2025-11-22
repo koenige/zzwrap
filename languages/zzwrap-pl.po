@@ -1404,28 +1404,6 @@ msgid "User"
 msgstr "Użytkownik"
 
 #: zzwrap/errorhandling.inc.php
-msgid ""
-"The URL\n"
-"\n"
-"%s\n"
-"\n"
-"was requested via %s\n"
-" with the IP address %s\n"
-"Browser %s\n"
-"\n"
-" but could not be found on the server"
-msgstr ""
-"Adres URL\n"
-"\n"
-"%s\n"
-"\n"
-" został zamówiony za pośrednictwem %s\n"
-" z adresem IP %s\n"
-"Przeglądarka %s\n"
-"\n"
-"– ale nie można znaleźć na serwerze"
-
-#: zzwrap/errorhandling.inc.php
 msgid "Error on website"
 msgstr "Błąd na stronie internetowej"
 

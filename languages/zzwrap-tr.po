@@ -1529,28 +1529,6 @@ msgid "User"
 msgstr "Kullanıcı"
 
 #: zzwrap/errorhandling.inc.php
-msgid ""
-"The URL\n"
-"\n"
-"%s\n"
-"\n"
-"was requested via %s\n"
-" with the IP address %s\n"
-"Browser %s\n"
-"\n"
-" but could not be found on the server"
-msgstr ""
-"URL\n"
-"\n"
-"%s\n"
-"\n"
-"aracılığıyla talep edildi %s\n"
-" iP adresi ile %s\n"
-"Tarayıcı %s\n"
-"\n"
-" ancak sunucuda bulunamadı"
-
-#: zzwrap/errorhandling.inc.php
 msgid "Error on website"
 msgstr "Web sitesinde hata"
 

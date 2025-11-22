@@ -11,7 +11,7 @@
 %%% text This URL was not found: %%% 
 %%% setting host_base %%%%%% setting request_uri %%% 	
 
-%%% text It was requested via: %%% 
+%%% text The URL was requested via: %%% 
 %%% server HTTP_REFERER %%%
 
 %%% if POST %%%

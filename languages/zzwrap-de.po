@@ -1044,8 +1044,8 @@ msgid "This URL was not found:"
 msgstr "Diese URL wurde nicht gefunden:"
 
 #: templates/error-404-mail.template.txt
-msgid "It was requested via:"
-msgstr "Es wurde angefordert über:"
+msgid "The URL was requested via:"
+msgstr "Die URL wurde angefordert über:"
 
 #: templates/error-404-mail.template.txt
 msgid "POST data:"

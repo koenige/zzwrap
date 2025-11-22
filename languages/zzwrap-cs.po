@@ -334,28 +334,6 @@ msgid "User"
 msgstr "Uživatel"
 
 #: zzwrap/errorhandling.inc.php
-msgid ""
-"The URL\n"
-"\n"
-"%s\n"
-"\n"
-"was requested via %s\n"
-" with the IP address %s\n"
-"Browser %s\n"
-"\n"
-" but could not be found on the server"
-msgstr ""
-"Adresa URL\n"
-"\n"
-"%s\n"
-"\n"
-"byla vyžádána prostřednictvím %s\n"
-" s adresou IP %s\n"
-"Prohlížeč %s\n"
-"\n"
-"– ale nemohla být nalezena na serveru"
-
-#: zzwrap/errorhandling.inc.php
 msgid "Error on website"
 msgstr "Chyba na webu"
 
