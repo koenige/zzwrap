@@ -51,14 +51,12 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 			$collect_messages[$mymsg] = $mymsg.'. ';
 		}
 		$msg = false;
-		if ($collect_error_type) {
-			if ($collect_error_type < $error_type) {
-				$collect_error_type = $error_type;
-			}
-		} else {
+		if (!$collect_error_type) {
 			$collect_error_type = $error_type;
+		} else {
+			// keep the more severe error type (lower number = more severe)
+			$collect_error_type = min($collect_error_type, $error_type);
 		}
-		$collect_error_type = $error_type < $collect_error_type ? $error_type : $collect_error_type;
 	}
 	if (!empty($settings['collect_end'])) {
 		$collect = false;
@@ -101,8 +99,9 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	if (is_array($msg)) $msg = 'JSON '.json_encode($msg);
 
 	// Log prefix?
-	if (wrap_setting('error_prefix'))
-		$msg = wrap_setting('error_prefix').' '.$msg;
+	$error_prefix = wrap_setting('error_prefix');
+	if ($error_prefix)
+		$msg = $error_prefix.' '.$msg;
 	
 	// Log output
 	$log_output = $msg;
@@ -290,7 +289,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 	// if wanted, check if mod_rewrite works
 	if (wrap_setting('log_mod_rewrite_error') 
 		AND $_SERVER['SCRIPT_NAME'] !== '/_scripts/main.php') {
-		if (preg_match('/[a-zA-Z0-9]/', substr($_SERVER['REQUEST_URI'], 1, 1))) {
+		$first_char = substr($_SERVER['REQUEST_URI'], 1, 1);
+		if ($first_char !== '' && ctype_alnum($first_char)) {
 			wrap_error('mod_rewrite does not work as expected: '
 				.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
 			$page['status'] = 503;
