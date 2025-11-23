@@ -16,7 +16,7 @@
 %%% text Method: %%% %%% server REQUEST_METHOD %%% 
 %%% endif %%%
 %%% unless mail_no_ip %%%
-%%% text IP: %%% %%% if server HTTP_X_FORWARDED_FOR %%%%%% server HTTP_X_FORWARDED_FOR %%% (%%% server REMOTE_ADDR %%%)%%% else %%%%%% server REMOTE_ADDR %%%%%% endif %%%
+%%% text IP: %%% %%% if server HTTP_X_FORWARDED_FOR %%%%%% server HTTP_X_FORWARDED_FOR %%% (%%% server REMOTE_ADDR %%%)%%% else %%%%%% server REMOTE_ADDR %%%%%% endif %%% 
 %%% endif %%%
 %%% unless mail_no_user_agent %%%
 %%% text Browser: %%% %%% if server HTTP_USER_AGENT %%%%%% server HTTP_USER_AGENT %%%%%% else %%%%%% text unknown %%%%%% endif %%% 
