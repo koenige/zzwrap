@@ -524,8 +524,9 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 					$old_empty_fields[$field['field_key'].'['.$id.']'] = true;
 			}
 		}
-
-		$all_fields_to_translate += count($fields)*count($data_ids);
+		// use count $data here, not count $data_ids because
+		// if foreign_key_field_name is given, $old_empty_fields is filled
+		$all_fields_to_translate += count($fields) * count($data);
 
 		// get translations corresponding to translation fields from database
 		$data_ids_flat = array_unique($data_ids);
