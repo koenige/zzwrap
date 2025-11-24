@@ -658,6 +658,7 @@ function wrap_translate_po($table, $data, $target_language) {
 			if (!array_key_exists($id, $text)) continue;
 			foreach ($text[$id] as $field => $value) {
 				if (!empty($line['wrap_source_content'][$field])) continue;
+				if (!array_key_exists($field, $line)) continue; // field was not translated, not in list
 				$data[$id]['wrap_source_language'][$field] = wrap_setting('default_source_language');
 				$data[$id]['wrap_source_content'][$field] = $line[$field];
 				$data[$id][$field] = $value;
