@@ -1042,7 +1042,9 @@ function wrap_po_parse($file) {
 		$plurals = false;
 		$format = false;
 		foreach (array_keys($chunk) as $key) {
-			$chunk[$key] = implode('', $chunk[$key]);
+			$implode = '';
+			if (in_array($key, ['#:'])) $implode = ' ';
+			$chunk[$key] = implode($implode, $chunk[$key]);
 			$chunk[$key] = str_replace('\"', '"', $chunk[$key]);
 			if (in_array($key, ['#:'])) {
 				if (str_starts_with($chunk[$key], 'database/')) {
