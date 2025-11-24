@@ -592,8 +592,7 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 	// check if something is untranslated!
 	if ($translated_fields < $all_fields_to_translate AND $mark_incomplete) {
 		wrap_setting('translation_incomplete', true);
-		if (is_string($translation_map_in))
-			$data = wrap_translate_po($translation_map_in, $data, $target_language);
+		$data = wrap_translate_po($translation_map_in, $data, $target_language, $foreign_key_field_name);
 	}
 	// reset if array was simple
 	if ($simple_data)
@@ -638,14 +637,41 @@ function wrap_translate_field_list($field_key, $db_field) {
 }
 
 /**
+ * get translations from .po files
+ *
+ * @param mixed $map
+ * @param array $data
+ * @param string $target_language
+ * @param string $foreign_key_field_name
+ * @return array
+ */
+function wrap_translate_po($map, $data, $target_language, $foreign_key_field_name) {
+	if (is_string($map)) return wrap_translate_po_table($map, $data, $target_language, $foreign_key_field_name);
+	
+	foreach ($map as $target => $source) {
+		if (strpos($source, '.') === false) {
+			wrap_error('Cannot parse translation map: '.json_encode(['target' => $target, 'source' => $source]));
+			continue;
+		}
+		$source = explode('.', $source);
+		$field_map = [$target => array_pop($source)];
+		$table = array_pop($source);
+		$data = wrap_translate_po_table($table, $data, $target_language, $foreign_key_field_name, $field_map);
+	}
+	return $data;
+}
+
+/**
  * get translations from .po files per table
  *
  * @param string $table
  * @param array $data
  * @param string $target_language
+ * @param string $foreign_key_field_name
+ * @param array $field_map
  * @return array
  */
-function wrap_translate_po($table, $data, $target_language) {
+function wrap_translate_po_table($table, $data, $target_language, $foreign_key_field_name = '', $field_map = []) {
 	$filename = sprintf('languages/%s-%s.po', $table, $target_language);
 	$files = wrap_collect_files($filename);
 	if (!$files) return $data;
@@ -655,10 +681,22 @@ function wrap_translate_po($table, $data, $target_language) {
 		$text = wrap_translate_po_split($table, $po_text);
 		if (!$text) continue;
 		foreach ($data as $id => $line) {
-			if (!array_key_exists($id, $text)) continue;
-			foreach ($text[$id] as $field => $value) {
+			if ($foreign_key_field_name) {
+				if (!array_key_exists($foreign_key_field_name, $line)) continue;
+				$record_id = $line[$foreign_key_field_name];
+				if (!$record_id) continue;
+			} else {
+				$record_id = $id;
+			}
+			if (!array_key_exists($record_id, $text)) continue;
+			foreach ($text[$record_id] as $field => $value) {
+				if ($field_map) {
+					if (!in_array($field, $field_map)) continue;
+					$field = array_search($field, $field_map);
+				} else {
+					if (!array_key_exists($field, $line)) continue; // field was not translated, not in list
+				}
 				if (!empty($line['wrap_source_content'][$field])) continue;
-				if (!array_key_exists($field, $line)) continue; // field was not translated, not in list
 				$data[$id]['wrap_source_language'][$field] = wrap_setting('default_source_language');
 				$data[$id]['wrap_source_content'][$field] = $line[$field];
 				$data[$id][$field] = $value;
