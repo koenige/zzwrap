@@ -308,7 +308,29 @@ function wrap_text_files($language) {
 			$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
 		}
 	}
-
+	
+	// via setting language_files
+	foreach (wrap_setting('language_files') as $language_file) {
+		// notation: module/file or module/file/default_language, if it is not english
+		switch (substr_count($language_file, '/')) {
+		case 3:
+			list($module, $filename, $default_language) = explode('/', $language_file);
+			break;
+		case 2:
+			list($module, $filename) = explode('/', $language_file);
+			$default_language = 'en';
+			break;
+		default:
+			continue 2;
+		}
+		$package_dir = $module === 'custom' ? wrap_setting('custom') : wrap_setting('modules_dir').'/'.$module;
+		if ($language === $default_language) // for plurals
+			$files[] = $package_dir.'/languages/'.$filename.'.pot';
+		$files[] = $package_dir.'/languages/'.$filename.'-'.$language.'.po';
+		if (wrap_setting('language_variation'))
+			$files[] = $package_dir.'/languages/'.$filename.'-'.$language.'-'.wrap_setting('language_variation').'.po';
+	}
+	
 	// standard translated text 
 	$files[] = wrap_setting('custom').'/custom/text-'.$language.'.inc.php'; // @deprecated
 	if ($language === 'en') // plurals, if .po file exists, included below, overwrite
