@@ -215,42 +215,8 @@ function wrap_text($string, $params = []) {
 		$text = [];
 		$module_text = [];
 		$context = [];
-		// standard text english
-		$files[] = wrap_setting('custom').'/custom/text-en.inc.php'; // @deprecated
-		$files[] = wrap_setting('custom').'/languages/text-en.po';
-		// default translated text
-		if ($language === 'en')
-			$files[] = __DIR__.'/../languages/zzwrap.pot';
-		$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
-		// module text(s)
-		foreach (wrap_setting('modules') as $module) {
-			if ($module === 'zzwrap') continue;
-			$modules_dir_deprecated = wrap_setting('modules_dir').'/'.$module.'/'.$module;
-			$modules_dir = wrap_setting('modules_dir').'/'.$module.'/languages';
-			if ($language === 'en') // plurals, if .po file exists, included below, overwrite
-				$files[] = $modules_dir.'/'.$module.'.pot';
-			// zzform: for historical reasons, include -en text here as well
-			if ($module === 'zzform' AND $language !== 'en')
-				$files[] = $modules_dir.'/'.$module.'-en.po';
-			$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'.po'; // @deprecated
-			$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
-			if (wrap_setting('language_variation')) {
-				$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
-				$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
-			}
-		}
-		// standard translated text 
-		$files[] = wrap_setting('custom').'/custom/text-'.$language.'.inc.php'; // @deprecated
-		if ($language === 'en') // plurals, if .po file exists, included below, overwrite
-			$files[] = wrap_setting('custom').'/languages/text.pot';
-		$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
-		if (wrap_setting('language_variation')) {
-			// language variantes contain only some translations
-			// and are added on top of the existing translations
-			$files[] = wrap_setting('custom').'/languages/text-'.$language.'-'.wrap_setting('language_variation').'.po';
-		}
-
 		$plurals[$language] = [];
+		$files = wrap_text_files($language);
 		foreach ($files as $file) {
 			if (str_ends_with($file, '.po') OR str_ends_with($file, '.pot')) {
 				if (!file_exists($file)) continue;
@@ -306,6 +272,54 @@ function wrap_text($string, $params = []) {
 		return wrap_text_values([], $string, $params);
 	}
 	return wrap_text_values($my_text, $string, $params);
+}
+
+/**
+ * get a list of files to include for wrap_text()
+ * dependent on language and packages
+ *
+ * @param string $language
+ * @return array
+ */
+function wrap_text_files($language) {
+	// standard text english
+	$files[] = wrap_setting('custom').'/custom/text-en.inc.php'; // @deprecated
+	$files[] = wrap_setting('custom').'/languages/text-en.po';
+
+	// default translated text
+	if ($language === 'en')
+		$files[] = __DIR__.'/../languages/zzwrap.pot';
+	$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
+
+	// module text(s)
+	foreach (wrap_setting('modules') as $module) {
+		if ($module === 'zzwrap') continue;
+		$modules_dir_deprecated = wrap_setting('modules_dir').'/'.$module.'/'.$module;
+		$modules_dir = wrap_setting('modules_dir').'/'.$module.'/languages';
+		if ($language === 'en') // plurals, if .po file exists, included below, overwrite
+			$files[] = $modules_dir.'/'.$module.'.pot';
+		// zzform: for historical reasons, include -en text here as well
+		if ($module === 'zzform' AND $language !== 'en')
+			$files[] = $modules_dir.'/'.$module.'-en.po';
+		$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'.po'; // @deprecated
+		$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
+		if (wrap_setting('language_variation')) {
+			$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
+			$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
+		}
+	}
+
+	// standard translated text 
+	$files[] = wrap_setting('custom').'/custom/text-'.$language.'.inc.php'; // @deprecated
+	if ($language === 'en') // plurals, if .po file exists, included below, overwrite
+		$files[] = wrap_setting('custom').'/languages/text.pot';
+	$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
+	if (wrap_setting('language_variation')) {
+		// language variantes contain only some translations
+		// and are added on top of the existing translations
+		$files[] = wrap_setting('custom').'/languages/text-'.$language.'-'.wrap_setting('language_variation').'.po';
+	}
+	return $files;
 }
 
 /**
