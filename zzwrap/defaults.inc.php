@@ -172,7 +172,10 @@ function wrap_defaults_forwarded_hostname() {
 		$forwarded_hostnames[$index] = trim($hostname);
 	
 	$given_hostname = wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_SERVER'], false);
-	if (!in_array($given_hostname, $forwarded_hostnames)) return '';
+	if (!in_array($given_hostname, $forwarded_hostnames))
+		wrap_quit(403, wrap_text('Forwarded servername %s is not in configuration',
+			['values' => [$_SERVER['HTTP_X_FORWARDED_SERVER']]]
+		));
 
 	return $_SERVER['HTTP_X_FORWARDED_SERVER'];
 }
