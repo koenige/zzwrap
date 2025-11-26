@@ -53,6 +53,12 @@ function mod_zzwrap_test($params, $settings = []) {
 		
 		// Handle functions with multiple parameters via variables
 		if (!empty($data['variables']) && is_array($value)) {
+			if (array_key_exists('settings', $value))
+				mod_zzwrap_test_settings($value['settings']);
+			if (array_key_exists('server', $value))
+				mod_zzwrap_test_server($value['server']);
+			if (array_key_exists('post', $value))
+				mod_zzwrap_test_server($value['post']);
 			$args = [];
 			foreach ($data['variables'] as $var) {
 				if (!array_key_exists($var, $value)) {
@@ -112,3 +118,43 @@ function mod_zzwrap_test($params, $settings = []) {
 	return $page;
 }
 
+/**
+ * add settings via key `settings` in data
+ *
+ * @param array $values
+ * @return void
+ */
+function mod_zzwrap_test_settings($values) {
+	if (!$values) return;
+	foreach ($values as $key => $value)
+		wrap_setting($key, $value);
+}
+
+/**
+ * overwrite SERVER values via key `server` in data
+ *
+ * @param array $values
+ * @return void
+ */
+function mod_zzwrap_test_server($values) {
+	if (!$values) return;
+	foreach ($values as $key => $value) {
+		$_SERVER[$key] = $value;
+		if ($key === 'REQUEST_URI') {
+			wrap_setting('request_uri', $value);
+			wrap_url_encode();
+			wrap_url_forwarded();
+		}
+	}
+}
+
+/**
+ * overwrite POST values via key `post` in data
+ *
+ * @param array $values
+ * @return void
+ */
+function mod_zzwrap_test_post($values) {
+	if (!$values) return;
+	$_POST += $values;
+}

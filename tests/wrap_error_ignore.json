@@ -1,0 +1,192 @@
+{
+	"file": "errorhandling",
+	"variables": ["status", "string"],
+	"data": [
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/test-page"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/favicon.ico"
+			},
+			"post": {},
+			"settings": {
+				"request_uri": "/favicon.ico"
+			},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/wp-admin.php",
+				"HTTP_USER_AGENT": "Mozilla/5.0"
+			},
+			"post": {},
+			"settings": {},
+			"expected": true
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/test",
+				"HTTP_USER_AGENT": "bot",
+				"HTTP_REFERER": "https://example.com"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/test",
+				"HTTP_USER_AGENT": "Mozilla/5.0"
+			},
+			"post": {
+				"action": "submit",
+				"data": "test"
+			},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/test"
+			},
+			"post": {},
+			"settings": {
+				"request_uri": "/test",
+				"remote_ip": "192.168.1.1"
+			},
+			"expected": false
+		},
+		{
+			"status": 403,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/admin",
+				"HTTP_USER_AGENT": "Mozilla/5.0"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 401,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/protected",
+				"PHP_AUTH_USER": "user",
+				"PHP_AUTH_PW": "pass"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 410,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/old-page",
+				"HTTP_REFERER": "https://example.com"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 503,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/service"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": "test-string",
+			"server": {
+				"REQUEST_URI": "/test"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/test-page.html"
+			},
+			"post": {},
+			"settings": {
+				"request_uri": "/test-page.html"
+			},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/api/endpoint",
+				"HTTP_USER_AGENT": "curl/7.68.0"
+			},
+			"post": {
+				"key": "value"
+			},
+			"settings": {
+				"request_uri": "/api/endpoint",
+				"remote_ip": "10.0.0.1"
+			},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/",
+				"HTTP_USER_AGENT": "",
+				"HTTP_REFERER": ""
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/test",
+				"HTTP_USER_AGENT": "Mozilla/5.0 (compatible; Googlebot/2.1)"
+			},
+			"post": {},
+			"settings": {},
+			"expected": false
+		},
+		{
+			"status": 404,
+			"string": false,
+			"server": {
+				"REQUEST_URI": "/wp-mn.php",
+				"HTTP_REFERER": "https://www.google.co.uk/"
+			},
+			"expected": true
+		}
+	]
+}
