@@ -394,6 +394,8 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
 function wrap_errorpage_log($status, $page) {
 	global $zz_page;
 
+	if (in_array($status, [404])) // no need to log 404 requests of people with faked headers
+		if (wrap_setting('http_forward_ip_unknown')) return false;
 	if (in_array($status, [401, 403, 404, 410, 503]))
 		if (wrap_error_ignore($status)) return false;
 	
@@ -539,7 +541,7 @@ function wrap_error_ignore($status, $string = false) {
 			}
 			break;
 		case 'request':
-			if (wrap_error_checkmatch(wrap_setting('request_uri'), $line['string'])) return true;
+			if (fnmatch($line['string'], wrap_setting('request_uri'))) return true;
 			break;
 		case 'ip':
 			if (substr(wrap_setting('remote_ip'), 0, (strlen($line['string']))) === $line['string']) {
@@ -548,42 +550,19 @@ function wrap_error_ignore($status, $string = false) {
 			break;
 		case 'ua':
 			if (empty($_SERVER['HTTP_USER_AGENT'])) break;
-			if (wrap_error_checkmatch($_SERVER['HTTP_USER_AGENT'], $line['string'])) return true;
+			if (fnmatch($line['string'], $_SERVER['HTTP_USER_AGENT'])) return true;
 			break;
 		case 'referer':
 			if (empty($_SERVER['HTTP_REFERER'])) break;
-			if (wrap_error_checkmatch($_SERVER['HTTP_REFERER'], $line['string'])) return true;
+			if (fnmatch($line['string'], $_SERVER['HTTP_REFERER'])) return true;
 			break;
 		case 'post':
 			if (empty($_POST)) break;
-			if (wrap_error_checkmatch(json_encode($_POST), $line['string'])) return true;
+			if (fnmatch($line['string'], json_encode($_POST))) return true;
 			break;
 		default:
 			wrap_error(sprintf('Case %s in line %s not supported.', $line['type'], implode(' ', $line)), E_USER_NOTICE);
 		}
-	}
-	return false;
-}
-
-/**
- * simple matching check with wildcard (asterisk) allowed at both
- * beginning and end of match
- *
- * @param string $string string to check
- * @param string $match match to check against
- * @return bool true: match was found
- */
-function wrap_error_checkmatch($string, $match) {
-	if ($string === $match) return true;
-	if (substr($match, 0, 1) === '*' AND substr($match, -1) === '*') {
-		$without = substr($match, 1, -1);
-		if (strstr($string, $without)) return true;
-	} elseif (substr($match, 0, 1) === '*') {
-		$without = substr($match, 1);
-		if (substr($string, -strlen($without)) === $without) return true;
-	} elseif (substr($match, -1) === '*') {
-		$without = substr($match, 0, -1);
-		if (substr($string, 0, strlen($without)) === $without) return true;
 	}
 	return false;
 }
