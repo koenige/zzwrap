@@ -203,7 +203,9 @@ function wrap_http_remote_ip() {
 		wrap_http_forward_localhost($remote_ip);
 		// ignore invalid IPs
 		wrap_http_forward_valid($remote_ip);
-		return $remote_ip;
+		if (in_array($remote_ip, wrap_setting('proxy_ips')))
+			return $remote_ip;
+		wrap_setting('http_forward_ip_unknown', $remote_ip);
 	}
 	if (empty($_SERVER['REMOTE_ADDR']))
 		return '';
@@ -238,7 +240,7 @@ function wrap_http_forward_localhost($remote_ip) {
  * @return bool
  */
 function wrap_http_forward_valid($remote_ip) {
-	if (filter_var($remote_ip, FILTER_VALIDATE_IP)) return true;
+	if (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE + FILTER_FLAG_NO_RES_RANGE)) return true;
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
 	wrap_quit(400, wrap_text(
