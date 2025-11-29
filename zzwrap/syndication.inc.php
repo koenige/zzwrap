@@ -502,6 +502,10 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 		}
 		if ($headers_to_send) {
+			if (in_array('Content-Type: application/json', $headers_to_send)) {
+				if (is_array($data_to_send)) $data_to_send = json_encode($data_to_send);
+				$headers_to_send[] = 'Content-Length: ' . strlen($data_to_send);
+			}
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_to_send);
 			if (in_array('X-Timeout-Ignore: 1', $headers_to_send)) {
 				$timeout_ignore = true;
@@ -518,7 +522,11 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		if (in_array($method, ['POST', 'PATCH'])) {
 			curl_setopt($ch, CURLOPT_POST, true);
 			if (!empty($data_to_send)) {
-				curl_setopt($ch, CURLOPT_POSTFIELDS, wrap_syndication_http_post($data_to_send));
+				if (in_array('Content-Type: application/json', $headers_to_send)) {
+					curl_setopt($ch, CURLOPT_POSTFIELDS, $data_to_send);
+				} else {
+					curl_setopt($ch, CURLOPT_POSTFIELDS, wrap_syndication_http_post($data_to_send));
+				}
 			}
 		}
 		if ($pwd) {
