@@ -710,6 +710,7 @@ function wrap_page_format_files() {
  * @return array
  */
 function wrap_page_replace($page) {
+	if (empty($page['content_type']) OR $page['content_type'] !== 'html') return $page;
 	$function = wrap_setting('page_replace_function');
 	if ($function AND function_exists($function))
 		$page = $function($page);
