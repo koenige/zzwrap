@@ -106,23 +106,7 @@ function wrap_defaults_pre_conf() {
 // Hostname
 // -------------------------------------------------------------------------
 
-	// HTTP_HOST, check against XSS
-	if ($hostname = wrap_defaults_forwarded_hostname())
-		wrap_setting('hostname', $hostname);
-	elseif (!empty($_SERVER['HTTP_HOST']) AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
-		wrap_setting('hostname', $_SERVER['HTTP_HOST']);
-	else
-		wrap_setting('hostname', $_SERVER['SERVER_NAME']);
-	// fully-qualified (unambiguous) DNS domain names have a dot at the end
-	// we better not redirect these to a domain name without a dot to avoid
-	// ambiguity, but we do not need to do double caching etc.
-	if (substr(wrap_setting('hostname'), -1) === '.')
-		wrap_setting('hostname', substr(wrap_setting('hostname'), 0, -1));
-	// in case, somebody's doing a CONNECT or something similar, use some default
-	if (!wrap_setting('hostname')) 
-		wrap_setting('hostname', 'www.example.org');
-	// make hostname lowercase to avoid duplicating caches
-	wrap_setting('hostname', strtolower(wrap_setting('hostname')));
+	wrap_setting('hostname', wrap_defaults_hostname());
 
 	// check if it’s a local development server
 	// get site name without www. and .local
@@ -146,6 +130,37 @@ function wrap_defaults_pre_conf() {
 	if (!wrap_setting('local_access'))
 		// just in case it's a bad ISP and php.ini must not be changed
 		@ini_set('display_errors', 0);
+}
+
+/**
+ * determine and validate hostname
+ *
+ * @return string
+ */
+function wrap_defaults_hostname() {
+	// forwarded hostname, if on whitelist
+	if ($hostname = wrap_defaults_forwarded_hostname())
+		return $hostname;
+	
+	// HTTP_HOST, check against XSS and array injection
+	if (!empty($_SERVER['HTTP_HOST'])
+		AND !is_array($_SERVER['HTTP_HOST'])
+		AND preg_match('/^[a-zA-Z0-9-\.]+$/', $_SERVER['HTTP_HOST']))
+		$hostname = $_SERVER['HTTP_HOST'];
+	else
+		$hostname = $_SERVER['SERVER_NAME'] ?? '';
+	
+	// fully-qualified DNS domain names have a trailing dot - remove it
+	// we better not redirect these to a domain name without a dot to avoid
+	// ambiguity, but we do not need to do double caching etc.
+	$hostname = rtrim($hostname, '.');
+	
+	// fallback for CONNECT or similar without hostname
+	if (!$hostname) 
+		$hostname = 'www.example.org';
+	
+	// lowercase to avoid duplicating caches
+	return strtolower($hostname);
 }
 
 /**
