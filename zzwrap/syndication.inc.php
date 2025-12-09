@@ -57,12 +57,12 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 		wrap_error(false, false, ['collect_start' => true]);
 		$headers_to_send = $settings['headers_to_send'] ?? [];
 		if ($etag) $headers_to_send[] = 'If-None-Match: "'.$etag.'"';
+		if ($last_modified) $headers_to_send[] = 'If-Modified-Since: '.$last_modified;
 		foreach ($headers_to_send as $header) {
 			if (!str_starts_with($header, 'Authorization: Bearer')) continue;
 			$headers_to_send[] = 'X-Request-WWW-Authentication: 1';
 		}
 		$pwd = $settings['pwd'] ?? false;
-		// @todo Last-Modified
 		
 		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send, 'GET', [], $pwd);
 
@@ -578,9 +578,12 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				if (str_starts_with($curl_error, 'Could not resolve host:'))
 					$syndication_error_code = E_USER_NOTICE;
 				// do we have a cached file? just send notice
-				foreach ($headers_to_send as $header_to_send)
+				foreach ($headers_to_send as $header_to_send) {
 					if (str_starts_with($header_to_send, 'If-None-Match:'))
 						$syndication_error_code = E_USER_NOTICE;
+					elseif (str_starts_with($header_to_send, 'If-Modified-Since:'))
+						$syndication_error_code = E_USER_NOTICE;
+				}
 				wrap_error(sprintf(
 					'Syndication from URL %s failed. Reason: %s',
 					$url, $curl_error
