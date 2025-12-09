@@ -298,9 +298,6 @@ function wrap_text_files($language) {
 		$modules_dir = wrap_setting('modules_dir').'/'.$module.'/languages';
 		if ($language === 'en') // plurals, if .po file exists, included below, overwrite
 			$files[] = $modules_dir.'/'.$module.'.pot';
-		// zzform: for historical reasons, include -en text here as well
-		if ($module === 'zzform' AND $language !== 'en')
-			$files[] = $modules_dir.'/'.$module.'-en.po';
 		$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'.po'; // @deprecated
 		$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
 		if (wrap_setting('language_variation')) {
