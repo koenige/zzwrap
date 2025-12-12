@@ -1563,7 +1563,7 @@ msgstr "godz.&nbsp;%s"
 #: zzwrap/format.inc.php
 msgctxt "time"
 msgid "%s–%s&nbsp;h"
-msgstr "godz.&nbsp;%sdo%s"
+msgstr "godz.&nbsp;%sdo&nbsp;%s"
 
 # Separator for time (hours:minutes)
 #: zzwrap/format.inc.php

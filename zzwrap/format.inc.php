@@ -616,6 +616,7 @@ function _wrap_period_times($time_begin, $time_end) {
  */
 function _wrap_period_time_format($time) {
 	if (str_starts_with($time, 'T')) $time = substr($time, 1);
+	if (!strpos($time, ':')) return $time;
 	$time = explode(':', $time);
 	if ($time[1] === '00') return $time[0];
 	return wrap_text('%s:%s', ['values' => [$time[0], $time[1]], 'context' => 'time']);
