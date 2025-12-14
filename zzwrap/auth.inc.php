@@ -801,10 +801,12 @@ function wrap_auth_form($login, $settings) {
 	if (!empty($login['sso_token'])) {
 		$url = sprintf($settings['form_sso_url'], 'sso_'.$login['username'].'-'.$login['sso_token']);
 		list($status, $headers, $data)
-			= wrap_syndication_retrieve_via_http($url);
+			= wrap_syndication_http_request($url);
 	} else {
 		list($status, $headers, $data)
-			= wrap_syndication_retrieve_via_http($settings['form_url'], [], 'POST', $login);
+			= wrap_syndication_http_request($settings['form_url'], [
+				'method' => 'POST', 'data' => $login
+			]);
 	}
 	if ($status !== 200) {
 		wrap_error(sprintf('FORMAUTH login failed. Status %s, Headers %s, Data %s',

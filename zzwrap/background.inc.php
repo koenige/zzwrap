@@ -207,7 +207,7 @@ function wrap_trigger_url($url) {
  * @param string $username (optional)
  * @param bool $send_lock defaults to true, send lock hash to child process
  * @param array $data (optional)
- * @return array from wrap_syndication_retrieve_via_http()
+ * @return array from wrap_syndication_http_request()
  */
 function wrap_trigger_protected_url($url, $username = false, $send_lock = true, $data = []) {
 	$username = wrap_username($username, false);
@@ -234,9 +234,8 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
  * @param string $method
  * @param array $data
  * @param string $username (optional)
- * @return array from wrap_syndication_retrieve_via_http()
+ * @return array from wrap_syndication_http_request()
  */
-
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
 	if (!$url) {
 		$caller = debug_backtrace()[1];
@@ -252,8 +251,9 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 	$url = wrap_job_url_base($url);
 
 	require_once __DIR__.'/syndication.inc.php';
-	$result = wrap_syndication_retrieve_via_http($url, $headers, $method, $data, $pwd);
-	return $result;
+	return wrap_syndication_http_request($url, [
+		'headers' => $headers, 'method' => $method, 'data' => $data, 'pwd' => $pwd
+	]);
 }
 
 /**

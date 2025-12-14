@@ -62,9 +62,10 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 			if (!str_starts_with($header, 'Authorization: Bearer')) continue;
 			$headers_to_send[] = 'X-Request-WWW-Authentication: 1';
 		}
-		$pwd = $settings['pwd'] ?? false;
 		
-		list($status, $headers, $data) = wrap_syndication_retrieve_via_http($url, $headers_to_send, 'GET', [], $pwd);
+		list($status, $headers, $data) = wrap_syndication_http_request($url, [
+			'headers' => $headers_to_send, 'pwd' => $settings['pwd'] ?? false
+		]);
 
 		switch ($status) {
 		case 200:
@@ -432,34 +433,43 @@ function wrap_syndication_geocode_retry($address) {
  * get content via HTTP URL
  *
  * @param string $url
- * @param array $headers_to_send
- * @param string $method (optional, defaults to GET)
- * @param array $data_to_send (optional)
- * @param string $pwd (optional, username:password)
+ * @param array $settings (optional)
+ *		array 'headers'
+ *		string 'method' (defaults to GET)
+ *		array 'data'
+ *		string 'pwd' (username:password)
  * @return array
  *		int $status
  *		array $headers
  *		array $data
  */
-function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
+function wrap_syndication_http_request($url, $settings = []) {
+	$settings = array_merge([
+		'headers' => [],
+		'method' => 'GET',
+		'data' => [],
+		'pwd' => false
+	], $settings);
+	$headers_to_send = $settings['headers'];
+	$data_to_send = $settings['data'];
 	$timeout_ignore = false;
 	if (!function_exists('curl_init')) {
 		// file_get_contents does not allow to send additional headers
 		// e. g. IF_NONE_MATCH, so we'll always try to get the data
 		// do not log error here
 		$content = false;
-		if (in_array($method, ['POST', 'PATCH'])) {
+		if (in_array($settings['method'], ['POST', 'PATCH'])) {
 			$headers_to_send[] = 'Content-Type: application/x-www-form-urlencoded';
 			// do not send Expect: 100-continue with POST
 			$headers_to_send[] = 'Expect:';
 			$content = wrap_syndication_http_post($data_to_send);
 		}
-		if ($pwd) {
-			$headers_to_send[] = "Authorization: Basic " . base64_encode($pwd);
+		if ($settings['pwd']) {
+			$headers_to_send[] = "Authorization: Basic " . base64_encode($settings['pwd']);
 		}
 		$opts = [
 			'http' => [
-				'method' => $method,
+				'method' => $settings['method'],
 				'header' => implode("\r\n", $headers_to_send),
 				'content' => $content
 			]
@@ -498,8 +508,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		curl_setopt($ch, CURLOPT_USERAGENT, 
 			'Zugzwang Project; +https://www.zugzwang.org/'
 		);
-		if (in_array($method, ['DELETE', 'PATCH', 'PUT'])) {
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+		if (in_array($settings['method'], ['DELETE', 'PATCH', 'PUT'])) {
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $settings['method']);
 		}
 		if ($headers_to_send) {
 			if (in_array('Content-Type: application/json', $headers_to_send)) {
@@ -519,9 +529,9 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		if (!$timeout_ignore AND $timeout_ms = wrap_setting('syndication_timeout_ms')) {
 			curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout_ms);
 		}
-		if (in_array($method, ['POST', 'PATCH'])) {
+		if (in_array($settings['method'], ['POST', 'PATCH'])) {
 			curl_setopt($ch, CURLOPT_POST, true);
-			if (!empty($data_to_send)) {
+			if ($data_to_send) {
 				if (in_array('Content-Type: application/json', $headers_to_send)) {
 					curl_setopt($ch, CURLOPT_POSTFIELDS, $data_to_send);
 				} else {
@@ -529,8 +539,8 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 				}
 			}
 		}
-		if ($pwd) {
-			curl_setopt($ch, CURLOPT_USERPWD, $pwd);
+		if ($settings['pwd']) {
+			curl_setopt($ch, CURLOPT_USERPWD, $settings['pwd']);
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		} elseif (!empty($url_parts['user']) AND !empty($url_parts['pass'])) {
 			curl_setopt($ch, CURLOPT_USERPWD, sprintf('%s:%s', $url_parts['pass'], $url_parts['user']));
@@ -636,6 +646,32 @@ function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method
 		}
 	}
 	return [$status, $headers, $data];
+}
+
+/**
+ * get content via HTTP URL
+ *
+ * @param string $url
+ * @param array $headers_to_send
+ * @param string $method (optional, defaults to GET)
+ * @param array $data_to_send (optional)
+ * @param string $pwd (optional, username:password)
+ * @return array
+ *		int $status
+ *		array $headers
+ *		array $data
+ * @deprecated use wrap_syndication_http_request() instead
+ */
+function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
+	wrap_error(sprintf('%s() is deprecated, use %s() instead'
+		, __FUNCTION__, 'wrap_syndication_http_request'
+	), E_USER_DEPRECATED);
+	return wrap_syndication_http_request($url, [
+		'headers' => $headers_to_send,
+		'method' => $method,
+		'data' => $data_to_send,
+		'pwd' => $pwd
+	]);
 }
 
 /**
