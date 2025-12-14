@@ -18,18 +18,20 @@
  * (and wanted)
  *
  * @param string $url
- * @param string $type Type of ressource, defaults to 'json'
  * @param array $settings (optional)
+ *		string 'type' Type of resource, defaults to 'json'
  *		string 'cache_filename'
  *		int 'cache_age_syndication'
  *		array 'headers_to_send'
+ *		string 'pwd'
  * @return array $data
  */
-function wrap_syndication_get($url, $type = 'json', $settings = []) {
+function wrap_syndication($url, $settings = []) {
 	// you may change the syndication_error_code if e. g. only pictures will be fetched
 	// via JSON to E_USER_WARNING or E_USER_NOTICE
 	if (!$url) return [];
 
+	$type = $settings['type'] ?? 'json';
 	$data = [];
 	$etag = '';
 	$last_modified = '';
@@ -156,6 +158,25 @@ function wrap_syndication_get($url, $type = 'json', $settings = []) {
 	}
 }
 
+/**
+ * Get content from a foreign URL (syndication), cache the result if possible
+ * (and wanted)
+ *
+ * @param string $url
+ * @param string $type Type of ressource, defaults to 'json'
+ * @param array $settings (optional)
+ * @return array $data
+ * @deprecated use wrap_syndication() instead
+ */
+function wrap_syndication_get($url, $type = 'json', $settings = []) {
+	wrap_error(sprintf(
+		'Function %s() is deprecated, use %s() instead'
+		, __FUNCTION__, 'wrap_syndication'
+	), E_USER_DEPRECATED);
+	$settings['type'] = $type;
+	return wrap_syndication($url, $settings);
+}
+
 function wrap_syndication_errors($errno, $errstr, $errfile = '', $errline = 0, $errcontext = []) {
 	// just catch the error, don't do anything
 	return;
@@ -276,7 +297,7 @@ function wrap_syndication_geocode($address, $error_check = true) {
 		if ($gc['geocoder'] === 'Nominatim') {
 			wrap_lock_wait('nominatim', 1);
 		}
-		$coords = wrap_syndication_get($url, 'json', ['cache_age_syndication' => -1]);	
+		$coords = wrap_syndication($url, ['cache_age_syndication' => -1]);	
 		if ($gc['geocoder'] === 'Nominatim') {
 			wrap_unlock('nominatim');
 		}
@@ -912,7 +933,7 @@ function wrap_watchdog_source_cleanup($source) {
 function wrap_watchdog_source_file($source) {
 	if (str_starts_with($source, 'http://')
 		OR str_starts_with($source, 'https://')) {
-		$data = wrap_syndication_get($source, 'file');
+		$data = wrap_syndication($source, ['type' => 'file']);
 		if (empty($data['_']['filename'])) return '';
 		$source_file = $data['_']['filename'];
 	} elseif (str_starts_with($source, 'brick ')) {
