@@ -229,7 +229,7 @@ function wrap_tsv_parse($filename, $paths = '') {
 	$files = $paths ? wrap_collect_files($filename, $paths) : wrap_collect_files($filename);
 	if (!$files) return [];
 	$data = [];
-	foreach ($files as $file) {
+	foreach ($files as $package => $file) {
 		$content = file($file);
 		$head = [];
 		$i = 0;
@@ -264,8 +264,10 @@ function wrap_tsv_parse($filename, $paths = '') {
 					$this_line = [];
 					foreach ($head as $index => $title)
 						$this_line[$title] = trim($line[$index] ?? '');
+					$this_line['_package'] = $package;
 					$data[$key][] = $this_line;
 				} else {
+					$line['_package'] = $package;
 					$data[$key][] = $line;
 				}
 			} else {
@@ -274,6 +276,7 @@ function wrap_tsv_parse($filename, $paths = '') {
 					foreach ($head as $index => $title)
 						$data[$key][$title] = trim($line[$index] ?? '');
 				}
+				$data[$key]['_package'] = $package;
 			}
 		}
 	}
