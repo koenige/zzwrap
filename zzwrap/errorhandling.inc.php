@@ -502,6 +502,7 @@ function wrap_error_ignore($status, $string = false) {
 	if (!array_key_exists($status, $ignores)) return false;
 
 	foreach ($ignores[$status] as $line) {
+		if (array_key_exists('_package', $line)) unset($line['_package']);
 		if (count($line) !== 3) {
 			wrap_error(sprintf('File %s is wrong in line %s.', $file, implode(' ', $line)), E_USER_NOTICE);
 			continue;
