@@ -97,10 +97,11 @@ function wrap_syndication($url, $settings = []) {
 		case 303:
 		case 307:
 			$data = NULL;
+			$syndication_error_code = $settings['error_code'] ?? wrap_setting('syndication_error_code');
 			wrap_error(sprintf(
 				'Syndication from URL %s failed with redirect status code %s. Use URL %s instead.',
 				$url, $status, wrap_syndication_http_header('Location', $headers)
-			), wrap_setting('syndication_error_code'));
+			), $syndication_error_code);
 			break;
 		case 404:
 			$data = [];
@@ -117,10 +118,11 @@ function wrap_syndication($url, $settings = []) {
 					$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			} else {
 				$data = NULL;
+				$syndication_error_code = $settings['error_code'] ?? wrap_setting('syndication_error_code');
 				wrap_error(sprintf(
 					'Syndication from URL %s failed. Status code %s.',
 					$url, $status
-				), wrap_setting('syndication_error_code'));
+				), $syndication_error_code);
 			}
 			break;
 		}
@@ -301,7 +303,7 @@ function wrap_syndication_geocode($address, $error_check = true) {
 		if ($gc['geocoder'] === 'Nominatim') {
 			wrap_lock_wait('nominatim', 1);
 		}
-		$coords = wrap_syndication($url, ['cache_age_syndication' => -1]);	
+		$coords = wrap_syndication($url, ['cache_age_syndication' => -1, 'error_code' => E_USER_WARNING]);	
 		if ($gc['geocoder'] === 'Nominatim') {
 			wrap_unlock('nominatim');
 		}
