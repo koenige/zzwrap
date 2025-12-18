@@ -24,6 +24,7 @@
  *		int 'cache_age_syndication'
  *		array 'headers_to_send'
  *		string 'pwd'
+ *		int 'error_code'
  * @return array $data
  */
 function wrap_syndication($url, $settings = []) {
@@ -65,9 +66,12 @@ function wrap_syndication($url, $settings = []) {
 			$headers_to_send[] = 'X-Request-WWW-Authentication: 1';
 		}
 		
-		list($status, $headers, $data) = wrap_syndication_http_request($url, [
-			'headers' => $headers_to_send, 'pwd' => $settings['pwd'] ?? false
-		]);
+		$request_settings = [
+			'headers' => $headers_to_send,
+			'pwd' => $settings['pwd'] ?? false,
+			'error_code' => $settings['error_code'] ?? NULL
+		];
+		list($status, $headers, $data) = wrap_syndication_http_request($url, $request_settings);
 
 		switch ($status) {
 		case 200:
@@ -459,6 +463,7 @@ function wrap_syndication_geocode_retry($address) {
  *		string 'method' (defaults to GET)
  *		array 'data'
  *		string 'pwd' (username:password)
+ *		int 'error_code'
  * @return array
  *		int $status
  *		array $headers
@@ -605,7 +610,7 @@ function wrap_syndication_http_request($url, $settings = []) {
 		} else {
 			if (!$status) {
 				$curl_error = curl_error($ch);
-				$syndication_error_code = wrap_setting('syndication_error_code');
+				$syndication_error_code = $settings['error_code'] ?? wrap_setting('syndication_error_code');
 				if (str_starts_with($curl_error, 'Could not resolve host:'))
 					$syndication_error_code = E_USER_NOTICE;
 				// do we have a cached file? just send notice
