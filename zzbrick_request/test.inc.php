@@ -58,7 +58,7 @@ function mod_zzwrap_test($params, $settings = []) {
 			if (array_key_exists('server', $value))
 				mod_zzwrap_test_server($value['server']);
 			if (array_key_exists('post', $value))
-				mod_zzwrap_test_server($value['post']);
+				mod_zzwrap_test_post($value['post']);
 			$args = [];
 			foreach ($data['variables'] as $var) {
 				if (!array_key_exists($var, $value)) {
@@ -115,6 +115,10 @@ function mod_zzwrap_test($params, $settings = []) {
 	$page['breadcrumbs'][] = ['title' => $data['function']];
 	$page['extra']['css'][] = 'zzwrap/tests.css';
 	$page['title'] = wrap_text('Tests for %s()', ['values' => [$data['function']]]);
+	
+	// Cleanup: restore all modified values to their original state
+	mod_zzwrap_test_cleanup();
+	
 	return $page;
 }
 
@@ -125,9 +129,15 @@ function mod_zzwrap_test($params, $settings = []) {
  * @return void
  */
 function mod_zzwrap_test_settings($values) {
+	static $original_values = [];
 	if (!$values) return;
-	foreach ($values as $key => $value)
+	foreach ($values as $key => $value) {
+		// Store original value before changing it
+		if (!array_key_exists($key, $original_values)) {
+			$original_values[$key] = wrap_setting($key);
+		}
 		wrap_setting($key, $value);
+	}
 }
 
 /**
@@ -137,8 +147,13 @@ function mod_zzwrap_test_settings($values) {
  * @return void
  */
 function mod_zzwrap_test_server($values) {
+	static $original_values = [];
 	if (!$values) return;
 	foreach ($values as $key => $value) {
+		// Store original value before changing it
+		if (!array_key_exists($key, $original_values)) {
+			$original_values[$key] = $_SERVER[$key] ?? null;
+		}
 		$_SERVER[$key] = $value;
 		if ($key === 'REQUEST_URI') {
 			wrap_setting('request_uri', $value);
@@ -155,6 +170,80 @@ function mod_zzwrap_test_server($values) {
  * @return void
  */
 function mod_zzwrap_test_post($values) {
+	static $original_values = [];
 	if (!$values) return;
+	// Store original POST state before first change
+	if (empty($original_values)) {
+		$original_values = $_POST;
+	}
 	$_POST += $values;
+}
+
+/**
+ * restore all settings, SERVER and POST values to their original state
+ *
+ * @return void
+ */
+function mod_zzwrap_test_cleanup() {
+	// Restore settings
+	mod_zzwrap_test_settings_restore();
+	// Restore SERVER variables
+	mod_zzwrap_test_server_restore();
+	// Restore POST variables
+	mod_zzwrap_test_post_restore();
+}
+
+/**
+ * restore settings to their original values
+ *
+ * @return void
+ */
+function mod_zzwrap_test_settings_restore() {
+	// Get static variable from mod_zzwrap_test_settings
+	$reflection = new ReflectionFunction('mod_zzwrap_test_settings');
+	$statics = $reflection->getStaticVariables();
+	if (empty($statics['original_values'])) return;
+	
+	foreach ($statics['original_values'] as $key => $value) {
+		wrap_setting($key, $value);
+	}
+}
+
+/**
+ * restore SERVER values to their original state
+ *
+ * @return void
+ */
+function mod_zzwrap_test_server_restore() {
+	// Get static variable from mod_zzwrap_test_server
+	$reflection = new ReflectionFunction('mod_zzwrap_test_server');
+	$statics = $reflection->getStaticVariables();
+	if (empty($statics['original_values'])) return;
+	
+	foreach ($statics['original_values'] as $key => $value) {
+		if (is_null($value)) {
+			unset($_SERVER[$key]);
+		} else {
+			$_SERVER[$key] = $value;
+		}
+		if ($key === 'REQUEST_URI') {
+			wrap_setting('request_uri', $value);
+			wrap_url_encode();
+			wrap_url_forwarded();
+		}
+	}
+}
+
+/**
+ * restore POST values to their original state
+ *
+ * @return void
+ */
+function mod_zzwrap_test_post_restore() {
+	// Get static variable from mod_zzwrap_test_post
+	$reflection = new ReflectionFunction('mod_zzwrap_test_post');
+	$statics = $reflection->getStaticVariables();
+	if (empty($statics['original_values'])) return;
+	
+	$_POST = $statics['original_values'];
 }
