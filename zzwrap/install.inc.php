@@ -36,6 +36,7 @@ function wrap_install() {
 	else {
 		$db = mysqli_select_db(wrap_db_connection(), wrap_db_escape($_SESSION['db_name_local']));
 		if (!$db) $_SESSION['step'] = 1;
+		else wrap_setting('db_name', $_SESSION['db_name_local']);
 	}
 
 	$files = wrap_collect_files('install/install', 'modules/custom');
@@ -75,10 +76,19 @@ function wrap_install_dbname() {
 		if (!empty($_POST['db_name_local'])) {
 			$db = mysqli_select_db(wrap_db_connection(), wrap_db_escape($_POST['db_name_local']));
 			if ($db) {
-				wrap_setting('db_name', $_POST['db_name_local']);
-				$_SESSION['step'] = 2;
-				$_SESSION['db_name_local'] = $_POST['db_name_local'];
-				return false;
+				// check if last table exists
+				$sql = 'SHOW TABLES LIKE "websites"';
+				$exists = wrap_db_fetch($sql, '', 'single value');
+				if ($exists) {
+					$_SESSION['step'] = 2;
+					$_SESSION['db_name_local'] = $_POST['db_name_local'];
+					return true;
+				} else {
+					// not all table from default module exist, there must have
+					// been some error, better start again
+					$sql = sprintf('DROP DATABASE `%s`', wrap_db_escape($_POST['db_name_local']));
+					wrap_db_query($sql);
+				}
 			}
 			$sql = sprintf('CREATE DATABASE `%s`', wrap_db_escape($_POST['db_name_local']));
 			wrap_db_query($sql);
@@ -160,6 +170,12 @@ function wrap_install_queries($queries, $scope = 'create') {
 		$success = wrap_db_query($query);
 		if ($success)
 			zz_db_log($query, 'Crew droid Robot 571');
+		else {
+			echo (sprintf('Installation query for %s failed: %s. Reason: %s',
+				$_SERVER['SERVER_NAME'] ?? 'unknown host', $query, wrap_db_warnings()
+			));
+			exit;
+		}
 	}
 	return true;
 }
@@ -221,6 +237,7 @@ function wrap_install_user() {
 		if (!$login_id)
 			wrap_quit(503, wrap_text('The main user could not be created.'));
 
+		wrap_session_start();
 		$_SESSION['step'] = 3;
 		return true;
 	}
@@ -292,9 +309,13 @@ function wrap_install_settings_write() {
  */
 function wrap_install_settings_folders() {
 	$cfg = wrap_cfg_files('settings');
-	foreach ($cfg as $key => $definitions)
+	foreach ($cfg as $key => $definitions) {
 		if (empty($definitions['install_folder'])) continue;
-		else wrap_mkdir(wrap_setting($key));
+		else {
+			$folder = wrap_setting($key);
+			if ($folder) wrap_mkdir($folder);
+		}
+	}
 
 	$folders = [
 		'_inc/custom/zzbrick_forms', '_inc/custom/zzbrick_make', 
