@@ -1313,6 +1313,7 @@ function wrap_sql_table($key, $filename = 'queries') {
 	$key .= '__table';
 	$def = wrap_sql_query($key, $filename);
 	if (is_array($def)) $def = reset($def);
+	$def = wrap_setting('db_prefix').$def;
 	return trim($def);
 }
 
@@ -1789,12 +1790,67 @@ function wrap_database_table_check($table, $only_if_install = false) {
  * @return array
  */
 function wrap_sql_split($sql) {
-    $pattern = '/(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")|([^\'"]+)/';
-    preg_match_all($pattern, $sql, $matches);
-    return [
-        'strings' => $matches[1],
-        'no_strings' => $matches[2]
-    ];
+	$strings = [];
+	$no_strings = [];
+	$current = '';
+	$in_string = false;
+	$quote_char = '';
+	$len = strlen($sql);
+	
+	for ($i = 0; $i < $len; $i++) {
+		$char = $sql[$i];
+		
+		if (!$in_string) {
+			// Not in a string
+			if ($char === '"' || $char === "'") {
+				// Start of a string
+				if ($current !== '') {
+					$no_strings[] = $current;
+					$current = '';
+				}
+				$in_string = true;
+				$quote_char = $char;
+				$current = $char;
+			} else {
+				// Regular character
+				$current .= $char;
+			}
+		} else {
+			// Inside a string
+			$current .= $char;
+			
+			if ($char === '\\' && $i + 1 < $len) {
+				// Escape sequence - add next character too
+				$i++;
+				$current .= $sql[$i];
+			} elseif ($char === $quote_char) {
+				// End of string
+				$strings[] = $current;
+				$current = '';
+				$in_string = false;
+				$quote_char = '';
+			}
+		}
+	}
+	
+	// Add any remaining content
+	if ($current !== '') {
+		if ($in_string) {
+			$strings[] = $current;
+		} else {
+			$no_strings[] = $current;
+		}
+	}
+	
+	// Pad arrays to same length for compatibility
+	$max = max(count($strings), count($no_strings));
+	while (count($strings) < $max) $strings[] = '';
+	while (count($no_strings) < $max) $no_strings[] = '';
+	
+	return [
+		'strings' => $strings,
+		'no_strings' => $no_strings
+	];
 }
 
 /**
