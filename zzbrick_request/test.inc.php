@@ -108,6 +108,8 @@ function mod_zzwrap_test($params, $settings = []) {
 				'expected' => $expected
 			];
 		}
+		// Cleanup: restore all modified values to their original state
+		mod_zzwrap_test_cleanup();
 	}
 
 	$page['text'] = wrap_template('test', $data);
@@ -115,10 +117,6 @@ function mod_zzwrap_test($params, $settings = []) {
 	$page['breadcrumbs'][] = ['title' => $data['function']];
 	$page['extra']['css'][] = 'zzwrap/tests.css';
 	$page['title'] = wrap_text('Tests for %s()', ['values' => [$data['function']]]);
-	
-	// Cleanup: restore all modified values to their original state
-	mod_zzwrap_test_cleanup();
-	
 	return $page;
 }
 
