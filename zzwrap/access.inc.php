@@ -33,7 +33,8 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		wrap_session_start();
 		$logged_in = $_SESSION['logged_in'] ?? false;
 		session_write_close();
-		if ($area === 'preview' AND !$logged_in) return false;
+		if (($area === 'preview' OR str_ends_with($area, '_preview')) AND !$logged_in)
+			return false;
 		return true;
 	}
 	
