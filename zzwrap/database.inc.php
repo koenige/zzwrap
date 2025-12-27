@@ -2010,3 +2010,32 @@ function wrap_mysql_character_encoding($table, $field) {
 	}
 	return $character_encodings[$table][$field] ?? NULL;
 }
+
+/**
+ * get primary key of database table
+ *
+ * @param string $table
+ * @return string
+ */
+function wrap_mysql_primary_key($table) {
+	static $keys = [];
+	if (!$keys) {
+		$sql = 'SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION
+			FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+			WHERE TABLE_SCHEMA = "%s"
+			AND CONSTRAINT_NAME = "PRIMARY"
+			ORDER BY TABLE_NAME, ORDINAL_POSITION';
+		$sql = sprintf($sql, wrap_setting('db_name'));
+		$keys = wrap_db_fetch($sql, ['TABLE_NAME', 'ORDINAL_POSITION']);
+	}
+	if (!array_key_exists($table, $keys)) {
+		wrap_error(wrap_text('Primary Key for table %s was not found.', ['values' => [$table]]), E_USER_WARNING);
+		return '';
+	}
+	if (count($keys[$table]) > 1) {
+		wrap_error(wrap_text('Primary Key for table %s spans over more than one field.', ['values' => [$table]]), E_USER_WARNING);
+		return '';
+	}
+	
+	return $keys[$table][1]['COLUMN_NAME'];
+}
