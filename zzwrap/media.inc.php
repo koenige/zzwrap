@@ -30,12 +30,12 @@ function wrap_media($ids, $table, $settings = []) {
 	}
 	if (!$id_field) return [];
 
+	if (function_exists('wrap_get_media')) {
+		return wrap_get_media($ids, $table, $id_field, $settings['where'] ?? []);
+	}
 	if (wrap_package('media')) {
 		wrap_include('media', 'media');
 		return mf_media_get($ids, $table, $id_field, $settings['where'] ?? []);
-	}
-	if (function_exists('wrap_get_media')) {
-		return wrap_get_media($ids, $table, $id_field, $settings['where'] ?? []);
 	}
 
 	return [];
