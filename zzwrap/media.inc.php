@@ -35,7 +35,7 @@ function wrap_media($ids, $table, $settings = []) {
 	}
 	if (wrap_package('media')) {
 		wrap_include('media', 'media');
-		return mf_media_get($ids, $table, $id_field, $settings['where'] ?? []);
+		return mf_media_get($ids, $table, $id_field, $settings);
 	}
 
 	return [];
