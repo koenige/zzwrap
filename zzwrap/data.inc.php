@@ -113,15 +113,12 @@ function wrap_data_langs($data, $lang_field_name = '') {
  * @param array $ids
  * @param array $langs
  * @param string $table
- * @param string $id_field
  * @return array
  */
-function wrap_data_media($data, $ids, $langs, $table, $id_field) {
+function wrap_data_media($data, $ids, $langs, $table) {
 	$mediadata = wrap_media(array_unique($ids), $table);
 	if (!$mediadata) return $data;
-	$id_field = sprintf('%s_id', $id_field);
-	// remove database table if in field name
-	if ($pos = strpos($id_field, '.')) $id_field = substr($id_field, $pos + 1);
+	$id_field = wrap_mysql_primary_key($table);
 	foreach ($langs as $lang) {
 		$media = wrap_translate($mediadata, 'media', 'medium_id', true, $lang);
 		foreach ($data[$lang] as $line_id => $line) {
