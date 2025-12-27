@@ -117,8 +117,7 @@ function wrap_data_langs($data, $lang_field_name = '') {
  * @return array
  */
 function wrap_data_media($data, $ids, $langs, $table, $id_field) {
-	if (!function_exists('wrap_get_media')) return $data;
-	$mediadata = wrap_get_media(array_unique($ids), $table, $id_field);
+	$mediadata = wrap_media(array_unique($ids), $table);
 	if (!$mediadata) return $data;
 	$id_field = sprintf('%s_id', $id_field);
 	// remove database table if in field name

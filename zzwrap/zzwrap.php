@@ -147,6 +147,7 @@ function wrap_includes() {
 	wrap_include('mail', '_core');
 	wrap_include('format', '_core');
 	wrap_include('page', '_core');
+	wrap_include('media', '_core');
 }
 
 /**

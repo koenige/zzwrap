@@ -94,8 +94,7 @@ function wrap_page_media($page) {
 	$media = $page['media'] ?? [];
 	$page_id = $zz_page['db'][wrap_sql_fields('page_id')] ?? false;
 	if (!$page_id) return $media;
-	if (!function_exists('wrap_get_media')) return $media;
-	$media = array_merge(wrap_get_media($page_id), $media);
+	$media = array_merge(wrap_media($page_id, 'webpages'), $media);
 	return $media;
 }
 
