@@ -15,6 +15,11 @@
 #: Identifier	Type	Search Text	Message	Exclude Pattern
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
+2024-11-01-1	code	wrap_localhost_ip	use wrap_http_localhost_ip() instead
+2024-11-02-1	code	wrap_file_send	use wrap_send_file() instead	zzwrap/zzwrap/send.inc.php
+2024-11-02-2	code	require_once wrap_setting('core')	use wrap_include('…', 'zzwrap')
+2024-12-03-1	code	custom_wrap_dir	removed
+2024-12-03-2	code	custom_wrap_sql_dir	removed
 2025-07-15-1	code	wrap_rights	removed, use wrap_access('preview')
 2025-07-15-2	code	wrap_test_secret_key	removed
 2025-08-24-1	code	$page['send_as_json']	use setting `send_as_json`
