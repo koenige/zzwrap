@@ -781,26 +781,12 @@ function wrap_db_escape($value) {
 }
 
 /**
- * get auto increment value of a table
- *
- * @param string $table
- * @return string
- */
-function wrap_db_auto_increment($table) {
-	$sql = 'SHOW TABLE STATUS FROM `%s` WHERE `name` LIKE "%s"';
-	$sql = sprintf($sql, wrap_setting('db_name'), $table);
-	$data = wrap_db_fetch($sql);
-	if (empty($data)) return '';
-	return $data['Auto_increment'];
-}
-
-/**
  * get auto increment of table
  *
  * @param string $table
  * @return int
  */
-function wrap_db_increment($table) {
+function wrap_mysql_increment($table) {
 	$sql = 'SELECT `AUTO_INCREMENT`
 		FROM  INFORMATION_SCHEMA.TABLES
 		WHERE TABLE_SCHEMA = "/*_SETTING db_name _*/"
