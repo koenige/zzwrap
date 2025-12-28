@@ -12,11 +12,16 @@
 # @copyright Copyright © 2025 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
-#: Identifier	Search Text	Message	Exclude Pattern
+#: Identifier	Type	Search Text	Message	Exclude Pattern
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
-2025-12-14-1	wrap_syndication_retrieve_via_http	use wrap_syndication_http_request() instead, different parameters	zzwrap/syndication.inc.php
-2025-12-15-1	wrap_syndication_get	use wrap_syndication() instead, different parameters	zzwrap/syndication.inc.php
-2025-12-15-2	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php
-2025-12-28-1	wrap_db_increment	use wrap_mysql_increment() instead
-2025-12-28-2	wrap_db_auto_increment	use wrap_mysql_increment() instead
+2025-07-15-1	code	wrap_rights	removed, use wrap_access('preview')
+2025-07-15-2	code	wrap_test_secret_key	removed
+2025-08-24-1	code	$page['send_as_json']	use setting `send_as_json`
+2025-11-12-1	filename	custom/text-*.po	use `languages` folder
+2025-11-13-1	code	'add_next' =>	for `$zz_page['breadcrumb_placeholder]`, removed; use full URL in placeholder
+2025-12-14-1	code	wrap_syndication_retrieve_via_http	use wrap_syndication_http_request() instead, different parameters	zzwrap/syndication.inc.php
+2025-12-15-1	code	wrap_syndication_get	use wrap_syndication() instead, different parameters	zzwrap/syndication.inc.php
+2025-12-15-2	code	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php
+2025-12-28-1	code	wrap_db_increment	use wrap_mysql_increment() instead
+2025-12-28-2	code	wrap_db_auto_increment	use wrap_mysql_increment() instead
