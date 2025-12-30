@@ -703,8 +703,7 @@ function wrap_translate_po($map, $data, $target_language, $foreign_key_field_nam
  * @return array
  */
 function wrap_translate_po_table($table, $data, $target_language, $foreign_key_field_name = '', $field_map = []) {
-	$filename = sprintf('languages/%s-%s.po', $table, $target_language);
-	$files = wrap_collect_files($filename);
+	$files = wrap_translate_po_table_filename($table, $target_language);
 	if (!$files) return $data;
 
 	foreach ($files as $file) {
@@ -735,6 +734,18 @@ function wrap_translate_po_table($table, $data, $target_language, $foreign_key_f
 		}
 	}
 	return $data;
+}
+
+/**
+ * get filename for .po files for table
+ *
+ * @param string $table
+ * @param string $language
+ * @return array
+ */
+function wrap_translate_po_table_filename($table, $language) {
+	$filename = sprintf('languages/%s-%s.po', $table, $language);
+	return wrap_collect_files($filename);
 }
 
 /**
