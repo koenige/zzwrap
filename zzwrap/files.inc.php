@@ -127,7 +127,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		$this_path = $path ? $path : 'custom';
 		$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
 		if (strstr($filename, '*')) {
-			$matches = glob($file);
+			$matches = glob($file, \GLOB_BRACE);
 			foreach ($matches as $index => $file) {
 				if (str_starts_with(basename($file), '.')) continue;
 				$files['custom/'.$index] = $file;
