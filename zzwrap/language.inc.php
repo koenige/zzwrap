@@ -462,14 +462,17 @@ function wrap_text_include($file) {
  */
 function wrap_translate($data, $translation_map_in, $foreign_key_field_name = '',
 	$mark_incomplete = true, $target_language = false) {
-	if (!wrap_setting('translate_fields')) return $data;
-	if (!wrap_setting('default_source_language')) return $data;
-	$translation_sql = wrap_sql_query('default_translations');
-	if (!$translation_sql) return $data;
-
 	if (!$target_language)
 		// if we do not have a language to translate to, return data untranslated
 		if (!$target_language = wrap_setting('lang')) return $data;
+
+	// translate_fields disabled: only try .po files
+	if (!wrap_setting('translate_fields')) {
+		return wrap_translate_po($translation_map_in, $data, $target_language, $foreign_key_field_name);
+	}
+	if (!wrap_setting('default_source_language')) return $data;
+	$translation_sql = wrap_sql_query('default_translations');
+	if (!$translation_sql) return $data;
 
 	// check the translation map and fill in the blanks
 	// cross check against database
