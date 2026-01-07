@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -73,6 +73,7 @@ function mod_zzwrap_login($params, $settings = []) {
 		if (!empty($_GET['link']))
 			return brick_format('%%% make linklogin '.implode(' ', explode('-', $_GET['link'])).'%%%');
 	} elseif (!empty($_GET['auth'])) {
+		wrap_setting('cache', false);
 		$login = wrap_login_hash($_GET['auth'], $login);
 		// if successful, redirect
 		$loginform['msg'] = sprintf('%s <a href="%s">%s</a>'
