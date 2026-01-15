@@ -104,6 +104,7 @@ function wrap_access_groups($config, $usergroups, $area, $detail) {
 	if (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
 
 	if (!empty($usergroups[$area])) {
+		$detail = wrap_access_detail_key($detail, $config[$area]);
 		foreach ($usergroups[$area] as $usergroup) {
 			$access = brick_access_rights($usergroup, $detail);
 			if ($access) return true;
@@ -111,9 +112,35 @@ function wrap_access_groups($config, $usergroups, $area, $detail) {
 		return false;
 	}
 
-	if (!$group_rights) return false;
 	$group_rights = array_diff($group_rights, ['localhost', 'public']);
+	if (!$group_rights) return false;
 	return brick_access_rights($group_rights);
+}
+
+/**
+ * extract specific parameter key from detail string for access rights check
+ *
+ * if access_detail_key is configured, extracts just that key:value pair
+ * from a multi-part detail string (e.g., "event_id:234+registration_id:456" -> "event_id:234")
+ *
+ * @param string $detail access detail string (may contain multiple key:value pairs joined by +)
+ * @param array $area_config configuration for this access area
+ * @return string filtered detail string or original if no filtering needed
+ */
+function wrap_access_detail_key($detail, $area_config) {
+	if (!$detail) return $detail;
+	if (!array_key_exists('access_detail_key', $area_config)) return $detail;
+	if (!$key_to_find = $area_config['access_detail_key']) return $detail;
+	if (strpos($detail, ':') === false) return $detail;
+
+	// extract specific parameter key for access rights check
+	$parts = explode('+', $detail);
+	foreach ($parts as $part) {
+		if (strpos($part, $key_to_find.':') === 0) {
+			return $part;
+		}
+	}
+	return $detail;
 }
 
 /**
