@@ -91,8 +91,17 @@ function wrap_access($area, $detail = '', $conditions = true) {
  * @return bool true: access granted, false: access denied
  */
 function wrap_access_groups($config, $usergroups, $area, $detail) {
-	$pos = strpos($area, '[');
-	$area_short = $pos !== false ? substr($area, 0, $pos) : '';
+	// localhost and public cannot be overwritten in database
+	// so check these first
+	$group_rights = $config[$area]['group'] ?? [];
+	if (!$group_rights) {
+		$pos = strpos($area, '[');
+		$area_short = $pos !== false ? substr($area, 0, $pos) : '';
+		if ($area_short) $group_rights = $config[$area_short]['group'] ?? [];
+	}
+	if (!is_array($group_rights)) $group_rights = [$group_rights];
+	if (in_array('public', $group_rights)) return true;
+	if (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
 
 	if (!empty($usergroups[$area])) {
 		foreach ($usergroups[$area] as $usergroup) {
@@ -102,13 +111,8 @@ function wrap_access_groups($config, $usergroups, $area, $detail) {
 		return false;
 	}
 
-	$group_rights = $config[$area]['group'] ?? [];
-	if (!$group_rights AND $area_short)
-		$group_rights = $config[$area_short]['group'] ?? [];
 	if (!$group_rights) return false;
-	if (!is_array($group_rights)) $group_rights = [$group_rights];
-	if (in_array('public', $group_rights)) return true;
-	elseif (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
+	$group_rights = array_diff($group_rights, ['localhost', 'public']);
 	return brick_access_rights($group_rights);
 }
 
