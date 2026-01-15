@@ -23,7 +23,6 @@
  */
 function wrap_access($area, $detail = '', $conditions = true) {
 	static $config = [];
-	static $usergroups = [];
 	if (!$config) $config = wrap_cfg_files('access');
 
 	// no access rights function: allow everything	
@@ -40,8 +39,50 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	// @todo global access rights for local users can be overwritten
 	// if user has access to webpages table and can write bricks
 	if (wrap_setting('access_global')) return true;
+	
+	// directly given access via session or setting?
+	if (in_array($area, wrap_setting('no_access'))) return false;
+	if (in_array($area, wrap_setting('access'))) return true;
+	if (!empty($_SESSION['no_access']) AND in_array($area, $_SESSION['no_access'])) return false;
+	if (!empty($_SESSION['access']) AND in_array($area, $_SESSION['access'])) return true;
 
-	// read settings from database
+	// check if access rights are met
+	$access = wrap_access_groups($config, $area, $detail);
+	if (!$access) return false;
+	
+	// check if there are conditions if access is granted
+	if ($conditions AND array_key_exists($area, $config)) {
+		$condition = wrap_conditions($config[$area], $detail);
+		if (!$condition) return NULL;
+	}
+
+	return $access;
+}
+
+/**
+ * check if access rights are met via usergroups or config groups
+ *
+ * @param array $config access configuration
+ * @param string $area
+ * @param string $detail access detail string
+ * @return bool true: access granted, false: access denied
+ */
+function wrap_access_groups($config, $area, $detail) {
+	static $usergroups = [];
+
+	// localhost and public cannot be overwritten in database
+	// so check these first
+	$group_rights = $config[$area]['group'] ?? [];
+	if (!$group_rights) {
+		$pos = strpos($area, '[');
+		$area_short = $pos !== false ? substr($area, 0, $pos) : '';
+		if ($area_short) $group_rights = $config[$area_short]['group'] ?? [];
+	}
+	if (!is_array($group_rights)) $group_rights = [$group_rights];
+	if (in_array('public', $group_rights)) return true;
+	if (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
+
+	// read usergroup rights from database
 	if (wrap_package('activities')
 		AND !array_key_exists($area, $usergroups)
 		AND wrap_setting('mod_activities_install_date')
@@ -61,47 +102,6 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		$sql = sprintf($sql, implode('","', $areas));
 		$usergroups[$area] = wrap_db_fetch($sql, 'usergroup_id', 'key/value');
 	}
-	
-	// directly given access via session or setting?
-	if (in_array($area, wrap_setting('no_access'))) return false;
-	if (in_array($area, wrap_setting('access'))) return true;
-	if (!empty($_SESSION['no_access']) AND in_array($area, $_SESSION['no_access'])) return false;
-	if (!empty($_SESSION['access']) AND in_array($area, $_SESSION['access'])) return true;
-
-	// check if access rights are met
-	$access = wrap_access_groups($config, $usergroups, $area, $detail);
-	if (!$access) return false;
-	
-	// check if there are conditions if access is granted
-	if ($conditions AND array_key_exists($area, $config)) {
-		$condition = wrap_conditions($config[$area], $detail);
-		if (!$condition) return NULL;
-	}
-
-	return $access;
-}
-
-/**
- * check if access rights are met via usergroups or config groups
- *
- * @param array $config access configuration
- * @param array $usergroups database usergroups for this area
- * @param string $area
- * @param string $detail access detail string
- * @return bool true: access granted, false: access denied
- */
-function wrap_access_groups($config, $usergroups, $area, $detail) {
-	// localhost and public cannot be overwritten in database
-	// so check these first
-	$group_rights = $config[$area]['group'] ?? [];
-	if (!$group_rights) {
-		$pos = strpos($area, '[');
-		$area_short = $pos !== false ? substr($area, 0, $pos) : '';
-		if ($area_short) $group_rights = $config[$area_short]['group'] ?? [];
-	}
-	if (!is_array($group_rights)) $group_rights = [$group_rights];
-	if (in_array('public', $group_rights)) return true;
-	if (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
 
 	if (!empty($usergroups[$area])) {
 		$detail = wrap_access_detail_key($detail, $config[$area]);
