@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2018-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2018-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -25,7 +25,6 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	static $config = [];
 	static $usergroups = [];
 	if (!$config) $config = wrap_cfg_files('access');
-	$area_short = substr($area, 0, strpos($area, '['));
 
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) {
@@ -63,10 +62,6 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		$usergroups[$area] = wrap_db_fetch($sql, 'usergroup_id', 'key/value');
 	}
 	
-	// are there access rights? no: = no access!
-	if (empty($usergroups[$area]) AND empty($config[$area]['group']) AND empty($config[$area_short]['group']))
-		return false;
-
 	// directly given access via session or setting?
 	if (in_array($area, wrap_setting('no_access'))) return false;
 	if (in_array($area, wrap_setting('access'))) return true;
@@ -74,18 +69,7 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	if (!empty($_SESSION['access']) AND in_array($area, $_SESSION['access'])) return true;
 
 	// check if access rights are met
-	if (!empty($usergroups[$area])) {
-		foreach ($usergroups[$area] as $usergroup) {
-			$access = brick_access_rights($usergroup, $detail);
-			if ($access) break;
-		}
-	} else {
-		$group_rights = $config[$area]['group'] ?? $config[$area_short]['group'];
-		if (!is_array($group_rights)) $group_rights = [$group_rights];
-		if (in_array('public', $group_rights)) $access = true;
-		elseif (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) $access = true;
-		else $access = brick_access_rights($group_rights);
-	}
+	$access = wrap_access_groups($config, $usergroups, $area, $detail);
 	if (!$access) return false;
 	
 	// check if there are conditions if access is granted
@@ -95,6 +79,37 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	}
 
 	return $access;
+}
+
+/**
+ * check if access rights are met via usergroups or config groups
+ *
+ * @param array $config access configuration
+ * @param array $usergroups database usergroups for this area
+ * @param string $area
+ * @param string $detail access detail string
+ * @return bool true: access granted, false: access denied
+ */
+function wrap_access_groups($config, $usergroups, $area, $detail) {
+	$pos = strpos($area, '[');
+	$area_short = $pos !== false ? substr($area, 0, $pos) : '';
+
+	if (!empty($usergroups[$area])) {
+		foreach ($usergroups[$area] as $usergroup) {
+			$access = brick_access_rights($usergroup, $detail);
+			if ($access) return true;
+		}
+		return false;
+	}
+
+	$group_rights = $config[$area]['group'] ?? [];
+	if (!$group_rights AND $area_short)
+		$group_rights = $config[$area_short]['group'] ?? [];
+	if (!$group_rights) return false;
+	if (!is_array($group_rights)) $group_rights = [$group_rights];
+	if (in_array('public', $group_rights)) return true;
+	elseif (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
+	return brick_access_rights($group_rights);
 }
 
 /**
