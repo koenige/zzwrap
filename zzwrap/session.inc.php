@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -227,4 +227,20 @@ function wrap_session_cookie_injection($session_name) {
 		wrap_error(sprintf('Illegal session cookie value found: %s', $_COOKIE[$session_name]), E_USER_NOTICE);
 		unset($_COOKIE[$session_name]);
 	}
+}
+
+/**
+ * get a session variable value without starting a session
+ *
+ * @param string $key
+ * @return mixed NULL if session not active or variable not set, value otherwise
+ */
+function wrap_session_value($key) {
+	// only start a session if a session cookie exists
+	if (!array_key_exists(wrap_setting('session_name'), $_COOKIE)) return NULL;
+
+	wrap_session_start();
+	$value = $_SESSION[$key] ?? NULL;
+	session_write_close();
+	return $value;
 }

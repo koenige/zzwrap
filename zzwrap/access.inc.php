@@ -28,9 +28,7 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) {
 		// super simple rights system: allow everything, but not preview
-		wrap_session_start();
-		$logged_in = $_SESSION['logged_in'] ?? false;
-		session_write_close();
+		$logged_in = wrap_session_value('logged_in');
 		if (($area === 'preview' OR str_ends_with($area, '_preview')) AND !$logged_in)
 			return false;
 		return true;
