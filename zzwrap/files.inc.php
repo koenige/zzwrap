@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2022-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2022-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -258,6 +258,7 @@ function wrap_tsv_parse($filename, $paths = '') {
 				$data[] = trim($line[0]);
 			} elseif (count($line) === 2 and !$head) {
 				// key/value
+				$key = sprintf('%s-%s', $key, $package);
 				$data[$key] = trim($line[1]);
 			} elseif (!is_null($subkey)) {
 				if ($head) {
@@ -271,6 +272,7 @@ function wrap_tsv_parse($filename, $paths = '') {
 					$data[$key][] = $line;
 				}
 			} else {
+				$key = sprintf('%s-%s', $key, $package);
 				$data[$key] = $line;
 				if ($head) {
 					foreach ($head as $index => $title)
