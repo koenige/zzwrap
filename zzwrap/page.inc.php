@@ -11,7 +11,7 @@
  *	wrap_htmlout_page()				-- outputs webpage from %%%-template in HTML
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -110,11 +110,19 @@ function wrap_page_title($page) {
 	global $zz_page;
 
 	if (empty($page['title'])) {
-		if (!empty($zz_page['db']) AND empty($page['error_no_content']))
+		if (!empty($zz_page['db']) AND empty($page['error_no_content'])) {
 			$page['title'] = $zz_page['db'][wrap_sql_fields('page_title')];
-		else {
+		} elseif ($page['status'] !== 200) {
 			$status = wrap_http_status_list($page['status']);
+			if (!array_key_exists('text', $status))
+				wrap_error(wrap_text('No text line for HTTP status %d found.',
+					['values' => [$page['status']]]
+				));
 			$page['title'] = $status['text'];
+		} else {
+			// no page title, e. g. JS file or other
+			$page['pagetitle'] = '';
+			return $page;
 		}
 	}
 	if (wrap_setting('translate_page_title') OR !empty($status))
