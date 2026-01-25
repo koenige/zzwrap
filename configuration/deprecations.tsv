@@ -31,6 +31,6 @@
 2025-11-13-1	code	'add_next' =>	for `$zz_page['breadcrumb_placeholder]`, removed; use full URL in placeholder
 2025-12-14-1	code	wrap_syndication_retrieve_via_http	use wrap_syndication_http_request() instead, different parameters	zzwrap/syndication.inc.php
 2025-12-15-1	code	wrap_syndication_get	use wrap_syndication() instead, different parameters	zzwrap/syndication.inc.php
-2025-12-15-2	code	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php
+2025-12-15-2	code	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php;mediadb/mediadb/metadata-iptc.inc.php
 2025-12-28-1	code	wrap_db_increment	use wrap_mysql_increment() instead
 2025-12-28-2	code	wrap_db_auto_increment	use wrap_mysql_increment() instead
