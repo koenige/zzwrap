@@ -222,9 +222,14 @@ function wrap_functions($files, $match) {
  *
  * @param string $filename
  * @param string $paths (optional)
+ * @param array $settings (optional)
+ *		'key_with_package': bool, append package name to key (default: false)
  * @return array
  */
-function wrap_tsv_parse($filename, $paths = '') {
+function wrap_tsv_parse($filename, $paths = '', $settings = []) {
+	if (!array_key_exists('key_with_package', $settings))
+		$settings['key_with_package'] = false;
+	
 	$filename = sprintf('configuration/%s.tsv', $filename);
 	$files = $paths ? wrap_collect_files($filename, $paths) : wrap_collect_files($filename);
 	if (!$files) return [];
@@ -258,7 +263,8 @@ function wrap_tsv_parse($filename, $paths = '') {
 				$data[] = trim($line[0]);
 			} elseif (count($line) === 2 and !$head) {
 				// key/value
-				$key = sprintf('%s-%s', $key, $package);
+				if ($settings['key_with_package'])
+					$key = sprintf('%s-%s', $key, $package);
 				$data[$key] = trim($line[1]);
 			} elseif (!is_null($subkey)) {
 				if ($head) {
@@ -272,7 +278,8 @@ function wrap_tsv_parse($filename, $paths = '') {
 					$data[$key][] = $line;
 				}
 			} else {
-				$key = sprintf('%s-%s', $key, $package);
+				if ($settings['key_with_package'])
+					$key = sprintf('%s-%s', $key, $package);
 				$data[$key] = $line;
 				if ($head) {
 					foreach ($head as $index => $title)
