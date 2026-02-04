@@ -157,54 +157,67 @@ function wrap_menu_navigation() {
  * @return array $menu: 'title', 'url', 'subtitle'
  */
 function wrap_menu_webpages() {
-	// no menu query, so we don't have a menu
-	if (!$sql = wrap_sql_query('page_menu')) return [];
-	
 	if (!wrap_database_table_check('/*_PREFIX_*/webpages_categories')) return [];
 	
 	wrap_menu_webpages_register();
+	
+	$menu = wrap_menu_webpages_level();
+	if (!$menu) return [];
+	if (!empty($_SESSION) AND function_exists('wrap_menu_session'))
+		wrap_menu_session($menu);
 
-	$menu = [];
-	// get top menus
+	// get second (and third or fourth) hierarchy level
+	$levels = [2, 3, 4];
+	foreach ($levels as $level) {
+		$new = wrap_menu_webpages_level($menu, $level);
+		if (!$new) continue;
+		$menu = array_merge($menu, $new);
+	}
+
+	return $menu;
+}
+
+/**
+ * Fetch menu entries from database for a specific hierarchical level
+ * 
+ * Queries the database for menu items at the specified level (1-4), processes
+ * translations, handles menu categories, and merges results into the menu
+ * structure. Level 1 fetches top-level menu items; higher levels fetch submenus
+ * that are children of items in the passed $menu array.
+ * 
+ * @param array $menu Existing menu structure to merge into (for levels > 1)
+ * @param int $level Menu hierarchy level: 1 = top level, 2-4 = submenus
+ * @return array Updated menu array with entries for this level, keyed by menu path
+ */
+function wrap_menu_webpages_level($menu = [], $level = 1) {
+	if ($level === 1) {
+		$sql = wrap_sql_query('page_menu');
+	} else {
+		if (!wrap_setting('menu_level_'.$level)) return [];
+		$sql = wrap_sql_query('page_menu_level'.$level);
+		// @todo check if still in use somewhere, if not, remove
+		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
+	}
+	if (!$sql) return [];
+
 	$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
 	if (!$entries) return [];
 	if ($menu_table = wrap_sql_table('page_menu')) {
 		$entries = wrap_translate($entries, $menu_table);
-		$entries = wrap_menu_shorten($entries, $sql);
+		if ($level === 1)
+			$entries = wrap_menu_shorten($entries, $sql);
 	}
 	foreach ($entries as $line) {
+		if ($level !== 1 AND empty($line['top_ids']))
+			// backwards compatibility
+			$line['top_ids'] = $line['mother_page_id'];
 		$items = wrap_menu_webpages_category($line['menu']);
 		foreach ($items as $item) {
 			$line['menu'] = $item;
-			$my_item = wrap_menu_asterisk_check($line, $menu[$line['menu']]);
-			if (!$my_item) continue;
-			$menu[$line['menu']] = $my_item;
-		}
-	}
-	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
-		wrap_menu_session($menu);
-	}
-	// get second (and third or fourth) hierarchy level
-	$levels = [2, 3, 4];
-	foreach ($levels as $level) {
-		if (!wrap_setting('menu_level_'.$level)) continue;
-		if (!$sql = wrap_sql_query('page_menu_level'.$level)) continue;
-		$sql = sprintf($sql, '"'.implode('", "', array_keys($menu)).'"');
-		$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
-		if ($menu_table = wrap_sql_table('page_menu'))
-			$entries = wrap_translate($entries, $menu_table);
-		foreach ($entries as $line) {
-			if (empty($line['top_ids'])) {
-				// backwards compatibility
-				$line['top_ids'] = $line['mother_page_id'];
-			}
-			$items = wrap_menu_webpages_category($line['menu']);
-			foreach ($items as $item) {
-				$menu_key = $item.'-'.$line['top_ids'];
-				// URLs ending in * or */ or *.html are different
-				if ($my_item = wrap_menu_asterisk_check($line, $menu[$menu_key]))
-					$menu[$menu_key] = $my_item;
-			}
+			if ($level !== 1) $line['menu'] .= '-'.$line['top_ids'];
+			$my_menu = wrap_menu_asterisk_check($line, $menu[$line['menu']] ?? []);
+			if (!$my_menu) continue;
+			$menu[$line['menu']] = $my_menu;
 		}
 	}
 	return $menu;
