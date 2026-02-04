@@ -313,23 +313,24 @@ function wrap_menu_asterisk_check($line, $menu, $id = 'page_id') {
 }
 
 /**
- * Gibt in HTML formatiertes Navigationsmenü von wrap_menu_get() aus
+ * Render navigation menu as HTML output
  * 
- * HTML-Ausgabe erfolgt als verschachtelte Liste mit id="menu" und role
- * auf oberster Ebene, darunter obj2, obj3, .. je nach Anzahl der Menüeinträge
- * aktuelle Seite wird mit '<strong>' ausgezeichnet. Gibt komplettes Menü
- * zurück
- * @param array $nav Ausgabe von wrap_menu_get();
- *	required keys: 'title', 'url', 'current_page'
- *	optional keys: 'long_title', 'id', 'class', 'subtitle', 'ignore'
- * @param string $menu_name optional; 0 bzw. für Untermenüs $nav_id des jeweiligen 
- *	Eintrags oder Name des Menüs
- * @param int $page_id optional; show only the one correspondig entry from the menu
- *	and show it with a long title
- * @param int $level: if it's a submenu, show the level of the menu
- * @param bool $avoid_duplicates avoid duplicate menus, can be set to false if
- *  for some reasons menus shall be recreated (e. g. settings differ)
- * @return string HTML-Output
+ * Takes menu data from wrap_menu_get() and renders it using templates. Supports
+ * multi-level hierarchical menus with automatic submenu detection. Can display
+ * either complete menus or single menu entries. Optionally merges session-based
+ * menu entries for logged-in users.
+ * 
+ * @param array $nav Menu data from wrap_menu_get() (passed by reference)
+ *   Required keys: 'title', 'url', 'current_page'
+ *   Optional keys: 'long_title', 'id', 'class', 'subtitle', 'ignore', 'below'
+ * @param string $menu_name Menu identifier or numeric ID for submenus;
+ *   defaults to main_menu setting if empty
+ * @param int $page_id Show only single menu entry matching this page ID
+ *   and display its long title
+ * @param int $level Nesting level (0 = top level, increments for submenus)
+ * @param bool $avoid_duplicates Prevent duplicate menu output; set to false
+ *   to allow recreation with different settings
+ * @return string HTML output rendered via template, or false if no menu exists
  */
 function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_duplicates = true) {
 	static $menus = [];
@@ -385,7 +386,7 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 
 	// OK, finally, we just get the menu together
 	$menu = [];
-	foreach ($nav[$menu_name] as $id => $item) {
+	foreach ($nav[$menu_name] as $item) {
 		if (!is_array($item)) continue;
 		if ($page_id AND $item[$fn_page_id] != $page_id) continue;
 		if (isset($item['ignore'])) continue;
@@ -393,25 +394,12 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 		// do some formatting in advance
 		// @todo move to template or to wrap_menu_get()
 		$item['title'] = $page_id ? $item['long_title'] : $item['title'];
-		$item['title'] = str_replace('& ', '&amp; ', $item['title']);
-		$item['title'] = str_replace('-', '-&shy;', $item['title']);
-		if (!empty($item['subtitle'])) {
-			$item['subtitle'] = str_replace('& ', '&amp; ', $item['subtitle']);
-			$item['subtitle'] = str_replace('-', '-&shy;', $item['subtitle']);
-		}
+		$item['title'] = wrap_menu_textformat($item['title']);
+		if (!empty($item['subtitle']))
+			$item['subtitle'] = wrap_menu_textformat($item['subtitle']);
 		
 		// get submenu if there is one and if it shall be shown
-		$id = ($fn_page_id === 'nav_id' ? '' : $item['menu']);
-		if (!empty($item['top_ids'])) {
-			// create ID for menus level 3 and downwards
-			$top_id = explode('-', $id);
-			if (in_array(array_pop($top_id), explode('-', $item['top_ids']))) {
-				// if ID is somewhere in top_ids, remove it
-				$id = implode('-', $top_id);
-			}
-			$id .= ($id ? '-' : '').$item['top_ids'];
-		}
-		$id .= ($id ? '-' : '').$item[$fn_page_id];
+		$id = wrap_menu_id($item, $fn_page_id);
 		if (!empty($nav[$id]) // there is a submenu and at least one of:
 			AND (wrap_setting('menu_display_submenu_items') !== 'none')
 			AND (wrap_setting('menu_display_submenu_items') === 'all' 	// all menus shall be shown
@@ -433,10 +421,50 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 		$output = wrap_template($menu['template'], $menu);
 	else
 		$output = wrap_template('menu', $menu);
-	if ($avoid_duplicates) {
+	if ($avoid_duplicates)
 		$menus[] = $menu_name;
-	}
+
 	return $output;
+}
+
+/**
+ * Format menu text for HTML output
+ * 
+ * Encodes ampersands followed by spaces and adds soft hyphens after hyphens
+ * for better line breaking in menu items
+ * 
+ * @param string $text Menu text to format (title or subtitle)
+ * @return string Formatted text with HTML entities and soft hyphens
+ */
+function wrap_menu_textformat($text) {
+	$text = str_replace('& ', '&amp; ', $text);
+	$text = str_replace('-', '-&shy;', $text);
+	return $text;
+}
+
+/**
+ * Build hierarchical menu ID from menu item data
+ * 
+ * Constructs a unique identifier for menu hierarchy by combining menu path,
+ * top IDs, and page ID. Used to reference submenus in multi-level navigation.
+ * 
+ * @param array $item Menu item data with 'menu', 'top_ids' and page ID fields
+ * @param string $fn_page_id Field name for page ID (e.g. 'nav_id', 'page_id')
+ * @return string Hyphen-separated menu ID (e.g. '1-2-5')
+ */
+function wrap_menu_id($item, $fn_page_id) {
+	$id = ($fn_page_id === 'nav_id' ? '' : $item['menu']);
+	if (!empty($item['top_ids'])) {
+		// create ID for menus level 3 and downwards
+		$top_id = explode('-', $id);
+		if (in_array(array_pop($top_id), explode('-', $item['top_ids']))) {
+			// if ID is somewhere in top_ids, remove it
+			$id = implode('-', $top_id);
+		}
+		$id .= ($id ? '-' : '').$item['top_ids'];
+	}
+	$id .= ($id ? '-' : '').$item[$fn_page_id];
+	return $id;
 }
 
 
