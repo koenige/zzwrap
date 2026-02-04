@@ -138,7 +138,7 @@ function wrap_menu_navigation() {
 	// write database output into hierarchical array
 	$menu = [];
 	foreach ($unsorted_menu as $item) {
-		$my_item = wrap_menu_asterisk_check($item, $menu, $item['main_nav_id'], 'nav_id');
+		$my_item = wrap_menu_asterisk_check($item, $menu[$item['main_nav_id']], 'nav_id');
 		if ($my_item) {
 			if (!empty($menu[$item['main_nav_id']])) {
 				$menu[$item['main_nav_id']] += $my_item;
@@ -167,7 +167,7 @@ function wrap_menu_webpages() {
 	$menu = [];
 	// get top menus
 	$entries = wrap_db_fetch($sql, wrap_sql_fields('page_id'));
-	if (!$entries) return false;
+	if (!$entries) return [];
 	if ($menu_table = wrap_sql_table('page_menu')) {
 		$entries = wrap_translate($entries, $menu_table);
 		$entries = wrap_menu_shorten($entries, $sql);
@@ -176,7 +176,7 @@ function wrap_menu_webpages() {
 		$items = wrap_menu_webpages_category($line['menu']);
 		foreach ($items as $item) {
 			$line['menu'] = $item;
-			$my_item = wrap_menu_asterisk_check($line, $menu, $line['menu']);
+			$my_item = wrap_menu_asterisk_check($line, $menu[$line['menu']]);
 			if (!$my_item) continue;
 			$menu[$line['menu']] = $my_item;
 		}
@@ -202,7 +202,7 @@ function wrap_menu_webpages() {
 			foreach ($items as $item) {
 				$menu_key = $item.'-'.$line['top_ids'];
 				// URLs ending in * or */ or *.html are different
-				if ($my_item = wrap_menu_asterisk_check($line, $menu, $menu_key))
+				if ($my_item = wrap_menu_asterisk_check($line, $menu[$menu_key]))
 					$menu[$menu_key] = $my_item;
 			}
 		}
@@ -283,16 +283,15 @@ function wrap_menu_shorten($entries, $sql) {
  *
  * @param array $line
  * @param array $menu
- * @param string $menu_key
  * @param string $id (optional, page_id or nav_id, depending on where data comes from)
- * @return array $menu[$menu_key]
+ * @return array $menu
  */
-function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
+function wrap_menu_asterisk_check($line, $menu, $id = 'page_id') {
 	if (!$line['url'] OR (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
 		AND substr($line['url'], -6) !== '*.html')) {
 		if ($id === 'page_id') $id = wrap_sql_fields('page_id');
-		$menu[$menu_key][$line[$id]] = $line;
-		return $menu[$menu_key];
+		$menu[$line[$id]] = $line;
+		return $menu;
 	}
 	// get name of function either from sql query
 	// (for multilingual pages) or from the part until *
@@ -304,13 +303,13 @@ function wrap_menu_asterisk_check($line, $menu, $menu_key, $id = 'page_id') {
 	$menufunc = 'wrap_menu_'.$url;
 	if (function_exists($menufunc)) {
 		$menu_entries = $menufunc($line);
-		if (!empty($menu[$menu_key])) {
-			$menu[$menu_key] += $menu_entries;
+		if (!empty($menu)) {
+			$menu += $menu_entries;
 		} else {
-			$menu[$menu_key] = $menu_entries;
+			$menu = $menu_entries;
 		}
 	}
-	return $menu[$menu_key] ?? false;
+	return $menu ?? [];
 }
 
 /**
