@@ -453,17 +453,14 @@ function wrap_menu_textformat($text) {
  * @return string Hyphen-separated menu ID (e.g. '1-2-5')
  */
 function wrap_menu_id($item, $fn_page_id) {
-	$id = ($fn_page_id === 'nav_id' ? '' : $item['menu']);
-	if (!empty($item['top_ids'])) {
-		// create ID for menus level 3 and downwards
-		$top_id = explode('-', $id);
-		if (in_array(array_pop($top_id), explode('-', $item['top_ids']))) {
-			// if ID is somewhere in top_ids, remove it
-			$id = implode('-', $top_id);
-		}
-		$id .= ($id ? '-' : '').$item['top_ids'];
-	}
-	$id .= ($id ? '-' : '').$item[$fn_page_id];
+	$ids = [];
+	if ($fn_page_id === 'page_id')
+		$ids = explode('-', $item['menu']);
+	if (!empty($item['top_ids']))
+		$ids = array_merge($ids, explode('-', $item['top_ids']));
+	$ids[] = $item[$fn_page_id];
+	$ids = array_unique($ids);
+	$id = implode('-', $ids);
 	return $id;
 }
 
