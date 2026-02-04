@@ -15,7 +15,7 @@
  *		wrap_breadcrumbs_read_recursive()	-- recursively gets breadcrumbs
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -81,6 +81,8 @@ function wrap_menu_get($page) {
 			// create ID for CSS, JavaScript
 			if (!empty($item['id_title']))
 				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['id_title']);
+			elseif (!empty($item['menu_key']) AND wrap_setting('menu_with_id'))
+				$menu[$id][$nav_id]['id'] = 'menu-'.wrap_create_id($item['menu_key']);
 			// initialize subtitle
 			if (empty($item['subtitle'])) $menu[$id][$nav_id]['subtitle'] = '';
 			if (isset($item['section'])) {
@@ -174,8 +176,9 @@ function wrap_menu_webpages() {
 		$items = wrap_menu_webpages_category($line['menu']);
 		foreach ($items as $item) {
 			$line['menu'] = $item;
-			if ($my_item = wrap_menu_asterisk_check($line, $menu, $line['menu']))
-				$menu[$line['menu']] = $my_item;
+			$my_item = wrap_menu_asterisk_check($line, $menu, $line['menu']);
+			if (!$my_item) continue;
+			$menu[$line['menu']] = $my_item;
 		}
 	}
 	if (!empty($_SESSION) AND function_exists('wrap_menu_session')) {
