@@ -15,10 +15,12 @@
 #: Identifier	Type	Search Text	Message	Exclude Pattern
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
+2018-04-19-1	code	!ISNULL	deprecated in Mysql, use NOT ISNULL
 2022-06-11-1	filename	pwd.inc.php	use pwd.json	
 2023-03-21-1	code	$zz_conf['db_name']	use setting `db_name`	zzwrap/zzwrap/database.inc.php
 2023-06-23-1	code	$zz_conf['text']	use wrap_text_set() instead	zzwrap/zzwrap/language.inc.php
 2024-06-24-1	filename	-template.pot	use filename without `-template` string
+2024-10-18-1	code	$page['breadcrumbs'][] = '	breadcrumbs should be arrays
 2024-11-01-1	code	wrap_localhost_ip	use wrap_http_localhost_ip() instead
 2024-11-02-1	code	wrap_file_send	use wrap_send_file() instead	zzwrap/zzwrap/send.inc.php
 2024-11-02-2	code	require_once wrap_setting('core')	use wrap_include('…', 'zzwrap')
@@ -31,6 +33,6 @@
 2025-11-13-1	code	'add_next' =>	for `$zz_page['breadcrumb_placeholder]`, removed; use full URL in placeholder
 2025-12-14-1	code	wrap_syndication_retrieve_via_http	use wrap_syndication_http_request() instead, different parameters	zzwrap/syndication.inc.php
 2025-12-15-1	code	wrap_syndication_get	use wrap_syndication() instead, different parameters	zzwrap/syndication.inc.php
-2025-12-15-2	code	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php;mediadb/mediadb/metadata-iptc.inc.php
+2025-12-15-2	code	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php
 2025-12-28-1	code	wrap_db_increment	use wrap_mysql_increment() instead
 2025-12-28-2	code	wrap_db_auto_increment	use wrap_mysql_increment() instead
