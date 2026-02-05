@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2025 Gustaf Mossakowski
+# @copyright Copyright © 2025-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% if function_found %%%
@@ -21,9 +21,9 @@
 <tr>
 <td>%%% if inputs %%%
 %%% loop inputs %%%
-<em>%%% item key html_escape %%%:</em> %%% item value html_escape %%%<br>
+<em>%%% item key format=html_escape %%%:</em> %%% item value format=html_escape %%%<br>
 %%% loop end %%%
-%%% else %%%%%% item input html_escape %%%%%% endif %%%
+%%% else %%%%%% item input format=html_escape %%%%%% endif %%%
 %%% if legend %%% (<em>%%% item legend %%%</em>)%%% endif %%%</td>
 <td>%%% item output_pre %%%</td>
 <td%%% if expected %%% class="%%% item expected %%%"%%% endif %%%>%%% item output %%%</td>
