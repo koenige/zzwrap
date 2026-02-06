@@ -23,7 +23,7 @@
  *	wrap_bearing()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1711,6 +1711,34 @@ function wrap_hyphenate($word) {
 		$word = str_replace($string, $string.'&shy;', $word);
 	}
 	return $word;
+}
+
+/**
+ * cut text after a given length, trying to preserve words
+ *
+ * @param string $str
+ * @param int $max_length (optional)
+ * @param string $suffix (optional)
+ * @return string
+ */
+function wrap_word_cut($str, $max_length = 0, $suffix = '…') {
+	if (!$max_length) $max_length = wrap_setting('format_word_cut_length');
+	if (!$max_length) return $str;
+    if (mb_strlen($str) <= $max_length)
+        return $str;
+
+    $cut_point = $max_length;
+    $break_chars = [' ', '-', "\n"];
+    $str = str_replace("\r\n", "\n", $str);
+    $str = str_replace("\r", "\n", $str);
+
+    while ($cut_point > 0 && !in_array(mb_substr($str, $cut_point, 1), $break_chars, true))
+        $cut_point--;
+
+    if ($cut_point === 0)
+        return mb_substr($str, 0, $max_length).' '.$suffix;
+
+    return mb_substr($str, 0, $cut_point).$suffix;
 }
 
 /**
