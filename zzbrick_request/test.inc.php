@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2025 Gustaf Mossakowski
+ * @copyright Copyright © 2025-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -37,8 +37,13 @@ function mod_zzwrap_test($params, $settings = []) {
 	}
 	$data += $json;
 
-	$files = wrap_include($data['file'], $data['package']);
-	$data['function_found'] = mf_zzwrap_test_function_exists($data['function'], $data['package'], $files);
+	if (!empty($data['file'])) {
+		$files = wrap_include($data['file'].'.php', $data['package']);
+		$data['function_found'] = mf_zzwrap_test_function_exists($data['function'], $data['package'], $files);
+	} else {
+		// already included
+		$data['function_found'] = function_exists($data['function']);
+	}
 	if (!$data['function_found']) return false;
 
 	$data['lines'] = [];
@@ -94,7 +99,7 @@ function mod_zzwrap_test($params, $settings = []) {
 			}
 			$data['lines'][] = [
 				'inputs' => $input,
-				'output' => $output,
+				'output' => mod_zzwrap_test_array($output),
 				'output_pre' => $output_pre !== $value ? $output_pre : NULL,
 				'legend' => $data['legends'][$index] ?? NULL,
 				'expected' => $expected
@@ -102,7 +107,7 @@ function mod_zzwrap_test($params, $settings = []) {
 		} else {
 			$data['lines'][] = [
 				'input' => $input,
-				'output' => $output,
+				'output' => mod_zzwrap_test_array($output),
 				'output_pre' => $output_pre !== $value ? $output_pre : NULL,
 				'legend' => $data['legends'][$index] ?? NULL,
 				'expected' => $expected
@@ -244,4 +249,15 @@ function mod_zzwrap_test_post_restore() {
 	if (empty($statics['original_values'])) return;
 	
 	$_POST = $statics['original_values'];
+}
+
+/**
+ * return string represenation of array if value is an array
+ *
+ * @param mixed $value
+ * @return string
+ */
+function mod_zzwrap_test_array($value) {
+	if (!is_array($value)) return $value;
+	return wrap_print($value);
 }
