@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -559,7 +559,15 @@ function wrap_error_ignore($status, $string = false) {
 			break;
 		case 'post':
 			if (empty($_POST)) break;
-			if (fnmatch($line['string'], json_encode($_POST))) return true;
+			$json = json_encode($_POST);
+			if ($json === false) return false;
+			if (strlen($json) <= 4096) {
+				if (fnmatch($line['string'], $json)) return true;
+			} else {
+				// fnmatch has 4096 char limit, use regex for longer strings
+				$pattern = '/^' . strtr(preg_quote($line['string'], '/u'), ['\*' => '.*', '\?' => '.']) . '$/';
+				if (preg_match($pattern, $json)) return true;
+			}
 			break;
 		default:
 			wrap_error(sprintf('Case %s in line %s not supported.', $line['type'], implode(' ', $line)), E_USER_NOTICE);
