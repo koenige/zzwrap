@@ -39,3 +39,4 @@
 2026-02-12-1	code	default = [	use `default[] = ` instead
 2026-02-12-2	code	enum = [	use `enum[] = ` instead
 2026-02-12-3	code	scope = [	use `scope[] = ` instead
+2026-02-12-4	code	wrap_setting_value(	use wrap_setting_parse() + wrap_setting_list() instead, list() only if you need list values `[a, b, c]` parsed	zzwrap/zzwrap/settings.inc.php

@@ -31,7 +31,8 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
 	global $zz_setting;
 	// write?
 	if (isset($value) AND !isset($login_id)) {
-		$value = wrap_setting_value($value);
+		$value = wrap_setting_parse($value);
+		$value = wrap_setting_list($value);
 		if (strstr($key, '['))
 			$zz_setting = wrap_setting_key($key, $value, $zz_setting);
 		else
@@ -194,7 +195,7 @@ function wrap_get_setting_default($key, $params) {
 	} elseif (!empty($params['default_empty_string'])) {
 		return '';
 	} elseif (!empty($params['default'])) {
-		return wrap_setting_value($params['default']);
+		return wrap_setting_parse($params['default']);
 	} elseif (!empty($params['default_from_setting'])
 		AND !is_null(wrap_setting($params['default_from_setting']))) {
 		return wrap_setting($params['default_from_setting']);
@@ -292,7 +293,9 @@ function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
 		// support for keys that are arrays
-		$new_setting = wrap_setting_key($key, wrap_setting_value($value));
+		$value = wrap_setting_parse($value);
+		$value = wrap_setting_list($value);
+		$new_setting = wrap_setting_key($key, $value);
 		if ($existing_setting === $new_setting) return false;
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
 		if (wrap_setting('multiple_websites') AND !$login_id)
@@ -369,8 +372,10 @@ function wrap_setting_read($key, $login_id = 0) {
 	$settings_raw = wrap_db_fetch($sql, 'setting_key', 'key/value');
 	$settings[$login_id][$key] = [];
 	foreach ($settings_raw as $skey => $value) {
+		$value = wrap_setting_parse($value);
+		$value = wrap_setting_list($value);
 		$settings[$login_id][$key]
-			= array_merge_recursive($settings[$login_id][$key], wrap_setting_key($skey, wrap_setting_value($value)));
+			= array_merge_recursive($settings[$login_id][$key], wrap_setting_key($skey, $value));
 	}
 	return $settings[$login_id][$key];
 }
@@ -590,7 +595,9 @@ function wrap_setting_register($config) {
 			$zz_setting[$skey] = wrap_setting($skey);
 			array_shift($value);
 		}
-		$keys_values = wrap_setting_key($skey, wrap_setting_value($value));
+		$value = wrap_setting_parse($value);
+		$value = wrap_setting_list($value);
+		$keys_values = wrap_setting_key($skey, $value);
 		foreach ($keys_values as $key => $value) {
 			if (!is_array($value)) {
 				if (!$value OR $value === 'false') $value = false;
