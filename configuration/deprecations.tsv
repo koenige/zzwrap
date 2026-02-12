@@ -36,3 +36,6 @@
 2025-12-15-2	code	wrap_tsv_parse	added a new key _package, take care for that	zzbrick_make/deprecations.inc.php;zzwrap/errorhandling.inc.php;feedback/zzbrick_request/feedback.inc.php;zzwrap/files.inc.php;zzwrap/http.inc.php;zzwrap/format.inc.php;newsletters/zzbrick_make/deliverystatus.inc.php
 2025-12-28-1	code	wrap_db_increment	use wrap_mysql_increment() instead
 2025-12-28-2	code	wrap_db_auto_increment	use wrap_mysql_increment() instead
+2026-02-12-1	code	default = [	use `default[] = ` instead
+2026-02-12-2	code	enum = [	use `enum[] = ` instead
+2026-02-12-3	code	scope = [	use `scope[] = ` instead

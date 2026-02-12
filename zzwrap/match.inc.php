@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -319,8 +319,7 @@ function wrap_match_module_parameters($module, $params, $reset = true) {
 	foreach ($params as $key => $value) {
 		if (!array_key_exists($key, $cfg)) continue;
 		if (empty($cfg[$key]['scope'])) continue;
-		$scope = wrap_setting_value($cfg[$key]['scope']);
-		if (!in_array($module, $scope)) continue;
+		if (!in_array($module, $cfg[$key]['scope'])) continue;
 		if (is_null(wrap_setting($key))) {
 			$unchanged[$key] = NULL;
 			wrap_setting($key, $value);

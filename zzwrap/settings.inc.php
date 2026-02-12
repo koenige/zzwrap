@@ -12,7 +12,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -234,9 +234,8 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 	// list = 1 means values need to be array!
 	if (!empty($cfg[$key]['list']) AND !is_array($setting)) {
 		if (!empty($cfg[$key]['levels'])) {
-			$levels = wrap_setting_value($cfg[$key]['levels']);
 			$return = [];
-			foreach ($levels as $level) {
+			foreach ($cfg[$key]['levels'] as $level) {
 				$return[] = $level;
 				if ($level === $setting) break;
 			}
@@ -660,8 +659,7 @@ function wrap_cfg_files($type, $settings = []) {
 				unset($cfg_return[$key]);
 				continue;
 			}
-			$scope = is_array($config['scope']) ? $config['scope'] : wrap_setting_value($config['scope']);
-			if (in_array($settings['scope'], $scope)) continue;
+			if (in_array($settings['scope'], $config['scope'])) continue;
 			unset($cfg_return[$key]);
 		}
 		return $cfg_return;
@@ -681,10 +679,25 @@ function wrap_cfg_files_parse($type) {
 	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
 	if (!$files) return [[], []];
 
+	// get list fields from cfg.cfg
+	static $list_fields = [];
+	if (!$list_fields) {
+		$cfg_files = wrap_collect_files('configuration/cfg.cfg', 'zzwrap');
+		foreach ($cfg_files as $cfg_file) {
+			$cfg_cfg = parse_ini_file($cfg_file, true);
+			foreach ($cfg_cfg as $field => $definition)
+				if (!empty($definition['list'])) $list_fields[] = $field;
+		}
+	}
+
 	$cfg = [];
 	foreach ($files as $package => $cfg_file) {
 		$single_cfg[$package] = parse_ini_file($cfg_file, true);
 		foreach ($single_cfg[$package] as $index => $configuration) {
+			// ensure list fields are always arrays
+			foreach ($list_fields as $field)
+				if (isset($configuration[$field]) AND !is_array($configuration[$field]))
+					$single_cfg[$package][$index][$field] = [$configuration[$field]];
 			$single_cfg[$package][$index]['package'] = $package;
 			// local keys?
 			if (!empty($configuration['local'])) {
