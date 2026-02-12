@@ -155,11 +155,6 @@ function wrap_defaults_hostname() {
 	// ambiguity, but we do not need to do double caching etc.
 	$hostname = rtrim($hostname, '.');
 	
-	// IPv6 address as hostname: remove brackets, just needed in URIs
-	// wrap_setting() treats values starting and ending with [] as arrays
-	if (str_starts_with($hostname, '[') AND str_ends_with($hostname, ']'))
-		$hostname = substr($hostname, 1, -1);
-	
 	// fallback for CONNECT or similar without hostname
 	if (!$hostname) 
 		$hostname = 'www.example.org';
