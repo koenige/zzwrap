@@ -482,14 +482,13 @@ function wrap_setting_key_unset($key, $settings) {
 }
 
 /**
- * allows settings from db to be in the format [1, 2, 3]; first \ will be
- * removed and allows settings starting with [
+ * parse a setting value: resolve placeholders, constants, escape sequences,
+ * query strings
  *
- * list items inside [] are allowed to be enclosed in "" to preserve spaces
  * @param string $setting
  * @return mixed
  */
-function wrap_setting_value($setting) {
+function wrap_setting_parse($setting) {
 	if (is_array($setting)) {
 		foreach ($setting as $index => $value)
 			$setting[$index] = wrap_setting_value_placeholder($value);
@@ -504,16 +503,6 @@ function wrap_setting_value($setting) {
 	switch (substr($setting, 0, 1)) {
 	case '\\':
 		return substr($setting, 1);
-	case '[':
-		if (!substr($setting, -1) === ']') break;
-		$setting = substr($setting, 1, -1);
-		$settings = explode(',', $setting);
-		foreach ($settings as $index => $setting) {
-			$settings[$index] = trim($setting);
-			if (str_starts_with($settings[$index], '"') AND str_ends_with($settings[$index], '"'))
-				$settings[$index] = trim($settings[$index], '"');
-		}
-		return $settings;
 	case '?':
 	case '&':
 		$setting = substr($setting, 1);
@@ -521,6 +510,40 @@ function wrap_setting_value($setting) {
 		return $settings;
 	}
 	return $setting;
+}
+
+/**
+ * parse a setting value, with support for bracket array notation [1, 2, 3]
+ *
+ * @deprecated use wrap_setting_parse() instead
+ * list items inside [] are allowed to be enclosed in "" to preserve spaces
+ * @param string $setting
+ * @return mixed
+ */
+function wrap_setting_value($setting) {
+	$setting = wrap_setting_parse($setting);
+	return wrap_setting_list($setting);
+}
+
+/**
+ * parse bracket notation [1, 2, 3] into an array
+ *
+ * list items inside [] are allowed to be enclosed in "" to preserve spaces
+ * @param mixed $setting
+ * @return mixed
+ */
+function wrap_setting_list($setting) {
+	if (!is_string($setting)) return $setting;
+	if (!str_starts_with($setting, '[')) return $setting;
+	if (!str_ends_with($setting, ']')) return $setting;
+	$setting = substr($setting, 1, -1);
+	$settings = explode(',', $setting);
+	foreach ($settings as $index => $setting) {
+		$settings[$index] = trim($setting);
+		if (str_starts_with($settings[$index], '"') AND str_ends_with($settings[$index], '"'))
+			$settings[$index] = trim($settings[$index], '"');
+	}
+	return $settings;
 }
 
 /**
