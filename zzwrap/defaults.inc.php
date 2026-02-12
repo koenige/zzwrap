@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2008-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2008-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -154,6 +154,11 @@ function wrap_defaults_hostname() {
 	// we better not redirect these to a domain name without a dot to avoid
 	// ambiguity, but we do not need to do double caching etc.
 	$hostname = rtrim($hostname, '.');
+	
+	// IPv6 address as hostname: remove brackets, just needed in URIs
+	// wrap_setting() treats values starting and ending with [] as arrays
+	if (str_starts_with($hostname, '[') AND str_ends_with($hostname, ']'))
+		$hostname = substr($hostname, 1, -1);
 	
 	// fallback for CONNECT or similar without hostname
 	if (!$hostname) 
