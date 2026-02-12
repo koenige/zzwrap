@@ -32,7 +32,7 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
 	// write?
 	if (isset($value) AND !isset($login_id)) {
 		$value = wrap_setting_parse($value);
-		$value = wrap_setting_list($value);
+		$value = wrap_setting_cfg_list($key, $value);
 		if (strstr($key, '['))
 			$zz_setting = wrap_setting_key($key, $value, $zz_setting);
 		else
@@ -294,7 +294,7 @@ function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
 	if ($existing_setting) {
 		// support for keys that are arrays
 		$value = wrap_setting_parse($value);
-		$value = wrap_setting_list($value);
+		$value = wrap_setting_cfg_list($key, $value);
 		$new_setting = wrap_setting_key($key, $value);
 		if ($existing_setting === $new_setting) return false;
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
@@ -373,7 +373,7 @@ function wrap_setting_read($key, $login_id = 0) {
 	$settings[$login_id][$key] = [];
 	foreach ($settings_raw as $skey => $value) {
 		$value = wrap_setting_parse($value);
-		$value = wrap_setting_list($value);
+		$value = wrap_setting_cfg_list($skey, $value);
 		$settings[$login_id][$key]
 			= array_merge_recursive($settings[$login_id][$key], wrap_setting_key($skey, $value));
 	}
@@ -552,6 +552,38 @@ function wrap_setting_list($setting) {
 }
 
 /**
+ * parse bracket notation for a database setting if list = 1 in .cfg
+ *
+ * @param string $key setting key
+ * @param mixed $value parsed setting value
+ * @return mixed
+ */
+function wrap_setting_cfg_list($key, $value) {
+	$cfg = wrap_cfg_files('settings');
+	$base_key = $key;
+	if ($pos = strpos($base_key, '[')) $base_key = substr($base_key, 0, $pos);
+	if (array_key_exists($base_key, $cfg)) {
+		if (!empty($cfg[$base_key]['list']))
+			return wrap_setting_list($value);
+		return $value;
+	}
+	// check for sub-keys, e. g. http[allowed]
+	foreach (array_keys($cfg) as $cfg_key) {
+		if (!str_starts_with($cfg_key, $base_key.'[')) continue;
+		if (!empty($cfg[$cfg_key]['list']))
+			return wrap_setting_list($value);
+		return $value;
+	}
+	// mod_*_install_date: per module, not all defined in .cfg files
+	if (preg_match('/^mod_\w+_install_date$/', $base_key))
+		return $value;
+	wrap_error(sprintf(
+		'Setting `%s` not found in settings.cfg files.', $base_key
+	), E_USER_NOTICE);
+	return $value;
+}
+
+/**
  * check if setting has a setting placeholder in it
  *
  * @param string $string
@@ -596,7 +628,7 @@ function wrap_setting_register($config) {
 			array_shift($value);
 		}
 		$value = wrap_setting_parse($value);
-		$value = wrap_setting_list($value);
+		$value = wrap_setting_cfg_list($skey, $value);
 		$keys_values = wrap_setting_key($skey, $value);
 		foreach ($keys_values as $key => $value) {
 			if (!is_array($value)) {
