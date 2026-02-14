@@ -652,7 +652,9 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
  */
 function wrap_breadcrumbs_placeholder_path($breadcrumb_path, $placeholder_path) {
 	$pos = strpos($breadcrumb_path, '*');
-	return substr_replace($breadcrumb_path, '/'.$placeholder_path, $pos, 1);
+	$path = substr_replace($breadcrumb_path, '/'.$placeholder_path, $pos, 1);
+	if (str_starts_with($path, '//')) $path = substr($path, 1); // /* at the beginning
+	return $path;
 }
 
 /**
