@@ -378,45 +378,40 @@ function wrap_package($name) {
  * @return void
  */
 function wrap_package_activate($package, $type = 'module') {
-	$active_key = wrap_package_activate_key($type, 'active');
-	if (!wrap_setting($active_key))
-		wrap_setting($active_key, $package);
+	switch ($type) {
+	case 'module':
+		if (!wrap_setting('active_module'))
+			wrap_setting('active_module', $package);
+		if (!in_array($package, wrap_setting('activated_modules')))
+			wrap_setting_add('activated_modules', $package);
+		wrap_include('functions', $package);
+		break;
 
-	$activated_key = wrap_package_activate_key($type);
-	if (!in_array($package, wrap_setting($activated_key)))
-		wrap_setting_add($activated_key, $package);
+	case 'theme':
+		if (!wrap_setting('active_theme'))
+			wrap_setting('active_theme', $package);
+		if (!in_array($package, wrap_setting('activated_themes')))
+			wrap_setting_add('activated_themes', $package);
+		break;
+	}
 
 	// dependencies?
 	$package_info = wrap_cfg_files('package', ['package' => $package]);
-	if (!empty($package_info['dependencies'])) {
-		foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
-			if ($dependency_type === 'package') continue;
-			foreach ($dependencies as $dependency) {
-				wrap_setting_add(wrap_package_activate_key($dependency_type), $dependency);
+	if (empty($package_info['dependencies'])) return;
+
+	foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
+		if ($dependency_type === 'package') continue;
+		foreach ($dependencies as $dependency) {
+			switch ($dependency) {
+			case 'modules':
+				wrap_setting_add('activated_modules', $dependency);
+				break;
+			case 'themes':
+				wrap_setting_add('activated_themes', $dependency);
+				break;
 			}
 		}
 	}
-	
-	switch ($type) {
-	case 'module':
-		wrap_include('functions', $package);
-		break;
-	}
-}
-
-/**
- * get keys for package activation
- *
- * @param string $type
- * @param string $key
- * @return string
- */
-function wrap_package_activate_key($type, $key = 'activated') {
-	$keys = [
-		'module' => ['activated' => 'activated_modules', 'active' => 'active_module'],
-		'theme'  => ['activated' => 'activated_themes',  'active' => 'active_theme']
-	];
-	return $keys[$type][$key] ?? '';
 }
 
 /**
