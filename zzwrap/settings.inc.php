@@ -264,20 +264,38 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
  */
 function wrap_setting_log_missing($key, $cfg) {
 	global $zz_setting;
-	if (empty($zz_setting['debug'])) return;
+	static $checked = [];
+	static $ignore_packages = [];
+	if (!$checked AND !$ignore_packages) {
+		$package_cfg = wrap_cfg_files('package', 'custom');
+		if ($package_cfg AND !empty($package_cfg['settings_ignore_packages']['default']))
+			$ignore_packages = $package_cfg['settings_ignore_packages']['default'];
+	}
 
+	if (in_array($key, $checked)) return;
+	$checked[] = $key;
+
+	// mod_*_install_date: per module, not all defined in .cfg files
+	if (preg_match('/^mod_\w+_install_date$/', $key)) return;
+
+	// first check: full key
 	$base_key = $key;
-	if ($pos = strpos($base_key, '[')) $base_key = substr($base_key, 0, $pos);
 	if (array_key_exists($base_key, $cfg)) return;
-	$log_dir = $zz_setting['log_dir'] ?? false;
-	if (!$log_dir AND !empty($cfg['log_dir']['default']))
-		$log_dir = wrap_setting_value_placeholder($cfg['log_dir']['default']);
-	if (!$log_dir) return;
-	error_log(sprintf(
-		"%s: Setting %s not found in settings.cfg [%s].\n"
-		, date('Y-m-d H:i:s'), $base_key
-		, $_SESSION['username'] ?? wrap_setting('remote_ip')), 3, $log_dir.'/settings.log'
-	);
+
+	// second check: main key
+	if ($pos = strpos($base_key, '[')) {
+		$base_key = substr($base_key, 0, $pos);
+		if (array_key_exists($base_key, $cfg)) return;
+	}
+	
+	if ($pos = strpos($base_key, '_')) {
+		$package = substr($base_key, 0, $pos);
+		if (in_array($package, $ignore_packages)) return;
+	}
+
+	wrap_error(sprintf(
+		'Setting `%s` not found in settings.cfg files.', $base_key
+	), E_USER_NOTICE);
 }
 
 /**
@@ -617,12 +635,7 @@ function wrap_setting_cfg_list($key, $value) {
 			return wrap_setting_list($value);
 		return $value;
 	}
-	// mod_*_install_date: per module, not all defined in .cfg files
-	if (preg_match('/^mod_\w+_install_date$/', $base_key))
-		return $value;
-	wrap_error(sprintf(
-		'Setting `%s` not found in settings.cfg files.', $base_key
-	), E_USER_NOTICE);
+	wrap_setting_log_missing($key, $cfg);
 	return $value;
 }
 
