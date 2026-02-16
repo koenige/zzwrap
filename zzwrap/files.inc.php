@@ -402,7 +402,7 @@ function wrap_package_activate($package, $type = 'module') {
 	foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
 		if ($dependency_type === 'package') continue;
 		foreach ($dependencies as $dependency) {
-			switch ($dependency) {
+			switch ($dependency_type) {
 			case 'modules':
 				wrap_setting_add('activated_modules', $dependency);
 				break;
