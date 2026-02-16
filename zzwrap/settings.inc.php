@@ -343,33 +343,17 @@ function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
  * @return array
  */
 function wrap_setting_read($key, $login_id = 0) {
-	static $setting_table = '';
-	static $login_setting_table = '';
 	static $settings = [];
 	if (array_key_exists($login_id, $settings))
 		if (array_key_exists($key, $settings[$login_id]))
 			return $settings[$login_id][$key];
+	
+	if ($login_id)
+		$settings_raw = wrap_setting_read_user($key, $login_id);
+	else
+		$settings_raw = wrap_setting_read_website($key);
+	if (!$settings_raw) return [];
 
-	if (!$login_id AND !$setting_table) {
-		$setting_table = wrap_database_table_check('_settings');
-		if (!$setting_table) return [];
-	} elseif ($login_id AND !$login_setting_table) {
-		$login_setting_table = wrap_database_table_check('logins_settings');
-		if (!$login_setting_table) return [];
-	}
-	$sql = 'SELECT setting_key, setting_value
-		FROM /*_PREFIX_*/%s_settings
-		WHERE setting_key %%s "%%s"';
-	if (wrap_setting('multiple_websites') AND !$login_setting_table)
-		$sql .= ' AND website_id IN (1, /*_SETTING website_id _*/)';
-	$sql = sprintf($sql, $login_id ? 'logins' : '');
-	if (substr($key, -1) === '*') {
-		$sql = sprintf($sql, 'LIKE', substr($key, 0, -1).'%');
-	} else {
-		$sql = sprintf($sql, '=', $key);
-	}
-	$sql .= wrap_setting_login_id($login_id);
-	$settings_raw = wrap_db_fetch($sql, 'setting_key', 'key/value');
 	$settings[$login_id][$key] = [];
 	foreach ($settings_raw as $skey => $value) {
 		$value = wrap_setting_parse($value);
@@ -378,6 +362,65 @@ function wrap_setting_read($key, $login_id = 0) {
 			= array_merge_recursive($settings[$login_id][$key], wrap_setting_key($skey, $value));
 	}
 	return $settings[$login_id][$key];
+}
+
+/**
+ * query settings from database for a website
+ *
+ * @param string $key
+ * @return array
+ */
+function wrap_setting_read_website($key) {
+	static $table = '';
+	if (!$table) {
+		$table = wrap_database_table_check('_settings');
+		if (!$table) return [];
+	}
+
+	if (str_ends_with($key, '*')) {
+		$sql = 'SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/_settings
+			WHERE setting_key LIKE "%s%%"
+			AND website_id IN (1, /*_SETTING website_id _*/)';
+		$key = substr($key, 0, -1);
+	} else {
+		$sql = 'SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/_settings
+			WHERE setting_key = "%s"
+			AND website_id IN (1, /*_SETTING website_id _*/)';
+	}
+	$sql = sprintf($sql, $key);
+	return wrap_db_fetch($sql, 'setting_key', 'key/value');
+}
+
+/**
+ * query settings from database for a user
+ *
+ * @param string $key
+ * @param int $login_id
+ * @return array
+ */
+function wrap_setting_read_user($key, $login_id) {
+	static $table = '';
+	if (!$table) {
+		$table = wrap_database_table_check('logins_settings');
+		if (!$table) return [];
+	}
+
+	if (str_ends_with($key, '*')) {
+		$sql = 'SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/logins_settings
+			WHERE setting_key LIKE "%s%%"
+			AND login_id = %d';
+		$key = substr($key, 0, -1).'%';
+	} else {
+		$sql = 'SELECT setting_key, setting_value
+			FROM /*_PREFIX_*/logins_settings
+			WHERE setting_key = "%s"
+			AND login_id = %d';
+	}
+	$sql = sprintf($sql, $operator, $key, $login_id);
+	return wrap_db_fetch($sql, 'setting_key', 'key/value');
 }
 
 /**
