@@ -98,8 +98,8 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	if (in_array('custom', $matches))
 		$custom = true;
 	if (in_array('active', $matches))
-		if (!empty($zz_setting['activated']['modules']))
-			$packages = array_merge($packages, $zz_setting['activated']['modules']);
+		if (!empty($zz_setting['activated_modules']))
+			$packages = array_merge($packages, $zz_setting['activated_modules']);
 		elseif (!empty($zz_setting['active_module']))
 			$packages[] = $zz_setting['active_module'];
 	$checked = ['files', 'themes', 'modules', 'custom', 'active'];
@@ -372,27 +372,27 @@ function wrap_package($name) {
 /**
  * activate a module or a theme
  *
- * settings active_module, active_theme, activated[modules], activated[themes]
+ * settings active_module, active_theme, activated_modules, activated_themes
  * @param string $package
  * @param string $type (optional, default = module)
  * @return void
  */
 function wrap_package_activate($package, $type = 'module') {
-	$single_type = sprintf('active_%s', $type);
-	$plural_type = sprintf('%ss', $type);
-	
-	if (!wrap_setting($single_type))
-		wrap_setting($single_type, $package);
-	if (!in_array($package, wrap_setting('activated['.$plural_type.']')))
-		wrap_setting_add('activated['.$plural_type.']', $package);
-	
+	$active_key = wrap_package_activate_key($type, 'active');
+	if (!wrap_setting($active_key))
+		wrap_setting($active_key, $package);
+
+	$activated_key = wrap_package_activate_key($type);
+	if (!in_array($package, wrap_setting($activated_key)))
+		wrap_setting_add($activated_key, $package);
+
 	// dependencies?
 	$package_info = wrap_cfg_files('package', ['package' => $package]);
 	if (!empty($package_info['dependencies'])) {
 		foreach ($package_info['dependencies'] as $dependency_type => $dependencies) {
 			if ($dependency_type === 'package') continue;
 			foreach ($dependencies as $dependency) {
-				wrap_setting_add('activated['.$dependency_type.']', $dependency);
+				wrap_setting_add(wrap_package_activate_key($dependency_type), $dependency);
 			}
 		}
 	}
@@ -402,6 +402,21 @@ function wrap_package_activate($package, $type = 'module') {
 		wrap_include('functions', $package);
 		break;
 	}
+}
+
+/**
+ * get keys for package activation
+ *
+ * @param string $type
+ * @param string $key
+ * @return string
+ */
+function wrap_package_activate_key($type, $key = 'activated') {
+	$keys = [
+		'module' => ['activated' => 'activated_modules', 'active' => 'active_module'],
+		'theme'  => ['activated' => 'activated_themes',  'active' => 'active_theme']
+	];
+	return $keys[$type][$key] ?? '';
 }
 
 /**
