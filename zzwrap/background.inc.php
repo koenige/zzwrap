@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -250,10 +250,27 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 		$headers[] = 'Accept: application/json';
 	$url = wrap_job_url_base($url);
 
+	if (wrap_setting('debug_access')) wrap_error(sprintf(
+		'Access debug: protected request %s %s',
+		$method, $url
+	), E_USER_NOTICE);
+
 	require_once __DIR__.'/syndication.inc.php';
-	return wrap_syndication_http_request($url, [
+	$result = wrap_syndication_http_request($url, [
 		'headers' => $headers, 'method' => $method, 'data' => $data, 'pwd' => $pwd
 	]);
+
+	if (wrap_setting('debug_access')) {
+		$status = $result[0] ?? '(none)';
+		$response_headers = $result[1] ?? [];
+		$body_excerpt = is_string($result[2] ?? null) ? substr($result[2], 0, 200) : '(empty)';
+		wrap_error(sprintf(
+			'Access debug: protected response status %s from %s, headers: %s, body: %s',
+			$status, $url, json_encode($response_headers), $body_excerpt
+		), E_USER_NOTICE);
+	}
+
+	return $result;
 }
 
 /**

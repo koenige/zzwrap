@@ -16,7 +16,7 @@
  *	- wrap_auth_login_redirect()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -329,7 +329,10 @@ function wrap_login_ip() {
  * @return bool true: login was successful
  */
 function wrap_login_http_auth() {
-	if (empty($_SERVER['HTTP_X_REQUEST_WWW_AUTHENTICATION'])) return false;
+	if (empty($_SERVER['HTTP_X_REQUEST_WWW_AUTHENTICATION'])) {
+		if (wrap_setting('debug_access')) wrap_error('Auth debug: no X-Request-WWW-Authentication header', E_USER_NOTICE);
+		return false;
+	}
 
 	// Fast-CGI workaround
 	// needs this line in Apache server configuration:
@@ -338,25 +341,45 @@ function wrap_login_http_auth() {
 	// SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 	// HTTP_AUTHORIZATION
 	if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
-		if (str_starts_with($_SERVER['HTTP_AUTHORIZATION'], 'Bearer '))
+		if (str_starts_with($_SERVER['HTTP_AUTHORIZATION'], 'Bearer ')) {
+			if (wrap_setting('debug_access')) wrap_error('Auth debug: Bearer token found, trying OAuth', E_USER_NOTICE);
 			return wrap_login_http_oauth(substr($_SERVER['HTTP_AUTHORIZATION'], strlen('Bearer ')));
-		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = 
+		}
+		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) =
 			explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+		if (wrap_setting('debug_access')) wrap_error('Auth debug: HTTP_AUTHORIZATION decoded', E_USER_NOTICE);
 	}
 
 	// send WWW-Authenticate header to get username if not yet there
 	if (empty($_SERVER['PHP_AUTH_USER']))
 		wrap_login_http_auth_request();
-	if (empty($_SERVER['PHP_AUTH_USER'])) return false;
-	if (empty($_SERVER['PHP_AUTH_PW'])) return false;
+	if (empty($_SERVER['PHP_AUTH_USER'])) {
+		if (wrap_setting('debug_access')) wrap_error('Auth debug: no PHP_AUTH_USER after auth request', E_USER_NOTICE);
+		return false;
+	}
+	if (empty($_SERVER['PHP_AUTH_PW'])) {
+		if (wrap_setting('debug_access')) wrap_error('Auth debug: no PHP_AUTH_PW', E_USER_NOTICE);
+		return false;
+	}
 
 	// check password
 	$password = wrap_password_token($_SERVER['PHP_AUTH_USER']);
-	if ($password !== $_SERVER['PHP_AUTH_PW']) return false;
-	
+	if ($password !== $_SERVER['PHP_AUTH_PW']) {
+		if (wrap_setting('debug_access')) wrap_error(sprintf(
+			'Auth debug: password token mismatch (expected length: %d, received length: %d)',
+			strlen($password), strlen($_SERVER['PHP_AUTH_PW'])
+		), E_USER_NOTICE);
+		return false;
+	}
+
 	$login['different_sign_on'] = true;
 	$login['username'] = $_SERVER['PHP_AUTH_USER'];
-	return wrap_login($login);
+	$result = wrap_login($login);
+	if (wrap_setting('debug_access')) wrap_error(sprintf(
+		'Auth debug: wrap_login() returned %s',
+		$result ? 'true' : 'false'
+	), E_USER_NOTICE);
+	return $result;
 }
 
 /**
