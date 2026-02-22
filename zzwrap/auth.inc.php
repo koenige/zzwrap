@@ -99,6 +99,8 @@ function wrap_auth($force = false) {
 		// = exit;
 	}
 	$_SESSION['logged_in'] = true;
+	if (!array_key_exists(wrap_setting('session_name'), $_COOKIE))
+		wrap_setting('login_without_cookie', true);
 
 	// remove no-cookie from URL
 	$zz_page['url'] = wrap_url_remove_query_strings($zz_page['url'], 'no-cookie');

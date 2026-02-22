@@ -236,8 +236,9 @@ function wrap_session_cookie_injection($session_name) {
  * @return mixed NULL if session not active or variable not set, value otherwise
  */
 function wrap_session_value($key) {
-	// only start a session if a session cookie exists
-	if (!array_key_exists(wrap_setting('session_name'), $_COOKIE)) return NULL;
+	// only start a session if a session cookie exists or login was without cookie
+	if (!wrap_setting('login_without_cookie')
+		AND !array_key_exists(wrap_setting('session_name'), $_COOKIE)) return NULL;
 
 	wrap_session_start();
 	$value = $_SESSION[$key] ?? NULL;
