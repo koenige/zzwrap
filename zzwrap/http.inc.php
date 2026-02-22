@@ -425,3 +425,15 @@ function wrap_http_ipv6_in_subnet($ip, $subnet, $prefix) {
 	return true;
 }
 
+/**
+ * check if the current request comes from a bot
+ *
+ * @return bool
+ */
+function wrap_http_is_bot() {
+	if (empty($_SERVER['HTTP_USER_AGENT'])) return false;
+	if (stristr($_SERVER['HTTP_USER_AGENT'], 'bot')) return true;
+	if (stristr($_SERVER['HTTP_USER_AGENT'], 'spider')) return true;
+	if (stristr($_SERVER['HTTP_USER_AGENT'], 'crawler')) return true;
+	return false;
+}
