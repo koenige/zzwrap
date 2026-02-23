@@ -64,7 +64,7 @@ function mod_zzwrap_login($params, $settings = []) {
 
 	// Check if there are parameters for single sign on
 	if (!empty($_GET['add']) OR !empty($_GET['link']) OR !empty($_GET['request'])) {
-		if (!in_array('contacts', wrap_setting('modules'))) wrap_quit(404);
+		if (!wrap_package('contacts')) wrap_quit(404);
 		if (!empty($_GET['add']))
 			return brick_format('%%% make addlogin '.implode(' ', explode('-', $_GET['add'])).'%%%');
 		// @deprecated

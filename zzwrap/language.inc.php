@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2011, 2014-2018, 2020-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2011, 2014-2018, 2020-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -228,7 +228,7 @@ function wrap_text($string, $params = []) {
 				}
 				foreach (array_keys($po_text) as $area) {
 					if (substr($area, 0, 1) === '_') continue;
-					if (in_array($area, wrap_setting('modules')))
+					if (wrap_package($area))
 						$module_text[$area] = $po_text[$area];
 					else
 						$context[$area] = $po_text[$area];
