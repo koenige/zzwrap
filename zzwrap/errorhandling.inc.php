@@ -637,6 +637,8 @@ function wrap_error_hostnames() {
 		else
 			$hostnames[] = sprintf('www.%s', wrap_setting('canonical_hostname'));
 	}
+	if (wrap_setting('staging_hostname'))
+		$hostnames[] = wrap_setting('staging_hostname');
 	return $hostnames;
 }
 
