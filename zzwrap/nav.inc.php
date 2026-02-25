@@ -598,8 +598,34 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 	if (empty($zz_page['breadcrumb_placeholder'])) return;
 	$placeholders = array_values($zz_page['breadcrumb_placeholder']);
 
-	// replace first asterisk with placeholder url_path
-	// add further breadcrumbs if `breadcrumb_placeholder` has more than one item
+	// determine whether each * level maps to its own placeholder
+	// or multiple placeholders share the same * position
+	$max_asterisks = 0;
+	foreach ($breadcrumbs as $breadcrumb) {
+		$asterisks = substr_count($breadcrumb['url_path'], '*');
+		if ($asterisks > $max_asterisks) $max_asterisks = $asterisks;
+	}
+
+	if ($max_asterisks >= count($placeholders)) {
+		// each * level corresponds to one placeholder, e.g. /s/*/sub/*/
+		$seen_asterisks = 0;
+		foreach ($breadcrumbs as $index => $breadcrumb) {
+			if (strpos($breadcrumb['url_path'], '*') === false) continue;
+			$asterisk_count = substr_count($breadcrumb['url_path'], '*');
+			if ($asterisk_count > $seen_asterisks) {
+				$seen_asterisks = $asterisk_count;
+				if (isset($placeholders[$asterisk_count - 1]))
+					$breadcrumbs[$index]['title'] = $placeholders[$asterisk_count - 1]['title'];
+			}
+			$path = $breadcrumb['url_path'];
+			for ($i = 0; $i < $asterisk_count && $i < count($placeholders); $i++)
+				$path = wrap_breadcrumbs_placeholder_path($path, $placeholders[$i]['url_path']);
+			$breadcrumbs[$index]['url_path'] = $path;
+		}
+		return;
+	}
+
+	// multiple placeholders share the same * position, e.g. /termine*/
 	$first_replacement_done = false;
 	$last_placeholder = $placeholders[count($placeholders) - 1];
 	foreach ($breadcrumbs as $index => $breadcrumb) {
