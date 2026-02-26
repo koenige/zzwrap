@@ -374,11 +374,14 @@ function wrap_is_int($var) {
 function wrap_menu_hierarchy($area, $paths = [], $setting_key = '') {
 	sort($paths);
 	$setting = sprintf('%s_page_id[%s]', $area, implode(';', $paths));
-	if ($id = wrap_setting($setting)) return $id;
+	if ($id = wrap_setting($setting)) {
+		if (is_array($id)) return $id;
+		else return [$id];
+	}
 	
 	// get brick
 	$cfg = wrap_cfg_files('settings');
-	if (empty($cfg[$area.'_path']['brick'])) return false;
+	if (empty($cfg[$area.'_path']['brick'])) return [];
 	$block = $cfg[$area.'_path']['brick'];
 	
 	// get all matching pages

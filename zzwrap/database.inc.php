@@ -21,7 +21,7 @@
  *	- wrap_sql_query()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -1190,7 +1190,7 @@ function wrap_sql_modify($key, $queries) {
 		if (!$queries[$where_key]) return $queries[$key];
 		$condition = $queries[$where_key][0];
 	} else {
-		$condition = sprintf('website_id = %d', wrap_setting('website_id'));
+		$condition = 'website_id = /*_SETTING website_id _*/';
 	}
 	foreach ($queries[$key] as $index => $query)
 		$queries[$key][$index] = wrap_edit_sql($query, 'WHERE', $condition);

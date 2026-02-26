@@ -893,9 +893,8 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
 	
 	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path, content
 		FROM /*_PREFIX_*/webpages
-		WHERE content LIKE "%\%\%\% '.$brick.'% \%\%\%%"';
-	if (wrap_setting('website_id'))
-		$sql .= ' AND website_id = /*_SETTING website_id _*/';
+		WHERE content LIKE "%\%\%\% '.$brick.'% \%\%\%%"
+		AND website_id = /*_SETTING website_id _*/';
 	$paths = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	
 	// build parameters
