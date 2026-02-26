@@ -602,6 +602,7 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 	$max_level = 0;
 	$level_paths = [];
 	$prev_template = '';
+	$to_insert = [];
 
 	foreach ($breadcrumbs as $index => $breadcrumb) {
 		if (strpos($breadcrumb['url_path'], '*') === false) continue;
@@ -619,10 +620,36 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 			$is_placeholder = true;
 		}
 
+		$assigned_level = 0;
 		if ($is_placeholder && $placeholder_index < count($placeholders)) {
-			$breadcrumbs[$index]['title'] = $placeholders[$placeholder_index]['title'];
-			$level_paths[$asterisk_count] = $placeholders[$placeholder_index]['url_path'];
-			$placeholder_index++;
+			// skip extra_breadcrumb placeholders: they only contribute an
+			// additional breadcrumb but their url_path is not used for
+			// resolving asterisks in subsequent breadcrumbs
+			while ($placeholder_index < count($placeholders)
+				&& !empty($placeholders[$placeholder_index]['extra_breadcrumb'])
+			) {
+				$extra = $placeholders[$placeholder_index];
+				$extra_path = $template;
+				for ($j = 1; $j <= $asterisk_count; $j++) {
+					if ($j === $asterisk_count)
+						$extra_path = wrap_breadcrumbs_placeholder_path($extra_path, $extra['url_path']);
+					elseif (isset($level_paths[$j]))
+						$extra_path = wrap_breadcrumbs_placeholder_path($extra_path, $level_paths[$j]);
+				}
+				$to_insert[$index][] = [
+					'title' => $extra['title'],
+					'url_path' => $extra_path,
+					'page_id' => $breadcrumb['page_id'] ?? null
+				];
+				$placeholder_index++;
+			}
+
+			if ($placeholder_index < count($placeholders)) {
+				$assigned_level = $asterisk_count;
+				$breadcrumbs[$index]['title'] = $placeholders[$placeholder_index]['title'];
+				$level_paths[$assigned_level] = $placeholders[$placeholder_index]['url_path'];
+				$placeholder_index++;
+			}
 		}
 
 		// replace each * in url_path with the url_path from its level
@@ -634,6 +661,12 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 		$breadcrumbs[$index]['url_path'] = $path;
 
 		$prev_template = $template;
+	}
+
+	// insert extra breadcrumbs in reverse order to preserve indices
+	krsort($to_insert);
+	foreach ($to_insert as $before_index => $extras) {
+		array_splice($breadcrumbs, $before_index, 0, $extras);
 	}
 }
 
