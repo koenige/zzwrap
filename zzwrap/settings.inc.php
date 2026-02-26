@@ -287,6 +287,11 @@ function wrap_setting_log_missing($key, $cfg) {
 		$base_key = substr($base_key, 0, $pos);
 		if (array_key_exists($base_key, $cfg)) return;
 	}
+
+	// third check: sub-keys exist (e.g. key[subkey], key[otherkey] defined but not key itself)
+	$prefix = $base_key.'[';
+	foreach ($cfg as $cfg_key => $value)
+		if (str_starts_with($cfg_key, $prefix)) return;
 	
 	if ($pos = strpos($base_key, '_')) {
 		$package = substr($base_key, 0, $pos);
