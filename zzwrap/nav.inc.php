@@ -598,74 +598,42 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 	if (empty($zz_page['breadcrumb_placeholder'])) return;
 	$placeholders = array_values($zz_page['breadcrumb_placeholder']);
 
-	// determine whether each * level maps to its own placeholder
-	// or multiple placeholders share the same * position
-	$max_asterisks = 0;
-	foreach ($breadcrumbs as $breadcrumb) {
-		$asterisks = substr_count($breadcrumb['url_path'], '*');
-		if ($asterisks > $max_asterisks) $max_asterisks = $asterisks;
-	}
+	$placeholder_index = 0;
+	$max_level = 0;
+	$level_paths = [];
+	$prev_template = '';
 
-	if ($max_asterisks >= count($placeholders)) {
-		// each * level corresponds to one placeholder, e.g. /s/*/sub/*/
-		$seen_asterisks = 0;
-		foreach ($breadcrumbs as $index => $breadcrumb) {
-			if (strpos($breadcrumb['url_path'], '*') === false) continue;
-			$asterisk_count = substr_count($breadcrumb['url_path'], '*');
-			if ($asterisk_count > $seen_asterisks) {
-				$seen_asterisks = $asterisk_count;
-				if (isset($placeholders[$asterisk_count - 1]))
-					$breadcrumbs[$index]['title'] = $placeholders[$asterisk_count - 1]['title'];
-			}
-			$path = $breadcrumb['url_path'];
-			for ($i = 0; $i < $asterisk_count && $i < count($placeholders); $i++)
-				$path = wrap_breadcrumbs_placeholder_path($path, $placeholders[$i]['url_path']);
-			$breadcrumbs[$index]['url_path'] = $path;
-		}
-		return;
-	}
-
-	// multiple placeholders share the same * position, e.g. /termine*/
-	$first_replacement_done = false;
-	$last_placeholder = $placeholders[count($placeholders) - 1];
 	foreach ($breadcrumbs as $index => $breadcrumb) {
 		if (strpos($breadcrumb['url_path'], '*') === false) continue;
-		if (!$first_replacement_done) {
-			$first_replacement_done = true;
+		$asterisk_count = substr_count($breadcrumb['url_path'], '*');
+		$template = $breadcrumb['url_path'];
 
-			// first breadcrumb with *: replace title and url_path with first placeholder
-			$placeholder = array_shift($placeholders);
-			$breadcrumbs[$index]['title'] = $placeholder['title'];
-			$breadcrumbs[$index]['url_path'] = wrap_breadcrumbs_placeholder_path(
-				$breadcrumb['url_path'], $placeholder['url_path']
-			);
-
-			if (!$placeholders) continue;
-
-			// if there are more placeholders,
-			// add them as new breadcrumbs after current one
-			$new_breadcrumbs = [];
-			foreach ($placeholders as $placeholder) {
-				$new_breadcrumbs[] = [
-					'title' => $placeholder['title'],
-					'url_path' => wrap_breadcrumbs_placeholder_path(
-						$breadcrumb['url_path'], $placeholder['url_path']
-					),
-					'page_id' => $breadcrumb['page_id'] ?? null
-				];
-			}
-			
-			// Insert new breadcrumbs after current position
-			array_splice($breadcrumbs, $index + 1, 0, $new_breadcrumbs);
-		} else {
-			// get correct index after placeholders are added
-			$index += count($placeholders);
-			// subsequent breadcrumbs with *:
-			// replace * with last placeholder's url_path only
-			$breadcrumbs[$index]['url_path'] = wrap_breadcrumbs_placeholder_path(
-				$breadcrumb['url_path'], $last_placeholder['url_path']
-			);
+		// a breadcrumb is a placeholder (title gets replaced) if it introduces
+		// a new * level or has the same url_path template as the previous one
+		// (= another placeholder at the same level); otherwise it is intermediate
+		$is_placeholder = false;
+		if ($asterisk_count > $max_level) {
+			$is_placeholder = true;
+			$max_level = $asterisk_count;
+		} elseif ($template === $prev_template) {
+			$is_placeholder = true;
 		}
+
+		if ($is_placeholder && $placeholder_index < count($placeholders)) {
+			$breadcrumbs[$index]['title'] = $placeholders[$placeholder_index]['title'];
+			$level_paths[$asterisk_count] = $placeholders[$placeholder_index]['url_path'];
+			$placeholder_index++;
+		}
+
+		// replace each * in url_path with the url_path from its level
+		$path = $breadcrumb['url_path'];
+		for ($i = 1; $i <= $asterisk_count; $i++) {
+			if (isset($level_paths[$i]))
+				$path = wrap_breadcrumbs_placeholder_path($path, $level_paths[$i]);
+		}
+		$breadcrumbs[$index]['url_path'] = $path;
+
+		$prev_template = $template;
 	}
 }
 
