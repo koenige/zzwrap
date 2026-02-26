@@ -442,7 +442,7 @@ function wrap_setting_read_user($key, $login_id) {
 			WHERE setting_key = "%s"
 			AND login_id = %d';
 	}
-	$sql = sprintf($sql, $operator, $key, $login_id);
+	$sql = sprintf($sql, $key, $login_id);
 	return wrap_db_fetch($sql, 'setting_key', 'key/value');
 }
 
