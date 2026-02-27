@@ -1029,9 +1029,8 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
  * @return string
  */
 function wrap_path_placeholder($path, $char = '%s') {
-	global $zz_page;
-	if (empty($zz_page['url_placeholders'])) return $path;
-	foreach (array_keys($zz_page['url_placeholders']) as $placeholder) {
+	if (!wrap_setting('url_placeholders')) return $path;
+	foreach (array_keys(wrap_setting('url_placeholders')) as $placeholder) {
 		$placeholder = sprintf($char === '*' ? '/%%%s%%' : '%%%s%%', $placeholder);
 		if (!strstr($path, $placeholder)) continue;
 		$path = str_replace($placeholder, $char, $path);

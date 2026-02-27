@@ -42,3 +42,4 @@
 2026-02-12-4	code	wrap_setting_value(	use wrap_setting_parse() + wrap_setting_list() instead, list() only if you need list values `[a, b, c]` parsed	zzwrap/zzwrap/settings.inc.php
 2026-02-14-1	code	bool = 1	in .cfg files: use `type = bool`
 2026-02-23-1	code_regex	in_array\('.+', wrap_setting\('modules'\)	use wrap_package()
+2026-02-26-1	code	$zz_page['url_placeholders']	use wrap_setting('url_placeholders'), values are lists not key/value pairs

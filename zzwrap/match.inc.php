@@ -403,13 +403,13 @@ function wrap_match_file($url_path) {
  * @return array (array $full_url, array $leftovers)
  */
 function wrap_match_placeholders($zz_page, $full_url) {
-	if (empty($zz_page['url_placeholders'])) return [$full_url, []];
+	if (!wrap_setting('url_placeholders')) return [$full_url, []];
 	// cut url in parts
 	$url_parts[0] = explode('/', $full_url[0]['path']);
 	$i = 1;
 	$leftovers = [];
-	foreach ($zz_page['url_placeholders'] as $wildcard => $values) {
-		foreach (array_keys($values) as $key) {
+	foreach (wrap_setting('url_placeholders') as $wildcard => $values) {
+		foreach ($values as $key) {
 			foreach ($url_parts as $url_index => $parts) {
 				foreach ($parts as $partkey => $part) {
 					if ($part != $key) continue;
