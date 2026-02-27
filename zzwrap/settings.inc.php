@@ -320,6 +320,7 @@ function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
 		$value = wrap_setting_cfg_list($key, $value);
 		$new_setting = wrap_setting_key($key, $value);
 		if ($existing_setting === $new_setting) return false;
+		if (is_array($value)) $value = sprintf('[%s]', implode(', ', $value));
 		$sql = 'UPDATE /*_PREFIX_*/%s_settings SET setting_value = "%%s" WHERE setting_key = "%%s"';
 		if (wrap_setting('multiple_websites') AND !$login_id)
 			$sql .= ' AND website_id IN (1, /*_SETTING website_id _*/)';
