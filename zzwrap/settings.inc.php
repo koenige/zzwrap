@@ -1009,6 +1009,8 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
 				$value[] = 'testing';
 		}
 	}
+	if (count($value) > $required_count AND $required_count === 1)
+		$value = [implode('/', $value)];
 	$base = !empty($settings['no_base']) ? '' : wrap_setting('base');
 	$path = vsprintf($base.$this_setting, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
