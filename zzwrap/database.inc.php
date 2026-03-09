@@ -1488,7 +1488,7 @@ function wrap_sql_placeholders($queries) {
 	}
 
 	$pattern_template = '~/\*_%s (.+?)_\*/~';
-	$keywords = ['id', 'setting', 'table', 'text'];
+	$keywords = ['id', 'setting', 'table', 'text', 'path'];
 	
 	foreach ($queries as $key => &$query) {
 		$query = wrap_db_prefix($query);
@@ -1538,6 +1538,12 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 		return wrap_sql_table($match[0]);
 	case 'text':
 		return wrap_text(trim($match));
+	case 'path':
+		$match = trim($match);
+		$match = explode(' ', $match);
+		$area = array_shift($match);
+		if (!$match) $match = ''; // no array, string, to get a slash
+		return wrap_path($area, $match);
 	}
 	return '';
 }
