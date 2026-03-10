@@ -63,7 +63,7 @@ function wrap_job_check($type) {
 	if (!wrap_job_page($type)) return true;
 	// check if jobmanager is present; since function is called regularly,
 	// do not use wrap_path() which needs a database connection
-	if (!wrap_setting('jobmanager_path')) return false;
+	if (!wrap_path('jobmanager', false, false, true)) return false;
 	return mod_default_make_jobmanager_check();
 }
 
@@ -78,7 +78,7 @@ function wrap_job_check($type) {
 function wrap_job_finish($job, $type, $content) {
 	wrap_job_debug('FINISH JOB', $job);
 	if (!wrap_job_page($type)) return true;
-	if (!wrap_setting('jobmanager_path')) return false;
+	if (!wrap_path('jobmanager', false, false, true)) return false;
 
 	if (!$content)
 		$content = [
