@@ -323,7 +323,7 @@ function wrap_config_write($site = '') {
 	}
 	$settings = wrap_db_fetch($sql, '_dummy_', 'key/value');
 	if (!$settings) return;
-	$new_config = json_encode($settings, JSON_PRETTY_PRINT + JSON_NUMERIC_CHECK);
+	$new_config = json_encode($settings, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
 	if ($new_config !== $existing_config)
 		file_put_contents($file, $new_config);
 	if ($re_read_config)
