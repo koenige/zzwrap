@@ -13,3 +13,5 @@
 
 /* 2023-08-04-1 */	UPDATE _settings SET setting_key = 'change_password_path' WHERE setting_key = 'change_password_url';
 /* 2023-08-04-2 */	UPDATE _settings SET setting_key = 'login_entry_path' WHERE setting_key = 'login_entryurl';
+/* 2026-03-10-1 */	DELETE FROM _settings WHERE setting_key = 'change_password_path';
+/* 2026-03-10-2 */	DELETE FROM _settings WHERE setting_key = 'jobmanager_path';

@@ -203,10 +203,6 @@ function wrap_get_setting_default($key, $params) {
 	if (!empty($params['default_from_function']) AND function_exists($params['default_from_function'])) {
 		return $params['default_from_function']();
 	}
-	if (!wrap_db_connection() AND !empty($params['brick'])) {
-		$path = wrap_setting_path($key, $params['brick']);
-		if ($path) return wrap_setting($key);
-	}
 	return NULL;
 }
 
@@ -871,89 +867,118 @@ function wrap_cfg_translate(&$cfg, $filename) {
 }
 
 /**
- * get URL path of a page depending on a brick, write as setting
+ * read routes.json, generate it if it does not exist
  *
- * @param string $setting_key
- * @param string $brick (optional, read from settings.cfg)
- * @param array $params (optional)
- * @return bool
+ * @return array
  */
-function wrap_setting_path($setting_key, $brick = '', $params = []) {
-	static $tries = [];
-	if (in_array($setting_key, $tries)) return false; // do not try more than once per request
-	$tries[] = $setting_key;
-	
-	if (!$brick) {
-		// get it from settings.cfg
-		$cfg = wrap_cfg_files('settings');
-		if (empty($cfg[$setting_key]['brick'])) return false;
-		$brick = $cfg[$setting_key]['brick'];
-		if (!$params)
-			$params = $cfg[$setting_key]['brick_local_settings'] ?? [];
-	}
-	
+function wrap_routes_read() {
+	static $routes = NULL;
+	if ($routes !== NULL) return $routes;
+
+	$file = wrap_setting('config_dir').'/routes.json';
+	if (!file_exists($file))
+		wrap_routes_write();
+	if (file_exists($file))
+		$routes = json_decode(file_get_contents($file), true);
+	if (!$routes)
+		$routes = [];
+	return $routes;
+}
+
+/**
+ * write routes.json
+ *
+ * @return void
+ */
+function wrap_routes_write() {
+	$routes = wrap_cfg_files('routes');
+	if (!$routes) return;
+
 	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path, content
 		FROM /*_PREFIX_*/webpages
-		WHERE content LIKE "%\%\%\% '.$brick.'% \%\%\%%"
+		WHERE content LIKE "%\%\%\%%"
 		AND website_id = /*_SETTING website_id _*/';
-	$paths = wrap_db_fetch($sql, '_dummy_', 'numeric');
-	
-		// build parameters
-		$no_params = [];
-		foreach ($params as $key => $value) {
-			if ($value) continue;
-			$no_params[] = $key;
-			unset($params[$key]);
+	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');
+	if (!$pages) return;
+
+	$paths = [];
+	foreach ($routes as $key => $route) {
+		if (empty($route['brick'])) continue;
+		$brick = $route['brick'];
+
+		$matches = [];
+		foreach ($pages as $page) {
+			if (!strstr($page['content'], '%%% '.$brick)) continue;
+			$matches[] = $page;
 		}
-		$params = $params ? http_build_query($params) : '';
-		$params = explode('&', $params);
-		foreach ($params as $param) {
-			if (!$param) continue;
-			// if parameter: only leave pages having this parameter
-			foreach ($paths as $index => $path) {
-				if (strstr($path['content'], $param)) continue;
-				unset($paths[$index]);
+		if (!$matches) continue;
+
+		// filter by brick_local_settings
+		$params = $route['brick_local_settings'] ?? [];
+		$no_params = [];
+		foreach ($params as $param_key => $param_value) {
+			if ($param_value) continue;
+			$no_params[] = $param_key;
+			unset($params[$param_key]);
+		}
+		if ($params) {
+			$param_str = http_build_query($params);
+			foreach (explode('&', $param_str) as $param) {
+				if (!$param) continue;
+				// if parameter: only leave pages having this parameter
+				foreach ($matches as $index => $match) {
+					if (strstr($match['content'], $param)) continue;
+					unset($matches[$index]);
+				}
 			}
 		}
 		foreach ($no_params as $param) {
 			// if parameter=0: only leave pages without this parameter
-			$param .= '=';
-			foreach ($paths as $index => $path) {
-				if (!strstr($path['content'], $param)) continue;
-				unset($paths[$index]);
+			foreach ($matches as $index => $match) {
+				if (!strstr($match['content'], $param.'=')) continue;
+				unset($matches[$index]);
 			}
 		}
-	
-		if (count($paths) !== 1 AND !str_ends_with($setting_key, '*')) {
-			// check if one ends with asterisk
-			foreach ($paths as $index => $path) {
-				if (strstr($path['content'], $brick.' *')) unset($paths[$index]);
+
+		// disambiguation: prefer non-wildcard if brick has no *
+		if (count($matches) !== 1 AND !str_ends_with($brick, '*')) {
+			foreach ($matches as $index => $match) {
+				if (strstr($match['content'], $brick.' *')) unset($matches[$index]);
 			}
 		}
-		if (count($paths) !== 1) {
+		// disambiguation: prefer exact brick match over brick with parameters
+		if (count($matches) !== 1) {
 			$removes = [];
-			foreach ($paths as $index => $path) {
-				// remove paths with parameters
-				if (!strstr($path['content'], '%%% '.$brick.' %%%')) $removes[] = $index;
+			foreach ($matches as $index => $match) {
+				if (!strstr($match['content'], '%%% '.$brick.' %%%')) $removes[] = $index;
 			}
-			if (count($removes) + 1 === count($paths)) {
-				foreach ($removes as $index) unset($paths[$index]);
+			if (count($removes) + 1 === count($matches)) {
+				foreach ($removes as $index) unset($matches[$index]);
 			}
 		}
-		if (count($paths) !== 1) {
+		// fallback for tables brick
+		if (count($matches) !== 1) {
 			$brick = explode(' ', $brick);
-			if (count($brick) !== 2) return false;
-			if ($brick[0] !== 'tables') return false;
+			if (count($brick) !== 2) continue;
+			if ($brick[0] !== 'tables') continue;
 			$path = wrap_path('default_tables', $brick[1]);
-			if (!$path) return false;
-		} else {
-			$path = reset($paths);
-			$path = $path['path'];
+			if ($path) $paths[$key] = $path;
+			continue;
 		}
+
+		$path = reset($matches)['path'];
 		$path = str_replace('*', '/%s', $path);
 		$path = str_replace('//', '/', $path);
-		wrap_setting_write($setting_key, $path);
-	return true;
+		$paths[$key] = $path;
+	}
+
+	ksort($paths);
+	$file = wrap_setting('config_dir').'/routes.json';
+	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+	$existing_content = file_exists($file) ? file_get_contents($file) : '';
+	if ($new_content === $existing_content) return;
+	wrap_mkdir(dirname($file));
+	file_put_contents($file, $new_content);
 }
 
 /**
@@ -969,32 +994,24 @@ function wrap_setting_path($setting_key, $brick = '', $params = []) {
  * @return string
  */
 function wrap_path($area, $value = [], $check_rights = true, $testing = false, $settings = []) {
+	$routes = wrap_routes_read();
+	if (!array_key_exists($area, $routes)) {
+		wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
+		return NULL;
+	}
+
 	// check rights
 	$detail = is_bool($check_rights) ? '' : $check_rights;
 	if ($check_rights AND !wrap_access($area, $detail)) return NULL;
 
-	// add _path to setting, check if it exists
-	$check = false;
-	if (strstr($area, '[')) {
-		$keys = explode('[', $area);
-		$keys[0] = sprintf('%s_path', $keys[0]);
-		$setting = implode('[', $keys);
-	} else {
-		$setting = sprintf('%s_path', $area);
-	}
-	if (!wrap_setting($setting)) $check = true;
-
-	if ($check) {
-		$success = wrap_setting_path($setting);
-		if (!$success) return NULL;
-	}
-	$this_setting = wrap_setting($setting);
-	if (!$this_setting) return '';
+	$path = $routes[$area];
+	if (!$path) return '';
 	// if you address e. g. news_article and it is in fact news_article[publication_path]:
-	if (is_array($this_setting)) return '';
+	if (is_array($path)) return '';
+
 	// replace page placeholders with %s
-	$this_setting = wrap_path_placeholder($this_setting);
-	$required_count = substr_count($this_setting, '%');
+	$path = wrap_path_placeholder($path);
+	$required_count = substr_count($path, '%');
 	if (!is_array($value)) $value = [$value];
 	if (count($value) < $required_count) {
 		if (wrap_setting('backend_path'))
@@ -1012,7 +1029,7 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
 	if (count($value) > $required_count AND $required_count === 1)
 		$value = [implode('/', $value)];
 	$base = !empty($settings['no_base']) ? '' : wrap_setting('base');
-	$path = vsprintf($base.$this_setting, $value);
+	$path = vsprintf($base.$path, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
 	if ($website_id = wrap_setting('backend_website_id')
 		AND $website_id !== wrap_setting('website_id')) {
