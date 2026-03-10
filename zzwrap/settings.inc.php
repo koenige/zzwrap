@@ -876,8 +876,15 @@ function wrap_routes_read() {
 	if ($routes !== NULL) return $routes;
 
 	$file = wrap_setting('config_dir').'/routes.json';
-	if (!file_exists($file))
+	$lock = wrap_setting('tmp_dir').'/routes-update.lock';
+
+	if (!file_exists($file)) {
 		wrap_routes_write();
+	} elseif (!file_exists($lock)
+		OR filemtime($lock) < time() - wrap_setting('routes_cache_seconds')) {
+		wrap_routes_write();
+	}
+
 	if (file_exists($file))
 		$routes = json_decode(file_get_contents($file), true);
 	if (!$routes)
@@ -891,15 +898,16 @@ function wrap_routes_read() {
  * @return void
  */
 function wrap_routes_write() {
+	$lock = wrap_setting('tmp_dir').'/routes-update.lock';
 	$routes = wrap_cfg_files('routes');
-	if (!$routes) return;
+	if (!$routes) { touch($lock); return; }
 
 	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path, content
 		FROM /*_PREFIX_*/webpages
 		WHERE content LIKE "%\%\%\%%"
 		AND website_id = /*_SETTING website_id _*/';
 	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');
-	if (!$pages) return;
+	if (!$pages) { touch($lock); return; }
 
 	$paths = [];
 	foreach ($routes as $key => $route) {
@@ -976,9 +984,11 @@ function wrap_routes_write() {
 	$file = wrap_setting('config_dir').'/routes.json';
 	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	$existing_content = file_exists($file) ? file_get_contents($file) : '';
-	if ($new_content === $existing_content) return;
-	wrap_mkdir(dirname($file));
-	file_put_contents($file, $new_content);
+	if ($new_content !== $existing_content) {
+		wrap_mkdir(dirname($file));
+		file_put_contents($file, $new_content);
+	}
+	touch($lock);
 }
 
 /**
