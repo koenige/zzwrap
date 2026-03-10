@@ -817,39 +817,39 @@ function wrap_cfg_files_parse($type) {
 
 	$cfg = [];
 	foreach ($file_sets as $current_files) {
-	foreach ($current_files as $package => $cfg_file) {
-		$single_cfg[$package] = parse_ini_file($cfg_file, true);
-		foreach ($single_cfg[$package] as $index => $configuration) {
-			// ensure list fields are always arrays
-			foreach ($list_fields as $field)
-				if (isset($configuration[$field]) AND !is_array($configuration[$field]))
-					$single_cfg[$package][$index][$field] = [$configuration[$field]];
-			$single_cfg[$package][$index]['package'] = $package;
-			// local keys?
-			if (!empty($configuration['local'])) {
-				$index_local = $index.'_local';
-				$single_cfg[$package][$index_local] = $single_cfg[$package][$index];
-				unset($single_cfg[$package][$index_local]['local']);
-				unset($single_cfg[$package][$index_local]['default']);
+		foreach ($current_files as $package => $cfg_file) {
+			$single_cfg[$package] = parse_ini_file($cfg_file, true);
+			foreach ($single_cfg[$package] as $index => $configuration) {
+				// ensure list fields are always arrays
+				foreach ($list_fields as $field)
+					if (isset($configuration[$field]) AND !is_array($configuration[$field]))
+						$single_cfg[$package][$index][$field] = [$configuration[$field]];
+				$single_cfg[$package][$index]['package'] = $package;
+				// local keys?
+				if (!empty($configuration['local'])) {
+					$index_local = $index.'_local';
+					$single_cfg[$package][$index_local] = $single_cfg[$package][$index];
+					unset($single_cfg[$package][$index_local]['local']);
+					unset($single_cfg[$package][$index_local]['default']);
+				}
+			}
+			
+			// might be called before database connection exists
+			if (wrap_db_connection()) {
+				wrap_cfg_translate($single_cfg[$package], $cfg_file);
+				$translated = true;
+			}
+			// no merging, let custom cfg overwrite single settings from modules
+			foreach ($single_cfg[$package] as $key => $line) {
+				if (array_key_exists($key, $cfg))
+					foreach ($line as $subkey => $value) {
+						if ($subkey === 'package') continue;
+						$cfg[$key][$subkey] = $value;
+					}
+				else
+					$cfg[$key] = $line;
 			}
 		}
-		
-		// might be called before database connection exists
-		if (wrap_db_connection()) {
-			wrap_cfg_translate($single_cfg[$package], $cfg_file);
-			$translated = true;
-		}
-		// no merging, let custom cfg overwrite single settings from modules
-		foreach ($single_cfg[$package] as $key => $line) {
-			if (array_key_exists($key, $cfg))
-				foreach ($line as $subkey => $value) {
-					if ($subkey === 'package') continue;
-					$cfg[$key][$subkey] = $value;
-				}
-			else
-				$cfg[$key] = $line;
-		}
-	}
 	}
 	return [$cfg, $single_cfg];
 }
