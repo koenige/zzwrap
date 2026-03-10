@@ -797,7 +797,12 @@ function wrap_cfg_files($type, $settings = []) {
  */
 function wrap_cfg_files_parse($type) {
 	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
-	if (!$files) return [[], []];
+	$file_sets = [$files];
+	if ($type === 'access') {
+		$route_files = wrap_collect_files('configuration/routes.cfg', 'modules/themes/custom');
+		$file_sets = [$route_files, $files];
+	}
+	if (!array_filter($file_sets)) return [[], []];
 
 	// get list fields from cfg.cfg
 	static $list_fields = [];
@@ -811,7 +816,8 @@ function wrap_cfg_files_parse($type) {
 	}
 
 	$cfg = [];
-	foreach ($files as $package => $cfg_file) {
+	foreach ($file_sets as $current_files) {
+	foreach ($current_files as $package => $cfg_file) {
 		$single_cfg[$package] = parse_ini_file($cfg_file, true);
 		foreach ($single_cfg[$package] as $index => $configuration) {
 			// ensure list fields are always arrays
@@ -843,6 +849,7 @@ function wrap_cfg_files_parse($type) {
 			else
 				$cfg[$key] = $line;
 		}
+	}
 	}
 	return [$cfg, $single_cfg];
 }

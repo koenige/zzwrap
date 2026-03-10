@@ -23,13 +23,7 @@
  */
 function wrap_access($area, $detail = '', $conditions = true) {
 	static $config = [];
-	if (!$config) {
-		$config = wrap_cfg_files('access');
-		foreach (wrap_cfg_files('routes') as $key => $route) {
-			if (isset($config[$key])) continue;
-			$config[$key] = $route;
-		}
-	}
+	if (!$config) $config = wrap_cfg_files('access');
 
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) {
