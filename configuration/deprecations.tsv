@@ -44,3 +44,6 @@
 2026-02-23-1	code_regex	in_array\('.+', wrap_setting\('modules'\)	use wrap_package()
 2026-02-26-1	code	$zz_page['url_placeholders']	use wrap_setting('url_placeholders'), values are lists not key/value pairs
 2026-03-10-1	code	wrap_setting_path(	use wrap_path() directly
+2026-03-11-1	filename	text-de.inc.php	use PO format and `text-de.po`
+2026-03-11-2	filename	text-en.inc.php	use PO format and `text-en.po`
+2026-03-11-3	filename	text-pl.inc.php	use PO format and `text-pl.po`

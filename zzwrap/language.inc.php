@@ -283,27 +283,14 @@ function wrap_text($string, $params = []) {
  */
 function wrap_text_files($language) {
 	// standard text english
-	$files[] = wrap_setting('custom').'/custom/text-en.inc.php'; // @deprecated
 	$files[] = wrap_setting('custom').'/languages/text-en.po';
 
-	// default translated text
-	if ($language === 'en')
-		$files[] = __DIR__.'/../languages/zzwrap.pot';
-	$files[] = __DIR__.'/../languages/zzwrap-'.$language.'.po';
+	wrap_text_files_add($files, $language, 'zzwrap');
 
 	// module text(s)
 	foreach (wrap_setting('modules') as $module) {
 		if ($module === 'zzwrap') continue;
-		$modules_dir_deprecated = wrap_setting('modules_dir').'/'.$module.'/'.$module;
-		$modules_dir = wrap_setting('modules_dir').'/'.$module.'/languages';
-		if ($language === 'en') // plurals, if .po file exists, included below, overwrite
-			$files[] = $modules_dir.'/'.$module.'.pot';
-		$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'.po'; // @deprecated
-		$files[] = $modules_dir.'/'.$module.'-'.$language.'.po';
-		if (wrap_setting('language_variation')) {
-			$files[] = $modules_dir_deprecated.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po'; // @deprecated
-			$files[] = $modules_dir.'/'.$module.'-'.$language.'-'.wrap_setting('language_variation').'.po';
-		}
+		wrap_text_files_add($files, $language, $module);
 	}
 	
 	// via setting language_files
@@ -328,17 +315,39 @@ function wrap_text_files($language) {
 			$files[] = $package_dir.'/languages/'.$filename.'-'.$language.'-'.wrap_setting('language_variation').'.po';
 	}
 	
-	// standard translated text 
-	$files[] = wrap_setting('custom').'/custom/text-'.$language.'.inc.php'; // @deprecated
-	if ($language === 'en') // plurals, if .po file exists, included below, overwrite
-		$files[] = wrap_setting('custom').'/languages/text.pot';
-	$files[] = wrap_setting('custom').'/languages/text-'.$language.'.po';
+	wrap_text_files_add($files, $language, 'custom');
+	return $files;
+}
+
+/**
+ * add text files per module
+ *
+ * @param array $files
+ * @param string $language
+ * @param string $module
+ */
+function wrap_text_files_add(&$files, $language, $module) {
+	// define paths
+	$package_dir = $module === 'custom' ? wrap_setting('custom') : wrap_setting('modules_dir').'/'.$module;
+	$filebase = sprintf(
+		'%s/languages/%s',
+		$package_dir, $module === 'custom' ? 'text' : $module
+	);
+
+	// add files
+	if ($language === 'en') {
+		// plurals, if .po file exists, included below, overwrite
+		$files[] = $filebase.'.pot';
+		$files[] = $filebase.'-admin.pot';
+	}
+	$files[] = $filebase.'-'.$language.'.po';
+	$files[] = $filebase.'-admin-'.$language.'.po';
 	if (wrap_setting('language_variation')) {
 		// language variantes contain only some translations
 		// and are added on top of the existing translations
-		$files[] = wrap_setting('custom').'/languages/text-'.$language.'-'.wrap_setting('language_variation').'.po';
+		$files[] = $filebase.'-'.$language.'-'.wrap_setting('language_variation').'.po';
+		$files[] = $filebase.'-admin-'.$language.'-'.wrap_setting('language_variation').'.po';
 	}
-	return $files;
 }
 
 /**
