@@ -926,7 +926,26 @@ function wrap_routes_write() {
 			if (!strstr($page['content'], '%%% '.$brick)) continue;
 			$matches[] = $page;
 		}
-		if (!$matches) continue;
+		if (!$matches) {
+			if (str_ends_with($brick, ' *')) {
+				$base_regex = preg_quote(substr($brick, 0, -2), '/');
+				foreach ($pages as $page) {
+					if (!preg_match('/%%% '.$base_regex.' (.+?) \*/', $page['content'], $m)) continue;
+					$subkey = str_replace(['-', ' '], '_', trim($m[1]));
+					if (!$subkey) continue;
+					$path = $page['path'];
+					$path = str_replace('*', '/%s', $path);
+					$path = str_replace('//', '/', $path);
+					if (!is_array($paths[$key] ?? null))
+						$paths[$key] = [];
+					if (array_key_exists($subkey, $paths[$key]))
+						$paths[$key][$subkey] = NULL; // no ambiguous paths
+					else
+						$paths[$key][$subkey] = $path;
+				}
+			}
+			continue;
+		}
 
 		// filter by brick_local_settings
 		$params = $route['brick_local_settings'] ?? [];
@@ -1024,8 +1043,19 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
 
 	$path = $routes[$area];
 	if (!$path) return '';
-	// if you address e. g. news_article and it is in fact news_article[publication_path]:
-	if (is_array($path)) return '';
+	// route has parameterized variants, e. g. news_article[news], news_article[projects]
+	// extract first identifier fragment to find the matching sub-route
+	if (is_array($path)) {
+		if (!is_array($value)) $value = [$value];
+		$values = implode('/', $value);
+		$pos = strpos($values, '/');
+		if ($pos !== false) {
+			$sub_area = $area.'['.substr($values, 0, $pos).']';
+			if (array_key_exists($sub_area, $routes))
+				return wrap_path($sub_area, substr($values, $pos + 1), $check_rights, $testing, $settings);
+		}
+		return '';
+	}
 
 	// replace page placeholders with %s
 	$path = wrap_path_placeholder($path);
