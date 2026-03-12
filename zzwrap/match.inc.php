@@ -178,9 +178,10 @@ function wrap_match_params_leftovers($leftovers) {
 	$data = [];
 	foreach ($leftovers as $index => $leftover) {
 		if (!is_numeric($index)) continue;
-		$data[] = $leftover;
+		$data[$index] = $leftover;
 	}
-	return $data;
+	ksort($data);
+	return array_values($data);
 }
 
 /**
