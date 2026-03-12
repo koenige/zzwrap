@@ -1013,7 +1013,8 @@ function wrap_routes_write() {
 function wrap_path($area, $value = [], $check_rights = true, $testing = false, $settings = []) {
 	$routes = wrap_routes_read();
 	if (!array_key_exists($area, $routes)) {
-		wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
+		if (!$testing)
+			wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 		return NULL;
 	}
 
