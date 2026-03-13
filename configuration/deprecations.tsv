@@ -1,9 +1,9 @@
 # zzwrap module
-# Deprecated code patterns
+# Deprecated code patterns and breaking changes
 #
-# This file lists deprecated code patterns that should be replaced
-# with newer alternatives. The deprecation checker will scan the
-# codebase and notify developers about occurrences that need updating.
+# This file lists deprecated code patterns (replace with newer alternatives)
+# and breaking changes (migration notes). The checker scans the codebase
+# for deprecations; breaking changes are shown as informational only.
 #
 # Part of »Zugzwang Project«
 # https://www.zugzwang.org/modules/zzwrap
@@ -47,3 +47,5 @@
 2026-03-11-1	filename	text-de.inc.php	use PO format and `text-de.po`
 2026-03-11-2	filename	text-en.inc.php	use PO format and `text-en.po`
 2026-03-11-3	filename	text-pl.inc.php	use PO format and `text-pl.po`
+2026-03-11-4	breaking		No .po files inside `[module]/[module]` folder are included anymore, please move them to `[module]/languages`
+2026-03-12-1	breaking		Move `_path` definitions with brick to `routes.cfg`, merge with access groups from `access.cfg`, delete old path settings via `update.sql` and remove from `settings.cfg`
