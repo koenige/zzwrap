@@ -1032,6 +1032,8 @@ function wrap_routes_write() {
 function wrap_path($area, $value = [], $check_rights = true, $testing = false, $settings = []) {
 	$routes = wrap_routes_read();
 	if (!array_key_exists($area, $routes)) {
+		$path = wrap_path_fallback($area, $value, $check_rights, $testing, $settings);
+		if ($path !== NULL) return $path;
 		if (!$testing)
 			wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 		return NULL;
@@ -1086,6 +1088,36 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
 			$path = wrap_host_base($website_id).$path;
 	}
 	return $path;
+}
+
+/**
+ * build path from route config fallback when area is not in routes.json
+ *
+ * In routes.cfg set fallback_area, fallback_value, and optionally
+ * fallback_query (e. g. "?filter[maincategory]=%d") and fallback_id_table
+ * (table name for wrap_id(), e. g. categories).
+ *
+ * @return string|null
+ */
+function wrap_path_fallback($area, $value, $check_rights, $testing, $settings) {
+	$cfg = wrap_cfg_files('routes');
+	if (empty($cfg[$area]['fallback_area'])) return NULL;
+	if (empty($cfg[$area]['fallback_value'])) return NULL;
+
+	$path = wrap_path(
+		$cfg[$area]['fallback_area'], $cfg[$area]['fallback_value'],
+		$check_rights, $testing, $settings
+	);
+	if (!$path) return NULL;
+	if (empty($cfg[$area]['fallback_query'])) return $path;
+
+	$val = is_array($value) ? $value[0] : $value;
+	$qs = $cfg[$area]['fallback_query'];
+	if (empty($cfg[$area]['fallback_id_table']))
+		$qs = sprintf($qs, $val);
+	else
+		$qs = sprintf($qs, wrap_id($cfg[$area]['fallback_id_table'], $val));
+	return $path.$qs;
 }
 
 /**
