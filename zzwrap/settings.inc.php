@@ -1088,10 +1088,8 @@ function wrap_routes_path_prepare($path) {
 }
 
 /**
- * get a path based on a setting, check for access
+ * get a path based on a route, check for access
  *
- * e. g. for 'default_masquerade' get path from 'default_masquerade_path'
- * for 'activities_profile[usergroup]' use 'activities_profile_path[usergroup]'
  * @param string $area
  * @param mixed $value (optional)
  * @param mixed $check_rights (optional) false: no check; array: use as details
