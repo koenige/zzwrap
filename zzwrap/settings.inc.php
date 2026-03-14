@@ -919,17 +919,7 @@ function wrap_routes_write() {
 
 	$paths = [];
 	foreach ($routes as $key => $route) {
-	if (!empty($route['match_parameters'])) {
-		foreach ($pages as $page) {
-			if (!$page['parameters']) continue;
-			parse_str($page['parameters'], $params);
-			if (!empty($params['route']) AND $params['route'] === $key) {
-				$paths[$key] = $page['path'];
-				break;
-			}
-		}
-		continue;
-	}
+		if (wrap_routes_write_params($key, $route, $pages, $paths)) continue;
 	if (empty($route['brick'])) continue;
 	$brick = $route['brick'];
 
@@ -1029,6 +1019,24 @@ function wrap_routes_write() {
 		file_put_contents($file, $new_content);
 	}
 	touch($lock);
+}
+
+/**
+ * resolve route from webpages.parameters (e. g. route=login_entry)
+ *
+ * @return bool true if route was handled
+ */
+function wrap_routes_write_params($key, $route, $pages, &$paths) {
+	if (empty($route['match_parameters'])) return false;
+	foreach ($pages as $page) {
+		if (!$page['parameters']) continue;
+		parse_str($page['parameters'], $params);
+		if (!empty($params['route']) AND $params['route'] === $key) {
+			$paths[$key] = $page['path'];
+			break;
+		}
+	}
+	return true;
 }
 
 /**
