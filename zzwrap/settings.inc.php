@@ -909,20 +909,33 @@ function wrap_routes_write() {
 	$routes = wrap_cfg_files('routes');
 	if (!$routes) { touch($lock); return; }
 
-	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path, content
+	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
+			, content, parameters
 		FROM /*_PREFIX_*/webpages
-		WHERE content LIKE "%\%\%\%%"
+		WHERE (content LIKE "%\%\%\%%" OR parameters LIKE "%&route=%")
 		AND website_id = /*_SETTING website_id _*/';
 	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	if (!$pages) { touch($lock); return; }
 
 	$paths = [];
 	foreach ($routes as $key => $route) {
+		if (!empty($route['match_parameters'])) {
+			foreach ($pages as $page) {
+				if (!$page['parameters']) continue;
+				parse_str($page['parameters'], $params);
+				if (!empty($params['route']) AND $params['route'] === $key) {
+					$paths[$key] = $page['path'];
+					break;
+				}
+			}
+			continue;
+		}
 		if (empty($route['brick'])) continue;
 		$brick = $route['brick'];
 
 		$matches = [];
 		foreach ($pages as $page) {
+			if (!$page['content']) continue;
 			if (!strstr($page['content'], '%%% '.$brick)) continue;
 			$matches[] = $page;
 		}
@@ -930,6 +943,7 @@ function wrap_routes_write() {
 			if (str_ends_with($brick, ' *')) {
 				$base_regex = preg_quote(substr($brick, 0, -2), '/');
 				foreach ($pages as $page) {
+					if (!$page['content']) continue;
 					if (!preg_match('/%%% '.$base_regex.' (.+?) \*/', $page['content'], $m)) continue;
 					$subkey = str_replace(['-', ' '], '_', trim($m[1]));
 					if (!$subkey) continue;
