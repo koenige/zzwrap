@@ -919,105 +919,105 @@ function wrap_routes_write() {
 
 	$paths = [];
 	foreach ($routes as $key => $route) {
-		if (!empty($route['match_parameters'])) {
-			foreach ($pages as $page) {
-				if (!$page['parameters']) continue;
-				parse_str($page['parameters'], $params);
-				if (!empty($params['route']) AND $params['route'] === $key) {
-					$paths[$key] = $page['path'];
-					break;
-				}
-			}
-			continue;
-		}
-		if (empty($route['brick'])) continue;
-		$brick = $route['brick'];
-
-		$matches = [];
+	if (!empty($route['match_parameters'])) {
 		foreach ($pages as $page) {
-			if (!$page['content']) continue;
-			if (!strstr($page['content'], '%%% '.$brick)) continue;
-			$matches[] = $page;
-		}
-		if (!$matches) {
-			if (str_ends_with($brick, ' *')) {
-				$base_regex = preg_quote(substr($brick, 0, -2), '/');
-				foreach ($pages as $page) {
-					if (!$page['content']) continue;
-					if (!preg_match('/%%% '.$base_regex.' (.+?) \*/', $page['content'], $m)) continue;
-					$subkey = str_replace(['-', ' '], '_', trim($m[1]));
-					if (!$subkey) continue;
-					$path = $page['path'];
-					$path = str_replace('*', '/%s', $path);
-					$path = str_replace('//', '/', $path);
-					if (!is_array($paths[$key] ?? null))
-						$paths[$key] = [];
-					if (array_key_exists($subkey, $paths[$key]))
-						$paths[$key][$subkey] = NULL; // no ambiguous paths
-					else
-						$paths[$key][$subkey] = $path;
-				}
+			if (!$page['parameters']) continue;
+			parse_str($page['parameters'], $params);
+			if (!empty($params['route']) AND $params['route'] === $key) {
+				$paths[$key] = $page['path'];
+				break;
 			}
-			continue;
 		}
+		continue;
+	}
+	if (empty($route['brick'])) continue;
+	$brick = $route['brick'];
 
-		// filter by brick_local_settings
-		$params = $route['brick_local_settings'] ?? [];
-		$no_params = [];
-		foreach ($params as $param_key => $param_value) {
-			if ($param_value) continue;
-			$no_params[] = $param_key;
-			unset($params[$param_key]);
-		}
-		if ($params) {
-			$param_str = http_build_query($params);
-			foreach (explode('&', $param_str) as $param) {
-				if (!$param) continue;
-				// if parameter: only leave pages having this parameter
-				foreach ($matches as $index => $match) {
-					if (strstr($match['content'], $param)) continue;
-					unset($matches[$index]);
-				}
+	$matches = [];
+	foreach ($pages as $page) {
+		if (!$page['content']) continue;
+		if (!strstr($page['content'], '%%% '.$brick)) continue;
+		$matches[] = $page;
+	}
+	if (!$matches) {
+		if (str_ends_with($brick, ' *')) {
+			$base_regex = preg_quote(substr($brick, 0, -2), '/');
+			foreach ($pages as $page) {
+				if (!$page['content']) continue;
+				if (!preg_match('/%%% '.$base_regex.' (.+?) \*/', $page['content'], $m)) continue;
+				$subkey = str_replace(['-', ' '], '_', trim($m[1]));
+				if (!$subkey) continue;
+				$path = $page['path'];
+				$path = str_replace('*', '/%s', $path);
+				$path = str_replace('//', '/', $path);
+				if (!is_array($paths[$key] ?? null))
+					$paths[$key] = [];
+				if (array_key_exists($subkey, $paths[$key]))
+					$paths[$key][$subkey] = NULL; // no ambiguous paths
+				else
+					$paths[$key][$subkey] = $path;
 			}
 		}
-		foreach ($no_params as $param) {
-			// if parameter=0: only leave pages without this parameter
+		continue;
+	}
+
+	// filter by brick_local_settings
+	$params = $route['brick_local_settings'] ?? [];
+	$no_params = [];
+	foreach ($params as $param_key => $param_value) {
+		if ($param_value) continue;
+		$no_params[] = $param_key;
+		unset($params[$param_key]);
+	}
+	if ($params) {
+		$param_str = http_build_query($params);
+		foreach (explode('&', $param_str) as $param) {
+			if (!$param) continue;
+			// if parameter: only leave pages having this parameter
 			foreach ($matches as $index => $match) {
-				if (!strstr($match['content'], $param.'=')) continue;
+				if (strstr($match['content'], $param)) continue;
 				unset($matches[$index]);
 			}
 		}
+	}
+	foreach ($no_params as $param) {
+		// if parameter=0: only leave pages without this parameter
+		foreach ($matches as $index => $match) {
+			if (!strstr($match['content'], $param.'=')) continue;
+			unset($matches[$index]);
+		}
+	}
 
-		// disambiguation: prefer non-wildcard if brick has no *
-		if (count($matches) !== 1 AND !str_ends_with($brick, '*')) {
-			foreach ($matches as $index => $match) {
-				if (strstr($match['content'], $brick.' *')) unset($matches[$index]);
-			}
+	// disambiguation: prefer non-wildcard if brick has no *
+	if (count($matches) !== 1 AND !str_ends_with($brick, '*')) {
+		foreach ($matches as $index => $match) {
+			if (strstr($match['content'], $brick.' *')) unset($matches[$index]);
 		}
-		// disambiguation: prefer exact brick match over brick with parameters
-		if (count($matches) !== 1) {
-			$removes = [];
-			foreach ($matches as $index => $match) {
-				if (!strstr($match['content'], '%%% '.$brick.' %%%')) $removes[] = $index;
-			}
-			if (count($removes) + 1 === count($matches)) {
-				foreach ($removes as $index) unset($matches[$index]);
-			}
+	}
+	// disambiguation: prefer exact brick match over brick with parameters
+	if (count($matches) !== 1) {
+		$removes = [];
+		foreach ($matches as $index => $match) {
+			if (!strstr($match['content'], '%%% '.$brick.' %%%')) $removes[] = $index;
 		}
-		// fallback for tables brick
-		if (count($matches) !== 1) {
-			$brick = explode(' ', $brick);
-			if (count($brick) !== 2) continue;
-			if ($brick[0] !== 'tables') continue;
-			$path = wrap_path('default_tables', $brick[1]);
-			if ($path) $paths[$key] = $path;
-			continue;
+		if (count($removes) + 1 === count($matches)) {
+			foreach ($removes as $index) unset($matches[$index]);
 		}
+	}
+	// fallback for tables brick
+	if (count($matches) !== 1) {
+		$brick = explode(' ', $brick);
+		if (count($brick) !== 2) continue;
+		if ($brick[0] !== 'tables') continue;
+		$path = wrap_path('default_tables', $brick[1]);
+		if ($path) $paths[$key] = $path;
+		continue;
+	}
 
-		$path = reset($matches)['path'];
-		$path = str_replace('*', '/%s', $path);
-		$path = str_replace('//', '/', $path);
-		$paths[$key] = $path;
+	$path = reset($matches)['path'];
+	$path = str_replace('*', '/%s', $path);
+	$path = str_replace('//', '/', $path);
+	$paths[$key] = $path;
 	}
 
 	ksort($paths);
