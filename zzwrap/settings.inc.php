@@ -908,6 +908,7 @@ function wrap_routes_write() {
 	$lock = wrap_setting('tmp_dir').'/routes-update.lock';
 	$routes = wrap_cfg_files('routes');
 	if (!$routes) { touch($lock); return; }
+	if (!wrap_db_connection()) { touch($lock); return; }
 
 	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 			, content, parameters
