@@ -920,7 +920,7 @@ function wrap_routes_write() {
 	$paths = [];
 	foreach ($routes as $key => $route) {
 		if (wrap_routes_write_params($key, $route, $pages, $paths)) continue;
-		wrap_routes_write_brick($key, $route, $pages, $paths)
+		wrap_routes_write_brick($key, $route, $pages, $paths);
 	}
 
 	ksort($paths);
@@ -1080,12 +1080,10 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
 		if (!is_array($value)) $value = [$value];
 		$values = implode('/', $value);
 		$pos = strpos($values, '/');
-		if ($pos !== false) {
-			$sub_area = $area.'['.substr($values, 0, $pos).']';
-			if (array_key_exists($sub_area, $routes))
-				return wrap_path($sub_area, substr($values, $pos + 1), $check_rights, $testing, $settings);
-		}
-		return '';
+		if ($pos === false) return '';
+		$path = $path[substr($values, 0, $pos)] ?? '';
+		if (!$path) return '';
+		$value = [substr($values, $pos + 1)];
 	}
 
 	// replace page placeholders with %s
