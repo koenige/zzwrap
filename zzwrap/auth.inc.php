@@ -289,23 +289,6 @@ function wrap_login_db($login) {
 }
 
 /**
- * return URL bound to specific domain
- *
- * @param string $setting, e. g. change_password_path
- * @return string
- */
-function wrap_domain_path($setting) {
-	$setting .= '_path';
-	$domain_url = wrap_setting($setting);
-	if (!is_array($domain_url))
-		return $domain_url;
-
-	if (empty($_SESSION['domain'])) return '';
-	if (!array_key_exists($_SESSION['domain'], $domain_url)) return '';
-	return $domain_url[$_SESSION['domain']];
-}
-
-/**
  * Check if a Login via IP address is allowed
  *
  * @param void

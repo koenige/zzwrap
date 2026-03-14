@@ -50,3 +50,6 @@
 2026-03-11-4	breaking		No .po files inside `[module]/[module]` folder are included anymore, please move them to `[module]/languages`
 2026-03-12-1	breaking		Move `_path` definitions with brick to `routes.cfg`, merge with access groups from `access.cfg`, delete old path settings via `update.sql` and remove from `settings.cfg`
 2026-03-14-1	code	login_entry_path[	use internal redirect to other page, no more complicated setting of different paths for different domains here
+2026-03-14-2	code	change_password_path[	use route `change_password`
+2026-03-14-3	code	wrap_domain_path	use wrap_path() instead
+
