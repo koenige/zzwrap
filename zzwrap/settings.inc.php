@@ -920,7 +920,43 @@ function wrap_routes_write() {
 	$paths = [];
 	foreach ($routes as $key => $route) {
 		if (wrap_routes_write_params($key, $route, $pages, $paths)) continue;
-	if (empty($route['brick'])) continue;
+		wrap_routes_write_brick($key, $route, $pages, $paths)
+	}
+
+	ksort($paths);
+	$file = wrap_setting('config_dir').'/routes.json';
+	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+	$existing_content = file_exists($file) ? file_get_contents($file) : '';
+	if ($new_content !== $existing_content) {
+		wrap_mkdir(dirname($file));
+		file_put_contents($file, $new_content);
+	}
+	touch($lock);
+}
+
+/**
+ * resolve route from webpages.parameters (e. g. route=login_entry)
+ *
+ * @return bool true if route was handled
+ */
+function wrap_routes_write_params($key, $route, $pages, &$paths) {
+	if (empty($route['match_parameters'])) return false;
+	foreach ($pages as $page) {
+		if (!$page['parameters']) continue;
+		parse_str($page['parameters'], $params);
+		if (!empty($params['route']) AND $params['route'] === $key) {
+			$paths[$key] = $page['path'];
+			break;
+		}
+	}
+	return true;
+}
+
+/**
+ * resolve route from brick in webpage content
+ */
+function wrap_routes_write_brick($key, $route, $pages, &$paths) {
+	if (empty($route['brick'])) return;
 	$brick = $route['brick'];
 
 	$matches = [];
@@ -948,7 +984,7 @@ function wrap_routes_write() {
 					$paths[$key][$subkey] = $path;
 			}
 		}
-		continue;
+		return;
 	}
 
 	// filter by brick_local_settings
@@ -997,46 +1033,17 @@ function wrap_routes_write() {
 	// fallback for tables brick
 	if (count($matches) !== 1) {
 		$brick = explode(' ', $brick);
-		if (count($brick) !== 2) continue;
-		if ($brick[0] !== 'tables') continue;
+		if (count($brick) !== 2) return;
+		if ($brick[0] !== 'tables') return;
 		$path = wrap_path('default_tables', $brick[1]);
 		if ($path) $paths[$key] = $path;
-		continue;
+		return;
 	}
 
 	$path = reset($matches)['path'];
 	$path = str_replace('*', '/%s', $path);
 	$path = str_replace('//', '/', $path);
 	$paths[$key] = $path;
-	}
-
-	ksort($paths);
-	$file = wrap_setting('config_dir').'/routes.json';
-	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-	$existing_content = file_exists($file) ? file_get_contents($file) : '';
-	if ($new_content !== $existing_content) {
-		wrap_mkdir(dirname($file));
-		file_put_contents($file, $new_content);
-	}
-	touch($lock);
-}
-
-/**
- * resolve route from webpages.parameters (e. g. route=login_entry)
- *
- * @return bool true if route was handled
- */
-function wrap_routes_write_params($key, $route, $pages, &$paths) {
-	if (empty($route['match_parameters'])) return false;
-	foreach ($pages as $page) {
-		if (!$page['parameters']) continue;
-		parse_str($page['parameters'], $params);
-		if (!empty($params['route']) AND $params['route'] === $key) {
-			$paths[$key] = $page['path'];
-			break;
-		}
-	}
-	return true;
 }
 
 /**
