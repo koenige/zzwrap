@@ -181,7 +181,7 @@ function wrap_auth_loginpage() {
 		}
 	}
 		// do not unnecessarily expose URL structure
-	if ($request === wrap_domain_path('login_entry')) unset($qs['request']); 
+	if ($request === wrap_path('login_entry')) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
 	wrap_redirect(wrap_setting('host_base').wrap_setting('login_url')
 		.(count($qs) ? '?'.implode('&', $qs) : ''), 307, false);
@@ -291,7 +291,7 @@ function wrap_login_db($login) {
 /**
  * return URL bound to specific domain
  *
- * @param string $setting, e. g. login_entry_path, change_password_path
+ * @param string $setting, e. g. change_password_path
  * @return string
  */
 function wrap_domain_path($setting) {

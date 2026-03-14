@@ -205,7 +205,7 @@ function mod_zzwrap_login($params, $settings = []) {
 				$url = wrap_domain_path('change_password').$url;
 			} elseif (!$url) {
 			// if there is no url= in query string, use default value
-				$url = wrap_domain_path('login_entry');
+				$url = wrap_path('login_entry');
 			}
 			// Redirect to protected landing page
 			if ((!empty($_GET) AND array_key_exists('via', $_GET))
