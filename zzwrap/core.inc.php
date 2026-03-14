@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2024, 2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -379,10 +379,10 @@ function wrap_menu_hierarchy($area, $paths = [], $setting_key = '') {
 		else return [$id];
 	}
 	
-	// get brick
-	$cfg = wrap_cfg_files('settings');
-	if (empty($cfg[$area.'_path']['brick'])) return [];
-	$block = $cfg[$area.'_path']['brick'];
+	// get brick from routes
+	$cfg = wrap_cfg_files('routes');
+	if (empty($cfg[$area]['brick'])) return [];
+	$block = $cfg[$area]['brick'];
 	
 	// get all matching pages
 	$sql = 'SELECT page_id, content
