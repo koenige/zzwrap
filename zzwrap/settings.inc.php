@@ -937,6 +937,10 @@ function wrap_routes_write() {
 /**
  * resolve route from webpages.parameters (e. g. route=login_entry)
  *
+ * @param string $key
+ * @param array $route
+ * @param array $pages
+ * @param array $paths (will be changed)
  * @return bool true if route was handled
  */
 function wrap_routes_write_params($key, $route, $pages, &$paths) {
@@ -954,6 +958,11 @@ function wrap_routes_write_params($key, $route, $pages, &$paths) {
 
 /**
  * resolve route from brick in webpage content
+ *
+ * @param string $key
+ * @param array $route
+ * @param array $pages
+ * @param array $paths (will be changed)
  */
 function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 	if (empty($route['brick'])) return;
@@ -962,7 +971,14 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 	$matches = [];
 	foreach ($pages as $page) {
 		if (!$page['content']) continue;
-		if (!strstr($page['content'], '%%% '.$brick)) continue;
+		$pattern = '%%% '.$brick;
+		if (!strstr($page['content'], $pattern)) continue;
+		// remove found pattern, keep local settings
+		$page['content'] = substr($page['content'], strlen($pattern));
+		$pos = strpos($page['content'], '%%%');
+		if ($pos !== false)
+			$page['content'] = substr($page['content'], 0, $pos);
+		$page['content'] = trim($page['content']);
 		$matches[] = $page;
 	}
 	if (!$matches) {
@@ -973,9 +989,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 				if (!preg_match('/%%% '.$base_regex.' (.+?) \*/', $page['content'], $m)) continue;
 				$subkey = str_replace(['-', ' '], '_', trim($m[1]));
 				if (!$subkey) continue;
-				$path = $page['path'];
-				$path = str_replace('*', '/%s', $path);
-				$path = str_replace('//', '/', $path);
+				$path = wrap_routes_path_prepare($page['path']);
 				if (!is_array($paths[$key] ?? null))
 					$paths[$key] = [];
 				if (array_key_exists($subkey, $paths[$key]))
@@ -1001,7 +1015,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 			if (!$param) continue;
 			// if parameter: only leave pages having this parameter
 			foreach ($matches as $index => $match) {
-				if (strstr($match['content'], $param)) continue;
+				if ($match['content'] AND strstr($match['content'], $param)) continue;
 				unset($matches[$index]);
 			}
 		}
@@ -1009,28 +1023,45 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 	foreach ($no_params as $param) {
 		// if parameter=0: only leave pages without this parameter
 		foreach ($matches as $index => $match) {
+			if (!$match['content']) continue;
 			if (!strstr($match['content'], $param.'=')) continue;
 			unset($matches[$index]);
 		}
 	}
 
+	if (!empty($route['expand'])) {
+		foreach ($matches as $match) {
+			$path = wrap_routes_path_prepare($match['path']);
+			if (!$match['content'] || !preg_match('/'.preg_quote($route['expand'], '/').'=([^\s&]+)/', $match['content'], $m)) {
+				$paths[$key.'[*]'] = $path;
+			} else {
+				$subkey = str_replace(['-', ' '], '_', trim($m[1]));
+				if (!$subkey) continue;
+				$path_key = $key.'['.$subkey.']';
+				$paths[$path_key] = array_key_exists($path_key, $paths) ? NULL : $path;
+			}
+		}
+		return;
+	}
+
 	// disambiguation: prefer non-wildcard if brick has no *
 	if (count($matches) !== 1 AND !str_ends_with($brick, '*')) {
 		foreach ($matches as $index => $match) {
-			if (strstr($match['content'], $brick.' *')) unset($matches[$index]);
+			if ($match['content'] AND str_starts_with($match['content'], '*'))
+				unset($matches[$index]);
 		}
 	}
 	// disambiguation: prefer exact brick match over brick with parameters
 	if (count($matches) !== 1) {
 		$removes = [];
 		foreach ($matches as $index => $match) {
-			if (!strstr($match['content'], '%%% '.$brick.' %%%')) $removes[] = $index;
+			if ($match['content']) $removes[] = $index;
 		}
 		if (count($removes) + 1 === count($matches)) {
 			foreach ($removes as $index) unset($matches[$index]);
 		}
 	}
-	// fallback for tables brick
+	// fallback for `tables` brick
 	if (count($matches) !== 1) {
 		$brick = explode(' ', $brick);
 		if (count($brick) !== 2) return;
@@ -1041,9 +1072,19 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 	}
 
 	$path = reset($matches)['path'];
+	$paths[$key] = wrap_routes_path_prepare($path);
+}
+
+/**
+ * prepare route path
+ *
+ * @param string $path
+ * @return string
+ */
+function wrap_routes_path_prepare($path) {
 	$path = str_replace('*', '/%s', $path);
 	$path = str_replace('//', '/', $path);
-	$paths[$key] = $path;
+	return $path;
 }
 
 /**
