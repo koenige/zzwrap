@@ -1091,28 +1091,33 @@ function wrap_routes_path_prepare($path) {
 /**
  * get a path based on a route, check for access
  *
- * @param string $area
- * @param mixed $value (optional)
- * @param array $settings (optional) old: mixed $check_rights (optional) false: no check; string: use as details
- * @param bool $testing (optional) true: checks if path exists, regardless of values
- * @param array $settings (optional)
- * @return string
+ * @param string $area Route name (key in routes.json / routes.cfg).
+ * @param mixed $value (optional) Path segments for placeholders; string or array, e.g. ['id'] or 'slug'.
+ * @param array $settings (optional) Options:
+ *   - check_rights (bool): Check wrap_access($area, detail); default true.
+ *   - testing (bool): If true, only test whether the route exists (e.g. for %%% if path area %%%); no "No route found" warning, missing placeholders filled with 'testing'; default false.
+ *   - detail (string): Passed to wrap_access($area, $detail) for access detail, e.g. 'restrict_to:123'; default ''.
+ *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
+ *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false.
+ * @return string|null Path string, or NULL if route not found / access denied.
  */
 function wrap_path($area, $value = [], $settings = [], $testing = false, $settings_old = []) {
 	// cater for old signature (3rd = check_rights/detail, 4th = testing, 5th = settings)
 	if (!is_array($settings)) {
 		$third = $settings;
 		$settings = [];
+		$caller = _wrap_path_deprecation_caller();
 		if (is_bool($third)) {
 			$settings['check_rights'] = $third;
 			wrap_error(sprintf(
-				'wrap_path(): boolean as third parameter is deprecated, use wrap_path($area, $value, [\'check_rights\' => %s])',
-				$third ? 'true' : 'false'
+				'wrap_path(): boolean as third parameter is deprecated, use wrap_path($area, $value, [\'check_rights\' => %s])%s',
+				$third ? 'true' : 'false',
+				$caller
 			), E_USER_DEPRECATED);
 		} elseif (is_string($third)) {
 			$settings['detail'] = $third;
 			$settings['check_rights'] = true;
-			wrap_error('wrap_path(): string as third parameter is deprecated, use wrap_path($area, $value, [\'detail\' => \'...\'])', E_USER_DEPRECATED);
+			wrap_error('wrap_path(): string as third parameter is deprecated, use wrap_path($area, $value, [\'detail\' => \'...\'])'.$caller, E_USER_DEPRECATED);
 		} else {
 			$settings['check_rights'] = true;
 		}
@@ -1120,7 +1125,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		if ($settings_old) $settings += $settings_old;
 	} else {
 		if (func_num_args() >= 4) {
-			wrap_error('wrap_path(): 4th and 5th parameters are deprecated, use wrap_path($area, $value, [\'testing\' => ..., ...])', E_USER_DEPRECATED);
+			wrap_error('wrap_path(): 4th and 5th parameters are deprecated, use wrap_path($area, $value, [\'testing\' => ..., ...])'._wrap_path_deprecation_caller(), E_USER_DEPRECATED);
 		}
 		if ($testing === true) $settings['testing'] = true;
 		if ($settings_old) $settings += $settings_old;
@@ -1133,7 +1138,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	if (!array_key_exists($area, $routes)) {
 		$path = wrap_path_fallback($area, $value, $settings);
 		if ($path !== NULL) return $path;
-		if (!$settings['testing'])
+		if (!$settings['testing'] AND !$settings['hide_missing'])
 			wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 		return NULL;
 	}
@@ -1249,4 +1254,22 @@ function wrap_path_helptext($help) {
 	$files = mf_default_helptexts_files();
 	if (!array_key_exists($identifier, $files)) return '';
 	return wrap_path('default_helptext', $help);
+}
+
+/**
+ * caller info for wrap_path() deprecation messages
+ *
+ * @return string e.g. " (called from path/to/file.inc.php:42 in function_name)"
+ */
+function _wrap_path_deprecation_caller() {
+	$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+	// [0] = _wrap_path_deprecation_caller, [1] = wrap_path, [2] = caller
+	if (empty($trace[2])) return '';
+	$t = $trace[2];
+	$file = isset($t['file']) ? basename($t['file']) : '';
+	$line = $t['line'] ?? 0;
+	$func = isset($t['function']) ? $t['function'] : '';
+	if ($file && $line)
+		return sprintf(' (called from %s:%d%s)', $file, $line, $func ? ' in '.$func : '');
+	return '';
 }
