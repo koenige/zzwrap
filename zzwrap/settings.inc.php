@@ -1093,24 +1093,53 @@ function wrap_routes_path_prepare($path) {
  *
  * @param string $area
  * @param mixed $value (optional)
- * @param mixed $check_rights (optional) false: no check; array: use as details
+ * @param array $settings (optional) old: mixed $check_rights (optional) false: no check; string: use as details
  * @param bool $testing (optional) true: checks if path exists, regardless of values
  * @param array $settings (optional)
  * @return string
  */
-function wrap_path($area, $value = [], $check_rights = true, $testing = false, $settings = []) {
+function wrap_path($area, $value = [], $settings = [], $testing = false, $settings_old = []) {
+	// cater for old signature (3rd = check_rights/detail, 4th = testing, 5th = settings)
+	if (!is_array($settings)) {
+		$third = $settings;
+		$settings = [];
+		if (is_bool($third)) {
+			$settings['check_rights'] = $third;
+			wrap_error(sprintf(
+				'wrap_path(): boolean as third parameter is deprecated, use wrap_path($area, $value, [\'check_rights\' => %s])',
+				$third ? 'true' : 'false'
+			), E_USER_DEPRECATED);
+		} elseif (is_string($third)) {
+			$settings['detail'] = $third;
+			$settings['check_rights'] = true;
+			wrap_error('wrap_path(): string as third parameter is deprecated, use wrap_path($area, $value, [\'detail\' => \'...\'])', E_USER_DEPRECATED);
+		} else {
+			$settings['check_rights'] = true;
+		}
+		$settings['testing'] = $testing;
+		if ($settings_old) $settings += $settings_old;
+	} else {
+		if (func_num_args() >= 4) {
+			wrap_error('wrap_path(): 4th and 5th parameters are deprecated, use wrap_path($area, $value, [\'testing\' => ..., ...])', E_USER_DEPRECATED);
+		}
+		if ($testing === true) $settings['testing'] = true;
+		if ($settings_old) $settings += $settings_old;
+	}
+	$settings['check_rights'] = $settings['check_rights'] ?? true;
+	$settings['testing'] = $settings['testing'] ?? false;
+	$settings['detail'] = $settings['detail'] ?? '';
+
 	$routes = wrap_routes_read();
 	if (!array_key_exists($area, $routes)) {
-		$path = wrap_path_fallback($area, $value, $check_rights, $testing, $settings);
+		$path = wrap_path_fallback($area, $value, $settings);
 		if ($path !== NULL) return $path;
-		if (!$testing)
+		if (!$settings['testing'])
 			wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 		return NULL;
 	}
 
 	// check rights
-	$detail = is_bool($check_rights) ? '' : $check_rights;
-	if ($check_rights AND !wrap_access($area, $detail)) return NULL;
+	if ($settings['check_rights'] AND !wrap_access($area, $settings['detail'])) return NULL;
 
 	$path = $routes[$area];
 	if (!$path) return '';
@@ -1138,7 +1167,7 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
 			if ($new_value) array_unshift($value, $new_value);
 		}
 		if (count($value) < $required_count) {
-			if (!$testing) return '';
+			if (!$settings['testing']) return '';
 			while (count($value) < $required_count)
 				$value[] = 'testing';
 		}
@@ -1166,14 +1195,13 @@ function wrap_path($area, $value = [], $check_rights = true, $testing = false, $
  *
  * @return string|null
  */
-function wrap_path_fallback($area, $value, $check_rights, $testing, $settings) {
+function wrap_path_fallback($area, $value, $settings) {
 	$cfg = wrap_cfg_files('routes');
 	if (empty($cfg[$area]['fallback_area'])) return NULL;
 	if (empty($cfg[$area]['fallback_value'])) return NULL;
 
 	$path = wrap_path(
-		$cfg[$area]['fallback_area'], $cfg[$area]['fallback_value'],
-		$check_rights, $testing, $settings
+		$cfg[$area]['fallback_area'], $cfg[$area]['fallback_value'], $settings
 	);
 	if (!$path) return NULL;
 	if (empty($cfg[$area]['fallback_query'])) return $path;

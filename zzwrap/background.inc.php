@@ -22,7 +22,7 @@
  */
 function wrap_job($url, $data = []) {
 	wrap_job_debug('CALL JOB '.($url === wrap_setting('request_uri') ? 'self' : $url));
-	$path = wrap_path('jobmanager', '', false);
+	$path = wrap_path('jobmanager', '', ['check_rights' => false]);
 	if (!$path) $path = $url;
 	$data['url'] = $url;
 	// sequential: always use trigger
@@ -63,7 +63,7 @@ function wrap_job_check($type) {
 	if (!wrap_job_page($type)) return true;
 	// check if jobmanager is present; since function is called regularly,
 	// do not use wrap_path() which needs a database connection
-	if (!wrap_path('jobmanager', false, false, true)) return false;
+	if (!wrap_path('jobmanager', '', ['check_rights' => false, 'testing' => true])) return false;
 	return mod_default_make_jobmanager_check();
 }
 
@@ -78,7 +78,7 @@ function wrap_job_check($type) {
 function wrap_job_finish($job, $type, $content) {
 	wrap_job_debug('FINISH JOB', $job);
 	if (!wrap_job_page($type)) return true;
-	if (!wrap_path('jobmanager', false, false, true)) return false;
+	if (!wrap_path('jobmanager', '', ['check_rights' => false, 'testing' => true])) return false;
 
 	if (!$content)
 		$content = [
@@ -115,7 +115,7 @@ function wrap_job_page($type) {
 	if ($type !== 'make') return false;
 	if (empty($zz_page['db']['parameters']['job'])) return false;
 	
-	$path = wrap_path('jobmanager', '', false);
+	$path = wrap_path('jobmanager', '', ['check_rights' => false]);
 	if (!$path) return false; // no job manager active
 
 	wrap_include('zzbrick_make/jobmanager', 'default');
