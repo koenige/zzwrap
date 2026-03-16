@@ -21,6 +21,7 @@
  *		wrap_gram()
  *		wrap_meters()
  *	wrap_bearing()
+ *	wrap_calc()
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
  * @copyright Copyright © 2007-2026 Gustaf Mossakowski
@@ -1302,6 +1303,95 @@ function wrap_punycode_decode($string) {
 function wrap_time($time, $format = false) {
 	if (empty($format)) $format = 'H:i';
 	return date($format, strtotime($time));
+}
+
+/**
+ * resolve arithmetic expression in a string or return numeric value
+ *
+ * Supports + - * / and numbers (decimal . or ,). No brackets, powers or roots.
+ * Useful for test data or config values like "86400*7".
+ *
+ * @param mixed $value number or string expression (e.g. "86401*4")
+ * @return int|float|false calculated number, or false if invalid
+ */
+function wrap_calc($value) {
+	if (is_int($value) || is_float($value)) {
+		return $value;
+	}
+	if (!is_string($value) || $value === '') {
+		return false;
+	}
+	$check = trim($value);
+	$check = str_replace(' ', '', $check);
+	// remove non-breaking space
+	if (wrap_setting('character_set') === 'utf-8') {
+		$check = str_replace(chr(194).chr(160), '', $check);
+	} else {
+		$check = str_replace(chr(160), '', $check);
+	}
+	// first character must not be / or *
+	// NULL: possible feature: return doubleval $check to get at least something
+	if (!preg_match('~^[0-9.,+-][0-9.,\+\*\/-]*$~', $check)) {
+		return false;
+	}
+	// put a + at the beginning, so all parts with real numbers start with 
+	// arithmetic symbols
+	if (!in_array(substr($check, 0, 1), ['-', '+'])) {
+		$check = '+'.$check;
+	}
+	preg_match_all('~([-+/*])([0-9.,]+)~', $check, $tokens);
+	$values = $tokens[2];
+	// go through all parts and solve the '.' and ',' problem
+	foreach ($values as $index => $val) {
+		if (($dot = strpos($val, '.')) !== false && ($comma = strpos($val, ',')) !== false) {
+			if ($dot > $comma) {
+				$values[$index] = str_replace(',', '', $val);
+			} else {
+				$values[$index] = str_replace('.', '', $val);
+				$values[$index] = str_replace(',', '.', $values[$index]);
+			}
+		// must not: enter values like 1,000 and mean 1000!
+		} elseif (strpos($val, ',') !== false) {
+			$values[$index] = str_replace(',', '.', $val);
+		}
+		// too many dots: this does not work (could be a mistyped date)
+		if (substr_count($values[$index], '.') > 1) {
+			return false;
+		}
+		$values[$index] = floatval($values[$index]);
+	}
+	$operators = $tokens[1];
+	$idx = count($operators) - 1;
+
+	// 1: division, replace it with multiplication (*1/n)
+	// in order to be able to check multiplication tokens backwards
+	foreach ($operators as $i => $op) {
+		if ($op !== '/') continue;
+		// division by zero? e. g. in GPS EXIF data 0/0
+		if ($values[$i] == 0) return false;
+		$operators[$i] = '*';
+		$values[$i] = 1 / $values[$i];
+	}
+
+	// 2: multiplication
+	while ($idx >= 0) {
+		if ($operators[$idx] === '*') {
+			$values[$idx - 1] *= $values[$idx];
+		}
+		$idx--;
+	}
+
+	// 3: addition and substraction
+	$sum = 0;
+	foreach ($operators as $i => $op) {
+		if ($op === '-') $sum -= $values[$i];
+		elseif ($op === '+') $sum += $values[$i];
+	}
+	// Return int when whole number so comparison with JSON-decoded expected works
+	if ($sum === (float)(int)$sum) {
+		return (int)$sum;
+	}
+	return $sum;
 }
 
 /**

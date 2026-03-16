@@ -1,0 +1,22 @@
+{
+	"file": "format",
+	"variables": ["value"],
+	"data": [
+		{"value": 0, "expected": 0},
+		{"value": 42, "expected": 42},
+		{"value": 3.14, "expected": 3.14},
+		{"value": "1+1", "expected": 2},
+		{"value": "10-3", "expected": 7},
+		{"value": "6*7", "expected": 42},
+		{"value": "100/4", "expected": 25},
+		{"value": "86400*7", "expected": 604800},
+		{"value": "86401*4", "expected": 345604},
+		{"value": "86400*400", "expected": 34560000},
+		{"value": "2+3*4", "expected": 14},
+		{"value": "20/5-1", "expected": 3},
+		{"value": "1,5", "expected": 1.5},
+		{"value": " 100 ", "expected": 100},
+		{"value": "abc", "expected": false},
+		{"value": "", "expected": false}
+	]
+}
