@@ -8,6 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  *	wrap_convert_string()
+ *	wrap_type_convert()
  *	wrap_mailto()
  *	wrap_date()
  *		_wrap_date_format()
@@ -90,6 +91,31 @@ function wrap_detect_encoding($data) {
 	// html_entity_decode() and htmlspecialchars() do not work with ASCII
 	if ($encoding === 'ASCII') return 'ISO-8859-1';
 	return $encoding;
+}
+
+/**
+ * convert string to scalar type (int, float or string)
+ *
+ * @param string|int|float $value Value to convert (will be cast to string first)
+ * @param string $type 'string', 'int', 'float' or 'auto'
+ *		'auto': int if value looks like integer, float if numeric, else string
+ * @return string|int|float
+ */
+function wrap_type_convert($value, $type = 'string') {
+	$value = (string) $value;
+	switch ($type) {
+	case 'int':
+		return (int) $value;
+	case 'float':
+		return (float) $value;
+	case 'auto':
+		if (preg_match('/^-?\d+$/', $value)) return (int) $value;
+		if (is_numeric($value)) return (float) $value;
+		return $value;
+	case 'string':
+	default:
+		return $value;
+	}
 }
 
 /**
