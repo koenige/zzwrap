@@ -381,7 +381,7 @@ function wrap_url_canonical($zz_page, $page) {
 	}
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
-		['no-cookie', 'lang', 'url']);
+		['no-cookie', 'lang']);
 	// allow ?code= only for direct script access (e.g. ErrorDocument 403 → /_scripts/main.php?code=403)
 	if (!empty($zz_page['url']['full']['path'])
 		&& str_ends_with($zz_page['url']['full']['path'], basename($_SERVER['SCRIPT_NAME']))) {
