@@ -133,6 +133,7 @@ function wrap_includes() {
 	wrap_include('database', '_core');
 	wrap_include('core', '_core');
 	wrap_include('settings', '_core');
+	wrap_include('routes', '_core');
 	wrap_include('cache', '_core');
 	wrap_include('access', '_core');
 	wrap_include('language', '_core');
