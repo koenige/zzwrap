@@ -38,7 +38,7 @@ function mod_zzwrap_test($params, $settings = []) {
 	$data += $json;
 
 	if (!empty($data['file'])) {
-		$files = wrap_include($data['file'].'.php', $data['package']);
+		$files = wrap_include($data['file'], $data['package']);
 		$data['function_found'] = mf_zzwrap_test_function_exists($data['function'], $data['package'], $files);
 	} else {
 		// already included
