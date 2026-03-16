@@ -1211,7 +1211,11 @@ function wrap_path_fallback($area, $value, $settings) {
 	if (!$path) return NULL;
 	if (empty($cfg[$area]['fallback_query'])) return $path;
 
-	$val = is_array($value) ? $value[0] : $value;
+	if ($value) {
+		$val = is_array($value) ? $value[0] : $value;
+	} else {
+		$val = '';
+	}
 	$qs = $cfg[$area]['fallback_query'];
 	if (empty($cfg[$area]['fallback_id_table']))
 		$qs = sprintf($qs, $val);
