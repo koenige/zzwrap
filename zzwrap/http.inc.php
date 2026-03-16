@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -81,6 +81,43 @@ function wrap_http_request_method() {
 		wrap_quit(405);	// 405 Not Allowed
 	}
 	wrap_quit(501); // 501 Not Implemented
+}
+
+/**
+ * get HTTP input value; send 400 if it was sent as array
+ *
+ * Use when a single scalar value is expected. Rejects array values
+ * (e.g. ?param[]=x or malicious headers) with 400 Bad Request.
+ * Logs key, source (GET/POST/SERVER) and JSON of the invalid value for debugging.
+ *
+ * @param string $key Parameter name
+ * @param string $source 'GET' (default), 'POST' or 'SERVER'
+ * @param string $type 'string' (default), 'int', 'float' or 'auto'
+ *		'auto': int if value looks like integer, float if numeric, else string
+ * @return string|int|float|null Value, or null if parameter is not set
+ */
+function wrap_http_value($key, $source = 'GET', $type = 'string') {
+	switch ($source) {
+	case 'SERVER':
+		$data = $_SERVER;
+		break;
+	case 'POST':
+		$data = $_POST;
+		break;
+	case 'GET':
+	default:
+		$data = $_GET;
+		break;
+	}
+	if (!isset($data[$key])) return null;
+	if (is_array($data[$key])) {
+		$var = '$_' . $source . "['" . $key . "']";
+		wrap_quit(400, wrap_text(
+			'This value sent via HTTP must not be an array. %s: %s',
+			['values' => [$var, json_encode($data[$key])]]
+		));
+	}
+	return wrap_type_convert($data[$key], $type);
 }
 
 /**
