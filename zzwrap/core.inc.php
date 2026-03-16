@@ -606,29 +606,27 @@ function wrap_filetypes_array($filetypes) {
  * @return string
  */
 function wrap_username($username = '', $add_suffix = true) {
-	if ($username)
-		$username = $username;
-	elseif (wrap_setting('log_username'))
-		$username = wrap_setting('log_username');
-	elseif (!empty($_SESSION['username']))
-		$username = $_SESSION['username'];
-	elseif (!empty($_SERVER['PHP_AUTH_USER']))
-		$username = $_SERVER['PHP_AUTH_USER'];
-	elseif (wrap_setting('log_username_default'))
-		$username = wrap_setting('log_username_default');
-	
+	if (!$username) $username = wrap_setting('log_username');
+	if (!$username) $username = $_SESSION['username'] ?? '';
+	if (!$username) $username = wrap_http_value('PHP_AUTH_USER', 'SERVER');
+	if (!$username) $username = wrap_setting('log_username_default');
+
 	// suffix?
 	if ($suffix = wrap_setting('log_username_suffix')) {
 		// remove existing
 		$suffix_end = sprintf(' (%s)', $suffix);
-		if ($username AND str_ends_with($username, $suffix_end))
-			$username = substr($username, 0, strlen($suffix_end));
+		if ($username && str_ends_with($username, $suffix_end)) {
+			$username = substr($username, 0, -strlen($suffix_end));
+		}
 		// add new in case there is one
-		if ($username AND $add_suffix) $username = sprintf('%s (%s)', $username, $suffix);
-		elseif (!$username) $username = wrap_setting('log_username_suffix');
+		if ($username && $add_suffix) {
+			$username = sprintf('%s (%s)', $username, $suffix);
+		} elseif (!$username) {
+			$username = $suffix;
+		}
 	}
 
-	return $username;
+	return $username ?: '';
 }
 
 /**
