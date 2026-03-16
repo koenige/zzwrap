@@ -1138,7 +1138,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	if (!array_key_exists($area, $routes)) {
 		$path = wrap_path_fallback($area, $value, $settings);
 		if ($path !== NULL) return $path;
-		if (!$settings['testing'] AND !$settings['hide_missing'])
+		if (empty($settings['testing']) AND empty($settings['hide_missing']))
 			wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 		return NULL;
 	}
