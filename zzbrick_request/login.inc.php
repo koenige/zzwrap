@@ -256,7 +256,7 @@ function mod_zzwrap_login($params, $settings = []) {
 		];
 	}
 	$page['query_strings'] = [
-		'password', 'auth', 'via', 'request', 'add', 'link', 'username', 'token', 'url'
+		'password', 'auth', 'via', 'request', 'add', 'link', 'username', 'token', 'url', 'logout'
 	];
 	if (isset($_GET['password'])) {
 		if (!wrap_setting('password_link'))
