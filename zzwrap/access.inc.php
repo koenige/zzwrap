@@ -108,6 +108,22 @@ function wrap_access_groups($config, $area, $detail) {
 		$area_short = $pos !== false ? substr($area, 0, $pos) : '';
 		if ($area_short) $group_rights = $config[$area_short]['group'] ?? [];
 	}
+	// inherit group from include_access when this area has no group (config-based access)
+	if (!empty($config[$area]['include_access'])) {
+		$include_areas = $config[$area]['include_access'];
+		if (!is_array($include_areas)) $include_areas = [$include_areas];
+		foreach ($include_areas as $include_area) {
+			$inherited = $config[$include_area]['group'] ?? [];
+			if ($inherited) {
+				if (!is_array($inherited)) $inherited = [$inherited];
+				$group_rights = array_merge(
+					$inherited,
+					is_array($group_rights) ? $group_rights : [$group_rights]
+				);
+				break;
+			}
+		}
+	}
 	if (!is_array($group_rights)) $group_rights = [$group_rights];
 	if (in_array('public', $group_rights)) return true;
 	if (in_array('localhost', $group_rights) AND wrap_http_localhost_ip()) return true;
