@@ -1136,11 +1136,20 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 
 	$routes = wrap_routes_read();
 	if (!array_key_exists($area, $routes)) {
-		$path = wrap_path_fallback($area, $value, $settings);
-		if ($path !== NULL) return $path;
-		if (empty($settings['testing']) AND empty($settings['hide_missing']))
-			wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
-		return NULL;
+		// fallback: use base[*] when base[subkey] is missing (e.g. contacts_profile[organisation] -> contacts_profile[*])
+		$area_fallback = NULL;
+		if (preg_match('/^(.+)\[[^\]]+\]$/', $area, $m) && array_key_exists($m[1].'[*]', $routes)) {
+			$area_fallback = $m[1].'[*]';
+		}
+		if ($area_fallback) {
+			$area = $area_fallback;
+		} else {
+			$path = wrap_path_fallback($area, $value, $settings);
+			if ($path !== NULL) return $path;
+			if (empty($settings['testing']) AND empty($settings['hide_missing']))
+				wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
+			return NULL;
+		}
 	}
 
 	// check rights
