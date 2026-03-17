@@ -92,7 +92,7 @@ function wrap_routes_write_params($key, $pages, &$paths) {
 		if (!$page['parameters']) continue;
 		parse_str($page['parameters'], $params);
 		if (!empty($params['route']) AND $params['route'] === $key) {
-			$paths[$key] = $page['path'];
+			$paths[$key] = wrap_routes_path_prepare($page['path'], $page['parameters'] ?? '');
 			break;
 		}
 	}
@@ -133,7 +133,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 				if (!preg_match('/%%% '.$base_regex.' (.+?) \*/', $page['content'], $m)) continue;
 				$subkey = str_replace(['-', ' '], '_', trim($m[1]));
 				if (!$subkey) continue;
-				$path = wrap_routes_path_prepare($page['path']);
+				$path = wrap_routes_path_prepare($page['path'], $page['parameters'] ?? '');
 				if (!is_array($paths[$key] ?? null))
 					$paths[$key] = [];
 				if (array_key_exists($subkey, $paths[$key]))
@@ -175,7 +175,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 
 	if (!empty($route['expand'])) {
 		foreach ($matches as $match) {
-			$path = wrap_routes_path_prepare($match['path']);
+			$path = wrap_routes_path_prepare($match['path'], $match['parameters'] ?? '');
 			if (!$match['content'] || !preg_match('/'.preg_quote($route['expand'], '/').'=([^\s&]+)/', $match['content'], $m)) {
 				$paths[$key.'[*]'] = $path;
 			} else {
@@ -220,19 +220,25 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 		return;
 	}
 
-	$path = reset($matches)['path'];
-	$paths[$key] = wrap_routes_path_prepare($path);
+	$match = reset($matches);
+	$paths[$key] = wrap_routes_path_prepare($match['path'], $match['parameters'] ?? '');
 }
 
 /**
- * prepare route path
+ * prepare route path, optionally append fragment from webpages.parameters route_anchor
  *
  * @param string $path
+ * @param string $parameters (optional) webpages.parameters for route_anchor
  * @return string
  */
-function wrap_routes_path_prepare($path) {
+function wrap_routes_path_prepare($path, $parameters = '') {
 	$path = str_replace('*', '/%s', $path);
 	$path = str_replace('//', '/', $path);
+	if ($parameters) {
+		parse_str($parameters, $params);
+		if (!empty($params['route_anchor']))
+			$path .= '#'.$params['route_anchor'];
+	}
 	return $path;
 }
 
