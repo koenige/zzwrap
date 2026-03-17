@@ -205,13 +205,18 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 			foreach ($removes as $index) unset($matches[$index]);
 		}
 	}
-	// fallback for `tables` brick
+
+	// multiple matches left after disambiguation
 	if (count($matches) !== 1) {
+		// fallback for `tables` brick
 		$brick = explode(' ', $brick);
-		if (count($brick) !== 2) return;
-		if ($brick[0] !== 'tables') return;
-		$path = wrap_path('default_tables', $brick[1]);
-		if ($path) $paths[$key] = $path;
+		if (count($brick) === 2 AND $brick[0] === 'tables') {
+			$path = wrap_path('default_tables', $brick[1]);
+			if ($path) $paths[$key] = $path;
+			return;
+		}
+		if (wrap_routes_write_params($key, $pages, $paths)) return;
+		// ambiguous, do not set a route
 		return;
 	}
 
