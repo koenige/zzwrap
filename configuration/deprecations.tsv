@@ -58,4 +58,4 @@
 2026-03-14-7	code_regex	wrap_path\s*\([^,)]+,[^,)]+,[^,\[)]+,[^,)]+	use wrap_path($area, $value, $settings) with keys check_rights and testing in $settings instead of 4th and 5th parameters	zzwrap/zzwrap/settings.inc.php
 2026-03-14-8	code_regex	wrap_path\s*\([^,]+,[^,]+,\s*(true|false)\s*[),]	use wrap_path($area, $value, ['check_rights' => $bool]) instead of boolean as third parameter
 2026-03-14-9	code_regex	wrap_path\s*\([^,]+,[^,]+,\s*['\"][^'\"]*['\"]\s*[),]	use wrap_path($area, $value, ['detail' => '...']) instead of string as third parameter (e.g. access detail)
-2026-03-17-1	code	wrap_menu_hierarchy	use wrap_routes_page_ids() instead
+2026-03-17-1	code	wrap_menu_hierarchy	use wrap_routes_page_ids() instead	zzwrap/zzwrap/routes.inc.php
