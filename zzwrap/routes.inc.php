@@ -253,7 +253,7 @@ function wrap_routes_path_prepare($path, $parameters = '') {
  *   - detail (string): Passed to wrap_access($area, $detail) for access detail, e.g. 'restrict_to:123'; default ''.
  *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
  *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false.
- * @return string|null Path string, or NULL if route not found / access denied.
+ * @return string|null|false Path string, or NULL if route not found, or false if access denied.
  */
 function wrap_path($area, $value = [], $settings = [], $testing = false, $settings_old = []) {
 	// cater for old signature (3rd = check_rights/detail, 4th = testing, 5th = settings)
@@ -307,7 +307,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	}
 
 	// check rights
-	if ($settings['check_rights'] AND !wrap_access($area, $settings['detail'])) return NULL;
+	if ($settings['check_rights'] AND !wrap_access($area, $settings['detail'])) return false;
 
 	$path = $routes[$area];
 	if (!$path) return '';
