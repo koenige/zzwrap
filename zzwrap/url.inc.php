@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -381,7 +381,12 @@ function wrap_url_canonical($zz_page, $page) {
 	}
 	// set some query strings which are used by zzwrap
 	$page['query_strings'] = array_merge($page['query_strings'],
-		['no-cookie', 'lang', 'code', 'url', 'logout']);
+		['no-cookie', 'lang']);
+	// allow ?code= only for direct script access (e.g. ErrorDocument 403 → /_scripts/main.php?code=403)
+	if (!empty($zz_page['url']['full']['path'])
+		&& str_ends_with($zz_page['url']['full']['path'], basename($_SERVER['SCRIPT_NAME']))) {
+		$page['query_strings'][] = 'code';
+	}
 	if ($qs = wrap_setting('query_strings')) {
 		$page['query_strings'] = array_merge($page['query_strings'], $qs);
 	}
