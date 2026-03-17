@@ -63,7 +63,8 @@ function wrap_routes_write() {
 
 	$paths = [];
 	foreach ($routes as $key => $route) {
-		if (wrap_routes_write_params($key, $route, $pages, $paths)) continue;
+		if (!empty($route['match_parameters']))
+			if (wrap_routes_write_params($key, $pages, $paths)) continue;
 		wrap_routes_write_brick($key, $route, $pages, $paths);
 	}
 
@@ -82,13 +83,11 @@ function wrap_routes_write() {
  * resolve route from webpages.parameters (e. g. route=login_entry)
  *
  * @param string $key
- * @param array $route
  * @param array $pages
  * @param array $paths (will be changed)
  * @return bool true if route was handled
  */
-function wrap_routes_write_params($key, $route, $pages, &$paths) {
-	if (empty($route['match_parameters'])) return false;
+function wrap_routes_write_params($key, $pages, &$paths) {
 	foreach ($pages as $page) {
 		if (!$page['parameters']) continue;
 		parse_str($page['parameters'], $params);
