@@ -642,6 +642,7 @@ function _wrap_period_times($time_begin, $time_end) {
  * @return string
  */
 function _wrap_period_time_format($time) {
+	if (!$time) return $time;
 	if (str_starts_with($time, 'T')) $time = substr($time, 1);
 	if (!strpos($time, ':')) return $time;
 	$time = explode(':', $time);
