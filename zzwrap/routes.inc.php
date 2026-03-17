@@ -116,9 +116,10 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 	foreach ($pages as $page) {
 		if (!$page['content']) continue;
 		$pattern = '%%% '.$brick;
-		if (!strstr($page['content'], $pattern)) continue;
-		// remove found pattern, keep local settings
-		$page['content'] = substr($page['content'], strlen($pattern));
+		$pos = strpos($page['content'], $pattern);
+		if ($pos === false) continue;
+		// remove brick and everything before it, keep local settings until next %%% block
+		$page['content'] = substr($page['content'], $pos + strlen($pattern));
 		$pos = strpos($page['content'], '%%%');
 		if ($pos !== false)
 			$page['content'] = substr($page['content'], 0, $pos);
@@ -196,7 +197,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 		}
 	}
 	// disambiguation: prefer exact brick match over brick with parameters
-	if (count($matches) !== 1) {
+	if (count($matches) > 1) {
 		$removes = [];
 		foreach ($matches as $index => $match) {
 			if ($match['content']) $removes[] = $index;
