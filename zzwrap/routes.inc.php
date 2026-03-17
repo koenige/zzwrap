@@ -440,3 +440,60 @@ function _wrap_path_deprecation_caller() {
 		return sprintf(' (called from %s:%d%s)', $file, $line, $func ? ' in '.$func : '');
 	return '';
 }
+
+function wrap_menu_hierarchy($area, $paths = [], $setting_key = '') {
+	wrap_error(__FUNCTION__.' is deprecated, use wrap_routes_page_ids() instead', E_USER_DEPRECATED);
+	return wrap_routes_page_ids($area, $paths, $setting_key);
+}
+
+/**
+ * get additional page IDs for menu hierarchy
+ *
+ * @param string $area
+ * @param array $paths (optional)
+ * @param string $setting_key (optional, defaults to category=)
+ * @return array
+ * @todo refactor to merge code blocks with other wrap_routes_-functions
+ * @todo do not save result as setting, but in a file similar as routes.json
+ */
+function wrap_routes_page_ids($area, $paths = [], $setting_key = '') {
+	if (!$paths) return [];
+	sort($paths);
+	$setting = sprintf('%s_page_id[%s]', $area, implode(';', $paths));
+	if ($id = wrap_setting($setting)) {
+		if (is_array($id)) return $id;
+		else return [$id];
+	}
+	
+	// get brick from routes
+	$cfg = wrap_cfg_files('routes');
+	if (empty($cfg[$area]['brick'])) return [];
+	$block = $cfg[$area]['brick'];
+	
+	// get all matching pages
+	$sql = 'SELECT page_id, content
+		FROM /*_PREFIX_*/webpages
+		WHERE content LIKE "%%\%%\%%\%% %s %%"';
+	$sql = sprintf($sql, $block);
+	$pages = wrap_db_fetch($sql, 'page_id');
+	if (!$pages) return wrap_setting($setting, []);
+
+	// prepare blocks for comparison
+	if ($setting_key)
+		foreach ($paths as $index => $path)
+			$paths[$index] = sprintf('%s=%s', $setting_key, $path);
+	$block = sprintf('%s %s', $block, implode(' ', $paths));
+
+	$page_ids = [];
+	foreach ($pages as $page) {
+		preg_match_all('/%%%(.+?)%%%/', $page['content'], $matches);
+		if (empty($matches[1])) continue;
+		foreach ($matches[1] as $match_block) {
+			$match = brick_blocks_match($block, $match_block);
+			if (!$match) continue;
+			$page_ids[] = $page['page_id'];
+		}
+	}
+	wrap_setting_write($setting, sprintf('[%s]', implode(',', $page_ids)));
+	return $page_ids;
+}
