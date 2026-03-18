@@ -4,7 +4,7 @@
  * zzwrap
  * routes and path functions
  *
- * - wrap_routes_read(), wrap_routes_write(), wrap_routes_path_prepare()
+ * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
  * - wrap_path(), wrap_path_fallback(), wrap_path_placeholder(), wrap_path_helptext()
  *
  * Part of »Zugzwang Project«
@@ -68,6 +68,8 @@ function wrap_routes_write() {
 		wrap_routes_write_brick($key, $route, $pages, $paths);
 	}
 
+	wrap_routes_apply_default_paths($paths, $routes);
+
 	ksort($paths);
 	$file = wrap_setting('config_dir').'/routes.json';
 	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -77,6 +79,21 @@ function wrap_routes_write() {
 		file_put_contents($file, $new_content);
 	}
 	touch($lock);
+}
+
+/**
+ * use per-route `default` from routes.cfg for keys that have no resolved path
+ *
+ * @param array $paths (will be changed)
+ * @param array $routes merged routes.cfg
+ * @return void
+ */
+function wrap_routes_apply_default_paths(&$paths, $routes) {
+	foreach ($routes as $key => $route) {
+		if (empty($route['default'])) continue;
+		if (array_key_exists($key, $paths) AND $paths[$key]) continue;
+		$paths[$key] = $route['default'];
+	}
 }
 
 /**
