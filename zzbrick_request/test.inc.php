@@ -88,10 +88,23 @@ function mod_zzwrap_test($params, $settings = []) {
 			foreach ($data['post_functions'] as $function)
 				$output = mf_zzwrap_test_function($function, $output);
 		}
+		$line_legend = null;
+		if (is_array($value) && array_key_exists('description', $value)) {
+			$d = $value['description'];
+			if ($d !== null && $d !== '')
+				$line_legend = $d;
+		}
+		if ($line_legend === null) {
+			$d = ($data['descriptions'] ?? [])[$index] ?? null;
+			if ($d !== null && $d !== '')
+				$line_legend = $d;
+		}
 		$input = $value;
 		if (is_array($input)) {
 			$input = [];
 			foreach ($value as $key => $sub_value) {
+				if ($key === 'description')
+					continue;
 				$input[] = [
 					'key' => $key,
 					'value' => is_array($sub_value) ? json_encode($sub_value) : $sub_value
@@ -101,7 +114,7 @@ function mod_zzwrap_test($params, $settings = []) {
 				'inputs' => $input,
 				'output' => mod_zzwrap_test_array($output),
 				'output_pre' => $output_pre !== $value ? $output_pre : NULL,
-				'legend' => $data['legends'][$index] ?? NULL,
+				'legend' => $line_legend,
 				'expected' => $expected
 			];
 		} else {
@@ -109,7 +122,7 @@ function mod_zzwrap_test($params, $settings = []) {
 				'input' => $input,
 				'output' => mod_zzwrap_test_array($output),
 				'output_pre' => $output_pre !== $value ? $output_pre : NULL,
-				'legend' => $data['legends'][$index] ?? NULL,
+				'legend' => $line_legend,
 				'expected' => $expected
 			];
 		}
