@@ -17,6 +17,23 @@
 		{"value": "1,5", "expected": 1.5},
 		{"value": " 100 ", "expected": 100},
 		{"value": "abc", "expected": false},
-		{"value": "", "expected": false}
+		{"value": "", "expected": false},
+		{"description": "Chained division after multiplication", "value": "+5*4*6/.5/.5", "expected": 480},
+		{"description": "Division by small decimal", "value": "+5*4*6/.5/.1111", "expected": 2160.2160216021603},
+		{"description": "Simple addition with leading +", "value": "+1+2", "expected": 3},
+		{"description": "Negative multiply then add", "value": "-7*3+2", "expected": -19},
+		{"description": "Addition and multiplication order", "value": "+2+7*3", "expected": 23},
+		{"description": "Division only", "value": "14/2", "expected": 7},
+		{"description": "Negative division plus decimal multiply", "value": "-14/2+26.5*8", "expected": 205},
+		{"description": "Division by zero", "value": "+0/0", "expected": false},
+		{"description": "Zero with decimal", "value": "+0.0", "expected": 0},
+		{"description": "Zero", "value": "+0", "expected": 0},
+		{"description": "Zero with trailing decimals", "value": "+0.0000", "expected": 0},
+		{"description": "Multiplication chain", "value": "+5*4*6", "expected": 120},
+		{"description": "Comma as decimal separator", "value": "+26,4+13,6", "expected": 40},
+		{"description": "Divide by one half", "value": "+5*4*6/.5", "expected": 240},
+		{"description": "Divide by quarter", "value": "+5*4*6/.25", "expected": 480},
+		{"description": "Spaces stripped, single number", "value": "+49 00 232 2", "expected": 49002322},
+		{"description": "Date-like string (invalid)", "value": "17.04.2016", "expected": false}
 	]
 }
