@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2025 Gustaf Mossakowski
+# @copyright Copyright © 2025-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% loop start %%%
@@ -33,7 +33,8 @@
 %%% case numeric %%%
 <span style="color: #cc6600;">%%% item value %%%</span>
 %%% case string %%%
-<span style="color: #006600;">'%%% item value %%%'</span>
+<span style="color: #006600;">'%%% item value %%%'</span>%%% if truncated %%%
+<span style="color: #888;"> (%%% item full_length %%% characters, truncated)</span>%%% endif %%%
 %%% case other %%%
 <span style="color: #666;">%%% item value %%%</span>
 %%% case recursion %%%

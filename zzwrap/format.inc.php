@@ -697,10 +697,13 @@ function wrap_weekdays($data, $fields, $lang) {
  * @param array $array
  * @param string $color (optional)
  * @param bool $html (optional)
+ * @param int|null $max_string_length max UTF-8 characters per string (0 = no limit; null = setting)
  * @return string
  */
-function wrap_print($array, $color = 'FFF', $html = true) {
+function wrap_print($array, $color = 'FFF', $html = true, $max_string_length = null) {
 	static $calls = 0;
+	if ($max_string_length === null)
+		$max_string_length = wrap_setting('format_print_max_string_length');
 	if (!$html) return wrap_print_simple($array);
 	
 	$data = [
@@ -710,13 +713,18 @@ function wrap_print($array, $color = 'FFF', $html = true) {
 	if (!is_array($array)) {
 		$data['simple'] = true;
 		$data['content'] = wrap_print_simple($array);
+		if ($max_string_length && is_string($array)
+			&& mb_strlen($array, 'UTF-8') > $max_string_length) {
+			$data['content'] = mb_substr($data['content'], 0, $max_string_length, 'UTF-8')
+				.sprintf("\n… (%d characters total, truncated)", mb_strlen($array, 'UTF-8'));
+		}
 		$data['content'] = htmlspecialchars($data['content'], ENT_QUOTES, 'UTF-8');
 		return wrap_template('debug-print', $data);
 	}
 	
 	// Generate unique ID for this debug output
 	$data['count'] = count($array);
-	list($data['array'], $data['expand']) = _wrap_print_level($array);
+	list($data['array'], $data['expand']) = _wrap_print_level($array, [], 0, $max_string_length);
 	$data['first'] = $calls ? false : true;
 	if (!$data['expand']) $data['expand'] = NULL;
 	else $calls++;
@@ -733,10 +741,12 @@ function wrap_print_simple($array) {
  * Recursively render array levels for the interactive debugger
  *
  * @param array $array
+ * @param array $processed
  * @param int $level
+ * @param int $max_string_length 0 = no strict limit on string display
  * @return array
  */
-function _wrap_print_level($array, $processed = [], $level = 0) {
+function _wrap_print_level($array, $processed = [], $level = 0, $max_string_length) {
 	$data = [];
 	$index = 0;
 
@@ -745,7 +755,7 @@ function _wrap_print_level($array, $processed = [], $level = 0) {
 		$data[$index]['key_is_string'] = is_string($key);
 		$data[$index]['key'] = is_string($key) ? htmlspecialchars($key, ENT_QUOTES, 'UTF-8') : $key;
 		if ((is_array($value) OR is_object($value)) && !empty($value)) {
-			$content_id = is_object($value) ? spl_object_hash($value) : 'array_' . md5(serialize($value));
+			$content_id = _wrap_print_content_id($value);
 			if (in_array($content_id, $processed)) {
 				$data[$index]['type'] = 'recursion';
 			} else {
@@ -753,7 +763,7 @@ function _wrap_print_level($array, $processed = [], $level = 0) {
 				$data[$index]['item_count'] = count($value);
 				$next_processed = $processed;
 				$next_processed[] = $content_id;
-				list($data[$index]['array'], $expand) = _wrap_print_level($value, $next_processed, $level + 1);
+				list($data[$index]['array'], $expand) = _wrap_print_level($value, $next_processed, $level + 1, $max_string_length);
 			}
 		} else {
 			// Simple value - show directly
@@ -767,7 +777,17 @@ function _wrap_print_level($array, $processed = [], $level = 0) {
 				$data[$index]['value'] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 			} elseif (is_string($value)) {
 				$data[$index]['type'] = 'string';
-				$data[$index]['value'] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+				if ($max_string_length > 0 && mb_strlen($value, 'UTF-8') > $max_string_length) {
+					$data[$index]['truncated'] = true;
+					$data[$index]['full_length'] = mb_strlen($value, 'UTF-8');
+					$data[$index]['value'] = htmlspecialchars(
+						mb_substr($value, 0, $max_string_length, 'UTF-8'),
+						ENT_QUOTES,
+						'UTF-8'
+					);
+				} else {
+					$data[$index]['value'] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+				}
 			} else {
 				$data[$index]['type'] = 'other';
 				$data[$index]['value'] = ucfirst(htmlspecialchars(gettype($value), ENT_QUOTES, 'UTF-8'));
@@ -777,6 +797,47 @@ function _wrap_print_level($array, $processed = [], $level = 0) {
 		$index++;
 	}
 	return [wrap_template('debug-print-detail', $data), $expand ?? $level];
+}
+
+/**
+ * Fingerprint for recursion detection without serializing huge arrays
+ *
+ * @param array|object $value
+ * @return string
+ */
+function _wrap_print_content_id($value) {
+	if (is_object($value)) {
+		return spl_object_hash($value);
+	}
+	if (_wrap_print_estimated_bytes($value) > 65536) {
+		$keyrepr = implode("\0", array_map('strval', array_keys($value)));
+		return 'array_' . md5($keyrepr . "\0" . count($value));
+	}
+	return 'array_' . md5(serialize($value));
+}
+
+/**
+ * Rough byte sum of strings in a structure (caps early for wrap_print fingerprints)
+ *
+ * @param mixed $value
+ * @param int $depth
+ * @return int
+ */
+function _wrap_print_estimated_bytes($value, $depth = 0) {
+	if ($depth > 24) return 0;
+	if (is_string($value)) {
+		$n = strlen($value);
+		return $n > 65536 ? 65537 : $n;
+	}
+	if (is_array($value)) {
+		$sum = 0;
+		foreach ($value as $v) {
+			$sum += _wrap_print_estimated_bytes($v, $depth + 1);
+			if ($sum > 65536) return $sum;
+		}
+		return $sum;
+	}
+	return 64;
 }
 
 /**
