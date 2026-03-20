@@ -724,7 +724,7 @@ function wrap_print($array, $color = 'FFF', $html = true, $max_string_length = n
 	
 	// Generate unique ID for this debug output
 	$data['count'] = count($array);
-	list($data['array'], $data['expand']) = _wrap_print_level($array, [], 0, $max_string_length);
+	list($data['array'], $data['expand']) = _wrap_print_level($array, $max_string_length);
 	$data['first'] = $calls ? false : true;
 	if (!$data['expand']) $data['expand'] = NULL;
 	else $calls++;
@@ -741,12 +741,12 @@ function wrap_print_simple($array) {
  * Recursively render array levels for the interactive debugger
  *
  * @param array $array
+ * @param int $max_string_length 0 = no strict limit on string display
  * @param array $processed
  * @param int $level
- * @param int $max_string_length 0 = no strict limit on string display
  * @return array
  */
-function _wrap_print_level($array, $processed = [], $level = 0, $max_string_length = 8192) {
+function _wrap_print_level($array, $max_string_length, $processed = [], $level = 0) {
 	$data = [];
 	$index = 0;
 
@@ -763,7 +763,7 @@ function _wrap_print_level($array, $processed = [], $level = 0, $max_string_leng
 				$data[$index]['item_count'] = count($value);
 				$next_processed = $processed;
 				$next_processed[] = $content_id;
-				list($data[$index]['array'], $expand) = _wrap_print_level($value, $next_processed, $level + 1, $max_string_length);
+				list($data[$index]['array'], $expand) = _wrap_print_level($value, $max_string_length, $next_processed, $level + 1);
 			}
 		} else {
 			// Simple value - show directly
