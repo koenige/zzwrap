@@ -746,7 +746,7 @@ function wrap_print_simple($array) {
  * @param int $max_string_length 0 = no strict limit on string display
  * @return array
  */
-function _wrap_print_level($array, $processed = [], $level = 0, $max_string_length) {
+function _wrap_print_level($array, $processed = [], $level = 0, $max_string_length = 8192) {
 	$data = [];
 	$index = 0;
 
