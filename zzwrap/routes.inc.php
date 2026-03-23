@@ -388,7 +388,10 @@ function wrap_path_fallback($area, $value, $settings) {
 	$path = wrap_path(
 		$cfg[$area]['fallback_area'], $cfg[$area]['fallback_value'], $settings
 	);
-	if (!$path) return NULL;
+	if (!$path) {
+		// return NULL or false, depending on if path exists or just no rights
+		return $path;
+	}
 	if (empty($cfg[$area]['fallback_query'])) return $path;
 
 	if ($value) {
