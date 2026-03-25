@@ -24,7 +24,7 @@
 function wrap_include($filename, $paths = 'custom/modules') {
 	static $data = [];
 	$files = wrap_collect_files($filename, $paths);
-	if (!$files) return false;
+	if (!$files) return [];
 	if (!array_key_exists($filename, $data)) {
 		$data[$filename] = [
 			'packages' => [],
@@ -202,16 +202,29 @@ function wrap_collect_files_list($packages, $filename, $path) {
 /**
  * get a list of functions that match from a list of recently included files
  *
- * @param array $files
- * @param string $match
+ * $match is the full short name for an exact match. If it ends with *, the
+ * asterisk is stripped and remaining characters are matched as a prefix
+ * (suffix is set to the rest of short, after the next character, or NULL).
+ *
+ * @param array $files wrap_include() result
+ * @param string $match e.g. logging or logging*
  * @return array
  */
 function wrap_functions($files, $match) {
 	$matches = [];
-	foreach ($files['functions'] as $function) {
-		if (!str_starts_with($function['short'], $match)) continue;
-		$suffix = substr($function['short'], strlen($match) + 1);
-		$function['suffix'] = $suffix ? $suffix : NULL;
+	$prefix = str_ends_with($match, '*');
+	$needle = $prefix ? substr($match, 0, -1) : $match;
+	foreach (($files['functions'] ?? []) as $function) {
+		if (empty($function['short'])) continue;
+		if (!empty($function['private'])) continue;
+		if ($prefix) {
+			if (!str_starts_with($function['short'], $needle)) continue;
+			$suffix = substr($function['short'], strlen($needle) + 1);
+			$function['suffix'] = $suffix ? $suffix : NULL;
+		} else {
+			if ($function['short'] !== $needle) continue;
+			$function['suffix'] = NULL;
+		}
 		$matches[] = $function;
 	}
 	return $matches;
