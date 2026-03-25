@@ -832,11 +832,10 @@ function wrap_hook($settings) {
 	$filename = basename($functions[0]['file']);
 	$filename = substr($filename, 0, strpos($filename, '.'));
 	$files = wrap_include($filename, $settings['hook']);
-	foreach (($files['functions'] ?? []) as $function) {
-		foreach ($hook_types as $hook_type) {
-			if ($function['short'] === sprintf('%s_%s', $filename, $hook_type))
-				$hook[$hook_type] = $function['function'];
-		}
+	foreach ($hook_types as $hook_type) {
+		$matches = wrap_functions($files, sprintf('%s_%s', $filename, $hook_type));
+		if ($matches)
+			$hook[$hook_type] = end($matches)['function'];
 	}
 	return $hook;
 }

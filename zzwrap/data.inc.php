@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2020, 2023-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2020, 2023-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -194,10 +194,7 @@ function wrap_data_packages($key, $data, $ids) {
 	foreach ($files['packages'] as $package)
 		wrap_package_activate($package);
 
-	foreach ($files['functions'] as $function) {
-		if (empty($function['short'])) continue;
-		if ($function['short'] !== $key) continue;
+	foreach (wrap_functions($files, $key) as $function)
 		$data = $function['function']($data, $ids);
-	}
 	return $data;
 }
