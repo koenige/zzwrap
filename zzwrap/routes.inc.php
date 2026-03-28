@@ -384,7 +384,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	if ($website_id = wrap_setting('backend_website_id')
 		AND $website_id !== wrap_setting('website_id')) {
 		$cfg = wrap_cfg_files('settings');
-		if (!empty($cfg[$setting]['backend_for_website']))
+		if (!empty($cfg[$area]['backend_for_website']))
 			$path = wrap_host_base($website_id).$path;
 	}
 	return $path;
