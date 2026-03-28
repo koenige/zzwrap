@@ -324,7 +324,22 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	$settings['testing'] = $settings['testing'] ?? false;
 	$settings['detail'] = $settings['detail'] ?? '';
 
-	$routes = wrap_routes_read();
+	// resolve from foreign website if path_website_id is set and route is marked
+	$foreign_website_id = false;
+	if (wrap_setting('path_website_id')
+		AND wrap_setting('path_website_id') !== wrap_setting('website_id')) {
+		$routes_cfg = wrap_cfg_files('routes');
+		if (!empty($routes_cfg[$area]['path_for_website']))
+			$foreign_website_id = wrap_setting('path_website_id');
+	}
+
+	if ($foreign_website_id) {
+		$site = array_flip(wrap_id('websites', '', 'list'))[$foreign_website_id] ?? '';
+		$routes = $site ? wrap_routes_read($site) : [];
+	} else {
+		$routes = wrap_routes_read();
+	}
+
 	if (!array_key_exists($area, $routes)) {
 		// fallback: use base[*] when base[subkey] is missing (e.g. contacts_profile[organisation] -> contacts_profile[*])
 		$area_fallback = NULL;
@@ -343,7 +358,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	}
 
 	// check rights
-	if ($settings['check_rights'] AND !wrap_access($area, $settings['detail'])) return false;
+	if ($settings['check_rights'] AND !$foreign_website_id AND !wrap_access($area, $settings['detail'])) return false;
 
 	$path = $routes[$area];
 	if (!$path) return '';
@@ -381,7 +396,9 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	$base = !empty($settings['no_base']) ? '' : wrap_setting('base');
 	$path = vsprintf($base.$path, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
-	if ($website_id = wrap_setting('backend_website_id')
+	if ($foreign_website_id)
+		$path = wrap_host_base($foreign_website_id).$path;
+	elseif ($website_id = wrap_setting('backend_website_id')
 		AND $website_id !== wrap_setting('website_id')) {
 		$cfg = wrap_cfg_files('settings');
 		if (!empty($cfg[$area]['backend_for_website']))
