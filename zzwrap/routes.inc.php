@@ -19,45 +19,53 @@
 /**
  * read routes.json, generate it if it does not exist
  *
+ * @param string $site (optional) website domain; NULL = current website
  * @return array
  */
-function wrap_routes_read() {
-	static $routes = NULL;
-	if ($routes !== NULL) return $routes;
+function wrap_routes_read($site = NULL) {
+	static $all_routes = [];
+	if (!$site) $site = wrap_setting('site');
+	if (array_key_exists($site, $all_routes)) return $all_routes[$site];
 
-	$file = wrap_setting('config_dir').'/routes.json';
-	$lock = wrap_setting('tmp_dir').'/routes-update.lock';
+	$suffix = ($site === wrap_setting('site')) ? '' : '-'.str_replace('/', '-', $site);
+	$file = wrap_setting('config_dir').'/routes'.$suffix.'.json';
+	$lock = wrap_setting('tmp_dir').'/routes-update'.$suffix.'.lock';
 
 	if (!file_exists($file)) {
-		wrap_routes_write();
+		wrap_routes_write($site);
 	} elseif (!file_exists($lock)
 		OR filemtime($lock) < time() - wrap_setting('routes_cache_seconds')) {
-		wrap_routes_write();
+		wrap_routes_write($site);
 	}
 
 	if (file_exists($file))
-		$routes = json_decode(file_get_contents($file), true);
-	if (!$routes)
-		$routes = [];
-	return $routes;
+		$all_routes[$site] = json_decode(file_get_contents($file), true);
+	if (empty($all_routes[$site]))
+		$all_routes[$site] = [];
+	return $all_routes[$site];
 }
 
 /**
  * write routes.json
  *
+ * @param string $site (optional) website domain; NULL = current website
  * @return void
  */
-function wrap_routes_write() {
-	$lock = wrap_setting('tmp_dir').'/routes-update.lock';
+function wrap_routes_write($site = NULL) {
+	if (!$site) $site = wrap_setting('site');
+	$suffix = ($site === wrap_setting('site')) ? '' : '-'.str_replace('/', '-', $site);
+	$lock = wrap_setting('tmp_dir').'/routes-update'.$suffix.'.lock';
 	$routes = wrap_cfg_files('routes');
 	if (!$routes) { touch($lock); return; }
 	if (!wrap_db_connection()) { touch($lock); return; }
 
-	$sql = 'SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
+	$website_id = wrap_id('websites', $site);
+	if (!$website_id) { touch($lock); return; }
+	$sql = sprintf('SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 			, content, parameters
 		FROM /*_PREFIX_*/webpages
-		WHERE (content LIKE "%\%\%\%%" OR parameters LIKE "%&route=%")
-		AND website_id = /*_SETTING website_id _*/';
+		WHERE (content LIKE "%%\%%\%%\%%%%" OR parameters LIKE "%%&route=%%")
+		AND website_id = %d', $website_id);
 	$pages = wrap_db_fetch($sql, '_dummy_', 'numeric');
 	if (!$pages) { touch($lock); return; }
 
@@ -71,7 +79,7 @@ function wrap_routes_write() {
 	wrap_routes_apply_default_paths($paths, $routes);
 
 	ksort($paths);
-	$file = wrap_setting('config_dir').'/routes.json';
+	$file = wrap_setting('config_dir').'/routes'.$suffix.'.json';
 	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	$existing_content = file_exists($file) ? file_get_contents($file) : '';
 	if ($new_content !== $existing_content) {
