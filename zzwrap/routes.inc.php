@@ -24,10 +24,9 @@
  */
 function wrap_routes_read($site = NULL) {
 	static $all_routes = [];
-	if (!$site) $site = wrap_setting('site');
+	list($site, $suffix) = wrap_routes_site($site);
 	if (array_key_exists($site, $all_routes)) return $all_routes[$site];
 
-	$suffix = ($site === wrap_setting('site')) ? '' : '-'.str_replace('/', '-', $site);
 	$file = wrap_setting('config_dir').'/routes'.$suffix.'.json';
 	$lock = wrap_setting('tmp_dir').'/routes-update'.$suffix.'.lock';
 
@@ -52,8 +51,7 @@ function wrap_routes_read($site = NULL) {
  * @return void
  */
 function wrap_routes_write($site = NULL) {
-	if (!$site) $site = wrap_setting('site');
-	$suffix = ($site === wrap_setting('site')) ? '' : '-'.str_replace('/', '-', $site);
+	list($site, $suffix) = wrap_routes_site($site);
 	$lock = wrap_setting('tmp_dir').'/routes-update'.$suffix.'.lock';
 	$routes = wrap_cfg_files('routes');
 	if (!$routes) { touch($lock); return; }
@@ -102,6 +100,19 @@ function wrap_routes_apply_default_paths(&$paths, $routes) {
 		if (array_key_exists($key, $paths) AND $paths[$key]) continue;
 		$paths[$key] = $route['default'];
 	}
+}
+
+/**
+ * normalise site and derive file suffix for per-website route files
+ *
+ * @param string $site (optional) website domain; NULL = current website
+ * @return array [$site, $suffix]
+ */
+function wrap_routes_site($site) {
+	if (!$site)
+		$site = wrap_setting('site');
+	$suffix = ($site === wrap_setting('site')) ? '' : '-'.str_replace('/', '-', $site);
+	return [$site, $suffix];
 }
 
 /**
