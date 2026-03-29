@@ -178,6 +178,9 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 					$paths[$key][$subkey] = $path;
 			}
 		}
+		if (empty($paths[$key])) {
+			if (wrap_routes_write_params($key, $pages, $paths)) return;
+		}
 		return;
 	}
 
