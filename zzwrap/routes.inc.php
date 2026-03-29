@@ -227,7 +227,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 	// disambiguation: prefer non-wildcard if brick has no *
 	if (count($matches) !== 1 AND !str_ends_with($brick, '*')) {
 		foreach ($matches as $index => $match) {
-			if ($match['content'] AND str_starts_with($match['content'], '*'))
+			if ($match['content'] AND ($match['content'] === '*' OR str_starts_with($match['content'], '* ')))
 				unset($matches[$index]);
 		}
 	}
