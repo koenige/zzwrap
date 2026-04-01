@@ -57,7 +57,10 @@ function wrap_routes_write($site = NULL) {
 	if (!$routes) { touch($lock); return; }
 	if (!wrap_db_connection()) { touch($lock); return; }
 
-	$website_id = wrap_id('websites', $site);
+	if ($site === wrap_setting('site'))
+		$website_id = wrap_setting('website_id');
+	else
+		$website_id = wrap_id('websites', $site);
 	if (!$website_id) { touch($lock); return; }
 	$sql = sprintf('SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
 			, content, parameters
