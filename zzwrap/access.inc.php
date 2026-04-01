@@ -104,9 +104,8 @@ function wrap_access_groups($config, $area, $detail) {
 	// so check these first
 	$group_rights = $config[$area]['group'] ?? [];
 	if (!$group_rights) {
-		$pos = strpos($area, '[');
-		$area_short = $pos !== false ? substr($area, 0, $pos) : '';
-		if ($area_short) $group_rights = $config[$area_short]['group'] ?? [];
+		$area_base = wrap_access_area_base($area);
+		if ($area_base) $group_rights = $config[$area_base]['group'] ?? [];
 	}
 	// inherit group from include_access when this area has no group (config-based access)
 	if (!empty($config[$area]['include_access'])) {
@@ -150,7 +149,10 @@ function wrap_access_groups($config, $area, $detail) {
 	}
 
 	if (!empty($usergroups[$area])) {
-		$detail = wrap_access_detail_key($detail, $config[$area]);
+		$area_config = $config[$area] ?? [];
+		if (!$area_config AND $area_base = wrap_access_area_base($area))
+			$area_config = $config[$area_base] ?? [];
+		$detail = wrap_access_detail_key($detail, $area_config);
 		foreach ($usergroups[$area] as $usergroup) {
 			$access = brick_access_rights($usergroup, $detail);
 			if ($access) return true;
@@ -161,6 +163,18 @@ function wrap_access_groups($config, $area, $detail) {
 	$group_rights = array_diff($group_rights, ['localhost', 'public']);
 	if (!$group_rights) return false;
 	return brick_access_rights($group_rights);
+}
+
+/**
+ * Base access key before bracket notation (e.g. contacts_profile[person] => contacts_profile).
+ *
+ * @param string $area
+ * @return string empty string if $area contains no '['
+ */
+function wrap_access_area_base($area) {
+	$pos = strpos($area, '[');
+	if ($pos === false) return '';
+	return substr($area, 0, $pos);
 }
 
 /**
