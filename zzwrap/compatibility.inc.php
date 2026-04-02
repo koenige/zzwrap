@@ -14,8 +14,20 @@
 
 
 // ------------------------------------------------------------------ //
+// PHP < 8.4
+if (version_compare(PHP_VERSION, '8.4.0', '>=')) return;
+// ------------------------------------------------------------------ //
+
+if (!function_exists('http_get_last_response_headers')) {
+	function http_get_last_response_headers() {
+		if (!isset($http_response_header)) return null;
+		return $http_response_header;
+	}
+}
+
+// ------------------------------------------------------------------ //
 // PHP < 8.0
-if (version_compare(PHP_VERSION, '8.0.0', '>')) return;
+if (version_compare(PHP_VERSION, '8.0.0', '>=')) return;
 // ------------------------------------------------------------------ //
 
 // source: Laravel Framework
@@ -38,7 +50,7 @@ if (!function_exists('str_contains')) {
 
 // ------------------------------------------------------------------ //
 // PHP < 7.4
-if (version_compare(PHP_VERSION, '7.4.0', '>')) return;
+if (version_compare(PHP_VERSION, '7.4.0', '>=')) return;
 // ------------------------------------------------------------------ //
 
 if (!function_exists('mb_str_split')) {
@@ -61,7 +73,7 @@ if (!function_exists('mb_str_split')) {
 
 // ------------------------------------------------------------------ //
 // PHP < 7.3
-if (version_compare(PHP_VERSION, '7.3.0', '>')) return;
+if (version_compare(PHP_VERSION, '7.3.0', '>=')) return;
 // ------------------------------------------------------------------ //
 
 if( !function_exists('apache_request_headers')) {

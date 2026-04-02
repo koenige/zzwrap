@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -509,9 +509,8 @@ function wrap_syndication_http_request($url, $settings = []) {
 		set_error_handler('wrap_syndication_errors');
 		$data = file_get_contents($url, false, $context);
 		restore_error_handler();
-		if (!empty($http_response_header)) {
-			$headers = $http_response_header;
-		} else {
+		$headers = http_get_last_response_headers();
+		if (!$headers) {
 			$headers = [];
 			$status = 503;
 		}
