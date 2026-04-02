@@ -92,9 +92,10 @@ function wrap_http_request_method() {
  *
  * @param string $key Parameter name
  * @param string $source 'GET' (default), 'POST' or 'SERVER'
- * @param string $type 'string' (default), 'int', 'float' or 'auto'
+ * @param string $type 'string' (default), 'int', 'float', 'auto' or 'numeric'
  *		'auto': int if value looks like integer, float if numeric, else string
- * @return string|int|float|null Value, or null if parameter is not set
+ *		'numeric': int/float
+ * @return string|int|float|null Value, or null if parameter is not set or value invalid
  */
 function wrap_http_value($key, $source = 'GET', $type = 'string') {
 	switch ($source) {

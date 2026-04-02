@@ -9,6 +9,7 @@
  *
  *	wrap_convert_string()
  *	wrap_type_convert()
+ *	wrap_numeric()
  *	wrap_mailto()
  *	wrap_date()
  *		_wrap_date_format()
@@ -97,9 +98,10 @@ function wrap_detect_encoding($data) {
  * convert string to scalar type (int, float or string)
  *
  * @param string|int|float $value Value to convert (will be cast to string first)
- * @param string $type 'string', 'int', 'float' or 'auto'
+ * @param string $type 'string', 'int', 'float', 'auto' or 'numeric'
  *		'auto': int if value looks like integer, float if numeric, else string
- * @return string|int|float
+ *		'numeric': int or float if value is numeric, else null
+ * @return string|int|float|null
  */
 function wrap_type_convert($value, $type = 'string') {
 	$value = (string) $value;
@@ -112,10 +114,50 @@ function wrap_type_convert($value, $type = 'string') {
 		if (preg_match('/^-?\d+$/', $value)) return (int) $value;
 		if (is_numeric($value)) return (float) $value;
 		return $value;
+	case 'numeric':
+		return wrap_numeric($value);
 	case 'string':
 	default:
 		return $value;
 	}
+}
+
+/**
+ * Parse one number using locale decimal and thousands separators (settings).
+ *
+ * Strips ASCII spaces and non-breaking spaces; removes thousands_separator;
+ * maps decimal_point to '.'; rejects scientific notation and multiple decimals.
+ *
+ * @param string $value
+ * @return int|float|null Null if not a valid number string
+ */
+function wrap_numeric($value) {
+	$value = trim((string) $value);
+	if ($value === '') return null;
+
+	// replace spaces, non-breaking spaces
+	if (wrap_setting('character_set') === 'utf-8')
+		$value = str_replace(chr(194) . chr(160), '', $value);
+	else
+		$value = str_replace(chr(160), '', $value);
+	$value = str_replace(' ', '', $value);
+
+	// check for locale settings
+	if (wrap_setting('thousands_separator'))
+		$value = str_replace(wrap_setting('thousands_separator'), '', $value);
+	if (wrap_setting('decimal_point') AND wrap_setting('decimal_point') !== '.') {
+		if (substr_count($value, wrap_setting('decimal_point')) > 1) return null;
+		$value = str_replace(wrap_setting('decimal_point'), '.', $value);
+	}
+	
+	// check for invalid characters
+	if (substr_count($value, '.') > 1) return null;
+	if (!preg_match('/^[+-]?\d+(\.\d+)?$/', $value)) return null;
+
+	// valid values
+	if (preg_match('/^[+-]?\d+$/', $value)) return (int) $value;
+	if (preg_match('/^[+-]?\d+\.0+$/', $value)) return (int) (float) $value;
+	return (float) $value;
 }
 
 /**
