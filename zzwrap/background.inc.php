@@ -111,9 +111,9 @@ function wrap_job_finish($job, $type, $content) {
  * @return bool
  */
 function wrap_job_page($type) {
-	global $zz_page;
 	if ($type !== 'make') return false;
-	if (empty($zz_page['db']['parameters']['job'])) return false;
+	$page_parameters = wrap_page_field('parameters') ?? [];
+	if (empty($page_parameters['job'])) return false;
 	
 	$path = wrap_path('jobmanager', '', ['check_rights' => false]);
 	if (!$path) return false; // no job manager active
@@ -131,8 +131,8 @@ function wrap_job_page($type) {
  * @return void
  */
 function wrap_job_debug($msg, $data = []) {
-	global $zz_page;
-	if (empty($zz_page['db']['parameters']['job_debug'])) return;
+	$page_parameters = wrap_page_field('parameters') ?? [];
+	if (empty($page_parameters['job_debug'])) return;
 	wrap_error(sprintf('%s %s%s (%s)',
 		wrap_setting('zzwrap_id'),
 		$msg,

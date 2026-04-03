@@ -37,10 +37,8 @@
  *   string current_menu
  */
 function wrap_menu_get($page) {
-	global $zz_page;
-	
-	if ($sql = wrap_sql_query('page_menu_hierarchy') AND !empty($zz_page['db']))
-		$hierarchy = wrap_db_parents($zz_page['db'][wrap_sql_fields('page_id')], $sql);
+	if ($sql = wrap_sql_query('page_menu_hierarchy') AND wrap_page_field())
+		$hierarchy = wrap_db_parents(wrap_page_field('page_id'), $sql);
 	else
 		$hierarchy = [];
 	if (!empty($page['extra']['menu_hierarchy']))
@@ -491,10 +489,9 @@ function wrap_menu_id($item, $fn_page_id) {
  * @return string
  */
 function wrap_breadcrumbs($page) {
-	global $zz_page;
 	$page_breadcrumbs = $page['breadcrumbs'] ?? [];
 
-	$page_id = $zz_page['db'][wrap_sql_fields('page_id')] ?? false;
+	$page_id = wrap_page_field('page_id');
 	if ($page_id AND (empty($page['error_no_content']) OR $page['status'] !== 404)) {
 		// read breadcrumbs from database
 		$breadcrumbs = wrap_breadcrumbs_read($page_id);
@@ -529,7 +526,6 @@ function wrap_breadcrumbs($page) {
  */
 function wrap_breadcrumbs_read($page_id) {
 	if (!$sql = wrap_sql_query('page_breadcrumbs')) return [];
-	global $zz_page;
 
 	$breadcrumbs = [];
 	// get all webpages
@@ -826,12 +822,11 @@ function wrap_nav_top($menu) {
 	
 	// current page is not in this menu
 	// check next page(s) in breadcrumb trail if it's (they're) in menu
-	global $zz_page;
 	// 404 and other error pages don't correspond to a database entry
 	// so exit, this page is not in navigation
-	if (empty($zz_page['db'])) return false;
-
-	$breadcrumbs = wrap_breadcrumbs_read($zz_page['db'][wrap_sql_fields('page_id')]);
+	if (!wrap_page_field()) return false;
+	
+	$breadcrumbs = wrap_breadcrumbs_read(wrap_page_field('page_id'));
 	array_pop($breadcrumbs); // own page, we do not need this
 	while ($breadcrumbs) {
 		$upper_breadcrumb = array_pop($breadcrumbs);
@@ -894,7 +889,7 @@ function wrap_nav_top_recursive($menu, $nav_id = false) {
 function wrap_nav_sequential($pages, $breadcrumbs) {
 	global $zz_page;
 	// not for error pages
-	if (empty($zz_page['db']['page_id'])) return false;
+	if (!wrap_page_field('page_id')) return false;
 
 	$page_ids = array_column($breadcrumbs, 'page_id');
 	$filtered = array_intersect_key(
@@ -913,13 +908,13 @@ function wrap_nav_sequential($pages, $breadcrumbs) {
 		foreach ($data as $index => $line)
 			$data[$index]['url'] = wrap_setting('base').$line['url'];
 		list($zz_page['prev'], $zz_page['next'])
-			= wrap_get_prevnext($data, $zz_page['db']['page_id'], false);
+			= wrap_get_prevnext($data, wrap_page_field('page_id'), false);
 		if ($zz_page['prev'])
 			$zz_page['prev']['rel_title'] = wrap_text('Previous page');
 		if ($zz_page['next'])
 			$zz_page['next']['rel_title'] = wrap_text('Next page');
 		$top_id = key($data);
-		if ($zz_page['db']['page_id'].'' !== $top_id.'') {
+		if (wrap_page_field('page_id').'' !== $top_id.'') {
 			$zz_page['up'] = $data[$top_id];
 			$zz_page['up']['rel_title'] = wrap_text('Overview');
 		}

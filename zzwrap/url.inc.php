@@ -358,13 +358,13 @@ function wrap_url_canonical($zz_page, $page) {
 	// just for HTML output!
 	if (!empty($page['content_type']) AND $page['content_type'] !== 'html'
 		AND (empty($page['content_type_original']) OR $page['content_type_original'] !== 'html')
-		AND !empty($zz_page['db']['identifier'])
-		AND substr($zz_page['db']['identifier'], -1) === '*'
+		AND wrap_page_field('identifier')
+		AND substr(wrap_page_field('identifier'), -1) === '*'
 		AND strstr(basename(wrap_brick('parameter')), '.')) {
 		if (empty($page['url_ending'])) $page['url_ending'] = 'none';
 	}
-	if (!empty($zz_page['db'][wrap_sql_fields('page_ending')])) {
-		$ending = $zz_page['db'][wrap_sql_fields('page_ending')];
+	$ending = wrap_page_field('ending');
+	if ($ending) {
 		// if brick_format() returns a page ending, use this
 		if (isset($page['url_ending'])) $ending = $page['url_ending'];
 		$zz_page['url'] = wrap_url_canonical_ending($ending, $zz_page['url']);

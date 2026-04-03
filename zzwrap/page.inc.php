@@ -40,12 +40,7 @@ function wrap_page_field($key = '', $value = NULL, $action = 'set') {
 			$field_map[$mapped_keys[$key]] = wrap_sql_fields($mapped_keys[$key]);
 		$key = $field_map[$mapped_keys[$key]];
 	}
-	$result = wrap_static('page_db', $key, $value, $action);
-	if ($value !== NULL) {
-		global $zz_page;
-		$zz_page['db'] = wrap_static('page_db', '', NULL);
-	}
-	return $result;
+	return wrap_static('page_db', $key, $value, $action);
 }
 
 /**
@@ -118,14 +113,12 @@ function wrap_page_authors($brick_authors, $author_id = false) {
  * get last update date
  *
  * @param array $page
- * @global array $zz_page
  * @return string
  */
 function wrap_page_last_update($page) {
-	global $zz_page;
 	$last_update = $page['last_update'] ?? '';
-	if (!$last_update AND !empty($zz_page['db']))
-		$last_update = $zz_page['db'][wrap_sql_fields('page_last_update')];
+	if (!$last_update AND wrap_page_field())
+		$last_update = wrap_page_field('last_update');
 	return wrap_date($last_update);
 }
 
@@ -133,13 +126,11 @@ function wrap_page_last_update($page) {
  * get page media
  * 
  * @param array $page
- * @global array $zz_page
  * @return array
  */
 function wrap_page_media($page) {
-	global $zz_page;
 	$media = $page['media'] ?? [];
-	$page_id = $zz_page['db'][wrap_sql_fields('page_id')] ?? false;
+	$page_id = wrap_page_field('page_id');
 	if (!$page_id) return $media;
 	$media = array_merge(wrap_media($page_id, 'webpages'), $media);
 	return $media;
@@ -157,8 +148,8 @@ function wrap_page_title($page) {
 	global $zz_page;
 
 	if (empty($page['title'])) {
-		if (!empty($zz_page['db']) AND empty($page['error_no_content'])) {
-			$page['title'] = $zz_page['db'][wrap_sql_fields('page_title')];
+		if (wrap_page_field() AND empty($page['error_no_content'])) {
+			$page['title'] = wrap_page_field('title');
 		} elseif ($page['status'] !== 200) {
 			$status = wrap_http_status_list($page['status']);
 			if (!array_key_exists('text', $status))
@@ -175,8 +166,8 @@ function wrap_page_title($page) {
 	if (wrap_setting('translate_page_title') OR !empty($status))
 		$page['title'] = wrap_text($page['title'], ['ignore_missing_translation' => true]);
 
-	if (!empty($zz_page['db']) AND $zz_page['url']['full']['path'] === '/' AND empty($page['extra']['not_home'])) {
-		$page['pagetitle'] = strip_tags($zz_page['db'][wrap_sql_fields('page_title')]);
+	if (wrap_page_field() AND $zz_page['url']['full']['path'] === '/' AND empty($page['extra']['not_home'])) {
+		$page['pagetitle'] = strip_tags(wrap_page_field('title'));
 		$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle_home'), $page['pagetitle'], $page['project']);
 	} else {
 		$page['pagetitle'] = strip_tags($page['title']);
@@ -259,7 +250,7 @@ function wrap_get_page() {
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
 		$page = wrap_page_from_file($zz_page['tpl_file']);
 	} else {
-		$page = brick_format($zz_page['db'][wrap_sql_fields('page_content')], wrap_brick('parameter'));
+		$page = brick_format(wrap_page_field('content'), wrap_brick('parameter'));
 	}
 	wrap_page_check_if_error($page);
 
@@ -270,8 +261,8 @@ function wrap_get_page() {
 
 	$page['media']		= wrap_page_media($page);
 	$page[wrap_sql_fields('page_last_update')] = wrap_page_last_update($page);
-	if (!empty($zz_page['db'][wrap_sql_fields('page_author_id')]) AND !empty($page['authors']))
-		$page['authors'] = wrap_page_authors($page['authors'], $zz_page['db'][wrap_sql_fields('page_author_id')]);
+	if (wrap_page_field('author_person_id') AND !empty($page['authors']))
+		$page['authors'] = wrap_page_authors($page['authors'], wrap_page_field('author_person_id'));
 
 	return $page;
 }
@@ -376,9 +367,9 @@ function wrap_htmlout_page($page) {
 	// init page
 	if (file_exists($file = wrap_setting('custom').'/zzbrick_page/_init.inc.php'))
 		require_once $file;
-	wrap_page_extra($page, $zz_page);
+	wrap_page_extra($page);
 	if (empty($page['description']))
-		$page['description'] = $zz_page['db']['description'] ?? '';
+		$page['description'] = wrap_page_field('description');
 
 	// bring together page output
 	// do not modify html, since this is a template
@@ -523,20 +514,20 @@ function wrap_page_json($page, $text = NULL) {
  * write some keys from webpages.parameters to $page['extra']
  *
  * @param array $page
- * @param array $zz_page
  * @return array
  */
-function wrap_page_extra(&$page, $zz_page) {
+function wrap_page_extra(&$page) {
 	// check webpages.parameters
-	if (!empty($zz_page['db']['parameters'])) {
+	$page_parameters = wrap_page_field('parameters');
+	if ($page_parameters) {
 		foreach (wrap_setting('page_extra_parameters') as $key) {
-			if (!array_key_exists($key, $zz_page['db']['parameters'])) continue;
-			$page['extra'][$key] = $zz_page['db']['parameters'][$key];
+			if (!array_key_exists($key, $page_parameters)) continue;
+			$page['extra'][$key] = $page_parameters[$key];
 			$page['extra_'.$key] = is_array($page['extra'][$key]) ? true : $page['extra'][$key];
 		}
 	}
 	// is page live?
-	if (!empty($zz_page['db']['live']) AND $zz_page['db']['live'] === 'no') {
+	if (wrap_page_field('live') === 'no') {
 		if (!empty($page['extra']['class']) AND !is_array($page['extra']['class']))
 			$page['extra']['class'] = [$page['extra']['class']];
 		if (wrap_setting('page_preview_class'))
@@ -679,11 +670,11 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
  * @return array
  */
 function wrap_page_links($data, $path = false, $path_overview = false) {
-	global $zz_page;
 	if (!$path) {
-		if (empty($zz_page['db']['url'])) return [];
-		$path = str_replace('*', '/%s', $zz_page['db']['url']);
-		$ending = $zz_page['db']['ending'];
+		$page_url = wrap_page_field('url');
+		if (!$page_url) return [];
+		$path = str_replace('*', '/%s', $page_url);
+		$ending = wrap_page_field('ending');
 		if ($ending === 'none') $ending = '';
 		$path = sprintf('/%s%s', $path, $ending);
 	}

@@ -846,7 +846,6 @@ function wrap_translate_url($data) {
  * @todo support placeholders in URLs
  */
 function wrap_translate_url_other() {
-	global $zz_page;
 	if (!wrap_setting('translate_fields')) return [];
 	$field = wrap_translate_identifier_field();
 	if (!$field) return [];
@@ -862,13 +861,16 @@ function wrap_translate_url_other() {
 	$sql = sprintf($sql
 		, $field['field_type']
 		, $field['translationfield_id']
-		, $zz_page['db']['page_id']
+		, wrap_page_field('page_id')
 	);
 	$translations = wrap_db_fetch($sql, '_dummy_', 'key/value');
-	if (!empty($zz_page['db']['wrap_source_language']['identifier']))
-		$translations[$zz_page['db']['wrap_source_language']['identifier']]
-			= $zz_page['db']['wrap_source_content']['identifier']
-			.($zz_page['db']['ending'] !== 'none' ? $zz_page['db']['ending'] : '');
+	$wrap_source_language = wrap_page_field('wrap_source_language');
+	$wrap_source_content = wrap_page_field('wrap_source_content');
+	if (!empty($wrap_source_language['identifier'])) {
+		$translations[$wrap_source_language['identifier']]
+			= $wrap_source_content['identifier']
+			.(wrap_page_field('ending') !== 'none' ? wrap_page_field('ending') : '');
+	}
 	return $translations;
 }
 

@@ -557,7 +557,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 	global $zz_page;
 
 	// for pages matching every URL, check if there’s a ressource somewhere else
-	if (!empty($zz_page['db']['identifier']) AND $zz_page['db']['identifier'] === '/*' AND $statuscode === 404) {
+	if (wrap_page_field('identifier') AND wrap_page_field('identifier') === '/*' AND $statuscode === 404) {
 		$zz_page = wrap_match_ressource($zz_page, false);
 	}
 
