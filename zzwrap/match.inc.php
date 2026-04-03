@@ -446,11 +446,10 @@ function wrap_match_placeholders($zz_page, $full_url) {
 /**
  * check for redirects, if there's a corresponding table.
  *
- * @param array $page_url = $zz_page['url']
  * @global array $zz_page
  * @return mixed (bool false: no redirect; array: fields needed for redirect)
  */
-function wrap_match_redirects($page_url) {
+function wrap_match_redirects() {
 	global $zz_page;
 	// if 'db' is not set yet, the URL was considered malformed, no redirects for that
 	if (!isset($zz_page['url']['db'])) return false;

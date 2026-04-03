@@ -572,7 +572,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 
 	$page['status'] = $statuscode;
 	if ($statuscode === 404) {
-		$redir = wrap_match_redirects($zz_page['url']);
+		$redir = wrap_match_redirects();
 		if ($redir) {
 			$page['status'] = $redir['code'];
 		} else {
