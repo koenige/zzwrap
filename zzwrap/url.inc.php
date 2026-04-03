@@ -360,7 +360,7 @@ function wrap_url_canonical($zz_page, $page) {
 		AND (empty($page['content_type_original']) OR $page['content_type_original'] !== 'html')
 		AND !empty($zz_page['db']['identifier'])
 		AND substr($zz_page['db']['identifier'], -1) === '*'
-		AND strstr(basename($zz_page['db']['parameter']), '.')) {
+		AND strstr(basename(wrap_brick('parameter')), '.')) {
 		if (empty($page['url_ending'])) $page['url_ending'] = 'none';
 	}
 	if (!empty($zz_page['db'][wrap_sql_fields('page_ending')])) {

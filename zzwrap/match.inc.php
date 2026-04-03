@@ -114,7 +114,7 @@ function wrap_match_page() {
 	// but we do not need this here
 	if (str_starts_with($data[$found]['url'], '%language%'))
 		array_shift($data[$found]['params']);
-	$page['parameter'] = implode('/', $data[$found]['params']);
+	wrap_brick('parameter', implode('/', $data[$found]['params']));
 	$page['url'] = $data[$found]['url'];
 	
 	if ($page['url'] === '*') {

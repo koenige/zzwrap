@@ -21,7 +21,7 @@
  *
  * $key uses physical column names for remap fields (page_id, title, content, last_update,
  * author_person_id, ending); those resolve via wrap_sql_fields(). Any other key is used as-is
- * (e.g. parameter, parameters, identifier, description, live).
+ * (e.g. parameters, identifier, description, live, url).
  *
  * @param string $key field name; empty string returns the full record
  * @param mixed|null $value for writes: value to apply; NULL skips writes and returns current data (see wrap_static)
@@ -46,6 +46,21 @@ function wrap_page_field($key = '', $value = NULL, $action = 'set') {
 		$zz_page['db'] = wrap_static('page_db', '', NULL);
 	}
 	return $result;
+}
+
+/**
+ * read or write brick-related data (wrap_static bucket 'brick')
+ *
+ * Stores request data that is passed to the brick engine, e.g. the URL path
+ * tail that matched a wildcard identifier ('parameter').
+ *
+ * @param string $key
+ * @param mixed|null $value
+ * @param string $action
+ * @return mixed
+ */
+function wrap_brick($key = '', $value = NULL, $action = 'set') {
+	return wrap_static('brick', $key, $value, $action);
 }
 
 /**
@@ -237,14 +252,14 @@ function wrap_get_page() {
 		$page['error']['msg_text'] = 'Illegal value for XML HTTP request: %s';
 		$page['error']['msg_vars'] = [json_encode($_POST['httpRequest'])];
 	} elseif (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
-		$page = brick_xhr($_POST, $zz_page['db']['parameter']);
+		$page = brick_xhr($_POST, wrap_brick('parameter'));
 		$page['url_ending'] = 'ignore';
 	} elseif (array_key_exists('well_known', $zz_page)) {
 		$page = $zz_page['well_known'];
 	} elseif (array_key_exists('tpl_file', $zz_page)) {
 		$page = wrap_page_from_file($zz_page['tpl_file']);
 	} else {
-		$page = brick_format($zz_page['db'][wrap_sql_fields('page_content')], $zz_page['db']['parameter']);
+		$page = brick_format($zz_page['db'][wrap_sql_fields('page_content')], wrap_brick('parameter'));
 	}
 	wrap_page_check_if_error($page);
 
