@@ -63,3 +63,4 @@
 2026-03-17-1	code	wrap_menu_hierarchy	use wrap_routes_page_ids() instead	zzwrap/zzwrap/routes.inc.php
 2026-04-03-1	code	$zz_page['db']['parameter']	use wrap_brick('parameter') instead
 2026-04-03-2	code	$zz_page['db']	use wrap_page_field() / wrap_page_field('…'); sync assignment only in wrap_page_field()
+2026-04-03-3	code	$zz_page['url']['db']	use wrap_setting('request_uri') or wrap_match_path()

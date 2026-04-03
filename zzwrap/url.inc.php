@@ -273,25 +273,6 @@ function wrap_url_remove_query_strings($url, $objectionable_qs = []) {
 }
 
 /**
- * builds URL from REQUEST
- * better than mod_rewrite, because '&' won't always be treated correctly
- * 
- * @param array $url $url['full'] with result from parse_url
- * @return array $url with new keys ['db'] (URL in database)
- */
-function wrap_url_match() {
-	global $zz_page;
-	
-	$zz_page['url']['db'] = trim($zz_page['url']['full']['path'], '/');
-	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
-		$lang_suffix = '.'.$_GET['lang'];
-		if (str_ends_with($zz_page['url']['db'], $lang_suffix))
-			$zz_page['url']['db'] = substr($zz_page['url']['db'], 0, -strlen($lang_suffix));
-	}
-	$zz_page['url']['db'] = wrap_url_ending($zz_page['url']['db']);
-}
-
-/**
  * set relative path to root
  *
  * @global array $zz_page

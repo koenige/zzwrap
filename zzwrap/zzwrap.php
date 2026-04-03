@@ -41,7 +41,6 @@ function zzwrap() {
 	wrap_url_prepare(); // affects $zz_page
 	// check language
 	wrap_language_set();
-	wrap_url_match();
 	// Relative linking
 	wrap_url_relative();
 

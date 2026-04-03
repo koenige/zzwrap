@@ -32,7 +32,7 @@ function wrap_match_page() {
 	// no asterisk in URL
 	if (!empty($zz_page['url']['full']['path']) AND strstr($zz_page['url']['full']['path'], '*')) return false;
 	// sometimes, bots add second / to URL, remove and redirect
-	$full_url[0]['path'] = $zz_page['url']['db'];
+	$full_url[0]['path'] = wrap_match_path();
 	$full_url[0]['placeholders'] = [];
 
 	list($full_url, $leftovers) = wrap_match_placeholders($zz_page, $full_url);
@@ -125,6 +125,27 @@ function wrap_match_page() {
 	}
 	wrap_page_field('', $page, 'init');
 	return true;
+}
+
+/**
+ * builds URL from REQUEST
+ * better than mod_rewrite, because '&' won't always be treated correctly
+ * 
+ * @return string
+ */
+function wrap_match_path() {
+	global $zz_page;
+	static $path = NULL;
+	if (isset($path)) return $path;
+	
+	$path = trim($zz_page['url']['full']['path'], '/');
+	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
+		$lang_suffix = '.'.$_GET['lang'];
+		if (str_ends_with($path, $lang_suffix))
+			$path = substr($path, 0, -strlen($lang_suffix));
+	}
+	$path = wrap_url_ending($path);
+	return $path;
 }
 
 /**
@@ -451,18 +472,17 @@ function wrap_match_placeholders($zz_page, $full_url) {
  */
 function wrap_match_redirects() {
 	global $zz_page;
-	// if 'db' is not set yet, the URL was considered malformed, no redirects for that
-	if (!isset($zz_page['url']['db'])) return false;
+	$path = wrap_match_path();
 
 	if (!wrap_setting('check_redirects')) return false;
 	$where_language = (!empty($_GET['lang']) AND !is_array($_GET['lang']))
 		? sprintf(' OR %s = "/%s.html.%s"', wrap_sql_fields('core_redirects_old_url')
-			, wrap_db_escape($zz_page['url']['db']), wrap_db_escape($_GET['lang']))
+			, wrap_db_escape($path), wrap_db_escape($_GET['lang']))
 		: '';
 	$sql = sprintf(wrap_sql_query('core_redirects')
-		, '/'.wrap_db_escape($zz_page['url']['db'])
-		, '/'.wrap_db_escape($zz_page['url']['db'])
-		, '/'.wrap_db_escape($zz_page['url']['db']), $where_language
+		, '/'.wrap_db_escape($path)
+		, '/'.wrap_db_escape($path)
+		, '/'.wrap_db_escape($path), $where_language
 	);
 	// not needed anymore, but set to false hinders from getting into a loop
 	// (wrap_db_fetch() will call wrap_quit() if table does not exist)
@@ -479,9 +499,9 @@ function wrap_match_redirects() {
 
 	// If no redirect was found until now, check if there's a redirect above
 	// the current level with a placeholder (*)
-	$redir = wrap_match_redirects_placeholder($zz_page['url'], 'behind');
+	$redir = wrap_match_redirects_placeholder('behind');
 	if ($redir) return $redir;
-	$redir = wrap_match_redirects_placeholder($zz_page['url'], 'before');
+	$redir = wrap_match_redirects_placeholder('before');
 	if ($redir) return $redir;
 	return false;
 }
@@ -489,16 +509,17 @@ function wrap_match_redirects() {
 /**
  * check for redirects with placeholder
  *
- * @param array $url
  * @param string $position
  * @return mixed
  */
-function wrap_match_redirects_placeholder($url, $position) {
+function wrap_match_redirects_placeholder($position) {
+	global $zz_page;
 	$redir = false;
 	$parameter = false;
 	$found = false;
 	$break_next = false;
 	$separators = ['/', '-', '.'];
+	$path = wrap_match_path();
 
 	switch ($position) {
 	case 'before':
@@ -510,38 +531,38 @@ function wrap_match_redirects_placeholder($url, $position) {
 	}
 
 	while (!$found) {
-		$current_path = sprintf('/%s', wrap_db_escape($url['db']));
+		$current_path = sprintf('/%s', wrap_db_escape($path));
 		$sql = sprintf(wrap_sql_query($r_query), $current_path);
 		$redir = wrap_db_fetch($sql);
 		if ($redir) break; // we have a result, get out of this loop!
 		$last_pos = 0;
 		if ($position === 'before') {
 			foreach ($separators as $separator) {
-				$pos = strpos($url['db'], $separator);
+				$pos = strpos($path, $separator);
 				if ($pos > $last_pos) {
 					$last_pos = $pos;
 					$last_separator = $separator;
 				}
 			}
 			if ($last_pos) {
-				$parameter .= substr($url['db'], 0, $last_pos + 1);
+				$parameter .= substr($path, 0, $last_pos + 1);
 			}
-			$url['db'] = substr($url['db'], $last_pos + 1);
+			$path = substr($path, $last_pos + 1);
 		} else {
 			foreach ($separators as $separator) {
-				$pos = strrpos($url['db'], $separator);
+				$pos = strrpos($path, $separator);
 				if ($pos > $last_pos) {
 					$last_pos = $pos;
 					$last_separator = $separator;
 				}
 			}
 			if ($last_pos) {
-				$parameter = substr($url['db'], $last_pos).$parameter;
+				$parameter = substr($path, $last_pos).$parameter;
 			}
-			$url['db'] = substr($url['db'], 0, $last_pos);
+			$path = substr($path, 0, $last_pos);
 		}
 		if ($break_next) break; // last round
-		if (!strstr($url['db'], '/')) $break_next = true;
+		if (!strstr($path, '/')) $break_next = true;
 	}
 	if (!$redir) return false;
 
@@ -558,10 +579,10 @@ function wrap_match_redirects_placeholder($url, $position) {
 		$parameter = substr($parameter, 0, -1);
 		$redir[$field_name] = $last_separator.$parameter.substr($redir[$field_name], 1);
 	}
-	if (str_ends_with($url['full']['path'], '/') AND !str_ends_with($redir['new_url'], '/'))
+	if (str_ends_with($zz_page['url']['full']['path'], '/') AND !str_ends_with($redir['new_url'], '/'))
 		$redir['new_url'] .= '/';
-	if ($url['full']['query'])
-		$redir['new_url'] .= sprintf('?%s', $url['full']['query']);
+	if ($zz_page['url']['full']['query'])
+		$redir['new_url'] .= sprintf('?%s', $zz_page['url']['full']['query']);
 	return $redir;
 }
 
