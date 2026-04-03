@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -83,7 +83,7 @@ function zzwrap() {
 	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
 	
-	$zz_page['db'] = wrap_match_page($zz_page);
+	wrap_match_page();
 	wrap_defaults_post_match();
 	wrap_language_redirect();
 
@@ -92,7 +92,7 @@ function zzwrap() {
 	
 	if (wrap_setting('authentication_possible')) {
 		wrap_auth();
-		wrap_access_page($zz_page['db']['parameters'] ?? []);
+		wrap_access_page(wrap_page_field('parameters'));
 	}
 	wrap_https_check($zz_page);
 
@@ -104,7 +104,7 @@ function zzwrap() {
 
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
-	if (!$zz_page['db']) {
+	if (!wrap_page_field()) {
 		$zz_page = wrap_match_ressource($zz_page);
 	}
 	

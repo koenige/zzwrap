@@ -783,18 +783,16 @@ function wrap_translate_po_split($table, $po_text) {
  * translate page (that was not possible in wrap_match_page() because we
  * did not have complete language information then.
  *
- * @global array $zz_page (array 'db' will be changed)
  * @return bool true: translation was run, false: not run
  */
 function wrap_translate_page() {
-	global $zz_page;
 	if (!wrap_setting('translate_fields')) return false;
-	if (empty($zz_page['db'])) return false; // theme files
+	if (!wrap_page_field()) return false; // theme files
 	$my_page = wrap_translate([
-		$zz_page['db'][wrap_sql_fields('page_id')] => $zz_page['db']],
+		wrap_page_field('page_id') => wrap_page_field()],
 		wrap_sql_table('default_translation_pages')
 	);
-	$zz_page['db'] = array_shift($my_page);
+	wrap_page_field('', array_shift($my_page), 'init');
 	return true;
 }
 

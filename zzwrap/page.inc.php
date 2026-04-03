@@ -17,6 +17,38 @@
 
 
 /**
+ * read or write one field of the current page DB record (wrap_static bucket page_db)
+ *
+ * $key uses physical column names for remap fields (page_id, title, content, last_update,
+ * author_person_id, ending); those resolve via wrap_sql_fields(). Any other key is used as-is
+ * (e.g. parameter, parameters, identifier, description, live).
+ *
+ * @param string $key field name; empty string returns the full record
+ * @param mixed|null $value for writes: value to apply; NULL skips writes and returns current data (see wrap_static)
+ * @param string $action init, set (default), add, prepend, append, delete (pass-through to wrap_static)
+ * @return array|mixed|null full record as array if $key is ''; otherwise field value or NULL if missing
+ */
+function wrap_page_field($key = '', $value = NULL, $action = 'set') {
+	static $field_map = [];
+	$mapped_keys = [
+		'page_id' => 'page_id', 'title' => 'page_title',
+		'content' => 'page_content', 'last_update' => 'page_last_update',
+		'author_person_id' => 'page_author_id', 'ending' => 'page_ending'
+	];
+	if ($key && array_key_exists($key, $mapped_keys)) {
+		if (!isset($field_map[$mapped_keys[$key]]))
+			$field_map[$mapped_keys[$key]] = wrap_sql_fields($mapped_keys[$key]);
+		$key = $field_map[$mapped_keys[$key]];
+	}
+	$result = wrap_static('page_db', $key, $value, $action);
+	if ($value !== NULL) {
+		global $zz_page;
+		$zz_page['db'] = wrap_static('page_db', '', NULL);
+	}
+	return $result;
+}
+
+/**
  * Creates valid HTML id value from string
  * must match [A-Za-z][-A-Za-z0-9_:.]* (HTML 4.01)
  * here we say only lowercase, only underscore besides letters and numbers

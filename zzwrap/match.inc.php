@@ -17,10 +17,15 @@
  * Tests whether URL is in database (or a part of it ending with *), or a part 
  * of it with placeholders
  * 
- * @param array $zz_page
- * @return array $page
+ * @param global $zz_page
+ * @return bool true if a page record was stored, false otherwise
  */
-function wrap_match_page($zz_page) {
+function wrap_match_page() {
+	global $zz_page;
+
+	// reset page record; failures keep [], success replaces with wrap_page_field('', $page, 'init')
+	wrap_page_field('', [], 'init');
+
 	// no database connection or settings are missing
 	if (!wrap_sql_query('core_pages')) wrap_quit(503);
 
@@ -118,7 +123,8 @@ function wrap_match_page($zz_page) {
 		if (str_starts_with($zz_page['url']['full']['path'], wrap_setting('layout_path'))) return false;
 		if (str_starts_with($zz_page['url']['full']['path'], wrap_setting('behaviour_path'))) return false;
 	}
-	return $page;
+	wrap_page_field('', $page, 'init');
+	return true;
 }
 
 /**
