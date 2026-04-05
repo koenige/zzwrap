@@ -33,8 +33,6 @@ function wrap_http_restrict_ip() {
 /**
  * checks the HTTP request made, builds URL
  * sets language according to URL and request
- *
- * @global array $zz_page
  */
 function wrap_http_check_request() {
 	// check Accept Header

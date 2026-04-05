@@ -22,8 +22,6 @@
  * @return void
  */
 function zzwrap() {
-	global $zz_page;		// page variables
-
 	wrap_includes();
 	set_error_handler('wrap_error_handler');
 	register_shutdown_function('wrap_shutdown');

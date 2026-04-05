@@ -23,10 +23,8 @@
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
  *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end',
  *		string 'class'
- * @global array $zz_page
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
-	global $zz_page;
 	static $collect = false;
 	static $collect_messages = [];
 	static $collect_error_type = NULL;
@@ -294,8 +292,6 @@ function wrap_error_summary($line = '', $error_level = '', $prefix_line = false)
  * @param bool $log_errors whether errors shall be logged or not
  */ 
 function wrap_errorpage($page = [], $log_errors = true) {
-	global $zz_page;
-
 	wrap_lib();
 
 	// -- 1. check what kind of error page it is
