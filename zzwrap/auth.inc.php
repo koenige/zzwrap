@@ -30,11 +30,9 @@
  * she or he is logged in, do not prolong login time, set person as logged out
  * if login time has passed
  * @param bool $force explicitly force authentication
- * @global array $zz_page
  * @return bool true if login is necessary, false if no login is required
  */
 function wrap_auth($force = false) {
-	global $zz_page;
 	static $authentication_was_called = false;
 
 	if (!$force AND $authentication_was_called) return true; // don't run this function twice
@@ -49,17 +47,17 @@ function wrap_auth($force = false) {
 
 	// check if current URL needs authentication
 	if (!$force) {
-		$zz_page['user_authenticated'] = false;
+		$user_authenticated = false;
 		foreach (wrap_setting('auth_urls') as $auth_url) {
 			if (!str_starts_with(strtolower(wrap_url('path')), strtolower($auth_url)))
 				continue;
 			if (wrap_url('path') === wrap_setting('login_url'))
 				continue;
 			if (wrap_authenticate_url())
-				$zz_page['user_authenticated'] = true;
+				$user_authenticated = true;
 		}
 
-		if (!$zz_page['user_authenticated']) {
+		if (!$user_authenticated) {
 			// Keep session if logged in and clicking on the public part of the page
 			// but do not prolong time until automatically logging out someone
 			if (isset($_SESSION)) return false;
