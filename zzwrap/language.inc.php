@@ -14,31 +14,29 @@
 
 
 /**
- * Sets language for HTML document; checks language information from
- * URL and HTTP header
+ * Sets language for the request: optional leading path segment (/en/…), then
+ * Accept-Language negotiation when configured.
  *
- * settings 'lang' will be set
- * setting 'base' might be changed, 'negotiate_language', default_source_language'
- * @global array $zz_page
- *		'url', 'redirect'
- * @return bool true: ok.
+ * May set `lang`, `base`, `language_in_url`, and `wrap_url` path (via
+ * wrap_language_prefix()). When negotiation applies, caller should run
+ * wrap_language_redirect() after page match if this returns true.
+ *
+ * @return bool true if wrap_language_redirect() should be called after page match; false otherwise (including negotiation failure)
  */
 function wrap_language_set() {
-	global $zz_page;
+	// single language website?
+	if (!wrap_setting('languages_allowed')) return false;
 
 	// check for language code in URL
-	wrap_prepare_url();
-
-	// single language website?
-	if (!wrap_setting('languages_allowed')) return true;
+	wrap_language_prefix();
 
 	// Content Negotiation for language?
-	if (!wrap_setting('negotiate_language')) return true;
+	if (!wrap_setting('negotiate_language')) return false;
 	foreach (wrap_setting('dont_negotiate_language_paths') as $path) {
-		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return true;
+		if (str_starts_with($_SERVER['REQUEST_URI'], $path)) return false;
 	}
 	// language is already in URL?
-	if (wrap_setting('language_in_url')) return true;
+	if (wrap_setting('language_in_url')) return false;
 
 	// Check if redirect is necessary
 	if (!wrap_setting('default_source_language'))
@@ -46,23 +44,19 @@ function wrap_language_set() {
 	if (!empty($_GET['lang']) AND in_array($_GET['lang'], wrap_setting('languages_allowed')))
 		$language = $_GET['lang'];
 	else
-		$language = wrap_negotiate_language();
+		$language = wrap_language_negotiate();
 	if (!$language) return false;
 	wrap_setting('lang', $language);
-	// in case there is content, redirect to the language specific content later
-	$zz_page['language_redirect'] = true;
+	// caller should run wrap_language_redirect() after page match
 	return true;
 }
 
 /**
  * redirect URL to language specific URL
  *
- * @global array $zz_page
  * @return void
  */
 function wrap_language_redirect() {
-	global $zz_page;
-	if (empty($zz_page['language_redirect'])) return;
 	if (!wrap_setting('negotiate_language')) return;
 
 	wrap_setting('base', wrap_setting('base').'/'.wrap_setting('lang'));
@@ -80,15 +74,15 @@ function wrap_language_redirect() {
 }
 
 /**
- * Reads the language from the URL and returns without it
- * looking for /en/ or similar
- * Liest die Sprache aus der URL aus und gibt die URL ohne Sprache zurück 
- * 
- * settings: 'lang' (will be changed), 'base' (will be changed)
- * @return bool
+ * If the first URL path segment is an allowed language code (e.g. /en/foo),
+ * apply it: set `lang`, extend `base`, set `language_in_url`, strip that segment
+ * from `wrap_url('path')`, and flag redirect when the path becomes empty (e.g. /en).
+ *
+ * Call only when `languages_allowed` is non-empty (see wrap_language_set()).
+ *
+ * @return bool true if a language prefix was detected and applied; false if path is empty or segment is not an allowed language (no settings changed)
  */
-function wrap_prepare_url() {
-	if (!wrap_setting('languages_allowed')) return false;
+function wrap_language_prefix() {
 	if (!wrap_url('path')) return false;
 	// if /en/ is not there, /en still may be, so check full URL
 	if (!$pos = strpos(substr(wrap_url('path'), 1), '/')) {
@@ -959,7 +953,7 @@ function wrap_translate_identifier_field() {
  *
  * @return array
  */
-function wrap_negotiate_language() {
+function wrap_language_negotiate() {
 	// check accepted languages
 	$accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? NULL;
 	// if no language information was sent, HTTP 1.1 says, every language is fine

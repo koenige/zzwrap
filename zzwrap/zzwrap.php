@@ -40,7 +40,7 @@ function zzwrap() {
 	wrap_http_check_request();
 	wrap_url_prepare();
 	// check language
-	wrap_language_set();
+	$language_redirect = wrap_language_set();
 	// Relative linking
 	wrap_url_relative();
 
@@ -84,7 +84,7 @@ function zzwrap() {
 	
 	wrap_match_page();
 	wrap_defaults_post_match();
-	wrap_language_redirect();
+	if ($language_redirect) wrap_language_redirect();
 
 	// Functions which might be executed always, before possible login
 	wrap_include('start');
