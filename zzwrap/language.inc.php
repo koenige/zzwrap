@@ -67,13 +67,13 @@ function wrap_language_redirect() {
 
 	wrap_setting('base', wrap_setting('base').'/'.wrap_setting('lang'));
 	// remove lang= from URL
-	if (isset($_GET['lang']) AND $zz_page['url']['full']['query']) {
-		parse_str($zz_page['url']['full']['query'], $qs);
+	if (isset($_GET['lang']) AND wrap_url('query')) {
+		parse_str(wrap_url('query'), $qs);
 		unset($qs['lang']);
-		$zz_page['url']['full']['query'] = http_build_query($qs);
+		wrap_url('query', http_build_query($qs));
 	}
-	$zz_page['url']['redirect'] = true;
-	$zz_page['url']['redirect_cache'] = false;
+	wrap_url('redirect', true);
+	wrap_url('redirect_cache', false);
 	// vary header for caching
 	wrap_cache_header('Vary: Accept-Language');
 	wrap_cache_header('Cache-Control: private');
@@ -88,15 +88,13 @@ function wrap_language_redirect() {
  * @return bool
  */
 function wrap_prepare_url() {
-	global $zz_page;
-
 	if (!wrap_setting('languages_allowed')) return false;
-	if (empty($zz_page['url']['full']['path'])) return false;
+	if (!wrap_url('path')) return false;
 	// if /en/ is not there, /en still may be, so check full URL
-	if (!$pos = strpos(substr($zz_page['url']['full']['path'], 1), '/')) {
-		$pos = strlen($zz_page['url']['full']['path']);
+	if (!$pos = strpos(substr(wrap_url('path'), 1), '/')) {
+		$pos = strlen(wrap_url('path'));
 	}
-	$lang = substr($zz_page['url']['full']['path'], 1, $pos);
+	$lang = substr(wrap_url('path'), 1, $pos);
 	// check if it’s a language
 	// read from array
 	if (!in_array($lang, wrap_setting('languages_allowed'))) 
@@ -109,12 +107,13 @@ function wrap_prepare_url() {
 	wrap_setting('base', wrap_setting('base').'/'.$lang);
 	// modify internal URL
 	wrap_setting('language_in_url', true);
-	$zz_page['url']['full']['path'] = substr($zz_page['url']['full']['path'], $pos + 1);
-	if (!$zz_page['url']['full']['path']) {
-		$zz_page['url']['full']['path'] = '/';
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
+	$newpath = substr(wrap_url('path'), $pos + 1);
+	if (!$newpath) {
+		$newpath = '/';
+		wrap_url('redirect', true);
+		wrap_url('redirect_cache', false);
 	}
+	wrap_url('path', $newpath);
 	return true;
 }
 

@@ -162,8 +162,7 @@ function wrap_job_next($url) {
 function wrap_trigger_url($url) {
 	$port = 80;
 	if (substr($url, 0, 1) === '/') {
-		global $zz_page;
-		$host = $zz_page['url']['full']['host'];
+		$host = wrap_url('host');
 		$path = $url;
 	} else {
 		$parsed = parse_url($url);

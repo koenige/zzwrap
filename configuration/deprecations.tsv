@@ -64,3 +64,7 @@
 2026-04-03-1	code	$zz_page['db']['parameter']	use wrap_brick('parameter') instead
 2026-04-03-2	code	$zz_page['db']	use wrap_page_field() / wrap_page_field('…'); sync assignment only in wrap_page_field()
 2026-04-03-3	code	$zz_page['url']['db']	use wrap_setting('request_uri') or wrap_match_path()
+2026-04-05-1	code	$zz_page['url']['full']	use wrap_url()
+2026-04-05-2	code	$zz_page['url']['redirect']	use wrap_url('redirect')
+2026-04-05-3	code	$zz_page['url']['redirect_cache']	use wrap_url('redirect_cache')
+2026-04-05-4	code	$zz_page['url']	use wrap_url()

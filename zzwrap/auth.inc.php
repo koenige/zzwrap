@@ -51,9 +51,9 @@ function wrap_auth($force = false) {
 	if (!$force) {
 		$zz_page['user_authenticated'] = false;
 		foreach (wrap_setting('auth_urls') as $auth_url) {
-			if (!str_starts_with(strtolower($zz_page['url']['full']['path']), strtolower($auth_url)))
+			if (!str_starts_with(strtolower(wrap_url('path')), strtolower($auth_url)))
 				continue;
-			if ($zz_page['url']['full']['path'] === wrap_setting('login_url'))
+			if (wrap_url('path') === wrap_setting('login_url'))
 				continue;
 			if (wrap_authenticate_url())
 				$zz_page['user_authenticated'] = true;
@@ -119,8 +119,8 @@ function wrap_auth($force = false) {
 		// it's not important if an error occurs here
 		wrap_db_query($sql_mask, E_USER_NOTICE);
 	}
-	if (!empty($zz_page['url']['redirect'])) {
-		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, false);
+	if (wrap_url('redirect')) {
+		wrap_redirect(wrap_glue_url(wrap_url()), 301, false);
 	}
 	return true;
 }
@@ -161,15 +161,13 @@ function wrap_auth_logged_in($now) {
  * @return void (exit)
  */
 function wrap_auth_loginpage() {
-	global $zz_page;
-
 	$qs = [];
 	$qs['request'] = false; 
-	$request = $zz_page['url']['full']['path'];
-	if (!empty($zz_page['url']['full']['query'])) {
+	$request = wrap_url('path');
+	if (wrap_url('query')) {
 		// parse URL for no-cookie to hand it over to mod_zzwrap_login()
 		// in case cookies are not allowed
-		parse_str($zz_page['url']['full']['query'], $query_string);
+		parse_str(wrap_url('query'), $query_string);
 		if (isset($query_string['no-cookie'])) {
 			// add no-cookie to query string so login knows that there's no
 			// cookie (in case SESSIONs don't work here)
@@ -196,9 +194,7 @@ function wrap_auth_loginpage() {
  * @return bool true if authentication is required, false if not
  */
 function wrap_authenticate_url($url = false, $no_auth_urls = []) {
-	global $zz_page;
-	if (!$url)
-		$url = $zz_page['url']['full']['path'] ?? NULL;
+	if (!$url) $url = wrap_url('path');
 	if (!$url) return false; // 400
 	if (!$no_auth_urls)
 		$no_auth_urls = wrap_setting('no_auth_urls');

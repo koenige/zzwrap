@@ -38,7 +38,7 @@ function zzwrap() {
 
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_http_check_request();
-	wrap_url_prepare(); // affects $zz_page
+	wrap_url_prepare();
 	// check language
 	wrap_language_set();
 	// Relative linking

@@ -142,7 +142,6 @@ function wrap_https() {
  * @return redirect header
  */
 function wrap_https_check() {
-	global $zz_page;
 	// if it doesn't matter, get out of here
 	if (wrap_setting('ignore_scheme')) return true;
 	foreach (wrap_setting('ignore_scheme_paths') as $path) {
@@ -158,7 +157,7 @@ function wrap_https_check() {
 	} else {
 		if (wrap_setting('protocol') === 'http') return true;
 	}
-	$url = $zz_page['url']['full'];
+	$url = wrap_url();
 	$url['scheme'] = wrap_setting('protocol');
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 	exit;
@@ -167,13 +166,10 @@ function wrap_https_check() {
 /**
  * redirects to https URL, only if explicitly called
  *
- * @global array $zz_page
  * @return bool
  * @deprecated all websites should use https
  */
 function wrap_https_redirect() {
-	global $zz_page;
-
 	// access must be possible via both http and https
 	// check to avoid infinite redirection
 	if (!wrap_setting('ignore_scheme')) return false;
@@ -182,7 +178,7 @@ function wrap_https_redirect() {
 	// local connection?
 	if (wrap_setting('local_access') AND !wrap_setting('local_https')) return false;
 
-	$url = $zz_page['url']['full'];
+	$url = wrap_url();
 	$url['scheme'] = 'https';
 	wrap_redirect(wrap_glue_url($url), 302, false); // no cache
 }

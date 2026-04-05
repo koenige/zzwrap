@@ -157,13 +157,12 @@ function wrap_session_check($token, $qs = '') {
  * @return void redirect to another URL
  */
 function wrap_session_cookietest_start($token, $qs) {
-	global $zz_page;
 	$_SESSION[$token] = true;
 	$_SESSION['last_click_at'] = time();
 	session_write_close();
 	
 	$qs = $qs ? $qs.'&no-cookie' : 'no-cookie';
-	$url = $zz_page['url']['full'];
+	$url = wrap_url();
 	if (empty($url['query'])) {
 		$url['query'] = $qs;
 	} else {
@@ -182,9 +181,8 @@ function wrap_session_cookietest_start($token, $qs) {
  *		array $page if a cookie message should be sent back to user
  */
 function wrap_session_cookietest_end($token, $qs) {
-	global $zz_page;
 	session_write_close();
-	$url = $zz_page['url']['full'];
+	$url = wrap_url();
 	parse_str($url['query'], $query);
 	unset($query['no-cookie']);
 	$url['query'] = http_build_query($query);

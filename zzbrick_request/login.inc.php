@@ -29,13 +29,10 @@
  *		bool 'via': check login data from a different server, POST some JSON
  *		bool 'no-cookie': for cookie check only
  *		bool 'password': show form to retrieve forgotten password
- * @global array $zz_page
  * @return mixed bool false: login failed; array $page: login form; or redirect
  *		to (wanted) landing page
  */
 function mod_zzwrap_login($params, $settings = []) {
-	global $zz_page;
-
 	wrap_setting_add('extra_http_headers', 'X-Frame-Options: Deny');
 	wrap_setting_add('extra_http_headers', "Content-Security-Policy: frame-ancestors 'self'");
 
@@ -216,8 +213,7 @@ function mod_zzwrap_login($params, $settings = []) {
 		}
 	}
 	
-	if (isset($zz_page['url']['full']['query']) 
-		AND str_starts_with($zz_page['url']['full']['query'], 'logout')) {
+	if (str_starts_with(wrap_url('query'), 'logout')) {
 		// Stop the session, delete all session data
 		wrap_session_stop();
 		$loginform['logout'] = true;
@@ -284,13 +280,11 @@ function mod_zzwrap_login($params, $settings = []) {
 /**
  * get redirect URL from query string
  *
- * @global array $zz_page
  * @return string
  */
 function mod_zzwrap_login_redirect_url() {
-	global $zz_page;
-	if (empty($zz_page['url']['full']['query'])) return false;
-	parse_str($zz_page['url']['full']['query'], $querystring);
+	if (!wrap_url('query')) return false;
+	parse_str(wrap_url('query'), $querystring);
 	if (empty($querystring['url'])) return false;
 	if (is_array($querystring['url'])) return false;
 	return $querystring['url'];

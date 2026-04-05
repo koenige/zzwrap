@@ -390,8 +390,6 @@ function wrap_errorpage($page, $zz_page, $log_errors = true) {
  * @return bool true if something was logged, false if not
  */
 function wrap_errorpage_log($status, $page) {
-	global $zz_page;
-
 	if (in_array($status, [404])) // no need to log 404 requests of people with faked headers
 		if (wrap_setting('http_forward_ip_unknown')) return false;
 	if (in_array($status, [401, 403, 404, 410, 503]))
@@ -649,8 +647,6 @@ function wrap_error_hostnames() {
  * @return bool true: referer is valid, false: referer is invalid
  */
 function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
-	global $zz_page;
-
 	$referer = parse_url($_SERVER['HTTP_REFERER']);
 	// not parseable = invalid
 	if (!$referer) return false;
@@ -683,7 +679,7 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	if ($external_request) {
 		if (!wrap_error_referer_local_redirect($referer['host'])) {
 			if ($referer['host'] === wrap_setting('hostname')
-				AND $referer['path'] !== $zz_page['url']['full']['path']
+				AND $referer['path'] !== wrap_url('path')
 				AND $referer['scheme'] !== 'https' AND in_array('/', wrap_setting('https_urls'))
 			) {
 				// it is no https redirect but from the same hostname and from a different path
@@ -691,7 +687,7 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 				// but with a non-canonical hostname here
 				return false;
 			}
-			if ($zz_page['url']['full'] === $referer) {
+			if (wrap_build_url(wrap_url()) === wrap_build_url($referer)) {
 				// made up hostname purportedly accessing from the same, non-existent URL
 				return false;
 			}
@@ -701,12 +697,12 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 		if (!$local_redirects) return false;
 		// is it a local redirect but paths differ? impossible, the referring URL
 		// would have been redirected as well
-		if ($referer['path'] !== $zz_page['url']['full']['path']) return false;
+		if ($referer['path'] !== wrap_url('path')) return false;
 		// local hostnames won’t redirect from a different port, so this is a fake referer
 		if (!empty($referer['port']) AND in_array($referer['port'], [80, 443])) return false;
 	}
 	// referer from own domain, but invalid because should be https?
-	if (wrap_error_referer_local_https($referer, $zz_page['url']['full'])) {
+	if (wrap_error_referer_local_https($referer)) {
 		return false;
 	}
 
@@ -715,22 +711,22 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	// query string different?
 	if (!empty($referer['query'])) {
 		// referer has query string, URL not, probably valid referer
-		if (empty($zz_page['url']['full']['query'])) return true;
+		if (!wrap_url('query')) return true;
 		// referer has different query string
-		if (wrap_error_url_decode($referer['query']) !== wrap_error_url_decode($zz_page['url']['full']['query']))
+		if (wrap_error_url_decode($referer['query']) !== wrap_error_url_decode(wrap_url('query')))
 			return true;
 	} else {
 		// URL has query string, referer not
-		if (!empty($zz_page['url']['full']['query'])) return true;
+		if (wrap_url('query')) return true;
 	}
 
 	// query string is equal, path is left
-	if ($referer['path'] === $zz_page['url']['full']['path']) return false;
-	if (str_replace('//', '/', $referer['path']) === $zz_page['url']['full']['path']) return false;
-	if ($referer['path'] === wrap_setting('base').$zz_page['url']['full']['path']) return false;
+	if ($referer['path'] === wrap_url('path')) return false;
+	if (str_replace('//', '/', $referer['path']) === wrap_url('path')) return false;
+	if ($referer['path'] === wrap_setting('base').wrap_url('path')) return false;
 	if ($referer['path'] === wrap_setting('request_uri')) return false; // for malformed URIs
 	// check if equal if path has %-encoded values
-	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode(wrap_setting('base').$zz_page['url']['full']['path']))
+	if (wrap_error_url_decode($referer['path']) === wrap_error_url_decode(wrap_setting('base').wrap_url('path')))
 		return false;
 
 	return true;
@@ -770,12 +766,10 @@ function wrap_error_referer_local_redirect($referer_host) {
  * @return bool true: https required but not there, false: ok
  */
 function wrap_error_referer_local_https($referer) {
-	global $zz_page;
-
 	// just if referer URL path differs
 	if (!$referer['path']) return false;
-	if (!$zz_page['url']['full']['path']) return false;
-	if ($referer['path'] === $zz_page['url']['full']['path']) return false;
+	if (!wrap_url('path')) return false;
+	if ($referer['path'] === wrap_url('path')) return false;
 
 	// check for https
 	if ($referer['scheme'] === 'https') return false;

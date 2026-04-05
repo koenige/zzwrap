@@ -14,11 +14,27 @@
 
 
 /**
+ * read or write request URL state (wrap_static bucket 'url')
+ *
+ * Flat keys: parse_url-style components (scheme, host, port, user, pass, path, query,
+ * fragment, path_forwarded) plus redirect and redirect_cache.
+ *
+ * @param string $key empty string: full flat map
+ * @param mixed|null $value NULL: read; non-NULL: write
+ * @param string $action set (default) or init (replace bucket from $value)
+ * @return array|mixed|null
+ */
+function wrap_url($key = '', $value = NULL, $action = 'set') {
+	$return_value = wrap_static('url', $key, $value, $action);
+	if (is_null($return_value) AND in_array($key, ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query']))
+		return '';
+	return $return_value;
+}
+
+/**
  * read and prepare URL
  */
 function wrap_url_prepare() {
-	global $zz_page;
-
 	// check REQUEST_URI
 	if (!str_starts_with($_SERVER['REQUEST_URI'], '/')) {
 		wrap_quit(400, wrap_text(wrap_text(
@@ -32,8 +48,10 @@ function wrap_url_prepare() {
 	wrap_url_forwarded();
 	wrap_url_check();
 
-	$zz_page['url']['full'] = wrap_url_normalize($zz_page['url']['full']);
-	
+	$url_normal = wrap_url_normalize(wrap_url());
+	foreach ($url_normal as $key => $part)
+		if ($part !== wrap_url($key)) wrap_url($key, $part);
+
 	// get rid of unwanted query strings, set redirect if necessary
 	wrap_url_remove_query_strings();
 }
@@ -75,25 +93,21 @@ function wrap_url_slashes() {
  *
  */
 function wrap_url_read() {
-	global $zz_page;
-	// Base URL, allow it to be set manually (handle with care!)
-	// e. g. for Content Management Systems without mod_rewrite or websites in subdirectories
-	// @deprecated
-	if (!empty($zz_page['url']['full'])) return;
-
-	$zz_page['url']['full'] = parse_url(wrap_setting('host_base').wrap_setting('request_uri'));
-	if (empty($zz_page['url']['full']['path'])) {
+	$url = parse_url(wrap_setting('host_base').wrap_setting('request_uri'));
+	if (!is_array($url)) $url = [];
+	if (empty($url['path'])) {
 		// in case, some script requests GET ? HTTP/1.1 or so:
-		$zz_page['url']['full']['path'] = '/';
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
-	} elseif (strstr($zz_page['url']['full']['path'], '//')) {
+		$url['path'] = '/';
+		$url['redirect'] = true;
+		$url['redirect_cache'] = false;
+	} elseif (strstr($url['path'], '//')) {
 		// replace duplicate slashes for getting path, some bots add one
 		// redirect later if content was found
-		$zz_page['url']['full']['path'] = str_replace('//', '/', $zz_page['url']['full']['path']);
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
+		$url['path'] = str_replace('//', '/', $url['path']);
+		$url['redirect'] = true;
+		$url['redirect_cache'] = false;
 	}
+	wrap_url('', $url, 'init');
 }
 
 /**
@@ -101,14 +115,12 @@ function wrap_url_read() {
  *
  */
 function wrap_url_forwarded() {
-	global $zz_page;
-
 	if (empty($_SERVER['HTTP_X_FORWARDED_HOST'])) return;
 	if (!wrap_setting('hostname_in_url')) return;
 	$forwarded_host = wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_HOST']);
 	$forwarded_host = sprintf('/%s', $forwarded_host);
-	if (str_starts_with($zz_page['url']['full']['path'], $forwarded_host)) {
-		$zz_page['url']['full']['path_forwarded'] = $forwarded_host;
+	if (str_starts_with(wrap_url('path'), $forwarded_host)) {
+		wrap_url('path_forwarded', $forwarded_host);
 		wrap_setting('request_uri', substr(wrap_setting('request_uri'), strlen($forwarded_host)));
 	}
 }
@@ -119,11 +131,9 @@ function wrap_url_forwarded() {
  * since that does not make sense
  */
 function wrap_url_check() {
-	global $zz_page;
-
-	if (strstr($zz_page['url']['full']['path'], '%EF%BF%BD')) wrap_quit(400);
-	if (empty($zz_page['url']['full']['query'])) return;
-	if (strstr($zz_page['url']['full']['query'], '%EF%BF%BD')) wrap_quit(400);
+	if (strstr(wrap_url('path'), '%EF%BF%BD')) wrap_quit(400);
+	if (!wrap_url('query')) return;
+	if (strstr(wrap_url('query'), '%EF%BF%BD')) wrap_quit(400);
 }
 
 /**
@@ -239,14 +249,13 @@ function wrap_url_decode($input, $type = 'path') {
  * @todo get objectionable querystrings from setting
  */
 function wrap_url_remove_query_strings($objectionable_qs = []) {
-	global $zz_page;
-	if (empty($zz_page['url']['full']['query'])) return false;
+	if (!wrap_url('query')) return false;
 
 	// ignore_query_string = query string is ignored, without redirect
-	$ext = wrap_file_extension($zz_page['url']['full']['path']);
+	$ext = wrap_file_extension(wrap_url('path'));
 	if ($ext) $filetype_config = wrap_filetypes($ext, 'check-per-extension');
 	if (!empty($filetype_config['ignore_query_string'])) {
-		$zz_page['url']['full']['query'] = NULL;
+		wrap_url('query', '');
 		return true;
 	}
 
@@ -254,7 +263,7 @@ function wrap_url_remove_query_strings($objectionable_qs = []) {
 		$objectionable_qs = ['PHPSESSID'];
 	if (!is_array($objectionable_qs))
 		$objectionable_qs = [$objectionable_qs];
-	parse_str($zz_page['url']['full']['query'], $query);
+	parse_str(wrap_url('query'), $query);
 	// furthermore, keys with % signs are not allowed (propably errors in
 	// some parsing script)
 	foreach (array_keys($query) AS $key) {
@@ -266,9 +275,9 @@ function wrap_url_remove_query_strings($objectionable_qs = []) {
 			unset($_GET[$key]);
 			unset($_REQUEST[$key]);
 		}
-		$zz_page['url']['full']['query'] = http_build_query($query);
-		$zz_page['url']['redirect'] = true;
-		$zz_page['url']['redirect_cache'] = false;
+		wrap_url('query', http_build_query($query));
+		wrap_url('redirect', true);
+		wrap_url('redirect_cache', false);
 	}
 	return true;
 }
@@ -281,8 +290,8 @@ function wrap_url_remove_query_strings($objectionable_qs = []) {
 function wrap_url_relative() {
 	global $zz_page;
 	if (!empty($zz_page['deep'])) return;
-	if (!empty($zz_page['url']['full']['path']))
-		$zz_page['deep'] = str_repeat('../', (substr_count('/'.$zz_page['url']['full']['path'], '/') -2));
+	if (wrap_url('path'))
+		$zz_page['deep'] = str_repeat('../', (substr_count('/'.wrap_url('path'), '/') -2));
 	else
 		$zz_page['deep'] = '/';
 }
@@ -328,12 +337,10 @@ function wrap_url_ending($path) {
 /**
  * Make canonical URLs
  * 
- * @global array $zz_page
  * @param array $page
  * @return bool
  */
 function wrap_url_canonical($page) {
-	global $zz_page;
 	// canonical hostname?
 	wrap_url_canonical_hostname_check();
 	
@@ -366,15 +373,15 @@ function wrap_url_canonical($page) {
 	$page['query_strings'] = array_merge($page['query_strings'],
 		['no-cookie', 'lang']);
 	// allow ?code= only for direct script access (e.g. ErrorDocument 403 → /_scripts/main.php?code=403)
-	if (!empty($zz_page['url']['full']['path'])
-		&& str_ends_with($zz_page['url']['full']['path'], basename($_SERVER['SCRIPT_NAME']))) {
+	if (wrap_url('path')
+		&& str_ends_with(wrap_url('path'), basename($_SERVER['SCRIPT_NAME']))) {
 		$page['query_strings'][] = 'code';
 	}
 	if ($qs = wrap_setting('query_strings')) {
 		$page['query_strings'] = array_merge($page['query_strings'], $qs);
 	}
-	if (!empty($zz_page['url']['full']['query'])) {
-		parse_str($zz_page['url']['full']['query'], $params);
+	if (wrap_url('query')) {
+		parse_str(wrap_url('query'), $params);
 		$wrong_qs = [];
 		foreach (array_keys($params) as $param) {
 			if (in_array($param, $page['query_strings'])) continue;
@@ -384,8 +391,8 @@ function wrap_url_canonical($page) {
 			}
 			$param_value = $params[$param];
 			unset($params[$param]);
-			$zz_page['url']['redirect'] = true;
-			$zz_page['url']['redirect_cache'] = false;
+			wrap_url('redirect', true);
+			wrap_url('redirect_cache', false);
 			// no error logging for query strings which shall be redirected
 			if (in_array($param, $page['query_strings_redirect'])) continue;
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
@@ -405,7 +412,7 @@ function wrap_url_canonical($page) {
 				, $_SERVER['HTTP_REFERER'] ?? '--'
 			), E_USER_NOTICE);
 
-		$zz_page['url']['full']['query'] = http_build_query($params);
+		wrap_url('query', http_build_query($params));
 	}
 	return true;
 }
@@ -417,22 +424,21 @@ function wrap_url_canonical($page) {
  * @return bool
  */
 function wrap_url_canonical_ending($ending) {
-	global $zz_page;
 	// no changes for root path
-	if ($zz_page['url']['full']['path'] === '/') return false;
+	if (wrap_url('path') === '/') return false;
 	if ($ending === 'ignore') return false;
 
 	// get correct path
-	$path = wrap_url_ending($zz_page['url']['full']['path']);
+	$path = wrap_url_ending(wrap_url('path'));
 	if (!in_array($ending, ['none', 'keine']))
 		$path .= $ending;
 
 	// path is already correct? don’t do anything
-	if ($path === $zz_page['url']['full']['path']) return false;
+	if ($path === wrap_url('path')) return false;
 
-	$zz_page['url']['full']['path'] = $path;
-	$zz_page['url']['redirect'] = true;
-	$zz_page['url']['redirect_cache'] = true;
+	wrap_url('path', $path);
+	wrap_url('redirect', true);
+	wrap_url('redirect_cache', true);
 	return true;
 }
 
@@ -442,7 +448,6 @@ function wrap_url_canonical_ending($ending) {
  * @return bool
  */
 function wrap_url_canonical_hostname_check() {
-	global $zz_page;
 	$canonical = wrap_url_canonical_hostname();
 	if (!$canonical) return false;
 	if (wrap_setting('hostname') === $canonical) return false;
@@ -450,9 +455,9 @@ function wrap_url_canonical_hostname_check() {
 	if (in_array(wrap_url_dev_remove(wrap_setting('hostname')), wrap_setting('forwarded_hostnames')))
 		return false;
 
-	$zz_page['url']['full']['host'] = $canonical;
-	$zz_page['url']['redirect'] = true;
-	$zz_page['url']['redirect_cache'] = false;
+	wrap_url('host', $canonical);
+	wrap_url('redirect', true);
+	wrap_url('redirect_cache', false);
 	return true;
 }
 
@@ -475,9 +480,8 @@ function wrap_url_canonical_hostname() {
  * @return bool
  */
 function wrap_url_canonical_redirect() {
-	global $zz_page;
-	if (empty($zz_page['url']['redirect'])) return false;
-	wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
+	if (!wrap_url('redirect')) return false;
+	wrap_redirect(wrap_glue_url(wrap_url()), 301, wrap_url('redirect_cache'));
 }
 
 /**

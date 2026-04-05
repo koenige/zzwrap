@@ -203,13 +203,9 @@ function wrap_install_alter_table($query = '') {
  * @return void
  */
 function wrap_install_zzform() {
-	global $zz_page;
-
-	$zz_page['url']['full'] = [
-		'scheme' => wrap_setting('protocol'),
-		'host' => wrap_setting('hostname'),
-		'path' => wrap_setting('request_uri')
-	];
+	wrap_url('scheme', wrap_setting('protocol'));
+	wrap_url('host', wrap_setting('hostname'));
+	wrap_url('path', wrap_setting('request_uri'));
 	if (!empty($_SESSION['db_name_local']))
 		$db = mysqli_select_db(wrap_db_connection(), $_SESSION['db_name_local']);
 	return;

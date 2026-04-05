@@ -141,12 +141,9 @@ function wrap_page_media($page) {
  * get value for HTML title element
  * 
  * @param array $page
- * @global array $zz_page
  * @return array
  */
 function wrap_page_title($page) {
-	global $zz_page;
-
 	if (empty($page['title'])) {
 		if (wrap_page_field() AND empty($page['error_no_content'])) {
 			$page['title'] = wrap_page_field('title');
@@ -166,7 +163,7 @@ function wrap_page_title($page) {
 	if (wrap_setting('translate_page_title') OR !empty($status))
 		$page['title'] = wrap_text($page['title'], ['ignore_missing_translation' => true]);
 
-	if (wrap_page_field() AND $zz_page['url']['full']['path'] === '/' AND empty($page['extra']['not_home'])) {
+	if (wrap_page_field() AND wrap_url('path') === '/' AND empty($page['extra']['not_home'])) {
 		$page['pagetitle'] = strip_tags(wrap_page_field('title'));
 		$page['pagetitle'] = sprintf(wrap_setting('template_pagetitle_home'), $page['pagetitle'], $page['project']);
 	} else {

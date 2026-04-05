@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -43,7 +43,6 @@ function wrap_send_file($file) {
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
-				global $zz_page;
 				$zz_page['error_msg'] = $file['error_msg'];
 			}
 			wrap_quit($file['error_code']);
@@ -56,8 +55,8 @@ function wrap_send_file($file) {
 		));
 		wrap_quit(404);
 	}
-	if (!empty($zz_page['url']['redirect'])) {
-		wrap_redirect(wrap_glue_url($zz_page['url']['full']), 301, $zz_page['url']['redirect_cache']);
+	if (wrap_url('redirect')) {
+		wrap_redirect(wrap_glue_url(wrap_url()), 301, wrap_url('redirect_cache'));
 	}
 	if (empty($file['send_as'])) $file['send_as'] = basename($file['name']);
 	$extension = $file['ext'] ?? wrap_file_extension($file['name']);
@@ -597,7 +596,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 				if ($page['redirect']['languagelink']) {
 					wrap_setting('base', wrap_setting('base').'/'.$page['redirect']['languagelink']);
 				}
-				$new = wrap_glue_url($zz_page['url']['full']);
+				$new = wrap_glue_url(wrap_url());
 				wrap_setting('base', $old_base); // keep old base for caching
 			} elseif (is_array($page['redirect'])) {
 				wrap_error(sprintf('Redirect to array not supported: %s', json_encode($page['redirect'])));
@@ -692,14 +691,14 @@ function wrap_log_uri($status = 0) {
 	}
 
 	if (!wrap_setting('uris_table')) return false;
-	if (empty($zz_page['url'])) return false;
+	if (!wrap_url()) return false;
 
-	$scheme = $zz_page['url']['full']['scheme'];
-	$host = $zz_page['url']['full']['host'];
+	$scheme = wrap_url('scheme');
+	$host = wrap_url('host');
 	$base = str_starts_with($_SERVER['REQUEST_URI'], wrap_setting('base')) ? wrap_setting('base') : '';
-	$path = $base.wrap_db_escape($zz_page['url']['full']['path']);
-	$query = !empty($zz_page['url']['full']['query'])
-		? '"'.wrap_db_escape($zz_page['url']['full']['query']).'"'
+	$path = $base.wrap_db_escape(wrap_url('path'));
+	$query = wrap_url('query')
+		? '"'.wrap_db_escape(wrap_url('query')).'"'
 		: 'NULL';
 	$etag = $zz_page['etag'] ?? 'NULL';
 	if (substr($etag, 0, 1) !== '"' AND $etag !== 'NULL')

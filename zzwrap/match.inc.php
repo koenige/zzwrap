@@ -17,12 +17,9 @@
  * Tests whether URL is in database (or a part of it ending with *), or a part 
  * of it with placeholders
  * 
- * @param global $zz_page
  * @return bool true if a page record was stored, false otherwise
  */
 function wrap_match_page() {
-	global $zz_page;
-
 	// reset page record; failures keep [], success replaces with wrap_page_field('', $page, 'init')
 	wrap_page_field('', [], 'init');
 
@@ -30,7 +27,7 @@ function wrap_match_page() {
 	if (!wrap_sql_query('core_pages')) wrap_quit(503);
 
 	// no asterisk in URL
-	if (!empty($zz_page['url']['full']['path']) AND strstr($zz_page['url']['full']['path'], '*')) return false;
+	if (str_contains(wrap_url('path'), '*')) return false;
 	// sometimes, bots add second / to URL, remove and redirect
 	$full_url[0]['path'] = wrap_match_path();
 	$full_url[0]['placeholders'] = [];
@@ -119,9 +116,9 @@ function wrap_match_page() {
 	
 	if ($page['url'] === '*') {
 		// some system paths must not match *
-		if (in_array($zz_page['url']['full']['path'], wrap_setting('icon_paths'))) return false;
-		if (str_starts_with($zz_page['url']['full']['path'], wrap_setting('layout_path'))) return false;
-		if (str_starts_with($zz_page['url']['full']['path'], wrap_setting('behaviour_path'))) return false;
+		if (in_array(wrap_url('path'), wrap_setting('icon_paths'))) return false;
+		if (str_starts_with(wrap_url('path'), wrap_setting('layout_path'))) return false;
+		if (str_starts_with(wrap_url('path'), wrap_setting('behaviour_path'))) return false;
 	}
 	wrap_page_field('', $page, 'init');
 	return true;
@@ -134,11 +131,10 @@ function wrap_match_page() {
  * @return string
  */
 function wrap_match_path() {
-	global $zz_page;
 	static $path = NULL;
 	if (isset($path)) return $path;
 	
-	$path = trim($zz_page['url']['full']['path'], '/');
+	$path = trim(wrap_url('path'), '/');
 	if (!empty($_GET['lang']) AND !is_array($_GET['lang'])) {
 		$lang_suffix = '.'.$_GET['lang'];
 		if (str_ends_with($path, $lang_suffix))
@@ -375,13 +371,12 @@ function wrap_match_module_parameters($module, $params, $reset = true) {
  * @return
  */
 function wrap_match_file() {
-	global $zz_page;
 	if (!wrap_setting('modules') AND !wrap_setting('active_theme')) return false;
-	if (!$zz_page['url']['full']['path']) return false;
+	if (!wrap_url('path')) return false;
 
 	if (wrap_setting('active_theme') AND wrap_setting('icon_paths')) {
-		if (in_array($zz_page['url']['full']['path'], wrap_setting('icon_paths'))) {
-			$path = $zz_page['url']['full']['path'];
+		if (in_array(wrap_url('path'), wrap_setting('icon_paths'))) {
+			$path = wrap_url('path');
 			if (str_starts_with($path, wrap_setting('base_path')))
 				$path = substr($path, strlen(wrap_setting('base_path')));
 			$file['name'] = sprintf('%s/%s%s', wrap_setting('themes_dir'), wrap_setting('active_theme'), $path);
@@ -398,7 +393,7 @@ function wrap_match_file() {
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (!wrap_setting($path.'_path')) continue;
-		$url_folders = explode('/', substr($zz_page['url']['full']['path'], 1));
+		$url_folders = explode('/', substr(wrap_url('path'), 1));
 		if ('/'.$url_folders[0] !== wrap_setting($path.'_path')) continue;
 		array_shift($url_folders);
 		if (count($url_folders) < 2) continue;
@@ -466,11 +461,9 @@ function wrap_match_placeholders($full_url) {
 /**
  * check for redirects, if there's a corresponding table.
  *
- * @global array $zz_page
  * @return mixed (bool false: no redirect; array: fields needed for redirect)
  */
 function wrap_match_redirects() {
-	global $zz_page;
 	$path = wrap_match_path();
 
 	if (!wrap_setting('check_redirects')) return false;
@@ -490,7 +483,7 @@ function wrap_match_redirects() {
 	if ($redir) return $redir;
 
 	// check full URL with query strings or ending for migration from a different CMS
-	$check = $zz_page['url']['full']['path'].(!empty($zz_page['url']['full']['query']) ? '?'.$zz_page['url']['full']['query'] : '');
+	$check = wrap_url('path').(wrap_url('query') ? '?'.wrap_url('query') : '');
 	$check = wrap_db_escape($check);
 	$sql = sprintf(wrap_sql_query('core_redirects'), $check, $check, $check, $where_language);
 	$redir = wrap_db_fetch($sql);
@@ -512,7 +505,6 @@ function wrap_match_redirects() {
  * @return mixed
  */
 function wrap_match_redirects_placeholder($position) {
-	global $zz_page;
 	$redir = false;
 	$parameter = false;
 	$found = false;
@@ -578,10 +570,10 @@ function wrap_match_redirects_placeholder($position) {
 		$parameter = substr($parameter, 0, -1);
 		$redir[$field_name] = $last_separator.$parameter.substr($redir[$field_name], 1);
 	}
-	if (str_ends_with($zz_page['url']['full']['path'], '/') AND !str_ends_with($redir['new_url'], '/'))
+	if (str_ends_with(wrap_url('path'), '/') AND !str_ends_with($redir['new_url'], '/'))
 		$redir['new_url'] .= '/';
-	if ($zz_page['url']['full']['query'])
-		$redir['new_url'] .= sprintf('?%s', $zz_page['url']['full']['query']);
+	if (wrap_url('query'))
+		$redir['new_url'] .= sprintf('?%s', wrap_url('query'));
 	return $redir;
 }
 
@@ -593,9 +585,8 @@ function wrap_match_redirects_placeholder($position) {
  * @return array $page
  */
 function wrap_match_redirects_from_cache($page) {
-	global $zz_page;
 	// Work on a copy: probing endings must not mutate the live request URL on miss.
-	$url = $zz_page['url']['full'];
+	$url = wrap_url();
 	// %E2%80%8B = zero width space, sometimes added to URL from some systems
 	$redirect_endings = [
 		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B', '%C2%A0', ';', '!'
@@ -647,8 +638,7 @@ function wrap_match_ressource($quit = true) {
  * @return mixed false: nothing found, array: $page
  */
 function wrap_match_well_known() {
-	global $zz_page;
-	switch ($zz_page['url']['full']['path']) {
+	switch (wrap_url('path')) {
 	case '/robots.txt':
 		$page['content_type'] = 'txt';
 		$page['text'] = '# robots.txt for '.wrap_setting('site');

@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -517,15 +517,12 @@ function wrap_cache_get_header($file, $type, $send = false) {
  *
  * @param string $type (optional) default: 'url'; 'headers', 'domain'
  * @param string $url (optional) URL to cache, if not set, internal URL will be used
- * @global array $zz_page ($zz_page['url']['full'])
  * @return string filename
  */
 function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
-	global $zz_page;
-
 	if (!$url) {
-		if (empty($zz_page['url'])) return false;
-		$url = $zz_page['url']['full'];
+		$url = wrap_url();
+		if (!$url) return false;
 		$base = wrap_setting('base');
 		if ($base === '/') $base = '';
 	} else {
