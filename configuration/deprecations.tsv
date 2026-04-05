@@ -70,3 +70,5 @@
 2026-04-05-4	code	$zz_page['url']	use wrap_url()
 2026-04-05-5	code	$zz_page['deep']	use wrap_setting('relative_root')
 2026-04-05-6	code	$zz_page['user_authenticated']	use SESSION to check if someone was logged in
+2026-04-05-7	code	$zz_page['error_msg']	use wrap_notice()
+2026-04-05-8	code	$zz_page['error_html']	removed; use wrap_notice() and customise zzwrap/templates/notices.template.txt

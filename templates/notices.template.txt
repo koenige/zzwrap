@@ -1,0 +1,18 @@
+# zzwrap module
+# Single template for all wrap_notice() output
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+%%% loop start %%%
+%%% switch class %%%
+%%% case pre %%%
+<pre> %%% item msg format[]=wrap_html_escape %%% </pre>
+%%% default %%%
+<p class="%%% item class %%%">%%% item msg format[]=nl2br %%%</p>
+%%% switch - %%%
+%%% loop end %%%

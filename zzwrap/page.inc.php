@@ -440,11 +440,11 @@ function wrap_htmlout_page($page) {
 			}
 		}
 	}
-	if (!empty($zz_page['error_msg']) AND $page['status'] == 200) {
-		// show error message in case there is one and it's not already shown
+	if (wrap_notice() AND $page['status'] == 200) {
+		// show notices if there are any and it's not already shown
 		// by wrap_errorpage() (status != 200)
 		if (empty($page['text'])) $page['text'] = '';
-		$page['text'] .= $zz_page['error_msg']."\n";
+		$page['text'] .= wrap_template('notices', wrap_notice())."\n";
 	}
 	
 	$page = wrap_page_replace($page);

@@ -299,8 +299,8 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
 				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
 		} elseif (wrap_setting('error_handling') === 'output') {
-			global $zz_page;
-			$zz_page['error_msg'] = '<p class="error">'.$error_msg.'<br>'.$sql.'</p>';
+			wrap_notice($error_msg, 'error');
+			wrap_notice($sql, 'error');
 		}
 	}
 	return false;	

@@ -150,17 +150,12 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_mail($mail);
 		break;
 	case 'output':
-		if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
 		if (str_starts_with($msg, 'JSON ')) {
 			$msg = json_decode(substr($msg, 5));
 			$msg = json_encode($msg, JSON_PRETTY_PRINT);
-			$msg = sprintf('<pre>%s</pre>', wrap_html_escape($msg));
-		} else {
-			$msg = wrap_html_escape($msg);
+			$settings['class'] = 'pre';
 		}
-		$class = $settings['class'] ?? 'error';
-		$zz_page['error_msg'] .= '<p class="'.$class.'">'
-			.str_replace("\n", "<br>", $msg).'</p>';
+		wrap_notice($msg, $settings['class'] ?? 'error');
 		break;
 	default:
 		break;
@@ -171,6 +166,25 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_errorpage($page, false);
 		exit;
 	}
+}
+
+/**
+ * Queue a user-visible notice (plain text) or manage the per-request queue.
+ *
+ * @param string|null $msg message to append; ignored for init
+ * @param string $class CSS class when appending (e.g. error, warning)
+ * @param string $action set | init
+ * @return array
+ */
+function wrap_notice($msg = null, $class = 'error', $action = 'set') {
+	static $queue = [];
+	if ($action === 'init') return $queue = [];
+	if (!$msg) return $queue;
+	$queue[] = [
+		'msg' => $msg,
+		'class' => $class,
+	];
+	return $queue;
 }
 
 /**
@@ -335,12 +349,11 @@ function wrap_errorpage($page = [], $log_errors = true) {
 	} else {
 		$page['error_explanation'] = '';
 	}
-	if (!empty($zz_page['error_msg'])) {
-		$page['error_explanation'] = $zz_page['error_msg'].' '.$page['error_explanation'];
-		$zz_page['error_msg'] = '';
+	if (wrap_notice()) {
+		$page['error_explanation'] = wrap_template('notices', wrap_notice()).' '.$page['error_explanation'];
+		wrap_notice('', '', 'init');
 	}
 
-	// get own or default http-error template
 	if (empty($page['text'])) {
 		$page['text'] = wrap_template('http-error', [], 'error');
 	} elseif (is_array($page['text']) AND empty($page['text']['text'])) {

@@ -43,7 +43,7 @@ function wrap_send_file($file) {
 	if (!file_exists($file['name'])) {
 		if (!empty($file['error_code'])) {
 			if (!empty($file['error_msg'])) {
-				$zz_page['error_msg'] = $file['error_msg'];
+				wrap_notice($file['error_msg'], 'error');
 			}
 			wrap_quit($file['error_code']);
 		}
@@ -630,10 +630,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 			$zz_page['error_code'] = $statuscode;
 		}
 		if ($error_msg) {
-			if (empty($zz_page['error_msg'])) $zz_page['error_msg'] = '';
-			if (empty($zz_page['error_html']))
-				$zz_page['error_html'] = '<p class="error">%s</p>';
-			$zz_page['error_msg'] .= sprintf($zz_page['error_html'], $error_msg);
+			wrap_notice($error_msg, 'error');
 		}
 		wrap_errorpage($page);
 		exit;
