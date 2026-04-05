@@ -242,9 +242,9 @@ function wrap_get_page() {
 	} elseif (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
 		$page = brick_xhr($_POST, wrap_brick('parameter'));
 		$page['url_ending'] = 'ignore';
-	} elseif (array_key_exists('well_known', $zz_page)) {
+	} elseif ($zz_page AND array_key_exists('well_known', $zz_page)) {
 		$page = $zz_page['well_known'];
-	} elseif (array_key_exists('tpl_file', $zz_page)) {
+	} elseif ($zz_page AND array_key_exists('tpl_file', $zz_page)) {
 		$page = wrap_page_from_file($zz_page['tpl_file']);
 	} else {
 		$page = brick_format(wrap_page_field('content'), wrap_brick('parameter'));
