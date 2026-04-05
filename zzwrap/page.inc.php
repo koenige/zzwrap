@@ -231,10 +231,10 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 function wrap_get_page() {
 	global $zz_page;
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-		$zz_page['url'] = wrap_url_canonical_hostname_check($zz_page['url']);
+		wrap_url_canonical_hostname_check();
 		// redirect will kill POST data
 		// this is a feature, since a POST from a non-accessible URL is not possible
-		wrap_url_canonical_redirect($zz_page['url']);
+		wrap_url_canonical_redirect();
 	}
 
 	if (!empty($_POST['httpRequest']) AND is_array($_POST['httpRequest'])) {
@@ -256,8 +256,8 @@ function wrap_get_page() {
 
 	if (!empty($page['no_output'])) exit;
 
-	$zz_page['url'] = wrap_url_canonical($zz_page, $page);
-	wrap_url_canonical_redirect($zz_page['url']);
+	wrap_url_canonical($page);
+	wrap_url_canonical_redirect();
 
 	$page['media']		= wrap_page_media($page);
 	$page[wrap_sql_fields('page_last_update')] = wrap_page_last_update($page);

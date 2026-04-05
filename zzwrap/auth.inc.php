@@ -103,7 +103,7 @@ function wrap_auth($force = false) {
 		wrap_setting('login_without_cookie', true);
 
 	// remove no-cookie from URL
-	$zz_page['url'] = wrap_url_remove_query_strings($zz_page['url'], 'no-cookie');
+	wrap_url_remove_query_strings('no-cookie');
 	
 	// save successful request in database to prolong login time
 	$_SESSION['last_click_at'] = $now;

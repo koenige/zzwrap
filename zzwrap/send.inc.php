@@ -558,7 +558,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 
 	// for pages matching every URL, check if there’s a ressource somewhere else
 	if (wrap_page_field('identifier') AND wrap_page_field('identifier') === '/*' AND $statuscode === 404) {
-		$zz_page = wrap_match_ressource($zz_page, false);
+		wrap_match_ressource(false);
 	}
 
 	if ($canonical_hostname = wrap_url_canonical_hostname()) {
@@ -576,7 +576,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		if ($redir) {
 			$page['status'] = $redir['code'];
 		} else {
-			$page = wrap_match_redirects_from_cache($page, $zz_page['url']['full']);
+			$page = wrap_match_redirects_from_cache($page);
 		}
 	}
 

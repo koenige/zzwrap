@@ -93,7 +93,7 @@ function zzwrap() {
 		wrap_auth();
 		wrap_access_page(wrap_page_field('parameters'));
 	}
-	wrap_https_check($zz_page);
+	wrap_https_check();
 
 	// include standard functions (e. g. markup languages)
 	// Standardfunktionen einbinden (z. B. Markup-Sprachen)
@@ -104,7 +104,7 @@ function zzwrap() {
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
 	if (!wrap_page_field()) {
-		$zz_page = wrap_match_ressource($zz_page);
+		wrap_match_ressource();
 	}
 	
 	wrap_set_encoding(wrap_setting('character_set'));

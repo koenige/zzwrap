@@ -35,7 +35,7 @@ function wrap_match_page() {
 	$full_url[0]['path'] = wrap_match_path();
 	$full_url[0]['placeholders'] = [];
 
-	list($full_url, $leftovers) = wrap_match_placeholders($zz_page, $full_url);
+	list($full_url, $leftovers) = wrap_match_placeholders($full_url);
 	
 	// For request, remove ending (.html, /), but not for page root
 	// core_pages__fields: notation like /* _latin1='%s' */
@@ -372,16 +372,16 @@ function wrap_match_module_parameters($module, $params, $reset = true) {
  * check if there's a layout or behaviour file in one of the modules
  * then send it out
  *
- * @param array $url_path ($zz_page['url']['full']['path'])
  * @return
  */
-function wrap_match_file($url_path) {
+function wrap_match_file() {
+	global $zz_page;
 	if (!wrap_setting('modules') AND !wrap_setting('active_theme')) return false;
-	if (!$url_path) return false;
+	if (!$zz_page['url']['full']['path']) return false;
 
 	if (wrap_setting('active_theme') AND wrap_setting('icon_paths')) {
-		if (in_array($url_path, wrap_setting('icon_paths'))) {
-			$path = $url_path;
+		if (in_array($zz_page['url']['full']['path'], wrap_setting('icon_paths'))) {
+			$path = $zz_page['url']['full']['path'];
 			if (str_starts_with($path, wrap_setting('base_path')))
 				$path = substr($path, strlen(wrap_setting('base_path')));
 			$file['name'] = sprintf('%s/%s%s', wrap_setting('themes_dir'), wrap_setting('active_theme'), $path);
@@ -398,7 +398,7 @@ function wrap_match_file($url_path) {
 	$paths = ['layout', 'behaviour'];
 	foreach ($paths as $path) {
 		if (!wrap_setting($path.'_path')) continue;
-		$url_folders = explode('/', substr($url_path, 1));
+		$url_folders = explode('/', substr($zz_page['url']['full']['path'], 1));
 		if ('/'.$url_folders[0] !== wrap_setting($path.'_path')) continue;
 		array_shift($url_folders);
 		if (count($url_folders) < 2) continue;
@@ -426,11 +426,10 @@ function wrap_match_file($url_path) {
  * note: twice the same fragment will only be replaced once, not both fragments
  * at the same time (e. g. /eng/eng/ is /%language%/eng/ and /eng/%language%/
  * but not /%language%/%language%/ because this would not make sense) 
- * @param array $zz_page
  * @param array $full_url
  * @return array (array $full_url, array $leftovers)
  */
-function wrap_match_placeholders($zz_page, $full_url) {
+function wrap_match_placeholders($full_url) {
 	if (!wrap_setting('url_placeholders')) return [$full_url, []];
 	// cut url in parts
 	$url_parts[0] = explode('/', $full_url[0]['path']);
@@ -591,10 +590,12 @@ function wrap_match_redirects_placeholder($position) {
  * and a corresponding cache file exists
  *
  * @param array $page
- * @param array $url
  * @return array $page
  */
-function wrap_match_redirects_from_cache($page, $url) {
+function wrap_match_redirects_from_cache($page) {
+	global $zz_page;
+	// Work on a copy: probing endings must not mutate the live request URL on miss.
+	$url = $zz_page['url']['full'];
 	// %E2%80%8B = zero width space, sometimes added to URL from some systems
 	$redirect_endings = [
 		'%20', ')', '%5C', '%22', '%3E', '.', '%E2%80%8B', '%C2%A0', ';', '!'
@@ -616,16 +617,16 @@ function wrap_match_redirects_from_cache($page, $url) {
  * if page is not found, after all files are included,
  * check 1. well known URLs, 2. template files, 3. redirects
  *
- * @param array $zz_page
+ * @global array $zz_page
  * @param bool $quit (optional) true: call wrap_quit(), false: just return
- * @return array
  */
-function wrap_match_ressource($zz_page, $quit = true) {
-	$well_known = wrap_match_well_known($zz_page['url']['full']);
+function wrap_match_ressource($quit = true) {
+	global $zz_page;
+	$well_known = wrap_match_well_known();
 	if ($well_known) {
 		$zz_page['well_known'] = $well_known;
 	} else {
-		$zz_page['tpl_file'] = wrap_match_file($zz_page['url']['full']['path']);
+		$zz_page['tpl_file'] = wrap_match_file();
 		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
 		$languagecheck = wrap_url_language();
 		if (!$languagecheck AND $quit) wrap_quit();
@@ -638,17 +639,16 @@ function wrap_match_ressource($zz_page, $quit = true) {
 			}
 		}
 	}
-	return $zz_page;
 }
 
 /**
  * support some standard URLs if there’s no entry in webpages table for them
  *
- * @param array $url
  * @return mixed false: nothing found, array: $page
  */
-function wrap_match_well_known($url) {
-	switch ($url['path']) {
+function wrap_match_well_known() {
+	global $zz_page;
+	switch ($zz_page['url']['full']['path']) {
 	case '/robots.txt':
 		$page['content_type'] = 'txt';
 		$page['text'] = '# robots.txt for '.wrap_setting('site');

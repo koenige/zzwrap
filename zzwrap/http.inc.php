@@ -139,11 +139,10 @@ function wrap_https() {
  * 
  * Function will redirect request to the same URL except for the scheme part
  * Attention: POST variables will get lost
- * @param array $zz_page Array with full URL in $zz_page['url']['full'], 
- *		this is the result of parse_url()
  * @return redirect header
  */
-function wrap_https_check($zz_page) {
+function wrap_https_check() {
+	global $zz_page;
 	// if it doesn't matter, get out of here
 	if (wrap_setting('ignore_scheme')) return true;
 	foreach (wrap_setting('ignore_scheme_paths') as $path) {
