@@ -74,7 +74,7 @@ function zzwrap() {
 	if (!empty($_GET['code'])
 		AND str_starts_with($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])) {
 		wrap_defaults_post_match();
-		wrap_errorpage([], $zz_page);
+		wrap_errorpage();
 		exit;
 	}
 

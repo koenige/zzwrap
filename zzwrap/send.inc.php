@@ -635,7 +635,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 				$zz_page['error_html'] = '<p class="error">%s</p>';
 			$zz_page['error_msg'] .= sprintf($zz_page['error_html'], $error_msg);
 		}
-		wrap_errorpage($page, $zz_page);
+		wrap_errorpage($page);
 		exit;
 	}
 }

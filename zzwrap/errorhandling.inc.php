@@ -168,7 +168,7 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	if ($return === 'exit') {
 		$page['status'] = 503;
-		wrap_errorpage($page, $zz_page, false);
+		wrap_errorpage($page, false);
 		exit;
 	}
 }
@@ -277,10 +277,9 @@ function wrap_error_summary($line = '', $error_level = '', $prefix_line = false)
  * checks which error it is, set page elements, output HTTP header, HTML, log
  *
  * @param array $page
- * @param array $zz_page
  * @param bool $log_errors whether errors shall be logged or not
  */ 
-function wrap_errorpage($page, $zz_page, $log_errors = true) {
+function wrap_errorpage($page = [], $log_errors = true) {
 	global $zz_page;
 
 	wrap_lib();
