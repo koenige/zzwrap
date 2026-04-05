@@ -68,3 +68,4 @@
 2026-04-05-2	code	$zz_page['url']['redirect']	use wrap_url('redirect')
 2026-04-05-3	code	$zz_page['url']['redirect_cache']	use wrap_url('redirect_cache')
 2026-04-05-4	code	$zz_page['url']	use wrap_url()
+2026-04-05-5	code	$zz_page['deep']	use wrap_setting('relative_root')

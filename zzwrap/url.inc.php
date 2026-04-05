@@ -283,17 +283,14 @@ function wrap_url_remove_query_strings($objectionable_qs = []) {
 }
 
 /**
- * set relative path to root
- *
- * @global array $zz_page
+ * set relative path to root (wrap_setting relative_root)
  */
 function wrap_url_relative() {
-	global $zz_page;
-	if (!empty($zz_page['deep'])) return;
+	if (wrap_setting('relative_root')) return;
 	if (wrap_url('path'))
-		$zz_page['deep'] = str_repeat('../', (substr_count('/'.wrap_url('path'), '/') -2));
+		wrap_setting('relative_root', str_repeat('../', (substr_count('/'.wrap_url('path'), '/') -2)));
 	else
-		$zz_page['deep'] = '/';
+		wrap_setting('relative_root', '/');
 }
 
 /**
