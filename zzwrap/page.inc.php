@@ -222,11 +222,8 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 
 /**
  * puzzle page elements together
- *
- * @global array $zz_page
  */
 function wrap_get_page() {
-	global $zz_page;
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		wrap_url_canonical_hostname_check();
 		// redirect will kill POST data
@@ -234,6 +231,7 @@ function wrap_get_page() {
 		wrap_url_canonical_redirect();
 	}
 
+	$match = wrap_static('match');
 	if (!empty($_POST['httpRequest']) AND is_array($_POST['httpRequest'])) {
 		$page['status'] = 400;
 		$page['error']['level'] = E_USER_NOTICE;
@@ -242,10 +240,10 @@ function wrap_get_page() {
 	} elseif (!empty($_POST['httpRequest']) AND substr($_POST['httpRequest'], 0, 6) !== 'zzform') {
 		$page = brick_xhr($_POST, wrap_brick('parameter'));
 		$page['url_ending'] = 'ignore';
-	} elseif ($zz_page AND array_key_exists('well_known', $zz_page)) {
-		$page = $zz_page['well_known'];
-	} elseif ($zz_page AND array_key_exists('tpl_file', $zz_page)) {
-		$page = wrap_page_from_file($zz_page['tpl_file']);
+	} elseif (!empty($match['well_known'])) {
+		$page = $match['well_known'];
+	} elseif (array_key_exists('tpl_file', $match)) {
+		$page = wrap_page_from_file($match['tpl_file']);
 	} else {
 		$page = brick_format(wrap_page_field('content'), wrap_brick('parameter'));
 	}

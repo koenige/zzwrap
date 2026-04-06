@@ -608,17 +608,19 @@ function wrap_match_redirects_from_cache($page) {
  * if page is not found, after all files are included,
  * check 1. well known URLs, 2. template files, 3. redirects
  *
- * @global array $zz_page
+ * Stores results in wrap_static bucket 'match': key 'well_known' (full $page array)
+ * or 'tpl_file' (path string or false from wrap_match_file()).
+ *
  * @param bool $quit (optional) true: call wrap_quit(), false: just return
  */
 function wrap_match_ressource($quit = true) {
-	global $zz_page;
 	$well_known = wrap_match_well_known();
 	if ($well_known) {
-		$zz_page['well_known'] = $well_known;
+		wrap_static('match', 'well_known', $well_known);
 	} else {
-		$zz_page['tpl_file'] = wrap_match_file();
-		if (!$zz_page['tpl_file'] AND $quit) wrap_quit();
+		$tpl_file = wrap_match_file();
+		wrap_static('match', 'tpl_file', $tpl_file);
+		if (!$tpl_file AND $quit) wrap_quit();
 		$languagecheck = wrap_url_language();
 		if (!$languagecheck AND $quit) wrap_quit();
 		if (!empty($_GET)) {
