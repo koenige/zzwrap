@@ -14,6 +14,22 @@
 
 
 /**
+ * read or write outgoing HTTP response header values (wrap_static bucket 'http_header')
+ *
+ * Keys use the header field name with hyphens as underscores (e.g. content_type,
+ * content_length, cache_control). Application helpers may set derived keys such as
+ * character_set when not sent as a separate header.
+ *
+ * @param string $key empty string: full flat map for this bucket
+ * @param mixed|null $value NULL: read; non-NULL: write
+ * @param string $action set (default), init, add, prepend, append, delete (pass-through to wrap_static)
+ * @return array|mixed|null
+ */
+function wrap_http_header($key = '', $value = NULL, $action = 'set') {
+	return wrap_static('http_header', $key, $value, $action);
+}
+
+/**
  * restrict access to website per IP
  *
  * Supports CIDR notation subnets (e.g., "192.168.1.0/24", "2001:db8::/32")

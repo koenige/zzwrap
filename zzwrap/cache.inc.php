@@ -293,9 +293,8 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
 	if (substr($status, 0, 1) === '4') return '';
 	if (substr($status, 0, 1) === '5') return '';
 
-	global $zz_page;
 	// Cache time: 'Sa, 05 Jun 2004 15:40:28'
-	$zz_page['last_modified'] = wrap_date($time, 'timestamp->rfc1123');
+	wrap_http_header('last_modified', wrap_date($time, 'timestamp->rfc1123'));
 	// Check If-Unmodified-Since
 	if (isset($_SERVER['HTTP_IF_UNMODIFIED_SINCE'])) {
 		$requested_time = wrap_date(
@@ -311,14 +310,14 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
 			$_SERVER['HTTP_IF_MODIFIED_SINCE'], 'rfc1123->timestamp'
 		);
 		if ($time <= $requested_time) {
-			wrap_cache_header('Last-Modified: '.$zz_page['last_modified']);
+			wrap_cache_header('Last-Modified: '.wrap_http_header('last_modified'));
 			if ($file) wrap_send_file_cleanup($file);
 			wrap_log_uri();
 			wrap_quit(304);
 		}
 	}
-	wrap_cache_header('Last-Modified: '.$zz_page['last_modified']);
-	return $zz_page['last_modified'];
+	wrap_cache_header('Last-Modified: '.wrap_http_header('last_modified'));
+	return wrap_http_header('last_modified');
 }
 
 /**
@@ -330,8 +329,6 @@ function wrap_if_modified_since($time, $status = 200, $file = []) {
  * @return void
  */
 function wrap_send_cache($age = 0, $log_error = true) {
-	global $zz_page;
-	
 	// Some cases in which we do not cache
 	if (!wrap_setting('cache')) return false;
 	if (!empty($_SESSION)) return false;
@@ -350,8 +347,7 @@ function wrap_send_cache($age = 0, $log_error = true) {
 		if (!$fresh) return false;
 	}
 
-	// get cached headers, send them as headers and write them to $zz_page
-	// Content-Type HTTP header etc.
+	// get cached headers, send them as headers; values via wrap_http_header()
 	wrap_cache_get_header($cache['headers'], '', true);
 
 	if (wrap_setting('gzip_encode'))
@@ -367,23 +363,24 @@ function wrap_send_cache($age = 0, $log_error = true) {
 	if (!$has_content) return true;
 
 	// Content-Length HTTP header
-	if (empty($zz_page['content_length'])) {
-		$zz_page['content_length'] = sprintf("%u", filesize($cache['url']));
-		wrap_cache_header('Content-Length: '.$zz_page['content_length']);
+	if (!wrap_http_header('content_length')) {
+		$length = sprintf("%u", filesize($cache['url']));
+		wrap_http_header('content_length', $length);
+		wrap_cache_header('Content-Length: '.$length);
 	}
 
 	// ETag HTTP header
-	if (empty($zz_page['etag'])) {
-		$zz_page['etag'] = md5_file($cache['url']);
+	if (!wrap_http_header('etag')) {
+		wrap_http_header('etag', md5_file($cache['url']));
 	}
-	$etag_header = wrap_if_none_match($zz_page['etag']);
+	$etag_header = wrap_if_none_match(wrap_http_header('etag'));
 
 	// Last-Modified HTTP header
-	if (empty($zz_page['last_modified'])) {
+	if (!wrap_http_header('last_modified')) {
 		$last_modified_time = filemtime($cache['url']);
 	} else {
 		$last_modified_time = wrap_date(
-			$zz_page['last_modified'], 'rfc1123->timestamp'
+			wrap_http_header('last_modified'), 'rfc1123->timestamp'
 		);
 	}
 	wrap_if_modified_since($last_modified_time);
@@ -478,7 +475,6 @@ function wrap_cache_send_if_newer($datetime) {
  */
 function wrap_cache_get_header($file, $type, $send = false) {
 	static $sent = false;
-	global $zz_page;
 	$type = strtolower($type);
 	$headers = file_get_contents($file);
 	if (substr($headers, 0, 2) === '["') {
@@ -498,7 +494,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
 		$req_value = trim(substr($header, strpos($header, ': ')+1));
 		if (!$sent AND $send) {
 			header($header);
-			$zz_page[str_replace('-', '_', $req_header)] = $req_value;
+			wrap_http_header(str_replace('-', '_', $req_header), $req_value);
 		}
 		if ($req_header === $type) {
 			// check if respond with 304
