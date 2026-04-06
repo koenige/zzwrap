@@ -76,3 +76,5 @@
 2026-04-06-1	code	$zz_page['error_code']	use wrap_page_meta('http_status') instead
 2026-04-06-2	code	$zz_page['access']	use wrap_page_meta('access', …); wrap_access_page(…, wrap_page_meta('access'))
 2026-04-06-3	code	$zz_page['breadcrumb_placeholder']	use wrap_page_meta('breadcrumb_placeholder', …)
+2026-04-06-4	code	wrap_access_page($zz_page['db']['parameters'] ?? '', $zz_page['access'])	use wrap_access_page() without parameters
+2026-04-06-5	code	wrap_access_page(wrap_page_field('parameters'), $zz_page['access'])	use wrap_access_page() without parameters
