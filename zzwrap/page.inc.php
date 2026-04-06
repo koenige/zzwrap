@@ -59,6 +59,21 @@ function wrap_brick($key = '', $value = NULL, $action = 'set') {
 }
 
 /**
+ * read or write request-scoped page assembly metadata (wrap_static bucket 'page')
+ *
+ * Keys include http_status (HTTP status when taking the error path in wrap_quit()),
+ * breadcrumb_placeholder, access, query_strings (see migration from $zz_page).
+ *
+ * @param string $key empty string: full flat map
+ * @param mixed|null $value for writes: NULL skips writes and returns current data (see wrap_static)
+ * @param string $action init, set (default), add, prepend, append, delete (pass-through to wrap_static)
+ * @return array|mixed|null
+ */
+function wrap_page_meta($key = '', $value = NULL, $action = 'set') {
+	return wrap_static('page', $key, $value, $action);
+}
+
+/**
  * Creates valid HTML id value from string
  * must match [A-Za-z][-A-Za-z0-9_:.]* (HTML 4.01)
  * here we say only lowercase, only underscore besides letters and numbers

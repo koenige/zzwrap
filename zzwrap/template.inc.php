@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -149,7 +149,6 @@ function wrap_template_file($template, $show_error = true) {
 	
 	if (count($found) !== 1) {
 		if (!$show_error) return false;
-		global $zz_page;
 		if (!$found) {
 			$error_msg = wrap_text(
 				'Template <code>%s</code> does not exist.',
@@ -161,7 +160,7 @@ function wrap_template_file($template, $show_error = true) {
 				['values' => wrap_html_escape($template)]
 			);
 		}
-		if (!empty($zz_page['error_code'])) {
+		if (wrap_page_meta('http_status') !== null) {
 			echo $error_msg;
 			return false;
 		} else {

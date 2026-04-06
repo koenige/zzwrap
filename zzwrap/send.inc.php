@@ -551,8 +551,6 @@ function wrap_send_gzip($text, $etag_header) {
  * @return exits function with a redirect or an error document
  */
 function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
-	global $zz_page;
-
 	// for pages matching every URL, check if there’s a ressource somewhere else
 	if (wrap_page_field('identifier') AND wrap_page_field('identifier') === '/*' AND $statuscode === 404) {
 		wrap_match_ressource(false);
@@ -624,8 +622,8 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		exit;
 	default: // 4xx, 5xx
 		// save error code for later access to avoid infinite recursion
-		if (empty($zz_page['error_code'])) {
-			$zz_page['error_code'] = $statuscode;
+		if (!wrap_page_meta('http_status')) {
+			wrap_page_meta('http_status', $statuscode);
 		}
 		if ($error_msg) {
 			wrap_notice($error_msg, 'error');
@@ -650,10 +648,8 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
  * @return bool
  */
 function wrap_log_uri($status = 0) {
-	global $zz_page;
-	
 	if (!$status)
-		$status = $zz_page['error_code'] ?? 200;
+		$status = wrap_page_meta('http_status') ?? 200;
 
 	if (wrap_setting('http_log')) {
 		$logdir = sprintf('%s/access/%s/%s'
