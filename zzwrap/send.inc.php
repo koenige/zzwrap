@@ -459,13 +459,18 @@ function wrap_ranges_check() {
 		// Range + (If-Unmodified-Since OR If-Match), have already been checked
 		// go on
 	} elseif (!empty($_SERVER['HTTP_IF_RANGE'])) {
-		// Range + If-Range (ETag or Date)
+		// Range + If-Range (ETag or HTTP-date)
 		$etag_header = wrap_etag_header(wrap_http_header('etag') ?? '');
 		$time = wrap_date($_SERVER['HTTP_IF_RANGE'], 'rfc1123->timestamp');
+		$last_modified_time = (wrap_http_header('last_modified'))
+			? wrap_date(wrap_http_header('last_modified'), 'rfc1123->timestamp')
+			: null;
 		if ($_SERVER['HTTP_IF_RANGE'] === $etag_header['std']
 			OR $_SERVER['HTTP_IF_RANGE'] === $etag_header['gz']) {
 			// go on
-		} elseif ($time AND $time >= wrap_http_header('last_modified')) {
+		} elseif ($time && $last_modified_time
+			&& abs($time - $last_modified_time) <= 1) {
+			// If-Range date matches Last-Modified (1s tolerance for encoding/rounding)
 			// go on
 		} else {
 			// - no match: 200 + full content
