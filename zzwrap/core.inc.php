@@ -181,33 +181,41 @@ function wrap_substr($string, $substring, $mode = 'begin') {
  *
  * Optional schema: configuration/{var}.cfg (via wrap_cfg_files($var)).
  *
- * @param string $var bucket name (also cfg file basename, e.g. page → configuration/page.cfg)
+ * @param string $var bucket name (also cfg file basename,
+ *   e.g. page → configuration/page.cfg)
  * @param string $key key to change
- * @param mixed $value new value
- * @param string $action what to do (init, set (default), add, prepend, append, delete)
- * @return array
+ * @param mixed $value new value; NULL skips writes and returns current data (read)
+ * @param string|null $action init, set (default if no default_action when value !== NULL),
+ *   add, add_no_merge, prepend, append, delete; NULL resolves from schema default_action when
+ *   key and value are set
+ * @return mixed entire bucket if `$key` is empty; otherwise the key’s stored value. Missing key:
+ *   `[]` if schema has list, else `NULL`. After a write, returns the new stored value for that key.
  */
-function wrap_static($var, $key = '', $value = NULL, $action = 'set') {
+function wrap_static($var, $key = '', $value = NULL, $action = NULL) {
 	static $data = [];
 	$schema = wrap_cfg_files($var);
 	if (!array_key_exists($var, $data)) $data[$var] = [];
+
+	if (is_null($action)) {
+		if ($key && $value !== NULL && !empty($schema[$key]['default_action']))
+			$action = $schema[$key]['default_action'];
+		else
+			$action = 'set';
+	}		
 	
 	if ($value !== NULL) {
 		switch ($action) {
 		case 'init':
 			$data[$var] = $value;
 			break;
-		case 'set':
-			if (!empty($schema[$key]['list']) && !is_array($value))
-				$value = array($value);
-			elseif (!empty($schema[$key]['type']) && $schema[$key]['type'] === 'int')
-				$value = (int) $value;
-			$data[$var][$key] = $value;
-			break;
 		case 'add':
 			if (!array_key_exists($key, $data[$var])) $data[$var][$key] = [];
 			if (is_array($value)) $data[$var][$key] = array_merge($data[$var][$key], $value);
 			else $data[$var][$key][] = $value;
+			break;
+		case 'add_no_merge':
+			if (!array_key_exists($key, $data[$var])) $data[$var][$key] = [];
+			$data[$var][$key][] = $value;
 			break;
 		case 'prepend':
 			if (empty($data[$var][$key])) $data[$var][$key] = $value;
@@ -219,6 +227,14 @@ function wrap_static($var, $key = '', $value = NULL, $action = 'set') {
 			break;
 		case 'delete':
 			unset($data[$var][$key]);
+			break;
+		default:
+		case 'set':
+			if (!empty($schema[$key]['list']) && !is_array($value))
+				$value = array($value);
+			elseif (!empty($schema[$key]['type']) && $schema[$key]['type'] === 'int')
+				$value = (int) $value;
+			$data[$var][$key] = $value;
 			break;
 		}
 	}
