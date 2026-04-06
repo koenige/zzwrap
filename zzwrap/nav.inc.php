@@ -597,12 +597,15 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 	$max_level = 0;
 	$level_paths = [];
 	$prev_template = '';
+	$base_prefix = '';
 	$to_insert = [];
 
 	foreach ($breadcrumbs as $index => $breadcrumb) {
 		if (strpos($breadcrumb['url_path'], '*') === false) continue;
 		$asterisk_count = substr_count($breadcrumb['url_path'], '*');
 		$template = $breadcrumb['url_path'];
+		if (!$base_prefix)
+			$base_prefix = substr($template, 0, strpos($template, '*'));
 
 		// a breadcrumb is a placeholder (title gets replaced) if it introduces
 		// a new * level or has the same url_path template as the previous one
@@ -656,6 +659,20 @@ function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
 		$breadcrumbs[$index]['url_path'] = $path;
 
 		$prev_template = $template;
+	}
+
+	// remaining placeholders: hierarchy levels without a DB webpage
+	if ($base_prefix && $placeholder_index < count($placeholders)) {
+		$last_index = array_key_last($breadcrumbs);
+		while ($placeholder_index < count($placeholders)) {
+			$placeholder = $placeholders[$placeholder_index];
+			$to_insert[$last_index][] = [
+				'title' => $placeholder['title'],
+				'url_path' => $base_prefix.'/'.$placeholder['url_path'].'/',
+				'page_id' => null
+			];
+			$placeholder_index++;
+		}
 	}
 
 	// insert extra breadcrumbs in reverse order to preserve indices
