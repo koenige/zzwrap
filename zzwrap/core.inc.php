@@ -9,7 +9,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2024, 2026 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -179,7 +179,9 @@ function wrap_substr($string, $substring, $mode = 'begin') {
 /**
  * keep static variables
  *
- * @param array $var the variable to change
+ * Optional schema: configuration/{var}.cfg (via wrap_cfg_files($var)).
+ *
+ * @param string $var bucket name (also cfg file basename, e.g. page → configuration/page.cfg)
  * @param string $key key to change
  * @param mixed $value new value
  * @param string $action what to do (init, set (default), add, prepend, append, delete)
@@ -187,6 +189,7 @@ function wrap_substr($string, $substring, $mode = 'begin') {
  */
 function wrap_static($var, $key = '', $value = NULL, $action = 'set') {
 	static $data = [];
+	$schema = wrap_cfg_files($var);
 	if (!array_key_exists($var, $data)) $data[$var] = [];
 	
 	if ($value !== NULL) {
@@ -195,6 +198,10 @@ function wrap_static($var, $key = '', $value = NULL, $action = 'set') {
 			$data[$var] = $value;
 			break;
 		case 'set':
+			if (!empty($schema[$key]['list']) && !is_array($value))
+				$value = array($value);
+			elseif (!empty($schema[$key]['type']) && $schema[$key]['type'] === 'int')
+				$value = (int) $value;
 			$data[$var][$key] = $value;
 			break;
 		case 'add':
@@ -217,7 +224,10 @@ function wrap_static($var, $key = '', $value = NULL, $action = 'set') {
 	}
 
 	if (!$key) return $data[$var];
-	if (!array_key_exists($key, $data[$var])) return NULL;
+	if (!array_key_exists($key, $data[$var])) {
+		if (!empty($schema[$key]['list'])) return [];
+		return NULL;
+	}
 	return $data[$var][$key];	
 }
 
