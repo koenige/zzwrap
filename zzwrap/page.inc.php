@@ -69,7 +69,7 @@ function wrap_brick($key = '', $value = NULL, $action = 'set') {
  * @param string $action init, set (default), add, prepend, append, delete (pass-through to wrap_static)
  * @return array|mixed|null
  */
-function wrap_page_meta($key = '', $value = NULL, $action = 'set') {
+function wrap_page_meta($key = '', $value = NULL, $action = NULL) {
 	return wrap_static('page', $key, $value, $action);
 }
 
