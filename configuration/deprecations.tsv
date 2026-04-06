@@ -74,3 +74,5 @@
 2026-04-05-7	code	$zz_page['error_msg']	use wrap_notice()
 2026-04-05-8	code	$zz_page['error_html']	removed; use wrap_notice() and customise zzwrap/templates/notices.template.txt
 2026-04-06-1	code	$zz_page['error_code']	use wrap_page_meta('http_status') instead
+2026-04-06-2	code	$zz_page['access']	use wrap_page_meta('access', …); wrap_access_page(…, wrap_page_meta('access'))
+2026-04-06-3	code	$zz_page['breadcrumb_placeholder']	use wrap_page_meta('breadcrumb_placeholder', …)

@@ -590,9 +590,8 @@ function wrap_breadcrumbs_read_recursive($page_id, &$pages) {
  * @return void
  */
 function wrap_breadcrumbs_placeholder(&$breadcrumbs) {
-	global $zz_page;
-	if (empty($zz_page['breadcrumb_placeholder'])) return;
-	$placeholders = array_values($zz_page['breadcrumb_placeholder']);
+	if (!wrap_page_meta('breadcrumb_placeholder')) return;
+	$placeholders = array_values(wrap_page_meta('breadcrumb_placeholder'));
 
 	$placeholder_index = 0;
 	$max_level = 0;

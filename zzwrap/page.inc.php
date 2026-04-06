@@ -66,7 +66,8 @@ function wrap_brick($key = '', $value = NULL, $action = 'set') {
  *
  * @param string $key empty string: full flat map
  * @param mixed|null $value for writes: NULL skips writes and returns current data (see wrap_static)
- * @param string $action init, set (default), add, prepend, append, delete (pass-through to wrap_static)
+ * @param string|null $action NULL: use wrap_static resolution (schema default_action per key, else set).
+ *   init, set, add, add_no_merge, prepend, append, delete (pass-through to wrap_static)
  * @return array|mixed|null
  */
 function wrap_page_meta($key = '', $value = NULL, $action = NULL) {

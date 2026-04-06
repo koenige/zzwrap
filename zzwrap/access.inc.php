@@ -308,12 +308,12 @@ function wrap_parameters($fields) {
  * if access=access_key is set, check if rights suffice
  *
  * @param mixed $parameters
- * @param array $details (optional)
  * @param bool $quit
  * @return bool
  */
-function wrap_access_page($parameters, $details = [], $quit = true) {
+function wrap_access_page($parameters = NULL, $quit = true) {
 	static $config = [];
+	if (is_null($parameters)) $parameters = wrap_page_field('parameters');
 	if (!$parameters) return true;
 	if (is_string($parameters))
 		parse_str($parameters, $parameters);
@@ -324,6 +324,7 @@ function wrap_access_page($parameters, $details = [], $quit = true) {
 	// here only the first restriction is considered
 	if (is_array($parameters['access']))
 		$parameters['access'] = reset($parameters['access']);
+	$details = wrap_page_meta('access');
 	if (!empty($config[$parameters['access']]['page_placeholder_check']) AND !$details) return true;
 	return wrap_access_details($parameters['access'], $details, 'OR', $quit);
 }

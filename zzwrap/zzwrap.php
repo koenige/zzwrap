@@ -89,7 +89,7 @@ function zzwrap() {
 	
 	if (wrap_setting('authentication_possible')) {
 		wrap_auth();
-		wrap_access_page(wrap_page_field('parameters'));
+		wrap_access_page();
 	}
 	wrap_https_check();
 
