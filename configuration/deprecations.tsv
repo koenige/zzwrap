@@ -16,6 +16,7 @@
 # exclude_pattern: files matching this pattern will be excluded from results (multiple patterns separated by semicolon)
 #
 2018-04-19-1	code	!ISNULL	deprecated in Mysql, use NOT ISNULL
+2021-06-08-1	code	wrap_substr	use str_starts_with(), str_ends_with()
 2022-06-11-1	filename	pwd.inc.php	use pwd.json	
 2023-03-21-1	code	$zz_conf['db_name']	use setting `db_name`	zzwrap/zzwrap/database.inc.php
 2023-06-23-1	code	$zz_conf['text']	use wrap_text_set() instead	zzwrap/zzwrap/language.inc.php
