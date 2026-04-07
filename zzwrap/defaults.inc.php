@@ -16,11 +16,8 @@
 /**
  * sets defaults for zzwrap, includes config
  *
- * @global array $zz_page		might change in config.inc.php
  */
 function wrap_defaults() {
-	global $zz_page;
-
 	// configuration settings, defaults
 	wrap_defaults_paths();
 	wrap_defaults_auto();

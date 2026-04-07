@@ -352,8 +352,6 @@ function wrap_redirect_change($url = false) {
  * @return string HTML output
  */
 function wrap_htmlout_page($page) {
-	global $zz_page;
-
 	if (wrap_setting('send_as_json')) {
 		$page['text'] = wrap_page_json($page);
 		$page['content_type_original'] = $page['content_type'];
