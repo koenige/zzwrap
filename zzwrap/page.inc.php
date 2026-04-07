@@ -355,13 +355,16 @@ function wrap_redirect_change($url = false) {
  * @return string HTML output
  */
 function wrap_htmlout_page($page) {
+	if (wrap_page_meta('content_type'))
+		$page['content_type'] = wrap_page_meta('content_type');
+	elseif (empty($page['content_type']))
+		$page['content_type'] = 'html';
 	if (wrap_setting('send_as_json')) {
 		$page['text'] = wrap_page_json($page);
 		$page['content_type_original'] = $page['content_type'];
 		$page['content_type'] = 'json';
 	}
-
-	if (!empty($page['content_type']) AND $page['content_type'] !== 'html') {
+	if ($page['content_type'] !== 'html') {
 		$page = wrap_page_replace($page);
 		wrap_send_text($page['text'], $page['content_type'], $page['status'], $page['headers'] ?? []);
 		exit;
