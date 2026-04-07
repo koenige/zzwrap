@@ -195,7 +195,7 @@ function wrap_session_cookietest_end($token, $qs) {
 	if ($qs) {
 		parse_str($qs, $qs);
 		foreach ($qs as $key => $value) {
-			$page['query_strings'][] = $key;
+			wrap_page_meta('query_strings', $key);
 			unset($query[$key]);
 		}
 		$url['query'] = http_build_query($query);

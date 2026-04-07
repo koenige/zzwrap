@@ -357,31 +357,22 @@ function wrap_url_canonical($page) {
 		wrap_url_canonical_ending($ending);
 	}
 
-	$types = ['query_strings', 'query_strings_redirect'];
-	foreach ($types as $type) {
-		// initialize
-		if (empty($page[$type])) $page[$type] = [];
-		// merge from settings
-		if (wrap_setting($type)) {
-			$page[$type] = array_merge($page[$type], wrap_setting($type));
-		}
-	}
 	// set some query strings which are used by zzwrap
-	$page['query_strings'] = array_merge($page['query_strings'],
-		['no-cookie', 'lang']);
+	wrap_page_meta('query_strings', ['no-cookie', 'lang']);
 	// allow ?code= only for direct script access (e.g. ErrorDocument 403 → /_scripts/main.php?code=403)
 	if (wrap_url('path')
 		&& str_ends_with(wrap_url('path'), basename($_SERVER['SCRIPT_NAME']))) {
-		$page['query_strings'][] = 'code';
+		wrap_page_meta('query_strings', 'code');
 	}
-	if ($qs = wrap_setting('query_strings')) {
-		$page['query_strings'] = array_merge($page['query_strings'], $qs);
-	}
+	if (wrap_setting('query_strings'))
+		wrap_page_meta('query_strings', wrap_setting('query_strings'));
+	if (wrap_setting('query_strings_redirect'))
+		wrap_page_meta('query_strings_redirect', wrap_setting('query_strings_redirect'));
 	if (wrap_url('query')) {
 		parse_str(wrap_url('query'), $params);
 		$wrong_qs = [];
 		foreach (array_keys($params) as $param) {
-			if (in_array($param, $page['query_strings'])) continue;
+			if (in_array($param, wrap_page_meta('query_strings'))) continue;
 			if (wrap_setting('no_query_strings_redirect')) {
 				wrap_setting('cache', false); // do not cache these
 				continue;
@@ -391,7 +382,7 @@ function wrap_url_canonical($page) {
 			wrap_url('redirect', true);
 			wrap_url('redirect_cache', false);
 			// no error logging for query strings which shall be redirected
-			if (in_array($param, $page['query_strings_redirect'])) continue;
+			if (in_array($param, wrap_page_meta('query_strings_redirect'))) continue;
 			if (is_array($param_value)) $param_value = http_build_query($param_value);
 			$qs_key_value = sprintf('%s=%s', $param, $param_value);
 			$ignore = false;

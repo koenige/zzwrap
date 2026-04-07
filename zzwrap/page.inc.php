@@ -264,6 +264,10 @@ function wrap_get_page() {
 
 	if (!empty($page['no_output'])) exit;
 
+	if (!empty($page['query_strings']))
+		wrap_page_meta('query_strings', $page['query_strings']);
+	if (!empty($page['query_strings_redirect']))
+		wrap_page_meta('query_strings_redirect', $page['query_strings_redirect']);
 	wrap_url_canonical($page);
 	wrap_url_canonical_redirect();
 
@@ -302,8 +306,7 @@ function wrap_page_from_file($filename) {
 	$page['content_type'] = wrap_file_extension($filename);
 	wrap_setting('character_set', wrap_detect_encoding($page['text']));
 	$page['status'] = 200;
-	$page['query_strings'][] = 'v';
-	$page['query_strings'][] = 'nocache';
+	wrap_page_meta('query_strings', ['v', 'nocache']);
 	
 	// check filename if it has version no. in it = extend cache to a year
 	// check for 1.0, 1.1.0 etc.
