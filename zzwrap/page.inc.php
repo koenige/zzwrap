@@ -61,9 +61,6 @@ function wrap_brick($key = '', $value = NULL, $action = 'set') {
 /**
  * read or write request-scoped page assembly metadata (wrap_static bucket 'page')
  *
- * Keys include http_status (HTTP status when taking the error path in wrap_quit()),
- * breadcrumb_placeholder, access, query_strings (see migration from $zz_page).
- *
  * @param string $key empty string: full flat map
  * @param mixed|null $value for writes: NULL skips writes and returns current data (see wrap_static)
  * @param string|null $action NULL: use wrap_static resolution (schema default_action per key, else set).
@@ -781,16 +778,15 @@ function wrap_page_replace($page) {
  * @return array
  */
 function wrap_page_sequential($links) {
-	global $zz_page;
-
 	$link_relations = ['prev', 'next', 'up'];
 	foreach ($link_relations as $rel) {
-		if (empty($zz_page[$rel])) continue;
+		$meta = wrap_page_meta($rel);
+		if (!$meta) continue;
 		if (!empty($links[$rel])) continue;
 		$links[$rel] = [
 			0 => [
-				'href' => $zz_page[$rel]['url'],
-				'title' => $zz_page[$rel]['title']
+				'href' => $meta['url'],
+				'title' => $meta['title']
 			]
 		];
 	}

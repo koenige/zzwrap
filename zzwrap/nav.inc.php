@@ -903,7 +903,6 @@ function wrap_nav_top_recursive($menu, $nav_id = false) {
  * @return bool
  */
 function wrap_nav_sequential($pages, $breadcrumbs) {
-	global $zz_page;
 	// not for error pages
 	if (!wrap_page_field('page_id')) return false;
 
@@ -923,16 +922,18 @@ function wrap_nav_sequential($pages, $breadcrumbs) {
 		$data = wrap_translate($data, 'webpages');
 		foreach ($data as $index => $line)
 			$data[$index]['url'] = wrap_setting('base').$line['url'];
-		list($zz_page['prev'], $zz_page['next'])
-			= wrap_get_prevnext($data, wrap_page_field('page_id'), false);
-		if ($zz_page['prev'])
-			$zz_page['prev']['rel_title'] = wrap_text('Previous page');
-		if ($zz_page['next'])
-			$zz_page['next']['rel_title'] = wrap_text('Next page');
+		list($prev, $next) = wrap_get_prevnext($data, wrap_page_field('page_id'), false);
+		if ($prev)
+			$prev['rel_title'] = wrap_text('Previous page');
+		if ($next)
+			$next['rel_title'] = wrap_text('Next page');
+		wrap_page_meta('prev', $prev);
+		wrap_page_meta('next', $next);
 		$top_id = key($data);
 		if (wrap_page_field('page_id').'' !== $top_id.'') {
-			$zz_page['up'] = $data[$top_id];
-			$zz_page['up']['rel_title'] = wrap_text('Overview');
+			$up = $data[$top_id];
+			$up['rel_title'] = wrap_text('Overview');
+			wrap_page_meta('up', $up);
 		}
 		return true;
 	}
