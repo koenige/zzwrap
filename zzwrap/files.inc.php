@@ -102,11 +102,8 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		elseif (!empty($zz_setting['active_module']))
 			$packages[] = $zz_setting['active_module'];
 	$checked = ['files', 'themes', 'modules', 'custom', 'active'];
-	foreach ($checked as $key)
-		unset($matches[$key]);
-	foreach ($matches as $key)
-		$packages[] = $key;
-	
+	if ($extra_packages = array_diff($matches, $checked))
+		$packages = array_merge($packages, $extra_packages);
 	if (!$packages AND !$custom AND !$media) return [];
 
 	// has filename path in it?
