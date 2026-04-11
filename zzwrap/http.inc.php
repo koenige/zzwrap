@@ -70,7 +70,7 @@ function wrap_http_site_offline() {
 	if ($tpl = wrap_setting('site_offline_template')) {
 		wrap_setting('template', $tpl);
 	}
-	wrap_quit(503, wrap_text('This website is currently offline.'));
+	wrap_quit(503, wrap_text('This website is currently offline.'), ['log_errors' => false]);
 	exit;
 }
 

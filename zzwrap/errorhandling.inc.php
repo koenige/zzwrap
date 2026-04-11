@@ -161,7 +161,8 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	if ($return === 'exit') {
 		$page['status'] = 503;
-		wrap_errorpage($page, false);
+		$page['log_errors'] = false;
+		wrap_errorpage($page);
 		exit;
 	}
 }
@@ -289,10 +290,11 @@ function wrap_error_summary($line = '', $error_level = '', $prefix_line = false)
  * checks which error it is, set page elements, output HTTP header, HTML, log
  *
  * @param array $page
- * @param bool $log_errors whether errors shall be logged or not
  */ 
-function wrap_errorpage($page = [], $log_errors = true) {
+function wrap_errorpage($page = []) {
 	wrap_lib();
+	if (!array_key_exists('log_errors', $page))
+		$page['log_errors'] = true;
 
 	// -- 1. check what kind of error page it is
 	// if wanted, check if mod_rewrite works
@@ -367,7 +369,7 @@ function wrap_errorpage($page = [], $log_errors = true) {
 	
 	// -- 4. error logging
 
-	if ($log_errors) wrap_errorpage_log($page['status'], $page);
+	if ($page['log_errors']) wrap_errorpage_log($page['status'], $page);
 
 	// -- 5. output page
 	
