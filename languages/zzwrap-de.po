@@ -5,7 +5,7 @@
 # https://www.zugzwang.org/modules/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023-2025 Gustaf Mossakowski
+# @copyright Copyright © 2008-2009, 2014-2016, 2018-2019, 2021, 2023-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 msgid ""
@@ -1119,6 +1119,10 @@ msgstr "Vorübergehend ist keine Anmeldung möglich."
 #: zzwrap/http.inc.php
 msgid "Access to this website for your IP address is restricted."
 msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
+
+#: zzwrap/zzwrap.php
+msgid "This website is currently offline."
+msgstr "Diese Website ist derzeit offline."
 
 # check request
 #: zzwrap/core.inc.php

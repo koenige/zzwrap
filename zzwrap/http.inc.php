@@ -41,9 +41,22 @@ function wrap_http_restrict_ip() {
 	$restricted_ips = wrap_setting('access_restricted_ips');
 	if (!$restricted_ips) return;
 	if (!wrap_http_ip_in_list(wrap_setting('remote_ip'), $restricted_ips)) return;
-	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('layout_path'))) return;
-	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('behaviour_path'))) return;
+	if (wrap_http_is_asset()) return;
 	wrap_quit(403, wrap_text('Access to this website for your IP address is restricted.'));
+}
+
+/**
+ * Whether the request URI is under layout_path or behaviour_path (CSS, JS, …)
+ *
+ * These paths stay available when the site is IP-restricted or offline so
+ * stylesheets and scripts for error pages still load.
+ *
+ * @return bool
+ */
+function wrap_http_is_asset() {
+	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('layout_path'))) return true;
+	if (str_starts_with(wrap_setting('request_uri'), wrap_setting('behaviour_path'))) return true;
+	return false;
 }
 
 /**

@@ -43,11 +43,11 @@ function zzwrap() {
 	wrap_url_relative();
 
 	// page offline?
-	if (wrap_setting('site_offline')) {
+	if (wrap_setting('site_offline') && !wrap_http_is_asset()) {
 		if ($tpl = wrap_setting('site_offline_template')) {
 			wrap_setting('template', $tpl);
 		}
-		wrap_quit(503, wrap_text('This page is currently offline.'));
+		wrap_quit(503, wrap_text('This website is currently offline.'));
 		exit;
 	}
 
