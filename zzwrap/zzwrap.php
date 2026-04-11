@@ -42,14 +42,7 @@ function zzwrap() {
 	// Relative linking
 	wrap_url_relative();
 
-	// page offline?
-	if (wrap_setting('site_offline') && !wrap_http_is_asset()) {
-		if ($tpl = wrap_setting('site_offline_template')) {
-			wrap_setting('template', $tpl);
-		}
-		wrap_quit(503, wrap_text('This website is currently offline.'));
-		exit;
-	}
+	wrap_http_site_offline();
 
 	wrap_tests();
 	if (wrap_setting('cache_age'))

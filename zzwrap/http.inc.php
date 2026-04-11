@@ -60,6 +60,21 @@ function wrap_http_is_asset() {
 }
 
 /**
+ * Quit with 503 if the site is offline
+ *
+ * @return void
+ */
+function wrap_http_site_offline() {
+	if (!wrap_setting('site_offline')) return;
+	if (wrap_http_is_asset()) return;
+	if ($tpl = wrap_setting('site_offline_template')) {
+		wrap_setting('template', $tpl);
+	}
+	wrap_quit(503, wrap_text('This website is currently offline.'));
+	exit;
+}
+
+/**
  * checks the HTTP request made, builds URL
  * sets language according to URL and request
  */
