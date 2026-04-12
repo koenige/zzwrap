@@ -452,10 +452,10 @@ function wrap_url_canonical_hostname_check() {
 /**
  * get canonical hostname, care for development server
  *
- * @return string
+ * @return string|null
  */
 function wrap_url_canonical_hostname() {
-	if (!wrap_setting('canonical_hostname')) return '';
+	if (!wrap_setting('canonical_hostname')) return NULL;
 
 	$canonical = wrap_setting('canonical_hostname');
 	$canonical = wrap_url_dev_add($canonical);

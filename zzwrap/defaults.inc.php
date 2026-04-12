@@ -468,7 +468,8 @@ function wrap_defaults_post_conf() {
 	if (!wrap_setting('protocol'))
 		wrap_setting('protocol', 'http'.(wrap_setting('https') ? 's' : ''));
 	if (!wrap_setting('host_base')) {
-		wrap_setting('host_base', wrap_setting('protocol').'://'.wrap_setting('hostname'));
+		$canonical_hostname = wrap_url_canonical_hostname() ?? wrap_setting('hostname');
+		wrap_setting('host_base', wrap_setting('protocol').'://'.$canonical_hostname);
 		if (!in_array($_SERVER['SERVER_PORT'], [80, 443])) {
 			wrap_setting('host_base', wrap_setting('host_base').sprintf(':%s', $_SERVER['SERVER_PORT']));
 		}

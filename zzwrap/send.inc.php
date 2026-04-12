@@ -556,14 +556,6 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 		wrap_match_ressource(false);
 	}
 
-	if ($canonical_hostname = wrap_url_canonical_hostname()) {
-		if (wrap_setting('hostname') !== $canonical_hostname) {
-			// fix links on error page to real destinations
-			wrap_setting('host_base', 
-				wrap_setting('protocol').'://'.$canonical_hostname);
-		}
-	}
-
 	$page['status'] = $statuscode;
 	if ($statuscode === 404) {
 		$redir = wrap_match_redirects();
