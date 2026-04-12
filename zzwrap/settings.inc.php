@@ -48,6 +48,7 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
  * @param mixed $value
  */
 function wrap_setting_add($key, $value) {
+	if (!$value && $value !== '0' && $value !== 0) return;
 	if (!is_array(wrap_setting($key)))
 		wrap_error(sprintf(
 			'Unable to add value %s to key %s, it is not an array.'
