@@ -67,6 +67,9 @@ function wrap_http_is_asset() {
 function wrap_http_site_offline() {
 	if (!wrap_setting('site_offline')) return;
 	if (wrap_http_is_asset()) return;
+	wrap_routes_read();
+	if (wrap_url('path') === wrap_path('login')) return;
+	if (wrap_session_value('logged_in') AND wrap_access('site_offline_backend')) return;
 	if ($tpl = wrap_setting('site_offline_template')) {
 		wrap_setting('template', $tpl);
 	}
