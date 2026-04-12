@@ -561,7 +561,6 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 			// fix links on error page to real destinations
 			wrap_setting('host_base', 
 				wrap_setting('protocol').'://'.$canonical_hostname);
-			wrap_setting('homepage_url', wrap_setting('host_base').wrap_setting('homepage_url'));
 		}
 	}
 

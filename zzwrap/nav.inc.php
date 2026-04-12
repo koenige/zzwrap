@@ -503,7 +503,7 @@ function wrap_breadcrumbs($page) {
 		$breadcrumbs = [];
 		if (!wrap_setting('error_breadcrumbs_without_homepage_url')) {
 			$breadcrumbs[] = [
-				'url_path' => wrap_setting('homepage_url'),
+				'url_path' => wrap_path('home', [], ['absolute' => true]),
 				'title' => wrap_setting('project')
 			];
 		}
