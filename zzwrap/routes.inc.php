@@ -302,6 +302,7 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
  *   - detail (string): Passed to wrap_access($area, $detail) for access detail, e.g. 'restrict_to:123'; default ''.
  *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
  *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false.
+ *   - absolute (bool): If true, prepend wrap_setting('host_base') when the path is root-relative (/…) but not protocol-relative (//…); default false.
  * @return string|null|false Path string, or NULL if route not found, or false if access denied.
  */
 function wrap_path($area, $value = [], $settings = [], $testing = false, $settings_old = []) {
@@ -336,6 +337,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	$settings['check_rights'] = $settings['check_rights'] ?? true;
 	$settings['testing'] = $settings['testing'] ?? false;
 	$settings['detail'] = $settings['detail'] ?? '';
+	$settings['absolute'] = !empty($settings['absolute']);
 
 	// resolve from foreign website if path_website_id is set and route is marked
 	$foreign_website_id = false;
@@ -354,7 +356,8 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	}
 
 	if (!array_key_exists($area, $routes)) {
-		// fallback: use base[*] when base[subkey] is missing (e.g. contacts_profile[organisation] -> contacts_profile[*])
+		// fallback: use base[*] when base[subkey] is missing
+		// (e.g. contacts_profile[organisation] -> contacts_profile[*])
 		$area_fallback = NULL;
 		if (preg_match('/^(.+)\[[^\]]+\]$/', $area, $m) && array_key_exists($m[1].'[*]', $routes)) {
 			$area_fallback = $m[1].'[*]';
@@ -363,7 +366,8 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 			$area = $area_fallback;
 		} else {
 			$path = wrap_path_fallback($area, $value, $settings);
-			if ($path !== NULL) return $path;
+			if ($path !== NULL)
+				return wrap_path_add_absolute($path, $settings['absolute']);
 			if (empty($settings['testing']) AND empty($settings['hide_missing']))
 				wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 			return NULL;
@@ -417,7 +421,24 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		if (!empty($cfg[$area]['backend_for_website']))
 			$path = wrap_host_base($website_id).$path;
 	}
-	return $path;
+	return wrap_path_add_absolute($path, $settings['absolute']);
+}
+
+/**
+ * Prepend host_base when $absolute and path is root-relative (/…) but not protocol-relative (//…).
+ *
+ * @param string $path
+ * @param bool $absolute
+ * @return string
+ */
+function wrap_path_add_absolute($path, $absolute) {
+	if (!$absolute)
+		return $path;
+	if (!str_starts_with($path, '/'))
+		return $path;
+	if (str_starts_with($path, '//'))
+		return $path;
+	return wrap_setting('host_base').$path;
 }
 
 /**
