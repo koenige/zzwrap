@@ -746,10 +746,6 @@ msgstr ""
 "değer"
 
 #: configuration/settings.cfg
-msgid "url where to login"
-msgstr "giriş yapılacak url"
-
-#: configuration/settings.cfg
 msgid "is every login linked to a contact?"
 msgstr "her giriş bir kişiye mi bağlı?"
 
@@ -763,10 +759,6 @@ msgid ""
 msgstr ""
 "Bir kullanıcının oturumu otomatik olarak kapatıldıktan sonraki hareketsizlik "
 "süresi (dakika cinsinden)"
-
-#: configuration/settings.cfg
-msgid "url where one can logout from a website"
-msgstr "bir web sitesinden çıkış yapılabilecek url"
 
 #: configuration/settings.cfg
 msgid "check MX record for the domain part of each mail address"

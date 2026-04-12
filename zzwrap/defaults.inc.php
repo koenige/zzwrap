@@ -429,8 +429,8 @@ function wrap_defaults_post_conf() {
 	// HTTPS; zzwrap authentication will always be https
 	if (!in_array('/', wrap_setting('https_urls'))) {
 		// Logout must go via HTTPS because of secure cookie
-		wrap_setting_add('https_urls', wrap_setting('logout_url'));
-		wrap_setting_add('https_urls', wrap_setting('login_url'));
+		wrap_setting_add('https_urls', wrap_path('logout'));
+		wrap_setting_add('https_urls', wrap_path('login'));
 		wrap_setting_add('https_urls', wrap_setting('auth_urls'));
 	}
 	foreach (wrap_setting('https_urls') AS $url) {

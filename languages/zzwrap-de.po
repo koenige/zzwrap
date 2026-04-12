@@ -665,10 +665,6 @@ msgid "default value for logins.login_rights if an external login is used"
 msgstr ""
 
 #: configuration/settings.cfg
-msgid "url where to login"
-msgstr ""
-
-#: configuration/settings.cfg
 msgid "is every login linked to a contact?"
 msgstr ""
 
@@ -679,10 +675,6 @@ msgstr ""
 #: configuration/settings.cfg
 msgid ""
 "Time of inactivity (in minutes) after a user gets logged out automatically"
-msgstr ""
-
-#: configuration/settings.cfg
-msgid "url where one can logout from a website"
 msgstr ""
 
 #: configuration/settings.cfg

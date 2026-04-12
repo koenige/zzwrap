@@ -51,7 +51,7 @@ function wrap_auth($force = false) {
 		foreach (wrap_setting('auth_urls') as $auth_url) {
 			if (!str_starts_with(strtolower(wrap_url('path')), strtolower($auth_url)))
 				continue;
-			if (wrap_url('path') === wrap_setting('login_url'))
+			if (wrap_url('path') === wrap_path('login'))
 				continue;
 			if (wrap_authenticate_url())
 				$user_authenticated = true;
@@ -179,7 +179,7 @@ function wrap_auth_loginpage() {
 		// do not unnecessarily expose URL structure
 	if ($request === wrap_path('login_entry')) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
-	wrap_redirect(wrap_setting('host_base').wrap_setting('login_url')
+	wrap_redirect(wrap_setting('host_base').wrap_path('login')
 		.(count($qs) ? '?'.implode('&', $qs) : ''), 307, false);
 	exit;
 }

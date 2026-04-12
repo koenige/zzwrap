@@ -82,3 +82,7 @@
 2026-04-07-2	code	$zz_page['next']	use wrap_page_meta('prev'|'next'|'up', …)
 2026-04-07-3	code	$zz_page['up']	use wrap_page_meta('prev'|'next'|'up', …)
 2026-04-07-4	code	$zz_page	removed, do not use as global array anymore
+2026-04-11-1	code	wrap_setting('login_url')	removed; use route login via wrap_path('login')
+2026-04-12-1	code	%%% setting login_url	removed; in templates use %%% path login %%%
+2026-04-12-2	code	wrap_setting('logout_url')	removed; use route logout via wrap_path('logout')
+2026-04-12-3	code	%%% setting logout_url	removed; in templates use %%% path logout %%%

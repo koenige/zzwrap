@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2007-2012, 2014-2024 Gustaf Mossakowski
+ * @copyright Copyright © 2007-2012, 2014-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -24,7 +24,7 @@ function mod_zzwrap_logout($params) {
 	// Stop the session, delete all session data
 	wrap_session_stop();
 
-	$host_base = str_starts_with(wrap_setting('login_url'), '/') ? wrap_setting('host_base') : '';
-	wrap_redirect($host_base.wrap_setting('login_url').'?logout', 307, false);
+	$host_base = str_starts_with(wrap_path('login'), '/') ? wrap_setting('host_base') : '';
+	wrap_redirect($host_base.wrap_path('login').'?logout', 307, false);
 	exit;
 }
