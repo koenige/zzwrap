@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2012-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2012-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -609,7 +609,6 @@ function wrap_mail_queue_send() {
 	if ($old_mail_subject_prefix AND str_starts_with($old_mail_subject_prefix, '['))
 		$old_mail_subject_prefix = '\\'.$old_mail_subject_prefix;
 	wrap_setting('mail_subject_prefix', $old_mail_subject_prefix);
-	wrap_setting_delete('brick_url_parameter'); // needs to be set later on
 	
 	return false;
 }
