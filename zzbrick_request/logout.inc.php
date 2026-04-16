@@ -23,8 +23,8 @@
 function mod_zzwrap_logout($params) {
 	// Stop the session, delete all session data
 	wrap_session_stop();
-
-	$host_base = str_starts_with(wrap_path('login'), '/') ? wrap_setting('host_base') : '';
-	wrap_redirect($host_base.wrap_path('login').'?logout', 307, false);
+	
+	$path = wrap_path('login').'?logout';
+	wrap_redirect($path, 307, false);
 	exit;
 }
