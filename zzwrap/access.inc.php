@@ -132,20 +132,7 @@ function wrap_access_groups($config, $area, $detail) {
 		AND !array_key_exists($area, $usergroups)
 		AND wrap_setting('mod_activities_install_date')
 	) {
-		$sql = 'SELECT usergroup_id, usergroup
-			FROM usergroups
-			LEFT JOIN access_usergroups USING (usergroup_id)
-			LEFT JOIN access USING (access_id)
-			WHERE access.access_key IN("%s")';
-		$areas = [wrap_db_escape($area)];
-		if (!empty($config[$area]['include_access'])) {
-			if (!is_array($config[$area]['include_access']))
-				$areas[] = $config[$area]['include_access'];
-			else
-				$areas = array_merge($areas, $config[$area]['include_access']);
-		}
-		$sql = sprintf($sql, implode('","', $areas));
-		$usergroups[$area] = wrap_db_fetch($sql, 'usergroup_id', 'key/value');
+		$usergroups[$area] = wrap_access_groups_db($area, $config);
 	}
 
 	if (!empty($usergroups[$area])) {
@@ -163,6 +150,50 @@ function wrap_access_groups($config, $area, $detail) {
 	$group_rights = array_diff($group_rights, ['localhost', 'public']);
 	if (!$group_rights) return false;
 	return brick_access_rights($group_rights);
+}
+
+/**
+ * read usergroups for access key from database
+ *
+ * @param string $area
+ * @param array $config
+ * @return array
+ */
+function wrap_access_groups_db($area, $config) {
+	$areas = [wrap_db_escape($area)];
+	if (!empty($config[$area]['include_access'])) {
+		if (!is_array($config[$area]['include_access']))
+			$areas[] = $config[$area]['include_access'];
+		else
+			$areas = array_merge($areas, $config[$area]['include_access']);
+	}
+
+	$extra_areas = [];
+	foreach ($areas as $my_area) {
+		if (strpos($my_area, '[') === false) continue;
+		$extra_areas[$my_area] = wrap_access_area_base($my_area);
+	}
+
+	$sql = 'SELECT access.access_key, usergroup_id, usergroup
+		FROM usergroups
+		LEFT JOIN access_usergroups USING (usergroup_id)
+		LEFT JOIN access USING (access_id)
+		WHERE access.access_key IN("%s")';
+	$sql = sprintf($sql, implode('","', array_merge($areas, $extra_areas)));
+	$usergroups = wrap_db_fetch($sql, ['access_key', 'usergroup_id']);
+	if (!$usergroups) return [];
+	
+	$access = [];
+	foreach ($areas as $my_area) {
+		if (!array_key_exists($my_area, $usergroups)) {
+			if (!array_key_exists($my_area, $extra_areas)) continue;
+			if (!array_key_exists($extra_areas[$my_area], $usergroups)) continue;
+			$my_area = $extra_areas[$my_area];
+		}
+		foreach ($usergroups[$my_area] as $rights)
+			$access[$rights['usergroup_id']] = $rights['usergroup'];
+	}
+	return $access;
 }
 
 /**
