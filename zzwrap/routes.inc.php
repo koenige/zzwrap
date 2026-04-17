@@ -24,8 +24,8 @@
  */
 function wrap_routes_read($site = NULL) {
 	static $all_routes = [];
-	list($site, $suffix) = wrap_routes_site($site);
-	if (array_key_exists($site, $all_routes)) return $all_routes[$site];
+	list($site_res, $suffix) = wrap_routes_site($site);
+	if (array_key_exists($site_res, $all_routes)) return $all_routes[$site_res];
 
 	$file = wrap_setting('config_dir').'/routes'.$suffix.'.json';
 	$lock = wrap_setting('tmp_dir').'/routes-update'.$suffix.'.lock';
@@ -38,10 +38,10 @@ function wrap_routes_read($site = NULL) {
 	}
 
 	if (file_exists($file))
-		$all_routes[$site] = json_decode(file_get_contents($file), true);
-	if (empty($all_routes[$site]))
-		$all_routes[$site] = [];
-	return $all_routes[$site];
+		$all_routes[$site_res] = json_decode(file_get_contents($file), true);
+	if (empty($all_routes[$site_res]))
+		$all_routes[$site_res] = [];
+	return $all_routes[$site_res];
 }
 
 /**
@@ -112,9 +112,14 @@ function wrap_routes_apply_default_paths(&$paths, $routes) {
  * @return array [$site, $suffix]
  */
 function wrap_routes_site($site) {
+	// simplest: no multiple websites
+	if (!$site AND !wrap_setting('multiple_websites'))
+		return [wrap_setting('site'), ''];
+	
+	// we have multiple websites
 	if (!$site)
 		$site = wrap_setting('site');
-	$suffix = ($site === wrap_setting('site')) ? '' : '-'.str_replace('/', '-', $site);
+	$suffix = '-'.wrap_config_sitekey($site);
 	return [$site, $suffix];
 }
 

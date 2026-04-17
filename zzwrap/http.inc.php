@@ -67,7 +67,8 @@ function wrap_http_is_asset() {
 function wrap_http_site_offline() {
 	if (!wrap_setting('site_offline')) return;
 	if (wrap_http_is_asset()) return;
-	if (!file_exists(wrap_setting('config_dir').'/routes.json')) 
+	$suffix = wrap_setting('multiple_websites') ? '-'.wrap_config_sitekey() : '';
+	if (!file_exists(wrap_setting('config_dir').'/routes'.$suffix.'.json')) 
 		wrap_db_connect();
 	if (wrap_url('path') === wrap_path('login')) return;
 	if (wrap_session_value('logged_in') AND wrap_access('site_offline_backend')) return;
