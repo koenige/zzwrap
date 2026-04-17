@@ -341,7 +341,7 @@ function wrap_config_filename($type = 'main') {
 			break;
 		case 'site':
 			$template = '%%s/config-%s.json';
-			$template = sprintf($template, str_replace('/', '-', wrap_setting('site')));
+			$template = sprintf($template, wrap_config_sitekey());
 			$deprecated = sprintf($template, wrap_setting('log_dir'));
 			break;
 		case 'pwd':
@@ -358,6 +358,17 @@ function wrap_config_filename($type = 'main') {
 		rename($deprecated, $preferred);
 	}
 	return $preferred;
+}
+
+/**
+ * create site key from setting `site`
+ *
+ * @param string $site (optional)
+ * @return string
+ */
+function wrap_config_sitekey($site = NULL) {
+	if (!$site) $site = wrap_setting('site');
+	return str_replace('/', '-', $site);
 }
 
 /**

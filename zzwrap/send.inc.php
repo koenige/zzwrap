@@ -651,7 +651,7 @@ function wrap_log_uri($status = 0) {
 		wrap_mkdir($logdir);
 		$logfile = sprintf('%s/%s%s-access-%s.log'
 			, $logdir
-			, str_replace('/', '-', wrap_setting('site'))
+			, wrap_config_sitekey()
 			, wrap_https() ? '-ssl' : ''
 			, date('Y-m-d', $_SERVER['REQUEST_TIME'])
 		);
