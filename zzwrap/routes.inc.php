@@ -84,10 +84,36 @@ function wrap_routes_write($site = NULL) {
 	$new_content = json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	$existing_content = file_exists($file) ? file_get_contents($file) : '';
 	if ($new_content !== $existing_content) {
+		if (wrap_setting('debug_routes') && file_exists($file)) {
+			wrap_routes_debug($file);
+		}
 		wrap_mkdir(dirname($file));
 		file_put_contents($file, $new_content);
 	}
 	touch($lock);
+}
+
+/**
+ * Move existing routes*.json to tmp_dir/zzwrap/debug/ before it is replaced.
+ *
+ * @param string $file Absolute path to routes{$suffix}.json
+ * @return void
+ */
+function wrap_routes_debug($file) {
+	$debug_dir = wrap_setting('tmp_dir').'/zzwrap/debug';
+	wrap_mkdir($debug_dir);
+	$basename = basename($file, '.json');
+	$filename = sprintf(
+		'%s-%s-%s.json',
+		$basename,
+		date('Y-m-d\TH-i-s'),
+		wrap_random_hash(8)
+	);
+	$dest = $debug_dir.'/'.$filename;
+	if (rename($file, $dest))
+		return;
+	if (copy($file, $dest))
+		unlink($file);
 }
 
 /**
