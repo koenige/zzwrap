@@ -929,14 +929,12 @@ function wrap_error_msg($keys) {
  * do not log efforts to add "?q=…" instead of "/" at the end of URLs
  * for whatever reason people are doing this in their scripts …
  *
- * @return bool
+ * @param string $key current GET parameter name being stripped
+ * @return bool true: omit this parameter from the "Wrong URL" log line
  */
-function wrap_error_weird_qs() {
-	if (!wrap_url('redirect')) return false;
+function wrap_error_weird_qs($key) {
+	if ($key !== 'q') return false;
 	if (!wrap_url('query')) return false;
-	parse_str(wrap_url('query'), $params);
-	if (count($params) !== 1) return false;
-	if (!array_key_exists('q', $params)) return false;
 	if (!str_ends_with(wrap_url('path'), '/')) return false;
 	if (str_ends_with(wrap_setting('request_uri'), '/?'.wrap_url('query'))) return false;
 	return true;

@@ -390,7 +390,7 @@ function wrap_url_canonical($page) {
 				$ignore = true;
 			elseif (wrap_error_ignore('qs', $param))
 				$ignore = true;
-			elseif (wrap_error_weird_qs())
+			elseif (wrap_error_weird_qs($param))
 				$ignore = true;
 			if (!$ignore)
 				$wrong_qs[] = $qs_key_value;
