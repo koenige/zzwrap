@@ -924,3 +924,20 @@ function wrap_error_msg($keys) {
 		$lines[] = sprintf('%s %s', $key, $value);
 	return sprintf(' (%s)', implode(' ', $lines));
 }
+
+/**
+ * do not log efforts to add "?q=…" instead of "/" at the end of URLs
+ * for whatever reason people are doing this in their scripts …
+ *
+ * @return bool
+ */
+function wrap_error_weird_qs() {
+	if (!wrap_url('redirect')) return false;
+	if (!wrap_url('query')) return false;
+	parse_str(wrap_url('query'), $params);
+	if (count($params) !== 1) return false;
+	if (!array_key_exists('q', $params)) return false;
+	if (!str_ends_with(wrap_url('path'), '/')) return false;
+	if (str_ends_with(wrap_setting('request_uri'), '/?'.wrap_url('query'))) return false;
+	return true;
+}
