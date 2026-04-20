@@ -37,6 +37,7 @@ function zzwrap() {
 	// check HTTP request, build URL, set language according to URL and request
 	wrap_http_check_request();
 	wrap_url_prepare();
+	wrap_http_blocked_paths();
 	// check language
 	$language_redirect = wrap_language_set();
 	// Relative linking

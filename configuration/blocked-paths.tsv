@@ -1,0 +1,28 @@
+# zzwrap
+# Request paths matched here get an immediate 404 without DB lookup or error mail.
+# Rule types match errors-not-logged.tsv
+# Custom additions: custom/configuration/blocked-paths.tsv
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+#: type	pattern
+#key numeric
+
+regex	/\.env($|[?./])
+regex	/(^|/)application\.properties($|[?/])
+regex	/(^|/)application\.ya?ml($|[?/])
+regex	/(^|/)database\.ya?ml($|[?/])
+regex	/(^|/)config\.ini($|[?/])
+regex	/(^|/)web\.config($|[?/])
+regex	/(^|/)app\.config($|[?/])
+regex	/(^|/)settings\.py($|[?/])
+regex	/(^|/)config\.php($|[?/])
+regex	/(^|/)services\.php($|[?/])
+regex	/(^|/)config/env($|[?/])
+regex	/(^|/)config/database\.ya?ml($|[?/])
+regex	/(^|/)config/services\.php($|[?/])

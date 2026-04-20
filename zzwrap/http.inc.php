@@ -517,3 +517,57 @@ function wrap_http_is_bot() {
 	if (stristr($_SERVER['HTTP_USER_AGENT'], 'crawler')) return true;
 	return false;
 }
+
+/**
+ * If the current request matches blocked-paths.tsv, quit with 404 (no error mail/log).
+ * Same rule types as errors-not-logged.
+ */
+function wrap_http_blocked_paths() {
+	static $rules = null;
+	if (!wrap_setting('http_blocked_paths')) return;
+	if ($rules === null)
+		$rules = wrap_tsv_parse('blocked-paths', 'zzwrap/custom');
+	foreach ($rules as $line) {
+		if (empty($line['type'])) continue;
+		if (empty($line['pattern'])) continue;
+		if (!wrap_http_blocked_path_match($line['type'], $line['pattern']))
+			continue;
+		wrap_quit(404, '', ['log_errors' => false]);
+	}
+}
+
+/**
+ * One blocked-path rule; mirrors errors-not-logged / wrap_error_ignore() matching.
+ *
+ * @param string $type
+ * @param string $pattern
+ * @return bool
+ */
+function wrap_http_blocked_path_match($type, $pattern) {
+	switch ($type) {
+	case 'all':
+		return wrap_setting('request_uri') === $pattern;
+	case 'begin':
+		if (!$pattern) return false;
+		return substr(wrap_setting('request_uri'), 0, strlen($pattern)) === $pattern;
+	case 'end':
+		if (!$pattern) return false;
+		return substr(wrap_setting('request_uri'), -(strlen($pattern))) === $pattern;
+	case 'regex':
+	case 'string_regex':
+		if (substr($pattern, 0, 1) !== substr($pattern, -1))
+			$pattern = sprintf('/%s/i', str_replace('/', '\/', $pattern));
+		return (bool) preg_match($pattern, wrap_setting('request_uri'));
+	case 'request':
+		return fnmatch($pattern, wrap_setting('request_uri'));
+	case 'string':
+		return false;
+	case 'ip':
+	case 'ua':
+	case 'referer':
+	case 'post':
+		return false;
+	default:
+		return false;
+	}
+}
