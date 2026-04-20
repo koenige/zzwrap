@@ -268,10 +268,10 @@ function wrap_tsv_parse($filename, $paths = '', $settings = []) {
 	$files = $paths ? wrap_collect_files($filename, $paths) : wrap_collect_files($filename);
 	if (!$files) return [];
 	$data = [];
+	$i = 0; // With multiple files, `#key numeric` row numbers continue across files, so later files do not overwrite earlier rows.
 	foreach ($files as $package => $file) {
 		$content = file($file);
 		$head = [];
-		$i = 0;
 		$key_index = [0];
 		$subkey = NULL;
 		foreach ($content as $line) {
