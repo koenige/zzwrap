@@ -746,7 +746,10 @@ function wrap_print($array, $color = 'FFF', $html = true, $max_string_length = n
 	static $calls = 0;
 	if ($max_string_length === null)
 		$max_string_length = wrap_setting('format_print_max_string_length');
-	if (!$html) return wrap_print_simple($array);
+	if (!$html)
+		return sprintf('<pre>%s</pre>', wrap_print_simple($array));
+	if (!function_exists('brick_format'))
+		return sprintf('<pre>%s</pre>', wrap_print_simple($array));
 	
 	$data = [
 		'color' => $color
