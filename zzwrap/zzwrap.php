@@ -120,6 +120,7 @@ function wrap_includes() {
 	if (file_exists(__DIR__.'/compatibility.inc.php'))
 		require_once __DIR__.'/compatibility.inc.php';
 
+	wrap_include('filecache', '_core');
 	wrap_include('errorhandling', '_core');
 	wrap_include('database', '_core');
 	wrap_include('core', '_core');
