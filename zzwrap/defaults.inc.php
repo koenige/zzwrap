@@ -270,6 +270,8 @@ function wrap_config_read_file($file) {
 function wrap_config_write($site = '') {
 	static $website_checked = false;
 	if (!wrap_db_connection()) return;
+	if (wrap_setting('multiple_websites') AND wrap_database_table_check('websites'))
+		wrap_filecache('websites', 'wrap_config_websites_file');
 
 	$re_read_config = false;
 	if ($site AND !$website_checked AND wrap_database_table_check('websites')) {
@@ -325,6 +327,23 @@ function wrap_config_write($site = '') {
 		file_put_contents($file, $new_config);
 	if ($re_read_config)
 		wrap_config_read_file($file);
+}
+
+/**
+ * create list of websites to config/websites.json
+ * check for freshness via wrap_filecache() functions
+ *
+ * @return string
+ */
+function wrap_config_websites_file() {
+	$sql = 'SELECT LOWER(domain), website_id
+		FROM /*_PREFIX_*/websites
+		WHERE domain != "*"
+		ORDER BY domain';
+	$data = wrap_db_fetch($sql, '_dummy_', 'key/value');
+	if (!$data) return '';
+
+	return json_encode($data, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
 }
 
 /**
