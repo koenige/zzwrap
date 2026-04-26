@@ -69,9 +69,10 @@ function wrap_menu_get($page) {
 			// add base_url for non-http links
 			if ($item['url'] AND substr($item['url'], 0, 1) === '/') 
 				$menu[$id][$nav_id]['url'] = $base.$item['url'];
-			// mark current page in menus
+			// mark current page in menus (compare path before host_base)
 			$menu[$id][$nav_id]['current_page'] = 
 				($menu[$id][$nav_id]['url'] === wrap_setting('request_uri')) ? true : false;
+			$menu[$id][$nav_id]['url'] = wrap_path_add_absolute($menu[$id][$nav_id]['url'], wrap_setting('absolute_urls'));
 			if ($menu[$id][$nav_id]['current_page']) {
 				$page['current_navitem'] = $nav_id;
 				$page['current_menu'] = $id;
@@ -775,6 +776,7 @@ function wrap_breadcrumbs_link($url_path) {
 	$url_path = wrap_nav_base().$url_path;
 	$current = ($url_path === wrap_setting('request_uri') ? true : false);
 	if ($current) return '';
+	$url_path = wrap_path_add_absolute($url_path, wrap_setting('absolute_urls'));
 	return $url_path;
 }
 

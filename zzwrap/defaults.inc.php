@@ -231,7 +231,10 @@ function wrap_config_read() {
 	if (wrap_setting('multiple_websites')) {
 		$website = wrap_websites(wrap_setting('site'));
 		if (!$website) $website = wrap_websites(wrap_setting('website_id_default'));
-		if ($website) wrap_setting('site', $website['domain']);
+		if ($website AND $website['domain'] !== wrap_setting('site')) {
+			wrap_setting('site', $website['domain']);
+			wrap_setting('absolute_urls', 1);
+		}
 		wrap_config_read_file(wrap_config_filename('site'));
 	}
 
