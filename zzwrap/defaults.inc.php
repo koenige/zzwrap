@@ -381,6 +381,68 @@ function wrap_config_websites_keys() {
 }
 
 /**
+ * read websites.json: all websites or one row by website_id / any known hostname
+ *
+ * @param string|int|null $key website_id (int), hostname (string), or null for full list
+ * @return array|null [website_id => record, …] with int keys, one record for lookups,
+ *   null if not found or $key has an unsupported type; [] if multiple_websites is off and $key is null
+ */
+function wrap_websites($key = null) {
+	if (!wrap_setting('multiple_websites')) {
+		if ($key === null) return [];
+		return null;
+	}
+
+	$websites = wrap_websites_parse();
+
+	if ($key === null)
+		return $websites['by_id'];
+	if (is_int($key))
+		return $websites['by_id'][$key] ?? null;
+	if (is_string($key))
+		return $websites['by_hostname'][strtolower($key)] ?? null;
+
+	return null;
+}
+
+/**
+ * load websites.json once per request: by_id and by_hostname (for wrap_websites() string lookups)
+ *
+ * @return array with keys by_id, by_hostname
+ */
+function wrap_websites_parse() {
+	static $websites = null;
+	if ($websites !== null) return $websites;
+
+	$websites = ['by_id' => [], 'by_hostname' => []];
+	$file = wrap_setting('websites_file');
+	if (!file_exists($file)) return $websites;
+
+	$decoded = json_decode(file_get_contents($file), true);
+	if (!is_array($decoded)) return $websites;
+
+	$websites['by_id'] = $decoded;
+
+	$keys = wrap_config_websites_keys();
+	$keys['domain'] = [];
+
+	foreach ($websites['by_id'] as $website_id => $website) {
+		if (!is_array($website)) continue;
+		foreach ($keys as $key => $definition) {
+			if (!array_key_exists($key, $website)) continue;
+			if (!empty($definition['list'])) {
+				foreach ($website[$key] as $hostname)
+					$websites['by_hostname'][$hostname] = $website;
+			} else {
+				$websites['by_hostname'][$website[$key]] = $website;
+			}
+		}
+	}
+
+	return $websites;
+}
+
+/**
  * get filename for configuration file
  *
  * @param string $type
