@@ -228,8 +228,12 @@ function wrap_config_read() {
 	wrap_config_read_file(wrap_config_filename());
 
 	// per site
-	if (wrap_setting('multiple_websites'))
+	if (wrap_setting('multiple_websites')) {
+		$website = wrap_websites(wrap_setting('site'));
+		if (!$website) $website = wrap_websites(wrap_setting('website_id_default'));
+		if ($website) wrap_setting('site', $website['domain']);
 		wrap_config_read_file(wrap_config_filename('site'));
+	}
 
 	// per module
 	$files = wrap_collect_files('configuration/modules.json', 'custom/modules');
