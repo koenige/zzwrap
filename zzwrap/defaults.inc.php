@@ -330,20 +330,54 @@ function wrap_config_write($site = '') {
 }
 
 /**
- * create list of websites to config/websites.json
+ * create list of websites in config/websites.json
  * check for freshness via wrap_filecache() functions
  *
- * @return string
+ * @return string JSON, or '' if there are no websites rows
  */
 function wrap_config_websites_file() {
-	$sql = 'SELECT LOWER(domain), website_id
+	$sql = 'SELECT website_id, LOWER(domain) AS domain
 		FROM /*_PREFIX_*/websites
 		WHERE domain != "*"
-		ORDER BY domain';
-	$data = wrap_db_fetch($sql, '_dummy_', 'key/value');
+		ORDER BY website_id';
+	$data = wrap_db_fetch($sql, 'website_id');
 	if (!$data) return '';
+	
+	if ($keys = wrap_config_websites_keys()) {
+		$sql = 'SELECT website_id, setting_key, setting_value
+			FROM /*_PREFIX_*/_settings
+			WHERE setting_key IN ("%s")';
+		$sql = sprintf($sql, implode('","', array_keys($keys)));
+		$settings_by_website = wrap_db_fetch($sql,
+			['website_id', 'setting_key', 'setting_value'], 'key/value'
+		);
+
+		foreach ($settings_by_website as $website_id => $settings) {
+			foreach ($settings as $key => $value) {
+				$value = strtolower($value);
+				if (!empty($keys[$key]['list']))
+					$value = wrap_setting_list($value);
+				$data[$website_id][$key] = $value;
+			}
+		}
+	}
 
 	return json_encode($data, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
+}
+
+/**
+ * get keys from settings.cfg that should be available in websites.json, wrap_websites()
+ *
+ * @return array<string, array> empty if no setting has websites_cache
+ */
+function wrap_config_websites_keys() {
+	$keys = [];
+	$cfg = wrap_cfg_files('settings');
+	foreach ($cfg as $setting_key => $definition) {
+		if (empty($definition['websites_cache'])) continue;
+		$keys[$setting_key] = $definition;
+	}
+	return $keys;
 }
 
 /**
