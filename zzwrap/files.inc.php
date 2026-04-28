@@ -156,17 +156,13 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 		case 'files':
 			if (!wrap_package('media')) break;
 			if (!wrap_setting('media_folder')) break;
-			if ($extension = wrap_setting('media_original_filename_extension')) {
-				$filename = explode('.', $filename);
-				array_splice($filename, count($filename) - 1, 0, $extension);
-				$filename = implode('.', $filename);
-			}
-			if ($path)
-				$file = sprintf('%s/%s/%s', wrap_setting('media_folder'), $path, $filename);
-			else
-				$file = sprintf('%s/%s', wrap_setting('media_folder'), $filename);
-			if (!file_exists($file)) break;
-			$files['files'] = $file;
+			$file = [
+				'filename' => ($path ? $path.'/' : '').pathinfo($filename, PATHINFO_FILENAME),
+				'extension' => pathinfo($filename, PATHINFO_EXTENSION)
+			];
+			$full_filename = mf_media_filename($file, 'original', true);
+			if (!file_exists($full_filename)) break;
+			$files['files'] = $full_filename;
 			break;
 		default:
 			foreach ($files_packages as $key => $file_path) {
