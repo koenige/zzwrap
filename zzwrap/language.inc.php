@@ -358,14 +358,41 @@ function wrap_text_values($text, $key, $params) {
 		$params['values'] = [0]; // array = plural, no value = plural for 0 occurences
 	}
 	if (!is_array($params['values'])) $params['values'] = [$params['values']];
-	if (!is_array($translation)) return vsprintf($translation, $params['values']);
+	if (!is_array($translation)) {
+		return wrap_text_values_format($translation, $params['values'], $key);
+	}
 	// @todo check for %d and support strings with more than one placeholder
 	// currently, has to be first placeholder
 	$counter = wrap_text_counter($params['values']);
 	$index = wrap_text_plurals($counter, $params['plurals']);
 	// translation might be missing, other language might only have one plural
 	if (!array_key_exists($index, $translation)) $index = 1;
-	return vsprintf($translation[$index], $params['values']);
+	return wrap_text_values_format($translation[$index], $params['values'], $key);
+}
+
+/**
+ * @param string $format
+ * @param array $values
+ * @param string $key
+ * @return string
+ */
+function wrap_text_values_format($format, $values, $key) {
+	$placeholders = substr_count(str_replace('%%', '', $format), '%');
+	if ($placeholders > count($values)) {
+		$values_json = json_encode($values, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+		if ($values_json === false) {
+			$values_json = '(json_encode failed)';
+		}
+		wrap_error(sprintf(
+			'wrap_text_values(): %d sprintf placeholder(s) in translation for key %s but only %d value(s) given; values: %s',
+			$placeholders,
+			$key,
+			count($values),
+			$values_json
+		));
+		return $format;
+	}
+	return vsprintf($format, $values);
 }
 
 /**
