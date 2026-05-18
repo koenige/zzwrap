@@ -746,6 +746,10 @@ function wrap_syndication_http_post($data) {
  * check if in a realm, a lock is set
  * e. g. to avoid race conditions
  *
+ * Race-free against concurrent callers in the same realm: the read–decide–write
+ * critical section runs under an OS-level flock on the lock file. Cross-request
+ * ownership is still expressed by the hash written into the file.
+ *
  * @param string $realm
  * @param string $type
  *		'sequential': allow just one call after the other ended
@@ -758,42 +762,65 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
 	$lockfile = wrap_lock_file($realm);
 	$hash = wrap_lock_hash();
 	$time = time();
-	$newly_created = false;
-	if (!file_exists($lockfile)) {
-		// lockfile should always exist, here for first call, a non-existent
-		// lockfile prolongs waiting time
-		file_put_contents($lockfile, $hash."\n");
-		$newly_created = true;
-	}
-	$last_touched = filemtime($lockfile);
-	$locking_hash = trim(file_get_contents($lockfile));
+
+	$handle = wrap_flock_acquire($lockfile);
+	// open/flock failed: treat as locked, safer default than silently proceeding
+	if (!$handle) return true;
+
+	$locked = wrap_lock_decide($handle, $hash, $type, $seconds, $time);
+	if ($locked === false) wrap_lock_write($handle, $hash);
+	wrap_flock_release($handle);
+	return $locked;
+}
+
+/**
+ * decide whether $realm (represented by the open & locked $handle) is locked
+ * for the caller identified by $hash
+ *
+ * @param resource $handle file handle held under LOCK_EX
+ * @param string $hash own request hash, see wrap_lock_hash()
+ * @param string $type 'sequential' or 'wait'
+ * @param int $seconds timeout/wait window in seconds
+ * @param int $time current unix timestamp
+ * @return bool true: realm is held by another caller; false: free for $hash
+ */
+function wrap_lock_decide($handle, $hash, $type, $seconds, $time) {
+	$stat = fstat($handle);
+	$newly_created = ($stat['size'] === 0);
+	$last_touched = (int) $stat['mtime'];
+	$locking_hash = $newly_created ? '' : trim(stream_get_contents($handle));
 
 	switch ($type) {
 	case 'sequential':
-		// 1. check if own process locked 
-		if ($hash === $locking_hash) {
-			file_put_contents($lockfile, $hash."\n"); // change last modification
-			return false;
-		}
-		// 2. check if it's unlocked
-		if (!$locking_hash) {
-			file_put_contents($lockfile, $hash."\n");
-			if (trim(file_get_contents($lockfile)) === $hash) return false;
-			return true; // another process took over the lockfile
-		}
-		// 3. it's locked, so check if we overwrite the lock (no)
+		// 1. own process already holds the lock
+		if ($hash === $locking_hash) return false;
+		// 2. unlocked
+		if ($locking_hash === '') return false;
+		// 3. locked, do not overwrite
 		if (!$seconds) return true;
-		// 4. yes, we overwrite, but not if not enough time has passed
+		// 4. locked, but old enough to take over
 		if ($time - $seconds < $last_touched) return true;
-		break;
+		return false;
 	case 'wait':
 		if ($newly_created) return false;
 		if ($time - $seconds - 1 < $last_touched) return true;
-		break;
+		return false;
 	}
-	file_put_contents($lockfile, $hash."\n");
-	if (trim(file_get_contents($lockfile)) === $hash) return false;
-	return true; // another process took over the lockfile
+	return true;
+}
+
+/**
+ * write $hash through an already-locked $handle and update the lockfile mtime
+ *
+ * @param resource $handle file handle held under LOCK_EX
+ * @param string $hash
+ * @return void
+ */
+function wrap_lock_write($handle, $hash) {
+	ftruncate($handle, 0);
+	rewind($handle);
+	fwrite($handle, $hash."\n");
+	fflush($handle);
 }
 
 /**
@@ -801,21 +828,25 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
  *
  * @param string $realm
  * @param string $mode
- * @return bool
+ *		'clear': empty the lockfile (keep it as a wait-mode stamp)
+ *		'delete': remove the lockfile after release
+ * @return bool true: this caller held the lock and it was released
  */
 function wrap_unlock($realm, $mode = 'clear') {
 	$lockfile = wrap_lock_file($realm);
 	$hash = wrap_lock_hash();
-	$locking_hash = trim(file_get_contents($lockfile));
-	if ($locking_hash !== $hash) return false;
-	switch ($mode) {
-	case 'clear':
-		file_put_contents($lockfile, '');
-		break;
-	case 'delete':
-		unlink($lockfile);
-		break;
+
+	$handle = wrap_flock_acquire($lockfile);
+	if (!$handle) return false;
+
+	$locking_hash = trim(stream_get_contents($handle));
+	if ($locking_hash !== $hash) {
+		wrap_flock_release($handle);
+		return false;
 	}
+	ftruncate($handle, 0);
+	wrap_flock_release($handle);
+	if ($mode === 'delete') @unlink($lockfile);
 	return true;
 }
 
