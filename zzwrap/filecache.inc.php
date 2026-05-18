@@ -43,21 +43,14 @@ function wrap_filecache_locked($key, callable $callback, $non_blocking = true) {
 	$path = wrap_setting('tmp_dir').'/'.$key.'.flock';
 	$file = wrap_setting($key.'_file');
 
-	$handle = fopen($path, 'c+');
-	if ($handle === false) return false;
-	$operation = LOCK_EX;
-	if ($non_blocking) $operation |= LOCK_NB;
-	if (!flock($handle, $operation)) {
-		fclose($handle);
-		return false;
-	}
+	$handle = wrap_flock_acquire($path, $non_blocking);
+	if (!$handle) return false;
 	$touched = false;
 	try {
 		$new = $callback();
 		$touched = $new ? wrap_filecache_put($file, $new) : false;
 	} finally {
-		flock($handle, LOCK_UN);
-		fclose($handle);
+		wrap_flock_release($handle);
 	}
 	if ($touched === true)
 		touch($path);
@@ -102,4 +95,37 @@ function wrap_filecache_put($file, $new) {
 		return false;
 	}
 	return true;
+}
+
+/**
+ * open $path and acquire LOCK_EX; release with wrap_flock_release()
+ *
+ * The file is created if missing (mode 'c+'). Reads and writes through the
+ * returned handle stay inside the locked critical section.
+ *
+ * @param string $path absolute path to the lock file
+ * @param bool $non_blocking true: LOCK_NB (return false if already locked)
+ * @return resource|false handle on success, false on open or lock failure
+ */
+function wrap_flock_acquire($path, $non_blocking = false) {
+	$handle = fopen($path, 'c+');
+	if ($handle === false) return false;
+	$operation = LOCK_EX;
+	if ($non_blocking) $operation |= LOCK_NB;
+	if (!flock($handle, $operation)) {
+		fclose($handle);
+		return false;
+	}
+	return $handle;
+}
+
+/**
+ * release an exclusive lock taken with wrap_flock_acquire() and close the handle
+ *
+ * @param resource $handle
+ * @return void
+ */
+function wrap_flock_release($handle) {
+	flock($handle, LOCK_UN);
+	fclose($handle);
 }
