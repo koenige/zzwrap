@@ -844,8 +844,14 @@ function wrap_edit_sql($sql, $n_part = false, $values = false, $mode = 'add') {
 		// @todo implement LIKE here.
 	}
 
-	// remove whitespace
-	$sql = ' '.preg_replace("/\s+/", " ", $sql); // first blank needed for SELECT
+	// remove whitespace, but only outside quoted strings
+	// so e. g. "  " inside REPLACE(col, "  ", " ") survives untouched
+	$split = wrap_sql_split($sql);
+	foreach ($split['no_strings'] as $index => $part) {
+		if ($part === '') continue;
+		$split['no_strings'][$index] = preg_replace("/\s+/", " ", $part);
+	}
+	$sql = ' '.wrap_sql_concat($split); // first blank needed for SELECT
 
 	// UNION: treat queries separate
 	if (strstr($sql, ' UNION SELECT ')) {
