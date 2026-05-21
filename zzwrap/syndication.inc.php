@@ -863,14 +863,38 @@ function wrap_unlock($realm, $mode = 'clear') {
 }
 
 /**
- * wait n seconds until lock is released
+ * wait until a 'wait'-mode lock is released, then claim it
+ *
+ * Polls wrap_lock() at the cooldown granularity. Bounded by $max_seconds so a
+ * stuck lock subsystem (e.g. wrap_flock_acquire() permanently failing fail-
+ * closed to "locked") cannot hang the request indefinitely. On timeout the
+ * function logs a notice and returns false; the caller may still proceed
+ * without the throttle, and a later wrap_unlock() will be a no-op because
+ * no hash was ever written.
+ *
+ * The default budget scales with $sec (max(60, $sec * 2)) so callers passing
+ * larger cooldown windows still get at least one full cycle plus headroom
+ * before giving up; pass $max_seconds explicitly to override.
  *
  * @param string $realm
- * @param int $sec
- * @return bool
+ * @param int $sec cooldown window in seconds, also poll interval; clamped to >= 1
+ * @param int|null $max_seconds total wall-clock budget (default: max(60, $sec * 2))
+ * @return bool true: lock acquired; false: gave up
  */
-function wrap_lock_wait($realm, $sec) {
-	while (wrap_lock($realm, 'wait', $sec)) sleep($sec);
+function wrap_lock_wait($realm, $sec, $max_seconds = null) {
+	if ($sec < 1) $sec = 1;
+	if ($max_seconds === null) $max_seconds = max(60, $sec * 2);
+	$started = time();
+	while (wrap_lock($realm, 'wait', $sec)) {
+		if (time() - $started >= $max_seconds) {
+			wrap_error(sprintf(
+				'wrap_lock_wait(%s, %d) gave up after %d seconds',
+				$realm, $sec, time() - $started
+			), E_USER_NOTICE);
+			return false;
+		}
+		sleep($sec);
+	}
 	return true;
 }
 
