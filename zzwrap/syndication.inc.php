@@ -301,12 +301,10 @@ function wrap_syndication_geocode($address, $error_check = true) {
 
 		$url = sprintf($urls[$gc['geocoder']], $gc['add'], $gc['region']);
 		if ($gc['geocoder'] === 'Nominatim') {
+			// wait-mode cooldown: ≥1 req/sec, no release needed
 			wrap_lock_wait('nominatim', 1);
 		}
 		$coords = wrap_syndication($url, ['cache_age_syndication' => -1, 'error_code' => E_USER_WARNING]);	
-		if ($gc['geocoder'] === 'Nominatim') {
-			wrap_unlock('nominatim');
-		}
 
 		$success = true;
 		switch ($gc['geocoder']) {
@@ -740,21 +738,38 @@ function wrap_syndication_http_post($data) {
  * --------------------------------------------------------------------
  * Locks
  * --------------------------------------------------------------------
+ *
+ * Two modes, two contracts:
+ *
+ *   'sequential' — mutual exclusion with ownership. The lockfile carries the
+ *     caller's hash (see wrap_lock_hash()); wrap_unlock() hash-gates the
+ *     release so only the holder can clear or delete it. Other callers see
+ *     the realm as busy until the holder releases, or until $seconds elapses
+ *     and the lock auto-recovers.
+ *
+ *   'wait' — rate-limit / cooldown, no ownership. The lockfile carries a
+ *     generic "wait" sentinel, never a per-request hash; the decide is
+ *     mtime-only and the contents are irrelevant. wrap_unlock() on a wait
+ *     realm is a no-op by construction (the sentinel cannot match the
+ *     caller's hash). Callers that want to release a realm explicitly must
+ *     use 'sequential'.
+ *
+ * Both modes are race-free against concurrent callers via OS-level flock on
+ * the lockfile itself; cross-request ownership in 'sequential' mode is
+ * propagated by the X-Lock-Hash header (see background.inc.php).
  */
 
 /**
  * check if in a realm, a lock is set
- * e. g. to avoid race conditions
+ * e. g. to avoid race conditions or to throttle a remote endpoint
  *
  * Race-free against concurrent callers in the same realm: the read–decide–write
- * critical section runs under an OS-level flock on the lock file. Cross-request
- * ownership is still expressed by the hash written into the file.
+ * critical section runs under an OS-level flock on the lock file.
  *
  * @param string $realm
  * @param string $type
- *		'sequential': allow just one call after the other ended
- *		'wait': just wait the time in seconds before starting the next call, no
- *			matter if the old call ended 
+ *		'sequential': mutual exclusion; wrap_unlock() releases
+ *		'wait': cooldown-only; wrap_unlock() does not apply
  * @param int $seconds time in seconds, either to wait or till automatic release
  * @return bool true: locked; false: lock is free, occupied for own process
  */
@@ -768,7 +783,11 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
 	if (!$handle) return true;
 
 	$locked = wrap_lock_decide($handle, $hash, $type, $seconds, $time);
-	if ($locked === false) wrap_lock_write($handle, $hash);
+	if ($locked === false) {
+		// 'sequential' stamps ownership (hash); 'wait' stamps a generic
+		// cooldown marker so wrap_unlock() cannot mistake it for a claim.
+		wrap_lock_write($handle, $type === 'wait' ? 'wait' : $hash);
+	}
 	wrap_flock_release($handle);
 	return $locked;
 }
@@ -776,6 +795,15 @@ function wrap_lock($realm, $type = 'sequential', $seconds = 30) {
 /**
  * decide whether $realm (represented by the open & locked $handle) is locked
  * for the caller identified by $hash
+ *
+ * 'sequential' is hash-aware: own re-entry returns free, an empty file returns
+ * free, an unexpired foreign hash returns locked, an expired foreign hash
+ * returns free (take-over).
+ *
+ * 'wait' is mtime-only and ignores $hash by design — it expresses "has any
+ * caller touched this realm within the cooldown window?", not "do I hold it?".
+ * The file's contents are read only so the shared structure works; the value
+ * is never inspected.
  *
  * @param resource $handle file handle held under LOCK_EX
  * @param string $hash own request hash, see wrap_lock_hash()
@@ -802,6 +830,7 @@ function wrap_lock_decide($handle, $hash, $type, $seconds, $time) {
 		if ($time - $seconds < $last_touched) return true;
 		return false;
 	case 'wait':
+		// pure cooldown: $hash and $locking_hash are intentionally unused
 		if ($newly_created) return false;
 		if ($time - $seconds - 1 < $last_touched) return true;
 		return false;
@@ -810,32 +839,36 @@ function wrap_lock_decide($handle, $hash, $type, $seconds, $time) {
 }
 
 /**
- * write $hash through an already-locked $handle and update the lockfile mtime
+ * write $payload through an already-locked $handle and update the lockfile mtime
+ *
+ * In 'sequential' mode $payload is the caller's hash (ownership claim);
+ * in 'wait' mode $payload is the literal "wait" sentinel (cooldown stamp,
+ * not an ownership claim — wrap_lock_decide() in wait mode ignores contents).
  *
  * @param resource $handle file handle held under LOCK_EX
- * @param string $hash
+ * @param string $payload string to persist as the file's only content
  * @return void
  */
-function wrap_lock_write($handle, $hash) {
+function wrap_lock_write($handle, $payload) {
 	ftruncate($handle, 0);
 	rewind($handle);
-	fwrite($handle, $hash."\n");
+	fwrite($handle, $payload."\n");
 	fflush($handle);
 }
 
 /**
- * unlock a realm
+ * unlock a 'sequential' realm
  *
- * 'clear' clears the ownership hash but keeps the lockfile present with a
- * one-byte payload and a fresh mtime, so 'wait'-mode realms (rate limits)
- * still see a recent release and enforce the cooldown for the next caller.
- * Without that sentinel, ftruncate(0) would make the file look freshly
- * created to wrap_lock_decide() and consecutive callers would bypass the
- * throttle entirely.
+ * Hash-gated: only the holder can clear or delete the lockfile. Calling this
+ * on a 'wait' realm is a structural no-op — wait realms carry the literal
+ * "wait" sentinel which never equals a 32-char request hash, so the
+ * comparison below always fails and the function returns false without
+ * touching the file. That is intentional: 'wait' is a cooldown, not a claim,
+ * and there is nothing to release.
  *
  * @param string $realm
  * @param string $mode
- *		'clear': drop the ownership hash, keep file as wait-mode stamp
+ *		'clear': empty the lockfile in place
  *		'delete': remove the lockfile after release
  * @return bool true: this caller held the lock and it was released
  */
@@ -852,11 +885,6 @@ function wrap_unlock($realm, $mode = 'clear') {
 		return false;
 	}
 	ftruncate($handle, 0);
-	if ($mode === 'clear') {
-		rewind($handle);
-		fwrite($handle, "\n");
-		fflush($handle);
-	}
 	wrap_flock_release($handle);
 	if ($mode === 'delete') @unlink($lockfile);
 	return true;
