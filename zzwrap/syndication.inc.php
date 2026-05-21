@@ -826,9 +826,16 @@ function wrap_lock_write($handle, $hash) {
 /**
  * unlock a realm
  *
+ * 'clear' clears the ownership hash but keeps the lockfile present with a
+ * one-byte payload and a fresh mtime, so 'wait'-mode realms (rate limits)
+ * still see a recent release and enforce the cooldown for the next caller.
+ * Without that sentinel, ftruncate(0) would make the file look freshly
+ * created to wrap_lock_decide() and consecutive callers would bypass the
+ * throttle entirely.
+ *
  * @param string $realm
  * @param string $mode
- *		'clear': empty the lockfile (keep it as a wait-mode stamp)
+ *		'clear': drop the ownership hash, keep file as wait-mode stamp
  *		'delete': remove the lockfile after release
  * @return bool true: this caller held the lock and it was released
  */
@@ -845,6 +852,11 @@ function wrap_unlock($realm, $mode = 'clear') {
 		return false;
 	}
 	ftruncate($handle, 0);
+	if ($mode === 'clear') {
+		rewind($handle);
+		fwrite($handle, "\n");
+		fflush($handle);
+	}
 	wrap_flock_release($handle);
 	if ($mode === 'delete') @unlink($lockfile);
 	return true;
