@@ -103,20 +103,37 @@ function wrap_filecache_put($file, $new) {
  * The file is created if missing (mode 'c+'). Reads and writes through the
  * returned handle stay inside the locked critical section.
  *
+ * Re-validates after flock that the inode held is still the file currently
+ * at $path. Another caller may have unlinked the file (wrap_unlock with
+ * 'delete') between our fopen and our flock; without re-validation we could
+ * hold a lock on an orphaned inode while concurrent callers race a fresh
+ * inode at the same path. On mismatch we release and retry on the current
+ * inode; bounded by a small retry cap to prevent pathological live-lock.
+ *
  * @param string $path absolute path to the lock file
  * @param bool $non_blocking true: LOCK_NB (return false if already locked)
  * @return resource|false handle on success, false on open or lock failure
  */
 function wrap_flock_acquire($path, $non_blocking = false) {
-	$handle = fopen($path, 'c+');
-	if ($handle === false) return false;
 	$operation = LOCK_EX;
 	if ($non_blocking) $operation |= LOCK_NB;
-	if (!flock($handle, $operation)) {
+	$retries = 0;
+	while (true) {
+		$handle = fopen($path, 'c+');
+		if ($handle === false) return false;
+		if (!flock($handle, $operation)) {
+			fclose($handle);
+			return false;
+		}
+		$stat_fd = fstat($handle);
+		clearstatcache(true, $path);
+		$stat_path = @stat($path);
+		if ($stat_path !== false AND $stat_path['ino'] === $stat_fd['ino'])
+			return $handle;
+		flock($handle, LOCK_UN);
 		fclose($handle);
-		return false;
+		if (++$retries > 5) return false;
 	}
-	return $handle;
 }
 
 /**

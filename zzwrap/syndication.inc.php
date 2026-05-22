@@ -866,6 +866,12 @@ function wrap_lock_write($handle, $payload) {
  * touching the file. That is intentional: 'wait' is a cooldown, not a claim,
  * and there is nothing to release.
  *
+ * In 'delete' mode the @unlink runs inside the flocked critical section,
+ * before wrap_flock_release(). Together with the re-validation loop in
+ * wrap_flock_acquire(), this closes the TOCTOU window where a concurrent
+ * caller could otherwise grab the about-to-be-orphaned inode and write its
+ * hash there while a third caller raced a fresh inode at the same path.
+ *
  * @param string $realm
  * @param string $mode
  *		'clear': empty the lockfile in place
@@ -885,8 +891,8 @@ function wrap_unlock($realm, $mode = 'clear') {
 		return false;
 	}
 	ftruncate($handle, 0);
-	wrap_flock_release($handle);
 	if ($mode === 'delete') @unlink($lockfile);
+	wrap_flock_release($handle);
 	return true;
 }
 
