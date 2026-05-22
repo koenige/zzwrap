@@ -375,7 +375,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	if (wrap_setting('path_website_id')
 		AND wrap_setting('path_website_id') !== wrap_setting('website_id')) {
 		$routes_cfg = wrap_cfg_files('routes');
-		if (!empty($routes_cfg[$area]['path_for_website']))
+		if (!empty($routes_cfg[$area]['path_for_website']) OR !empty($settings['path_for_website']))
 			$foreign_website_id = wrap_setting('path_website_id');
 	}
 

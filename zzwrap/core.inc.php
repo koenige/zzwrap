@@ -412,6 +412,7 @@ function wrap_host_base($website_id) {
 		if (!array_key_exists($website_id, $hostnames)) return '';
 		$hostname = $hostnames[$website_id];
 	}
+	$hostname = wrap_url_dev_add($hostname);
 	return $host_bases[$website_id] = sprintf('https://%s', $hostname);
 }
 
