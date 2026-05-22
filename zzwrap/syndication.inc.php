@@ -820,14 +820,15 @@ function wrap_lock_decide($handle, $hash, $type, $seconds, $time) {
 
 	switch ($type) {
 	case 'sequential':
-		// 1. own process already holds the lock
+		// 1. own process already holds the lock — free
 		if ($hash === $locking_hash) return false;
-		// 2. unlocked
+		// 2. unlocked — free
 		if ($locking_hash === '') return false;
-		// 3. locked, do not overwrite
+		// 3. locked, no timeout configured — keep locked
 		if (!$seconds) return true;
-		// 4. locked, but old enough to take over
+		// 4. locked, still within $seconds since last touch — keep locked
 		if ($time - $seconds < $last_touched) return true;
+		// 5. locked, but $seconds elapsed — take over
 		return false;
 	case 'wait':
 		// pure cooldown: $hash and $locking_hash are intentionally unused
