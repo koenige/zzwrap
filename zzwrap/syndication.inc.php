@@ -941,13 +941,40 @@ function wrap_lock_wait($realm, $sec, $max_seconds = null) {
  */
 function wrap_lock_hash($regenerate = false) {
 	static $hash = '';
+	static $logged = false;
+
 	if (!$regenerate) {
-		if ($hash) return $hash;
-		if (!empty($_SERVER['HTTP_X_LOCK_HASH']))
+		if ($hash) {
+			wrap_lock_hash_debug($logged, $hash, 'cached');
+			return $hash;
+		}
+		if (!empty($_SERVER['HTTP_X_LOCK_HASH'])) {
+			wrap_lock_hash_debug($logged, $_SERVER['HTTP_X_LOCK_HASH'], 'from header');
 			return $_SERVER['HTTP_X_LOCK_HASH'];
+		}
 	}
 	$hash = wrap_random_hash(32);
+	wrap_lock_hash_debug($logged, $hash, $regenerate ? 'regenerated' : 'generated');
 	return $hash;
+}
+
+/**
+ * log X-Lock-Hash resolution once per request when debug_access is on
+ *
+ * @param bool $logged
+ * @param string $lock_hash
+ * @param string $source cached|from header|generated|regenerated
+ * @return void
+ */
+function wrap_lock_hash_debug(&$logged, $lock_hash, $source) {
+	if ($logged OR !wrap_setting('debug_access')) return;
+	$logged = true;
+	wrap_error(sprintf(
+		'Access debug: X-Lock-Hash %s (%s) on %s',
+		$lock_hash,
+		$source,
+		wrap_setting('request_uri')
+	), E_USER_NOTICE);
 }
 
 /**

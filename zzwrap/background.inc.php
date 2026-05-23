@@ -219,7 +219,20 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
 	}
 	$headers[] = 'X-Timeout-Ignore: 1';
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
-		$headers[] = sprintf('X-Lock-Hash: %s', wrap_lock_hash($data['regnerate_hash'] ?? false));
+		$lock_hash = wrap_lock_hash($data['regnerate_hash'] ?? false);
+		$headers[] = sprintf('X-Lock-Hash: %s', $lock_hash);
+		if (wrap_setting('debug_access')) {
+			wrap_error(sprintf(
+				'Access debug: X-Lock-Hash sent to %s: %s',
+				$url,
+				$lock_hash
+			), E_USER_NOTICE);
+		}
+	} elseif (wrap_setting('debug_access')) {
+		wrap_error(sprintf(
+			'Access debug: X-Lock-Hash not sent to %s (send_lock off)',
+			$url
+		), E_USER_NOTICE);
 	}
 	return wrap_get_protected_url($url, $headers, 'POST', $data, $username);
 }
