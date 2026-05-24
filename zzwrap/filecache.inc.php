@@ -127,9 +127,11 @@ function wrap_flock_acquire($path, $non_blocking = false) {
 		}
 		$stat_fd = fstat($handle);
 		clearstatcache(true, $path);
-		$stat_path = @stat($path);
-		if ($stat_path !== false AND $stat_path['ino'] === $stat_fd['ino'])
-			return $handle;
+		if (file_exists($path)) {
+			$stat_path = stat($path);
+			if ($stat_path !== false AND $stat_path['ino'] === $stat_fd['ino'])
+				return $handle;
+		}
 		flock($handle, LOCK_UN);
 		fclose($handle);
 		if (++$retries > 5) return false;
