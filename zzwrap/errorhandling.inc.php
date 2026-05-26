@@ -673,6 +673,12 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	if (strstr($referer['path'], '/./')) return false;
 	if (strstr($referer['path'], '/../')) return false;
 
+	$extension = wrap_file_extension($referer['path']);
+	if ($extension) {
+		$filetype = wrap_filetypes($extension, 'check-per-extension');
+		if ($filetype && empty($filetype['links'])) return false;
+	}
+
 	// scheme: ignore errors where scheme is longer than 16 characters, probably nonsense
 	if (strlen($referer['scheme']) > 16) return false;
 	if (!preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $referer['scheme'])) return false;
