@@ -181,19 +181,26 @@ function mod_zzwrap_login($params, $settings = []) {
 			if (!$loginform['msg'])
 				$loginform['msg'] = wrap_text('Password or username incorrect. Please try again.');
 			$user = implode('.', $full_login);
+			$user_empty = false;
 			if (wrap_username() AND wrap_username() !== $user) {
-				// alread a user is logged in, tried to log in to another account
+				// already a user is logged in, tried to log in to another account
 				$user .= "\n";
-			} else {
+			} elseif ($user !== wrap_setting('remote_ip')) {
 				// Log failed login name in user name column, once.
 				wrap_setting('log_username', sprintf('%s (IP: %s)', $user, wrap_setting('remote_ip')));
 				$user = '';
+			} else {
+				// username equals IP
+				$user_empty = true;
 			}
-			$error_settings = [
-				'log_post_data' => false
-			];
-			wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
-				$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
+			if ($user_empty) {
+				wrap_error(wrap_text('Login without username'), E_USER_NOTICE);
+			} else {
+				// do not reveal password in logs
+				$error_settings['log_post_data'] = false;
+				wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
+					$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
+			}
 		} else {
 			// Hooray! User has been logged in
 			if (!empty($_SESSION['change_password']) AND wrap_path('change_password')) {
