@@ -194,10 +194,15 @@ function mod_zzwrap_login($params, $settings = []) {
 				$user_empty = true;
 			}
 			if ($user_empty) {
-				wrap_error(wrap_text('Login without username'), E_USER_NOTICE);
+				wrap_error(wrap_text('Login without username'), E_USER_NOTICE, [
+					'logfile_append' => wrap_error_msg(['HTTP_USER_AGENT'])
+				]);
 			} else {
 				// do not reveal password in logs
-				$error_settings['log_post_data'] = false;
+				$error_settings = [
+					'log_post_data' => false,
+					'logfile_append' => wrap_error_msg(['HTTP_USER_AGENT'])
+				];
 				wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
 					$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
 			}
