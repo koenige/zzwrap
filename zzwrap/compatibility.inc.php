@@ -1,8 +1,8 @@
-<?php 
+<?php
 
 /**
  * zzwrap
- * compatibility functions for old PHP versions
+ * load compatibility functions for old PHP versions
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -13,96 +13,53 @@
  */
 
 
-// ------------------------------------------------------------------ //
-// PHP < 8.4
-if (version_compare(PHP_VERSION, '8.4.0', '>=')) return;
-// ------------------------------------------------------------------ //
+wrap_load_compatibility();
 
-if (!function_exists('http_get_last_response_headers')) {
-	function http_get_last_response_headers() {
-		if (!isset($http_response_header)) return null;
-		return $http_response_header;
+/**
+ * Include version-specific compatibility polyfills for the running PHP version
+ *
+ * Loads files from ../compatibility/compatibility-pre-*.inc.php when the
+ * current PHP version is below the threshold encoded in each filename.
+ *
+ * @return void
+ */
+function wrap_load_compatibility() {
+	$directory = __DIR__ . '/../compatibility';
+	if (!is_dir($directory)) return;
+
+	$php_version_number = wrap_php_version_number(PHP_VERSION);
+	$files = glob($directory . '/compatibility-pre-*.inc.php');
+	if (!$files) return;
+
+	sort($files, SORT_NATURAL);
+	foreach ($files as $file) {
+		if (!preg_match('/compatibility-pre-(\d+)\.inc\.php$/', basename($file), $matches)) continue;
+		$threshold = wrap_compatibility_threshold_number($matches[1]);
+		if ($php_version_number >= $threshold) continue;
+		require_once $file;
 	}
 }
 
-// ------------------------------------------------------------------ //
-// PHP < 8.0
-if (version_compare(PHP_VERSION, '8.0.0', '>=')) return;
-// ------------------------------------------------------------------ //
-
-// source: Laravel Framework
-// https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php
-if (!function_exists('str_starts_with')) {
-    function str_starts_with($haystack, $needle) {
-        return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
-    }
-}
-if (!function_exists('str_ends_with')) {
-    function str_ends_with($haystack, $needle) {
-        return $needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
-    }
-}
-if (!function_exists('str_contains')) {
-    function str_contains($haystack, $needle) {
-        return $needle !== '' && mb_strpos($haystack, $needle) !== false;
-    }
+/**
+ * Turn a PHP version string into a comparable integer (major * 100 + minor)
+ *
+ * @param string $version PHP version, e.g. PHP_VERSION ("8.4.1")
+ * @return int e.g. 804 for 8.4.x; patch level is ignored
+ */
+function wrap_php_version_number($version) {
+	$parts = explode('.', $version);
+	return (int) $parts[0] * 100 + (int) ($parts[1] ?? 0);
 }
 
-// ------------------------------------------------------------------ //
-// PHP < 7.4
-if (version_compare(PHP_VERSION, '7.4.0', '>=')) return;
-// ------------------------------------------------------------------ //
-
-if (!function_exists('mb_str_split')) {
-    function mb_str_split($string = '', $split_length = 1 , $encoding = null) {
-        if (empty($string)) return $string;
-        if (!$encoding) $encoding = mb_internal_encoding();
-        if ($split_length < 1) return NULL;
-        if ($split_length === 1)
-        	return preg_split("//u", $string, -1, PREG_SPLIT_NO_EMPTY);
-		$split = [];
-		$string_length = mb_strlen($string, $encoding);
-		for ($i = 0; $i < $string_length; $i += $split_length) {
-			$substr = mb_substr($string, $i, $split_length, $encoding);
-			if (empty($substr)) continue;
-			$split[] = $substr;
-		}
-        return $split;
-    }
-}
-
-// ------------------------------------------------------------------ //
-// PHP < 7.3
-if (version_compare(PHP_VERSION, '7.3.0', '>=')) return;
-// ------------------------------------------------------------------ //
-
-if( !function_exists('apache_request_headers')) {
-	function apache_request_headers() {
-		$arh = [];
-		$rx_http = '/\AHTTP_/';
-		foreach ($_SERVER as $key => $val) {
-			if (!preg_match($rx_http, $key)) continue;
-			$arh_key = preg_replace($rx_http, '', $key);
-			$rx_matches = [];
-			// restore original case, as good as possible
-			$arh_key = strtolower($arh_key);
-			$rx_matches = explode('_', $arh_key);
-			if( count($rx_matches) > 0 and strlen($arh_key) > 2 ) {
-				foreach($rx_matches as $ak_key => $ak_val)
-					$rx_matches[$ak_key] = ucfirst($ak_val);
-				$arh_key = implode('-', $rx_matches);
-			}
-			$arh[$arh_key] = $val;
-		}
-		return ($arh);
+/**
+ * Parse the numeric threshold from a compatibility-pre-*.inc.php filename
+ *
+ * @param string $slug digits between "compatibility-pre-" and ".inc.php", e.g. "84"
+ * @return int comparable version number, e.g. 804 for slug "84"
+ */
+function wrap_compatibility_threshold_number($slug) {
+	if (strlen($slug) === 2) {
+		return (int) $slug[0] * 100 + (int) $slug[1];
 	}
-}
-
-if (!function_exists('array_key_last')) {
-    function array_key_last($array) {
-        if (!is_array($array) || empty($array)) {
-            return NULL;
-        }
-        return array_keys($array)[count($array)-1];
-    }
+	return (int) substr($slug, 0, -1) * 100 + (int) substr($slug, -1);
 }
