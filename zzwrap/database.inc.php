@@ -506,6 +506,8 @@ function wrap_db_fetch_values($result, $id_field_name, $format) {
 		} elseif ($format === 'key/value') {
 			// return array in pairs
 			while ($line = mysqli_fetch_array($result)) {
+				// intentionally add empty result to query: key needs to be empty string from PHP 8.5 on
+				if (is_null($line[0])) $line[0] = '';
 				$lines[$line[0]] = $line[1];
 			}
 		} elseif ($format === 'object') {
