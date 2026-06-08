@@ -23,6 +23,7 @@ function wrap_session_start() {
 	if (session_id()) {
 		session_write_close();
 		session_start();
+		wrap_session_drop_empty();
 		return true;
 	}
 	// change session_save_path
@@ -53,6 +54,7 @@ function wrap_session_start() {
 			wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 		}
 	}
+	wrap_session_drop_empty();
 	return true;
 }
 
@@ -90,36 +92,46 @@ function wrap_session_stop() {
 	$_SESSION = [];
 	// If it's desired to kill the session, also delete the session cookie.
 	// Note: This will destroy the session, and not just the session data!
-	if (ini_get('session.use_cookies')) {
-		$params = session_get_cookie_params();
-		// check if this is www.example.com and there might be session
-		// coookies from example.com, remove these sessions, too
-		$domains[0] = $params['domain'];
-		$subdomain_dots = str_ends_with($domains[0], '.local') ? 2 : 1;
-		$i = 0;
-		while (substr_count($domains[$i], '.') > $subdomain_dots) {
-			$i++;
-			$domains[$i] = explode('.', $domains[$i-1]);
-			array_shift($domains[$i]);
-			$domains[$i] = implode('.', $domains[$i]);
-		}
-		foreach ($domains as $domain) {
-			$params['domain'] = $domain;
-			if (version_compare(PHP_VERSION, '7.3.0') >= 1) {
-				unset($params['lifetime']);
-				$params['expires'] = time() - 42000;
-				setcookie(session_name(), '', $params);
-			} else {
-				setcookie(session_name(), '', time() - 42000, $params['path'],
-					$params['domain'], $params['secure'], isset($params['httponly'])
-				);
-			}
-		}
-	}
+	wrap_session_expire_cookie();
 	session_destroy();
 	if ($sql) wrap_db_query($sql, E_USER_NOTICE);
 	if ($sql_mask) wrap_db_query($sql_mask, E_USER_NOTICE);
 	return true;
+}
+
+/**
+ * expire session cookie, including on parent domains if applicable
+ *
+ * check if this is www.example.com and there might be session cookies from
+ * example.com, remove these sessions, too
+ */
+function wrap_session_expire_cookie() {
+	if (!ini_get('session.use_cookies')) return;
+	$params = session_get_cookie_params();
+	// check if this is www.example.com and there might be session
+	// coookies from example.com, remove these sessions, too
+	$domains[0] = $params['domain'];
+	$subdomain_dots = str_ends_with($domains[0], '.local') ? 2 : 1;
+	$i = 0;
+	while (substr_count($domains[$i], '.') > $subdomain_dots) {
+		$i++;
+		$domains[$i] = explode('.', $domains[$i-1]);
+		array_shift($domains[$i]);
+		$domains[$i] = implode('.', $domains[$i]);
+	}
+	foreach ($domains as $domain) {
+		$params['domain'] = $domain;
+		if (version_compare(PHP_VERSION, '7.3.0') >= 1) {
+			unset($params['lifetime']);
+			$params['expires'] = time() - 42000;
+			setcookie(session_name(), '', $params);
+		} else {
+			setcookie(session_name(), '', time() - 42000, $params['path'],
+				$params['domain'], $params['secure'], isset($params['httponly'])
+			);
+		}
+	}
+	unset($_COOKIE[session_name()]);
 }
 
 /**
@@ -225,6 +237,29 @@ function wrap_session_cookie_injection($session_name) {
 		wrap_error(sprintf('Illegal session cookie value found: %s', $_COOKIE[$session_name]), E_USER_NOTICE);
 		unset($_COOKIE[$session_name]);
 	}
+}
+
+/**
+ * drop session cookie when the browser sent an id but the session has no data
+ *
+ * Stale ids can remain after session_regenerate_id() on login; without this,
+ * PHP would keep refreshing an empty session and block the new login.
+ * Does nothing for new sessions (no cookie yet) or sessions that hold data.
+ *
+ * @return bool true if session and cookie were removed
+ */
+function wrap_session_drop_empty() {
+	if (!session_id()) return false;
+	if (!empty($_SESSION)) return false;
+
+	$session_name = wrap_setting('session_name');
+	if (empty($_COOKIE[$session_name]) || is_array($_COOKIE[$session_name])) return false;
+	if ($_COOKIE[$session_name] !== session_id()) return false;
+
+	wrap_session_expire_cookie();
+	session_destroy();
+
+	return true;
 }
 
 /**
