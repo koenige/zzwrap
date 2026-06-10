@@ -665,6 +665,8 @@ function wrap_error_referer_valid($non_urls = false, $local_redirects = true) {
 	if (empty($referer['scheme'])) return $non_urls;
 	// not really parseable = invalid
 	if (empty($referer['host'])) return $non_urls;
+	// Referer hostnames with a trailing dot are not sent by real browsers (bots/scanners only).
+	if (str_ends_with($referer['host'], '.')) return false;
 	// there's always a path if referer is created by browser
 	if (empty($referer['path'])) return false;
 
