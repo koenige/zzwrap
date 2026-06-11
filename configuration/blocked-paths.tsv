@@ -40,3 +40,6 @@ begin	/.git
 # Lavarel Livewire
 all	/livewire/update
 all	/public/livewire/update
+
+# Adminer vulnerability scans (.php probes, not /db/adminer)
+regex	~adminer[^/]*\.php~i
