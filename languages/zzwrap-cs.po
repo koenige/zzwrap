@@ -508,3 +508,38 @@ msgstr "So"
 # Weekdays, abbreviated
 msgid "Sun"
 msgstr "Ne"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Monday"
+msgstr "pondělí"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Tuesday"
+msgstr "úterý"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Wednesday"
+msgstr "středa"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Thursday"
+msgstr "čtvrtek"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Friday"
+msgstr "pátek"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Saturday"
+msgstr "sobota"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Sunday"
+msgstr "neděle"

@@ -1850,6 +1850,41 @@ msgctxt "weekday"
 msgid "Sun"
 msgstr "Paz"
 
+# Weekdays, full
+msgctxt "weekday"
+msgid "Monday"
+msgstr "Pazartesi"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Tuesday"
+msgstr "Salı"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Wednesday"
+msgstr "Çarşamba"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Thursday"
+msgstr "Perşembe"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Friday"
+msgstr "Cuma"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Saturday"
+msgstr "Cumartesi"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Sunday"
+msgstr "Pazar"
+
 #: zzwrap/page.inc.php:147
 msgid "Template <code>%s</code> does not exist."
 msgstr "Şablon <code>%s</code> yok."

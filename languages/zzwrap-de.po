@@ -1785,6 +1785,41 @@ msgctxt "weekday"
 msgid "Sun"
 msgstr "So"
 
+# Weekdays, full
+msgctxt "weekday"
+msgid "Monday"
+msgstr "Montag"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Tuesday"
+msgstr "Dienstag"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Wednesday"
+msgstr "Mittwoch"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Thursday"
+msgstr "Donnerstag"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Friday"
+msgstr "Freitag"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Saturday"
+msgstr "Sonnabend"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Sunday"
+msgstr "Sonntag"
+
 #: zzwrap/page.inc.php:147
 msgid "Template <code>%s</code> does not exist."
 msgstr "Vorlage <code>%s</code> existiert nicht."

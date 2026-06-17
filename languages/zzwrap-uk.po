@@ -512,3 +512,38 @@ msgstr "Сб"
 # Weekdays, abbreviated
 msgid "Sun"
 msgstr "Нд"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Monday"
+msgstr "понеділок"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Tuesday"
+msgstr "вівторок"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Wednesday"
+msgstr "середа"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Thursday"
+msgstr "четвер"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Friday"
+msgstr "п'ятниця"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Saturday"
+msgstr "субота"
+
+# Weekdays, full
+msgctxt "weekday"
+msgid "Sunday"
+msgstr "неділя"

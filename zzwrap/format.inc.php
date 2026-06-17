@@ -710,8 +710,36 @@ function wrap_weekday($day, $lang = '') {
 		case 7: $short = 'Sat'; break;
 	}
 	if (isset($short))
-		return wrap_text($short, ['lang' => $lang, 'context' => 'weekdays']);
+		return wrap_text($short, ['lang' => $lang, 'context' => 'weekday']);
 	return $day;
+}
+
+/**
+ * return full weekday name for an ISO date (YYYY-MM-DD)
+ *
+ * @param string $date
+ * @param string $lang (optional, uses setting 'lang' as default)
+ * @return string
+ */
+function wrap_weekday_long($date, $lang = '') {
+	if (!$date) return '';
+	try {
+		$day = intval((new DateTime($date))->format('N'));
+	} catch (Exception $e) {
+		return $date;
+	}
+	switch ($day) {
+		case 1: $name = 'Monday'; break;
+		case 2: $name = 'Tuesday'; break;
+		case 3: $name = 'Wednesday'; break;
+		case 4: $name = 'Thursday'; break;
+		case 5: $name = 'Friday'; break;
+		case 6: $name = 'Saturday'; break;
+		case 7: $name = 'Sunday'; break;
+	}
+	if (isset($name))
+		return wrap_text($name, ['lang' => $lang, 'context' => 'weekday']);
+	return $date;
 }
 
 /**
