@@ -35,12 +35,14 @@ function wrap_url($key = '', $value = NULL, $action = 'set') {
  * read and prepare URL
  */
 function wrap_url_prepare() {
-	// check REQUEST_URI
+	// HTTP/1.1 absolute-form request target (GET http://host/path), legitimate only
+	// when a client talks to a proxy; direct origin requests must use a path (GET /path).
+	// Broken bots and scanners often send this to the origin server — reject, do not log.
 	if (!str_starts_with($_SERVER['REQUEST_URI'], '/')) {
 		wrap_quit(400, wrap_text(wrap_text(
 			'Invalid Request URI: %s%s',
 			['values' => [wrap_setting('host_base'), $_SERVER['REQUEST_URI']]]
-		)));
+		)), ['log_errors' => false]);
 	}
 	wrap_url_encode();
 	wrap_url_slashes();
