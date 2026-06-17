@@ -693,25 +693,28 @@ function _wrap_period_time_format($time) {
 }
 
 /**
- * return weekday abbreviation for a given day of the week starting with Sunday = 1
+ * return weekday abbreviation for an ISO date (YYYY-MM-DD)
  *
- * @param string $day
+ * @param string $date
  * @param string $lang (optional, uses setting 'lang' as default)
  * @return string
  */
-function wrap_weekday($day, $lang = '') {
+function wrap_weekday($date, $lang = '') {
+	if (!$date) return '';
+	$day = _wrap_weekday_day($date);
+	if (!$day) return $date;
 	switch ($day) {
-		case 1: $short = 'Sun'; break;
-		case 2: $short = 'Mon'; break;
-		case 3: $short = 'Tue'; break;
-		case 4: $short = 'Wed'; break;
-		case 5: $short = 'Thu'; break;
-		case 6: $short = 'Fri'; break;
-		case 7: $short = 'Sat'; break;
+		case 1: $short = 'Mon'; break;
+		case 2: $short = 'Tue'; break;
+		case 3: $short = 'Wed'; break;
+		case 4: $short = 'Thu'; break;
+		case 5: $short = 'Fri'; break;
+		case 6: $short = 'Sat'; break;
+		case 7: $short = 'Sun'; break;
 	}
 	if (isset($short))
 		return wrap_text($short, ['lang' => $lang, 'context' => 'weekday']);
-	return $day;
+	return $date;
 }
 
 /**
@@ -723,11 +726,8 @@ function wrap_weekday($day, $lang = '') {
  */
 function wrap_weekday_long($date, $lang = '') {
 	if (!$date) return '';
-	try {
-		$day = intval((new DateTime($date))->format('N'));
-	} catch (Exception $e) {
-		return $date;
-	}
+	$day = _wrap_weekday_day($date);
+	if (!$day) return $date;
 	switch ($day) {
 		case 1: $name = 'Monday'; break;
 		case 2: $name = 'Tuesday'; break;
@@ -746,18 +746,27 @@ function wrap_weekday_long($date, $lang = '') {
  * replace weekday abbreviations for a data list and certain field names
  *
  * @param array $data data indexed by ID
- * @param array $fields list with name of fields
+ * @param array $fields list of date field names (weekday field derived: date_* → weekday_*)
  * @param string $lang (optional, uses setting 'lang' as default)
  * @return array
  */
 function wrap_weekdays($data, $fields, $lang) {
 	foreach ($data as $id => $line) {
-		foreach ($fields as $field) {
-			if (!array_key_exists($field, $data[$id])) continue;
-			$data[$id][$field] = wrap_weekday($line[$field], $lang);
+		foreach ($fields as $date_field) {
+			if (!array_key_exists($date_field, $data[$id])) continue;
+			$weekday_field = preg_replace('/^date_/', 'weekday_', $date_field);
+			$data[$id][$weekday_field] = wrap_weekday($line[$date_field], $lang);
 		}
 	}
 	return $data;
+}
+
+function _wrap_weekday_day($date) {
+	try {
+		return intval((new DateTime($date))->format('N'));
+	} catch (Exception $e) {
+		return null;
+	}
 }
 
 /**
