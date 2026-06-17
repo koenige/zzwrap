@@ -88,4 +88,4 @@
 2026-04-12-3	code	setting logout_url	in templates use %%% path logout %%%
 2026-04-12-4	code	wrap_setting('homepage_url'	use route home via wrap_path('home')
 2026-04-12-5	code	setting homepage_url	use %%% path home %%%; use absolute=1 for full URLs
-2026-06-17-1	code	wrap_weekdays	use `format=weekday` or `format=weekday_long` on date field
+2026-06-17-1	code	wrap_weekdays	use `format=date_weekday` or `format=date_weekday_long` on date field
