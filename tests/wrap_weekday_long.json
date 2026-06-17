@@ -1,0 +1,40 @@
+{
+	"file": "format",
+	"variables": ["date", "lang"],
+	"data": [
+		{
+			"date": "2025-06-16",
+			"lang": "de",
+			"expected": "Montag",
+			"description": "Monday (de)"
+		},
+		{
+			"date": "2025-06-21",
+			"lang": "de",
+			"expected": "Sonnabend",
+			"description": "Saturday (de)"
+		},
+		{
+			"date": "2025-06-22",
+			"lang": "de",
+			"expected": "Sonntag",
+			"description": "Sunday (de)"
+		},
+		{
+			"date": "",
+			"lang": "de",
+			"expected": ""
+		},
+		{
+			"date": "not-a-date",
+			"lang": "de",
+			"expected": "not-a-date"
+		},
+		{
+			"date": "2025-06-16",
+			"lang": "en",
+			"expected": "Monday",
+			"description": "Monday (en)"
+		}
+	]
+}

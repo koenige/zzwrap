@@ -13,6 +13,8 @@
  *	wrap_mailto()
  *	wrap_date()
  *		_wrap_date_format()
+ *	wrap_weekday()
+ *	wrap_weekday_long()
  *	wrap_print()
  *  wrap_number()
  *  wrap_money()
@@ -585,20 +587,9 @@ function _wrap_date_format($date, $set, $formats = []) {
 
 	// Add weekday if requested
 	if (in_array('weekday', $formats) && $day !== '00' && $month !== '00') {
-		$set['p']['context'] = 'weekday';
-		try {
-			$dt = new DateTime($date);
-			$weekdays = [
-				wrap_text('Sun', $set['p']), wrap_text('Mon', $set['p']),
-				wrap_text('Tue', $set['p']), wrap_text('Wed', $set['p']),
-				wrap_text('Thu', $set['p']), wrap_text('Fri', $set['p']),
-				wrap_text('Sat', $set['p'])
-			];
-			$weekday = $weekdays[intval($dt->format('w'))];
+		$weekday = wrap_weekday($date, $set['p']['lang'] ?? null);
+		if ($weekday && $weekday !== $date)
 			$output = sprintf('<span class="weekday">%s</span> %s', $weekday, $output);
-		} catch (Exception $e) {
-			// ignore invalid date
-		}
 	}
 	return $output;
 }
@@ -699,7 +690,7 @@ function _wrap_period_time_format($time) {
  * @param string $lang (optional, uses setting 'lang' as default)
  * @return string
  */
-function wrap_weekday($date, $lang = '') {
+function wrap_weekday($date, $lang = null) {
 	if (!$date) return '';
 	$day = _wrap_weekday_day($date);
 	if (!$day) return $date;
@@ -712,8 +703,11 @@ function wrap_weekday($date, $lang = '') {
 		case 6: $short = 'Sat'; break;
 		case 7: $short = 'Sun'; break;
 	}
-	if (isset($short))
-		return wrap_text($short, ['lang' => $lang, 'context' => 'weekday']);
+	if (isset($short)) {
+		$params = ['context' => 'weekday'];
+		if ($lang) $params['lang'] = $lang;
+		return wrap_text($short, $params);
+	}
 	return $date;
 }
 
@@ -724,7 +718,7 @@ function wrap_weekday($date, $lang = '') {
  * @param string $lang (optional, uses setting 'lang' as default)
  * @return string
  */
-function wrap_weekday_long($date, $lang = '') {
+function wrap_weekday_long($date, $lang = null) {
 	if (!$date) return '';
 	$day = _wrap_weekday_day($date);
 	if (!$day) return $date;
@@ -737,28 +731,12 @@ function wrap_weekday_long($date, $lang = '') {
 		case 6: $name = 'Saturday'; break;
 		case 7: $name = 'Sunday'; break;
 	}
-	if (isset($name))
-		return wrap_text($name, ['lang' => $lang, 'context' => 'weekday']);
-	return $date;
-}
-
-/**
- * replace weekday abbreviations for a data list and certain field names
- *
- * @param array $data data indexed by ID
- * @param array $fields list of date field names (weekday field derived: date_* → weekday_*)
- * @param string $lang (optional, uses setting 'lang' as default)
- * @return array
- */
-function wrap_weekdays($data, $fields, $lang) {
-	foreach ($data as $id => $line) {
-		foreach ($fields as $date_field) {
-			if (!array_key_exists($date_field, $data[$id])) continue;
-			$weekday_field = preg_replace('/^date_/', 'weekday_', $date_field);
-			$data[$id][$weekday_field] = wrap_weekday($line[$date_field], $lang);
-		}
+	if (isset($name)) {
+		$params = ['context' => 'weekday'];
+		if ($lang) $params['lang'] = $lang;
+		return wrap_text($name, $params);
 	}
-	return $data;
+	return $date;
 }
 
 function _wrap_weekday_day($date) {
