@@ -15,6 +15,8 @@
  *		_wrap_date_format()
  *	wrap_weekday()
  *	wrap_weekday_long()
+ *	wrap_date_weekday()
+ *	wrap_date_weekday_long()
  *	wrap_print()
  *  wrap_number()
  *  wrap_money()
@@ -737,6 +739,30 @@ function wrap_weekday_long($date, $lang = null) {
 		return wrap_text($name, $params);
 	}
 	return $date;
+}
+
+/**
+ * weekday abbreviation and formatted date (ISO date in)
+ *
+ * @param string $date
+ * @param string $lang (optional, uses setting 'lang' as default)
+ * @return string
+ */
+function wrap_date_weekday($date, $lang = null) {
+	if (!$date) return '';
+	return wrap_weekday($date, $lang).' '.wrap_date($date);
+}
+
+/**
+ * full weekday name and formatted date (ISO date in)
+ *
+ * @param string $date
+ * @param string $lang (optional, uses setting 'lang' as default)
+ * @return string
+ */
+function wrap_date_weekday_long($date, $lang = null) {
+	if (!$date) return '';
+	return wrap_weekday_long($date, $lang).', '.wrap_date($date);
 }
 
 function _wrap_weekday_day($date) {

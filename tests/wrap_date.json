@@ -1,8 +1,18 @@
 {
 	"file": "format",
+	"variables": ["date", "format"],
 	"data": [
-		"2004-03-12/2004-03-13", "2004-03-00/2004-04-00", "2004-00-00/2004-00-00",
-		"2004-00-00/2005-00-00", "2004-03-12/2004-04-12", "2004-03-12/2005-04-12"
-	],
-	"parameters": "dates-de"
+		{"date": "2004-03-12/2004-03-13", "format": "dates-de"},
+		{"date": "2004-03-00/2004-04-00", "format": "dates-de"},
+		{"date": "2004-00-00/2004-00-00", "format": "dates-de"},
+		{"date": "2004-00-00/2005-00-00", "format": "dates-de"},
+		{"date": "2004-03-12/2004-04-12", "format": "dates-de"},
+		{"date": "2004-03-12/2005-04-12", "format": "dates-de"},
+		{
+			"date": "2025-06-18",
+			"format": "dates-de-weekday",
+			"settings": {"lang": "de"},
+			"expected": "<span class=\"date\"><span class=\"weekday\">Mi</span> 18.06.2025</span>"
+		}
+	]
 }

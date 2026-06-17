@@ -1,0 +1,24 @@
+{
+	"file": "format",
+	"variables": ["date", "lang"],
+	"data": [
+		{
+			"date": "2025-06-16",
+			"lang": "de",
+			"settings": {"lang": "de", "date_format": "dates-de"},
+			"expected": "Mo <span class=\"date\">16.06.2025</span>"
+		},
+		{
+			"date": "2025-06-21",
+			"lang": "de",
+			"settings": {"lang": "de", "date_format": "dates-de"},
+			"expected": "Sa <span class=\"date\">21.06.2025</span>"
+		},
+		{
+			"date": "",
+			"lang": "de",
+			"settings": {"lang": "de", "date_format": "dates-de"},
+			"expected": ""
+		}
+	]
+}
