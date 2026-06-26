@@ -5,7 +5,7 @@
  * routes and path functions
  *
  * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
- * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_placeholder(), wrap_path_helptext()
+ * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder(), wrap_path_helptext()
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -334,6 +334,7 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
  *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
  *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false.
  *   - absolute (bool): If true, prepend wrap_setting('host_base') when the path is root-relative (/…) but not protocol-relative (//…); default false.
+ *   - path_website_fallback (bool): Internal flag while resolving wrap_setting('path_website_fallback'); do not set manually.
  * @return string|null|false Path string, or NULL if route not found, or false if access denied.
  */
 function wrap_path($area, $value = [], $settings = [], $testing = false, $settings_old = []) {
@@ -399,6 +400,9 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 			$path = wrap_path_fallback($area, $value, $settings);
 			if ($path !== NULL)
 				return wrap_path_add_absolute($path, $settings['absolute']);
+			$path = wrap_path_website_fallback($area, $value, $settings);
+			if ($path !== NULL)
+				return $path;
 			if (empty($settings['testing']) AND empty($settings['hide_missing']))
 				wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
 			return NULL;
@@ -535,6 +539,21 @@ function wrap_path_fallback($area, $value, $settings) {
 	else
 		$qs = sprintf($qs, wrap_id($cfg[$area]['fallback_id_table'], $val));
 	return $path.$qs;
+}
+
+/**
+ * resolve route from wrap_setting('path_website_fallback') when not found on current site
+ *
+ * @return string|null|false same as wrap_path()
+ */
+function wrap_path_website_fallback($area, $value, $settings) {
+	if (!wrap_setting('path_website_fallback')) return NULL;
+	if (wrap_setting('path_website_fallback') === wrap_setting('site')) return NULL;
+	if (!empty($settings['path_website_fallback'])) return NULL;
+
+	$settings['path_website_fallback'] = true;
+	$settings['hide_missing'] = true;
+	return wrap_path_website(wrap_setting('path_website_fallback'), $area, $value, $settings);
 }
 
 /**
