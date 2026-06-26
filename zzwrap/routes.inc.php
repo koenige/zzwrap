@@ -5,7 +5,7 @@
  * routes and path functions
  *
  * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
- * - wrap_path(), wrap_path_fallback(), wrap_path_placeholder(), wrap_path_helptext()
+ * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_placeholder(), wrap_path_helptext()
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -453,6 +453,35 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 			$path = wrap_host_base($website_id).$path;
 	}
 	return wrap_path_add_absolute($path, $settings['absolute']);
+}
+
+/**
+ * resolve a route path from another website (temporary path_website_id)
+ *
+ * @param string $site website domain (e. g. gfps.org/intern)
+ * @param string $area route key (e. g. login_entry)
+ * @param array $value (optional) path placeholder values for wrap_path()
+ * @param array $settings (optional) same keys as wrap_path(); path_for_website is set automatically
+ * @return string|null|false same as wrap_path()
+ */
+function wrap_path_website($site, $area, $value = [], $settings = []) {
+	if (!$website_id = wrap_id('websites', $site)) {
+		wrap_error(wrap_text(
+			'Calling for path `%s` for non-existent website `%s`.',
+			['values' => [$area, $site]]
+		));
+		return NULL;
+	}
+
+	$settings['path_for_website'] = true;
+	$restore = wrap_setting('path_website_id');
+	wrap_setting('path_website_id', $website_id);
+	$path = wrap_path($area, $value, $settings);
+	if (!$restore)
+		wrap_setting_delete('path_website_id');
+	else
+		wrap_setting('path_website_id', $restore);
+	return $path;
 }
 
 /**
