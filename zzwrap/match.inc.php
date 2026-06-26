@@ -647,7 +647,7 @@ function wrap_match_well_known() {
 		$page['status'] = 200;
 		return $page;
 	case '/.well-known/change-password':
-		if (!$path = wrap_path('change_password')) return false;
+		if (!$path = wrap_path('change_password', [], ['hide_missing' => 1])) return false;
 		wrap_redirect_change($path);
 	}
 	return false;

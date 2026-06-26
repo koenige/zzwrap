@@ -51,7 +51,7 @@ function wrap_auth($force = false) {
 		foreach (wrap_setting('auth_urls') as $auth_url) {
 			if (!str_starts_with(strtolower(wrap_url('path')), strtolower($auth_url)))
 				continue;
-			if (wrap_url('path') === wrap_path('login'))
+			if (wrap_url('path') === wrap_path('login', [], ['hide_missing' => 1]))
 				continue;
 			if (wrap_authenticate_url())
 				$user_authenticated = true;
