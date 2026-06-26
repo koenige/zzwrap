@@ -137,7 +137,8 @@ function wrap_menu_navigation() {
 	// write database output into hierarchical array
 	$menu = [];
 	foreach ($unsorted_menu as $item) {
-		$my_item = wrap_menu_asterisk_check($item, $menu[$item['main_nav_id']], 'nav_id');
+		if (!$item['main_nav_id']) $item['main_nav_id'] = '';
+		$my_item = wrap_menu_asterisk_check($item, $menu[$item['main_nav_id']] ?? [], 'nav_id');
 		if ($my_item) {
 			if (!empty($menu[$item['main_nav_id']])) {
 				$menu[$item['main_nav_id']] += $my_item;
