@@ -462,7 +462,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 /**
  * resolve a route path from another website (temporary path_website_id)
  *
- * @param string $site website domain (e. g. gfps.org/intern)
+ * @param string $site website domain
  * @param string $area route key (e. g. login_entry)
  * @param array $value (optional) path placeholder values for wrap_path()
  * @param array $settings (optional) same keys as wrap_path(); path_for_website is set automatically
