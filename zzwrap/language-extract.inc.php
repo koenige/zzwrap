@@ -284,6 +284,83 @@ function wrap_text_pot_build($package, $pot_suffix, array $entries) {
 }
 
 /**
+ * .pot files to show or write for a package (scan merged with existing files)
+ *
+ * @param string $package
+ * @return array list of pot_file, filename, entries, old, new, pot_suffix
+ */
+function wrap_text_pot_items($package) {
+	$items = [];
+	$sources_by_pot = wrap_text_sources_by_pot($package);
+
+	foreach (wrap_text_pot_suffixes($package) as $pot_suffix) {
+		$entries = $sources_by_pot[$pot_suffix] ?? [];
+		$pot_file = wrap_text_log_pot_file($package, $pot_suffix);
+		$old = file_exists($pot_file) ? file_get_contents($pot_file) : '';
+
+		if (!$entries AND $old === '') continue;
+		if (!$entries AND !wrap_text_pot_parse_entries($old)) continue;
+
+		$items[] = [
+			'pot_suffix' => $pot_suffix,
+			'pot_file' => $pot_file,
+			'filename' => basename($pot_file),
+			'entries' => $entries,
+			'old' => $old,
+			'new' => wrap_text_pot_build($package, $pot_suffix, $entries),
+		];
+	}
+	return $items;
+}
+
+/**
+ * Write scanned .pot content to disk
+ *
+ * @param string $package
+ * @return array ok (bool), message (string), written (string[] filenames)
+ */
+function wrap_text_pot_write($package) {
+	$lang_dir = wrap_text_languages_path($package);
+	if (!$lang_dir) {
+		return [
+			'ok' => false,
+			'message' => wrap_text('Unknown package.'),
+			'written' => [],
+		];
+	}
+
+	wrap_include('file', 'zzwrap');
+	if (!is_dir($lang_dir)) wrap_mkdir($lang_dir);
+
+	$written = [];
+	foreach (wrap_text_pot_items($package) as $pot) {
+		if (wrap_text_pot_normalize($pot['old']) === $pot['new']) continue;
+
+		if (file_put_contents($pot['pot_file'], $pot['new']) === false) {
+			return [
+				'ok' => false,
+				'message' => wrap_text('Could not write file: %s', ['values' => [$pot['filename']]]),
+				'written' => $written,
+			];
+		}
+		$written[] = $pot['filename'];
+	}
+
+	if (!$written) {
+		return [
+			'ok' => true,
+			'message' => wrap_text('No .pot files were changed.'),
+			'written' => [],
+		];
+	}
+	return [
+		'ok' => true,
+		'message' => wrap_text('%d .pot file(s) written.', ['values' => [count($written)]]),
+		'written' => $written,
+	];
+}
+
+/**
  * translate_pot suffixes from source scan and existing .pot files on disk
  *
  * @param string $package
