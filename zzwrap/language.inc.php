@@ -322,10 +322,10 @@ function wrap_text_files($language) {
  */
 function wrap_text_files_add(&$files, $language, $module) {
 	// define paths
-	$package_dir = wrap_package_folder($module);
 	$filebase = sprintf(
-		'%s/languages/%s',
-		$package_dir, $module === 'custom' ? 'text' : $module
+		'%s/%s',
+		wrap_text_languages_path($module),
+		wrap_text_language_basename($module)
 	);
 
 	// add files
@@ -1362,7 +1362,32 @@ function wrap_text_log($string, $source = '', $translate_pot = '') {
  */
 function wrap_text_log_pot_file($package, $translate_pot = '') {
 	if ($translate_pot) $translate_pot = sprintf('-%s', $translate_pot);
+	return sprintf(
+		'%s/%s%s.pot',
+		wrap_text_languages_path($package),
+		wrap_text_language_basename($package),
+		$translate_pot
+	);
+}
+
+/**
+ * Basename for language files (.pot / .po) in a package languages folder
+ *
+ * @param string $package
+ * @return string
+ */
+function wrap_text_language_basename($package) {
+	return ($package === 'custom') ? 'text' : $package;
+}
+
+/**
+ * Path to a package languages folder
+ *
+ * @param string $package
+ * @return string|null null if the package folder is unknown
+ */
+function wrap_text_languages_path($package) {
 	$folder = wrap_package_folder($package);
-	$basename = ($package === 'custom') ? 'text' : $package;
-	return sprintf('%s/languages/%s%s.pot', $folder, $basename, $translate_pot);
+	if (!$folder) return null;
+	return $folder.'/languages';
 }

@@ -277,9 +277,87 @@ function wrap_text_pot_header_data($package, $pot_suffix = '') {
  * @return string
  */
 function wrap_text_pot_build($package, $pot_suffix, array $entries) {
+	$content = rtrim(wrap_text_pot_header($package, $pot_suffix));
 	$body = wrap_text_format_pot_chunks($entries);
-	if (!$body) return rtrim(wrap_text_pot_header($package, $pot_suffix))."\n";
-	return rtrim(wrap_text_pot_header($package, $pot_suffix))."\n\n".$body."\n";
+	$content .= $body ? "\n\n".$body."\n" : "\n";
+	return wrap_text_pot_normalize($content);
+}
+
+/**
+ * translate_pot suffixes from source scan and existing .pot files on disk
+ *
+ * @param string $package
+ * @return array list of suffixes (empty string = default .pot)
+ */
+function wrap_text_pot_suffixes($package) {
+	$suffixes = [];
+	foreach (array_keys(wrap_text_sources_by_pot($package)) as $pot_suffix)
+		$suffixes[$pot_suffix] = true;
+
+	$lang_dir = wrap_text_languages_path($package);
+	if (!$lang_dir OR !is_dir($lang_dir)) return array_keys($suffixes);
+
+	$basename = wrap_text_language_basename($package);
+	foreach (glob(sprintf('%s/%s*.pot', $lang_dir, $basename)) ?: [] as $file) {
+		$name = basename($file, '.pot');
+		if ($name === $basename)
+			$suffixes[''] = true;
+		elseif (str_starts_with($name, $basename.'-'))
+			$suffixes[substr($name, strlen($basename) + 1)] = true;
+	}
+
+	$keys = array_keys($suffixes);
+	sort($keys);
+	return $keys;
+}
+
+/**
+ * HTML diff of two complete .pot files (existing vs wrap_text_pot_build output)
+ *
+ * @param string $old_content existing .pot file contents, or empty string
+ * @param string $new_content full .pot content from wrap_text_pot_build()
+ * @return string HTML for .pot-diff container
+ */
+function wrap_text_pot_diff_html($old_content, $new_content) {
+	return wrap_text_diff_html(
+		wrap_text_pot_normalize($old_content),
+		wrap_text_pot_normalize($new_content)
+	);
+}
+
+/**
+ * Count added, deleted, and updated entries between old .pot and scan
+ *
+ * @param string $old_content
+ * @param array $new_entries
+ * @return array added, deleted, updated, unchanged (int)
+ */
+function wrap_text_pot_diff_stats($old_content, array $new_entries) {
+	$stats = ['added' => 0, 'deleted' => 0, 'updated' => 0, 'unchanged' => 0];
+	$old = wrap_text_pot_parse_entries($old_content);
+	$new = [];
+	foreach ($new_entries as $entry)
+		$new[wrap_text_pot_entry_signature($entry)] = true;
+
+	foreach ($new_entries as $entry) {
+		$msgid = $entry['msgid'];
+		if (!isset($old[$msgid]))
+			$stats['added']++;
+		elseif ($old[$msgid] !== wrap_text_pot_entry_signature($entry))
+			$stats['updated']++;
+		else
+			$stats['unchanged']++;
+	}
+	foreach ($old as $msgid => $signature) {
+		$found = false;
+		foreach ($new_entries as $entry) {
+			if ($entry['msgid'] !== $msgid) continue;
+			$found = true;
+			break;
+		}
+		if (!$found) $stats['deleted']++;
+	}
+	return $stats;
 }
 
 /**
@@ -292,32 +370,27 @@ function wrap_text_sources_new($package) {
 	$new = [];
 	foreach (wrap_text_sources($package) as $entry) {
 		$pot_file = wrap_text_log_pot_file($package, $entry['pot']);
-		if (in_array($entry['msgid'], wrap_text_pot_msgids($pot_file), true)) continue;
+		if (array_key_exists($entry['msgid'], wrap_text_pot_parse_entries(file_exists($pot_file) ? file_get_contents($pot_file) : '')))
+			continue;
 		$new[$entry['pot']][] = $entry;
 	}
 	return $new;
 }
 
 /**
- * msgid values already present in a .pot file
+ * Parse .pot entry bodies keyed by msgid
  *
- * @param string $pot_file
- * @return array
+ * @param string $content .pot file contents
+ * @return array msgid => signature (msgid + sorted references)
  */
-function wrap_text_pot_msgids($pot_file) {
-	if (!file_exists($pot_file)) return [];
-
-	$msgids = [];
-	$lines = file($pot_file, FILE_IGNORE_NEW_LINES);
-	if (!$lines) return [];
-
-	foreach ($lines as $line) {
-		if (!str_starts_with($line, 'msgid ')) continue;
-		if (!preg_match('/^msgid "(.*)"$/', $line, $match)) continue;
-		if ($match[1] === '') continue;
-		$msgids[] = wrap_text_pot_unescape($match[1]);
+function wrap_text_pot_parse_entries($content) {
+	$entries = [];
+	foreach (wrap_text_pot_parse_chunks($content) as $chunk) {
+		$entry = wrap_text_pot_parse_chunk($chunk);
+		if (!$entry) continue;
+		$entries[$entry['msgid']] = wrap_text_pot_entry_signature($entry);
 	}
-	return $msgids;
+	return $entries;
 }
 
 /**
@@ -359,4 +432,213 @@ function wrap_text_pot_escape($string) {
  */
 function wrap_text_pot_unescape($string) {
 	return stripcslashes($string);
+}
+
+/**
+ * Normalize .pot file content for build output and diff comparison
+ *
+ * Unix line endings, strip trailing spaces per line, single trailing newline.
+ *
+ * @param string $content
+ * @return string
+ */
+function wrap_text_pot_normalize($content) {
+	if ($content === '') return '';
+	$content = str_replace(["\r\n", "\r"], "\n", $content);
+	$content = wrap_text_pot_strip_trailing_spaces($content);
+	return rtrim($content, "\n")."\n";
+}
+
+/**
+ * Strip trailing spaces and tabs from each line
+ *
+ * @param string $content
+ * @return string
+ */
+function wrap_text_pot_strip_trailing_spaces($content) {
+	$lines = explode("\n", $content);
+	foreach (array_keys($lines) as $index)
+		$lines[$index] = rtrim($lines[$index], " \t");
+	return implode("\n", $lines);
+}
+
+/**
+ * Split .pot content into chunks separated by blank lines
+ *
+ * @param string $content
+ * @return array
+ */
+function wrap_text_pot_parse_chunks($content) {
+	$content = str_replace(["\r\n", "\r"], "\n", rtrim($content, "\n"));
+	if ($content === '') return [];
+	return preg_split("/\n\n+/", $content);
+}
+
+/**
+ * Parse one .pot entry chunk (skips the empty msgid header block)
+ *
+ * @param string $chunk
+ * @return array|null msgid, references[], pot
+ */
+function wrap_text_pot_parse_chunk($chunk) {
+	if (!preg_match('/^msgid "(.*)"$/m', $chunk, $match)) return null;
+	if ($match[1] === '') return null;
+
+	$references = [];
+	foreach (explode("\n", $chunk) as $line) {
+		if (str_starts_with($line, '#: '))
+			$references[] = substr($line, 3);
+	}
+	sort($references);
+	return [
+		'msgid' => wrap_text_pot_unescape($match[1]),
+		'references' => $references,
+		'pot' => '',
+	];
+}
+
+/**
+ * Compare key for a .pot entry (msgid + sorted references)
+ *
+ * @param array $entry
+ * @return string
+ */
+function wrap_text_pot_entry_signature($entry) {
+	$references = $entry['references'];
+	sort($references);
+	return $entry['msgid']."\0".implode("\0", $references);
+}
+
+/**
+ * Render unified diff of two strings as HTML for the textupdate preview
+ *
+ * @param string $old
+ * @param string $new
+ * @return string
+ */
+function wrap_text_diff_html($old, $new) {
+	if ($old === $new) return wrap_text_diff_html_lines($old, ' ');
+
+	$lines = wrap_text_diff_lines($old, $new);
+	if (!$lines) return wrap_text_diff_html_fallback($old, $new);
+
+	$html = [];
+	foreach ($lines as $line) {
+		if (str_starts_with($line, '+++') OR str_starts_with($line, '---')) continue;
+		if (str_starts_with($line, '@@')) continue;
+		if (str_starts_with($line, '\\')) continue;
+		if ($line === '') {
+			$html[] = wrap_text_diff_html_line(' ', '');
+			continue;
+		}
+		$prefix = $line[0];
+		if ($prefix === '+' OR $prefix === '-')
+			$html[] = wrap_text_diff_html_line($prefix, substr($line, 1));
+		elseif ($prefix === ' ')
+			$html[] = wrap_text_diff_html_line(' ', substr($line, 1));
+		else
+			$html[] = wrap_text_diff_html_line(' ', $line);
+	}
+	return implode("\n", $html);
+}
+
+/**
+ * Render all lines of $content with the same diff prefix class
+ *
+ * @param string $content
+ * @param string $prefix +, -, or space (context)
+ * @return string HTML
+ */
+function wrap_text_diff_html_lines($content, $prefix) {
+	if ($content === '') return wrap_text_diff_html_line($prefix, '');
+
+	$lines = preg_split("/\r?\n/", $content);
+	if (end($lines) === '') array_pop($lines);
+
+	$html = [];
+	foreach ($lines as $line)
+		$html[] = wrap_text_diff_html_line($prefix, $line);
+	if (!$html) return wrap_text_diff_html_line($prefix, '');
+	return implode("\n", $html);
+}
+
+/**
+ * Render one diff line as a coloured HTML span
+ *
+ * @param string $prefix +, -, or space (context)
+ * @param string $text line text without diff prefix
+ * @return string HTML
+ */
+function wrap_text_diff_html_line($prefix, $text) {
+	if ($prefix === '+')
+		$class = 'diff-add';
+	elseif ($prefix === '-')
+		$class = 'diff-del';
+	else
+		$class = 'diff-ctx';
+	if ($text === '')
+		$escaped = '&nbsp;';
+	else
+		$escaped = wrap_html_escape($text);
+	return sprintf('<span class="pot-diff-line %s">%s</span>', $class, $escaped);
+}
+
+/**
+ * Side-by-side diff fallback when diff(1) is unavailable
+ *
+ * @param string $old
+ * @param string $new
+ * @return string HTML
+ */
+function wrap_text_diff_html_fallback($old, $new) {
+	if ($old === $new) return wrap_text_diff_html_lines($old, ' ');
+
+	$html = [];
+	foreach (wrap_text_diff_split_lines($old) as $line)
+		$html[] = wrap_text_diff_html_line('-', $line);
+	foreach (wrap_text_diff_split_lines($new) as $line)
+		$html[] = wrap_text_diff_html_line('+', $line);
+	if (!$html) return wrap_text_diff_html_line(' ', '');
+	return implode("\n", $html);
+}
+
+/**
+ * Split file content into lines, preserving internal blank lines
+ *
+ * @param string $content
+ * @return array
+ */
+function wrap_text_diff_split_lines($content) {
+	if ($content === '') return [];
+	$lines = preg_split("/\r?\n/", $content);
+	if (end($lines) === '') array_pop($lines);
+	return $lines;
+}
+
+/**
+ * Run diff -u on two strings via temporary files
+ *
+ * @param string $old
+ * @param string $new
+ * @return array lines of unified diff output, or empty if diff unavailable
+ */
+function wrap_text_diff_lines($old, $new) {
+	$tmp_dir = wrap_setting('tmp_dir');
+	if (!$tmp_dir) return [];
+
+	$old_file = tempnam($tmp_dir, 'pot-old-');
+	$new_file = tempnam($tmp_dir, 'pot-new-');
+	if (!$old_file OR !$new_file) return [];
+
+	file_put_contents($old_file, $old);
+	file_put_contents($new_file, $new);
+
+	$command = sprintf('diff -u %s %s 2>/dev/null', escapeshellarg($old_file), escapeshellarg($new_file));
+	$output = shell_exec($command);
+
+	unlink($old_file);
+	unlink($new_file);
+
+	if ($output === null) return [];
+	return preg_split("/\r?\n/", rtrim($output, "\n"));
 }
