@@ -228,8 +228,8 @@ function wrap_text_sources_by_pot($package) {
  * @param string $pot_suffix
  * @return string
  */
-function wrap_text_pot_header($package, $pot_suffix = '') {
-	return wrap_template('pot', wrap_text_pot_header_data($package, $pot_suffix));
+function wrap_text_pot_header($package, $pot_suffix = '', $creation_date = null) {
+	return wrap_template('pot', wrap_text_pot_header_data($package, $pot_suffix, $creation_date));
 }
 
 /**
@@ -237,15 +237,16 @@ function wrap_text_pot_header($package, $pot_suffix = '') {
  *
  * @param string $package
  * @param string $pot_suffix translate_pot suffix (empty = default .pot)
+ * @param string|null $creation_date POT-Creation-Date value, or null for now (UTC)
  * @return array
  */
-function wrap_text_pot_header_data($package, $pot_suffix = '') {
+function wrap_text_pot_header_data($package, $pot_suffix = '', $creation_date = null) {
 	$data = [
 		'package' => $package,
 		'pot_suffix' => $pot_suffix,
 		'package_type' => '',
 		'package_label' => $package,
-		'creation_date' => gmdate('Y-m-d H:i').'+0000',
+		'creation_date' => $creation_date ?? gmdate('Y-m-d H:i').'+0000',
 	];
 
 	if ($package === 'custom') {
@@ -274,13 +275,31 @@ function wrap_text_pot_header_data($package, $pot_suffix = '') {
  * @param string $package
  * @param string $pot_suffix
  * @param array $entries wrap_text_sources() entries
+ * @param string $old_content existing .pot file contents, for preserving POT-Creation-Date
  * @return string
  */
-function wrap_text_pot_build($package, $pot_suffix, array $entries) {
-	$content = rtrim(wrap_text_pot_header($package, $pot_suffix));
+function wrap_text_pot_build($package, $pot_suffix, array $entries, $old_content = '') {
+	$content = rtrim(wrap_text_pot_header(
+		$package,
+		$pot_suffix,
+		wrap_text_pot_creation_date($old_content)
+	));
 	$body = wrap_text_format_pot_chunks($entries);
 	$content .= $body ? "\n\n".$body."\n" : "\n";
 	return wrap_text_pot_normalize($content);
+}
+
+/**
+ * POT-Creation-Date from an existing .pot header, if set
+ *
+ * @param string $content .pot file contents
+ * @return string|null
+ */
+function wrap_text_pot_creation_date($content) {
+	if ($content === '') return null;
+	if (!preg_match('/"POT-Creation-Date: (.*?)\\\\n"/', $content, $match)) return null;
+	if ($match[1] === '') return null;
+	return $match[1];
 }
 
 /**
@@ -307,7 +326,7 @@ function wrap_text_pot_items($package) {
 			'filename' => basename($pot_file),
 			'entries' => $entries,
 			'old' => $old,
-			'new' => wrap_text_pot_build($package, $pot_suffix, $entries),
+			'new' => wrap_text_pot_build($package, $pot_suffix, $entries, $old),
 		];
 	}
 	return $items;
