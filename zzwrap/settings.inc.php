@@ -889,10 +889,15 @@ function wrap_cfg_files_parse($type) {
  * @return array
  */
 function wrap_cfg_translate(&$cfg, $filename) {
+	if (str_starts_with($filename, '/')) {
+		$cfg_file = basename($filename);
+		$my_filename = $filename;
+	} else {
+		$cfg_file = $filename.'.cfg';
+		$my_filename = $filename;
 	}
 	$translate_fields = wrap_cfg_translate_fields()[$cfg_file] ?? [];
 
-	$my_filename = $filename;
 	foreach ($cfg as $index => $config) {
 		if (!str_starts_with($filename, '/'))
 			$my_filename = sprintf('%s/%s/configuration/%s.cfg', wrap_setting('modules_dir'), $config['package'], $filename);
