@@ -844,7 +844,6 @@ function wrap_cfg_files_parse($type) {
 			// might be called before database connection exists
 			if (wrap_db_connection()) {
 				wrap_cfg_translate($single_cfg[$package], $cfg_file);
-				$translated = true;
 			}
 			// no merging, let custom cfg overwrite single settings from modules
 			foreach ($single_cfg[$package] as $key => $line) {
