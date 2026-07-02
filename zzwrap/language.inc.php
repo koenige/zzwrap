@@ -151,6 +151,7 @@ function wrap_language_get_text($lang) {
  *		array list of parameters
  *			'lang': different language
  *			'set': set new key for translation
+ *			'translate_pot': if a translation is missing, log to {package}-{value}.pot
  *			'values': values for sprintf() use
  *		string	Language to translate into (if different from
  *		actively used language on website @deprecated)
@@ -261,7 +262,7 @@ function wrap_text($string, $params = []) {
 	
 	if (!array_key_exists($string, $my_text)) {
 		if (empty($params['ignore_missing_translation']))
-			wrap_text_log($string, $params['source'] ?? '');
+			wrap_text_log($string, $params['source'] ?? '', $params['translate_pot'] ?? '');
 		return wrap_text_values([], $string, $params);
 	}
 	return wrap_text_values($my_text, $string, $params);
@@ -1284,12 +1285,12 @@ function wrap_po_headers($headers) {
  *
  * @param string $string
  * @param string $source (optional) source file name
+ * @param string $translate_pot (optional) suffix for .pot file
  * @return bool
  * @todo check logfile for duplicates
  * @todo optional log directly in database
- * @todo log missing text in a .pot file
  */
-function wrap_text_log($string, $source = '') {
+function wrap_text_log($string, $source = '', $translate_pot = '') {
 	if (!wrap_setting('log_missing_text')) return false;
 	wrap_include('file', 'zzwrap');
 
@@ -1328,11 +1329,8 @@ function wrap_text_log($string, $source = '') {
 		}
 	}
 	if (!$log) return false;
-	
-	if ($log['package'] === 'custom')
-		$pot_file = sprintf('%s/languages/text.pot', wrap_setting('custom'));
-	else
-		$pot_file = sprintf('%s/%s/languages/%s.pot', wrap_setting('modules_dir'), $log['package'], $log['package']);
+
+	$pot_file = wrap_text_log_pot_file($log['package'], $translate_pot);
 	if (!file_exists($pot_file)) {
 		wrap_mkdir(dirname($pot_file));
 		touch($pot_file);
@@ -1353,4 +1351,23 @@ function wrap_text_log($string, $source = '') {
 	if (strstr($pot_contents, $translation)) return;
 	
 	file_put_contents($pot_file, $translation, FILE_APPEND);
+}
+
+/**
+ * path to .pot file for logging missing translations
+ *
+ * @param string $package
+ * @param string $translate_pot (optional) suffix before .pot
+ * @return string
+ */
+function wrap_text_log_pot_file($package, $translate_pot = '') {
+	if ($translate_pot) $translate_pot = sprintf('-%s', $translate_pot);
+
+	if ($package === 'custom')
+		return sprintf('%s/languages/text%s.pot', wrap_setting('custom'), $translate_pot);
+	
+	return sprintf(
+		'%s/%s/languages/%s%s.pot',
+		wrap_setting('modules_dir'), $package, $package, $translate_pot
+	);
 }
