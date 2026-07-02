@@ -798,6 +798,27 @@ function wrap_cfg_meta() {
 }
 
 /**
+ * cfg fields with translate = 1 in cfg.cfg, grouped by cfg filename
+ *
+ * @return array keyed by cfg filename, values are field => translate_pot suffix
+ */
+function wrap_cfg_translate_fields() {
+	static $translate_fields = null;
+	if ($translate_fields !== null) return $translate_fields;
+
+	$translate_fields = [];
+	$cfg_meta = wrap_cfg_meta();
+	foreach ($cfg_meta as $field => $definition) {
+		if (empty($definition['translate'])) continue;
+		$pot = $definition['translate_pot'] ?? '';
+		foreach ($definition['file'] ?? [] as $cfg_file) {
+			$translate_fields[$cfg_file][$field] = $pot;
+		}
+	}
+	return $translate_fields;
+}
+
+/**
  * parse .cfg files per type
  *
  * @param string $type
@@ -868,15 +889,8 @@ function wrap_cfg_files_parse($type) {
  * @return array
  */
 function wrap_cfg_translate(&$cfg, $filename) {
-	static $translate_fields = NULL;
-	if ($translate_fields === NULL) {
-		$translate_fields = [];
-		$cfg_meta = wrap_cfg_meta();
-		foreach ($cfg_meta as $field => $definition) {
-			if (empty($definition['translate'])) continue;
-			$translate_fields[$field] = $definition['translate_pot'] ?? '';
-		}
 	}
+	$translate_fields = wrap_cfg_translate_fields()[$cfg_file] ?? [];
 
 	$my_filename = $filename;
 	foreach ($cfg as $index => $config) {
