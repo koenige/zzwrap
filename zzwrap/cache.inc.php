@@ -14,8 +14,8 @@
 
 
 /**
- * cache a local ressource
- * in some cases, never cache a ressource
+ * cache a local resource
+ * in some cases, never cache a resource
  *
  * @param string $text (optional)
  * @param string $existing_etag (optional)
@@ -26,19 +26,19 @@
 function wrap_cache($text = '', $existing_etag = '', $url = false, $headers = []) {
 	if (!empty($_SESSION['logged_in'])) return NULL;
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') return NULL;
-	return wrap_cache_ressource($text, $existing_etag, $url, $headers);
+	return wrap_cache_resource($text, $existing_etag, $url, $headers);
 }
 
 /**
- * cache a ressource if it not exists or a stale cache exists
+ * cache a resource if it not exists or a stale cache exists
  *
- * @param string $text ressource to be cached
+ * @param string $text resource to be cached
  * @param string $existing_etag
  * @param string $url (optional) URL to be cached, if not set, use internal URL
  * @param array $headers (optional), if not set use sent headers
  * @return bool false: no new cache file was written, true: new cache file created
  */
-function wrap_cache_ressource($text = '', $existing_etag = '', $url = false, $headers = []) {
+function wrap_cache_resource($text = '', $existing_etag = '', $url = false, $headers = []) {
 	$cache = wrap_cache_filenames($url);
 	if (!file_exists($cache['domain'])) {
 		$success = wrap_mkdir($cache['domain']);
@@ -181,7 +181,7 @@ function wrap_cache_delete($status, $url = false) {
 }
 
 /**
- * allow private caching of a ressource inside SESSION
+ * allow private caching of a resource inside SESSION
  *
  * Remove some HTTP headers PHP might send because of SESSION
  * @todo do some tests if this is okay
@@ -236,7 +236,7 @@ function wrap_if_none_match($etag, $file = []) {
  }
 
 /**
- * compares an ETag of a ressource to a HTTP request
+ * compares an ETag of a resource to a HTTP request
  *
  * @param array $etag_header
  * @string $http_request, e. g. If-None-Match or If-Match
@@ -261,7 +261,7 @@ function wrap_etag_check($etag_header, $http_request) {
 
 /**
  * creates ETag header value from given ETag for uncompressed and gzip
- * ressources
+ * resources
  * W/ ETags are not supported
  *
  * @param string $etag
@@ -390,7 +390,7 @@ function wrap_send_cache($age = 0, $log_error = true) {
 		'gzip' => true
 	];
 	wrap_cache_header();
-	wrap_send_ressource('file', $file, $etag_header);
+	wrap_send_resource('file', $file, $etag_header);
 }
 
 /**
@@ -616,7 +616,7 @@ function wrap_cache_extension($host, $path) {
 }
 
 /**
- * check if a cache for a ressource exists
+ * check if a cache for a resource exists
  *
  * @param array $cache = result of wrap_cache_filenames()
  * @return bool

@@ -3,7 +3,7 @@
 /**
  * zzwrap
  * Core functions: handling of HTTP requests (URLs, HTTP
- * communication, send ressources), common functions
+ * communication, send resources), common functions
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap

@@ -15,7 +15,7 @@
 
 /**
  * Main function of zzwrap scripts, includes all required files, gets data
- * for web ressource from different sources, caches ressource and sends it
+ * for web resource from different sources, caches resource and sends it
  * to the browser
  *
  * @param void
@@ -96,7 +96,7 @@ function zzwrap() {
 	// on error exit, after all files are included, check
 	// 1. well known URLs, 2. template files, 3. redirects
 	if (!wrap_page_field()) {
-		wrap_match_ressource();
+		wrap_match_resource();
 	}
 	
 	wrap_set_encoding(wrap_setting('character_set'));

@@ -2,7 +2,7 @@
 
 /**
  * zzwrap
- * sending ressources back to the browser
+ * sending resources back to the browser
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -134,7 +134,7 @@ function wrap_send_file($file) {
 		wrap_cache();
 	}
 
-	wrap_send_ressource('file', $file);
+	wrap_send_resource('file', $file);
 }
 
 /**
@@ -166,7 +166,7 @@ function wrap_send_file_cleanup($file) {
 }
 
 /**
- * sends a ressource via HTTP regarding some headers
+ * sends a resource via HTTP regarding some headers
  *
  * @param string $text content to be sent
  * @param string $type (optional, default html) HTTP content type
@@ -279,7 +279,7 @@ function wrap_send_text($text, $type = 'html', $status = 200, $headers = []) {
 	// Last Modified HTTP header
 	wrap_if_modified_since($last_modified_time, $status);
 
-	wrap_send_ressource('memory', $text, $etag_header);
+	wrap_send_resource('memory', $text, $etag_header);
 }
 
 /**
@@ -312,13 +312,13 @@ function wrap_http_content_disposition($type, $filename) {
 }
 
 /**
- * Sends the ressource to the browser after all headers have been sent
+ * Sends the resource to the browser after all headers have been sent
  *
  * @param string $type 'memory' = content is in memory, 'file' => is in file
  * @param mixed $content full content or array $file, depending on $type
  * @param array $etag_header
  */
-function wrap_send_ressource($type, $content, $etag_header = []) {
+function wrap_send_resource($type, $content, $etag_header = []) {
 	// remove internal headers
 	header_remove('X-Local-Filename');
 
@@ -440,7 +440,7 @@ function wrap_send_ressource($type, $content, $etag_header = []) {
 }
 
 /**
- * Checks whether ressource should be sent in ranges of bytes
+ * Checks whether resource should be sent in ranges of bytes
  *
  * @return array
  */
@@ -506,9 +506,9 @@ function wrap_ranges_check() {
 }
 
 /**
- * Send a ressource with gzip compression
+ * Send a resource with gzip compression
  *
- * @param string $text content of ressource, not compressed
+ * @param string $text content of resource, not compressed
  * @param array $etag_header
  * @return void
  */
@@ -551,9 +551,9 @@ function wrap_send_gzip($text, $etag_header) {
  * @return exits function with a redirect or an error document
  */
 function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
-	// for pages matching every URL, check if there’s a ressource somewhere else
+	// for pages matching every URL, check if there’s a resource somewhere else
 	if (wrap_page_field('identifier') AND wrap_page_field('identifier') === '/*' AND $statuscode === 404) {
-		wrap_match_ressource(false);
+		wrap_match_resource(false);
 	}
 
 	$page['status'] = $statuscode;

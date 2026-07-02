@@ -80,7 +80,7 @@ function wrap_syndication($url, $settings = []) {
 				if ($cache_filename !== $url) {
 					$headers[] = sprintf('X-Source-URL: %s', $url);
 				}
-				wrap_cache_ressource($data, $my_etag, $cache_filename, $headers);
+				wrap_cache_resource($data, $my_etag, $cache_filename, $headers);
 				$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			}
 			break;
@@ -169,7 +169,7 @@ function wrap_syndication($url, $settings = []) {
  * (and wanted)
  *
  * @param string $url
- * @param string $type Type of ressource, defaults to 'json'
+ * @param string $type Type of resource, defaults to 'json'
  * @param array $settings (optional)
  * @return array $data
  * @deprecated use wrap_syndication() instead

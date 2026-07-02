@@ -613,7 +613,7 @@ function wrap_match_redirects_from_cache($page) {
  *
  * @param bool $quit (optional) true: call wrap_quit(), false: just return
  */
-function wrap_match_ressource($quit = true) {
+function wrap_match_resource($quit = true) {
 	$well_known = wrap_match_well_known();
 	if ($well_known) {
 		wrap_static('match', 'well_known', $well_known);

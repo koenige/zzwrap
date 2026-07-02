@@ -118,8 +118,8 @@ function wrap_http_request_method() {
 	if (in_array($_SERVER['REQUEST_METHOD'], wrap_setting('http[allowed]'))) {
 		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'OPTIONS') return true;
 		if (wrap_is_dav_url()) return true;
-		// @todo allow checking request methods depending on ressources
-		// e. g. GET only ressources may forbid POST
+		// @todo allow checking request methods depending on resources
+		// e. g. GET only resources may forbid POST
 		header('Allow: '.implode(',', wrap_setting('http[allowed]')));
 		header('Content-Length: 0');
 		exit;

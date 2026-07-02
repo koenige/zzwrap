@@ -221,7 +221,7 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 			), E_USER_WARNING);
 		} elseif (!in_array($page['status'], [403, 404, 410])) {
 			wrap_error(wrap_text(
-				'An error occurred while creating the ressource %s. Status code %d',
+				'An error occurred while creating the resource %s. Status code %d',
 				['values' => [wrap_setting('request_uri'), $page['status']]]
 			), E_USER_WARNING);
 		}
