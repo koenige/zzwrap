@@ -788,6 +788,16 @@ function wrap_cfg_files($type, $settings = []) {
 }
 
 /**
+ * get .cfg file metadata
+ *
+ * @return array
+ */
+function wrap_cfg_meta() {
+	$cfg_files = wrap_collect_files('configuration/cfg.cfg', 'zzwrap');
+	return parse_ini_file(reset($cfg_files), true);
+}
+
+/**
  * parse .cfg files per type
  *
  * @param string $type
@@ -807,12 +817,9 @@ function wrap_cfg_files_parse($type) {
 	// get list fields from cfg.cfg
 	static $list_fields = [];
 	if (!$list_fields) {
-		$cfg_files = wrap_collect_files('configuration/cfg.cfg', 'zzwrap');
-		foreach ($cfg_files as $cfg_file) {
-			$cfg_cfg = parse_ini_file($cfg_file, true);
-			foreach ($cfg_cfg as $field => $definition)
-				if (!empty($definition['list'])) $list_fields[] = $field;
-		}
+		$cfg_meta = wrap_cfg_meta();
+		foreach ($cfg_meta as $field => $definition)
+			if (!empty($definition['list'])) $list_fields[] = $field;
 	}
 
 	$cfg = [];
