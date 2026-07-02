@@ -222,6 +222,67 @@ function wrap_text_sources_by_pot($package) {
 }
 
 /**
+ * gettext .pot header from pot.template.txt
+ *
+ * @param string $package
+ * @param string $pot_suffix
+ * @return string
+ */
+function wrap_text_pot_header($package, $pot_suffix = '') {
+	return wrap_template('pot', wrap_text_pot_header_data($package, $pot_suffix));
+}
+
+/**
+ * Data for pot.template.txt
+ *
+ * @param string $package
+ * @param string $pot_suffix translate_pot suffix (empty = default .pot)
+ * @return array
+ */
+function wrap_text_pot_header_data($package, $pot_suffix = '') {
+	$data = [
+		'package' => $package,
+		'pot_suffix' => $pot_suffix,
+		'package_type' => '',
+		'package_label' => $package,
+		'creation_date' => gmdate('Y-m-d H:i').'+0000',
+	];
+
+	if ($package === 'custom') {
+		$data['package_label'] = 'custom';
+		return $data;
+	}
+
+	$type = wrap_package($package);
+	if (!$type) return $data;
+
+	$data['package_type'] = $type;
+	$pkg = wrap_cfg_files('package', ['package' => $package]);
+	if (!empty($pkg['about']['name']))
+		$data['package_label'] = $pkg['about']['name'];
+	elseif ($type === 'modules')
+		$data['package_label'] = $package.' module';
+	else
+		$data['package_label'] = $package.' theme';
+
+	return $data;
+}
+
+/**
+ * Build full .pot file content (header + entries)
+ *
+ * @param string $package
+ * @param string $pot_suffix
+ * @param array $entries wrap_text_sources() entries
+ * @return string
+ */
+function wrap_text_pot_build($package, $pot_suffix, array $entries) {
+	$body = wrap_text_format_pot_chunks($entries);
+	if (!$body) return rtrim(wrap_text_pot_header($package, $pot_suffix))."\n";
+	return rtrim(wrap_text_pot_header($package, $pot_suffix))."\n\n".$body."\n";
+}
+
+/**
  * Source strings not yet present in the corresponding .pot file(s)
  *
  * @param string $package

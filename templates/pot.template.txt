@@ -1,0 +1,27 @@
+# zzwrap module
+# gettext .pot file header (body entries are appended after this block)
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# @author Gustaf Mossakowski <gustaf@koenige.org>
+# @copyright Copyright © 2026 Gustaf Mossakowski
+# @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
+#
+\# %%% item package_label %%% 
+# %%% if pot_suffix %%%Translations, %%% item pot_suffix %%%%%% else %%%Translations%%% endif %%% 
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/%%% if package_type %%%%%% item package_type %%%/%%% item package %%%%%% endif %%% 
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- %%% item package_label %%%\n"
+"POT-Creation-Date: %%% item creation_date %%%\n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
