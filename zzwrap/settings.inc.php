@@ -862,20 +862,35 @@ function wrap_cfg_files_parse($type) {
 }
 
 /**
- * translate description per config
+ * translate cfg properties marked with translate = 1 in cfg.cfg
  *
  * @param array $cfg
  * @param string $filename
  * @return array
  */
 function wrap_cfg_translate(&$cfg, $filename) {
+	static $translate_fields = NULL;
+	if ($translate_fields === NULL) {
+		$translate_fields = [];
+		$cfg_meta = wrap_cfg_meta();
+		foreach ($cfg_meta as $field => $definition) {
+			if (empty($definition['translate'])) continue;
+			$translate_fields[$field] = $definition['translate_pot'] ?? '';
+		}
+	}
+
 	$my_filename = $filename;
 	foreach ($cfg as $index => $config) {
-		if (empty($config['description'])) continue;
-		if (is_array($config['description'])) continue;
 		if (!str_starts_with($filename, '/'))
 			$my_filename = sprintf('%s/%s/configuration/%s.cfg', wrap_setting('modules_dir'), $config['package'], $filename);
-		$cfg[$index]['description'] = wrap_text($config['description'], ['source' => $my_filename]);
+		foreach ($translate_fields as $field => $translate_pot) {
+			if (empty($config[$field])) continue;
+			if (is_array($config[$field])) continue;
+			$cfg[$index][$field] = wrap_text($config[$field], [
+				'source' => $my_filename,
+				'translate_pot' => $translate_pot
+			]);
+		}
 	}
 	return $cfg;
 }
