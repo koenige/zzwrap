@@ -68,11 +68,9 @@ function wrap_defaults_paths() {
 // -------------------------------------------------------------------------
 
 	$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
-	$zz_setting['modules_dir'] = $zz_setting['inc'].'/modules';
-	$zz_setting['themes_dir'] = $zz_setting['inc'].'/themes';
 	
-	$zz_setting['modules'] = wrap_packages('modules', $zz_setting['modules_dir']);
-	$zz_setting['themes'] = wrap_packages('themes', $zz_setting['themes_dir']);
+	wrap_packages('modules');
+	wrap_packages('themes');
 
 	// now we can use wrap_setting()
 }
@@ -194,13 +192,19 @@ function wrap_defaults_forwarded_hostname() {
 
 /**
  * register all packages (modules and themes) of installation
+ * register settings modules, modules_dir, themes, themes_dir
  *
  * @param string $type
- * @param string $folder
- * @return array
+ * @return void
  */
-function wrap_packages($type, $folder) {
-	if (!is_dir($folder)) return [];
+function wrap_packages($type) {
+	global $zz_setting;
+	$folder_key = sprintf('%s_dir', $type);
+	$folder = $zz_setting[$folder_key] = $zz_setting['inc'].'/'.$type;
+	if (!is_dir($folder)) {
+		$zz_setting[$type] = [];
+		return;
+	}
 	$packages = scandir($folder);
 	foreach ($packages as $index => $package) {
 		if (str_starts_with($package, '.') OR !is_dir($folder.'/'.$package)) {
@@ -217,7 +221,7 @@ function wrap_packages($type, $folder) {
 		unset($packages[$key]);
 		array_unshift($packages, 'default');
 	}
-	return $packages;
+	$zz_setting[$type] = $packages;
 }
 
 /**
