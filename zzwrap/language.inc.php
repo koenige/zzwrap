@@ -301,7 +301,7 @@ function wrap_text_files($language) {
 		default:
 			continue 2;
 		}
-		$package_dir = $module === 'custom' ? wrap_setting('custom') : wrap_setting('modules_dir').'/'.$module;
+		$package_dir = wrap_package_folder($module);
 		if ($language === $default_language) // for plurals
 			$files[] = $package_dir.'/languages/'.$filename.'.pot';
 		$files[] = $package_dir.'/languages/'.$filename.'-'.$language.'.po';
@@ -322,7 +322,7 @@ function wrap_text_files($language) {
  */
 function wrap_text_files_add(&$files, $language, $module) {
 	// define paths
-	$package_dir = $module === 'custom' ? wrap_setting('custom') : wrap_setting('modules_dir').'/'.$module;
+	$package_dir = wrap_package_folder($module);
 	$filebase = sprintf(
 		'%s/languages/%s',
 		$package_dir, $module === 'custom' ? 'text' : $module
@@ -1362,12 +1362,7 @@ function wrap_text_log($string, $source = '', $translate_pot = '') {
  */
 function wrap_text_log_pot_file($package, $translate_pot = '') {
 	if ($translate_pot) $translate_pot = sprintf('-%s', $translate_pot);
-
-	if ($package === 'custom')
-		return sprintf('%s/languages/text%s.pot', wrap_setting('custom'), $translate_pot);
-	
-	return sprintf(
-		'%s/%s/languages/%s%s.pot',
-		wrap_setting('modules_dir'), $package, $package, $translate_pot
-	);
+	$folder = wrap_package_folder($package);
+	$basename = ($package === 'custom') ? 'text' : $package;
+	return sprintf('%s/languages/%s%s.pot', $folder, $basename, $translate_pot);
 }

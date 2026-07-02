@@ -400,6 +400,22 @@ function wrap_package($name) {
 }
 
 /**
+ * return folder for package
+ *
+ * @param string $package name of the package
+ * @return string|null
+ */
+function wrap_package_folder($name) {
+	if ($name === 'custom')
+		return wrap_setting('custom');
+	if (in_array($name, wrap_setting('modules')))
+		return sprintf('%s/%s', wrap_setting('modules_dir'), $name);
+	if (in_array($name, wrap_setting('themes')))
+		return sprintf('%s/%s', wrap_setting('themes_dir'), $name);
+	return NULL;
+}
+
+/**
  * activate a module or a theme
  *
  * settings active_module, active_theme, activated_modules, activated_themes
