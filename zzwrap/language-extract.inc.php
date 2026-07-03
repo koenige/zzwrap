@@ -50,12 +50,14 @@ function wrap_text_sources($package) {
  *
  * Handles .template.txt, .css, .js, .php, and .cfg files (cfg only when listed in
  * wrap_cfg_translate_fields()). PHP wrap_text() calls may span multiple lines.
+ * translate_pot for a file may be set in a header Variables block (translate_pot = …).
  *
  * @param string $package_dir absolute path to package folder
  * @param array $entries collected entries, keyed by pot + msgid (by reference)
  * @return void
  */
 function wrap_text_sources_scan($package_dir, &$entries) {
+	wrap_include('file', 'zzwrap');
 	$handlers = [
 		'template' => [
 			'pattern' => '/%%% text (.+?) %%%/',
@@ -101,6 +103,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			$content = file_get_contents($file->getPathname());
 			if ($content === false OR $content === '') continue;
 			$content = str_replace(["\r\n", "\r"], "\n", $content);
+			$pot = wrap_text_sources_translate_pot($content);
 			if (!preg_match_all($handler['pattern'], $content, $matches, PREG_OFFSET_CAPTURE)) continue;
 			foreach ($matches[1] as $match) {
 				$msgid = wrap_text_sources_code($match[0]);
@@ -114,12 +117,16 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 					$relative_path,
 					wrap_text_sources_line_number($content, $match[1])
 				);
-				wrap_text_sources_add($entries, $msgid, $reference, '', $context);
+				wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
 			}
 			continue;
 		}
 
-		$lines = file($file->getPathname(), FILE_IGNORE_NEW_LINES);
+		$content = file_get_contents($file->getPathname());
+		if ($content === false OR $content === '') continue;
+		$content = str_replace(["\r\n", "\r"], "\n", $content);
+		$pot = wrap_text_sources_translate_pot($content);
+		$lines = explode("\n", $content);
 		if (!$lines) continue;
 
 		foreach ($lines as $line_number => $line) {
@@ -130,7 +137,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 					foreach ($matches[1] as $chunk) {
 						$msgid = $handler['parse']($chunk);
 						if ($msgid === null) continue;
-						$found[] = ['msgid' => $msgid, 'pot' => ''];
+						$found[] = ['msgid' => $msgid, 'pot' => $pot];
 					}
 				}
 			} else {
@@ -141,6 +148,20 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			}
 		}
 	}
+}
+
+/**
+ * translate_pot suffix from a file header Variables block
+ *
+ * @param string $content file contents
+ * @return string translate_pot suffix, or empty string for the default .pot
+ */
+function wrap_text_sources_translate_pot($content) {
+	$variables = wrap_file_header_variables($content);
+	if (empty($variables['translate_pot'])) return '';
+	$pot = $variables['translate_pot'];
+	if (!preg_match('/^[a-z][a-z0-9_-]*$/', $pot)) return '';
+	return $pot;
 }
 
 /**
