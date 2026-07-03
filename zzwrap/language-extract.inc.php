@@ -48,7 +48,7 @@ function wrap_text_sources($package) {
 /**
  * Scan package files and collect translatable strings into $entries
  *
- * Handles .template.txt, .php, and .cfg files (cfg only when listed in
+ * Handles .template.txt, .css, .js, .php, and .cfg files (cfg only when listed in
  * wrap_cfg_translate_fields()).
  *
  * @param string $package_dir absolute path to package folder
@@ -86,6 +86,10 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			$handler = $handlers['cfg'];
 			$handler['fields'] = $translate_fields[$cfg_file];
 		} elseif (str_ends_with($relative_path, '.template.txt')) {
+			$handler = $handlers['template'];
+		} elseif (str_ends_with($relative_path, '.css')) {
+			$handler = $handlers['template'];
+		} elseif (str_ends_with($relative_path, '.js')) {
 			$handler = $handlers['template'];
 		} elseif (str_ends_with($relative_path, '.php')) {
 			$handler = $handlers['code'];
