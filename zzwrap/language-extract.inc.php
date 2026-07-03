@@ -308,7 +308,7 @@ function wrap_text_pot_header($package, $pot_suffix = '', $creation_date = null)
  *
  * @param string $package
  * @param string $pot_suffix translate_pot suffix (empty = default .pot)
- * @param string|null $creation_date POT-Creation-Date value, or null for now (UTC)
+ * @param string|null $creation_date POT-Creation-Date value, or empty for preview builds
  * @return array
  */
 function wrap_text_pot_header_data($package, $pot_suffix = '', $creation_date = null) {
@@ -317,7 +317,7 @@ function wrap_text_pot_header_data($package, $pot_suffix = '', $creation_date = 
 		'pot_suffix' => $pot_suffix,
 		'package_type' => '',
 		'package_label' => $package,
-		'creation_date' => $creation_date ?? gmdate('Y-m-d H:i').'+0000',
+		'creation_date' => $creation_date ?? '',
 	];
 
 	if ($package === 'custom') {
@@ -346,14 +346,14 @@ function wrap_text_pot_header_data($package, $pot_suffix = '', $creation_date = 
  * @param string $package
  * @param string $pot_suffix
  * @param array $entries wrap_text_sources() entries
- * @param string $old_content existing .pot file contents, for preserving POT-Creation-Date
+ * @param string $creation_date POT-Creation-Date header value (empty for preview)
  * @return string
  */
-function wrap_text_pot_build($package, $pot_suffix, array $entries, $old_content = '') {
+function wrap_text_pot_build($package, $pot_suffix, array $entries, $creation_date = '') {
 	$content = rtrim(wrap_text_pot_header(
 		$package,
 		$pot_suffix,
-		wrap_text_pot_creation_date($old_content)
+		$creation_date
 	));
 	$body = wrap_text_format_pot_chunks($entries);
 	$content .= $body ? "\n\n".$body."\n" : "\n";
@@ -519,19 +519,6 @@ function wrap_text_pot_compare_entries($left, $right) {
 }
 
 /**
- * POT-Creation-Date from an existing .pot header, if set
- *
- * @param string $content .pot file contents
- * @return string|null
- */
-function wrap_text_pot_creation_date($content) {
-	if ($content === '') return null;
-	if (!preg_match('/"POT-Creation-Date: (.*?)\\\\n"/', $content, $match)) return null;
-	if ($match[1] === '') return null;
-	return $match[1];
-}
-
-/**
  * .pot files to show or write for a package (scan merged with existing files)
  *
  * @param string $package
@@ -556,7 +543,7 @@ function wrap_text_pot_items($package) {
 			'filename' => basename($pot_file),
 			'entries' => $entries,
 			'old' => $old,
-			'new' => wrap_text_pot_build($package, $pot_suffix, $entries, $old),
+			'new' => wrap_text_pot_build($package, $pot_suffix, $entries),
 		];
 	}
 	return $items;
@@ -583,9 +570,16 @@ function wrap_text_pot_write($package) {
 
 	$written = [];
 	foreach (wrap_text_pot_items($package) as $pot) {
-		if (wrap_text_pot_normalize($pot['old']) === $pot['new']) continue;
+		if (wrap_text_pot_normalize_for_diff($pot['old']) === wrap_text_pot_normalize_for_diff($pot['new']))
+			continue;
 
-		if (file_put_contents($pot['pot_file'], $pot['new']) === false) {
+		$new = wrap_text_pot_build(
+			$package,
+			$pot['pot_suffix'],
+			$pot['entries'],
+			gmdate('Y-m-d H:i').'+0000'
+		);
+		if (file_put_contents($pot['pot_file'], $new) === false) {
 			return [
 				'ok' => false,
 				'message' => wrap_text('Could not write file: %s', ['values' => [$pot['filename']]]),
