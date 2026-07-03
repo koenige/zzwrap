@@ -255,10 +255,19 @@ function wrap_text($string, $params = []) {
 	
 	$params['plurals'] = $plurals[$language] ?? [];
 	
-	if (!empty($params['context']))
-		if (array_key_exists($params['context'], $context))
-			if (array_key_exists($string, $context[$params['context']]))
-				return wrap_text_values($context[$params['context']], $string, $params);
+	if (!empty($params['context'])) {
+		if (array_key_exists($params['context'], $context)
+			AND array_key_exists($string, $context[$params['context']]))
+			return wrap_text_values($context[$params['context']], $string, $params);
+		if (empty($params['ignore_missing_translation']))
+			wrap_text_log(
+				$string,
+				$params['source'] ?? '',
+				$params['translate_pot'] ?? '',
+				$params['context']
+			);
+		return wrap_text_values([], $string, $params);
+	}
 	
 	if (!array_key_exists($string, $my_text)) {
 		if (empty($params['ignore_missing_translation']))
@@ -1286,10 +1295,11 @@ function wrap_po_headers($headers) {
  * @param string $string
  * @param string $source (optional) source file name
  * @param string $translate_pot (optional) suffix for .pot file
+ * @param string $context (optional) gettext msgctxt
  * @return bool
  * @todo optional log directly in database
  */
-function wrap_text_log($string, $source = '', $translate_pot = '') {
+function wrap_text_log($string, $source = '', $translate_pot = '', $context = '') {
 	if (!wrap_setting('log_missing_text')) return false;
 	wrap_include('file', 'zzwrap');
 
@@ -1341,30 +1351,53 @@ function wrap_text_log($string, $source = '', $translate_pot = '') {
 		$translation[] = sprintf('#: %s:%d', $log['path'], $log['line']);
 	else
 		$translation[] = sprintf('#: %s', $log['path']);
-	$translation[] = sprintf('msgid "%s"', $string);
+	if ($context !== '')
+		$translation[] = sprintf('msgctxt "%s"', wrap_text_gettext_escape($context));
+	$translation[] = sprintf('msgid "%s"', wrap_text_gettext_escape($string));
 	$translation[] = 'msgstr ""';
 	$translation[] = '';
 	$translation = implode("\n", $translation);
 	
 	$pot_contents = file_get_contents($pot_file);
-	if (wrap_text_log_pot_has_msgid($pot_contents, $string)) return false;
+	if (wrap_text_log_pot_has_entry($pot_contents, $string, $context)) return false;
 
 	file_put_contents($pot_file, $translation, FILE_APPEND);
 }
 
 /**
- * Whether a .pot file already contains a msgid (any #: reference)
+ * Escape a string for a msgid, msgstr, or msgctxt line in a .po/.pot file
+ *
+ * @param string $string
+ * @return string
+ */
+function wrap_text_gettext_escape($string) {
+	$string = str_replace('\\', '\\\\', $string);
+	$string = str_replace('"', '\\"', $string);
+	return str_replace("\n", '\n', $string);
+}
+
+/**
+ * Whether a .pot file already contains a msgid (and optional msgctxt)
  *
  * @param string $content .pot file contents
  * @param string $msgid
+ * @param string $context gettext msgctxt, or empty string
  * @return bool
  */
-function wrap_text_log_pot_has_msgid($content, $msgid) {
+function wrap_text_log_pot_has_entry($content, $msgid, $context = '') {
 	if ($content === '' OR $msgid === '') return false;
-	if (!preg_match_all('/^msgid "(.*)"$/m', $content, $matches)) return false;
-	foreach ($matches[1] as $match) {
-		if ($match === '') continue;
-		if (stripcslashes($match) === $msgid) return true;
+	foreach (preg_split("/\n\n+/", str_replace(["\r\n", "\r"], "\n", rtrim($content, "\n"))) as $chunk) {
+		if ($chunk === '') continue;
+		$entry_context = '';
+		foreach (explode("\n", $chunk) as $line) {
+			if (preg_match('/^msgctxt "(.*)"$/', $line, $match))
+				$entry_context = stripcslashes($match[1]);
+		}
+		if (!preg_match('/^msgid "(.*)"$/m', $chunk, $match)) continue;
+		if ($match[1] === '') continue;
+		if (stripcslashes($match[1]) !== $msgid) continue;
+		if ($entry_context !== $context) continue;
+		return true;
 	}
 	return false;
 }

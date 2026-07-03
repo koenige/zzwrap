@@ -21,7 +21,7 @@
  * references with line numbers where the scanner could determine them.
  *
  * @param string $package package folder name, or custom
- * @return array list of entries: msgid, references[], pot (translate_pot suffix)
+ * @return array list of entries: msgid, context, references[], pot (translate_pot suffix)
  */
 function wrap_text_sources($package) {
 	if (!$package) return [];
@@ -105,12 +105,16 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			foreach ($matches[1] as $match) {
 				$msgid = wrap_text_sources_code($match[0]);
 				if ($msgid === null) continue;
+				$context = wrap_text_sources_code_context(
+					$content,
+					$match[1] + strlen($match[0])
+				);
 				$reference = sprintf(
 					'%s:%d',
 					$relative_path,
 					wrap_text_sources_line_number($content, $match[1])
 				);
-				wrap_text_sources_add($entries, $msgid, $reference, '');
+				wrap_text_sources_add($entries, $msgid, $reference, '', $context);
 			}
 			continue;
 		}
@@ -185,6 +189,22 @@ function wrap_text_sources_code($chunk) {
 }
 
 /**
+ * gettext msgctxt from the wrap_text() params array, if any
+ *
+ * @param string $content PHP file contents
+ * @param int $offset byte offset after the msgid string literal
+ * @return string empty string when no context param
+ */
+function wrap_text_sources_code_context($content, $offset) {
+	$tail = substr($content, $offset, 500);
+	if (!preg_match(
+		"/['\"]context['\"]\\s*=>\\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\")/"
+		, $tail, $match
+	)) return '';
+	return wrap_text_sources_code($match[1]) ?? '';
+}
+
+/**
  * Extract translatable cfg field values from one line
  *
  * @param string $line line from a .cfg file
@@ -204,21 +224,23 @@ function wrap_text_sources_cfg($line, $fields) {
 }
 
 /**
- * Add or merge a source entry (dedupe by pot + msgid, merge references)
+ * Add or merge a source entry (dedupe by pot + context + msgid, merge references)
  *
  * @param array $entries
  * @param string $msgid
  * @param string $reference file path with line number
  * @param string $pot translate_pot suffix (empty string = default .pot)
+ * @param string $context gettext msgctxt, or empty string
  * @return void
  */
-function wrap_text_sources_add(&$entries, $msgid, $reference, $pot = '') {
+function wrap_text_sources_add(&$entries, $msgid, $reference, $pot = '', $context = '') {
 	if ($msgid === '') return;
 
-	$key = $pot."\0".$msgid;
+	$key = $pot."\0".$context."\0".$msgid;
 	if (!isset($entries[$key])) {
 		$entries[$key] = [
 			'msgid' => $msgid,
+			'context' => $context,
 			'references' => [],
 			'pot' => $pot,
 		];
@@ -321,7 +343,7 @@ function wrap_text_pot_build($package, $pot_suffix, array $entries, $old_content
  * Merge scanned entries with an existing .pot file
  *
  * Keeps old entries whose references have no line number. Scanned entries
- * replace line-less references in the same file when the msgid matches.
+ * replace line-less references in the same file when context and msgid match.
  *
  * @param array $scanned wrap_text_sources() entries for one .pot file
  * @param string $old_content existing .pot file contents
@@ -330,16 +352,16 @@ function wrap_text_pot_build($package, $pot_suffix, array $entries, $old_content
 function wrap_text_pot_merge_entries(array $scanned, $old_content) {
 	$merged = [];
 	foreach ($scanned as $entry)
-		$merged[$entry['msgid']] = $entry;
+		$merged[wrap_text_pot_entry_key($entry)] = $entry;
 
 	foreach (wrap_text_pot_parse_entry_list($old_content) as $old) {
-		$msgid = $old['msgid'];
-		if (isset($merged[$msgid])) {
-			wrap_text_pot_merge_entry_references($merged[$msgid], $old);
+		$key = wrap_text_pot_entry_key($old);
+		if (isset($merged[$key])) {
+			wrap_text_pot_merge_entry_references($merged[$key], $old);
 			continue;
 		}
 		if (!wrap_text_pot_entry_has_lineless_reference($old)) continue;
-		$merged[$msgid] = $old;
+		$merged[$key] = $old;
 	}
 
 	return wrap_text_pot_sort_entries(array_values($merged));
@@ -456,6 +478,8 @@ function wrap_text_pot_compare_entries($left, $right) {
 		$left['references'][0] ?? '',
 		$right['references'][0] ?? ''
 	);
+	if ($compare !== 0) return $compare;
+	$compare = strcmp($left['context'] ?? '', $right['context'] ?? '');
 	if ($compare !== 0) return $compare;
 	return strcmp($left['msgid'], $right['msgid']);
 }
@@ -605,25 +629,19 @@ function wrap_text_pot_diff_stats($old_content, array $new_entries) {
 	$old = wrap_text_pot_parse_entries($old_content);
 	$new = [];
 	foreach ($new_entries as $entry)
-		$new[wrap_text_pot_entry_signature($entry)] = true;
+		$new[wrap_text_pot_entry_key($entry)] = wrap_text_pot_entry_signature($entry);
 
 	foreach ($new_entries as $entry) {
-		$msgid = $entry['msgid'];
-		if (!isset($old[$msgid]))
+		$key = wrap_text_pot_entry_key($entry);
+		if (!isset($old[$key]))
 			$stats['added']++;
-		elseif ($old[$msgid] !== wrap_text_pot_entry_signature($entry))
+		elseif ($old[$key] !== $new[$key])
 			$stats['updated']++;
 		else
 			$stats['unchanged']++;
 	}
-	foreach ($old as $msgid => $signature) {
-		$found = false;
-		foreach ($new_entries as $entry) {
-			if ($entry['msgid'] !== $msgid) continue;
-			$found = true;
-			break;
-		}
-		if (!$found) $stats['deleted']++;
+	foreach ($old as $key => $signature) {
+		if (!isset($new[$key])) $stats['deleted']++;
 	}
 	return $stats;
 }
@@ -638,7 +656,10 @@ function wrap_text_sources_new($package) {
 	$new = [];
 	foreach (wrap_text_sources($package) as $entry) {
 		$pot_file = wrap_text_log_pot_file($package, $entry['pot']);
-		if (array_key_exists($entry['msgid'], wrap_text_pot_parse_entries(file_exists($pot_file) ? file_get_contents($pot_file) : '')))
+		if (array_key_exists(
+			wrap_text_pot_entry_key($entry),
+			wrap_text_pot_parse_entries(file_exists($pot_file) ? file_get_contents($pot_file) : '')
+		))
 			continue;
 		$new[$entry['pot']][] = $entry;
 	}
@@ -646,15 +667,15 @@ function wrap_text_sources_new($package) {
 }
 
 /**
- * Parse .pot entry bodies keyed by msgid
+ * Parse .pot entry bodies keyed by context + msgid
  *
  * @param string $content .pot file contents
- * @return array msgid => signature (msgid + sorted references)
+ * @return array entry key => signature (context + msgid + sorted references)
  */
 function wrap_text_pot_parse_entries($content) {
 	$entries = [];
 	foreach (wrap_text_pot_parse_entry_list($content) as $entry)
-		$entries[$entry['msgid']] = wrap_text_pot_entry_signature($entry);
+		$entries[wrap_text_pot_entry_key($entry)] = wrap_text_pot_entry_signature($entry);
 	return $entries;
 }
 
@@ -662,7 +683,7 @@ function wrap_text_pot_parse_entries($content) {
  * Parse .pot entry bodies as a list
  *
  * @param string $content .pot file contents
- * @return array list of entries: msgid, references[], pot
+ * @return array list of entries: msgid, context, references[], pot
  */
 function wrap_text_pot_parse_entry_list($content) {
 	$entries = [];
@@ -686,6 +707,8 @@ function wrap_text_format_pot_chunks(array $entries) {
 		$lines = [];
 		foreach ($entry['references'] as $reference)
 			$lines[] = '#: '.$reference;
+		if (!empty($entry['context']))
+			$lines[] = 'msgctxt "'.wrap_text_pot_escape($entry['context']).'"';
 		$lines[] = 'msgid "'.wrap_text_pot_escape($entry['msgid']).'"';
 		$lines[] = 'msgstr ""';
 		$chunks[] = implode("\n", $lines);
@@ -759,20 +782,24 @@ function wrap_text_pot_parse_chunks($content) {
  * Parse one .pot entry chunk (skips the empty msgid header block)
  *
  * @param string $chunk
- * @return array|null msgid, references[], pot
+ * @return array|null msgid, context, references[], pot
  */
 function wrap_text_pot_parse_chunk($chunk) {
 	if (!preg_match('/^msgid "(.*)"$/m', $chunk, $match)) return null;
 	if ($match[1] === '') return null;
 
+	$context = '';
 	$references = [];
 	foreach (explode("\n", $chunk) as $line) {
 		if (str_starts_with($line, '#: '))
 			$references[] = substr($line, 3);
+		if (preg_match('/^msgctxt "(.*)"$/', $line, $context_match))
+			$context = wrap_text_pot_unescape($context_match[1]);
 	}
 	wrap_text_pot_sort_references($references);
 	return [
 		'msgid' => wrap_text_pot_unescape($match[1]),
+		'context' => $context,
 		'references' => $references,
 		'pot' => '',
 	];
@@ -787,7 +814,17 @@ function wrap_text_pot_parse_chunk($chunk) {
 function wrap_text_pot_entry_signature($entry) {
 	$references = $entry['references'];
 	wrap_text_pot_sort_references($references);
-	return $entry['msgid']."\0".implode("\0", $references);
+	return ($entry['context'] ?? '')."\0".$entry['msgid']."\0".implode("\0", $references);
+}
+
+/**
+ * Unique key for a .pot entry (context + msgid)
+ *
+ * @param array $entry
+ * @return string
+ */
+function wrap_text_pot_entry_key($entry) {
+	return ($entry['context'] ?? '')."\0".$entry['msgid'];
 }
 
 /**
