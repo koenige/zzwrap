@@ -609,17 +609,40 @@ function wrap_text_pot_build($package, $pot_suffix, array $entries, $creation_da
  * @return array merged entries
  */
 function wrap_text_pot_merge_entries(array $scanned, $old_content) {
-	$merged = [];
-	foreach ($scanned as $entry)
-		$merged[wrap_text_pot_entry_key($entry)] = $entry;
+	$old_entries = wrap_text_pot_parse_entry_list($old_content);
+	$old_by_key = [];
+	$old_by_plural = [];
+	foreach ($old_entries as $old) {
+		$old_by_key[wrap_text_pot_entry_key($old)] = $old;
+		if (!empty($old['msgid_plural']))
+			$old_by_plural[wrap_text_pot_plural_lookup_key($old)] = $old;
+	}
 
-	foreach (wrap_text_pot_parse_entry_list($old_content) as $old) {
-		$key = wrap_text_pot_entry_key($old);
-		if (isset($merged[$key])) {
-			wrap_text_pot_merge_entry_references($merged[$key], $old);
-			wrap_text_pot_merge_entry_comments($merged[$key], $old);
+	$merged = [];
+	foreach ($scanned as $entry) {
+		$key = wrap_text_pot_entry_key($entry);
+		if (isset($old_by_key[$key])) {
+			$merged[$key] = $entry;
+			wrap_text_pot_merge_entry_references($merged[$key], $old_by_key[$key]);
+			wrap_text_pot_merge_entry_comments($merged[$key], $old_by_key[$key]);
+			wrap_text_pot_merge_entry_plural($merged[$key], $old_by_key[$key]);
 			continue;
 		}
+		$plural_key = wrap_text_pot_plural_lookup_key($entry);
+		if (isset($old_by_plural[$plural_key])) {
+			$old = $old_by_plural[$plural_key];
+			$old_key = wrap_text_pot_entry_key($old);
+			$merged[$old_key] = $old;
+			$merged[$old_key]['references'] = $entry['references'];
+			wrap_text_pot_merge_entry_references($merged[$old_key], $old);
+			continue;
+		}
+		$merged[$key] = $entry;
+	}
+
+	foreach ($old_entries as $old) {
+		$key = wrap_text_pot_entry_key($old);
+		if (isset($merged[$key])) continue;
 		if (!wrap_text_pot_entry_has_lineless_reference($old)) continue;
 		$merged[$key] = $old;
 	}
@@ -670,6 +693,24 @@ function wrap_text_pot_merge_entry_references(array &$scan_entry, array $old_ent
 function wrap_text_pot_merge_entry_comments(array &$scan_entry, array $old_entry) {
 	if (empty($old_entry['comments'])) return;
 	$scan_entry['comments'] = $old_entry['comments'];
+}
+
+/**
+ * Keep plural forms from an old entry when merging with a scan match
+ *
+ * When the scanner only finds the plural msgid string, restore the singular
+ * msgid and msgid_plural from the existing .pot entry.
+ *
+ * @param array $scan_entry merged entry from scan (by reference)
+ * @param array $old_entry entry parsed from existing .pot file
+ * @return void
+ */
+function wrap_text_pot_merge_entry_plural(array &$scan_entry, array $old_entry) {
+	if (empty($old_entry['msgid_plural'])) return;
+	$scan_entry['msgid'] = $old_entry['msgid'];
+	$scan_entry['msgid_plural'] = $old_entry['msgid_plural'];
+	if (!empty($old_entry['plural_style']))
+		$scan_entry['plural_style'] = $old_entry['plural_style'];
 }
 
 /**
@@ -1001,7 +1042,18 @@ function wrap_text_format_pot_chunks(array $entries) {
 		if (!empty($entry['context']))
 			$lines[] = 'msgctxt "'.wrap_text_pot_escape($entry['context']).'"';
 		$lines[] = 'msgid "'.wrap_text_pot_escape($entry['msgid']).'"';
-		$lines[] = 'msgstr ""';
+		if (!empty($entry['msgid_plural'])) {
+			$lines[] = 'msgid_plural "'.wrap_text_pot_escape($entry['msgid_plural']).'"';
+			if (($entry['plural_style'] ?? 'indexed') === 'brackets') {
+				$lines[] = 'msgstr[] ""';
+				$lines[] = 'msgstr[] ""';
+			} else {
+				$lines[] = 'msgstr[0] ""';
+				$lines[] = 'msgstr[1] ""';
+			}
+		} else {
+			$lines[] = 'msgstr ""';
+		}
 		$chunks[] = implode("\n", $lines);
 	}
 	return implode("\n\n", $chunks);
@@ -1096,6 +1148,8 @@ function wrap_text_pot_parse_chunk($chunk) {
 	if ($match[1] === '') return null;
 
 	$context = '';
+	$msgid_plural = '';
+	$plural_style = null;
 	$references = [];
 	$comments = [];
 	foreach (explode("\n", $chunk) as $line) {
@@ -1105,15 +1159,26 @@ function wrap_text_pot_parse_chunk($chunk) {
 			$references[] = substr($line, 3);
 		if (preg_match('/^msgctxt "(.*)"$/', $line, $context_match))
 			$context = wrap_text_pot_unescape($context_match[1]);
+		if (preg_match('/^msgid_plural "(.*)"$/', $line, $plural_match))
+			$msgid_plural = wrap_text_pot_unescape($plural_match[1]);
+		if ($line === 'msgstr[] ""' AND $plural_style === null)
+			$plural_style = 'brackets';
+		if (preg_match('/^msgstr\[0\] /', $line))
+			$plural_style = 'indexed';
 	}
 	wrap_text_pot_sort_references($references);
-	return [
+	$entry = [
 		'msgid' => wrap_text_pot_unescape($match[1]),
 		'context' => $context,
 		'references' => $references,
 		'comments' => $comments,
 		'pot' => '',
 	];
+	if ($msgid_plural !== '') {
+		$entry['msgid_plural'] = $msgid_plural;
+		$entry['plural_style'] = $plural_style ?? 'indexed';
+	}
+	return $entry;
 }
 
 /**
@@ -1137,7 +1202,8 @@ function wrap_text_pot_is_translator_comment($line) {
 function wrap_text_pot_entry_signature($entry) {
 	$references = $entry['references'];
 	wrap_text_pot_sort_references($references);
-	return ($entry['context'] ?? '')."\0".$entry['msgid']."\0".implode("\0", $references);
+	return ($entry['context'] ?? '')."\0".$entry['msgid']."\0"
+		.($entry['msgid_plural'] ?? '')."\0".implode("\0", $references);
 }
 
 /**
@@ -1148,6 +1214,16 @@ function wrap_text_pot_entry_signature($entry) {
  */
 function wrap_text_pot_entry_key($entry) {
 	return ($entry['context'] ?? '')."\0".$entry['msgid'];
+}
+
+/**
+ * Lookup key for matching a scanned msgid to an existing msgid_plural
+ *
+ * @param array $entry
+ * @return string
+ */
+function wrap_text_pot_plural_lookup_key($entry) {
+	return ($entry['context'] ?? '')."\0".($entry['msgid_plural'] ?? $entry['msgid']);
 }
 
 /**
