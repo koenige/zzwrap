@@ -1287,7 +1287,6 @@ function wrap_po_headers($headers) {
  * @param string $source (optional) source file name
  * @param string $translate_pot (optional) suffix for .pot file
  * @return bool
- * @todo check logfile for duplicates
  * @todo optional log directly in database
  */
 function wrap_text_log($string, $source = '', $translate_pot = '') {
@@ -1348,9 +1347,26 @@ function wrap_text_log($string, $source = '', $translate_pot = '') {
 	$translation = implode("\n", $translation);
 	
 	$pot_contents = file_get_contents($pot_file);
-	if (strstr($pot_contents, $translation)) return;
-	
+	if (wrap_text_log_pot_has_msgid($pot_contents, $string)) return false;
+
 	file_put_contents($pot_file, $translation, FILE_APPEND);
+}
+
+/**
+ * Whether a .pot file already contains a msgid (any #: reference)
+ *
+ * @param string $content .pot file contents
+ * @param string $msgid
+ * @return bool
+ */
+function wrap_text_log_pot_has_msgid($content, $msgid) {
+	if ($content === '' OR $msgid === '') return false;
+	if (!preg_match_all('/^msgid "(.*)"$/m', $content, $matches)) return false;
+	foreach ($matches[1] as $match) {
+		if ($match === '') continue;
+		if (stripcslashes($match) === $msgid) return true;
+	}
+	return false;
 }
 
 /**
