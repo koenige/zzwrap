@@ -8,7 +8,7 @@
  * https://www.zugzwang.org/modules/zzwrap
  *
  * @author Gustaf Mossakowski <gustaf@koenige.org>
- * @copyright Copyright © 2023-2025 Gustaf Mossakowski
+ * @copyright Copyright © 2023-2026 Gustaf Mossakowski
  * @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
  */
 
@@ -164,4 +164,57 @@ function wrap_file_package($filename) {
 		'package' => $package,
 		'path' => substr($filename, strpos($filename, '/') + 1)
 	];
+}
+
+/**
+ * Key/value pairs from a zzwrap file header Variables section
+ *
+ * Reads the first lines of a source file for a comment block section (default
+ * “Variables”) with lines like `translate_pot = admin` (# or * prefixes).
+ *
+ * @param string $content file contents
+ * @param string $section section title line before key = value pairs
+ * @return array<string, string>
+ */
+function wrap_file_header_variables($content, $section = 'Variables') {
+	$content = str_replace(["\r\n", "\r"], "\n", $content);
+	$lines = explode("\n", $content);
+	$limit = min(count($lines), 40);
+	$in_section = false;
+	$variables = [];
+
+	for ($index = 0; $index < $limit; $index++) {
+		$text = wrap_file_header_line_text($lines[$index]);
+		if ($text === null) {
+			if ($in_section) break;
+			continue;
+		}
+		if ($text === '') {
+			if ($in_section) break;
+			continue;
+		}
+		if ($text === $section) {
+			$in_section = true;
+			continue;
+		}
+		if (!$in_section) continue;
+		if (!preg_match('/^(\w+)\s*=\s*(.+)$/', $text, $match)) break;
+		$variables[$match[1]] = trim($match[2]);
+	}
+	return $variables;
+}
+
+/**
+ * Text from a header comment line (# or block-comment * prefix)
+ *
+ * @param string $line
+ * @return string|null trimmed inner text, empty string for blank comment lines, null if not a header comment line
+ */
+function wrap_file_header_line_text($line) {
+	$line = rtrim($line);
+	if ($line === '') return '';
+	if (str_starts_with($line, '#')) return trim(substr($line, 1));
+	if (preg_match('/^\s*\*+(.*)$/', $line, $match))
+		return trim($match[1]);
+	return null;
 }
