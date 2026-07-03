@@ -36,10 +36,10 @@ function wrap_text_sources($package) {
 	usort($sources, function ($left, $right) {
 		$compare = strcmp($left['pot'], $right['pot']);
 		if ($compare !== 0) return $compare;
-		return strcmp($left['msgid'], $right['msgid']);
+		return wrap_text_pot_compare_entries($left, $right);
 	});
 	foreach ($sources as $index => $source) {
-		sort($source['references']);
+		wrap_text_pot_sort_references($source['references']);
 		$sources[$index] = $source;
 	}
 	return $sources;
@@ -209,13 +209,8 @@ function wrap_text_sources_by_pot($package) {
 		$by_pot[$entry['pot']][] = $entry;
 	}
 	foreach ($by_pot as $pot_suffix => $entries) {
-		$indexed = [];
-		foreach ($entries as $entry) {
-			$key = ($entry['references'][0] ?? '')."\0".$entry['msgid'];
-			$indexed[$key] = $entry;
-		}
-		ksort($indexed);
-		$by_pot[$pot_suffix] = array_values($indexed);
+		usort($entries, 'wrap_text_pot_compare_entries');
+		$by_pot[$pot_suffix] = $entries;
 	}
 	ksort($by_pot);
 	return $by_pot;
@@ -290,6 +285,149 @@ function wrap_text_pot_build($package, $pot_suffix, array $entries, $old_content
 }
 
 /**
+ * Merge scanned entries with an existing .pot file
+ *
+ * Keeps old entries whose references have no line number. Scanned entries
+ * replace line-less references in the same file when the msgid matches.
+ *
+ * @param array $scanned wrap_text_sources() entries for one .pot file
+ * @param string $old_content existing .pot file contents
+ * @return array merged entries
+ */
+function wrap_text_pot_merge_entries(array $scanned, $old_content) {
+	$merged = [];
+	foreach ($scanned as $entry)
+		$merged[$entry['msgid']] = $entry;
+
+	foreach (wrap_text_pot_parse_entry_list($old_content) as $old) {
+		$msgid = $old['msgid'];
+		if (isset($merged[$msgid])) {
+			wrap_text_pot_merge_entry_references($merged[$msgid], $old);
+			continue;
+		}
+		if (!wrap_text_pot_entry_has_lineless_reference($old)) continue;
+		$merged[$msgid] = $old;
+	}
+
+	return wrap_text_pot_sort_entries(array_values($merged));
+}
+
+/**
+ * Sort .pot entries by first reference (file, line number) then msgid
+ *
+ * @param array $entries
+ * @return array
+ */
+function wrap_text_pot_sort_entries(array $entries) {
+	usort($entries, 'wrap_text_pot_compare_entries');
+	return $entries;
+}
+
+/**
+ * Keep line-less references from an old entry when merging with a scan match
+ *
+ * @param array $scan_entry merged entry from scan (by reference)
+ * @param array $old_entry entry parsed from existing .pot file
+ * @return void
+ */
+function wrap_text_pot_merge_entry_references(array &$scan_entry, array $old_entry) {
+	$scan_files = [];
+	foreach ($scan_entry['references'] as $reference)
+		$scan_files[wrap_text_pot_reference_file($reference)] = true;
+
+	foreach ($old_entry['references'] as $reference) {
+		if (wrap_text_pot_reference_has_line($reference)) continue;
+		$file = wrap_text_pot_reference_file($reference);
+		if (!empty($scan_files[$file])) continue;
+		if (!in_array($reference, $scan_entry['references'], true))
+			$scan_entry['references'][] = $reference;
+	}
+	wrap_text_pot_sort_references($scan_entry['references']);
+}
+
+/**
+ * Whether an entry has at least one #: reference without a line number
+ *
+ * @param array $entry
+ * @return bool
+ */
+function wrap_text_pot_entry_has_lineless_reference($entry) {
+	foreach ($entry['references'] as $reference) {
+		if (!wrap_text_pot_reference_has_line($reference)) return true;
+	}
+	return false;
+}
+
+/**
+ * Whether a #: reference includes a line number suffix
+ *
+ * @param string $reference path with optional :line suffix
+ * @return bool
+ */
+function wrap_text_pot_reference_has_line($reference) {
+	return (bool) preg_match('/:\d+$/', $reference);
+}
+
+/**
+ * File path from a #: reference, without the line number suffix
+ *
+ * @param string $reference path with optional :line suffix
+ * @return string
+ */
+function wrap_text_pot_reference_file($reference) {
+	if (preg_match('/^(.+):\d+$/', $reference, $match)) return $match[1];
+	return $reference;
+}
+
+/**
+ * Compare two #: references for sort order (file path, then line number)
+ *
+ * Line-less references sort before line-numbered ones in the same file.
+ *
+ * @param string $left
+ * @param string $right
+ * @return int -1, 0, or 1
+ */
+function wrap_text_pot_compare_references($left, $right) {
+	$left_file = wrap_text_pot_reference_file($left);
+	$right_file = wrap_text_pot_reference_file($right);
+	$compare = strcmp($left_file, $right_file);
+	if ($compare !== 0) return $compare;
+
+	$left_line = 0;
+	if (preg_match('/:(\d+)$/', $left, $match)) $left_line = (int) $match[1];
+	$right_line = 0;
+	if (preg_match('/:(\d+)$/', $right, $match)) $right_line = (int) $match[1];
+	return $left_line <=> $right_line;
+}
+
+/**
+ * Sort #: references in place (file path, then line number)
+ *
+ * @param array $references by reference
+ * @return void
+ */
+function wrap_text_pot_sort_references(array &$references) {
+	usort($references, 'wrap_text_pot_compare_references');
+}
+
+/**
+ * Compare two .pot entries for sort order (first reference, then msgid)
+ *
+ * @param array $left
+ * @param array $right
+ * @return int -1, 0, or 1
+ */
+function wrap_text_pot_compare_entries($left, $right) {
+	$compare = wrap_text_pot_compare_references(
+		$left['references'][0] ?? '',
+		$right['references'][0] ?? ''
+	);
+	if ($compare !== 0) return $compare;
+	return strcmp($left['msgid'], $right['msgid']);
+}
+
+/**
  * POT-Creation-Date from an existing .pot header, if set
  *
  * @param string $content .pot file contents
@@ -313,10 +451,11 @@ function wrap_text_pot_items($package) {
 	$sources_by_pot = wrap_text_sources_by_pot($package);
 
 	foreach (wrap_text_pot_suffixes($package) as $pot_suffix) {
-		$entries = $sources_by_pot[$pot_suffix] ?? [];
+		$scanned = $sources_by_pot[$pot_suffix] ?? [];
 		$pot_file = wrap_text_log_pot_file($package, $pot_suffix);
 		$old = file_exists($pot_file) ? file_get_contents($pot_file) : '';
 
+		$entries = wrap_text_pot_merge_entries($scanned, $old);
 		if (!$entries AND $old === '') continue;
 		if (!$entries AND !wrap_text_pot_parse_entries($old)) continue;
 
@@ -481,10 +620,23 @@ function wrap_text_sources_new($package) {
  */
 function wrap_text_pot_parse_entries($content) {
 	$entries = [];
+	foreach (wrap_text_pot_parse_entry_list($content) as $entry)
+		$entries[$entry['msgid']] = wrap_text_pot_entry_signature($entry);
+	return $entries;
+}
+
+/**
+ * Parse .pot entry bodies as a list
+ *
+ * @param string $content .pot file contents
+ * @return array list of entries: msgid, references[], pot
+ */
+function wrap_text_pot_parse_entry_list($content) {
+	$entries = [];
 	foreach (wrap_text_pot_parse_chunks($content) as $chunk) {
 		$entry = wrap_text_pot_parse_chunk($chunk);
 		if (!$entry) continue;
-		$entries[$entry['msgid']] = wrap_text_pot_entry_signature($entry);
+		$entries[] = $entry;
 	}
 	return $entries;
 }
@@ -585,7 +737,7 @@ function wrap_text_pot_parse_chunk($chunk) {
 		if (str_starts_with($line, '#: '))
 			$references[] = substr($line, 3);
 	}
-	sort($references);
+	wrap_text_pot_sort_references($references);
 	return [
 		'msgid' => wrap_text_pot_unescape($match[1]),
 		'references' => $references,
@@ -601,7 +753,7 @@ function wrap_text_pot_parse_chunk($chunk) {
  */
 function wrap_text_pot_entry_signature($entry) {
 	$references = $entry['references'];
-	sort($references);
+	wrap_text_pot_sort_references($references);
 	return $entry['msgid']."\0".implode("\0", $references);
 }
 
