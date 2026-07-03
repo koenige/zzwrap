@@ -49,7 +49,7 @@ function wrap_text_sources($package) {
  * Scan package files and collect translatable strings into $entries
  *
  * Handles .template.txt, .css, .js, .php, and .cfg files (cfg only when listed in
- * wrap_cfg_translate_fields()).
+ * wrap_cfg_translate_fields()). PHP wrap_text() calls may span multiple lines.
  *
  * @param string $package_dir absolute path to package folder
  * @param array $entries collected entries, keyed by pot + msgid (by reference)
@@ -97,6 +97,24 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			continue;
 		}
 
+		if ($handler['parse'] === 'wrap_text_sources_code') {
+			$content = file_get_contents($file->getPathname());
+			if ($content === false OR $content === '') continue;
+			$content = str_replace(["\r\n", "\r"], "\n", $content);
+			if (!preg_match_all($handler['pattern'], $content, $matches, PREG_OFFSET_CAPTURE)) continue;
+			foreach ($matches[1] as $match) {
+				$msgid = wrap_text_sources_code($match[0]);
+				if ($msgid === null) continue;
+				$reference = sprintf(
+					'%s:%d',
+					$relative_path,
+					wrap_text_sources_line_number($content, $match[1])
+				);
+				wrap_text_sources_add($entries, $msgid, $reference, '');
+			}
+			continue;
+		}
+
 		$lines = file($file->getPathname(), FILE_IGNORE_NEW_LINES);
 		if (!$lines) continue;
 
@@ -119,6 +137,17 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			}
 		}
 	}
+}
+
+/**
+ * Line number (1-based) for a byte offset in normalized file content
+ *
+ * @param string $content file contents with Unix line endings
+ * @param int $offset byte offset of the match
+ * @return int
+ */
+function wrap_text_sources_line_number($content, $offset) {
+	return substr_count(substr($content, 0, $offset), "\n") + 1;
 }
 
 /**
