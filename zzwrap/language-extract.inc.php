@@ -16,8 +16,9 @@
 /**
  * Collect translatable strings from a package for .pot maintenance
  *
- * Scans template text blocks, wrap_text() string literals, and translatable
- * configuration fields (see configuration/cfg.cfg). Each entry includes file
+ * Scans template text blocks, wrap_text() string literals, brick_xhr_error()
+ * message literals, and translatable configuration fields (see configuration/cfg.cfg).
+ * Each entry includes file
  * references with line numbers where the scanner could determine them.
  *
  * @param string $package package folder name, or custom
@@ -50,6 +51,7 @@ function wrap_text_sources($package) {
  *
  * Handles .template.txt, .css, .js, .php, and .cfg files (cfg only when listed in
  * wrap_cfg_translate_fields()). PHP wrap_text() calls may span multiple lines.
+ * Also scans brick_xhr_error() call sites (second argument string literal).
  * translate_pot for a file may be set in a header Variables block (translate_pot = …).
  *
  * @param string $package_dir absolute path to package folder
@@ -64,8 +66,17 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			'parse' => 'wrap_text_sources_template',
 		],
 		'code' => [
-			'pattern' => '/wrap_text\s*\(\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
-			'parse' => 'wrap_text_sources_code',
+			'patterns' => [
+				[
+					'pattern' => '/wrap_text\s*\(\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
+					'parse' => 'wrap_text_sources_code',
+					'context' => 'wrap_text_sources_code_context',
+				],
+				[
+					'pattern' => '/brick_xhr_error\s*\(\s*[^,]+,\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
+					'parse' => 'wrap_text_sources_brick_xhr_error',
+				],
+			],
 		],
 		'cfg' => [
 			'parse' => 'wrap_text_sources_cfg',
@@ -99,25 +110,30 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			continue;
 		}
 
-		if ($handler['parse'] === 'wrap_text_sources_code') {
+		if (!empty($handler['patterns'])) {
 			$content = file_get_contents($file->getPathname());
 			if ($content === false OR $content === '') continue;
 			$content = str_replace(["\r\n", "\r"], "\n", $content);
 			$pot = wrap_text_sources_translate_pot($content);
-			if (!preg_match_all($handler['pattern'], $content, $matches, PREG_OFFSET_CAPTURE)) continue;
-			foreach ($matches[1] as $match) {
-				$msgid = wrap_text_sources_code($match[0]);
-				if ($msgid === null) continue;
-				$context = wrap_text_sources_code_context(
-					$content,
-					$match[1] + strlen($match[0])
-				);
-				$reference = sprintf(
-					'%s:%d',
-					$relative_path,
-					wrap_text_sources_line_number($content, $match[1])
-				);
-				wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
+			foreach ($handler['patterns'] as $pattern) {
+				if (!preg_match_all($pattern['pattern'], $content, $matches, PREG_OFFSET_CAPTURE)) continue;
+				foreach ($matches[1] as $match) {
+					$msgid = $pattern['parse']($match[0]);
+					if ($msgid === null) continue;
+					$context = '';
+					if (!empty($pattern['context'])) {
+						$context = $pattern['context'](
+							$content,
+							$match[1] + strlen($match[0])
+						);
+					}
+					$reference = sprintf(
+						'%s:%d',
+						$relative_path,
+						wrap_text_sources_line_number($content, $match[1])
+					);
+					wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
+				}
 			}
 			continue;
 		}
@@ -207,6 +223,21 @@ function wrap_text_sources_code($chunk) {
 	if (substr($chunk, -1) !== $quote) return null;
 
 	return stripcslashes(substr($chunk, 1, -1));
+}
+
+/**
+ * Build msgid from a brick_xhr_error() message string literal (2nd argument)
+ *
+ * Skips machine keys prefixed with `_` (not translatable).
+ *
+ * @param string $chunk quoted string including delimiters
+ * @return string|null
+ */
+function wrap_text_sources_brick_xhr_error($chunk) {
+	$msgid = wrap_text_sources_code($chunk);
+	if ($msgid === null OR $msgid === '') return null;
+	if ($msgid[0] === '_') return null;
+	return $msgid;
 }
 
 /**
