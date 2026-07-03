@@ -16,9 +16,9 @@
 /**
  * Collect translatable strings from a package for .pot maintenance
  *
- * Scans template text blocks, wrap_text() string literals, brick_xhr_error()
- * message literals, and translatable configuration fields (see configuration/cfg.cfg).
- * Each entry includes file
+ * Scans template text blocks, wrap_text() string literals, `_msg` assignments,
+ * brick_xhr_error() message literals, and translatable configuration fields
+ * (see configuration/cfg.cfg). Each entry includes file
  * references with line numbers where the scanner could determine them.
  *
  * @param string $package package folder name, or custom
@@ -51,7 +51,8 @@ function wrap_text_sources($package) {
  *
  * Handles .template.txt, .css, .js, .php, and .cfg files (cfg only when listed in
  * wrap_cfg_translate_fields()). PHP wrap_text() calls may span multiple lines.
- * Also scans brick_xhr_error() call sites (second argument string literal).
+ * Also scans `_msg` assignments (string or array, including split lines) and
+ * brick_xhr_error() call sites (second argument string literal).
  * translate_pot for a file may be set in a header Variables block (translate_pot = …).
  *
  * @param string $package_dir absolute path to package folder
@@ -135,6 +136,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 					wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
 				}
 			}
+			wrap_text_sources_scan_msg($content, $pot, $relative_path, $entries);
 			continue;
 		}
 
@@ -164,6 +166,201 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			}
 		}
 	}
+}
+
+/**
+ * Scan `_msg` assignments in PHP source
+ *
+ * Matches `…['_msg'] = …` and `'_msg' => …` (not reads like `$error['_msg']`).
+ * Extracts string literals and dot-concatenated strings; array values yield one
+ * entry per string element (variables are skipped).
+ *
+ * @param string $content PHP file contents with Unix line endings
+ * @param string $pot translate_pot suffix
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_text_sources_scan_msg($content, $pot, $relative_path, &$entries) {
+	if (!preg_match_all(
+		"/\['_msg'\]\s*(?:\n\s*)?=|'_msg'\s*=>/",
+		$content,
+		$matches,
+		PREG_OFFSET_CAPTURE
+	)) return;
+
+	foreach ($matches[0] as $match) {
+		$pos = $match[1] + strlen($match[0]);
+		if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+			$pos += strlen($whitespace[0]);
+		if ($pos >= strlen($content)) continue;
+
+		if ($content[$pos] === '[') {
+			foreach (wrap_text_sources_msg_array_literals($content, $pos) as $literal) {
+				$reference = sprintf(
+					'%s:%d',
+					$relative_path,
+					wrap_text_sources_line_number($content, $literal['offset'])
+				);
+				wrap_text_sources_add($entries, $literal['msgid'], $reference, $pot);
+			}
+			continue;
+		}
+
+		$literals = wrap_text_sources_msg_value_literals($content, $pos);
+		if (!$literals) continue;
+		$msgid = implode('', array_column($literals, 'msgid'));
+		if ($msgid === '') continue;
+		$reference = sprintf(
+			'%s:%d',
+			$relative_path,
+			wrap_text_sources_line_number($content, $literals[0]['offset'])
+		);
+		wrap_text_sources_add($entries, $msgid, $reference, $pot);
+	}
+}
+
+/**
+ * String literals from a `_msg` array value
+ *
+ * @param string $content
+ * @param int $start byte offset of opening `[`
+ * @return array list of entries with msgid and offset keys
+ */
+function wrap_text_sources_msg_array_literals($content, $start) {
+	$length = strlen($content);
+	if ($start >= $length OR $content[$start] !== '[') return [];
+
+	$pos = $start + 1;
+	$results = [];
+	while ($pos < $length) {
+		if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+			$pos += strlen($whitespace[0]);
+		if ($pos >= $length) break;
+		if ($content[$pos] === ']') break;
+		if ($content[$pos] === ',') {
+			$pos++;
+			continue;
+		}
+
+		$literals = wrap_text_sources_msg_value_literals($content, $pos);
+		if ($literals) {
+			$msgid = implode('', array_column($literals, 'msgid'));
+			if ($msgid !== '') {
+				$results[] = [
+					'msgid' => $msgid,
+					'offset' => $literals[0]['offset'],
+				];
+			}
+			$pos = $literals[array_key_last($literals)]['end'];
+			continue;
+		}
+		$pos = wrap_text_sources_msg_skip_array_element($content, $pos);
+	}
+	return $results;
+}
+
+/**
+ * One `_msg` value: a string literal or dot-concatenated string literals
+ *
+ * @param string $content
+ * @param int $offset
+ * @return array list of entries with msgid, offset, and end keys
+ */
+function wrap_text_sources_msg_value_literals($content, $offset) {
+	$literals = [];
+	$pos = $offset;
+	while (true) {
+		$literal = wrap_text_sources_string_literal_at($content, $pos);
+		if (!$literal) break;
+		$literals[] = $literal;
+		$pos = $literal['end'];
+		if (!preg_match('/\G\s*\./', $content, $dot, 0, $pos)) break;
+		$pos += strlen($dot[0]);
+	}
+	return $literals;
+}
+
+/**
+ * Parse a quoted string literal at offset
+ *
+ * @param string $content
+ * @param int $offset
+ * @return array|null entry with msgid, offset, and end keys
+ */
+function wrap_text_sources_string_literal_at($content, $offset) {
+	if (!preg_match(
+		'/\G\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
+		$content,
+		$match,
+		0,
+		$offset
+	)) return null;
+
+	$quoted = $match[1];
+	$literal_start = $offset + strpos($match[0], $quoted[0]);
+	$msgid = wrap_text_sources_msg_literal($quoted);
+	if ($msgid === null) return null;
+
+	return [
+		'msgid' => $msgid,
+		'offset' => $literal_start,
+		'end' => $offset + strlen($match[0]),
+	];
+}
+
+/**
+ * Skip a non-literal array element (variable, function call, nested array, …)
+ *
+ * @param string $content
+ * @param int $offset
+ * @return int byte offset after the element
+ */
+function wrap_text_sources_msg_skip_array_element($content, $offset) {
+	$length = strlen($content);
+	$pos = $offset;
+	$depth = 0;
+	$in_string = false;
+	$quote = '';
+
+	while ($pos < $length) {
+		$char = $content[$pos];
+		if ($in_string) {
+			if ($char === '\\' AND $pos + 1 < $length) {
+				$pos += 2;
+				continue;
+			}
+			if ($char === $quote) {
+				$in_string = false;
+				$pos++;
+				continue;
+			}
+			$pos++;
+			continue;
+		}
+		if ($char === '\'' OR $char === '"') {
+			$in_string = true;
+			$quote = $char;
+			$pos++;
+			continue;
+		}
+		if ($char === '[' OR $char === '(') {
+			$depth++;
+			$pos++;
+			continue;
+		}
+		if ($char === ']' OR $char === ')') {
+			if ($depth > 0) {
+				$depth--;
+				$pos++;
+				continue;
+			}
+			return $pos;
+		}
+		if ($char === ',' AND $depth === 0) return $pos;
+		$pos++;
+	}
+	return $pos;
 }
 
 /**
@@ -226,18 +423,28 @@ function wrap_text_sources_code($chunk) {
 }
 
 /**
- * Build msgid from a brick_xhr_error() message string literal (2nd argument)
+ * Build msgid from a translatable message string literal
  *
- * Skips machine keys prefixed with `_` (not translatable).
+ * Skips empty strings and machine keys prefixed with `_`.
+ *
+ * @param string $chunk quoted string including delimiters
+ * @return string|null
+ */
+function wrap_text_sources_msg_literal($chunk) {
+	$msgid = wrap_text_sources_code($chunk);
+	if ($msgid === null OR $msgid === '') return null;
+	if ($msgid[0] === '_') return null;
+	return $msgid;
+}
+
+/**
+ * Build msgid from a brick_xhr_error() message string literal (2nd argument)
  *
  * @param string $chunk quoted string including delimiters
  * @return string|null
  */
 function wrap_text_sources_brick_xhr_error($chunk) {
-	$msgid = wrap_text_sources_code($chunk);
-	if ($msgid === null OR $msgid === '') return null;
-	if ($msgid[0] === '_') return null;
-	return $msgid;
+	return wrap_text_sources_msg_literal($chunk);
 }
 
 /**
