@@ -471,7 +471,9 @@ function wrap_text_pot_reference_file($reference) {
 /**
  * Compare two #: references for sort order (file path, then line number)
  *
- * Line-less references sort before line-numbered ones in the same file.
+ * Paths sort with `.` before `-` at the first differing character (notes.php
+ * before notes-notes.php). Line-less references sort before line-numbered ones
+ * in the same file.
  *
  * @param string $left
  * @param string $right
@@ -480,7 +482,7 @@ function wrap_text_pot_reference_file($reference) {
 function wrap_text_pot_compare_references($left, $right) {
 	$left_file = wrap_text_pot_reference_file($left);
 	$right_file = wrap_text_pot_reference_file($right);
-	$compare = strcmp($left_file, $right_file);
+	$compare = wrap_text_pot_compare_reference_paths($left_file, $right_file);
 	if ($compare !== 0) return $compare;
 
 	$left_line = 0;
@@ -488,6 +490,27 @@ function wrap_text_pot_compare_references($left, $right) {
 	$right_line = 0;
 	if (preg_match('/:(\d+)$/', $right, $match)) $right_line = (int) $match[1];
 	return $left_line <=> $right_line;
+}
+
+/**
+ * Compare two file paths for #: reference sort order
+ *
+ * Like strcmp, but when paths diverge at `.` versus `-`, `.` sorts first so
+ * e.g. notes.php comes before notes-notes.php.
+ *
+ * @param string $left
+ * @param string $right
+ * @return int -1, 0, or 1
+ */
+function wrap_text_pot_compare_reference_paths($left, $right) {
+	$length = min(strlen($left), strlen($right));
+	for ($index = 0; $index < $length; $index++) {
+		if ($left[$index] === $right[$index]) continue;
+		if ($left[$index] === '.' AND $right[$index] === '-') return -1;
+		if ($left[$index] === '-' AND $right[$index] === '.') return 1;
+		return $left[$index] <=> $right[$index];
+	}
+	return strlen($left) <=> strlen($right);
 }
 
 /**
@@ -640,8 +663,8 @@ function wrap_text_pot_suffixes($package) {
  */
 function wrap_text_pot_diff_html($old_content, $new_content) {
 	return wrap_text_diff_html(
-		wrap_text_pot_normalize($old_content),
-		wrap_text_pot_normalize($new_content)
+		wrap_text_pot_normalize_for_diff($old_content),
+		wrap_text_pot_normalize_for_diff($new_content)
 	);
 }
 
@@ -781,6 +804,22 @@ function wrap_text_pot_normalize($content) {
 	$content = str_replace(["\r\n", "\r"], "\n", $content);
 	$content = wrap_text_pot_strip_trailing_spaces($content);
 	return rtrim($content, "\n")."\n";
+}
+
+/**
+ * Normalize .pot content for diff and write comparison (ignores POT-Creation-Date)
+ *
+ * @param string $content
+ * @return string
+ */
+function wrap_text_pot_normalize_for_diff($content) {
+	$content = wrap_text_pot_normalize($content);
+	if ($content === '') return '';
+	return preg_replace(
+		'/"POT-Creation-Date: [^"]*\\\\n"/',
+		'"POT-Creation-Date: \\n"',
+		$content
+	);
 }
 
 /**
