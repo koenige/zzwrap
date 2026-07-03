@@ -358,6 +358,7 @@ function wrap_text_pot_merge_entries(array $scanned, $old_content) {
 		$key = wrap_text_pot_entry_key($old);
 		if (isset($merged[$key])) {
 			wrap_text_pot_merge_entry_references($merged[$key], $old);
+			wrap_text_pot_merge_entry_comments($merged[$key], $old);
 			continue;
 		}
 		if (!wrap_text_pot_entry_has_lineless_reference($old)) continue;
@@ -398,6 +399,18 @@ function wrap_text_pot_merge_entry_references(array &$scan_entry, array $old_ent
 			$scan_entry['references'][] = $reference;
 	}
 	wrap_text_pot_sort_references($scan_entry['references']);
+}
+
+/**
+ * Keep translator comments from an old entry when merging with a scan match
+ *
+ * @param array $scan_entry merged entry from scan (by reference)
+ * @param array $old_entry entry parsed from existing .pot file
+ * @return void
+ */
+function wrap_text_pot_merge_entry_comments(array &$scan_entry, array $old_entry) {
+	if (empty($old_entry['comments'])) return;
+	$scan_entry['comments'] = $old_entry['comments'];
 }
 
 /**
@@ -683,7 +696,7 @@ function wrap_text_pot_parse_entries($content) {
  * Parse .pot entry bodies as a list
  *
  * @param string $content .pot file contents
- * @return array list of entries: msgid, context, references[], pot
+ * @return array list of entries: msgid, context, references[], comments[], pot
  */
 function wrap_text_pot_parse_entry_list($content) {
 	$entries = [];
@@ -705,6 +718,8 @@ function wrap_text_format_pot_chunks(array $entries) {
 	$chunks = [];
 	foreach ($entries as $entry) {
 		$lines = [];
+		foreach ($entry['comments'] ?? [] as $comment)
+			$lines[] = $comment;
 		foreach ($entry['references'] as $reference)
 			$lines[] = '#: '.$reference;
 		if (!empty($entry['context']))
@@ -782,7 +797,7 @@ function wrap_text_pot_parse_chunks($content) {
  * Parse one .pot entry chunk (skips the empty msgid header block)
  *
  * @param string $chunk
- * @return array|null msgid, context, references[], pot
+ * @return array|null msgid, context, references[], comments[], pot
  */
 function wrap_text_pot_parse_chunk($chunk) {
 	if (!preg_match('/^msgid "(.*)"$/m', $chunk, $match)) return null;
@@ -790,7 +805,10 @@ function wrap_text_pot_parse_chunk($chunk) {
 
 	$context = '';
 	$references = [];
+	$comments = [];
 	foreach (explode("\n", $chunk) as $line) {
+		if (wrap_text_pot_is_translator_comment($line))
+			$comments[] = $line;
 		if (str_starts_with($line, '#: '))
 			$references[] = substr($line, 3);
 		if (preg_match('/^msgctxt "(.*)"$/', $line, $context_match))
@@ -801,8 +819,21 @@ function wrap_text_pot_parse_chunk($chunk) {
 		'msgid' => wrap_text_pot_unescape($match[1]),
 		'context' => $context,
 		'references' => $references,
+		'comments' => $comments,
 		'pot' => '',
 	];
+}
+
+/**
+ * Whether a .pot line is a translator comment (# …, not #: #. #,)
+ *
+ * @param string $line
+ * @return bool
+ */
+function wrap_text_pot_is_translator_comment($line) {
+	if (!str_starts_with($line, '#')) return false;
+	if ($line === '#') return true;
+	return !in_array($line[1], [':', '.', ','], true);
 }
 
 /**
