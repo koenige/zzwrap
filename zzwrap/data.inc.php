@@ -122,11 +122,52 @@ function wrap_data_media($data, $ids, $langs, $table) {
 	foreach ($langs as $lang) {
 		$media = wrap_translate($mediadata, 'media', 'medium_id', true, $lang);
 		foreach ($data[$lang] as $line_id => $line) {
-			if (!array_key_exists($line[$id_field], $media)) continue;
+			if (!array_key_exists($line[$id_field], $media)) {
+				if ($default_image = wrap_data_media_default($table, $lang))
+					$data[$lang][$line_id] += $default_image;
+				continue;
+			}
 			$data[$lang][$line_id] += $media[$line[$id_field]];
 		}
 	}
 	return $data;
+}
+
+/**
+ * get default image per table
+ * set via tag, e.g. `tags/default-articles-overview` for `articles`
+ *
+ * @param string $table
+ * @param string $lang
+ * @return array
+ */
+function wrap_data_media_default($table, $lang) {
+	static $default_media = [];
+
+	$key = $table.'/'.$lang;
+	if (array_key_exists($key, $default_media))
+		return $default_media[$key];
+
+	$path = sprintf('tags/default-%s-overview', $table);
+	$category_id = wrap_category_id($path);
+	if (!$category_id) {
+		$default_media[$key] = [];
+		return $default_media[$key];
+	}
+
+	$media = wrap_media($category_id, 'categories', ['limit' => 1]);
+	$media = wrap_translate($media, 'media', 'medium_id', true, $lang);
+	if (!$media) {
+		$default_media[$key] = [];
+		return $default_media[$key];
+	}
+	if (!array_key_exists('images_overview', $media)) {
+		$default_media[$key] = [];
+		return $default_media[$key];
+	}
+	$media['_default_image'] = true;
+	$default_media[$key] = $media;
+	return $default_media[$key];
 }
 
 /**
