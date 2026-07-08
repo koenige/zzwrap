@@ -334,6 +334,7 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
  *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
  *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false.
  *   - absolute (bool): If true, prepend wrap_setting('host_base') when the path is root-relative (/…) but not protocol-relative (//…); default false.
+ *   - website_id (int): Owning website for route resolution (e.g. from path brick `resolve=website_id`); enables path_for_website when different from the current site.
  *   - path_website_fallback (bool): Internal flag while resolving wrap_setting('path_website_fallback'); do not set manually.
  * @return string|null|false Path string, or NULL if route not found, or false if access denied.
  */
@@ -371,13 +372,15 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	$settings['detail'] = $settings['detail'] ?? '';
 	$settings['absolute'] = !empty($settings['absolute']);
 
-	// resolve from foreign website if path_website_id is set and route is marked
+	// resolve from foreign website if path_website_id or website_id is set
 	$foreign_website_id = false;
-	if (wrap_setting('path_website_id')
-		AND wrap_setting('path_website_id') !== wrap_setting('website_id')) {
+	$path_website_id = $settings['website_id'] ?? wrap_setting('path_website_id');
+	if ($path_website_id AND $path_website_id != wrap_setting('website_id')) {
+		if (!empty($settings['website_id']))
+			$settings['path_for_website'] = true;
 		$routes_cfg = wrap_cfg_files('routes');
 		if (!empty($routes_cfg[$area]['path_for_website']) OR !empty($settings['path_for_website']))
-			$foreign_website_id = wrap_setting('path_website_id');
+			$foreign_website_id = $path_website_id;
 	}
 
 	if ($foreign_website_id) {
