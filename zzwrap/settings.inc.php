@@ -300,6 +300,18 @@ function wrap_setting_log_missing($key, $cfg) {
 }
 
 /**
+ * check if a setting is stored globally (website_id = 1)
+ *
+ * @param string $key
+ * @return bool
+ */
+function wrap_setting_cfg_global($key) {
+	if (!wrap_setting('multiple_websites')) return false;
+	$cfg = wrap_cfg_files('settings');
+	return !empty($cfg[$key]['setting_global']);
+}
+
+/**
  * write settings to database
  *
  * @param string $key
@@ -331,7 +343,9 @@ function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
 		$explanation = (in_array($key, array_keys($cfg)) AND !empty($cfg[$key]['description']))
 			? sprintf('"%s"', $cfg[$key]['description'])  : 'NULL';
 		if (wrap_setting('multiple_websites'))
-			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, /*_SETTING website_id _*/)';
+			$sql = wrap_setting_cfg_global($key)
+				? 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, 1)'
+				: 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation, website_id) VALUES ("%s", "%s", %s, /*_SETTING website_id _*/)';
 		else
 			$sql = 'INSERT INTO /*_PREFIX_*/_settings (setting_value, setting_key, explanation) VALUES ("%s", "%s", %s)';
 		$sql = sprintf($sql, wrap_db_escape($value), wrap_db_escape($key), $explanation);
