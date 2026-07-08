@@ -201,7 +201,11 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 	if (empty($page)) wrap_quit();
 
 	if (!empty($page['error']['level'])) {
-		wrap_error(wrap_page_error_msg($page['error']), $page['error']['level']);
+		if (empty($page['error']['_msg'])) {
+			wrap_error(wrap_text('zzbrick returned with an error. Sorry, that’s all we know.'), $page['error']['level']);
+		} else {
+			wrap_error(wrap_text_msg($page['error']), $page['error']['level']);
+		}
 	} elseif ($page['status'] != 200) {
 		if ($scope === 'template' AND wrap_setting('current_template') === '(from variable)'
 			AND $page['status'] === 403) {
@@ -224,41 +228,6 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 		exit;
 	}
 	return true;
-}
-
-/**
- * translate page error message(s) from `_msg` / `_msg_values`
- *
- * `_msg` may be a string or a list of strings (each translated separately).
- * `_msg_values` holds sprintf values for a single string, or per-sentence lists
- * when `_msg` is an array.
- *
- * @param array $error
- * @return string
- */
-function wrap_page_error_msg($error) {
-	if (empty($error['_msg'])) {
-		return wrap_text('zzbrick returned with an error. Sorry, that’s all we know.');
-	}
-	if (!is_array($error['_msg'])) {
-		$params = [];
-		if (!empty($error['_msg_values'])) {
-			$params['values'] = $error['_msg_values'];
-		}
-		return wrap_text($error['_msg'], $params);
-	}
-	$parts = [];
-	foreach ($error['_msg'] as $index => $sentence) {
-		if ($sentence === '' OR $sentence === null) continue;
-		$params = [];
-		if (!empty($error['_msg_values']) AND !empty($error['_msg_values'][$index])) {
-			$values = $error['_msg_values'][$index];
-			if (!is_array($values)) $values = [$values];
-			$params['values'] = $values;
-		}
-		$parts[] = wrap_text($sentence, $params);
-	}
-	return implode(' ', $parts);
 }
 
 /**

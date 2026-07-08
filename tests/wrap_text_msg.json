@@ -1,0 +1,57 @@
+{
+	"file": "language",
+	"variables": ["text"],
+	"data": [
+		{
+			"description": "missing _msg",
+			"text": {},
+			"expected": ""
+		},
+		{
+			"description": "empty _msg string",
+			"text": {"_msg": ""},
+			"expected": ""
+		},
+		{
+			"description": "empty _msg array",
+			"text": {"_msg": []},
+			"expected": ""
+		},
+		{
+			"description": "plain string",
+			"text": {"_msg": "Hello world"},
+			"expected": "Hello world"
+		},
+		{
+			"description": "string with _msg_values",
+			"text": {"_msg": "Hello %s", "_msg_values": ["world"]},
+			"expected": "Hello world"
+		},
+		{
+			"description": "array of strings",
+			"text": {"_msg": ["First sentence.", "Second sentence."]},
+			"expected": "First sentence. Second sentence."
+		},
+		{
+			"description": "array with per-index _msg_values",
+			"text": {
+				"_msg": ["ID %d.", "Name %s."],
+				"_msg_values": [[42], ["Alice"]]
+			},
+			"expected": "ID 42. Name Alice."
+		},
+		{
+			"description": "array with scalar _msg_values at index 0",
+			"text": {
+				"_msg": ["Count %d"],
+				"_msg_values": [3]
+			},
+			"expected": "Count 3"
+		},
+		{
+			"description": "array skips empty sentence",
+			"text": {"_msg": ["Valid.", ""]},
+			"expected": "Valid."
+		}
+	]
+}

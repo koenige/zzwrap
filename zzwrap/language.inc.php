@@ -1440,3 +1440,40 @@ function wrap_text_languages_path($package) {
 	if (!$folder) return null;
 	return $folder.'/languages';
 }
+
+/**
+ * translate text message(s) from `_msg` / `_msg_values`
+ *
+ * `_msg` may be a string or a list of strings (each translated separately).
+ * `_msg_values` holds sprintf values for a single string, or per-sentence lists
+ * when `_msg` is an array.
+ *
+ * @param array $text
+ *		string|array '_msg'
+ *		array '_msg_values' 
+ * @return string
+ */
+function wrap_text_msg($text) {
+	if (empty($text['_msg'])) {
+		return '';
+	}
+	if (!is_array($text['_msg'])) {
+		$params = [];
+		if (!empty($text['_msg_values'])) {
+			$params['values'] = $text['_msg_values'];
+		}
+		return wrap_text($text['_msg'], $params);
+	}
+	$parts = [];
+	foreach ($text['_msg'] as $index => $sentence) {
+		if ($sentence === '' OR $sentence === null) continue;
+		$params = [];
+		if (!empty($text['_msg_values']) AND !empty($text['_msg_values'][$index])) {
+			$values = $text['_msg_values'][$index];
+			if (!is_array($values)) $values = [$values];
+			$params['values'] = $values;
+		}
+		$parts[] = wrap_text($sentence, $params);
+	}
+	return implode(' ', $parts);
+}
