@@ -22,6 +22,7 @@
  *  wrap_money()
  *		wrap_money_format()
  *  wrap_html_escape()
+ *  wrap_html_escape_text()
  *	_wrap_unit_format()
  *		wrap_bytes()
  *		wrap_gram()
@@ -1094,6 +1095,28 @@ function wrap_html_escape($string) {
 	}
 	$new_string = @htmlspecialchars($string, ENT_QUOTES, $character_set);
 	if (!$new_string) $new_string = htmlspecialchars($string, ENT_QUOTES, 'ISO-8859-1');
+	return $new_string;
+}
+
+/**
+ * Escapes unvalidated strings for HTML text nodes (< > & only)
+ *
+ * @param string $string
+ * @return string
+ */
+function wrap_html_escape_text($string) {
+	if (!$string) return $string;
+	if (is_array($string)) {
+		wrap_error(sprintf('wrap_html_escape_text() only handles strings (%s)', json_encode($string)));
+		return '';
+	}
+	switch (wrap_setting('character_set')) {
+		case 'iso-8859-2': $character_set = 'ISO-8859-1'; break;
+		default: $character_set = wrap_setting('character_set'); break;
+	}
+	$flags = ENT_NOQUOTES | ENT_SUBSTITUTE;
+	$new_string = @htmlspecialchars($string, $flags, $character_set);
+	if (!$new_string) $new_string = htmlspecialchars($string, $flags, 'ISO-8859-1');
 	return $new_string;
 }
 
