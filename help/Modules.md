@@ -6,7 +6,7 @@
 # https://www.zugzwang.org/modules/zzwrap
 #
 # @author Gustaf Mossakowski <gustaf@koenige.org>
-# @copyright Copyright © 2024-2025 Gustaf Mossakowski
+# @copyright Copyright © 2024-2026 Gustaf Mossakowski
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 -->
@@ -74,7 +74,7 @@ This folder is for your own JavaScript files. It is recommended to put
 complete external JavaScript libraries inside the folder
 `/www/_behaviour`. A file `/behaviour/test.js` can be accessed via this
 URL: `example.org/_behaviour/example/test.js`. It is treated as a
-zzbrick template, you can put %%% blocks inside it.
+zzbrick template, you can put %\%\% blocks inside it.
 
 ### Folder `/configuration`
 
@@ -105,7 +105,8 @@ here `mf_example_`, as a prefix for each function.
 - `/example/functions.inc.php` - Common functions which are only
 included if the module was activated
 - `/example/format.inc.php` – Formatting functions. Functions in this
-file are automatically registered as brick formatting functions.
+file are automatically registered as brick formatting functions. See
+[Format](format).
 - `/example/search.inc.php` – Use to include search results from module.
 - further functions: connecting functions for other modules should be
 inside a file called `[module].inc.php`
@@ -128,7 +129,7 @@ informal variant
 This folder is for your own layout files, CSS and graphics. A file
 `/layout/test.css` can be accessed via this URL:
 `example.org/_layout/example/test.css`. It is treated as a zzbrick
-template, you can put %%% blocks inside it.
+template, you can put %\%\% blocks inside it.
 
 CSS files with the same name as the module are included automatically if
 `page packagecss` is used.
