@@ -1,0 +1,1471 @@
+# zzwrap module
+# Translations, admin
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zugzwang Project -- zzwrap module\n"
+"POT-Creation-Date: 2026-07-09 20:11+0000\n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: configuration/access.cfg:20
+msgid "Show unpublished content as preview"
+msgstr ""
+
+#: configuration/access.cfg:24
+msgid "Use the backend while the site is offline"
+msgstr ""
+
+#: configuration/cfg.cfg:13
+msgid "Whether this configuration entry is active"
+msgstr ""
+
+#: configuration/cfg.cfg:18
+msgid "Author of the configuration"
+msgstr ""
+
+#: configuration/cfg.cfg:22
+msgid "Automatically initialize this variable"
+msgstr ""
+
+#: configuration/cfg.cfg:27
+msgid "Configuration for batch operations"
+msgstr ""
+
+#: configuration/cfg.cfg:32
+msgid "Use this brick to get the path of webpage"
+msgstr ""
+
+#: configuration/cfg.cfg:36
+msgid "HTTP Content-Disposition header value"
+msgstr ""
+
+#: configuration/cfg.cfg:42
+msgid "Path to CSV file for data synchronization"
+msgstr ""
+
+#: configuration/cfg.cfg:47
+msgid "CSV file uses fixed width format"
+msgstr ""
+
+#: configuration/cfg.cfg:52
+msgid "Key field name in CSV file for record identification"
+msgstr ""
+
+#: configuration/cfg.cfg:57
+msgid "Default value for variable"
+msgstr ""
+
+#: configuration/cfg.cfg:65
+msgid "Use empty string as default, not NULL value"
+msgstr ""
+
+#: configuration/cfg.cfg:70
+msgid "Default value for variable, taken from another variable"
+msgstr ""
+
+#: configuration/cfg.cfg:74
+msgid "Get default value by calling this function"
+msgstr ""
+
+#: configuration/cfg.cfg:79
+msgid "Default value for variable, set by module?"
+msgstr ""
+
+#: configuration/cfg.cfg:84
+msgid "Default value for variable, take from this PHP setting"
+msgstr ""
+
+#: configuration/cfg.cfg:88
+msgid "Default value for variable, take from this setting"
+msgstr ""
+
+#: configuration/cfg.cfg:92
+msgid "Mark this variable as deprecated"
+msgstr ""
+
+#: configuration/cfg.cfg:100
+msgid "Description of variable"
+msgstr ""
+
+#: configuration/cfg.cfg:114
+msgid "Default destination filetype for file conversion"
+msgstr ""
+
+#: configuration/cfg.cfg:119
+msgid "How to handle transparency when converting to destination filetype"
+msgstr ""
+
+#: configuration/cfg.cfg:123
+msgid "Character encoding for file content"
+msgstr ""
+
+#: configuration/cfg.cfg:127
+msgid "List of possible variables"
+msgstr ""
+
+#: configuration/cfg.cfg:137
+msgid "Example for variable"
+msgstr ""
+
+#: configuration/cfg.cfg:144
+msgid "File format supports EXIF metadata"
+msgstr ""
+
+#: configuration/cfg.cfg:149
+msgid "File format is supported by exiftool"
+msgstr ""
+
+#: configuration/cfg.cfg:154
+msgid "Exiftool can extract or generate thumbnails for this file format"
+msgstr ""
+
+#: configuration/cfg.cfg:159
+msgid "File extension(s) for this filetype"
+msgstr ""
+
+#: configuration/cfg.cfg:164
+msgid "This variable can be used with this zzform field type"
+msgstr ""
+
+#: configuration/cfg.cfg:169
+msgid "Scope definition for form fields"
+msgstr ""
+
+#: configuration/cfg.cfg:173
+msgid "Name of file(s) where this variable is used"
+msgstr ""
+
+#: configuration/cfg.cfg:178
+msgid "Type classification for file"
+msgstr ""
+
+#: configuration/cfg.cfg:182
+msgid "Filetype identifier for filetree display"
+msgstr ""
+
+#: configuration/cfg.cfg:186
+msgid "Group classification for related filetypes"
+msgstr ""
+
+#: configuration/cfg.cfg:190
+msgid "Script path for form processing"
+msgstr ""
+
+#: configuration/cfg.cfg:195
+msgid "Name of group that has access"
+msgstr ""
+
+#: configuration/cfg.cfg:200
+msgid "Content contains or allows HTML markup"
+msgstr ""
+
+#: configuration/cfg.cfg:205
+msgid "File format can be used in HTML <audio> tag"
+msgstr ""
+
+#: configuration/cfg.cfg:210
+msgid "File format can be used in HTML <video> tag"
+msgstr ""
+
+#: configuration/cfg.cfg:215
+msgid "Ignore query string parameters in URLs"
+msgstr ""
+
+#: configuration/cfg.cfg:220
+msgid "When checking this access key, also accept usergroups (and config group) from these keys; one level only, includes and conditions of listed keys are not applied recursively"
+msgstr ""
+
+#: configuration/cfg.cfg:226
+msgid "Request a value for this variable during installation"
+msgstr ""
+
+#: configuration/cfg.cfg:231
+msgid "Request folder path for this variable during installation"
+msgstr ""
+
+#: configuration/cfg.cfg:236
+msgid "Allow to set language specific settings, e. g. key[en]=English version"
+msgstr ""
+
+#: configuration/cfg.cfg:240
+msgid "List of error levels"
+msgstr ""
+
+#: configuration/cfg.cfg:244
+msgid "Filetype may contain outbound links and serve as HTTP Referer"
+msgstr ""
+
+#: configuration/cfg.cfg:249
+msgid "Variable is an array"
+msgstr ""
+
+#: configuration/cfg.cfg:259
+msgid "For zzform, this variable controls the display of the zzform list view"
+msgstr ""
+
+#: configuration/cfg.cfg:265
+msgid "Setting is only relevant locally, not for deployment"
+msgstr ""
+
+#: configuration/cfg.cfg:270
+msgid "Enable or disable logging for this operation"
+msgstr ""
+
+#: configuration/cfg.cfg:275
+msgid "MIME type(s) for this filetype"
+msgstr ""
+
+#: configuration/cfg.cfg:280
+msgid "This variable has been moved to another key name"
+msgstr ""
+
+#: configuration/cfg.cfg:285
+msgid "This variable has been moved to a $zz array key"
+msgstr ""
+
+#: configuration/cfg.cfg:289
+msgid "File format supports multiple pages or frames"
+msgstr ""
+
+#: configuration/cfg.cfg:294
+msgid "Which frame/page number to use for thumbnail generation"
+msgstr ""
+
+#: configuration/cfg.cfg:299
+msgid "Name identifier for this entry"
+msgstr ""
+
+#: configuration/cfg.cfg:303
+msgid "Short descriptive line about the package; use inside [about] section in configuration/package.cfg"
+msgstr ""
+
+#: configuration/cfg.cfg:309
+msgid "Do not automatically initialize this variable"
+msgstr ""
+
+#: configuration/cfg.cfg:314
+msgid "Do not initialize this variable during standard initialization"
+msgstr ""
+
+#: configuration/cfg.cfg:319
+msgid "Do not trim whitespace from this value"
+msgstr ""
+
+#: configuration/cfg.cfg:324
+msgid "This variable can be passed as a page parameter in the URL"
+msgstr ""
+
+#: configuration/cfg.cfg:329
+msgid "File format can be analyzed with pdfinfo tool"
+msgstr ""
+
+#: configuration/cfg.cfg:334
+msgid "PHP constant identifier for this filetype"
+msgstr ""
+
+#: configuration/cfg.cfg:338
+msgid "This is a private setting, not for public configuration"
+msgstr ""
+
+#: configuration/cfg.cfg:343
+msgid "For zzform, this variable controls the display of the zzform record view"
+msgstr ""
+
+#: configuration/cfg.cfg:348
+msgid "Additional remarks or notes about this variable"
+msgstr ""
+
+#: configuration/cfg.cfg:352
+msgid "This variable must be set"
+msgstr ""
+
+#: configuration/cfg.cfg:358
+msgid "Scope(s) where this variable can be set"
+msgstr ""
+
+#: configuration/cfg.cfg:368
+msgid "Store this setting globally (website_id = 1) when running multiple websites"
+msgstr ""
+
+#: configuration/cfg.cfg:373
+msgid "Path to script for processing"
+msgstr ""
+
+#: configuration/cfg.cfg:378
+msgid "Link to another variable that does something similar, @see"
+msgstr ""
+
+#: configuration/cfg.cfg:383
+msgid "Field name for source record identifier in synchronization"
+msgstr ""
+
+#: configuration/cfg.cfg:388
+msgid "Function for processing raw SPARQL results"
+msgstr ""
+
+#: configuration/cfg.cfg:393
+msgid "SPARQL endpoint URI"
+msgstr ""
+
+#: configuration/cfg.cfg:398
+msgid "SQL query or SQL-related configuration"
+msgstr ""
+
+#: configuration/cfg.cfg:403
+msgid "Number of records to process per synchronization run"
+msgstr ""
+
+#: configuration/cfg.cfg:408
+msgid "This variable is for testing purposes only"
+msgstr ""
+
+#: configuration/cfg.cfg:413
+msgid "Thumbnail generation is supported for this filetype"
+msgstr ""
+
+#: configuration/cfg.cfg:418
+msgid "Display title or label for this entry"
+msgstr ""
+
+#: configuration/cfg.cfg:423
+msgid "To do, @todo"
+msgstr ""
+
+#: configuration/cfg.cfg:426
+msgid "Values of this property are automatically translated"
+msgstr ""
+
+#: configuration/cfg.cfg:432
+msgid "If a translation is missing, which .pot file gets the new msgid"
+msgstr ""
+
+#: configuration/cfg.cfg:438
+msgid "Type of variable"
+msgstr ""
+
+#: configuration/cfg.cfg:469
+msgid "URL value"
+msgstr ""
+
+#: configuration/cfg.cfg:474
+msgid "Image format suitable for web display"
+msgstr ""
+
+#: configuration/package.cfg:15
+msgid "Site core: HTTP, routing, sessions, database access, mail, and configuration"
+msgstr ""
+
+#: configuration/routes.cfg:12
+msgid "Change password"
+msgstr ""
+
+#: configuration/routes.cfg:17
+msgid "Job manager"
+msgstr ""
+
+#: configuration/routes.cfg:23
+msgid "User login"
+msgstr ""
+
+#: configuration/routes.cfg:28
+msgid "Page you are redirected to after successful login"
+msgstr ""
+
+#: configuration/routes.cfg:34
+msgid "Homepage / start page (might be on different server)"
+msgstr ""
+
+#: configuration/routes.cfg:40
+msgid "User logout"
+msgstr ""
+
+#: configuration/settings.cfg:20
+msgid "Use absolute URLs for generated links"
+msgstr ""
+
+#: configuration/settings.cfg:25
+msgid "List of access areas where access is granted via setting"
+msgstr ""
+
+#: configuration/settings.cfg:29
+msgid "List of IPs that have no access to this site (better use only temporarily, as IP allocations change)"
+msgstr ""
+
+#: configuration/settings.cfg:34
+msgid "Grant access to all areas"
+msgstr ""
+
+#: configuration/settings.cfg:38
+msgid "List of active modules"
+msgstr ""
+
+#: configuration/settings.cfg:44
+msgid "List of active themes"
+msgstr ""
+
+#: configuration/settings.cfg:50
+msgid "Identifier of active module"
+msgstr ""
+
+#: configuration/settings.cfg:55
+msgid "Identifier of active theme (if there are multiple themes)"
+msgstr ""
+
+#: configuration/settings.cfg:59
+msgid "If administration and jobs are running on a different server, hostname"
+msgstr ""
+
+#: configuration/settings.cfg:62
+msgid "URLs below which authentication is required"
+msgstr ""
+
+#: configuration/settings.cfg:68
+msgid "Can a user authenticate on this website?"
+msgstr ""
+
+#: configuration/settings.cfg:73
+msgid "If backend is different from main website, use as path to set backend URL via placeholder"
+msgstr ""
+
+#: configuration/settings.cfg:78
+msgid "Website ID if the website that is worked on in the backend is different from main website"
+msgstr ""
+
+#: configuration/settings.cfg:84
+msgid "Marker if request runs as a background job"
+msgstr ""
+
+#: configuration/settings.cfg:89
+msgid "Base URL, e. g. for languages"
+msgstr ""
+
+#: configuration/settings.cfg:94
+msgid "If website does not cover all URLs under a domain, path which belongs to CMS (no trailing slash!)"
+msgstr ""
+
+#: configuration/settings.cfg:100
+msgid "URL path to public script folder on server, defaults to `/_behaviour`"
+msgstr ""
+
+#: configuration/settings.cfg:105
+msgid "Add breadcrumb(s) before h1, all: all of them, number: just the last n breadcrumbs"
+msgstr ""
+
+#: configuration/settings.cfg:117
+msgid "Cache website content"
+msgstr ""
+
+#: configuration/settings.cfg:123
+msgid "Seconds while content is always considered fresh"
+msgstr ""
+
+#: configuration/settings.cfg:128
+msgid "Time in seconds how long a syndicated file should be considered as fresh"
+msgstr ""
+
+#: configuration/settings.cfg:133
+msgid "Seconds a standard file is considered fresh, sent with cache-control-header"
+msgstr ""
+
+#: configuration/settings.cfg:138
+msgid "Seconds a standard text resource is considered fresh, sent with cache-control-header"
+msgstr ""
+
+#: configuration/settings.cfg:143
+msgid "Use directory structure for caching (for larger websites)"
+msgstr ""
+
+#: configuration/settings.cfg:147
+msgid "Location of cache folder"
+msgstr ""
+
+#: configuration/settings.cfg:153
+msgid "Base directory inside cache folder, internal"
+msgstr ""
+
+#: configuration/settings.cfg:158
+msgid "Extension of file for caching"
+msgstr ""
+
+#: configuration/settings.cfg:162
+msgid "Canonical host name; other host names will redirect to this"
+msgstr ""
+
+#: configuration/settings.cfg:168
+msgid "Character encoding of website"
+msgstr ""
+
+#: configuration/settings.cfg:173
+msgid "Check redirects table for redirected URLs"
+msgstr ""
+
+#: configuration/settings.cfg:178
+msgid "Folder where CMS is in; recommended: one folder below root folder"
+msgstr ""
+
+#: configuration/settings.cfg:182
+msgid "Folder for JSON config files"
+msgstr ""
+
+#: configuration/settings.cfg:188
+msgid "Folder of zzwrap module"
+msgstr ""
+
+#: configuration/settings.cfg:194
+msgid "When using cURL, do not verify SSL connection (for development only)"
+msgstr ""
+
+#: configuration/settings.cfg:198
+msgid "Part of filename of current template"
+msgstr ""
+
+#: configuration/settings.cfg:203
+msgid "Filename where current template is from"
+msgstr ""
+
+#: configuration/settings.cfg:208
+msgid "Folder for custom module"
+msgstr ""
+
+#: configuration/settings.cfg:213
+msgid "Folder for access rights and usergroups functions"
+msgstr ""
+
+#: configuration/settings.cfg:218
+msgid "Standard formatting of dates"
+msgstr ""
+
+#: configuration/settings.cfg:224
+msgid "URL path that is used by WebDAV"
+msgstr ""
+
+#: configuration/settings.cfg:228
+msgid "Fields or field endings behind _ that are removed from data array by cleanup function"
+msgstr ""
+
+#: configuration/settings.cfg:236
+msgid "Root folder for module-owned data files not managed by the media module"
+msgstr ""
+
+#: configuration/settings.cfg:242
+msgid "Database name on production server"
+msgstr ""
+
+#: configuration/settings.cfg:246
+msgid "Database name on local development server"
+msgstr ""
+
+#: configuration/settings.cfg:250
+msgid "List of password files to use"
+msgstr ""
+
+#: configuration/settings.cfg:255
+msgid "Prefix for all database tables"
+msgstr ""
+
+#: configuration/settings.cfg:259
+msgid "Activate debugging"
+msgstr ""
+
+#: configuration/settings.cfg:263
+msgid "Log access and authentication decisions"
+msgstr ""
+
+#: configuration/settings.cfg:267
+msgid "When routes.json is regenerated, backup the previous file"
+msgstr ""
+
+#: configuration/settings.cfg:271
+msgid "Decimal point"
+msgstr ""
+
+#: configuration/settings.cfg:275
+msgid "Use a pre-defined system for access rights"
+msgstr ""
+
+#: configuration/settings.cfg:279
+msgid "If content is translated, default source language, ISO 639-1 code"
+msgstr ""
+
+#: configuration/settings.cfg:284
+msgid "List of domains a user can log on to (defaults to hostname)"
+msgstr ""
+
+#: configuration/settings.cfg:289
+msgid "Paths on server where no language negotiation should take place (e. g. files)"
+msgstr ""
+
+#: configuration/settings.cfg:298
+msgid "If set to true, h1 is not created and added automatically from webpages.title"
+msgstr ""
+
+#: configuration/settings.cfg:303
+msgid "Formatting of a period of time"
+msgstr ""
+
+#: configuration/settings.cfg:309
+msgid "Mapping of character encoding; MySQL uses different identifiers for character encoding than HTML"
+msgstr ""
+
+#: configuration/settings.cfg:316
+msgid "Add link to homepage URL in breadcrumbs on error pages"
+msgstr ""
+
+#: configuration/settings.cfg:320
+msgid "Exit after a 503 to not get into a loop (internal variable)"
+msgstr ""
+
+#: configuration/settings.cfg:325
+msgid "Value for admin error logging: false: no output, just write into log if set; mail: send admin errors via mail, output: send admin errors via html, save_mail (internal parameter), mail_summary (internal parameter)"
+msgstr ""
+
+#: configuration/settings.cfg:332
+msgid "Ignore 404 errors for logging and mail"
+msgstr ""
+
+#: configuration/settings.cfg:336
+msgid "Name of debug.log file for logs of type DEBUG"
+msgstr ""
+
+#: configuration/settings.cfg:341
+msgid "Name of error.log file for logs of type ERROR"
+msgstr ""
+
+#: configuration/settings.cfg:347
+msgid "Name of error.log file for logs of type WARNING"
+msgstr ""
+
+#: configuration/settings.cfg:353
+msgid "Name of error.log file for logs of type NOTICE"
+msgstr ""
+
+#: configuration/settings.cfg:359
+msgid "Log posted values if an error occurs (re: data protection)"
+msgstr ""
+
+#: configuration/settings.cfg:363
+msgid "Delay error mails and combine several to reduce amount of mails sent in case of error"
+msgstr ""
+
+#: configuration/settings.cfg:368
+msgid "Sender of error mails"
+msgstr ""
+
+#: configuration/settings.cfg:373
+msgid "Minimum error level for sending errors via mail"
+msgstr ""
+
+#: configuration/settings.cfg:382
+msgid "Parameters for error mails"
+msgstr ""
+
+#: configuration/settings.cfg:386
+msgid "Where to send errors per mail"
+msgstr ""
+
+#: configuration/settings.cfg:391
+msgid "Prefix (text before) for error message"
+msgstr ""
+
+#: configuration/settings.cfg:394
+msgid "External libraries to always include"
+msgstr ""
+
+#: configuration/settings.cfg:400
+msgid "Host names that redirect to this webpage"
+msgstr ""
+
+#: configuration/settings.cfg:406
+msgid "Like `dont_negotiate_language_paths`, but keep the default paths"
+msgstr ""
+
+#: configuration/settings.cfg:418
+msgid "URL path under which all media files are located"
+msgstr ""
+
+#: configuration/settings.cfg:423
+msgid "List of own modifications for filetype.cfg"
+msgstr ""
+
+#: configuration/settings.cfg:427
+msgid "String that is used if there is nothing else left to create a filename from a string"
+msgstr ""
+
+#: configuration/settings.cfg:431
+msgid "Maximum of UTF-8 characters per string (0 = no limit) in `wrap_print()`"
+msgstr ""
+
+#: configuration/settings.cfg:436
+msgid "Maximal default length for text prepared with `format=word_cut`"
+msgstr ""
+
+#: configuration/settings.cfg:441
+msgid "Allow login via remote web form (FORMAUTH)"
+msgstr ""
+
+#: configuration/settings.cfg:445
+msgid "Whitelist of hostnames that are accepted via a forwarding proxy, used in host_base"
+msgstr ""
+
+#: configuration/settings.cfg:449
+msgid "Rounding for geographical coordinates"
+msgstr ""
+
+#: configuration/settings.cfg:454
+msgid "Space character between values of geographical coordinates"
+msgstr ""
+
+#: configuration/settings.cfg:458
+msgid "List of services used for geocoding"
+msgstr ""
+
+#: configuration/settings.cfg:464
+msgid "List of strings that indicate a c/o address line"
+msgstr ""
+
+#: configuration/settings.cfg:471
+msgid "List of strings that indicate a postbox"
+msgstr ""
+
+#: configuration/settings.cfg:489
+msgid "Use gzip to encode text content"
+msgstr ""
+
+#: configuration/settings.cfg:494
+msgid "Create h1 heading in page template (otherwise is added to `text` automatically)"
+msgstr ""
+
+#: configuration/settings.cfg:499
+msgid "Base-2 logarithm of the iteration count used for password stretching"
+msgstr ""
+
+#: configuration/settings.cfg:504
+msgid "Name of password hash function to use for passwords"
+msgstr ""
+
+#: configuration/settings.cfg:509
+msgid "Extra password salt for **all** passwords"
+msgstr ""
+
+#: configuration/settings.cfg:514
+msgid "If phpass is used: do we require the hashes to be portable to older systems (less secure)?"
+msgstr ""
+
+#: configuration/settings.cfg:519
+msgid "HTTP headers to send"
+msgstr ""
+
+#: configuration/settings.cfg:525
+msgid "Protocol and hostname of website"
+msgstr ""
+
+#: configuration/settings.cfg:530
+msgid "Hostname of server"
+msgstr ""
+
+#: configuration/settings.cfg:534
+msgid "Check for hostname in URL path (for use with proxy server that rewrites domains)"
+msgstr ""
+
+#: configuration/settings.cfg:538
+msgid "HTML code: put label after input element, not label around input element"
+msgstr ""
+
+#: configuration/settings.cfg:542
+msgid "List of HTTP verbs that are allowed"
+msgstr ""
+
+#: configuration/settings.cfg:546
+msgid "List of HTTP verbs that are explicitly not allowed"
+msgstr ""
+
+#: configuration/settings.cfg:550
+msgid "Forwarded IP, if it is unknown to server"
+msgstr ""
+
+#: configuration/settings.cfg:555
+msgid "Check blocked paths, matching requests get 404 immediately without DB request"
+msgstr ""
+
+#: configuration/settings.cfg:560
+msgid "Enable Apache style HTTP logging (e. g. if unavailable from hoster)"
+msgstr ""
+
+#: configuration/settings.cfg:564
+msgid "Anonymize HTTP logging, no. of octets or hextets (1–8, reduced to max. 4 for IPv4)"
+msgstr ""
+
+#: configuration/settings.cfg:568
+msgid "Use https for connections?"
+msgstr ""
+
+#: configuration/settings.cfg:573
+msgid "List of URLs below which https is required"
+msgstr ""
+
+#: configuration/settings.cfg:579
+msgid "List of word parts to be followed by a soft hyphen"
+msgstr ""
+
+#: configuration/settings.cfg:583
+msgid "List of word parts to be preceded by a soft hyphen"
+msgstr ""
+
+#: configuration/settings.cfg:587
+msgid "Special paths for system icons (e. g. not for translations, no match for * URLs)"
+msgstr ""
+
+#: configuration/settings.cfg:595
+msgid "Ignore whether scheme is http or https"
+msgstr ""
+
+#: configuration/settings.cfg:599
+msgid "Paths accessible under both http and https without redirection"
+msgstr ""
+
+#: configuration/settings.cfg:607
+msgid "Path to include folder"
+msgstr ""
+
+#: configuration/settings.cfg:611
+msgid "Marker that installation is running"
+msgstr ""
+
+#: configuration/settings.cfg:616
+msgid "Do not use field logins.login_rights while installing"
+msgstr ""
+
+#: configuration/settings.cfg:620
+msgid "Language of website, ISO 639-1 code"
+msgstr ""
+
+#: configuration/settings.cfg:628
+msgid "Use other language than source language as default if translation do not exist (iso=>iso)"
+msgstr ""
+
+#: configuration/settings.cfg:632
+msgid "Is language code part of URL?"
+msgstr ""
+
+#: configuration/settings.cfg:638
+msgid "Remove language strings from navigation"
+msgstr ""
+
+#: configuration/settings.cfg:642
+msgid "Activate variation of language, e. g. `formal` or `informal`"
+msgstr ""
+
+#: configuration/settings.cfg:647
+msgid "List of additional language files to include, notation: `module/file/pot_language` or `module/file`, if pot language is english"
+msgstr ""
+
+#: configuration/settings.cfg:651
+msgid "Which languages are allowed on website? ISO 639-1 code"
+msgstr ""
+
+#: configuration/settings.cfg:657
+msgid "Languages that are allowed but not shown in links or negotiated (e. g. for development)"
+msgstr ""
+
+#: configuration/settings.cfg:663
+msgid "URL path to public layout folder on server, defaults to `/_layout`"
+msgstr ""
+
+#: configuration/settings.cfg:668
+msgid "Use LDAP server for login"
+msgstr ""
+
+#: configuration/settings.cfg:672
+msgid "Folder for external libraries"
+msgstr ""
+
+#: configuration/settings.cfg:677
+msgid "Is this a development website (ending .local or starting dev.) or not?"
+msgstr ""
+
+#: configuration/settings.cfg:682
+msgid "Use https for local development connections, too"
+msgstr ""
+
+#: configuration/settings.cfg:687
+msgid "Full filename of password file on local development server"
+msgstr ""
+
+#: configuration/settings.cfg:691
+msgid "Folder for log files"
+msgstr ""
+
+#: configuration/settings.cfg:697
+msgid "Write errors in logfile?"
+msgstr ""
+
+#: configuration/settings.cfg:702
+msgid "Log filename if different from module, will be put into module folder inside logs"
+msgstr ""
+
+#: configuration/settings.cfg:706
+msgid "Write all mails sent via website into logfile"
+msgstr ""
+
+#: configuration/settings.cfg:711
+msgid "Log missing text for new translations only, should not be used continuously"
+msgstr ""
+
+#: configuration/settings.cfg:715
+msgid "If you suspect that the server has problems with mod_rewrite, log these errors"
+msgstr ""
+
+#: configuration/settings.cfg:719
+msgid "Decode and encode logfiles with a certain encoding to a different encoding"
+msgstr ""
+
+#: configuration/settings.cfg:723
+msgid "Trigger logfiles, true or filename of log file"
+msgstr ""
+
+#: configuration/settings.cfg:726
+msgid "Username for use with internal operations"
+msgstr ""
+
+#: configuration/settings.cfg:730
+msgid "Default username for use with internal operations, if no other username is available (e. g. from SESSION)"
+msgstr ""
+
+#: configuration/settings.cfg:734
+msgid "Suffix for username for logging, used as username if no other alternative is available"
+msgstr ""
+
+#: configuration/settings.cfg:738
+msgid "Use 404 error log to ignore automated 404 requests"
+msgstr ""
+
+#: configuration/settings.cfg:743
+msgid "List of fields for 404 error log"
+msgstr ""
+
+#: configuration/settings.cfg:750
+#: configuration/settings.cfg:777
+#: configuration/settings.cfg:828
+msgid "Logfile tokens might contain spaces?"
+msgstr ""
+
+#: configuration/settings.cfg:755
+msgid "No. of 404 requests per validity period from one IP, after which no more emails are sent to the admin"
+msgstr ""
+
+#: configuration/settings.cfg:760
+msgid "Validity of entries in 404 error log"
+msgstr ""
+
+#: configuration/settings.cfg:765
+msgid "Use maildomain log"
+msgstr ""
+
+#: configuration/settings.cfg:770
+msgid "List of fields for maildomain log"
+msgstr ""
+
+#: configuration/settings.cfg:782
+msgid "Validity of entries in maildomain log"
+msgstr ""
+
+#: configuration/settings.cfg:787
+msgid "List of fields used for login"
+msgstr ""
+
+#: configuration/settings.cfg:792
+msgid "Reformats login field values with custom function"
+msgstr ""
+
+#: configuration/settings.cfg:796
+msgid "HTML output for each login field"
+msgstr ""
+
+#: configuration/settings.cfg:801
+msgid "List of IDs to use with `login_foreign`-query"
+msgstr ""
+
+#: configuration/settings.cfg:806
+msgid "Secret key which forms a hash that allows a login without password"
+msgstr ""
+
+#: configuration/settings.cfg:811
+msgid "Timeframe in minutes during which the login_key is valid"
+msgstr ""
+
+#: configuration/settings.cfg:816
+msgid "Use logfile for login with list of IP addresses"
+msgstr ""
+
+#: configuration/settings.cfg:821
+msgid "List of fields for login IP log"
+msgstr ""
+
+#: configuration/settings.cfg:833
+msgid "Validity of entries in login IP log"
+msgstr ""
+
+#: configuration/settings.cfg:838
+msgid "Default value for logins.login_rights if an external login is used"
+msgstr ""
+
+#: configuration/settings.cfg:842
+msgid "Base for calculation of time to wait for next login attempt"
+msgstr ""
+
+#: configuration/settings.cfg:847
+msgid "Is every login linked to a contact?"
+msgstr ""
+
+#: configuration/settings.cfg:851
+msgid "Use e-mail address as username"
+msgstr ""
+
+#: configuration/settings.cfg:855
+msgid "Login was performed without a session cookie (e.g. HTTP auth, IP login)"
+msgstr ""
+
+#: configuration/settings.cfg:860
+msgid "Time of inactivity (in minutes) after a user gets logged out automatically"
+msgstr ""
+
+#: configuration/settings.cfg:865
+msgid "Check MX record for the domain part of each mail address"
+msgstr ""
+
+#: configuration/settings.cfg:869
+msgid "Mail header lines should be separated by CRLF; some postfix versions handle mail internally with LF and replace LF with CRLF for outgoing mail, ending with CRCRLF"
+msgstr ""
+
+#: configuration/settings.cfg:873
+msgid "Hostname for SMTP server used with PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg:876
+msgid "Hostname for imap mailbox"
+msgstr ""
+
+#: configuration/settings.cfg:879
+msgid "Flags for communication with imap mailbox"
+msgstr ""
+
+#: configuration/settings.cfg:883
+msgid "Port for imap mailbox"
+msgstr ""
+
+#: configuration/settings.cfg:888
+msgid "Name of mailbox for sent mails"
+msgstr ""
+
+#: configuration/settings.cfg:891
+msgid "Copy sent mails to sent folder in mailbox"
+msgstr ""
+
+#: configuration/settings.cfg:896
+msgid "List of mail domains that are invalid"
+msgstr ""
+
+#: configuration/settings.cfg:908
+msgid "Milliseconds of runtime of the checkdnsrr() function, after which a negative result is considered true"
+msgstr ""
+
+#: configuration/settings.cfg:913
+msgid "List of domains that regularly fail the DNS check but still exist"
+msgstr ""
+
+#: configuration/settings.cfg:917
+msgid "Password for mailbox used with PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg:921
+msgid "Show debug messages for PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg:925
+msgid "Always use `own_e_mail` as From:, re-write different sender to Reply-To:"
+msgstr ""
+
+#: configuration/settings.cfg:929
+msgid "Port for sending mails via SMTP"
+msgstr ""
+
+#: configuration/settings.cfg:933
+msgid "Subject prefix for all mails sent via website"
+msgstr ""
+
+#: configuration/settings.cfg:937
+msgid "Username for mailbox used with PHPMailer"
+msgstr ""
+
+#: configuration/settings.cfg:940
+msgid "Add signature below each text mail?"
+msgstr ""
+
+#: configuration/settings.cfg:945
+msgid "Key of main menu in database"
+msgstr ""
+
+#: configuration/settings.cfg:950
+msgid "How to display submenu items: 'all': always display all submenu items; 'current': only display submenu items when item from menu branch is selected; 'none'/false: never display submenu items"
+msgstr ""
+
+#: configuration/settings.cfg:961
+msgid "Show menu entries one level below main menu"
+msgstr ""
+
+#: configuration/settings.cfg:965
+msgid "Show menu entries two levels below main menu"
+msgstr ""
+
+#: configuration/settings.cfg:969
+msgid "Show menu entries three levels below main menu"
+msgstr ""
+
+#: configuration/settings.cfg:973
+msgid "Show menu items with id generated from identifier"
+msgstr ""
+
+#: configuration/settings.cfg:977
+msgid "List of available modules"
+msgstr ""
+
+#: configuration/settings.cfg:983
+msgid "Path to modules"
+msgstr ""
+
+#: configuration/settings.cfg:988
+msgid "Use more than one website with this CMS"
+msgstr ""
+
+#: configuration/settings.cfg:992
+msgid "Enable for each URL language negotiation, URL redirects to language prefix variant"
+msgstr ""
+
+#: configuration/settings.cfg:997
+msgid "Follow HTTP specification, strict mode: Do not try to fall back from de-AT to de or similar"
+msgstr ""
+
+#: configuration/settings.cfg:1001
+msgid "List of access areas where access is denied via setting"
+msgstr ""
+
+#: configuration/settings.cfg:1005
+msgid "URLs without authentication"
+msgstr ""
+
+#: configuration/settings.cfg:1018
+msgid "Do not allow https, https is not supported"
+msgstr ""
+
+#: configuration/settings.cfg:1022
+msgid "Cause no redirects if a query string is not wanted by the system"
+msgstr ""
+
+#: configuration/settings.cfg:1026
+msgid "Number formatting, in the format input->output, @see wrap_number()"
+msgstr ""
+
+#: configuration/settings.cfg:1030
+msgid "Own e-mail address"
+msgstr ""
+
+#: configuration/settings.cfg:1036
+msgid "Own name, sender name for e-mail"
+msgstr ""
+
+#: configuration/settings.cfg:1040
+msgid "Cache age of a URL from file system that has a version number in it"
+msgstr ""
+
+#: configuration/settings.cfg:1045
+msgid "Keys that are read from $page['extra'] and written to $page['extra_body_attributes']"
+msgstr ""
+
+#: configuration/settings.cfg:1052
+msgid "Keys that are read from webpages.parameters and written to $page['extra']"
+msgstr ""
+
+#: configuration/settings.cfg:1060
+msgid "Body class name for preview content"
+msgstr ""
+
+#: configuration/settings.cfg:1064
+msgid "Name of function that edits complete page (e. g. to replace some text blocks)"
+msgstr ""
+
+#: configuration/settings.cfg:1068
+msgid "Subtitle for pages, added to h1 (newline) and title after regular title"
+msgstr ""
+
+#: configuration/settings.cfg:1073
+msgid "HTML code to put between page title and subtitle in TITLE element"
+msgstr ""
+
+#: configuration/settings.cfg:1078
+msgid "Key that encrypts passwords if a login link is sent via the password forgotten form."
+msgstr ""
+
+#: configuration/settings.cfg:1083
+msgid "Timeframe in minutes during which the password login link is valid"
+msgstr ""
+
+#: configuration/settings.cfg:1087
+msgid "Show a “forgotten password?” link below login form"
+msgstr ""
+
+#: configuration/settings.cfg:1091
+msgid "Custom function to call if there are not enough values for path placeholder"
+msgstr ""
+
+#: configuration/settings.cfg:1095
+msgid "Website ID for routes that are resolved from a foreign website (similar to backend_website_id)"
+msgstr ""
+
+#: configuration/settings.cfg:1100
+msgid "Website domain to resolve routes from when they are not found on the current site"
+msgstr ""
+
+#: configuration/settings.cfg:1103
+msgid "List of profiles for use with wrap_profiles()"
+msgstr ""
+
+#: configuration/settings.cfg:1107
+msgid "Title of website project, part of every page title"
+msgstr ""
+
+#: configuration/settings.cfg:1116
+msgid "HTTP protocol of website URL"
+msgstr ""
+
+#: configuration/settings.cfg:1121
+msgid "List of additional valid hostnames if server is accessed via a proxy"
+msgstr ""
+
+#: configuration/settings.cfg:1126
+msgid "List of IP addresses through which the server is accessed via proxy"
+msgstr ""
+
+#: configuration/settings.cfg:1131
+msgid "List of query strings that are allowed on a page, others force a redirect"
+msgstr ""
+
+#: configuration/settings.cfg:1135
+msgid "List of query strings that force a redirect but won’t be logged"
+msgstr ""
+
+#: configuration/settings.cfg:1139
+msgid "Format identifier for quotation marks, e. g. de = de-guillemets"
+msgstr ""
+
+#: configuration/settings.cfg:1143
+msgid "URL-relative prefix from the current path to the site root for static linking (e.g. ../../ or /)"
+msgstr ""
+
+#: configuration/settings.cfg:1148
+msgid "IP address of user"
+msgstr ""
+
+#: configuration/settings.cfg:1153
+msgid "HTTP request URI"
+msgstr ""
+
+#: configuration/settings.cfg:1158
+msgid "Route key to bind this page to a route from routes.cfg"
+msgstr ""
+
+#: configuration/settings.cfg:1163
+msgid "URL fragment for this route"
+msgstr ""
+
+#: configuration/settings.cfg:1169
+msgid "Seconds between route cache checks"
+msgstr ""
+
+#: configuration/settings.cfg:1174
+msgid "Web root = $_SERVER['DOCUMENT_ROOT'], just change if provider has problems with correct setting of this variable"
+msgstr ""
+
+#: configuration/settings.cfg:1179
+msgid "Send content in JSON format (without page template)"
+msgstr ""
+
+#: configuration/settings.cfg:1184
+msgid "Show a sequential navigation on the webpage, linking to pages on same level backwards and forwards"
+msgstr ""
+
+#: configuration/settings.cfg:1189
+msgid "Database key of menu shown if you are logged in"
+msgstr ""
+
+#: configuration/settings.cfg:1194
+msgid "Name of menu where session menu shall appear"
+msgstr ""
+
+#: configuration/settings.cfg:1198
+msgid "Name of session cookie"
+msgstr ""
+
+#: configuration/settings.cfg:1202
+msgid "Path where sessions are saved"
+msgstr ""
+
+#: configuration/settings.cfg:1207
+msgid "Use secure session cookies only"
+msgstr ""
+
+#: configuration/settings.cfg:1212
+msgid "Show mail in browser instead of logging it (development server only)"
+msgstr ""
+
+#: configuration/settings.cfg:1216
+msgid "Secret to share with other server for hashing credentials of single sign on"
+msgstr ""
+
+#: configuration/settings.cfg:1221
+msgid "Name of website, hostname without www"
+msgstr ""
+
+#: configuration/settings.cfg:1225
+msgid "Put site offline (return 503 error)"
+msgstr ""
+
+#: configuration/settings.cfg:1229
+msgid "Template to show if site is offline"
+msgstr ""
+
+#: configuration/settings.cfg:1232
+msgid "List of keys that replace a key for an SQL query just for this request"
+msgstr ""
+
+#: configuration/settings.cfg:1236
+msgid "Secret key which forms a hash that allows a single sign-on login without password (must be identical with other server(s))"
+msgstr ""
+
+#: configuration/settings.cfg:1241
+msgid "Timeframe in minutes during which the sso_key is valid"
+msgstr ""
+
+#: configuration/settings.cfg:1245
+msgid "Hostname of staging server, if different from final hostname"
+msgstr ""
+
+#: configuration/settings.cfg:1249
+msgid "PHP error code to use if there’s an error during syndication of content"
+msgstr ""
+
+#: configuration/settings.cfg:1254
+msgid "Timeout in milliseconds when requesting a URL with cURL"
+msgstr ""
+
+#: configuration/settings.cfg:1258
+msgid "Timeout in milliseconds when triggering a URL with cURL, increase on slow servers"
+msgstr ""
+
+#: configuration/settings.cfg:1263
+msgid "Website page template, if different from default (needs to end in `-page`)"
+msgstr ""
+
+#: configuration/settings.cfg:1269
+msgid "HTML template for page title, max. two variables %1$s + %2$s"
+msgstr ""
+
+#: configuration/settings.cfg:1274
+msgid "HTML template for page title on home page, max. two variables %1$s + %2$s"
+msgstr ""
+
+#: configuration/settings.cfg:1278
+msgid "List of available themes"
+msgstr ""
+
+#: configuration/settings.cfg:1284
+msgid "Folder for website themes"
+msgstr ""
+
+#: configuration/settings.cfg:1290
+msgid "Thousands separator"
+msgstr ""
+
+#: configuration/settings.cfg:1294
+msgid "Internal timezone, format: continent/city"
+msgstr ""
+
+#: configuration/settings.cfg:1300
+msgid "Folder for temporary items"
+msgstr ""
+
+#: configuration/settings.cfg:1307
+msgid "Translate page titles?"
+msgstr ""
+
+#: configuration/settings.cfg:1311
+msgid "Translate text via database"
+msgstr ""
+
+#: configuration/settings.cfg:1315
+msgid "Translate field values in database"
+msgstr ""
+
+#: configuration/settings.cfg:1319
+msgid "Marker that is set if a translation is not complete"
+msgstr ""
+
+#: configuration/settings.cfg:1325
+msgid "List of MySQL sql_modes to disable"
+msgstr ""
+
+#: configuration/settings.cfg:1330
+msgid "Use uris table for logging of requests"
+msgstr ""
+
+#: configuration/settings.cfg:1335
+msgid "Maximum parts of path in URL, no. of slashes"
+msgstr ""
+
+#: configuration/settings.cfg:1340
+msgid "Named URL placeholders with lists of allowed values"
+msgstr ""
+
+#: configuration/settings.cfg:1346
+msgid "Years into the future to include in url_placeholders[year]"
+msgstr ""
+
+#: configuration/settings.cfg:1352
+msgid "List of years that appear in URL"
+msgstr ""
+
+#: configuration/settings.cfg:1358
+msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
+msgstr ""
+
+#: configuration/settings.cfg:1363
+msgid "ID of current website"
+msgstr ""
+
+#: configuration/settings.cfg:1369
+msgid "If running more than one website with one system, this is the default website that will answer to unknown domain names"
+msgstr ""
+
+#: configuration/settings.cfg:1374
+msgid "Seconds between websites cache checks"
+msgstr ""
+
+#: configuration/settings.cfg:1379
+msgid "Filename for cached websites list"
+msgstr ""
+
+#: configuration/settings.cfg:1383
+msgid "Random ID for logs to mark a process as unique"
+msgstr ""
+
+#: configuration/settings.cfg:1388
+msgid "Initial installation date of Zugzwang Project CMS (for updates)"
+msgstr ""
