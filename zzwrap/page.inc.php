@@ -587,7 +587,7 @@ function wrap_check_blocks($template) {
 		$block = substr($block, 11);
 		$block = trim(substr($block, 0, strpos($block, '%%%')));
 		if (in_array($block, $includes)) {
-			wrap_error(sprintf('Template %s includes itself', $block), E_USER_ERROR);
+			wrap_error(wrap_text('Template %s includes itself', ['values' => [$block]]), E_USER_ERROR);
 		} else {
 			$includes[] = $block;
 			$blocks = array_merge($blocks, wrap_check_blocks($block));
