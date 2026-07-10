@@ -10,100 +10,311 @@
 #
 msgid ""
 msgstr ""
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: \n"
+"POT-Creation-Date: 2026-07-10 09:15+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.1\n"
-"Language: cs\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Poedit 3.9\n"
 
-#: zzwrap/auth.inc.php
-msgid "Password or username incorrect. Please try again."
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgid "North"
+msgstr "Sever"
+
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgctxt "North"
+msgid "N"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Username:"
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgid "North-northeast"
+msgstr "Severo-severovýchodní"
+
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgctxt "North-northeast"
+msgid "NNE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Password or username are empty. Please try again."
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgid "Northeast"
+msgstr "Severovýchod"
+
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgctxt "Northeast"
+msgid "NE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Request password"
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgid "East-northeast"
+msgstr "Východo-severovýchodní"
+
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgctxt "East-northeast"
+msgid "ENE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Forgotten Password"
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgid "East"
+msgstr "Východ"
+
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgctxt "East"
+msgid "E"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Link for login is wrong or out of date."
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgid "East-southeast"
+msgstr "Východo-jihovýchodní"
+
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgctxt "East-southeast"
+msgid "ESE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Please get a new one."
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgid "Southeast"
+msgstr "Jihovýchod"
+
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgctxt "Southeast"
+msgid "SE"
 msgstr ""
 
-#: zzwrap/core.inc.php
-msgid "Temporarily, a login is not possible."
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgid "South-southeast"
+msgstr "Jiho-jihovýchodní"
+
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgctxt "South-southeast"
+msgid "SSE"
 msgstr ""
 
-# access
-#: zzwrap/http.inc.php
-msgid "Access to this website for your IP address is restricted."
-msgstr "Přístup na tuto stránku je omezen. Klikněte pro sdílení."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgid "South"
+msgstr "Jih"
 
-#: zzwrap/zzwrap.php
-msgid "This website is currently offline."
-msgstr "Tento web je momentálně nedostupný."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgctxt "South"
+msgid "S"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgid "South-southwest"
+msgstr "Jiho-jihozápadní"
+
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgctxt "South-southwest"
+msgid "SSW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgid "Southwest"
+msgstr "Jihozápad"
+
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgctxt "Southwest"
+msgid "SW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgid "West-southwest"
+msgstr "Západo-jihozápadní"
+
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgctxt "West-southwest"
+msgid "WSW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgid "West"
+msgstr "Západ"
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgctxt "West"
+msgid "W"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgid "West-northwest"
+msgstr "Západo-severozápadní"
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgctxt "West-northwest"
+msgid "WNW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgid "Northwest"
+msgstr "Severozápad"
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgctxt "Northwest"
+msgid "NW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgid "North-northwest"
+msgstr "Severo-severozápadní"
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgctxt "North-northwest"
+msgid "NNW"
+msgstr ""
+
+# HTTP Status Code 100
+#: configuration/http-statuscodes.tsv:11
+msgid "Continue"
+msgstr ""
+
+# HTTP Status Code 101
+#: configuration/http-statuscodes.tsv:12
+msgid "Switching Protocols"
+msgstr ""
+
+# HTTP Status Code 102
+#: configuration/http-statuscodes.tsv:13
+msgid "Processing"
+msgstr ""
+
+# HTTP Status Code 103
+#: configuration/http-statuscodes.tsv:14
+msgid "Early Hints"
+msgstr ""
+
+# HTTP Status Code 200
+#: configuration/http-statuscodes.tsv:17
+msgid "OK"
+msgstr ""
+
+# HTTP Status Code 201
+#: configuration/http-statuscodes.tsv:18
+msgid "Created"
+msgstr ""
+
+# HTTP Status Code 202
+#: configuration/http-statuscodes.tsv:19
+msgid "Accepted"
+msgstr ""
+
+# HTTP Status Code 203
+#: configuration/http-statuscodes.tsv:20
+msgid "Non-Authoritative Information"
+msgstr ""
+
+# HTTP Status Code 204
+#: configuration/http-statuscodes.tsv:21
+msgid "No Content"
+msgstr ""
+
+# HTTP Status Code 205
+#: configuration/http-statuscodes.tsv:22
+msgid "Reset Content"
+msgstr ""
+
+# HTTP Status Code 206
+#: configuration/http-statuscodes.tsv:23
+msgid "Partial Content"
+msgstr ""
+
+# HTTP Status Code 207
+#: configuration/http-statuscodes.tsv:24
+msgid "Multi-Status"
+msgstr ""
+
+# HTTP Status Code 208
+#: configuration/http-statuscodes.tsv:25
+msgid "Already Reported"
+msgstr ""
+
+# HTTP Status Code 226
+#: configuration/http-statuscodes.tsv:26
+msgid "IM Used"
+msgstr ""
 
 # HTTP Status Code 300
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:29
 msgid "Multiple Choices"
 msgstr "Více možností"
 
 # HTTP Status Code 301
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:30
 msgid "Moved Permanently"
 msgstr "Přesunuto natrvalo"
 
 # HTTP Status Code 302
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:31
 msgid "Found"
 msgstr "Nalezená"
 
 # HTTP Status Code 303
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:32
 msgid "See Other"
 msgstr "Viz další"
 
 # HTTP Status Code 304
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:33
 msgid "Not Modified"
 msgstr "Neupraveno"
 
 # HTTP Status Code 305
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:34
 msgid "Use Proxy"
 msgstr "Použít proxy"
 
 # HTTP Status Code 307
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:35
 msgid "Temporary Redirect"
 msgstr "Dočasné přesměrování"
 
+# HTTP Status Code 308
+#: configuration/http-statuscodes.tsv:36
+msgid "Permanent Redirect"
+msgstr ""
+
 # HTTP Status Code 400
+#: configuration/http-statuscodes.tsv:39
 msgid "Bad Request"
 msgstr "Špatný požadavek"
 
 # HTTP Status Code 400
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:39
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
@@ -111,12 +322,7 @@ msgstr ""
 "nerozumí."
 
 # HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
-msgid "Unauthorized"
-msgstr "Neautorizované"
-
-# HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:40
 msgid ""
 "This server could not verify that you are authorized to access this URL. You "
 "either supplied the wrong credentials (e.g., bad password), or your browser "
@@ -126,18 +332,23 @@ msgstr ""
 "Buď jste zadali nesprávné přihlašovací údaje (např. špatné heslo), nebo váš "
 "prohlížeč nerozumí tomu, jak zadat požadované přihlašovací údaje."
 
+# HTTP Status Code 401
+#: configuration/http-statuscodes.tsv:40
+msgid "Unauthorized"
+msgstr "Neautorizované"
+
 # HTTP Status Code 402
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:41
 msgid "Payment Required"
 msgstr "Není vyžadována žádná platba"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:42
 msgid "Forbidden"
 msgstr "Zakázáno"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:42
 msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
@@ -146,97 +357,104 @@ msgstr ""
 "čtení, nebo je server nečitelný."
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:43
 msgid "Not Found"
 msgstr "Nenalezeno"
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:43
 msgid "The requested URL was not found on this server."
 msgstr "Požadovaná adresa URL nebyla na tomto serveru nalezena."
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:44
 msgid "Method Not Allowed"
 msgstr "Metoda není povolena"
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:44
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "Metoda %s není povolena pro požadovanou adresu URL."
 
 # HTTP Status Code 406
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:45
 msgid "Not Acceptable"
 msgstr "Nevyhovuje"
 
 # HTTP Status Code 407
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:46
 msgid "Proxy Authentication Required"
 msgstr "Ověřené přihlášení k proxy"
 
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid "Request Timeout"
+msgstr ""
+
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid ""
+"The server closed the network connection because the browser didn't finish "
+"the request within the specified time."
+msgstr ""
+
 # HTTP Status Code 409
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:48
 msgid "Conflict"
 msgstr "Konflikt"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:49
 msgid "Gone"
 msgstr "Pryč"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:49
 msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
 msgstr ""
-"Požadovaná adresa URL již není na tomto serveru k dispozici a neexistuje žádná "
-"adresa pro předávání."
+"Požadovaná adresa URL již není na tomto serveru k dispozici a neexistuje "
+"žádná adresa pro předávání."
 
 # HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
-msgid "Length Required"
-msgstr "Délka požadované"
-
-# HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:50
 msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
 msgstr ""
 "Požadavek s metodou %s vyžaduje platnou hlavičku <code>Content-Length</code>."
 
+# HTTP Status Code 411
+#: configuration/http-statuscodes.tsv:50
+msgid "Length Required"
+msgstr "Délka požadované"
+
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:51
 msgid "Precondition Failed"
 msgstr "Podmínka se nezdařila"
 
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:51
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr "Podmínka požadavku na adresu URL se nezdařila."
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
-msgid "Request Entity Too Large"
+#: configuration/http-statuscodes.tsv:52
+msgid "Payload Too Large"
 msgstr "Subjekt požadavku je příliš velký"
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:52
 msgid ""
-"The %s-method does not allow the data transmitted, or the data volume exceeds "
-"the capacity limit."
+"The %s-method does not allow the data transmitted, or the data volume "
+"exceeds the capacity limit."
 msgstr ""
 "Metoda %s neumožňuje přenášet data nebo objem dat překračuje limit kapacity."
 
 # HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
-msgid "URI Too Long"
-msgstr "URI příliš dlouhé"
-
-# HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:53
 msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
@@ -244,70 +462,121 @@ msgstr ""
 "Délka požadované adresy URL překračuje limit kapacity tohoto serveru. Žádost "
 "nelze zpracovat."
 
-# HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
-msgid "Unsupported Media Type"
-msgstr "Nepodporovaný typ média"
+# HTTP Status Code 414
+#: configuration/http-statuscodes.tsv:53
+msgid "URI Too Long"
+msgstr "URI příliš dlouhé"
 
 # HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:54
 msgid "The server does not support the media type transmitted in the request."
 msgstr "Server nepodporuje typ média přenášeného v požadavku."
 
+# HTTP Status Code 415
+#: configuration/http-statuscodes.tsv:54
+msgid "Unsupported Media Type"
+msgstr "Nepodporovaný typ média"
+
 # HTTP Status Code 416
-#: zzwrap/errorhandling.inc.php
-msgid "Requested Range Not Satisfiable"
+#: configuration/http-statuscodes.tsv:55
+msgid "Range Not Satisfiable"
 msgstr "Požadovaný rozsah nelze uspokojit"
 
 # HTTP Status Code 417
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:56
 msgid "Expectation Failed"
 msgstr "Očekávání se nezdařilo"
 
+# HTTP Status Code 418
+#: configuration/http-statuscodes.tsv:57
+msgid "I'm a teapot"
+msgstr ""
+
+# HTTP Status Code 421
+#: configuration/http-statuscodes.tsv:58
+msgid "Misdirected Request"
+msgstr ""
+
+# HTTP Status Code 422
+#: configuration/http-statuscodes.tsv:59
+msgid "Unprocessable Content"
+msgstr ""
+
+# HTTP Status Code 423
+#: configuration/http-statuscodes.tsv:60
+msgid "Locked"
+msgstr ""
+
+# HTTP Status Code 424
+#: configuration/http-statuscodes.tsv:61
+msgid "Failed Dependency"
+msgstr ""
+
+# HTTP Status Code 425
+#: configuration/http-statuscodes.tsv:62
+msgid "Too Early"
+msgstr ""
+
+# HTTP Status Code 426
+#: configuration/http-statuscodes.tsv:63
+msgid "Upgrade Required"
+msgstr ""
+
+# HTTP Status Code 429
+#: configuration/http-statuscodes.tsv:64
+msgid "Too Many Requests"
+msgstr ""
+
+# HTTP Status Code 431
+#: configuration/http-statuscodes.tsv:65
+msgid "Request Header Fields Too Large"
+msgstr ""
+
+# HTTP Status Code 451
+#: configuration/http-statuscodes.tsv:66
+msgid "Unavailable For Legal Reasons"
+msgstr ""
+
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:69
 msgid "Internal Server Error"
 msgstr "Vnitřní chyba serveru"
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:69
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
-msgstr "Na serveru došlo k interní chybě a váš požadavek se nepodařilo dokončit."
-
-# HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
-msgid "Unsupported server protocol (%s)"
-msgstr "Nepodporovaný protokol serveru (%s)"
+msgstr ""
+"Na serveru došlo k interní chybě a váš požadavek se nepodařilo dokončit."
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:70
 msgid "Not Implemented"
 msgstr "Neimplementováno"
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:70
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr "Server nepodporuje akci požadovanou prohlížečem (%s)."
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:71
 msgid "Bad Gateway"
 msgstr "Špatná brána"
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:71
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr "Proxy server obdržel neplatnou odpověď od upstream serveru."
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:72
 msgid "Service Unavailable"
 msgstr "Služba je nedostupná"
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:72
 msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
@@ -316,130 +585,458 @@ msgstr ""
 "problémů s kapacitou. Prosím zkuste to znovu později."
 
 # HTTP Status Code 504
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:73
 msgid "Gateway Timeout"
 msgstr "Vypršel časový limit brány"
 
 # HTTP Status Code 505
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:74
 msgid "HTTP Version Not Supported"
 msgstr "Verze http není podporována"
 
-#: zzwrap/errorhandling.inc.php
-msgid ""
-"Please try to find the content you were looking for from our <a href=\"%s"
-"\">main page</a>."
+# HTTP Status Code 506
+#: configuration/http-statuscodes.tsv:75
+msgid "Variant Also Negotiates"
 msgstr ""
-"Zkuste prosím najít obsah, který jste hledali na naší <a href=\"%s\">hlavní "
-"stránce</a>."
+
+# HTTP Status Code 507
+#: configuration/http-statuscodes.tsv:76
+msgid "Insufficient Storage"
+msgstr ""
+
+# HTTP Status Code 508
+#: configuration/http-statuscodes.tsv:77
+msgid "Loop Detected"
+msgstr ""
+
+# HTTP Status Code 510
+#: configuration/http-statuscodes.tsv:78
+msgid "Not Extended"
+msgstr ""
+
+# HTTP Status Code 511
+#: configuration/http-statuscodes.tsv:79
+msgid "Network Authentication Required"
+msgstr ""
+
+#: configuration/months.tsv:15
+msgctxt "months"
+msgid "January"
+msgstr ""
+
+#: configuration/months.tsv:15
+msgctxt "months_short"
+msgid "Jan"
+msgstr ""
+
+#: configuration/months.tsv:16
+msgctxt "months"
+msgid "February"
+msgstr ""
+
+#: configuration/months.tsv:16
+msgctxt "months_short"
+msgid "Feb"
+msgstr ""
+
+#: configuration/months.tsv:17
+msgctxt "months"
+msgid "March"
+msgstr ""
+
+#: configuration/months.tsv:17
+msgctxt "months_short"
+msgid "Mar"
+msgstr ""
+
+#: configuration/months.tsv:18
+msgctxt "months"
+msgid "April"
+msgstr ""
+
+#: configuration/months.tsv:18
+msgctxt "months_short"
+msgid "Apr"
+msgstr ""
+
+#: configuration/months.tsv:19
+msgctxt "months"
+msgid "May"
+msgstr ""
+
+#: configuration/months.tsv:19
+msgctxt "months_short"
+msgid "May"
+msgstr ""
+
+#: configuration/months.tsv:20
+msgctxt "months"
+msgid "June"
+msgstr ""
+
+#: configuration/months.tsv:20
+msgctxt "months_short"
+msgid "Jun"
+msgstr ""
+
+#: configuration/months.tsv:21
+msgctxt "months"
+msgid "July"
+msgstr ""
+
+#: configuration/months.tsv:21
+msgctxt "months_short"
+msgid "Jul"
+msgstr ""
+
+#: configuration/months.tsv:22
+msgctxt "months"
+msgid "August"
+msgstr ""
+
+#: configuration/months.tsv:22
+msgctxt "months_short"
+msgid "Aug"
+msgstr ""
+
+#: configuration/months.tsv:23
+msgctxt "months"
+msgid "September"
+msgstr ""
+
+#: configuration/months.tsv:23
+msgctxt "months_short"
+msgid "Sep"
+msgstr ""
+
+#: configuration/months.tsv:24
+msgctxt "months"
+msgid "October"
+msgstr ""
+
+#: configuration/months.tsv:24
+msgctxt "months_short"
+msgid "Oct"
+msgstr ""
+
+#: configuration/months.tsv:25
+msgctxt "months"
+msgid "November"
+msgstr ""
+
+#: configuration/months.tsv:25
+msgctxt "months_short"
+msgid "Nov"
+msgstr ""
+
+#: configuration/months.tsv:26
+msgctxt "months"
+msgid "December"
+msgstr ""
+
+#: configuration/months.tsv:26
+msgctxt "months_short"
+msgid "Dec"
+msgstr ""
+
+# Weekdays, full
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays"
+msgid "Monday"
+msgstr "pondělí"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays_short"
+msgid "Mon"
+msgstr "Po"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays"
+msgid "Tuesday"
+msgstr "úterý"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays_short"
+msgid "Tue"
+msgstr "Út"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays"
+msgid "Wednesday"
+msgstr "středa"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays_short"
+msgid "Wed"
+msgstr "St"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays"
+msgid "Thursday"
+msgstr "čtvrtek"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays_short"
+msgid "Thu"
+msgstr "Čt"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays"
+msgid "Friday"
+msgstr "pátek"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays_short"
+msgid "Fri"
+msgstr "Pá"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays"
+msgid "Saturday"
+msgstr "sobota"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays_short"
+msgid "Sat"
+msgstr "So"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays"
+msgid "Sunday"
+msgstr "neděle"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays_short"
+msgid "Sun"
+msgstr "Ne"
+
+#: templates/error-404-mail.template.txt:11
+msgid "This URL was not found:"
+msgstr ""
+
+#: templates/error-404-mail.template.txt:14
+msgid "The URL was requested via:"
+msgstr ""
+
+#: templates/error-404-mail.template.txt:18
+msgid "POST data:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:13
+msgid "URL:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:16
+msgid "Method:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:19 zzwrap/errorhandling.inc.php:922
+msgid "IP:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:22
+msgid "Browser:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:22 zzwrap/errorhandling.inc.php:924
+msgid "unknown"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:25
+msgid "User:"
+msgstr ""
+
+#: templates/test.template.txt:15
+msgid "Input"
+msgstr ""
+
+#: templates/test.template.txt:16
+msgid "Output"
+msgstr ""
+
+#: templates/test.template.txt:36
+msgid "This function was not found."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:77
+msgid "Link for login is wrong or out of date."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:79
+msgid "Please get a new one."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:138
+msgid "Password or username are empty. Please try again."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:182
+msgid "Password or username incorrect. Please try again."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:197
+msgid "Login without username"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:206
+msgid "Password or username incorrect:"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:271
+msgid "The “Forgot password” link is not activated."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:273 zzwrap/auth.inc.php:731
+msgid "The “Forgot password” query is missing."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:275
+msgid "Login"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:276
+msgid "Request password"
+msgstr ""
+
+#: zzbrick_request/test.inc.php:137
+msgid "Tests for %s()"
+msgstr ""
+
+#: zzbrick_request/tests.inc.php:34
+msgid "Tests for %s"
+msgstr ""
+
+#: zzbrick_request/tests.inc.php:42 zzbrick_request/tests.inc.php:43
+msgid "Tests"
+msgstr ""
+
+#: zzwrap/access.inc.php:255
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr ""
+
+#: zzwrap/access.inc.php:514
+msgid "List of allowed IPs not found in configuration (%s)."
+msgstr ""
+
+#: zzwrap/access.inc.php:521
+msgid "Your IP address %s is not in the allowed range."
+msgstr ""
+
+#: zzwrap/auth.inc.php
+msgid "Forgotten Password"
+msgstr ""
+
+#: zzwrap/auth.inc.php
+msgid "Username:"
+msgstr ""
+
+#: zzwrap/auth.inc.php:591
+msgid "Too many failed login attempts. Please wait %d second."
+msgid_plural "Too many failed login attempts. Please wait %d seconds."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: zzwrap/background.inc.php:86
+msgid "not found"
+msgstr ""
+
+#: zzwrap/cache.inc.php:555
+msgid "Caching for URL %s disabled, looks like filename with / at the end?"
+msgstr ""
+
+#: zzwrap/core.inc.php:67
+msgid "Wrong relative path: %s"
+msgstr ""
+
+#: zzwrap/database.inc.php:543
+msgid "Fields <code>%s</code> are missing in SQL query"
+msgstr ""
+
+#: zzwrap/database.inc.php:2032
+msgid "Primary Key for table %s was not found."
+msgstr ""
+
+#: zzwrap/database.inc.php:2036
+msgid "Primary Key for table %s spans over more than one field."
+msgstr ""
+
+#: zzwrap/defaults.inc.php:186
+msgid "Forwarded servername %s is not in configuration"
+msgstr ""
 
 #: zzwrap/errorhandling.inc.php
 msgid "User"
 msgstr "Uživatel"
 
-#: zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php:143
 msgid "Error on website"
 msgstr "Chyba na webu"
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "N North"
-msgstr "Sever"
+#: zzwrap/errorhandling.inc.php:344
+msgid ""
+"Please try to find the content you were looking for from our <a "
+"href=\"%s\">main page</a>."
+msgstr ""
+"Zkuste prosím najít obsah, který jste hledali na naší <a href=\"%s\">hlavní "
+"stránce</a>."
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNE North-northeast"
-msgstr "Severo-severovýchodní"
+# HTTP Status Code 500
+#: zzwrap/errorhandling.inc.php:456
+msgid "Unsupported server protocol (%s)"
+msgstr "Nepodporovaný protokol serveru (%s)"
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NE Northeast"
-msgstr "Severovýchod"
+#: zzwrap/errorhandling.inc.php:604
+msgid ""
+"The server responds to the hostname %s, but this is not in the list of "
+"possible hostnames."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ENE East-northeast"
-msgstr "Východo-severovýchodní"
+#: zzwrap/errorhandling.inc.php:924
+msgid "User agent:"
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "E East"
-msgstr "Východ"
+#: zzwrap/errorhandling.inc.php:926
+msgid "Referring URL:"
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ESE East-southeast"
-msgstr "Východo-jihovýchodní"
+#: zzwrap/file.inc.php:26
+msgid "File %s is not writable."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SE Southeast"
-msgstr "Jihovýchod"
+#: zzwrap/file.inc.php:27
+msgid "No lines deleted."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSE South-southeast"
-msgstr "Jiho-jihovýchodní"
+#: zzwrap/file.inc.php:46 zzwrap/syndication.inc.php:1227
+msgid "Cannot open %s for writing."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "S South"
-msgstr "Jih"
+#: zzwrap/file.inc.php:52
+msgid "1 line deleted."
+msgid_plural "%d lines deleted."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSW South-southwest"
-msgstr "Jiho-jihozápadní"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SW Southwest"
-msgstr "Jihozápad"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WSW West-southwest"
-msgstr "Západo-jihozápadní"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "W West"
-msgstr "Západ"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WNW West-northwest"
-msgstr "Západo-severozápadní"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NW Northwest"
-msgstr "Severozápad"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNW North-northwest"
-msgstr "Severo-severozápadní"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d years"
-msgstr "%d roky"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 year"
-msgstr "1 rok"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d weeks"
-msgstr "%d týdnů"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 week"
-msgstr "1 týden"
+#: zzwrap/files.inc.php:423
+msgid ""
+"The required library %s does not exist. Please install it in the `_inc/"
+"library` folder."
+msgstr ""
 
 # duration
 #: zzwrap/format.inc.php
@@ -448,18 +1045,8 @@ msgstr "%d dní"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 day"
-msgstr "1 den"
-
-# duration
-#: zzwrap/format.inc.php
 msgid "%d hours"
 msgstr "%d hodiny"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 hour"
-msgstr "1 hodina"
 
 # duration
 #: zzwrap/format.inc.php
@@ -468,78 +1055,232 @@ msgstr "%d minut"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 minute"
-msgstr "1 minuta"
+msgid "%d seconds"
+msgstr "%d sekund"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "%d seconds"
-msgstr "%d sekund"
+msgid "%d weeks"
+msgstr "%d týdnů"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "%d years"
+msgstr "%d roky"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 day"
+msgstr "1 den"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 hour"
+msgstr "1 hodina"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 minute"
+msgstr "1 minuta"
 
 # duration
 #: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 sekunda"
 
-# Weekdays, abbreviated
-msgid "Mon"
-msgstr "Po"
+# duration
+#: zzwrap/format.inc.php
+msgid "1 week"
+msgstr "1 týden"
 
-# Weekdays, abbreviated
-msgid "Tue"
-msgstr "Út"
+# duration
+#: zzwrap/format.inc.php
+msgid "1 year"
+msgstr "1 rok"
 
-# Weekdays, abbreviated
-msgid "Wed"
-msgstr "St"
+# duration
+#: zzwrap/format.inc.php:638
+msgctxt "time"
+msgid "%s&nbsp;h"
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Thu"
-msgstr "Čt"
+# duration
+#: zzwrap/format.inc.php:651
+msgctxt "time"
+msgid "%s–%s&nbsp;h"
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Fri"
-msgstr "Pá"
+# Separator for time (hours:minutes)
+#: zzwrap/format.inc.php:669
+msgctxt "time"
+msgid "%s:%s"
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Sat"
-msgstr "So"
+#: zzwrap/format.inc.php:916
+msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Sun"
-msgstr "Ne"
+#: zzwrap/format.inc.php:949
+msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Monday"
-msgstr "pondělí"
+#: zzwrap/format.inc.php:971
+msgid "Sorry, the number format <strong>%s</strong> is not supported."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Tuesday"
-msgstr "úterý"
+# access
+#: zzwrap/http.inc.php:45
+msgid "Access to this website for your IP address is restricted."
+msgstr "Přístup na tuto stránku je omezen. Klikněte pro sdílení."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Wednesday"
-msgstr "středa"
+#: zzwrap/http.inc.php:78
+msgid "This website is currently offline."
+msgstr "Tento web je momentálně nedostupný."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Thursday"
-msgstr "čtvrtek"
+#: zzwrap/http.inc.php:164
+msgid "This value sent via HTTP must not be an array. %s: %s"
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Friday"
-msgstr "pátek"
+#: zzwrap/http.inc.php:312
+msgid ""
+"HTTP Header spoofing detected. The client is attempting to impersonate "
+"localhost."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Saturday"
-msgstr "sobota"
+#: zzwrap/http.inc.php:327
+msgid ""
+"HTTP Header spoofing detected. The client uses an invalid forwarding IP "
+"address: %s"
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Sunday"
-msgstr "neděle"
+#: zzwrap/install.inc.php:234
+msgid "The main user could not be created."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:238
+msgid "fallback"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:994
+msgid "Unknown package."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1016
+msgid "Could not write file: %s"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1026
+msgid "No .pot files were changed."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1032
+msgid "%d .pot file written."
+msgid_plural "%d .pot files written."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: zzwrap/mail.inc.php:727
+msgid "Unable to open mailbox %s (Server: %s)"
+msgstr ""
+
+#: zzwrap/nav.inc.php:739
+msgid "Unable to parse this breadcrumb: %s"
+msgstr ""
+
+#: zzwrap/nav.inc.php:930
+msgid "Previous page"
+msgstr ""
+
+#: zzwrap/nav.inc.php:932
+msgid "Next page"
+msgstr ""
+
+#: zzwrap/nav.inc.php:938 zzwrap/page.inc.php:702 zzwrap/page.inc.php:715
+msgid "Overview"
+msgstr ""
+
+#: zzwrap/page.inc.php:166
+msgid "No text line for HTTP status %d found."
+msgstr ""
+
+#: zzwrap/page.inc.php:205
+msgid "zzbrick returned with an error. Sorry, that’s all we know."
+msgstr ""
+
+#: zzwrap/page.inc.php:216
+msgid "An error occurred while filling the template %s. Status code %d"
+msgstr ""
+
+#: zzwrap/page.inc.php:221
+msgid "An error occurred while creating the resource %s. Status code %d"
+msgstr ""
+
+#: zzwrap/page.inc.php:248
+msgid "Illegal value for XML HTTP request: %s"
+msgstr ""
+
+#: zzwrap/page.inc.php:590
+msgid "Template %s includes itself"
+msgstr ""
+
+#: zzwrap/reference.inc.php:29
+msgid "Unknown reference style `%s` for `%s`."
+msgstr ""
+
+#: zzwrap/reference.inc.php:120
+msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
+msgstr ""
+
+#: zzwrap/reference.inc.php:129
+msgid "Reference `%s` is empty."
+msgstr ""
+
+#: zzwrap/routes.inc.php:410
+msgid "No route found for `%s`."
+msgstr ""
+
+#: zzwrap/routes.inc.php:477
+msgid "Calling for path `%s` for non-existent website `%s`."
+msgstr ""
+
+#: zzwrap/send.inc.php:36
+msgid "Unable to send file: %s is a folder, not a file."
+msgstr ""
+
+#: zzwrap/send.inc.php:51
+msgid "Unable to send file: %s does not exist"
+msgstr ""
+
+#: zzwrap/send.inc.php:381
+msgid "Unable to open file %s"
+msgstr ""
+
+#: zzwrap/session.inc.php:54
+msgid "Temporarily, a login is not possible."
+msgstr ""
+
+#: zzwrap/settings.inc.php:366
+msgid "Could not change setting. Key: %s, value: %s, login: %s"
+msgstr ""
+
+#: zzwrap/template.inc.php:125
+msgid "Template name %s not valid."
+msgstr ""
+
+#: zzwrap/template.inc.php:154
+msgid "Template <code>%s</code> does not exist."
+msgstr ""
+
+#: zzwrap/template.inc.php:159
+msgid "More than one template with the name <code>%s</code> exists."
+msgstr ""
+
+#: zzwrap/url.inc.php:43
+msgid "Invalid Request URI: %s%s"
+msgstr ""
+
+# check request
+#: zzwrap/url.inc.php:88
+msgid "URIs with more than %d slashes are not processed."
+msgstr ""

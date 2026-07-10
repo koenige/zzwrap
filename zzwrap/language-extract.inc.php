@@ -1029,7 +1029,7 @@ function wrap_text_pot_write($package) {
 	}
 	return [
 		'ok' => true,
-		'message' => wrap_text('%d .pot file(s) written.', ['values' => [count($written)]]),
+		'message' => wrap_text('%d .pot files written.', ['values' => [count($written)]]),
 		'written' => $written,
 	];
 }

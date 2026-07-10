@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: \n"
+"POT-Creation-Date: 2026-07-10 09:15+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -20,135 +20,307 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.9\n"
 
-#: zzwrap/access.inc.php
-msgid "You need `%s` access rights. (Login: %s)"
-msgstr "0]` erişim haklarına ihtiyacınız var. (Giriş: %s)"
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgid "North"
+msgstr "Kuzey"
 
-#: zzwrap/auth.inc.php
-msgid "Password or username incorrect. Please try again."
-msgstr "Şifre veya kullanıcı adı yanlış. Lütfen tekrar deneyin."
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgctxt "North"
+msgid "N"
+msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Username:"
-msgstr "Kullanıcı Adı:"
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgid "North-northeast"
+msgstr "Kuzey-kuzeydoğu"
 
-#: zzwrap/auth.inc.php
-msgid "Password or username are empty. Please try again."
-msgstr "Şifre veya kullanıcı adı boş. Lütfen tekrar deneyiniz."
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgctxt "North-northeast"
+msgid "NNE"
+msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Request password"
-msgstr "Şifre talep et"
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgid "Northeast"
+msgstr "Kuzeydoğu"
 
-#: zzwrap/auth.inc.php
-msgid "Forgotten Password"
-msgstr "Unutulan Şifre"
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgctxt "Northeast"
+msgid "NE"
+msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Link for login is wrong or out of date."
-msgstr "Giriş bağlantısı yanlış veya güncel değil."
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgid "East-northeast"
+msgstr "Doğu-kuzeydoğu"
 
-#: zzwrap/auth.inc.php
-msgid "Please get a new one."
-msgstr "Lütfen yeni bir tane alın."
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgctxt "East-northeast"
+msgid "ENE"
+msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Too many failed login attempts. Please wait %d second."
-msgid_plural "Too many failed login attempts. Please wait %d seconds."
-msgstr[0] "Çok fazla başarısız giriş denemesi. Lütfen %d saniye bekleyin."
-msgstr[1] "Çok fazla başarısız giriş denemesi. Lütfen %d saniye bekleyin."
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgid "East"
+msgstr "Doğu"
 
-#: zzwrap/core.inc.php
-msgid "Temporarily, a login is not possible."
-msgstr "Geçici olarak oturum açmak mümkün değildir."
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgctxt "East"
+msgid "E"
+msgstr ""
 
-# access
-#: zzwrap/http.inc.php
-msgid "Access to this website for your IP address is restricted."
-msgstr "IP adresiniz için bu web sitesine erişim kısıtlanmıştır."
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgid "East-southeast"
+msgstr "Doğu-güneydoğu"
 
-#: zzwrap/zzwrap.php
-msgid "This website is currently offline."
-msgstr "Bu web sitesi şu anda çevrimdışı."
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgctxt "East-southeast"
+msgid "ESE"
+msgstr ""
 
-# check request
-#: zzwrap/core.inc.php
-msgid "URIs with more than %d slashes are not processed."
-msgstr "0]'dan fazla eğik çizgi içeren URI'ler işlenmez."
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgid "Southeast"
+msgstr "Güneydoğu"
 
-#: zzwrap/file.inc.php
-msgid "File %s is not writable."
-msgstr "Dosya %s Yazılabilir değil."
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgctxt "Southeast"
+msgid "SE"
+msgstr ""
 
-#: zzwrap/file.inc.php
-msgid "Cannot open %s for writing."
-msgstr "0] yazma için açılamıyor."
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgid "South-southeast"
+msgstr "Güney-güneydoğu"
 
-#: zzwrap/file.inc.php
-msgid "1 line deleted."
-msgid_plural "%d lines deleted."
-msgstr[0] "1 satır silinmiştir."
-msgstr[1] "%d satır silindi."
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgctxt "South-southeast"
+msgid "SSE"
+msgstr ""
 
-#: zzwrap/file.inc.php
-msgid "No lines deleted."
-msgstr "Silinen satır yok."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgid "South"
+msgstr "Güney"
+
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgctxt "South"
+msgid "S"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgid "South-southwest"
+msgstr "Güney-güneybatı"
+
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgctxt "South-southwest"
+msgid "SSW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgid "Southwest"
+msgstr "Güneybatı"
+
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgctxt "Southwest"
+msgid "SW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgid "West-southwest"
+msgstr "Batı-güneybatı"
+
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgctxt "West-southwest"
+msgid "WSW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgid "West"
+msgstr "West"
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgctxt "West"
+msgid "W"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgid "West-northwest"
+msgstr "Batı-kuzeybatı"
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgctxt "West-northwest"
+msgid "WNW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgid "Northwest"
+msgstr "Kuzeybatı"
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgctxt "Northwest"
+msgid "NW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgid "North-northwest"
+msgstr "Kuzey-kuzeybatı"
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgctxt "North-northwest"
+msgid "NNW"
+msgstr ""
+
+# HTTP Status Code 100
+#: configuration/http-statuscodes.tsv:11
+msgid "Continue"
+msgstr ""
+
+# HTTP Status Code 101
+#: configuration/http-statuscodes.tsv:12
+msgid "Switching Protocols"
+msgstr ""
+
+# HTTP Status Code 102
+#: configuration/http-statuscodes.tsv:13
+msgid "Processing"
+msgstr ""
+
+# HTTP Status Code 103
+#: configuration/http-statuscodes.tsv:14
+msgid "Early Hints"
+msgstr ""
+
+# HTTP Status Code 200
+#: configuration/http-statuscodes.tsv:17
+msgid "OK"
+msgstr ""
+
+# HTTP Status Code 201
+#: configuration/http-statuscodes.tsv:18
+msgid "Created"
+msgstr ""
+
+# HTTP Status Code 202
+#: configuration/http-statuscodes.tsv:19
+msgid "Accepted"
+msgstr ""
+
+# HTTP Status Code 203
+#: configuration/http-statuscodes.tsv:20
+msgid "Non-Authoritative Information"
+msgstr ""
+
+# HTTP Status Code 204
+#: configuration/http-statuscodes.tsv:21
+msgid "No Content"
+msgstr ""
+
+# HTTP Status Code 205
+#: configuration/http-statuscodes.tsv:22
+msgid "Reset Content"
+msgstr ""
+
+# HTTP Status Code 206
+#: configuration/http-statuscodes.tsv:23
+msgid "Partial Content"
+msgstr ""
+
+# HTTP Status Code 207
+#: configuration/http-statuscodes.tsv:24
+msgid "Multi-Status"
+msgstr ""
+
+# HTTP Status Code 208
+#: configuration/http-statuscodes.tsv:25
+msgid "Already Reported"
+msgstr ""
+
+# HTTP Status Code 226
+#: configuration/http-statuscodes.tsv:26
+msgid "IM Used"
+msgstr ""
 
 # HTTP Status Code 300
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:29
 msgid "Multiple Choices"
 msgstr "Çoklu seçimler"
 
 # HTTP Status Code 301
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:30
 msgid "Moved Permanently"
 msgstr "Kalıcı Olarak Taşındı"
 
 # HTTP Status Code 302
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:31
 msgid "Found"
 msgstr "Bulundu"
 
 # HTTP Status Code 303
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:32
 msgid "See Other"
 msgstr "Diğerini gör"
 
 # HTTP Status Code 304
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:33
 msgid "Not Modified"
 msgstr "Değiştirilmedi"
 
 # HTTP Status Code 305
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:34
 msgid "Use Proxy"
 msgstr "Porxy Kullan"
 
 # HTTP Status Code 307
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:35
 msgid "Temporary Redirect"
 msgstr "Geçici Yönlendirme"
 
+# HTTP Status Code 308
+#: configuration/http-statuscodes.tsv:36
+msgid "Permanent Redirect"
+msgstr ""
+
 # HTTP Status Code 400
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:39
 msgid "Bad Request"
 msgstr "Geçersiz istek"
 
 # HTTP Status Code 400
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:39
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr "Tarayıcınız (veya proxy) bu sunucunun anlayamadığı bir istek gönderdi."
 
 # HTTP Status Code 401
-#: configuration/http-statuscodes.tsv
-msgid "Unauthorized"
-msgstr "Yetkisiz"
-
-# HTTP Status Code 401
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:40
 msgid ""
 "This server could not verify that you are authorized to access this URL. You "
 "either supplied the wrong credentials (e.g., bad password), or your browser "
@@ -158,18 +330,23 @@ msgstr ""
 "kimlik bilgilerini verdiniz (örneğin, hatalı parola) ya da tarayıcınız "
 "gerekli kimlik bilgilerini nasıl vereceğinizi anlamıyor."
 
+# HTTP Status Code 401
+#: configuration/http-statuscodes.tsv:40
+msgid "Unauthorized"
+msgstr "Yetkisiz"
+
 # HTTP Status Code 402
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:41
 msgid "Payment Required"
 msgstr "Ödeme gerekli"
 
 # HTTP Status Code 403
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:42
 msgid "Forbidden"
 msgstr "Yasak"
 
 # HTTP Status Code 403
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:42
 msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
@@ -178,59 +355,66 @@ msgstr ""
 "tarafından okunamıyor."
 
 # HTTP Status Code 404
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:43
 msgid "Not Found"
 msgstr "Bulunamadı"
 
 # HTTP Status Code 404
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:43
 msgid "The requested URL was not found on this server."
 msgstr "İstenen URL bu sunucuda bulunamadı."
 
 # HTTP Status Code 405
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:44
 msgid "Method Not Allowed"
 msgstr "izin verilmeyen yöntem"
 
 # HTTP Status Code 405
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:44
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "İstenen URL için %s-metoduna izin verilmiyor."
 
 # HTTP Status Code 406
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:45
 msgid "Not Acceptable"
 msgstr "Kabul Edilemez"
 
 # HTTP Status Code 407
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:46
 msgid "Proxy Authentication Required"
 msgstr "Proxy Kimlik Doğrulaması Gerekli"
 
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid "Request Timeout"
+msgstr ""
+
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid ""
+"The server closed the network connection because the browser didn't finish "
+"the request within the specified time."
+msgstr ""
+
 # HTTP Status Code 409
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:48
 msgid "Conflict"
 msgstr "Çakışma"
 
 # HTTP Status Code 410
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:49
 msgid "Gone"
 msgstr "Gitti"
 
 # HTTP Status Code 410
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:49
 msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
 msgstr "İstenen URL artık bu sunucuda mevcut değil ve yönlendirme adresi yok."
 
 # HTTP Status Code 411
-#: configuration/http-statuscodes.tsv
-msgid "Length Required"
-msgstr "Uzunluk Gerekli"
-
-# HTTP Status Code 411
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:50
 msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
@@ -238,23 +422,28 @@ msgstr ""
 "%s-metodu ile yapılan bir istek geçerli bir <code>Content-Length</code> "
 "başlığı gerektirir."
 
+# HTTP Status Code 411
+#: configuration/http-statuscodes.tsv:50
+msgid "Length Required"
+msgstr "Uzunluk Gerekli"
+
 # HTTP Status Code 412
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:51
 msgid "Precondition Failed"
 msgstr "Önkoşul Başarısız Oldu"
 
 # HTTP Status Code 412
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:51
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr "URL isteğindeki ön koşul olumlu değerlendirmede başarısız oldu."
 
 # HTTP Status Code 413
-#: configuration/http-statuscodes.tsv
-msgid "Request Entity Too Large"
+#: configuration/http-statuscodes.tsv:52
+msgid "Payload Too Large"
 msgstr "Girilen veri çok büyük"
 
 # HTTP Status Code 413
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:52
 msgid ""
 "The %s-method does not allow the data transmitted, or the data volume "
 "exceeds the capacity limit."
@@ -263,12 +452,7 @@ msgstr ""
 "aşıyor."
 
 # HTTP Status Code 414
-#: configuration/http-statuscodes.tsv
-msgid "URI Too Long"
-msgstr "Adres çok uzun"
-
-# HTTP Status Code 414
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:53
 msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
@@ -276,75 +460,120 @@ msgstr ""
 "İstenen URL'nin uzunluğu bu sunucu için kapasite sınırını aşıyor. İstek "
 "işlenemiyor."
 
-# HTTP Status Code 415
-#: configuration/http-statuscodes.tsv
-msgid "Unsupported Media Type"
-msgstr "Desteklenmeyen Medya Türü"
+# HTTP Status Code 414
+#: configuration/http-statuscodes.tsv:53
+msgid "URI Too Long"
+msgstr "Adres çok uzun"
 
 # HTTP Status Code 415
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:54
 msgid "The server does not support the media type transmitted in the request."
 msgstr "Sunucu, istekte iletilen ortam türünü desteklemiyor."
 
+# HTTP Status Code 415
+#: configuration/http-statuscodes.tsv:54
+msgid "Unsupported Media Type"
+msgstr "Desteklenmeyen Medya Türü"
+
 # HTTP Status Code 416
-#: configuration/http-statuscodes.tsv
-msgid "Requested Range Not Satisfiable"
+#: configuration/http-statuscodes.tsv:55
+msgid "Range Not Satisfiable"
 msgstr "İstenen Aralık Karşılaşılamıyor"
 
 # HTTP Status Code 417
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:56
 msgid "Expectation Failed"
 msgstr "Beklenti karşılanamadı"
 
+# HTTP Status Code 418
+#: configuration/http-statuscodes.tsv:57
+msgid "I'm a teapot"
+msgstr ""
+
+# HTTP Status Code 421
+#: configuration/http-statuscodes.tsv:58
+msgid "Misdirected Request"
+msgstr ""
+
+# HTTP Status Code 422
+#: configuration/http-statuscodes.tsv:59
+msgid "Unprocessable Content"
+msgstr ""
+
+# HTTP Status Code 423
+#: configuration/http-statuscodes.tsv:60
+msgid "Locked"
+msgstr ""
+
+# HTTP Status Code 424
+#: configuration/http-statuscodes.tsv:61
+msgid "Failed Dependency"
+msgstr ""
+
+# HTTP Status Code 425
+#: configuration/http-statuscodes.tsv:62
+msgid "Too Early"
+msgstr ""
+
+# HTTP Status Code 426
+#: configuration/http-statuscodes.tsv:63
+msgid "Upgrade Required"
+msgstr ""
+
 # HTTP Status Code 417
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:64
 msgid "Too Many Requests"
 msgstr "Çok fazla İstek var"
 
+# HTTP Status Code 431
+#: configuration/http-statuscodes.tsv:65
+msgid "Request Header Fields Too Large"
+msgstr ""
+
+# HTTP Status Code 451
+#: configuration/http-statuscodes.tsv:66
+msgid "Unavailable For Legal Reasons"
+msgstr ""
+
 # HTTP Status Code 500
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:69
 msgid "Internal Server Error"
 msgstr "İç Sunucu Hatası"
 
 # HTTP Status Code 500
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:69
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
 msgstr "Sunucu dahili bir hatayla karşılaştı ve isteğinizi tamamlayamadı."
 
-# HTTP Status Code 500
-#: configuration/http-statuscodes.tsv
-msgid "Unsupported server protocol (%s)"
-msgstr "Desteklenmeyen sunucu protokolü (%s)"
-
 # HTTP Status Code 501
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:70
 msgid "Not Implemented"
 msgstr "Uygulanmadı"
 
 # HTTP Status Code 501
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:70
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr "Sunucu, tarayıcı tarafından talep edilen eylemi desteklemiyor (%s)."
 
 # HTTP Status Code 502
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:71
 msgid "Bad Gateway"
 msgstr "Ağ geçidi sorunu"
 
 # HTTP Status Code 502
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:71
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr "Proxy sunucu bir yukarı akış sunucusundan geçersiz bir yanıt aldı."
 
 # HTTP Status Code 503
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:72
 msgid "Service Unavailable"
 msgstr "Hizmet kullanılamıyor"
 
 # HTTP Status Code 503
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:72
 msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
@@ -353,144 +582,456 @@ msgstr ""
 "olarak hizmet veremiyor. Lütfen daha sonra tekrar deneyin."
 
 # HTTP Status Code 504
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:73
 msgid "Gateway Timeout"
 msgstr "Ağ Geçidi Zaman Aşımı"
 
 # HTTP Status Code 505
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:74
 msgid "HTTP Version Not Supported"
 msgstr "HTTP Sürümü Desteklenmiyor"
 
-#: zzbrick_request/login.inc.php
+# HTTP Status Code 506
+#: configuration/http-statuscodes.tsv:75
+msgid "Variant Also Negotiates"
+msgstr ""
+
+# HTTP Status Code 507
+#: configuration/http-statuscodes.tsv:76
+msgid "Insufficient Storage"
+msgstr ""
+
+# HTTP Status Code 508
+#: configuration/http-statuscodes.tsv:77
+msgid "Loop Detected"
+msgstr ""
+
+# HTTP Status Code 510
+#: configuration/http-statuscodes.tsv:78
+msgid "Not Extended"
+msgstr ""
+
+# HTTP Status Code 511
+#: configuration/http-statuscodes.tsv:79
+msgid "Network Authentication Required"
+msgstr ""
+
+#: configuration/months.tsv:15
+msgctxt "months"
+msgid "January"
+msgstr "Ocak"
+
+#: configuration/months.tsv:15
+msgctxt "months_short"
+msgid "Jan"
+msgstr "Ocak"
+
+#: configuration/months.tsv:16
+msgctxt "months"
+msgid "February"
+msgstr "Şubat"
+
+#: configuration/months.tsv:16
+msgctxt "months_short"
+msgid "Feb"
+msgstr "Şubat"
+
+#: configuration/months.tsv:17
+msgctxt "months"
+msgid "March"
+msgstr "Mart"
+
+#: configuration/months.tsv:17
+msgctxt "months_short"
+msgid "Mar"
+msgstr "Mart"
+
+#: configuration/months.tsv:18
+msgctxt "months"
+msgid "April"
+msgstr "Nisan"
+
+#: configuration/months.tsv:18
+msgctxt "months_short"
+msgid "Apr"
+msgstr "Nisan"
+
+#: configuration/months.tsv:19
+msgctxt "months"
+msgid "May"
+msgstr "Mayıs"
+
+#: configuration/months.tsv:19
+msgctxt "months_short"
+msgid "May"
+msgstr "Mayıs"
+
+#: configuration/months.tsv:20
+msgctxt "months"
+msgid "June"
+msgstr "Haziran"
+
+#: configuration/months.tsv:20
+msgctxt "months_short"
+msgid "Jun"
+msgstr "Haz"
+
+#: configuration/months.tsv:21
+msgctxt "months"
+msgid "July"
+msgstr "Temmuz"
+
+#: configuration/months.tsv:21
+msgctxt "months_short"
+msgid "Jul"
+msgstr "Tem"
+
+#: configuration/months.tsv:22
+msgctxt "months"
+msgid "August"
+msgstr "Ağustos"
+
+#: configuration/months.tsv:22
+msgctxt "months_short"
+msgid "Aug"
+msgstr "Ağustos"
+
+#: configuration/months.tsv:23
+msgctxt "months"
+msgid "September"
+msgstr "Eylül"
+
+#: configuration/months.tsv:23
+msgctxt "months_short"
+msgid "Sep"
+msgstr "Eyl"
+
+#: configuration/months.tsv:24
+msgctxt "months"
+msgid "October"
+msgstr "Ekim"
+
+#: configuration/months.tsv:24
+msgctxt "months_short"
+msgid "Oct"
+msgstr "Ekim"
+
+#: configuration/months.tsv:25
+msgctxt "months"
+msgid "November"
+msgstr "Kasım"
+
+#: configuration/months.tsv:25
+msgctxt "months_short"
+msgid "Nov"
+msgstr "Kas"
+
+#: configuration/months.tsv:26
+msgctxt "months"
+msgid "December"
+msgstr "Aralık"
+
+#: configuration/months.tsv:26
+msgctxt "months_short"
+msgid "Dec"
+msgstr "Aralık"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays"
+msgid "Monday"
+msgstr "Pazartesi"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays_short"
+msgid "Mon"
+msgstr "Pzt"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays"
+msgid "Tuesday"
+msgstr "Salı"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays_short"
+msgid "Tue"
+msgstr "Sal"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays"
+msgid "Wednesday"
+msgstr "Çarşamba"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays_short"
+msgid "Wed"
+msgstr "Çar"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays"
+msgid "Thursday"
+msgstr "Perşembe"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays_short"
+msgid "Thu"
+msgstr "Per"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays"
+msgid "Friday"
+msgstr "Cuma"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays_short"
+msgid "Fri"
+msgstr "Cuma"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays"
+msgid "Saturday"
+msgstr "Cumartesi"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays_short"
+msgid "Sat"
+msgstr "Cmt"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays"
+msgid "Sunday"
+msgstr "Pazar"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays_short"
+msgid "Sun"
+msgstr "Paz"
+
+#: templates/error-404-mail.template.txt:11
+msgid "This URL was not found:"
+msgstr ""
+
+#: templates/error-404-mail.template.txt:14
+msgid "The URL was requested via:"
+msgstr ""
+
+#: templates/error-404-mail.template.txt:18
+msgid "POST data:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:13
+msgid "URL:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:16
+msgid "Method:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:19 zzwrap/errorhandling.inc.php:922
+msgid "IP:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:22
+msgid "Browser:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:22 zzwrap/errorhandling.inc.php:924
+msgid "unknown"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:25
+msgid "User:"
+msgstr ""
+
+#: templates/test.template.txt:15
+msgid "Input"
+msgstr ""
+
+#: templates/test.template.txt:16
+msgid "Output"
+msgstr ""
+
+#: templates/test.template.txt:36
+msgid "This function was not found."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:77
+msgid "Link for login is wrong or out of date."
+msgstr "Giriş bağlantısı yanlış veya güncel değil."
+
+#: zzbrick_request/login.inc.php:79
+msgid "Please get a new one."
+msgstr "Lütfen yeni bir tane alın."
+
+#: zzbrick_request/login.inc.php:138
+msgid "Password or username are empty. Please try again."
+msgstr "Şifre veya kullanıcı adı boş. Lütfen tekrar deneyiniz."
+
+#: zzbrick_request/login.inc.php:182
+msgid "Password or username incorrect. Please try again."
+msgstr "Şifre veya kullanıcı adı yanlış. Lütfen tekrar deneyin."
+
+#: zzbrick_request/login.inc.php:197
+msgid "Login without username"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:206
+msgid "Password or username incorrect:"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:271
 msgid "The “Forgot password” link is not activated."
 msgstr "\"Şifremi unuttum\" bağlantısı etkinleştirilmedi."
 
-#: zzbrick_request/login.inc.php
+#: zzbrick_request/login.inc.php:273 zzwrap/auth.inc.php:731
 msgid "The “Forgot password” query is missing."
 msgstr "\"Şifremi unuttum\" sorgusu eksik."
 
+#: zzbrick_request/login.inc.php:275
+msgid "Login"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:276
+msgid "Request password"
+msgstr "Şifre talep et"
+
+#: zzbrick_request/test.inc.php:137
+msgid "Tests for %s()"
+msgstr ""
+
+#: zzbrick_request/tests.inc.php:34
+msgid "Tests for %s"
+msgstr ""
+
+#: zzbrick_request/tests.inc.php:42 zzbrick_request/tests.inc.php:43
+msgid "Tests"
+msgstr ""
+
+#: zzwrap/access.inc.php:255
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr "0]` erişim haklarına ihtiyacınız var. (Giriş: %s)"
+
+#: zzwrap/access.inc.php:514
+msgid "List of allowed IPs not found in configuration (%s)."
+msgstr ""
+
+#: zzwrap/access.inc.php:521
+msgid "Your IP address %s is not in the allowed range."
+msgstr ""
+
+#: zzwrap/auth.inc.php
+msgid "Forgotten Password"
+msgstr "Unutulan Şifre"
+
+#: zzwrap/auth.inc.php
+msgid "Username:"
+msgstr "Kullanıcı Adı:"
+
+#: zzwrap/auth.inc.php:591
+msgid "Too many failed login attempts. Please wait %d second."
+msgid_plural "Too many failed login attempts. Please wait %d seconds."
+msgstr[0] "Çok fazla başarısız giriş denemesi. Lütfen %d saniye bekleyin."
+msgstr[1] "Çok fazla başarısız giriş denemesi. Lütfen %d saniye bekleyin."
+
+#: zzwrap/background.inc.php:86
+msgid "not found"
+msgstr ""
+
+#: zzwrap/cache.inc.php:555
+msgid "Caching for URL %s disabled, looks like filename with / at the end?"
+msgstr ""
+
+#: zzwrap/core.inc.php:67
+msgid "Wrong relative path: %s"
+msgstr ""
+
+#: zzwrap/database.inc.php:543
+msgid "Fields <code>%s</code> are missing in SQL query"
+msgstr ""
+
+#: zzwrap/database.inc.php:2032
+msgid "Primary Key for table %s was not found."
+msgstr ""
+
+#: zzwrap/database.inc.php:2036
+msgid "Primary Key for table %s spans over more than one field."
+msgstr ""
+
+#: zzwrap/defaults.inc.php:186
+msgid "Forwarded servername %s is not in configuration"
+msgstr ""
+
 #: zzwrap/errorhandling.inc.php
+msgid "User"
+msgstr "Kullanıcı"
+
+#: zzwrap/errorhandling.inc.php:143
+msgid "Error on website"
+msgstr "Web sitesinde hata"
+
+#: zzwrap/errorhandling.inc.php:344
 msgid ""
 "Please try to find the content you were looking for from our <a "
 "href=\"%s\">main page</a>."
 msgstr ""
 "Lütfen aradığınız içeriği <a href=\"%s\">ana sayfamızdan</a> bulmaya çalışın."
 
-#: zzwrap/errorhandling.inc.php
-msgid "User"
-msgstr "Kullanıcı"
+# HTTP Status Code 500
+#: zzwrap/errorhandling.inc.php:456
+msgid "Unsupported server protocol (%s)"
+msgstr "Desteklenmeyen sunucu protokolü (%s)"
 
-#: zzwrap/errorhandling.inc.php
-msgid "Error on website"
-msgstr "Web sitesinde hata"
-
-#: zzwrap/files.inc.php
+#: zzwrap/errorhandling.inc.php:604
 msgid ""
-"The required library %s was not found. Please install it in the `_inc/"
+"The server responds to the hostname %s, but this is not in the list of "
+"possible hostnames."
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:924
+msgid "User agent:"
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:926
+msgid "Referring URL:"
+msgstr ""
+
+#: zzwrap/file.inc.php:26
+msgid "File %s is not writable."
+msgstr "Dosya %s Yazılabilir değil."
+
+#: zzwrap/file.inc.php:27
+msgid "No lines deleted."
+msgstr "Silinen satır yok."
+
+#: zzwrap/file.inc.php:46 zzwrap/syndication.inc.php:1227
+msgid "Cannot open %s for writing."
+msgstr "0] yazma için açılamıyor."
+
+#: zzwrap/file.inc.php:52
+msgid "1 line deleted."
+msgid_plural "%d lines deleted."
+msgstr[0] "1 satır silinmiştir."
+msgstr[1] "%d satır silindi."
+
+#: zzwrap/files.inc.php:423
+msgid ""
+"The required library %s does not exist. Please install it in the `_inc/"
 "library` folder."
 msgstr ""
 "Gerekli kütüphane %s bulunamadı. Lütfen `_inc/library` klasörüne yükleyin."
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "N North"
-msgstr "N Kuzey"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNE North-northeast"
-msgstr "NNE Kuzey-kuzeydoğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NE Northeast"
-msgstr "NE Kuzeydoğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ENE East-northeast"
-msgstr "ENE Doğu-kuzeydoğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "E East"
-msgstr "E Doğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ESE East-southeast"
-msgstr "ESE Doğu-güneydoğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SE Southeast"
-msgstr "SE Güneydoğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSE South-southeast"
-msgstr "SSE Güney-güneydoğu"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "S South"
-msgstr "Güney"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSW South-southwest"
-msgstr "SSW Güney-güneybatı"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SW Southwest"
-msgstr "SW Güneybatı"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WSW West-southwest"
-msgstr "WSW Batı-güneybatı"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "W West"
-msgstr "W West"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WNW West-northwest"
-msgstr "WNW Batı-kuzeybatı"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NW Northwest"
-msgstr "NW Kuzeybatı"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNW North-northwest"
-msgstr "NNW Kuzey-kuzeybatı"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d years"
-msgstr "%d yıl"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 year"
-msgstr "1 yıl"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d weeks"
-msgstr "%d haftalar"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 week"
-msgstr "1 hafta"
 
 # duration
 #: zzwrap/format.inc.php
@@ -499,18 +1040,8 @@ msgstr "%d gün"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 day"
-msgstr "1 gün"
-
-# duration
-#: zzwrap/format.inc.php
 msgid "%d hours"
 msgstr "%d saat"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 hour"
-msgstr "1 saat"
 
 # duration
 #: zzwrap/format.inc.php
@@ -519,237 +1050,231 @@ msgstr "%d dakika"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 minute"
-msgstr "1 dakika"
+msgid "%d seconds"
+msgstr "%d saniye"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "%d seconds"
-msgstr "%d saniye"
+msgid "%d weeks"
+msgstr "%d haftalar"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "%d years"
+msgstr "%d yıl"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 day"
+msgstr "1 gün"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 hour"
+msgstr "1 saat"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 minute"
+msgstr "1 dakika"
 
 # duration
 #: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 saniye"
 
+# duration
 #: zzwrap/format.inc.php
-msgctxt "months"
-msgid "January"
-msgstr "Ocak"
+msgid "1 week"
+msgstr "1 hafta"
 
+# duration
 #: zzwrap/format.inc.php
-msgctxt "months"
-msgid "February"
-msgstr "Şubat"
+msgid "1 year"
+msgstr "1 yıl"
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "March"
-msgstr "Mart"
+# duration
+#: zzwrap/format.inc.php:638
+msgctxt "time"
+msgid "%s&nbsp;h"
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "April"
-msgstr "Nisan"
+# duration
+#: zzwrap/format.inc.php:651
+msgctxt "time"
+msgid "%s–%s&nbsp;h"
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "May"
-msgstr "Mayıs"
+# Separator for time (hours:minutes)
+#: zzwrap/format.inc.php:669
+msgctxt "time"
+msgid "%s:%s"
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "June"
-msgstr "Haziran"
+#: zzwrap/format.inc.php:916
+msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "July"
-msgstr "Temmuz"
+#: zzwrap/format.inc.php:949
+msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "August"
-msgstr "Ağustos"
+#: zzwrap/format.inc.php:971
+msgid "Sorry, the number format <strong>%s</strong> is not supported."
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "September"
-msgstr "Eylül"
+# access
+#: zzwrap/http.inc.php:45
+msgid "Access to this website for your IP address is restricted."
+msgstr "IP adresiniz için bu web sitesine erişim kısıtlanmıştır."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "October"
-msgstr "Ekim"
+#: zzwrap/http.inc.php:78
+msgid "This website is currently offline."
+msgstr "Bu web sitesi şu anda çevrimdışı."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "November"
-msgstr "Kasım"
+#: zzwrap/http.inc.php:164
+msgid "This value sent via HTTP must not be an array. %s: %s"
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "December"
-msgstr "Aralık"
+#: zzwrap/http.inc.php:312
+msgid ""
+"HTTP Header spoofing detected. The client is attempting to impersonate "
+"localhost."
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Jan"
-msgstr "Ocak"
+#: zzwrap/http.inc.php:327
+msgid ""
+"HTTP Header spoofing detected. The client uses an invalid forwarding IP "
+"address: %s"
+msgstr ""
 
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Feb"
-msgstr "Şubat"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Mar"
-msgstr "Mart"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Apr"
-msgstr "Nisan"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "May"
-msgstr "Mayıs"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Jun"
-msgstr "Haz"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Jul"
-msgstr "Tem"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Aug"
-msgstr "Ağustos"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Sep"
-msgstr "Eyl"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Oct"
-msgstr "Ekim"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Nov"
-msgstr "Kas"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Dec"
-msgstr "Aralık"
-
-#: zzwrap/install.inc.php
+#: zzwrap/install.inc.php:234
 msgid "The main user could not be created."
 msgstr "Ana kullanıcı oluşturulamadı."
 
-#: zzwrap/mail.inc.php
+#: zzwrap/language-extract.inc.php:238
+msgid "fallback"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:994
+msgid "Unknown package."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1016
+msgid "Could not write file: %s"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1026
+msgid "No .pot files were changed."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1032
+msgid "%d .pot file written."
+msgid_plural "%d .pot files written."
+msgstr[0] ""
+msgstr[1] ""
+
+#: zzwrap/mail.inc.php:727
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr "Posta kutusu %s açılamıyor (Sunucu: %s)"
 
-#: zzwrap/nav.inc.php
+#: zzwrap/nav.inc.php:739
+msgid "Unable to parse this breadcrumb: %s"
+msgstr ""
+
+#: zzwrap/nav.inc.php:930
 msgid "Previous page"
 msgstr "Önceki Sayfa"
 
-#: zzwrap/nav.inc.php
+#: zzwrap/nav.inc.php:932
 msgid "Next page"
 msgstr "Sonraki Sayfa"
 
-#: zzwrap/nav.inc.php
+#: zzwrap/nav.inc.php:938 zzwrap/page.inc.php:702 zzwrap/page.inc.php:715
 msgid "Overview"
 msgstr "Genel Bakış"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Mon"
-msgstr "Pzt"
+#: zzwrap/page.inc.php:166
+msgid "No text line for HTTP status %d found."
+msgstr ""
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Tue"
-msgstr "Sal"
+#: zzwrap/page.inc.php:205
+msgid "zzbrick returned with an error. Sorry, that’s all we know."
+msgstr ""
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Wed"
-msgstr "Çar"
+#: zzwrap/page.inc.php:216
+msgid "An error occurred while filling the template %s. Status code %d"
+msgstr ""
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Thu"
-msgstr "Per"
+#: zzwrap/page.inc.php:221
+msgid "An error occurred while creating the resource %s. Status code %d"
+msgstr ""
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Fri"
-msgstr "Cuma"
+#: zzwrap/page.inc.php:248
+msgid "Illegal value for XML HTTP request: %s"
+msgstr ""
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Sat"
-msgstr "Cmt"
+#: zzwrap/page.inc.php:590
+msgid "Template %s includes itself"
+msgstr "Şablon %s kendisini içerir"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Sun"
-msgstr "Paz"
+#: zzwrap/reference.inc.php:29
+msgid "Unknown reference style `%s` for `%s`."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Monday"
-msgstr "Pazartesi"
+#: zzwrap/reference.inc.php:120
+msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Tuesday"
-msgstr "Salı"
+#: zzwrap/reference.inc.php:129
+msgid "Reference `%s` is empty."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Wednesday"
-msgstr "Çarşamba"
+#: zzwrap/routes.inc.php:410
+msgid "No route found for `%s`."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Thursday"
-msgstr "Perşembe"
+#: zzwrap/routes.inc.php:477
+msgid "Calling for path `%s` for non-existent website `%s`."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Friday"
-msgstr "Cuma"
+#: zzwrap/send.inc.php:36
+msgid "Unable to send file: %s is a folder, not a file."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Saturday"
-msgstr "Cumartesi"
+#: zzwrap/send.inc.php:51
+msgid "Unable to send file: %s does not exist"
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Sunday"
-msgstr "Pazar"
+#: zzwrap/send.inc.php:381
+msgid "Unable to open file %s"
+msgstr ""
 
-#: zzwrap/page.inc.php:147
+#: zzwrap/session.inc.php:54
+msgid "Temporarily, a login is not possible."
+msgstr "Geçici olarak oturum açmak mümkün değildir."
+
+#: zzwrap/settings.inc.php:366
+msgid "Could not change setting. Key: %s, value: %s, login: %s"
+msgstr ""
+
+#: zzwrap/template.inc.php:125
+msgid "Template name %s not valid."
+msgstr ""
+
+#: zzwrap/template.inc.php:154
 msgid "Template <code>%s</code> does not exist."
 msgstr "Şablon <code>%s</code> yok."
 
-#: zzwrap/page.inc.php:149
+#: zzwrap/template.inc.php:159
 msgid "More than one template with the name <code>%s</code> exists."
 msgstr "İsimli birden fazla şablon <code>%s</code> var."
 
-#: zzwrap/page.inc.php:1311
-msgid "Template %s includes itself"
-msgstr "Şablon %s kendisini içerir"
+#: zzwrap/url.inc.php:43
+msgid "Invalid Request URI: %s%s"
+msgstr ""
+
+# check request
+#: zzwrap/url.inc.php:88
+msgid "URIs with more than %d slashes are not processed."
+msgstr "0]'dan fazla eğik çizgi içeren URI'ler işlenmez."

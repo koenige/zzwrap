@@ -10,101 +10,312 @@
 #
 msgid ""
 msgstr ""
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: \n"
+"POT-Creation-Date: 2026-07-10 09:15+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
+"Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.1\n"
-"Language: uk\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 3.9\n"
 
-#: zzwrap/auth.inc.php
-msgid "Password or username incorrect. Please try again."
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgid "North"
+msgstr "Північ"
+
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgctxt "North"
+msgid "N"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Username:"
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgid "North-northeast"
+msgstr "Півн.-Півн.східн."
+
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgctxt "North-northeast"
+msgid "NNE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Password or username are empty. Please try again."
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgid "Northeast"
+msgstr "Північно-Східна Азія"
+
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgctxt "Northeast"
+msgid "NE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Request password"
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgid "East-northeast"
+msgstr "Схід - Півн-схід"
+
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgctxt "East-northeast"
+msgid "ENE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Forgotten Password"
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgid "East"
+msgstr "Схід"
+
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgctxt "East"
+msgid "E"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Link for login is wrong or out of date."
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgid "East-southeast"
+msgstr "Схід - Півд-схід"
+
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgctxt "East-southeast"
+msgid "ESE"
 msgstr ""
 
-#: zzwrap/auth.inc.php
-msgid "Please get a new one."
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgid "Southeast"
+msgstr "Південно-Східна Азія"
+
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgctxt "Southeast"
+msgid "SE"
 msgstr ""
 
-#: zzwrap/core.inc.php
-msgid "Temporarily, a login is not possible."
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgid "South-southeast"
+msgstr "Півд - Півд-сх."
+
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgctxt "South-southeast"
+msgid "SSE"
 msgstr ""
 
-# access
-#: zzwrap/http.inc.php
-msgid "Access to this website for your IP address is restricted."
-msgstr "Доступ до цього веб-сайту для вашої IP-адреси обмежено."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgid "South"
+msgstr "Південь"
 
-#: zzwrap/zzwrap.php
-msgid "This website is currently offline."
-msgstr "Цей веб-сайт наразі недоступний."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgctxt "South"
+msgid "S"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgid "South-southwest"
+msgstr "Півд - Півд-зах"
+
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgctxt "South-southwest"
+msgid "SSW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgid "Southwest"
+msgstr "Південно-Західна Півкуля"
+
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgctxt "Southwest"
+msgid "SW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgid "West-southwest"
+msgstr "Захід-Південний Захід"
+
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgctxt "West-southwest"
+msgid "WSW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgid "West"
+msgstr "Захід"
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgctxt "West"
+msgid "W"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgid "West-northwest"
+msgstr "Зах - Півн-зах"
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgctxt "West-northwest"
+msgid "WNW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgid "Northwest"
+msgstr "Північний захід"
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgctxt "Northwest"
+msgid "NW"
+msgstr ""
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgid "North-northwest"
+msgstr "Північ-Півн.зах."
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgctxt "North-northwest"
+msgid "NNW"
+msgstr ""
+
+# HTTP Status Code 100
+#: configuration/http-statuscodes.tsv:11
+msgid "Continue"
+msgstr ""
+
+# HTTP Status Code 101
+#: configuration/http-statuscodes.tsv:12
+msgid "Switching Protocols"
+msgstr ""
+
+# HTTP Status Code 102
+#: configuration/http-statuscodes.tsv:13
+msgid "Processing"
+msgstr ""
+
+# HTTP Status Code 103
+#: configuration/http-statuscodes.tsv:14
+msgid "Early Hints"
+msgstr ""
+
+# HTTP Status Code 200
+#: configuration/http-statuscodes.tsv:17
+msgid "OK"
+msgstr ""
+
+# HTTP Status Code 201
+#: configuration/http-statuscodes.tsv:18
+msgid "Created"
+msgstr ""
+
+# HTTP Status Code 202
+#: configuration/http-statuscodes.tsv:19
+msgid "Accepted"
+msgstr ""
+
+# HTTP Status Code 203
+#: configuration/http-statuscodes.tsv:20
+msgid "Non-Authoritative Information"
+msgstr ""
+
+# HTTP Status Code 204
+#: configuration/http-statuscodes.tsv:21
+msgid "No Content"
+msgstr ""
+
+# HTTP Status Code 205
+#: configuration/http-statuscodes.tsv:22
+msgid "Reset Content"
+msgstr ""
+
+# HTTP Status Code 206
+#: configuration/http-statuscodes.tsv:23
+msgid "Partial Content"
+msgstr ""
+
+# HTTP Status Code 207
+#: configuration/http-statuscodes.tsv:24
+msgid "Multi-Status"
+msgstr ""
+
+# HTTP Status Code 208
+#: configuration/http-statuscodes.tsv:25
+msgid "Already Reported"
+msgstr ""
+
+# HTTP Status Code 226
+#: configuration/http-statuscodes.tsv:26
+msgid "IM Used"
+msgstr ""
 
 # HTTP Status Code 300
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:29
 msgid "Multiple Choices"
 msgstr "Кілька варіантів вибору"
 
 # HTTP Status Code 301
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:30
 msgid "Moved Permanently"
 msgstr "Переміщено остаточно"
 
 # HTTP Status Code 302
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:31
 msgid "Found"
 msgstr "Знайдений"
 
 # HTTP Status Code 303
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:32
 msgid "See Other"
 msgstr "Див. інше"
 
 # HTTP Status Code 304
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:33
 msgid "Not Modified"
 msgstr "Не змінено"
 
 # HTTP Status Code 305
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:34
 msgid "Use Proxy"
 msgstr "Використовувати проксі"
 
 # HTTP Status Code 307
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:35
 msgid "Temporary Redirect"
 msgstr "Тимчасове переспрямування"
 
+# HTTP Status Code 308
+#: configuration/http-statuscodes.tsv:36
+msgid "Permanent Redirect"
+msgstr ""
+
 # HTTP Status Code 400
+#: configuration/http-statuscodes.tsv:39
 msgid "Bad Request"
 msgstr "Неправильний запит"
 
 # HTTP Status Code 400
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:39
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
@@ -112,12 +323,7 @@ msgstr ""
 "може зрозуміти."
 
 # HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
-msgid "Unauthorized"
-msgstr "Не авторизовано"
-
-# HTTP Status Code 401
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:40
 msgid ""
 "This server could not verify that you are authorized to access this URL. You "
 "either supplied the wrong credentials (e.g., bad password), or your browser "
@@ -128,18 +334,23 @@ msgstr ""
 "пароль), або ваш веб-переглядач не розуміє, як надати необхідні облікові "
 "дані."
 
+# HTTP Status Code 401
+#: configuration/http-statuscodes.tsv:40
+msgid "Unauthorized"
+msgstr "Не авторизовано"
+
 # HTTP Status Code 402
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:41
 msgid "Payment Required"
 msgstr "Потрібна оплата"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:42
 msgid "Forbidden"
 msgstr "Заборонено"
 
 # HTTP Status Code 403
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:42
 msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
@@ -148,47 +359,59 @@ msgstr ""
 "читання, або недоступна для читання сервером."
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:43
 msgid "Not Found"
 msgstr "Не знайдено"
 
 # HTTP Status Code 404
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:43
 msgid "The requested URL was not found on this server."
 msgstr "Запитувана URL-адреса не знайдена на цьому сервері."
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:44
 msgid "Method Not Allowed"
 msgstr "Метод не дозволено"
 
 # HTTP Status Code 405
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:44
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "%s-метод не дозволений для запитуваної URL-адреси."
 
 # HTTP Status Code 406
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:45
 msgid "Not Acceptable"
 msgstr "Не прийнятна"
 
 # HTTP Status Code 407
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:46
 msgid "Proxy Authentication Required"
 msgstr "Необхідно ввійти на проксі-сервері"
 
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid "Request Timeout"
+msgstr ""
+
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid ""
+"The server closed the network connection because the browser didn't finish "
+"the request within the specified time."
+msgstr ""
+
 # HTTP Status Code 409
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:48
 msgid "Conflict"
 msgstr "Конфлікт"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:49
 msgid "Gone"
 msgstr "Пішов"
 
 # HTTP Status Code 410
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:49
 msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
@@ -197,36 +420,36 @@ msgstr ""
 "пересилання."
 
 # HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
-msgid "Length Required"
-msgstr "Обов 'язкова довжина"
-
-# HTTP Status Code 411
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:50
 msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
 msgstr ""
 "Запит з %s-методом вимагає дійсного <code>заголовка</code> Content-Length."
 
+# HTTP Status Code 411
+#: configuration/http-statuscodes.tsv:50
+msgid "Length Required"
+msgstr "Обов 'язкова довжина"
+
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:51
 msgid "Precondition Failed"
 msgstr "Не вдалося виставити попередню умову"
 
 # HTTP Status Code 412
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:51
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr ""
 "Попередня умова запиту URL-адреси зазнала невдачі при позитивній оцінці."
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
-msgid "Request Entity Too Large"
+#: configuration/http-statuscodes.tsv:52
+msgid "Payload Too Large"
 msgstr "Запит сутності завеликий"
 
 # HTTP Status Code 413
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:52
 msgid ""
 "The %s-method does not allow the data transmitted, or the data volume "
 "exceeds the capacity limit."
@@ -235,12 +458,7 @@ msgstr ""
 "місткості."
 
 # HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
-msgid "URI Too Long"
-msgstr "Занадто довгий URI"
-
-# HTTP Status Code 414
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:53
 msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
@@ -248,70 +466,120 @@ msgstr ""
 "Довжина запитуваної URL-адреси перевищує ліміт потужності для цього сервера. "
 "Не вдалося обробити запит."
 
-# HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
-msgid "Unsupported Media Type"
-msgstr "Непідтримуваний тип носія."
+# HTTP Status Code 414
+#: configuration/http-statuscodes.tsv:53
+msgid "URI Too Long"
+msgstr "Занадто довгий URI"
 
 # HTTP Status Code 415
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:54
 msgid "The server does not support the media type transmitted in the request."
 msgstr "Сервер не підтримує тип носія, переданий у запиті."
 
+# HTTP Status Code 415
+#: configuration/http-statuscodes.tsv:54
+msgid "Unsupported Media Type"
+msgstr "Непідтримуваний тип носія."
+
 # HTTP Status Code 416
-#: zzwrap/errorhandling.inc.php
-msgid "Requested Range Not Satisfiable"
+#: configuration/http-statuscodes.tsv:55
+msgid "Range Not Satisfiable"
 msgstr "Запитуваний діапазон не задовольняється"
 
 # HTTP Status Code 417
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:56
 msgid "Expectation Failed"
 msgstr "Помилка очікування"
 
+# HTTP Status Code 418
+#: configuration/http-statuscodes.tsv:57
+msgid "I'm a teapot"
+msgstr ""
+
+# HTTP Status Code 421
+#: configuration/http-statuscodes.tsv:58
+msgid "Misdirected Request"
+msgstr ""
+
+# HTTP Status Code 422
+#: configuration/http-statuscodes.tsv:59
+msgid "Unprocessable Content"
+msgstr ""
+
+# HTTP Status Code 423
+#: configuration/http-statuscodes.tsv:60
+msgid "Locked"
+msgstr ""
+
+# HTTP Status Code 424
+#: configuration/http-statuscodes.tsv:61
+msgid "Failed Dependency"
+msgstr ""
+
+# HTTP Status Code 425
+#: configuration/http-statuscodes.tsv:62
+msgid "Too Early"
+msgstr ""
+
+# HTTP Status Code 426
+#: configuration/http-statuscodes.tsv:63
+msgid "Upgrade Required"
+msgstr ""
+
+# HTTP Status Code 429
+#: configuration/http-statuscodes.tsv:64
+msgid "Too Many Requests"
+msgstr ""
+
+# HTTP Status Code 431
+#: configuration/http-statuscodes.tsv:65
+msgid "Request Header Fields Too Large"
+msgstr ""
+
+# HTTP Status Code 451
+#: configuration/http-statuscodes.tsv:66
+msgid "Unavailable For Legal Reasons"
+msgstr ""
+
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:69
 msgid "Internal Server Error"
 msgstr "Внутрішня помилка сервера"
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:69
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
 msgstr "Сервер виявив внутрішню помилку і не зміг виконати ваш запит."
 
-# HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php
-msgid "Unsupported server protocol (%s)"
-msgstr "Непідтримуваний протокол сервера (%s)"
-
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:70
 msgid "Not Implemented"
 msgstr "Не впроваджено"
 
 # HTTP Status Code 501
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:70
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr "Сервер не підтримує дії, запрошені веб-переглядачем (%s)."
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:71
 msgid "Bad Gateway"
 msgstr "Поганий шлюз"
 
 # HTTP Status Code 502
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:71
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr "Проксі-сервер отримав недійсну відповідь від вихідного сервера."
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:72
 msgid "Service Unavailable"
 msgstr "Служба SMTP недоступна"
 
 # HTTP Status Code 503
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:72
 msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
@@ -320,130 +588,458 @@ msgstr ""
 "обслуговуванням або потужністю. Повторіть спробу пізніше."
 
 # HTTP Status Code 504
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:73
 msgid "Gateway Timeout"
 msgstr "Час вичерпано"
 
 # HTTP Status Code 505
-#: zzwrap/errorhandling.inc.php
+#: configuration/http-statuscodes.tsv:74
 msgid "HTTP Version Not Supported"
 msgstr "Версія HTTP не підтримується"
 
-#: zzwrap/errorhandling.inc.php
-msgid ""
-"Please try to find the content you were looking for from our <a href=\"%s"
-"\">main page</a>."
+# HTTP Status Code 506
+#: configuration/http-statuscodes.tsv:75
+msgid "Variant Also Negotiates"
 msgstr ""
-"Спробуйте знайти потрібний вміст на нашій <a href=\"%s\">головній сторінці</"
-"a>."
+
+# HTTP Status Code 507
+#: configuration/http-statuscodes.tsv:76
+msgid "Insufficient Storage"
+msgstr ""
+
+# HTTP Status Code 508
+#: configuration/http-statuscodes.tsv:77
+msgid "Loop Detected"
+msgstr ""
+
+# HTTP Status Code 510
+#: configuration/http-statuscodes.tsv:78
+msgid "Not Extended"
+msgstr ""
+
+# HTTP Status Code 511
+#: configuration/http-statuscodes.tsv:79
+msgid "Network Authentication Required"
+msgstr ""
+
+#: configuration/months.tsv:15
+msgctxt "months"
+msgid "January"
+msgstr ""
+
+#: configuration/months.tsv:15
+msgctxt "months_short"
+msgid "Jan"
+msgstr ""
+
+#: configuration/months.tsv:16
+msgctxt "months"
+msgid "February"
+msgstr ""
+
+#: configuration/months.tsv:16
+msgctxt "months_short"
+msgid "Feb"
+msgstr ""
+
+#: configuration/months.tsv:17
+msgctxt "months"
+msgid "March"
+msgstr ""
+
+#: configuration/months.tsv:17
+msgctxt "months_short"
+msgid "Mar"
+msgstr ""
+
+#: configuration/months.tsv:18
+msgctxt "months"
+msgid "April"
+msgstr ""
+
+#: configuration/months.tsv:18
+msgctxt "months_short"
+msgid "Apr"
+msgstr ""
+
+#: configuration/months.tsv:19
+msgctxt "months"
+msgid "May"
+msgstr ""
+
+#: configuration/months.tsv:19
+msgctxt "months_short"
+msgid "May"
+msgstr ""
+
+#: configuration/months.tsv:20
+msgctxt "months"
+msgid "June"
+msgstr ""
+
+#: configuration/months.tsv:20
+msgctxt "months_short"
+msgid "Jun"
+msgstr ""
+
+#: configuration/months.tsv:21
+msgctxt "months"
+msgid "July"
+msgstr ""
+
+#: configuration/months.tsv:21
+msgctxt "months_short"
+msgid "Jul"
+msgstr ""
+
+#: configuration/months.tsv:22
+msgctxt "months"
+msgid "August"
+msgstr ""
+
+#: configuration/months.tsv:22
+msgctxt "months_short"
+msgid "Aug"
+msgstr ""
+
+#: configuration/months.tsv:23
+msgctxt "months"
+msgid "September"
+msgstr ""
+
+#: configuration/months.tsv:23
+msgctxt "months_short"
+msgid "Sep"
+msgstr ""
+
+#: configuration/months.tsv:24
+msgctxt "months"
+msgid "October"
+msgstr ""
+
+#: configuration/months.tsv:24
+msgctxt "months_short"
+msgid "Oct"
+msgstr ""
+
+#: configuration/months.tsv:25
+msgctxt "months"
+msgid "November"
+msgstr ""
+
+#: configuration/months.tsv:25
+msgctxt "months_short"
+msgid "Nov"
+msgstr ""
+
+#: configuration/months.tsv:26
+msgctxt "months"
+msgid "December"
+msgstr ""
+
+#: configuration/months.tsv:26
+msgctxt "months_short"
+msgid "Dec"
+msgstr ""
+
+# Weekdays, full
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays"
+msgid "Monday"
+msgstr "понеділок"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays_short"
+msgid "Mon"
+msgstr "Пн"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays"
+msgid "Tuesday"
+msgstr "вівторок"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays_short"
+msgid "Tue"
+msgstr "Вт"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays"
+msgid "Wednesday"
+msgstr "середа"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays_short"
+msgid "Wed"
+msgstr "Ср"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays"
+msgid "Thursday"
+msgstr "четвер"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays_short"
+msgid "Thu"
+msgstr "Чт"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays"
+msgid "Friday"
+msgstr "п'ятниця"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays_short"
+msgid "Fri"
+msgstr "Пт"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays"
+msgid "Saturday"
+msgstr "субота"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays_short"
+msgid "Sat"
+msgstr "Сб"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays"
+msgid "Sunday"
+msgstr "неділя"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays_short"
+msgid "Sun"
+msgstr "Нд"
+
+#: templates/error-404-mail.template.txt:11
+msgid "This URL was not found:"
+msgstr ""
+
+#: templates/error-404-mail.template.txt:14
+msgid "The URL was requested via:"
+msgstr ""
+
+#: templates/error-404-mail.template.txt:18
+msgid "POST data:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:13
+msgid "URL:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:16
+msgid "Method:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:19 zzwrap/errorhandling.inc.php:922
+msgid "IP:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:22
+msgid "Browser:"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:22 zzwrap/errorhandling.inc.php:924
+msgid "unknown"
+msgstr ""
+
+#: templates/error-footer-mail.template.txt:25
+msgid "User:"
+msgstr ""
+
+#: templates/test.template.txt:15
+msgid "Input"
+msgstr ""
+
+#: templates/test.template.txt:16
+msgid "Output"
+msgstr ""
+
+#: templates/test.template.txt:36
+msgid "This function was not found."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:77
+msgid "Link for login is wrong or out of date."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:79
+msgid "Please get a new one."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:138
+msgid "Password or username are empty. Please try again."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:182
+msgid "Password or username incorrect. Please try again."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:197
+msgid "Login without username"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:206
+msgid "Password or username incorrect:"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:271
+msgid "The “Forgot password” link is not activated."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:273 zzwrap/auth.inc.php:731
+msgid "The “Forgot password” query is missing."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:275
+msgid "Login"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:276
+msgid "Request password"
+msgstr ""
+
+#: zzbrick_request/test.inc.php:137
+msgid "Tests for %s()"
+msgstr ""
+
+#: zzbrick_request/tests.inc.php:34
+msgid "Tests for %s"
+msgstr ""
+
+#: zzbrick_request/tests.inc.php:42 zzbrick_request/tests.inc.php:43
+msgid "Tests"
+msgstr ""
+
+#: zzwrap/access.inc.php:255
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr ""
+
+#: zzwrap/access.inc.php:514
+msgid "List of allowed IPs not found in configuration (%s)."
+msgstr ""
+
+#: zzwrap/access.inc.php:521
+msgid "Your IP address %s is not in the allowed range."
+msgstr ""
+
+#: zzwrap/auth.inc.php
+msgid "Forgotten Password"
+msgstr ""
+
+#: zzwrap/auth.inc.php
+msgid "Username:"
+msgstr ""
+
+#: zzwrap/auth.inc.php:591
+msgid "Too many failed login attempts. Please wait %d second."
+msgid_plural "Too many failed login attempts. Please wait %d seconds."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: zzwrap/background.inc.php:86
+msgid "not found"
+msgstr ""
+
+#: zzwrap/cache.inc.php:555
+msgid "Caching for URL %s disabled, looks like filename with / at the end?"
+msgstr ""
+
+#: zzwrap/core.inc.php:67
+msgid "Wrong relative path: %s"
+msgstr ""
+
+#: zzwrap/database.inc.php:543
+msgid "Fields <code>%s</code> are missing in SQL query"
+msgstr ""
+
+#: zzwrap/database.inc.php:2032
+msgid "Primary Key for table %s was not found."
+msgstr ""
+
+#: zzwrap/database.inc.php:2036
+msgid "Primary Key for table %s spans over more than one field."
+msgstr ""
+
+#: zzwrap/defaults.inc.php:186
+msgid "Forwarded servername %s is not in configuration"
+msgstr ""
 
 #: zzwrap/errorhandling.inc.php
 msgid "User"
 msgstr "Користувач"
 
-#: zzwrap/errorhandling.inc.php
+#: zzwrap/errorhandling.inc.php:143
 msgid "Error on website"
 msgstr "Помилка на сайті"
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "N North"
-msgstr "Північ"
+#: zzwrap/errorhandling.inc.php:344
+msgid ""
+"Please try to find the content you were looking for from our <a "
+"href=\"%s\">main page</a>."
+msgstr ""
+"Спробуйте знайти потрібний вміст на нашій <a href=\"%s\">головній сторінці</"
+"a>."
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNE North-northeast"
-msgstr "Півн.-Півн.східн."
+# HTTP Status Code 500
+#: zzwrap/errorhandling.inc.php:456
+msgid "Unsupported server protocol (%s)"
+msgstr "Непідтримуваний протокол сервера (%s)"
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NE Northeast"
-msgstr "Північно-Східна Азія"
+#: zzwrap/errorhandling.inc.php:604
+msgid ""
+"The server responds to the hostname %s, but this is not in the list of "
+"possible hostnames."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ENE East-northeast"
-msgstr "Схід - Півн-схід"
+#: zzwrap/errorhandling.inc.php:924
+msgid "User agent:"
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "E East"
-msgstr "Схід"
+#: zzwrap/errorhandling.inc.php:926
+msgid "Referring URL:"
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ESE East-southeast"
-msgstr "Схід - Півд-схід"
+#: zzwrap/file.inc.php:26
+msgid "File %s is not writable."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SE Southeast"
-msgstr "Південно-Східна Азія"
+#: zzwrap/file.inc.php:27
+msgid "No lines deleted."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSE South-southeast"
-msgstr "Півд - Півд-сх."
+#: zzwrap/file.inc.php:46 zzwrap/syndication.inc.php:1227
+msgid "Cannot open %s for writing."
+msgstr ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "S South"
-msgstr "Південь"
+#: zzwrap/file.inc.php:52
+msgid "1 line deleted."
+msgid_plural "%d lines deleted."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSW South-southwest"
-msgstr "Півд - Півд-зах"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SW Southwest"
-msgstr "Південно-Західна Півкуля"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WSW West-southwest"
-msgstr "Захід-Південний Захід"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "W West"
-msgstr "Захід"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WNW West-northwest"
-msgstr "Зах - Півн-зах"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NW Northwest"
-msgstr "Північний захід"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNW North-northwest"
-msgstr "Північ-Півн.зах."
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d years"
-msgstr "%d років"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 year"
-msgstr "1 рік"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d weeks"
-msgstr "%d тижнів"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 week"
-msgstr "1 тиждень"
+#: zzwrap/files.inc.php:423
+msgid ""
+"The required library %s does not exist. Please install it in the `_inc/"
+"library` folder."
+msgstr ""
 
 # duration
 #: zzwrap/format.inc.php
@@ -452,18 +1048,8 @@ msgstr "%d днів"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 day"
-msgstr "1 день"
-
-# duration
-#: zzwrap/format.inc.php
 msgid "%d hours"
 msgstr "%d годин"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 hour"
-msgstr "1 година"
 
 # duration
 #: zzwrap/format.inc.php
@@ -472,78 +1058,232 @@ msgstr "%d хвилин"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 minute"
-msgstr "1 хвилина"
+msgid "%d seconds"
+msgstr "%d секунд"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "%d seconds"
-msgstr "%d секунд"
+msgid "%d weeks"
+msgstr "%d тижнів"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "%d years"
+msgstr "%d років"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 day"
+msgstr "1 день"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 hour"
+msgstr "1 година"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 minute"
+msgstr "1 хвилина"
 
 # duration
 #: zzwrap/format.inc.php
 msgid "1 second"
 msgstr "1 секунда"
 
-# Weekdays, abbreviated
-msgid "Mon"
-msgstr "Пн"
+# duration
+#: zzwrap/format.inc.php
+msgid "1 week"
+msgstr "1 тиждень"
 
-# Weekdays, abbreviated
-msgid "Tue"
-msgstr "Вт"
+# duration
+#: zzwrap/format.inc.php
+msgid "1 year"
+msgstr "1 рік"
 
-# Weekdays, abbreviated
-msgid "Wed"
-msgstr "Ср"
+# duration
+#: zzwrap/format.inc.php:638
+msgctxt "time"
+msgid "%s&nbsp;h"
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Thu"
-msgstr "Чт"
+# duration
+#: zzwrap/format.inc.php:651
+msgctxt "time"
+msgid "%s–%s&nbsp;h"
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Fri"
-msgstr "Пт"
+# Separator for time (hours:minutes)
+#: zzwrap/format.inc.php:669
+msgctxt "time"
+msgid "%s:%s"
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Sat"
-msgstr "Сб"
+#: zzwrap/format.inc.php:916
+msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
+msgstr ""
 
-# Weekdays, abbreviated
-msgid "Sun"
-msgstr "Нд"
+#: zzwrap/format.inc.php:949
+msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Monday"
-msgstr "понеділок"
+#: zzwrap/format.inc.php:971
+msgid "Sorry, the number format <strong>%s</strong> is not supported."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Tuesday"
-msgstr "вівторок"
+# access
+#: zzwrap/http.inc.php:45
+msgid "Access to this website for your IP address is restricted."
+msgstr "Доступ до цього веб-сайту для вашої IP-адреси обмежено."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Wednesday"
-msgstr "середа"
+#: zzwrap/http.inc.php:78
+msgid "This website is currently offline."
+msgstr "Цей веб-сайт наразі недоступний."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Thursday"
-msgstr "четвер"
+#: zzwrap/http.inc.php:164
+msgid "This value sent via HTTP must not be an array. %s: %s"
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Friday"
-msgstr "п'ятниця"
+#: zzwrap/http.inc.php:312
+msgid ""
+"HTTP Header spoofing detected. The client is attempting to impersonate "
+"localhost."
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Saturday"
-msgstr "субота"
+#: zzwrap/http.inc.php:327
+msgid ""
+"HTTP Header spoofing detected. The client uses an invalid forwarding IP "
+"address: %s"
+msgstr ""
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Sunday"
-msgstr "неділя"
+#: zzwrap/install.inc.php:234
+msgid "The main user could not be created."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:238
+msgid "fallback"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:994
+msgid "Unknown package."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1016
+msgid "Could not write file: %s"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1026
+msgid "No .pot files were changed."
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:1032
+msgid "%d .pot file written."
+msgid_plural "%d .pot files written."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: zzwrap/mail.inc.php:727
+msgid "Unable to open mailbox %s (Server: %s)"
+msgstr ""
+
+#: zzwrap/nav.inc.php:739
+msgid "Unable to parse this breadcrumb: %s"
+msgstr ""
+
+#: zzwrap/nav.inc.php:930
+msgid "Previous page"
+msgstr ""
+
+#: zzwrap/nav.inc.php:932
+msgid "Next page"
+msgstr ""
+
+#: zzwrap/nav.inc.php:938 zzwrap/page.inc.php:702 zzwrap/page.inc.php:715
+msgid "Overview"
+msgstr ""
+
+#: zzwrap/page.inc.php:166
+msgid "No text line for HTTP status %d found."
+msgstr ""
+
+#: zzwrap/page.inc.php:205
+msgid "zzbrick returned with an error. Sorry, that’s all we know."
+msgstr ""
+
+#: zzwrap/page.inc.php:216
+msgid "An error occurred while filling the template %s. Status code %d"
+msgstr ""
+
+#: zzwrap/page.inc.php:221
+msgid "An error occurred while creating the resource %s. Status code %d"
+msgstr ""
+
+#: zzwrap/page.inc.php:248
+msgid "Illegal value for XML HTTP request: %s"
+msgstr ""
+
+#: zzwrap/page.inc.php:590
+msgid "Template %s includes itself"
+msgstr ""
+
+#: zzwrap/reference.inc.php:29
+msgid "Unknown reference style `%s` for `%s`."
+msgstr ""
+
+#: zzwrap/reference.inc.php:120
+msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
+msgstr ""
+
+#: zzwrap/reference.inc.php:129
+msgid "Reference `%s` is empty."
+msgstr ""
+
+#: zzwrap/routes.inc.php:410
+msgid "No route found for `%s`."
+msgstr ""
+
+#: zzwrap/routes.inc.php:477
+msgid "Calling for path `%s` for non-existent website `%s`."
+msgstr ""
+
+#: zzwrap/send.inc.php:36
+msgid "Unable to send file: %s is a folder, not a file."
+msgstr ""
+
+#: zzwrap/send.inc.php:51
+msgid "Unable to send file: %s does not exist"
+msgstr ""
+
+#: zzwrap/send.inc.php:381
+msgid "Unable to open file %s"
+msgstr ""
+
+#: zzwrap/session.inc.php:54
+msgid "Temporarily, a login is not possible."
+msgstr ""
+
+#: zzwrap/settings.inc.php:366
+msgid "Could not change setting. Key: %s, value: %s, login: %s"
+msgstr ""
+
+#: zzwrap/template.inc.php:125
+msgid "Template name %s not valid."
+msgstr ""
+
+#: zzwrap/template.inc.php:154
+msgid "Template <code>%s</code> does not exist."
+msgstr ""
+
+#: zzwrap/template.inc.php:159
+msgid "More than one template with the name <code>%s</code> exists."
+msgstr ""
+
+#: zzwrap/url.inc.php:43
+msgid "Invalid Request URI: %s%s"
+msgstr ""
+
+# check request
+#: zzwrap/url.inc.php:88
+msgid "URIs with more than %d slashes are not processed."
+msgstr ""

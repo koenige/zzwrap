@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: \n"
+"POT-Creation-Date: 2026-07-10 09:15+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -20,158 +20,301 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
-#: templates/error-404-mail.template.txt
-msgid "This URL was not found:"
-msgstr "Diese URL wurde nicht gefunden:"
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgid "North"
+msgstr "Nord"
 
-#: templates/error-404-mail.template.txt
-msgid "The URL was requested via:"
-msgstr "Die URL wurde angefordert über:"
+# Points of the compass
+#: configuration/bearings.tsv:15
+msgctxt "North"
+msgid "N"
+msgstr "N"
 
-#: templates/error-404-mail.template.txt
-msgid "POST data:"
-msgstr "POST-Daten:"
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgid "North-northeast"
+msgstr "Nord-Nordost"
 
-#: templates/error-footer-mail.template.txt
-msgid "URL:"
-msgstr "URL:"
+# Points of the compass
+#: configuration/bearings.tsv:16
+msgctxt "North-northeast"
+msgid "NNE"
+msgstr "NNO"
 
-#: templates/error-footer-mail.template.txt
-msgid "Method:"
-msgstr "Methode:"
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgid "Northeast"
+msgstr "NO Nordost"
 
-#: templates/error-footer-mail.template.txt
-msgid "IP:"
-msgstr "IP:"
+# Points of the compass
+#: configuration/bearings.tsv:17
+msgctxt "Northeast"
+msgid "NE"
+msgstr "NO"
 
-#: templates/error-footer-mail.template.txt
-msgid "Browser:"
-msgstr "Browser:"
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgid "East-northeast"
+msgstr "Ost-Nordost"
 
-#: templates/error-footer-mail.template.txt
-msgid "User:"
-msgstr "Benutzer:"
+# Points of the compass
+#: configuration/bearings.tsv:18
+msgctxt "East-northeast"
+msgid "ENE"
+msgstr "ONO"
 
-#: zzwrap/access.inc.php
-msgid "You need `%s` access rights. (Login: %s)"
-msgstr "Sie benötigen `%s` Zugriffsrechte. (Login: %s)"
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgid "East"
+msgstr "Ost"
 
-#: zzwrap/auth.inc.php
-msgid "Password or username incorrect. Please try again."
-msgstr "Passwort oder Benutzername falsch. Bitte versuchen Sie es erneut."
+# Points of the compass
+#: configuration/bearings.tsv:19
+msgctxt "East"
+msgid "E"
+msgstr "O"
 
-#: zzwrap/auth.inc.php
-msgid "Username:"
-msgstr "Benutzername:"
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgid "East-southeast"
+msgstr "Ost-Südost"
 
-#: zzwrap/auth.inc.php
-msgid "Password or username are empty. Please try again."
-msgstr "Passwort oder Benutzername leer. Bitte versuchen Sie es erneut."
+# Points of the compass
+#: configuration/bearings.tsv:20
+msgctxt "East-southeast"
+msgid "ESE"
+msgstr "OSO"
 
-#: zzwrap/auth.inc.php
-msgid "Request password"
-msgstr "Passwort anfordern"
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgid "Southeast"
+msgstr "Südost"
 
-#: zzwrap/auth.inc.php
-msgid "Forgotten Password"
-msgstr "Vergessenes Passwort"
+# Points of the compass
+#: configuration/bearings.tsv:21
+msgctxt "Southeast"
+msgid "SE"
+msgstr "SO"
 
-#: zzwrap/auth.inc.php
-msgid "Link for login is wrong or out of date."
-msgstr "Der Link fürs Login ist falsch oder abgelaufen."
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgid "South-southeast"
+msgstr "Süd-Südost"
 
-#: zzwrap/auth.inc.php
-msgid "Please get a new one."
-msgstr "Bitte besorgen Sie sich einen neuen."
+# Points of the compass
+#: configuration/bearings.tsv:22
+msgctxt "South-southeast"
+msgid "SSE"
+msgstr "SSO"
 
-#: zzwrap/auth.inc.php
-msgid "Too many failed login attempts. Please wait %d second."
-msgid_plural "Too many failed login attempts. Please wait %d seconds."
-msgstr[0] ""
-"Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie %d Sekunde."
-msgstr[1] ""
-"Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie %d Sekunden."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgid "South"
+msgstr "Süd"
 
-#: zzwrap/core.inc.php
-msgid "Temporarily, a login is not possible."
-msgstr "Vorübergehend ist keine Anmeldung möglich."
+# Points of the compass
+#: configuration/bearings.tsv:23
+msgctxt "South"
+msgid "S"
+msgstr "S"
 
-# access
-#: zzwrap/http.inc.php
-msgid "Access to this website for your IP address is restricted."
-msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgid "South-southwest"
+msgstr "Süd-Südwest"
 
-#: zzwrap/zzwrap.php
-msgid "This website is currently offline."
-msgstr "Diese Website ist derzeit offline."
+# Points of the compass
+#: configuration/bearings.tsv:24
+msgctxt "South-southwest"
+msgid "SSW"
+msgstr "SSW"
 
-# check request
-#: zzwrap/core.inc.php
-msgid "URIs with more than %d slashes are not processed."
-msgstr "URIs mit mehr als %d Schrägstrichen werden nicht verarbeitet."
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgid "Southwest"
+msgstr "Südwest"
 
-#: zzwrap/file.inc.php
-msgid "File %s is not writable."
-msgstr "Datei %s ist nicht schreibbar."
+# Points of the compass
+#: configuration/bearings.tsv:25
+msgctxt "Southwest"
+msgid "SW"
+msgstr "SW"
 
-#: zzwrap/file.inc.php
-msgid "Cannot open %s for writing."
-msgstr "Die Datei %s lässt sich nicht zum Schreiben öffnen."
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgid "West-southwest"
+msgstr "West-Südwest"
 
-#: zzwrap/file.inc.php
-msgid "1 line deleted."
-msgid_plural "%d lines deleted."
-msgstr[0] "1 Zeile gelöscht."
-msgstr[1] "%d Zeilen gelöscht."
+# Points of the compass
+#: configuration/bearings.tsv:26
+msgctxt "West-southwest"
+msgid "WSW"
+msgstr "WSW"
 
-#: zzwrap/file.inc.php
-msgid "No lines deleted."
-msgstr "Keine Zeilen gelöscht."
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgid "West"
+msgstr "West"
+
+# Points of the compass
+#: configuration/bearings.tsv:27
+msgctxt "West"
+msgid "W"
+msgstr "W"
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgid "West-northwest"
+msgstr "West-Nordwest"
+
+# Points of the compass
+#: configuration/bearings.tsv:28
+msgctxt "West-northwest"
+msgid "WNW"
+msgstr "WNW"
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgid "Northwest"
+msgstr "Nordwest"
+
+# Points of the compass
+#: configuration/bearings.tsv:29
+msgctxt "Northwest"
+msgid "NW"
+msgstr "NW"
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgid "North-northwest"
+msgstr "Nord-Nordwest"
+
+# Points of the compass
+#: configuration/bearings.tsv:30
+msgctxt "North-northwest"
+msgid "NNW"
+msgstr "NNW"
+
+# HTTP Status Code 100
+#: configuration/http-statuscodes.tsv:11
+msgid "Continue"
+msgstr "Fortsetzen"
+
+# HTTP Status Code 101
+#: configuration/http-statuscodes.tsv:12
+msgid "Switching Protocols"
+msgstr ""
+
+# HTTP Status Code 102
+#: configuration/http-statuscodes.tsv:13
+msgid "Processing"
+msgstr ""
+
+# HTTP Status Code 103
+#: configuration/http-statuscodes.tsv:14
+msgid "Early Hints"
+msgstr ""
+
+# HTTP Status Code 200
+#: configuration/http-statuscodes.tsv:17
+msgid "OK"
+msgstr ""
+
+# HTTP Status Code 201
+#: configuration/http-statuscodes.tsv:18
+msgid "Created"
+msgstr ""
+
+# HTTP Status Code 202
+#: configuration/http-statuscodes.tsv:19
+msgid "Accepted"
+msgstr ""
+
+# HTTP Status Code 203
+#: configuration/http-statuscodes.tsv:20
+msgid "Non-Authoritative Information"
+msgstr ""
+
+# HTTP Status Code 204
+#: configuration/http-statuscodes.tsv:21
+msgid "No Content"
+msgstr "Kein Inhalt"
+
+# HTTP Status Code 205
+#: configuration/http-statuscodes.tsv:22
+msgid "Reset Content"
+msgstr "Inhalt zurücksetzen"
+
+# HTTP Status Code 206
+#: configuration/http-statuscodes.tsv:23
+msgid "Partial Content"
+msgstr "Teilinhalt"
+
+# HTTP Status Code 207
+#: configuration/http-statuscodes.tsv:24
+msgid "Multi-Status"
+msgstr "Mehrfachstatus"
+
+# HTTP Status Code 208
+#: configuration/http-statuscodes.tsv:25
+msgid "Already Reported"
+msgstr "Bereits gemeldet"
+
+# HTTP Status Code 226
+#: configuration/http-statuscodes.tsv:26
+msgid "IM Used"
+msgstr ""
 
 # HTTP Status Code 300
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:29
 msgid "Multiple Choices"
 msgstr "Mehrfachauswahl"
 
 # HTTP Status Code 301
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:30
 msgid "Moved Permanently"
 msgstr "Dauerhaft verschoben"
 
 # HTTP Status Code 302
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:31
 msgid "Found"
 msgstr "Umleitung (unbestimmt)"
 
 # HTTP Status Code 303
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:32
 msgid "See Other"
 msgstr "Umleitung"
 
 # HTTP Status Code 304
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:33
 msgid "Not Modified"
 msgstr "Keine Veränderung"
 
 # HTTP Status Code 305
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:34
 msgid "Use Proxy"
 msgstr "Proxy benutzen"
 
 # HTTP Status Code 307
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:35
 msgid "Temporary Redirect"
 msgstr "Vorübergehende Umleitung"
 
+# HTTP Status Code 308
+#: configuration/http-statuscodes.tsv:36
+msgid "Permanent Redirect"
+msgstr "Dauerhafte Weiterleitung"
+
 # HTTP Status Code 400
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:39
 msgid "Bad Request"
 msgstr "Fehlerhafte Anfrage"
 
 # HTTP Status Code 400
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:39
 msgid ""
 "Your browser (or proxy) sent a request that this server could not understand."
 msgstr ""
@@ -179,12 +322,7 @@ msgstr ""
 "nicht beantwortet werden kann."
 
 # HTTP Status Code 401
-#: configuration/http-statuscodes.tsv
-msgid "Unauthorized"
-msgstr "Anmeldung fehlgeschlagen"
-
-# HTTP Status Code 401
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:40
 msgid ""
 "This server could not verify that you are authorized to access this URL. You "
 "either supplied the wrong credentials (e.g., bad password), or your browser "
@@ -195,18 +333,23 @@ msgstr ""
 "angegeben oder Ihr Browser versteht nicht, wie die geforderten Daten zu "
 "übermitteln sind."
 
+# HTTP Status Code 401
+#: configuration/http-statuscodes.tsv:40
+msgid "Unauthorized"
+msgstr "Anmeldung fehlgeschlagen"
+
 # HTTP Status Code 402
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:41
 msgid "Payment Required"
 msgstr "Bezahlung erforderlich"
 
 # HTTP Status Code 403
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:42
 msgid "Forbidden"
 msgstr "Kein Zugriff"
 
 # HTTP Status Code 403
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:42
 msgid ""
 "You don't have permission to access the requested object. It is either read-"
 "protected or not readable by the server."
@@ -215,47 +358,61 @@ msgstr ""
 "vom Server nicht gelesen werden oder er ist zugriffsgeschützt."
 
 # HTTP Status Code 404
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:43
 msgid "Not Found"
 msgstr "Inhalt nicht gefunden"
 
 # HTTP Status Code 404
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:43
 msgid "The requested URL was not found on this server."
 msgstr "Der von Ihnen gewünschte Inhalt konnte nicht gefunden werden."
 
 # HTTP Status Code 405
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:44
 msgid "Method Not Allowed"
 msgstr "Methode nicht erlaubt"
 
 # HTTP Status Code 405
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:44
 msgid "The %s-method is not allowed for the requested URL."
 msgstr "Die %s-Methode ist für die angeforderte URL nicht erlaubt."
 
 # HTTP Status Code 406
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:45
 msgid "Not Acceptable"
 msgstr "Nicht verarbeitbar"
 
 # HTTP Status Code 407
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:46
 msgid "Proxy Authentication Required"
 msgstr "Proxyanmeldung erforderlich"
 
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid "Request Timeout"
+msgstr "Zeitüberschreitung der Anforderung"
+
+# HTTP Status Code 408
+#: configuration/http-statuscodes.tsv:47
+msgid ""
+"The server closed the network connection because the browser didn't finish "
+"the request within the specified time."
+msgstr ""
+"Der Server hat die Netzwerkverbindung geschlossen, da der Browser die "
+"Anfrage nicht innerhalb der vorgegebenen Zeit abgeschlossen hat."
+
 # HTTP Status Code 409
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:48
 msgid "Conflict"
 msgstr "Konflikt"
 
 # HTTP Status Code 410
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:49
 msgid "Gone"
 msgstr "Inhalt nicht mehr verfügbar"
 
 # HTTP Status Code 410
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:49
 msgid ""
 "The requested URL is no longer available on this server and there is no "
 "forwarding address."
@@ -264,12 +421,7 @@ msgstr ""
 "dauerhaft entfernt. Eine Weiterleitungsadresse ist nicht verfügbar."
 
 # HTTP Status Code 411
-#: configuration/http-statuscodes.tsv
-msgid "Length Required"
-msgstr "Content-Length-Angabe fehlerhaft"
-
-# HTTP Status Code 411
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:50
 msgid ""
 "A request with the %s-method requires a valid <code>Content-Length</code> "
 "header."
@@ -277,25 +429,30 @@ msgstr ""
 "Die Anfrage kann nicht beantwortet werden. Bei Verwendung der %s-Methode muß "
 "ein korrekter <code>Content-Length</code>-Header angegeben werden."
 
+# HTTP Status Code 411
+#: configuration/http-statuscodes.tsv:50
+msgid "Length Required"
+msgstr "Content-Length-Angabe fehlerhaft"
+
 # HTTP Status Code 412
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:51
 msgid "Precondition Failed"
 msgstr "Vorbedingung verfehlt"
 
 # HTTP Status Code 412
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:51
 msgid "The precondition on the request for the URL failed positive evaluation."
 msgstr ""
 "Die für den Abruf der angeforderten URL notwendige Vorbedingung wurde nicht "
 "erfüllt."
 
 # HTTP Status Code 413
-#: configuration/http-statuscodes.tsv
-msgid "Request Entity Too Large"
+#: configuration/http-statuscodes.tsv:52
+msgid "Payload Too Large"
 msgstr "Übergebene Daten zu groß"
 
 # HTTP Status Code 413
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:52
 msgid ""
 "The %s-method does not allow the data transmitted, or the data volume "
 "exceeds the capacity limit."
@@ -304,12 +461,7 @@ msgstr ""
 "erlaubt oder die Datenmenge hat das Maximum überschritten."
 
 # HTTP Status Code 414
-#: configuration/http-statuscodes.tsv
-msgid "URI Too Long"
-msgstr "URI zu lang"
-
-# HTTP Status Code 414
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:53
 msgid ""
 "The length of the requested URL exceeds the capacity limit for this server. "
 "The request cannot be processed."
@@ -317,40 +469,90 @@ msgstr ""
 "Die bei der Anfrage übermittelte URI überschreitet die maximale Länge. Die "
 "Anfrage kann nicht ausgeführt werden."
 
-# HTTP Status Code 415
-#: configuration/http-statuscodes.tsv
-msgid "Unsupported Media Type"
-msgstr "Nicht unterstütztes Format"
+# HTTP Status Code 414
+#: configuration/http-statuscodes.tsv:53
+msgid "URI Too Long"
+msgstr "URI zu lang"
 
 # HTTP Status Code 415
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:54
 msgid "The server does not support the media type transmitted in the request."
 msgstr ""
 "Das bei der Anfrage übermittelte Format (Media Type) wird vom Server nicht "
 "unterstützt."
 
+# HTTP Status Code 415
+#: configuration/http-statuscodes.tsv:54
+msgid "Unsupported Media Type"
+msgstr "Nicht unterstütztes Format"
+
 # HTTP Status Code 416
-#: configuration/http-statuscodes.tsv
-msgid "Requested Range Not Satisfiable"
+#: configuration/http-statuscodes.tsv:55
+msgid "Range Not Satisfiable"
 msgstr "Abgefragtes Intervall (<code>range</code>) nicht erfüllbar"
 
 # HTTP Status Code 417
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:56
 msgid "Expectation Failed"
 msgstr "Erwartung (<code>Expect</code>) fehlgeschlagen"
 
+# HTTP Status Code 418
+#: configuration/http-statuscodes.tsv:57
+msgid "I'm a teapot"
+msgstr "Ich bin eine Teekanne"
+
+# HTTP Status Code 421
+#: configuration/http-statuscodes.tsv:58
+msgid "Misdirected Request"
+msgstr ""
+
+# HTTP Status Code 422
+#: configuration/http-statuscodes.tsv:59
+msgid "Unprocessable Content"
+msgstr "Nicht verarbeitbarer Inhalt"
+
+# HTTP Status Code 423
+#: configuration/http-statuscodes.tsv:60
+msgid "Locked"
+msgstr "Gesperrt"
+
+# HTTP Status Code 424
+#: configuration/http-statuscodes.tsv:61
+msgid "Failed Dependency"
+msgstr ""
+
+# HTTP Status Code 425
+#: configuration/http-statuscodes.tsv:62
+msgid "Too Early"
+msgstr "Zu früh"
+
+# HTTP Status Code 426
+#: configuration/http-statuscodes.tsv:63
+msgid "Upgrade Required"
+msgstr ""
+
 # HTTP Status Code 417
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:64
 msgid "Too Many Requests"
 msgstr "Zu viele Anfragen"
 
+# HTTP Status Code 431
+#: configuration/http-statuscodes.tsv:65
+msgid "Request Header Fields Too Large"
+msgstr "Die Felder im Request-Header sind zu groß"
+
+# HTTP Status Code 451
+#: configuration/http-statuscodes.tsv:66
+msgid "Unavailable For Legal Reasons"
+msgstr "Aus rechtlichen Gründen nicht verfügbar"
+
 # HTTP Status Code 500
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:69
 msgid "Internal Server Error"
 msgstr "Serverfehler"
 
 # HTTP Status Code 500
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:69
 msgid ""
 "The server encountered an internal error and was unable to complete your "
 "request."
@@ -358,41 +560,36 @@ msgstr ""
 "Die Anfrage kann nicht beantwortet werden, da im Server ein interner Fehler "
 "aufgetreten ist."
 
-# HTTP Status Code 500
-#: configuration/http-statuscodes.tsv
-msgid "Unsupported server protocol (%s)"
-msgstr "Server-Protokoll wird nicht unterstützt (%s)"
-
 # HTTP Status Code 501
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:70
 msgid "Not Implemented"
 msgstr "Abfrage nicht unterstützt"
 
 # HTTP Status Code 501
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:70
 msgid "The server does not support the action requested by the browser (%s)."
 msgstr ""
 "Die vom Browser angeforderte Aktion wird vom Server nicht unterstützt (%s)."
 
 # HTTP Status Code 502
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:71
 msgid "Bad Gateway"
 msgstr "Fehlerhaftes Gateway"
 
 # HTTP Status Code 502
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:71
 msgid "The proxy server received an invalid response from an upstream server."
 msgstr ""
 "Der Proxy-Server erhielt eine fehlerhafte Antwort eines übergeordneten "
 "Servers oder Proxies."
 
 # HTTP Status Code 503
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:72
 msgid "Service Unavailable"
 msgstr "Dienst steht nicht zur Verfügung"
 
 # HTTP Status Code 503
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:72
 msgid ""
 "The server is temporarily unable to service your request due to maintenance "
 "downtime or capacity problems. Please try again later."
@@ -402,24 +599,414 @@ msgstr ""
 "später noch einmal."
 
 # HTTP Status Code 504
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:73
 msgid "Gateway Timeout"
 msgstr "Zeitlimit am Netzübergang (<code>gateway</code>) überschritten"
 
 # HTTP Status Code 505
-#: configuration/http-statuscodes.tsv
+#: configuration/http-statuscodes.tsv:74
 msgid "HTTP Version Not Supported"
 msgstr "HTTP-Version nicht unterstützt"
 
-#: zzbrick_request/login.inc.php
+# HTTP Status Code 506
+#: configuration/http-statuscodes.tsv:75
+msgid "Variant Also Negotiates"
+msgstr ""
+
+# HTTP Status Code 507
+#: configuration/http-statuscodes.tsv:76
+msgid "Insufficient Storage"
+msgstr "Unzureichender Speicherplatz"
+
+# HTTP Status Code 508
+#: configuration/http-statuscodes.tsv:77
+msgid "Loop Detected"
+msgstr "Schleife erkannt"
+
+# HTTP Status Code 510
+#: configuration/http-statuscodes.tsv:78
+msgid "Not Extended"
+msgstr ""
+
+# HTTP Status Code 511
+#: configuration/http-statuscodes.tsv:79
+msgid "Network Authentication Required"
+msgstr "Netzwerkauthentifizierung erforderlich"
+
+#: configuration/months.tsv:15
+msgctxt "months"
+msgid "January"
+msgstr "Januar"
+
+#: configuration/months.tsv:15
+msgctxt "months_short"
+msgid "Jan"
+msgstr "Jan"
+
+#: configuration/months.tsv:16
+msgctxt "months"
+msgid "February"
+msgstr "Februar"
+
+#: configuration/months.tsv:16
+msgctxt "months_short"
+msgid "Feb"
+msgstr "Feb"
+
+#: configuration/months.tsv:17
+msgctxt "months"
+msgid "March"
+msgstr "März"
+
+#: configuration/months.tsv:17
+msgctxt "months_short"
+msgid "Mar"
+msgstr "Mär"
+
+#: configuration/months.tsv:18
+msgctxt "months"
+msgid "April"
+msgstr "April"
+
+#: configuration/months.tsv:18
+msgctxt "months_short"
+msgid "Apr"
+msgstr "Apr"
+
+#: configuration/months.tsv:19
+msgctxt "months"
+msgid "May"
+msgstr "Mai"
+
+#: configuration/months.tsv:19
+msgctxt "months_short"
+msgid "May"
+msgstr "Mai"
+
+#: configuration/months.tsv:20
+msgctxt "months"
+msgid "June"
+msgstr "Juni"
+
+#: configuration/months.tsv:20
+msgctxt "months_short"
+msgid "Jun"
+msgstr "Jun"
+
+#: configuration/months.tsv:21
+msgctxt "months"
+msgid "July"
+msgstr "Juli"
+
+#: configuration/months.tsv:21
+msgctxt "months_short"
+msgid "Jul"
+msgstr "Jul"
+
+#: configuration/months.tsv:22
+msgctxt "months"
+msgid "August"
+msgstr "August"
+
+#: configuration/months.tsv:22
+msgctxt "months_short"
+msgid "Aug"
+msgstr "Aug"
+
+#: configuration/months.tsv:23
+msgctxt "months"
+msgid "September"
+msgstr "September"
+
+#: configuration/months.tsv:23
+msgctxt "months_short"
+msgid "Sep"
+msgstr "Sep"
+
+#: configuration/months.tsv:24
+msgctxt "months"
+msgid "October"
+msgstr "Oktober"
+
+#: configuration/months.tsv:24
+msgctxt "months_short"
+msgid "Oct"
+msgstr "Okt"
+
+#: configuration/months.tsv:25
+msgctxt "months"
+msgid "November"
+msgstr "November"
+
+#: configuration/months.tsv:25
+msgctxt "months_short"
+msgid "Nov"
+msgstr "Nov"
+
+#: configuration/months.tsv:26
+msgctxt "months"
+msgid "December"
+msgstr "Dezember"
+
+#: configuration/months.tsv:26
+msgctxt "months_short"
+msgid "Dec"
+msgstr "Dez"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays"
+msgid "Monday"
+msgstr "Montag"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:15
+msgctxt "weekdays_short"
+msgid "Mon"
+msgstr "Mo"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays"
+msgid "Tuesday"
+msgstr "Dienstag"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:16
+msgctxt "weekdays_short"
+msgid "Tue"
+msgstr "Di"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays"
+msgid "Wednesday"
+msgstr "Mittwoch"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:17
+msgctxt "weekdays_short"
+msgid "Wed"
+msgstr "Mi"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays"
+msgid "Thursday"
+msgstr "Donnerstag"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:18
+msgctxt "weekdays_short"
+msgid "Thu"
+msgstr "Do"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays"
+msgid "Friday"
+msgstr "Freitag"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:19
+msgctxt "weekdays_short"
+msgid "Fri"
+msgstr "Fr"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays"
+msgid "Saturday"
+msgstr "Sonnabend"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:20
+msgctxt "weekdays_short"
+msgid "Sat"
+msgstr "Sa"
+
+# Weekdays, full
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays"
+msgid "Sunday"
+msgstr "Sonntag"
+
+# Weekdays, abbreviated
+#: configuration/weekdays.tsv:21
+msgctxt "weekdays_short"
+msgid "Sun"
+msgstr "So"
+
+#: templates/error-404-mail.template.txt:11
+msgid "This URL was not found:"
+msgstr "Diese URL wurde nicht gefunden:"
+
+#: templates/error-404-mail.template.txt:14
+msgid "The URL was requested via:"
+msgstr "Die URL wurde angefordert über:"
+
+#: templates/error-404-mail.template.txt:18
+msgid "POST data:"
+msgstr "POST-Daten:"
+
+#: templates/error-footer-mail.template.txt:13
+msgid "URL:"
+msgstr "URL:"
+
+#: templates/error-footer-mail.template.txt:16
+msgid "Method:"
+msgstr "Methode:"
+
+#: templates/error-footer-mail.template.txt:19 zzwrap/errorhandling.inc.php:922
+msgid "IP:"
+msgstr "IP:"
+
+#: templates/error-footer-mail.template.txt:22
+msgid "Browser:"
+msgstr "Browser:"
+
+#: templates/error-footer-mail.template.txt:22 zzwrap/errorhandling.inc.php:924
+msgid "unknown"
+msgstr "unbekannt"
+
+#: templates/error-footer-mail.template.txt:25
+msgid "User:"
+msgstr "Benutzer:"
+
+#: templates/test.template.txt:15
+msgid "Input"
+msgstr "Eingabe"
+
+#: templates/test.template.txt:16
+msgid "Output"
+msgstr "Ausgabe"
+
+#: templates/test.template.txt:36
+msgid "This function was not found."
+msgstr "Diese Funktion wurde nicht gefunden."
+
+#: zzbrick_request/login.inc.php:77
+msgid "Link for login is wrong or out of date."
+msgstr "Der Link fürs Login ist falsch oder abgelaufen."
+
+#: zzbrick_request/login.inc.php:79
+msgid "Please get a new one."
+msgstr "Bitte besorgen Sie sich einen neuen."
+
+#: zzbrick_request/login.inc.php:138
+msgid "Password or username are empty. Please try again."
+msgstr "Passwort oder Benutzername leer. Bitte versuchen Sie es erneut."
+
+#: zzbrick_request/login.inc.php:182
+msgid "Password or username incorrect. Please try again."
+msgstr "Passwort oder Benutzername falsch. Bitte versuchen Sie es erneut."
+
+#: zzbrick_request/login.inc.php:197
+msgid "Login without username"
+msgstr "Anmelden ohne Benutzernamen"
+
+#: zzbrick_request/login.inc.php:206
+msgid "Password or username incorrect:"
+msgstr "Falsches Passwort oder falscher Benutzername:"
+
+#: zzbrick_request/login.inc.php:271
 msgid "The “Forgot password” link is not activated."
 msgstr "Der „Passwort vergessen“-Link ist nicht aktiv."
 
-#: zzbrick_request/login.inc.php
+#: zzbrick_request/login.inc.php:273 zzwrap/auth.inc.php:731
 msgid "The “Forgot password” query is missing."
 msgstr "Die Abfrage „Passwort vergessen“ fehlt."
 
+#: zzbrick_request/login.inc.php:275
+msgid "Login"
+msgstr "Login"
+
+#: zzbrick_request/login.inc.php:276
+msgid "Request password"
+msgstr "Passwort anfordern"
+
+#: zzbrick_request/test.inc.php:137
+msgid "Tests for %s()"
+msgstr "Tests für %s()"
+
+#: zzbrick_request/tests.inc.php:34
+msgid "Tests for %s"
+msgstr "Tests für %s"
+
+#: zzbrick_request/tests.inc.php:42 zzbrick_request/tests.inc.php:43
+msgid "Tests"
+msgstr "Tests"
+
+#: zzwrap/access.inc.php:255
+msgid "You need `%s` access rights. (Login: %s)"
+msgstr "Sie benötigen `%s` Zugriffsrechte. (Login: %s)"
+
+#: zzwrap/access.inc.php:514
+msgid "List of allowed IPs not found in configuration (%s)."
+msgstr ""
+"Liste der zulässigen IP-Adressen in der Konfiguration nicht gefunden (%s)."
+
+#: zzwrap/access.inc.php:521
+msgid "Your IP address %s is not in the allowed range."
+msgstr "Ihre IP-Adresse %s liegt nicht im zulässigen Bereich."
+
+#: zzwrap/auth.inc.php
+msgid "Forgotten Password"
+msgstr "Vergessenes Passwort"
+
+#: zzwrap/auth.inc.php
+msgid "Username:"
+msgstr "Benutzername:"
+
+#: zzwrap/auth.inc.php:591
+msgid "Too many failed login attempts. Please wait %d second."
+msgid_plural "Too many failed login attempts. Please wait %d seconds."
+msgstr[0] ""
+"Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie %d Sekunde."
+msgstr[1] ""
+"Zu viele fehlgeschlagene Anmeldeversuche. Bitte warten Sie %d Sekunden."
+
+#: zzwrap/background.inc.php:86
+msgid "not found"
+msgstr "nicht gefunden"
+
+#: zzwrap/cache.inc.php:555
+msgid "Caching for URL %s disabled, looks like filename with / at the end?"
+msgstr ""
+"Caching für URL %s deaktiviert, sieht aus wie ein Dateiname mit einem „/“ am "
+"Ende?"
+
+#: zzwrap/core.inc.php:67
+msgid "Wrong relative path: %s"
+msgstr "Falscher relativer Pfad: %s"
+
+#: zzwrap/database.inc.php:543
+msgid "Fields <code>%s</code> are missing in SQL query"
+msgstr "In der SQL-Abfrage fehlen Felder: <code>%s</code>"
+
+#: zzwrap/database.inc.php:2032
+msgid "Primary Key for table %s was not found."
+msgstr "Der Primärschlüssel für die Tabelle %s wurde nicht gefunden."
+
+#: zzwrap/database.inc.php:2036
+msgid "Primary Key for table %s spans over more than one field."
+msgstr ""
+"Der Primärschlüssel der Tabelle %s erstreckt sich über mehr als ein Feld."
+
+#: zzwrap/defaults.inc.php:186
+msgid "Forwarded servername %s is not in configuration"
+msgstr ""
+"Der weitergeleitete Servername %s ist nicht in der Konfiguration enthalten"
+
 #: zzwrap/errorhandling.inc.php
+msgid "User"
+msgstr "Nutzer"
+
+#: zzwrap/errorhandling.inc.php:143
+msgid "Error on website"
+msgstr "Fehler auf der Website"
+
+#: zzwrap/errorhandling.inc.php:344
 msgid ""
 "Please try to find the content you were looking for from our <a "
 "href=\"%s\">main page</a>."
@@ -427,121 +1014,52 @@ msgstr ""
 "Bitte versuchen Sie, den Inhalt, den Sie gesucht haben, über <a "
 "href=\"%s\">unsere Hauptseite</a> zu finden."
 
-#: zzwrap/errorhandling.inc.php
-msgid "User"
-msgstr "Nutzer"
+# HTTP Status Code 500
+#: zzwrap/errorhandling.inc.php:456
+msgid "Unsupported server protocol (%s)"
+msgstr "Server-Protokoll wird nicht unterstützt (%s)"
 
-#: zzwrap/errorhandling.inc.php
-msgid "Error on website"
-msgstr "Fehler auf der Website"
-
-#: zzwrap/files.inc.php
+#: zzwrap/errorhandling.inc.php:604
 msgid ""
-"The required library %s was not found. Please install it in the `_inc/"
+"The server responds to the hostname %s, but this is not in the list of "
+"possible hostnames."
+msgstr ""
+"Der Server reagiert auf den Hostnamen %s, dieser ist jedoch nicht in der "
+"Liste der möglichen Hostnamen enthalten."
+
+#: zzwrap/errorhandling.inc.php:924
+msgid "User agent:"
+msgstr "User-Agent:"
+
+#: zzwrap/errorhandling.inc.php:926
+msgid "Referring URL:"
+msgstr "Verweisende URL:"
+
+#: zzwrap/file.inc.php:26
+msgid "File %s is not writable."
+msgstr "Datei %s ist nicht schreibbar."
+
+#: zzwrap/file.inc.php:27
+msgid "No lines deleted."
+msgstr "Keine Zeilen gelöscht."
+
+#: zzwrap/file.inc.php:46 zzwrap/syndication.inc.php:1227
+msgid "Cannot open %s for writing."
+msgstr "Die Datei %s lässt sich nicht zum Schreiben öffnen."
+
+#: zzwrap/file.inc.php:52
+msgid "1 line deleted."
+msgid_plural "%d lines deleted."
+msgstr[0] "1 Zeile gelöscht."
+msgstr[1] "%d Zeilen gelöscht."
+
+#: zzwrap/files.inc.php:423
+msgid ""
+"The required library %s does not exist. Please install it in the `_inc/"
 "library` folder."
 msgstr ""
-"Die erforderliche Bibliothek %s wurde nicht gefunden. Bitte installieren Sie "
-"sie im Ordner `_inc/library`."
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "N North"
-msgstr "N Nord"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNE North-northeast"
-msgstr "NNO Nordnordost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NE Northeast"
-msgstr "NO Nordost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ENE East-northeast"
-msgstr "ONO Ostnordost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "E East"
-msgstr "O Ost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "ESE East-southeast"
-msgstr "OSO Ostsüdost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SE Southeast"
-msgstr "SO Südost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSE South-southeast"
-msgstr "SSO Südsüdost"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "S South"
-msgstr "S Süd"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SSW South-southwest"
-msgstr "SSW Südsüdwest"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "SW Southwest"
-msgstr "SW Südwest"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WSW West-southwest"
-msgstr "WSW Westsüdwest"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "W West"
-msgstr "W West"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "WNW West-northwest"
-msgstr "WNW Westnordwest"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NW Northwest"
-msgstr "NW Nordwest"
-
-# Points of the compass (abbreviation, space, long form)
-#: zzwrap/format.inc.php
-msgid "NNW North-northwest"
-msgstr "NNW Nordnordwest"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d years"
-msgstr "%d Jahre"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 year"
-msgstr "1 Jahr"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "%d weeks"
-msgstr "%d Wochen"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 week"
-msgstr "1 Woche"
+"Die erforderliche Bibliothek %s existiert nicht. Bitte installieren Sie sie "
+"im Ordner `_inc/library`."
 
 # duration
 #: zzwrap/format.inc.php
@@ -550,18 +1068,8 @@ msgstr "%d Tage"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 day"
-msgstr "1 Tag"
-
-# duration
-#: zzwrap/format.inc.php
 msgid "%d hours"
 msgstr "%d Stunden"
-
-# duration
-#: zzwrap/format.inc.php
-msgid "1 hour"
-msgstr "1 Stunde"
 
 # duration
 #: zzwrap/format.inc.php
@@ -570,13 +1078,33 @@ msgstr "%d Minuten"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "1 minute"
-msgstr "1 Minute"
+msgid "%d seconds"
+msgstr "%d Sekunden"
 
 # duration
 #: zzwrap/format.inc.php
-msgid "%d seconds"
-msgstr "%d Sekunden"
+msgid "%d weeks"
+msgstr "%d Wochen"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "%d years"
+msgstr "%d Jahre"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 day"
+msgstr "1 Tag"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 hour"
+msgstr "1 Stunde"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 minute"
+msgstr "1 Minute"
 
 # duration
 #: zzwrap/format.inc.php
@@ -585,240 +1113,212 @@ msgstr "1 Sekunde"
 
 # duration
 #: zzwrap/format.inc.php
+msgid "1 week"
+msgstr "1 Woche"
+
+# duration
+#: zzwrap/format.inc.php
+msgid "1 year"
+msgstr "1 Jahr"
+
+# duration
+#: zzwrap/format.inc.php:638
 msgctxt "time"
 msgid "%s&nbsp;h"
 msgstr "%s&nbsp;Uhr"
 
 # duration
-#: zzwrap/format.inc.php
+#: zzwrap/format.inc.php:651
 msgctxt "time"
 msgid "%s–%s&nbsp;h"
 msgstr "%s–%s&nbsp;Uhr"
 
 # Separator for time (hours:minutes)
-#: zzwrap/format.inc.php
+#: zzwrap/format.inc.php:669
 msgctxt "time"
 msgid "%s:%s"
 msgstr "%s.%s"
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "January"
-msgstr "Januar"
+#: zzwrap/format.inc.php:916
+msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
+msgstr ""
+"Leider können wir nur Zahlen zwischen 1 und 3999 in römische Ziffern "
+"umwandeln."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "February"
-msgstr "Februar"
+#: zzwrap/format.inc.php:949
+msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
+msgstr ""
+"Entschuldigung, <strong>%s</strong> scheint keine gültige römische Ziffer zu "
+"sein."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "March"
-msgstr "März"
+#: zzwrap/format.inc.php:971
+msgid "Sorry, the number format <strong>%s</strong> is not supported."
+msgstr "Leider wird das Zahlenformat <strong>%s</strong> nicht unterstützt."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "April"
-msgstr "April"
+# access
+#: zzwrap/http.inc.php:45
+msgid "Access to this website for your IP address is restricted."
+msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "May"
-msgstr "Mai"
+#: zzwrap/http.inc.php:78
+msgid "This website is currently offline."
+msgstr "Diese Website ist derzeit offline."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "June"
-msgstr "Juni"
+#: zzwrap/http.inc.php:164
+msgid "This value sent via HTTP must not be an array. %s: %s"
+msgstr "Dieser über HTTP übermittelte Wert darf kein Array sein. %s: %s"
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "July"
-msgstr "Juli"
+#: zzwrap/http.inc.php:312
+msgid ""
+"HTTP Header spoofing detected. The client is attempting to impersonate "
+"localhost."
+msgstr ""
+"HTTP-Header-Spoofing erkannt. Der Client versucht, sich als „localhost“ "
+"auszugeben."
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "August"
-msgstr "August"
+#: zzwrap/http.inc.php:327
+msgid ""
+"HTTP Header spoofing detected. The client uses an invalid forwarding IP "
+"address: %s"
+msgstr ""
+"HTTP-Header-Spoofing erkannt. Der Client verwendet eine ungültige "
+"Weiterleitungs-IP-Adresse: %s"
 
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "September"
-msgstr "September"
-
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "October"
-msgstr "Oktober"
-
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "November"
-msgstr "November"
-
-#: zzwrap/format.inc.php
-msgctxt "months"
-msgid "December"
-msgstr "Dezember"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Jan"
-msgstr "Jan"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Feb"
-msgstr "Feb"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Mar"
-msgstr "Mär"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Apr"
-msgstr "Apr"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "May"
-msgstr "Mai"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Jun"
-msgstr "Jun"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Jul"
-msgstr "Jul"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Aug"
-msgstr "Aug"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Sep"
-msgstr "Sep"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Oct"
-msgstr "Okt"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Nov"
-msgstr "Nov"
-
-#: zzwrap/format.inc.php
-msgctxt "months_short"
-msgid "Dec"
-msgstr "Dez"
-
-#: zzwrap/install.inc.php
+#: zzwrap/install.inc.php:234
 msgid "The main user could not be created."
 msgstr "Der Hauptbenutzer konnte nicht angelegt werden."
 
-#: zzwrap/mail.inc.php
+#: zzwrap/language-extract.inc.php:238
+msgid "fallback"
+msgstr ""
+
+#: zzwrap/language-extract.inc.php:994
+msgid "Unknown package."
+msgstr "Unbekanntes Paket."
+
+#: zzwrap/language-extract.inc.php:1016
+msgid "Could not write file: %s"
+msgstr "Datei konnte nicht geschrieben werden: %s"
+
+#: zzwrap/language-extract.inc.php:1026
+msgid "No .pot files were changed."
+msgstr "Es wurden keine .pot-Dateien geändert."
+
+#: zzwrap/language-extract.inc.php:1032
+msgid "%d .pot file written."
+msgid_plural "%d .pot files written."
+msgstr[0] "%d .pot-Datei erstellt."
+msgstr[1] "%d .pot-Dateien erstellt."
+
+#: zzwrap/mail.inc.php:727
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr "Postfach %s kann nicht geöffnet werden (Server: %s)"
 
-#: zzwrap/nav.inc.php
+#: zzwrap/nav.inc.php:739
+msgid "Unable to parse this breadcrumb: %s"
+msgstr "Dieser Brotkrumen kann nicht analysiert werden: %s"
+
+#: zzwrap/nav.inc.php:930
 msgid "Previous page"
 msgstr "Vorige Seite"
 
-#: zzwrap/nav.inc.php
+#: zzwrap/nav.inc.php:932
 msgid "Next page"
 msgstr "Nächste Seite"
 
-#: zzwrap/nav.inc.php
+#: zzwrap/nav.inc.php:938 zzwrap/page.inc.php:702 zzwrap/page.inc.php:715
 msgid "Overview"
 msgstr "Übersicht"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Mon"
-msgstr "Mo"
+#: zzwrap/page.inc.php:166
+msgid "No text line for HTTP status %d found."
+msgstr "Es wurde keine Textzeile für den HTTP-Status %d gefunden."
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Tue"
-msgstr "Di"
+#: zzwrap/page.inc.php:205
+msgid "zzbrick returned with an error. Sorry, that’s all we know."
+msgstr ""
+"zzbrick hat eine Fehlermeldung zurückgegeben. Tut uns leid, mehr wissen wir "
+"nicht."
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Wed"
-msgstr "Mi"
+#: zzwrap/page.inc.php:216
+msgid "An error occurred while filling the template %s. Status code %d"
+msgstr ""
+"Beim Ausfüllen der Vorlage %s ist ein Fehler aufgetreten. Statuscode %d"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Thu"
-msgstr "Do"
+#: zzwrap/page.inc.php:221
+msgid "An error occurred while creating the resource %s. Status code %d"
+msgstr ""
+"Beim Erstellen der Ressource %s ist ein Fehler aufgetreten. Statuscode %d"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Fri"
-msgstr "Fr"
+#: zzwrap/page.inc.php:248
+msgid "Illegal value for XML HTTP request: %s"
+msgstr "Ungültiger Wert für XML-HTTP-Anfrage: %s"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Sat"
-msgstr "Sa"
+#: zzwrap/page.inc.php:590
+msgid "Template %s includes itself"
+msgstr "Vorlage %s schließt sich selbst ein"
 
-# Weekdays, abbreviated
-msgctxt "weekday"
-msgid "Sun"
-msgstr "So"
+#: zzwrap/reference.inc.php:29
+msgid "Unknown reference style `%s` for `%s`."
+msgstr "Unbekannter Referenzstil `%s` für `%s`."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Monday"
-msgstr "Montag"
+#: zzwrap/reference.inc.php:120
+msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
+msgstr ""
+"Unbekannte Referenz `%s` (in „configuration/%s.tsv“ gibt es keine `reference "
+"= 1`)."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Tuesday"
-msgstr "Dienstag"
+#: zzwrap/reference.inc.php:129
+msgid "Reference `%s` is empty."
+msgstr "Die Referenz `%s` ist leer."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Wednesday"
-msgstr "Mittwoch"
+#: zzwrap/routes.inc.php:410
+msgid "No route found for `%s`."
+msgstr "Für `%s` wurde keine Route gefunden."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Thursday"
-msgstr "Donnerstag"
+#: zzwrap/routes.inc.php:477
+msgid "Calling for path `%s` for non-existent website `%s`."
+msgstr "Aufruf des Pfads `%s` für die nicht vorhandene Website `%s`."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Friday"
-msgstr "Freitag"
+#: zzwrap/send.inc.php:36
+msgid "Unable to send file: %s is a folder, not a file."
+msgstr "Datei kann nicht gesendet werden: %s ist ein Ordner, keine Datei."
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Saturday"
-msgstr "Sonnabend"
+#: zzwrap/send.inc.php:51
+msgid "Unable to send file: %s does not exist"
+msgstr "Datei kann nicht gesendet werden: %s existiert nicht"
 
-# Weekdays, full
-msgctxt "weekday"
-msgid "Sunday"
-msgstr "Sonntag"
+#: zzwrap/send.inc.php:381
+msgid "Unable to open file %s"
+msgstr "Die Datei %s kann nicht geöffnet werden"
 
-#: zzwrap/page.inc.php:147
+#: zzwrap/session.inc.php:54
+msgid "Temporarily, a login is not possible."
+msgstr "Vorübergehend ist keine Anmeldung möglich."
+
+#: zzwrap/settings.inc.php:366
+msgid "Could not change setting. Key: %s, value: %s, login: %s"
+msgstr ""
+"Die Einstellung konnte nicht geändert werden. Schlüssel: %s, Wert: %s, "
+"Login: %s"
+
+#: zzwrap/template.inc.php:125
+msgid "Template name %s not valid."
+msgstr "Vorlagenname %s ungültig."
+
+#: zzwrap/template.inc.php:154
 msgid "Template <code>%s</code> does not exist."
 msgstr "Vorlage <code>%s</code> existiert nicht."
 
-#: zzwrap/page.inc.php:149
+#: zzwrap/template.inc.php:159
 msgid "More than one template with the name <code>%s</code> exists."
 msgstr "Es gibt mehr als eine Vorlage mit dem Namen <code>%s</code>."
 
-#: zzwrap/page.inc.php:1311
-msgid "Template %s includes itself"
-msgstr "Vorlage %s schließt sich selbst ein"
+#: zzwrap/url.inc.php:43
+msgid "Invalid Request URI: %s%s"
+msgstr "Ungültige Anfrage-URI: %s%s"
+
+# check request
+#: zzwrap/url.inc.php:88
+msgid "URIs with more than %d slashes are not processed."
+msgstr "URIs mit mehr als %d Schrägstrichen werden nicht verarbeitet."
