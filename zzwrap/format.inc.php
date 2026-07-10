@@ -424,21 +424,8 @@ function _wrap_dates($begin, $end, $formats) {
 	if (strlen(reset($formats)) === 2)
 		$lang .= '-'.array_shift($formats);
 
-	$set['p'] = ['lang' => $lang, 'context' => 'months'];
-	$set['months_long'] = [
-		1 => wrap_text('January', $set['p']),
-		2 => wrap_text('February', $set['p']),
-		3 => wrap_text('March', $set['p']),
-		4 => wrap_text('April', $set['p']),
-		5 => wrap_text('May', $set['p']),
-		6 => wrap_text('June', $set['p']),
-		7 => wrap_text('July', $set['p']),
-		8 => wrap_text('August', $set['p']),
-		9 => wrap_text('September', $set['p']),
-		10 => wrap_text('October', $set['p']),
-		11 => wrap_text('November', $set['p']),
-		12 => wrap_text('December', $set['p'])
-	];
+	$set['p'] = ['lang' => $lang];
+	$set['months_long'] = wrap_months($lang) ?? [];
 
 	switch ($lang) {
 		case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
@@ -448,12 +435,8 @@ function _wrap_dates($begin, $end, $formats) {
 		case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
 			break; // dd-mm-yyyy
 		case 'en':
-		case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY'; 
-			$set['months'] = [
-				1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May',
-				6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct',
-				11 => 'Nov', 12 => 'Dec'
-			];
+		case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY';
+			$set['months'] = wrap_months_short($lang) ?? [];
 			break; // dd/mm/yyyy
 		case 'pl':		$set['sep'] = '.'; $set['order'] = 'DMY';
 			$set['months_if_no_day'] = $set['months_long'];
@@ -697,21 +680,9 @@ function wrap_weekday($date, $lang = null) {
 	if (!$date) return '';
 	$day = _wrap_weekday_day($date);
 	if (!$day) return $date;
-	switch ($day) {
-		case 1: $short = 'Mon'; break;
-		case 2: $short = 'Tue'; break;
-		case 3: $short = 'Wed'; break;
-		case 4: $short = 'Thu'; break;
-		case 5: $short = 'Fri'; break;
-		case 6: $short = 'Sat'; break;
-		case 7: $short = 'Sun'; break;
-	}
-	if (isset($short)) {
-		$params = ['context' => 'weekday'];
-		if ($lang) $params['lang'] = $lang;
-		return wrap_text($short, $params);
-	}
-	return $date;
+	$weekdays = wrap_weekdays_short($lang);
+	if ($weekdays === null) return $date;
+	return $weekdays[$day] ?? $date;
 }
 
 /**
@@ -725,21 +696,9 @@ function wrap_weekday_long($date, $lang = null) {
 	if (!$date) return '';
 	$day = _wrap_weekday_day($date);
 	if (!$day) return $date;
-	switch ($day) {
-		case 1: $name = 'Monday'; break;
-		case 2: $name = 'Tuesday'; break;
-		case 3: $name = 'Wednesday'; break;
-		case 4: $name = 'Thursday'; break;
-		case 5: $name = 'Friday'; break;
-		case 6: $name = 'Saturday'; break;
-		case 7: $name = 'Sunday'; break;
-	}
-	if (isset($name)) {
-		$params = ['context' => 'weekday'];
-		if ($lang) $params['lang'] = $lang;
-		return wrap_text($name, $params);
-	}
-	return $date;
+	$weekdays = wrap_weekdays($lang);
+	if ($weekdays === null) return $date;
+	return $weekdays[$day] ?? $date;
 }
 
 /**
@@ -1252,21 +1211,16 @@ function wrap_bearing($value, $precision = 1) {
 	$text = round($value, $precision).'° ';
 	if (wrap_setting('decimal_point') !== '.')
 		$text = str_replace('.', wrap_setting('decimal_point'), $text);
-	$units = [
-		  0 => 'N North', '22.5' => 'NNE North-northeast',
-		 45 => 'NE Northeast', '67.5' => 'ENE East-northeast',
-		 90 => 'E East', '112.5' => 'ESE East-southeast',
-		135 => 'SE Southeast', '157.5' => 'SSE South-southeast',
-		180 => 'S South', '202.5' => 'SSW South-southwest',
-		225 => 'SW Southwest', '247.5' => 'WSW West-southwest',
-		270 => 'W West', '292.5' => 'WNW West-northwest',
-		315 => 'NW Northwest', '337.5' => 'NNW North-northwest'
-	];
+
+	$units = wrap_reference('bearings', 'all') ?? [];
+
 	$check = $value + 11.25;
 	if ($check >= 360) $check -= 360;
+	$chosen = null;
+	$last_direction = null;
 	foreach ($units as $deg => $direction) {
 		if ($value == $deg) {
-			$title = $direction;
+			$chosen = $direction;
 			break;
 		}
 		if ($check >= $deg) {
@@ -1274,12 +1228,14 @@ function wrap_bearing($value, $precision = 1) {
 			continue;
 		}
 	}
-	if (empty($title)) $title = $last_direction;
-	$title = wrap_text($title);
-	$title = explode(' ', $title);
-	$abbr = array_shift($title);
-	$title = implode(' ', $title);
-	$text .= sprintf('<abbr title="%s">%s</abbr>', $title, $abbr);
+	if (!$chosen) $chosen = $last_direction;
+	if (!$chosen) return $text;
+
+	$text .= sprintf(
+		'<abbr title="%s">%s</abbr>',
+		$chosen['long'],
+		$chosen['short']
+	);
 	return $text;
 }
 

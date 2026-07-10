@@ -80,8 +80,11 @@ derive the weekday.
 
 `wrap_weekday_long($date, $lang = null)` — full name (`Monday`, `Montag`, …).
 
-Translations use the gettext context `weekday`. Short and long forms share
-that context with different msgids (e.g. `Mon` vs `Monday`).
+Weekday names are loaded from `configuration/weekdays.tsv` via
+`wrap_reference('weekdays', …)`.
+
+Translations use gettext context `weekdays_short` for abbreviations (`Mon`,
+`Di`, …) and `weekdays` for full names (`Monday`, `Montag`, …).
 
     %%% item date_begin format=weekday %%%
     %%% item date_begin format=weekday_long %%%
