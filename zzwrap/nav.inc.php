@@ -736,7 +736,7 @@ function wrap_breadcrumbs_prepare($breadcrumbs) {
 					'url_path' => $matches[1]
 				];
 			} else {
-				wrap_error(wrap_text('Unable to parse this breadcrumb : %s', ['values' => [$breadcrumb]]));
+				wrap_error(wrap_text('Unable to parse this breadcrumb: %s', ['values' => [$breadcrumb]]));
 				$new[$index] = [
 					'html' => $breadcrumb
 				];
