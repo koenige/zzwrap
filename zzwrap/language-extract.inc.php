@@ -584,12 +584,65 @@ function wrap_text_sources_brick_xhr_error($chunk) {
  * @return string empty string when no context param
  */
 function wrap_text_sources_code_context($content, $offset) {
-	$tail = substr($content, $offset, 500);
+	$tail = wrap_text_sources_code_context_tail($content, $offset);
+	if ($tail === '') return '';
 	if (!preg_match(
 		"/['\"]context['\"]\\s*=>\\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\")/"
 		, $tail, $match
 	)) return '';
 	return wrap_text_sources_code($match[1]) ?? '';
+}
+
+/**
+ * Remainder of the current wrap_text() call after the msgid string literal
+ *
+ * @param string $content PHP file contents
+ * @param int $offset byte offset after the msgid string literal
+ * @return string empty string when the call ends immediately
+ */
+function wrap_text_sources_code_context_tail($content, $offset) {
+	$length = strlen($content);
+	$pos = $offset;
+	$depth = 1;
+	$in_string = false;
+	$quote = '';
+
+	while ($pos < $length) {
+		$char = $content[$pos];
+		if ($in_string) {
+			if ($char === '\\' AND $pos + 1 < $length) {
+				$pos += 2;
+				continue;
+			}
+			if ($char === $quote) {
+				$in_string = false;
+				$pos++;
+				continue;
+			}
+			$pos++;
+			continue;
+		}
+		if ($char === '\'' OR $char === '"') {
+			$in_string = true;
+			$quote = $char;
+			$pos++;
+			continue;
+		}
+		if ($char === '[' OR $char === '(') {
+			$depth++;
+			$pos++;
+			continue;
+		}
+		if ($char === ']' OR $char === ')') {
+			$depth--;
+			if ($depth === 0)
+				return substr($content, $offset, $pos - $offset);
+			$pos++;
+			continue;
+		}
+		$pos++;
+	}
+	return substr($content, $offset, $pos - $offset);
 }
 
 /**
