@@ -322,6 +322,51 @@ function wrap_tsv_parse($filename, $paths = '', $settings = []) {
 	return $data;
 }
 
+/**
+ * Column names from a TSV Variables translate value
+ *
+ * Accepts comma-separated names or a bracketed list `[col, …]`.
+ *
+ * @param string $translate value of the translate variable
+ * @return string[]
+ */
+function wrap_tsv_translate_columns($translate) {
+	$translate = trim($translate);
+	if ($translate === '') return [];
+	if (str_starts_with($translate, '[') AND str_ends_with($translate, ']'))
+		$translate = substr($translate, 1, -1);
+
+	$columns = [];
+	foreach (explode(',', $translate) as $column) {
+		$column = trim($column);
+		if ($column !== '') $columns[] = $column;
+	}
+	return $columns;
+}
+
+/**
+ * Column context sources from a TSV Variables translate_context value
+ *
+ * `col:ctx` pairs (comma-separated): msgctxt for `col` is taken from column
+ * `ctx` on the same row when `ctx` is a `#:` header name, otherwise `ctx` is
+ * used as a literal context string (e.g. `label:months`).
+ *
+ * @param string $translate_context value of the translate_context variable
+ * @return array<string, string> translate column => context column or literal
+ */
+function wrap_tsv_translate_context($translate_context) {
+	$translate_context = trim($translate_context);
+	if ($translate_context === '') return [];
+
+	$columns = [];
+	foreach (explode(',', $translate_context) as $pair) {
+		$parts = array_map('trim', explode(':', $pair, 2));
+		if (count($parts) !== 2 OR $parts[0] === '' OR $parts[1] === '') continue;
+		$columns[$parts[0]] = $parts[1];
+	}
+	return $columns;
+}
+
 /*
  * --------------------------------------------------------------------
  * External Libraries

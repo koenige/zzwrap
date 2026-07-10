@@ -107,6 +107,13 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			$handler = $handlers['template'];
 		} elseif (str_ends_with($relative_path, '.php')) {
 			$handler = $handlers['code'];
+		} elseif (str_ends_with($relative_path, '.tsv')
+			AND str_starts_with($relative_path, 'configuration/')) {
+			$content = file_get_contents($file->getPathname());
+			if ($content === false OR $content === '') continue;
+			$content = str_replace(["\r\n", "\r"], "\n", $content);
+			wrap_text_sources_scan_tsv($content, $relative_path, $entries);
+			continue;
 		} else {
 			continue;
 		}
@@ -164,6 +171,59 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			foreach ($found as $entry) {
 				wrap_text_sources_add($entries, $entry['msgid'], $reference, $entry['pot']);
 			}
+		}
+	}
+}
+
+/**
+ * Scan a configuration/*.tsv file for translatable column values
+ *
+ * Opt-in via a header Variables block: `translate = col, …` (comma-separated
+ * column names from the `#:` header line). Optional `translate_pot` selects
+ * the .pot file (default: package .pot). Optional `translate_context = col:ctx`
+ * pairs (comma-separated) set msgctxt from another column on the same row
+ * (e.g. `abbr:label` for compass bearings). Skips comment and blank lines;
+ * empty cells are ignored.
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_text_sources_scan_tsv($content, $relative_path, &$entries) {
+	$variables = wrap_file_header_variables($content);
+	if (empty($variables['translate'])) return;
+
+	$columns = wrap_tsv_translate_columns($variables['translate']);
+	if (!$columns) return;
+
+	$context_columns = wrap_tsv_translate_context($variables['translate_context'] ?? '');
+	$pot = wrap_text_sources_translate_pot($content);
+	$head = [];
+	foreach (explode("\n", $content) as $line_number => $line) {
+		if (!trim($line)) continue;
+		if (str_starts_with($line, '#:')) {
+			$head = explode("\t", trim(substr($line, 2)));
+			continue;
+		}
+		if (str_starts_with($line, '#')) continue;
+		if (!$head) continue;
+
+		$cells = explode("\t", rtrim($line, "\r"));
+		$reference = sprintf('%s:%d', $relative_path, $line_number + 1);
+		foreach ($columns as $column) {
+			$index = array_search($column, $head, true);
+			if ($index === false) continue;
+			$msgid = trim($cells[$index] ?? '');
+			if ($msgid === '') continue;
+			$context = '';
+			if (!empty($context_columns[$column])) {
+				$context_spec = $context_columns[$column];
+				$context_index = array_search($context_spec, $head, true);
+				if ($context_index !== false)
+					$context = trim($cells[$context_index] ?? '');
+				else
+					$context = $context_spec;
+			}
+			wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
 		}
 	}
 }
