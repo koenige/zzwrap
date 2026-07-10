@@ -1,0 +1,30 @@
+# zzwrap
+# Compass bearings
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# Variables
+# reference = 1
+# translate = label, abbr
+# translate_context = abbr:label
+#
+#:degrees	abbr	label
+#key 0
+
+0	N	North
+22.5	NNE	North-northeast
+45	NE	Northeast
+67.5	ENE	East-northeast
+90	E	East
+112.5	ESE	East-southeast
+135	SE	Southeast
+157.5	SSE	South-southeast
+180	S	South
+202.5	SSW	South-southwest
+225	SW	Southwest
+247.5	WSW	West-southwest
+270	W	West
+292.5	WNW	West-northwest
+315	NW	Northwest
+337.5	NNW	North-northwest

@@ -1,0 +1,21 @@
+# zzwrap
+# Weekday names
+#
+# Part of »Zugzwang Project«
+# https://www.zugzwang.org/modules/zzwrap
+#
+# Variables
+# reference = 1
+# translate = abbr, label
+# translate_context = abbr:weekdays_short, label:weekdays
+#
+#:weekday	abbr	label
+#key 0
+
+1	Mon	Monday
+2	Tue	Tuesday
+3	Wed	Wednesday
+4	Thu	Thursday
+5	Fri	Friday
+6	Sat	Saturday
+7	Sun	Sunday

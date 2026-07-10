@@ -129,6 +129,7 @@ function wrap_includes() {
 	wrap_include('cache', '_core');
 	wrap_include('access', '_core');
 	wrap_include('language', '_core');
+	wrap_include('reference', '_core');
 	wrap_include('match', '_core');
 	wrap_include('template', '_core');
 	wrap_include('defaults', '_core');
