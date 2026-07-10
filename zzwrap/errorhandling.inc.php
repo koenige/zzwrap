@@ -341,8 +341,7 @@ function wrap_errorpage($page = []) {
 	$page['error_description'] = wrap_text($status['description'], ['values' =>  
 		$_SERVER['REQUEST_METHOD']]);
 	if (in_array($page['status'], $extra_description_codes)) {
-		$page['error_explanation'] = ' '.wrap_text('Please try to find the '
-			.'content you were looking for from our <a href="%s">main page</a>.',
+		$page['error_explanation'] = ' '.wrap_text('Please try to find the content you were looking for from our <a href="%s">main page</a>.',
 			['values' => wrap_path('home', [], ['absolute' => true])]);
 	} else {
 		$page['error_explanation'] = '';
