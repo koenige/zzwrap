@@ -16,9 +16,11 @@
 /**
  * Collect translatable strings from a package for .pot maintenance
  *
- * Scans template text blocks, wrap_text() string literals, `_msg` assignments,
- * brick_xhr_error() message literals, and translatable configuration fields
- * (see configuration/cfg.cfg). Each entry includes file
+ * Scans template text blocks, wrap_text() string literals, `_msg` and `_msg_dev`
+ * assignments (including `$variable ?? 'fallback'`), brick_xhr_error() message
+ * literals, translatable configuration fields (see configuration/cfg.cfg), and
+ * configuration/*.tsv files with a Variables translate list. `_msg_dev` strings
+ * are collected for the admin .pot. Each entry includes file references with line
  * references with line numbers where the scanner could determine them.
  *
  * @param string $package package folder name, or custom
@@ -47,13 +49,11 @@ function wrap_text_sources($package) {
 }
 
 /**
- * Scan package files and collect translatable strings into $entries
+ * Walk package files and merge translatable strings into $entries
  *
- * Handles .template.txt, .css, .js, .php, and .cfg files (cfg only when listed in
- * wrap_cfg_translate_fields()). PHP wrap_text() calls may span multiple lines.
- * Also scans `_msg` assignments (string or array, including split lines) and
- * brick_xhr_error() call sites (second argument string literal).
- * translate_pot for a file may be set in a header Variables block (translate_pot = …).
+ * Dispatches per extension (.template.txt, .css, .js, .php, gated .cfg via
+ * wrap_cfg_translate_fields(), configuration/*.tsv). PHP parsing follows multiline
+ * wrap_text() calls and zz_error_validation_log() message arguments.
  *
  * @param string $package_dir absolute path to package folder
  * @param array $entries collected entries, keyed by pot + msgid (by reference)
@@ -143,7 +143,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 					wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
 				}
 			}
-			wrap_text_sources_scan_msg($content, $pot, $relative_path, $entries);
+			wrap_text_sources_scan_msg_keys($content, $pot, $relative_path, $entries);
 			continue;
 		}
 
@@ -230,54 +230,100 @@ function wrap_text_sources_scan_tsv($content, $relative_path, &$entries) {
 
 /**
  * Scan `_msg` assignments in PHP source
+ * Scan `_msg` and `_msg_dev` assignments in PHP source
  *
- * Matches `…['_msg'] = …` and `'_msg' => …` (not reads like `$error['_msg']`).
- * Extracts string literals and dot-concatenated strings; array values yield one
- * entry per string element (variables are skipped).
+ * Matches `…['_msg'] = …`, `'_msg' => …`, `zz_error_validation_log('_msg', …)`,
+ * and the same for `_msg_dev` (not reads like `$error['_msg']`). Extracts string
+ * literals and dot-concatenated strings; array values yield one entry per string
+ * element (bare variables are skipped). Also handles `'_msg' => $variable ?? 'fallback'`.
+ * `_msg_dev` uses the admin translate_pot suffix.
  *
  * @param string $content PHP file contents with Unix line endings
- * @param string $pot translate_pot suffix
+ * @param string $pot translate_pot suffix for `_msg`
  * @param string $relative_path path relative to package folder
  * @param array $entries collected entries (by reference)
  * @return void
  */
-function wrap_text_sources_scan_msg($content, $pot, $relative_path, &$entries) {
-	if (!preg_match_all(
-		"/\['_msg'\]\s*(?:\n\s*)?=|'_msg'\s*=>/",
+function wrap_text_sources_scan_msg_keys($content, $pot, $relative_path, &$entries) {
+	$sites = [];
+
+	if (preg_match_all(
+		"/\['(_msg(?:_dev)?)'\]\s*(?:\n\s*)?=|'(_msg(?:_dev)?)'\s*=>/",
 		$content,
 		$matches,
 		PREG_OFFSET_CAPTURE
-	)) return;
-
-	foreach ($matches[0] as $match) {
-		$pos = $match[1] + strlen($match[0]);
-		if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
-			$pos += strlen($whitespace[0]);
-		if ($pos >= strlen($content)) continue;
-
-		if ($content[$pos] === '[') {
-			foreach (wrap_text_sources_msg_array_literals($content, $pos) as $literal) {
-				$reference = sprintf(
-					'%s:%d',
-					$relative_path,
-					wrap_text_sources_line_number($content, $literal['offset'])
-				);
-				wrap_text_sources_add($entries, $literal['msgid'], $reference, $pot);
-			}
-			continue;
+	)) {
+		foreach ($matches[0] as $index => $match) {
+			$sites[] = [
+				'key' => $matches[1][$index][0] ?: $matches[2][$index][0],
+				'pos' => $match[1] + strlen($match[0]),
+			];
 		}
-
-		$literals = wrap_text_sources_msg_value_literals($content, $pos);
-		if (!$literals) continue;
-		$msgid = implode('', array_column($literals, 'msgid'));
-		if ($msgid === '') continue;
-		$reference = sprintf(
-			'%s:%d',
-			$relative_path,
-			wrap_text_sources_line_number($content, $literals[0]['offset'])
-		);
-		wrap_text_sources_add($entries, $msgid, $reference, $pot);
 	}
+
+	if (preg_match_all(
+		"/zz_error_validation_log\s*\(\s*'(_msg(?:_dev)?)'\s*,\s*/",
+		$content,
+		$matches,
+		PREG_OFFSET_CAPTURE
+	)) {
+		foreach ($matches[0] as $index => $match) {
+			$sites[] = [
+				'key' => $matches[1][$index][0],
+				'pos' => $match[1] + strlen($match[0]),
+			];
+		}
+	}
+
+	if (!$sites) return;
+
+	foreach ($sites as $site) {
+		$entry_pot = ($site['key'] === '_msg_dev') ? 'admin' : $pot;
+		wrap_text_sources_msg_extract_at(
+			$content, $site['pos'], $relative_path, $entry_pot, $entries
+		);
+	}
+}
+
+/**
+ * Extract translatable `_msg` / `_msg_dev` value at byte offset
+ *
+ * @param string $content PHP file contents with Unix line endings
+ * @param int $pos byte offset of the value
+ * @param string $relative_path path relative to package folder
+ * @param string $pot translate_pot suffix for this entry
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_text_sources_msg_extract_at($content, $pos, $relative_path, $pot, &$entries) {
+	if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+		$pos += strlen($whitespace[0]);
+	if ($pos >= strlen($content)) return;
+
+	if ($content[$pos] === '[') {
+		foreach (wrap_text_sources_msg_array_literals($content, $pos) as $literal) {
+			$reference = sprintf(
+				'%s:%d',
+				$relative_path,
+				wrap_text_sources_line_number($content, $literal['offset'])
+			);
+			wrap_text_sources_add($entries, $literal['msgid'], $reference, $pot);
+		}
+		return;
+	}
+
+	$literals = wrap_text_sources_msg_value_literals($content, $pos);
+	if (!$literals)
+		$literals = wrap_text_sources_msg_null_coalesce_literals($content, $pos);
+	if (!$literals) return;
+	$msgid = implode('', array_column($literals, 'msgid'));
+	if ($msgid === '') return;
+	$reference = sprintf(
+		'%s:%d',
+		$relative_path,
+		wrap_text_sources_line_number($content, $literals[0]['offset'])
+	);
+	wrap_text_sources_add($entries, $msgid, $reference, $pot);
 }
 
 /**
@@ -318,6 +364,29 @@ function wrap_text_sources_msg_array_literals($content, $start) {
 		$pos = wrap_text_sources_msg_skip_array_element($content, $pos);
 	}
 	return $results;
+}
+
+/**
+ * `_msg` value after `$variable ??`: the fallback string literal(s)
+ *
+ * @param string $content
+ * @param int $offset byte offset after `=>` or `=`
+ * @return array list of entries with msgid, offset, and end keys
+ */
+function wrap_text_sources_msg_null_coalesce_literals($content, $offset) {
+	if (!preg_match(
+		'/\G\s*\$[a-zA-Z_][a-zA-Z0-9_]*(?:\[[^\]]+\])*/',
+		$content,
+		$variable,
+		0,
+		$offset
+	)) return [];
+
+	$pos = $offset + strlen($variable[0]);
+	if (!preg_match('/\G\s*\?\?/', $content, $match, 0, $pos)) return [];
+
+	$pos += strlen($match[0]);
+	return wrap_text_sources_msg_value_literals($content, $pos);
 }
 
 /**
