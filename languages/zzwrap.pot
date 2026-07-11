@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-11 09:28+0000\n"
+"POT-Creation-Date: 2026-07-11 10:49+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -967,7 +967,7 @@ msgstr ""
 msgid "Referring URL:"
 msgstr ""
 
-#: zzwrap/extract.inc.php:239
+#: zzwrap/extract.inc.php:238
 msgid "fallback"
 msgstr ""
 
@@ -1155,19 +1155,19 @@ msgstr ""
 msgid "Template %s includes itself"
 msgstr ""
 
-#: zzwrap/pot.inc.php:348
+#: zzwrap/pot.inc.php:372
 msgid "Unknown package."
 msgstr ""
 
-#: zzwrap/pot.inc.php:370
+#: zzwrap/pot.inc.php:394
 msgid "Could not write file: %s"
 msgstr ""
 
-#: zzwrap/pot.inc.php:380
+#: zzwrap/pot.inc.php:404
 msgid "No .pot files were changed."
 msgstr ""
 
-#: zzwrap/pot.inc.php:386
+#: zzwrap/pot.inc.php:410
 msgid "%d .pot file written."
 msgid_plural "%d .pot files written."
 msgstr[] ""
