@@ -27,6 +27,7 @@
  * @return array list of entries: msgid, context, references[], pot (translate_pot suffix)
  */
 function wrap_text_sources($package) {
+	wrap_include('pot', 'zzwrap');
 	if (!$package) return [];
 
 	$package_dir = wrap_package_folder($package);
@@ -39,10 +40,10 @@ function wrap_text_sources($package) {
 	usort($sources, function ($left, $right) {
 		$compare = strcmp($left['pot'], $right['pot']);
 		if ($compare !== 0) return $compare;
-		return wrap_text_pot_compare_entries($left, $right);
+		return wrap_pot_compare_entries($left, $right);
 	});
 	foreach ($sources as $index => $source) {
-		wrap_text_pot_sort_references($source['references']);
+		wrap_pot_sort_references($source['references']);
 		$sources[$index] = $source;
 	}
 	return $sources;
@@ -698,12 +699,13 @@ function wrap_text_sources_add(&$entries, $msgid, $reference, $pot = '', $contex
  * @return array keyed by translate_pot suffix (empty string key = default .pot)
  */
 function wrap_text_sources_by_pot($package) {
+	wrap_include('pot', 'zzwrap');
 	$by_pot = [];
 	foreach (wrap_text_sources($package) as $entry) {
 		$by_pot[$entry['pot']][] = $entry;
 	}
 	foreach ($by_pot as $pot_suffix => $entries) {
-		usort($entries, 'wrap_text_pot_compare_entries');
+		usort($entries, 'wrap_pot_compare_entries');
 		$by_pot[$pot_suffix] = $entries;
 	}
 	ksort($by_pot);
@@ -717,12 +719,13 @@ function wrap_text_sources_by_pot($package) {
  * @return array keyed by translate_pot suffix (empty string key = default .pot)
  */
 function wrap_text_sources_new($package) {
+	wrap_include('pot', 'zzwrap');
 	$new = [];
 	foreach (wrap_text_sources($package) as $entry) {
 		$pot_file = wrap_text_log_pot_file($package, $entry['pot']);
 		if (array_key_exists(
-			wrap_text_pot_entry_key($entry),
-			wrap_text_pot_parse_entries(file_exists($pot_file) ? file_get_contents($pot_file) : '')
+			wrap_pot_entry_key($entry),
+			wrap_pot_parse_entries(file_exists($pot_file) ? file_get_contents($pot_file) : '')
 		))
 			continue;
 		$new[$entry['pot']][] = $entry;

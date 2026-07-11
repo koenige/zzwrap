@@ -20,8 +20,8 @@
  * @param string $pot_suffix
  * @return string
  */
-function wrap_text_pot_header($package, $pot_suffix = '', $creation_date = null) {
-	return wrap_template('pot', wrap_text_pot_header_data($package, $pot_suffix, $creation_date));
+function wrap_pot_header($package, $pot_suffix = '', $creation_date = null) {
+	return wrap_template('pot', wrap_pot_header_data($package, $pot_suffix, $creation_date));
 }
 
 /**
@@ -32,7 +32,7 @@ function wrap_text_pot_header($package, $pot_suffix = '', $creation_date = null)
  * @param string|null $creation_date POT-Creation-Date value, or empty for preview builds
  * @return array
  */
-function wrap_text_pot_header_data($package, $pot_suffix = '', $creation_date = null) {
+function wrap_pot_header_data($package, $pot_suffix = '', $creation_date = null) {
 	$data = [
 		'package' => $package,
 		'pot_suffix' => $pot_suffix,
@@ -70,15 +70,15 @@ function wrap_text_pot_header_data($package, $pot_suffix = '', $creation_date = 
  * @param string $creation_date POT-Creation-Date header value (empty for preview)
  * @return string
  */
-function wrap_text_pot_build($package, $pot_suffix, array $entries, $creation_date = '') {
-	$content = rtrim(wrap_text_pot_header(
+function wrap_pot_build($package, $pot_suffix, array $entries, $creation_date = '') {
+	$content = rtrim(wrap_pot_header(
 		$package,
 		$pot_suffix,
 		$creation_date
 	));
-	$body = wrap_text_format_pot_chunks($entries);
+	$body = wrap_pot_format_chunks($entries);
 	$content .= $body ? "\n\n".$body."\n" : "\n";
-	return wrap_text_pot_normalize($content);
+	return wrap_pot_normalize($content);
 }
 
 /**
@@ -91,46 +91,46 @@ function wrap_text_pot_build($package, $pot_suffix, array $entries, $creation_da
  * @param string $old_content existing .pot file contents
  * @return array merged entries
  */
-function wrap_text_pot_merge_entries(array $scanned, $old_content) {
-	$old_entries = wrap_text_pot_parse_entry_list($old_content);
+function wrap_pot_merge_entries(array $scanned, $old_content) {
+	$old_entries = wrap_pot_parse_entry_list($old_content);
 	$old_by_key = [];
 	$old_by_plural = [];
 	foreach ($old_entries as $old) {
-		$old_by_key[wrap_text_pot_entry_key($old)] = $old;
+		$old_by_key[wrap_pot_entry_key($old)] = $old;
 		if (!empty($old['msgid_plural']))
-			$old_by_plural[wrap_text_pot_plural_lookup_key($old)] = $old;
+			$old_by_plural[wrap_pot_plural_lookup_key($old)] = $old;
 	}
 
 	$merged = [];
 	foreach ($scanned as $entry) {
-		$key = wrap_text_pot_entry_key($entry);
+		$key = wrap_pot_entry_key($entry);
 		if (isset($old_by_key[$key])) {
 			$merged[$key] = $entry;
-			wrap_text_pot_merge_entry_references($merged[$key], $old_by_key[$key]);
-			wrap_text_pot_merge_entry_comments($merged[$key], $old_by_key[$key]);
-			wrap_text_pot_merge_entry_plural($merged[$key], $old_by_key[$key]);
+			wrap_pot_merge_entry_references($merged[$key], $old_by_key[$key]);
+			wrap_pot_merge_entry_comments($merged[$key], $old_by_key[$key]);
+			wrap_pot_merge_entry_plural($merged[$key], $old_by_key[$key]);
 			continue;
 		}
-		$plural_key = wrap_text_pot_plural_lookup_key($entry);
+		$plural_key = wrap_pot_plural_lookup_key($entry);
 		if (isset($old_by_plural[$plural_key])) {
 			$old = $old_by_plural[$plural_key];
-			$old_key = wrap_text_pot_entry_key($old);
+			$old_key = wrap_pot_entry_key($old);
 			$merged[$old_key] = $old;
 			$merged[$old_key]['references'] = $entry['references'];
-			wrap_text_pot_merge_entry_references($merged[$old_key], $old);
+			wrap_pot_merge_entry_references($merged[$old_key], $old);
 			continue;
 		}
 		$merged[$key] = $entry;
 	}
 
 	foreach ($old_entries as $old) {
-		$key = wrap_text_pot_entry_key($old);
+		$key = wrap_pot_entry_key($old);
 		if (isset($merged[$key])) continue;
-		if (!wrap_text_pot_entry_has_lineless_reference($old)) continue;
+		if (!wrap_pot_entry_has_lineless_reference($old)) continue;
 		$merged[$key] = $old;
 	}
 
-	return wrap_text_pot_sort_entries(array_values($merged));
+	return wrap_pot_sort_entries(array_values($merged));
 }
 
 /**
@@ -139,8 +139,8 @@ function wrap_text_pot_merge_entries(array $scanned, $old_content) {
  * @param array $entries
  * @return array
  */
-function wrap_text_pot_sort_entries(array $entries) {
-	usort($entries, 'wrap_text_pot_compare_entries');
+function wrap_pot_sort_entries(array $entries) {
+	usort($entries, 'wrap_pot_compare_entries');
 	return $entries;
 }
 
@@ -151,19 +151,19 @@ function wrap_text_pot_sort_entries(array $entries) {
  * @param array $old_entry entry parsed from existing .pot file
  * @return void
  */
-function wrap_text_pot_merge_entry_references(array &$scan_entry, array $old_entry) {
+function wrap_pot_merge_entry_references(array &$scan_entry, array $old_entry) {
 	$scan_files = [];
 	foreach ($scan_entry['references'] as $reference)
-		$scan_files[wrap_text_pot_reference_file($reference)] = true;
+		$scan_files[wrap_pot_reference_file($reference)] = true;
 
 	foreach ($old_entry['references'] as $reference) {
-		if (wrap_text_pot_reference_has_line($reference)) continue;
-		$file = wrap_text_pot_reference_file($reference);
+		if (wrap_pot_reference_has_line($reference)) continue;
+		$file = wrap_pot_reference_file($reference);
 		if (!empty($scan_files[$file])) continue;
 		if (!in_array($reference, $scan_entry['references'], true))
 			$scan_entry['references'][] = $reference;
 	}
-	wrap_text_pot_sort_references($scan_entry['references']);
+	wrap_pot_sort_references($scan_entry['references']);
 }
 
 /**
@@ -173,7 +173,7 @@ function wrap_text_pot_merge_entry_references(array &$scan_entry, array $old_ent
  * @param array $old_entry entry parsed from existing .pot file
  * @return void
  */
-function wrap_text_pot_merge_entry_comments(array &$scan_entry, array $old_entry) {
+function wrap_pot_merge_entry_comments(array &$scan_entry, array $old_entry) {
 	if (empty($old_entry['comments'])) return;
 	$scan_entry['comments'] = $old_entry['comments'];
 }
@@ -188,7 +188,7 @@ function wrap_text_pot_merge_entry_comments(array &$scan_entry, array $old_entry
  * @param array $old_entry entry parsed from existing .pot file
  * @return void
  */
-function wrap_text_pot_merge_entry_plural(array &$scan_entry, array $old_entry) {
+function wrap_pot_merge_entry_plural(array &$scan_entry, array $old_entry) {
 	if (empty($old_entry['msgid_plural'])) return;
 	$scan_entry['msgid'] = $old_entry['msgid'];
 	$scan_entry['msgid_plural'] = $old_entry['msgid_plural'];
@@ -202,9 +202,9 @@ function wrap_text_pot_merge_entry_plural(array &$scan_entry, array $old_entry) 
  * @param array $entry
  * @return bool
  */
-function wrap_text_pot_entry_has_lineless_reference($entry) {
+function wrap_pot_entry_has_lineless_reference($entry) {
 	foreach ($entry['references'] as $reference) {
-		if (!wrap_text_pot_reference_has_line($reference)) return true;
+		if (!wrap_pot_reference_has_line($reference)) return true;
 	}
 	return false;
 }
@@ -215,7 +215,7 @@ function wrap_text_pot_entry_has_lineless_reference($entry) {
  * @param string $reference path with optional :line suffix
  * @return bool
  */
-function wrap_text_pot_reference_has_line($reference) {
+function wrap_pot_reference_has_line($reference) {
 	return (bool) preg_match('/:\d+$/', $reference);
 }
 
@@ -225,7 +225,7 @@ function wrap_text_pot_reference_has_line($reference) {
  * @param string $reference path with optional :line suffix
  * @return string
  */
-function wrap_text_pot_reference_file($reference) {
+function wrap_pot_reference_file($reference) {
 	if (preg_match('/^(.+):\d+$/', $reference, $match)) return $match[1];
 	return $reference;
 }
@@ -241,10 +241,10 @@ function wrap_text_pot_reference_file($reference) {
  * @param string $right
  * @return int -1, 0, or 1
  */
-function wrap_text_pot_compare_references($left, $right) {
-	$left_file = wrap_text_pot_reference_file($left);
-	$right_file = wrap_text_pot_reference_file($right);
-	$compare = wrap_text_pot_compare_reference_paths($left_file, $right_file);
+function wrap_pot_compare_references($left, $right) {
+	$left_file = wrap_pot_reference_file($left);
+	$right_file = wrap_pot_reference_file($right);
+	$compare = wrap_pot_compare_reference_paths($left_file, $right_file);
 	if ($compare !== 0) return $compare;
 
 	$left_line = 0;
@@ -264,7 +264,7 @@ function wrap_text_pot_compare_references($left, $right) {
  * @param string $right
  * @return int -1, 0, or 1
  */
-function wrap_text_pot_compare_reference_paths($left, $right) {
+function wrap_pot_compare_reference_paths($left, $right) {
 	$length = min(strlen($left), strlen($right));
 	for ($index = 0; $index < $length; $index++) {
 		if ($left[$index] === $right[$index]) continue;
@@ -281,8 +281,8 @@ function wrap_text_pot_compare_reference_paths($left, $right) {
  * @param array $references by reference
  * @return void
  */
-function wrap_text_pot_sort_references(array &$references) {
-	usort($references, 'wrap_text_pot_compare_references');
+function wrap_pot_sort_references(array &$references) {
+	usort($references, 'wrap_pot_compare_references');
 }
 
 /**
@@ -292,8 +292,8 @@ function wrap_text_pot_sort_references(array &$references) {
  * @param array $right
  * @return int -1, 0, or 1
  */
-function wrap_text_pot_compare_entries($left, $right) {
-	$compare = wrap_text_pot_compare_references(
+function wrap_pot_compare_entries($left, $right) {
+	$compare = wrap_pot_compare_references(
 		$left['references'][0] ?? '',
 		$right['references'][0] ?? ''
 	);
@@ -309,18 +309,18 @@ function wrap_text_pot_compare_entries($left, $right) {
  * @param string $package
  * @return array list of pot_file, filename, entries, old, new, pot_suffix
  */
-function wrap_text_pot_items($package) {
+function wrap_pot_items($package) {
 	$items = [];
 	$sources_by_pot = wrap_text_sources_by_pot($package);
 
-	foreach (wrap_text_pot_suffixes($package) as $pot_suffix) {
+	foreach (wrap_pot_suffixes($package) as $pot_suffix) {
 		$scanned = $sources_by_pot[$pot_suffix] ?? [];
 		$pot_file = wrap_text_log_pot_file($package, $pot_suffix);
 		$old = file_exists($pot_file) ? file_get_contents($pot_file) : '';
 
-		$entries = wrap_text_pot_merge_entries($scanned, $old);
+		$entries = wrap_pot_merge_entries($scanned, $old);
 		if (!$entries AND $old === '') continue;
-		if (!$entries AND !wrap_text_pot_parse_entries($old)) continue;
+		if (!$entries AND !wrap_pot_parse_entries($old)) continue;
 
 		$items[] = [
 			'pot_suffix' => $pot_suffix,
@@ -328,7 +328,7 @@ function wrap_text_pot_items($package) {
 			'filename' => basename($pot_file),
 			'entries' => $entries,
 			'old' => $old,
-			'new' => wrap_text_pot_build($package, $pot_suffix, $entries),
+			'new' => wrap_pot_build($package, $pot_suffix, $entries),
 		];
 	}
 	return $items;
@@ -340,7 +340,7 @@ function wrap_text_pot_items($package) {
  * @param string $package
  * @return array ok (bool), message (string), written (string[] filenames)
  */
-function wrap_text_pot_write($package) {
+function wrap_pot_write($package) {
 	$lang_dir = wrap_text_languages_path($package);
 	if (!$lang_dir) {
 		return [
@@ -354,11 +354,11 @@ function wrap_text_pot_write($package) {
 	if (!is_dir($lang_dir)) wrap_mkdir($lang_dir);
 
 	$written = [];
-	foreach (wrap_text_pot_items($package) as $pot) {
-		if (wrap_text_pot_normalize_for_diff($pot['old']) === wrap_text_pot_normalize_for_diff($pot['new']))
+	foreach (wrap_pot_items($package) as $pot) {
+		if (wrap_pot_normalize_for_diff($pot['old']) === wrap_pot_normalize_for_diff($pot['new']))
 			continue;
 
-		$new = wrap_text_pot_build(
+		$new = wrap_pot_build(
 			$package,
 			$pot['pot_suffix'],
 			$pot['entries'],
@@ -394,7 +394,7 @@ function wrap_text_pot_write($package) {
  * @param string $package
  * @return array list of suffixes (empty string = default .pot)
  */
-function wrap_text_pot_suffixes($package) {
+function wrap_pot_suffixes($package) {
 	$suffixes = [];
 	foreach (array_keys(wrap_text_sources_by_pot($package)) as $pot_suffix)
 		$suffixes[$pot_suffix] = true;
@@ -417,16 +417,16 @@ function wrap_text_pot_suffixes($package) {
 }
 
 /**
- * HTML diff of two complete .pot files (existing vs wrap_text_pot_build output)
+ * HTML diff of two complete .pot files (existing vs wrap_pot_build output)
  *
  * @param string $old_content existing .pot file contents, or empty string
- * @param string $new_content full .pot content from wrap_text_pot_build()
+ * @param string $new_content full .pot content from wrap_pot_build()
  * @return string HTML for .pot-diff container
  */
-function wrap_text_pot_diff_html($old_content, $new_content) {
-	return wrap_text_diff_html(
-		wrap_text_pot_normalize_for_diff($old_content),
-		wrap_text_pot_normalize_for_diff($new_content)
+function wrap_pot_diff_html($old_content, $new_content) {
+	return wrap_diff(
+		wrap_pot_normalize_for_diff($old_content),
+		wrap_pot_normalize_for_diff($new_content)
 	);
 }
 
@@ -437,15 +437,15 @@ function wrap_text_pot_diff_html($old_content, $new_content) {
  * @param array $new_entries
  * @return array added, deleted, updated, unchanged (int)
  */
-function wrap_text_pot_diff_stats($old_content, array $new_entries) {
+function wrap_pot_diff_stats($old_content, array $new_entries) {
 	$stats = ['added' => 0, 'deleted' => 0, 'updated' => 0, 'unchanged' => 0];
-	$old = wrap_text_pot_parse_entries($old_content);
+	$old = wrap_pot_parse_entries($old_content);
 	$new = [];
 	foreach ($new_entries as $entry)
-		$new[wrap_text_pot_entry_key($entry)] = wrap_text_pot_entry_signature($entry);
+		$new[wrap_pot_entry_key($entry)] = wrap_pot_entry_signature($entry);
 
 	foreach ($new_entries as $entry) {
-		$key = wrap_text_pot_entry_key($entry);
+		$key = wrap_pot_entry_key($entry);
 		if (!isset($old[$key]))
 			$stats['added']++;
 		elseif ($old[$key] !== $new[$key])
@@ -465,10 +465,10 @@ function wrap_text_pot_diff_stats($old_content, array $new_entries) {
  * @param string $content .pot file contents
  * @return array entry key => signature (context + msgid + sorted references)
  */
-function wrap_text_pot_parse_entries($content) {
+function wrap_pot_parse_entries($content) {
 	$entries = [];
-	foreach (wrap_text_pot_parse_entry_list($content) as $entry)
-		$entries[wrap_text_pot_entry_key($entry)] = wrap_text_pot_entry_signature($entry);
+	foreach (wrap_pot_parse_entry_list($content) as $entry)
+		$entries[wrap_pot_entry_key($entry)] = wrap_pot_entry_signature($entry);
 	return $entries;
 }
 
@@ -478,10 +478,10 @@ function wrap_text_pot_parse_entries($content) {
  * @param string $content .pot file contents
  * @return array list of entries: msgid, context, references[], comments[], pot
  */
-function wrap_text_pot_parse_entry_list($content) {
+function wrap_pot_parse_entry_list($content) {
 	$entries = [];
-	foreach (wrap_text_pot_parse_chunks($content) as $chunk) {
-		$entry = wrap_text_pot_parse_chunk($chunk);
+	foreach (wrap_pot_parse_chunks($content) as $chunk) {
+		$entry = wrap_pot_parse_chunk($chunk);
 		if (!$entry) continue;
 		$entries[] = $entry;
 	}
@@ -494,7 +494,7 @@ function wrap_text_pot_parse_entry_list($content) {
  * @param array $entries wrap_text_sources() entries
  * @return string
  */
-function wrap_text_format_pot_chunks(array $entries) {
+function wrap_pot_format_chunks(array $entries) {
 	$chunks = [];
 	foreach ($entries as $entry) {
 		$lines = [];
@@ -503,10 +503,10 @@ function wrap_text_format_pot_chunks(array $entries) {
 		foreach ($entry['references'] as $reference)
 			$lines[] = '#: '.$reference;
 		if (!empty($entry['context']))
-			$lines[] = 'msgctxt "'.wrap_text_pot_escape($entry['context']).'"';
-		$lines[] = 'msgid "'.wrap_text_pot_escape($entry['msgid']).'"';
+			$lines[] = 'msgctxt "'.wrap_pot_escape($entry['context']).'"';
+		$lines[] = 'msgid "'.wrap_pot_escape($entry['msgid']).'"';
 		if (!empty($entry['msgid_plural'])) {
-			$lines[] = 'msgid_plural "'.wrap_text_pot_escape($entry['msgid_plural']).'"';
+			$lines[] = 'msgid_plural "'.wrap_pot_escape($entry['msgid_plural']).'"';
 			if (($entry['plural_style'] ?? 'indexed') === 'brackets') {
 				$lines[] = 'msgstr[] ""';
 				$lines[] = 'msgstr[] ""';
@@ -528,7 +528,7 @@ function wrap_text_format_pot_chunks(array $entries) {
  * @param string $string
  * @return string
  */
-function wrap_text_pot_escape($string) {
+function wrap_pot_escape($string) {
 	$string = str_replace('\\', '\\\\', $string);
 	$string = str_replace('"', '\\"', $string);
 	return str_replace("\n", '\n', $string);
@@ -540,7 +540,7 @@ function wrap_text_pot_escape($string) {
  * @param string $string escaped string without surrounding quotes
  * @return string
  */
-function wrap_text_pot_unescape($string) {
+function wrap_pot_unescape($string) {
 	return stripcslashes($string);
 }
 
@@ -552,10 +552,10 @@ function wrap_text_pot_unescape($string) {
  * @param string $content
  * @return string
  */
-function wrap_text_pot_normalize($content) {
+function wrap_pot_normalize($content) {
 	if ($content === '') return '';
 	$content = str_replace(["\r\n", "\r"], "\n", $content);
-	$content = wrap_text_pot_strip_trailing_spaces($content);
+	$content = wrap_pot_strip_trailing_spaces($content);
 	return rtrim($content, "\n")."\n";
 }
 
@@ -565,8 +565,8 @@ function wrap_text_pot_normalize($content) {
  * @param string $content
  * @return string
  */
-function wrap_text_pot_normalize_for_diff($content) {
-	$content = wrap_text_pot_normalize($content);
+function wrap_pot_normalize_for_diff($content) {
+	$content = wrap_pot_normalize($content);
 	if ($content === '') return '';
 	return preg_replace(
 		'/"POT-Creation-Date: [^"]*\\\\n"/',
@@ -581,7 +581,7 @@ function wrap_text_pot_normalize_for_diff($content) {
  * @param string $content
  * @return string
  */
-function wrap_text_pot_strip_trailing_spaces($content) {
+function wrap_pot_strip_trailing_spaces($content) {
 	$lines = explode("\n", $content);
 	foreach (array_keys($lines) as $index)
 		$lines[$index] = rtrim($lines[$index], " \t");
@@ -594,7 +594,7 @@ function wrap_text_pot_strip_trailing_spaces($content) {
  * @param string $content
  * @return array
  */
-function wrap_text_pot_parse_chunks($content) {
+function wrap_pot_parse_chunks($content) {
 	$content = str_replace(["\r\n", "\r"], "\n", rtrim($content, "\n"));
 	if ($content === '') return [];
 	return preg_split("/\n\n+/", $content);
@@ -606,7 +606,7 @@ function wrap_text_pot_parse_chunks($content) {
  * @param string $chunk
  * @return array|null msgid, context, references[], comments[], pot
  */
-function wrap_text_pot_parse_chunk($chunk) {
+function wrap_pot_parse_chunk($chunk) {
 	if (!preg_match('/^msgid "(.*)"$/m', $chunk, $match)) return null;
 	if ($match[1] === '') return null;
 
@@ -616,22 +616,22 @@ function wrap_text_pot_parse_chunk($chunk) {
 	$references = [];
 	$comments = [];
 	foreach (explode("\n", $chunk) as $line) {
-		if (wrap_text_pot_is_translator_comment($line))
+		if (wrap_pot_is_translator_comment($line))
 			$comments[] = $line;
 		if (str_starts_with($line, '#: '))
 			$references[] = substr($line, 3);
 		if (preg_match('/^msgctxt "(.*)"$/', $line, $context_match))
-			$context = wrap_text_pot_unescape($context_match[1]);
+			$context = wrap_pot_unescape($context_match[1]);
 		if (preg_match('/^msgid_plural "(.*)"$/', $line, $plural_match))
-			$msgid_plural = wrap_text_pot_unescape($plural_match[1]);
+			$msgid_plural = wrap_pot_unescape($plural_match[1]);
 		if ($line === 'msgstr[] ""' AND $plural_style === null)
 			$plural_style = 'brackets';
 		if (preg_match('/^msgstr\[0\] /', $line))
 			$plural_style = 'indexed';
 	}
-	wrap_text_pot_sort_references($references);
+	wrap_pot_sort_references($references);
 	$entry = [
-		'msgid' => wrap_text_pot_unescape($match[1]),
+		'msgid' => wrap_pot_unescape($match[1]),
 		'context' => $context,
 		'references' => $references,
 		'comments' => $comments,
@@ -650,7 +650,7 @@ function wrap_text_pot_parse_chunk($chunk) {
  * @param string $line
  * @return bool
  */
-function wrap_text_pot_is_translator_comment($line) {
+function wrap_pot_is_translator_comment($line) {
 	if (!str_starts_with($line, '#')) return false;
 	if ($line === '#') return true;
 	return !in_array($line[1], [':', '.', ','], true);
@@ -662,9 +662,9 @@ function wrap_text_pot_is_translator_comment($line) {
  * @param array $entry
  * @return string
  */
-function wrap_text_pot_entry_signature($entry) {
+function wrap_pot_entry_signature($entry) {
 	$references = $entry['references'];
-	wrap_text_pot_sort_references($references);
+	wrap_pot_sort_references($references);
 	return ($entry['context'] ?? '')."\0".$entry['msgid']."\0"
 		.($entry['msgid_plural'] ?? '')."\0".implode("\0", $references);
 }
@@ -675,7 +675,7 @@ function wrap_text_pot_entry_signature($entry) {
  * @param array $entry
  * @return string
  */
-function wrap_text_pot_entry_key($entry) {
+function wrap_pot_entry_key($entry) {
 	return ($entry['context'] ?? '')."\0".$entry['msgid'];
 }
 
@@ -685,22 +685,22 @@ function wrap_text_pot_entry_key($entry) {
  * @param array $entry
  * @return string
  */
-function wrap_text_pot_plural_lookup_key($entry) {
+function wrap_pot_plural_lookup_key($entry) {
 	return ($entry['context'] ?? '')."\0".($entry['msgid_plural'] ?? $entry['msgid']);
 }
 
 /**
- * Render unified diff of two strings as HTML for the textupdate preview
+ * Render unified diff of two strings as HTML for a preview
  *
  * @param string $old
  * @param string $new
  * @return string
  */
-function wrap_text_diff_html($old, $new) {
-	if ($old === $new) return wrap_text_diff_html_lines($old, ' ');
+function wrap_diff($old, $new) {
+	if ($old === $new) return wrap_diff_lines($old, ' ');
 
-	$lines = wrap_text_diff_lines($old, $new);
-	if (!$lines) return wrap_text_diff_html_fallback($old, $new);
+	$lines = wrap_diff_exec($old, $new);
+	if (!$lines) return wrap_diff_fallback($old, $new);
 
 	$html = [];
 	foreach ($lines as $line) {
@@ -708,16 +708,16 @@ function wrap_text_diff_html($old, $new) {
 		if (str_starts_with($line, '@@')) continue;
 		if (str_starts_with($line, '\\')) continue;
 		if ($line === '') {
-			$html[] = wrap_text_diff_html_line(' ', '');
+			$html[] = wrap_diff_line(' ', '');
 			continue;
 		}
 		$prefix = $line[0];
 		if ($prefix === '+' OR $prefix === '-')
-			$html[] = wrap_text_diff_html_line($prefix, substr($line, 1));
+			$html[] = wrap_diff_line($prefix, substr($line, 1));
 		elseif ($prefix === ' ')
-			$html[] = wrap_text_diff_html_line(' ', substr($line, 1));
+			$html[] = wrap_diff_line(' ', substr($line, 1));
 		else
-			$html[] = wrap_text_diff_html_line(' ', $line);
+			$html[] = wrap_diff_line(' ', $line);
 	}
 	return implode("\n", $html);
 }
@@ -729,16 +729,16 @@ function wrap_text_diff_html($old, $new) {
  * @param string $prefix +, -, or space (context)
  * @return string HTML
  */
-function wrap_text_diff_html_lines($content, $prefix) {
-	if ($content === '') return wrap_text_diff_html_line($prefix, '');
+function wrap_diff_lines($content, $prefix) {
+	if ($content === '') return wrap_diff_line($prefix, '');
 
 	$lines = preg_split("/\r?\n/", $content);
 	if (end($lines) === '') array_pop($lines);
 
 	$html = [];
 	foreach ($lines as $line)
-		$html[] = wrap_text_diff_html_line($prefix, $line);
-	if (!$html) return wrap_text_diff_html_line($prefix, '');
+		$html[] = wrap_diff_line($prefix, $line);
+	if (!$html) return wrap_diff_line($prefix, '');
 	return implode("\n", $html);
 }
 
@@ -749,7 +749,7 @@ function wrap_text_diff_html_lines($content, $prefix) {
  * @param string $text line text without diff prefix
  * @return string HTML
  */
-function wrap_text_diff_html_line($prefix, $text) {
+function wrap_diff_line($prefix, $text) {
 	if ($prefix === '+')
 		$class = 'diff-add';
 	elseif ($prefix === '-')
@@ -760,7 +760,7 @@ function wrap_text_diff_html_line($prefix, $text) {
 		$escaped = '&nbsp;';
 	else
 		$escaped = wrap_html_escape($text);
-	return sprintf('<span class="pot-diff-line %s">%s</span>', $class, $escaped);
+	return sprintf('<span class="diff-line %s">%s</span>', $class, $escaped);
 }
 
 /**
@@ -770,15 +770,15 @@ function wrap_text_diff_html_line($prefix, $text) {
  * @param string $new
  * @return string HTML
  */
-function wrap_text_diff_html_fallback($old, $new) {
-	if ($old === $new) return wrap_text_diff_html_lines($old, ' ');
+function wrap_diff_fallback($old, $new) {
+	if ($old === $new) return wrap_diff_lines($old, ' ');
 
 	$html = [];
-	foreach (wrap_text_diff_split_lines($old) as $line)
-		$html[] = wrap_text_diff_html_line('-', $line);
-	foreach (wrap_text_diff_split_lines($new) as $line)
-		$html[] = wrap_text_diff_html_line('+', $line);
-	if (!$html) return wrap_text_diff_html_line(' ', '');
+	foreach (wrap_diff_split_lines($old) as $line)
+		$html[] = wrap_diff_line('-', $line);
+	foreach (wrap_diff_split_lines($new) as $line)
+		$html[] = wrap_diff_line('+', $line);
+	if (!$html) return wrap_diff_line(' ', '');
 	return implode("\n", $html);
 }
 
@@ -788,7 +788,7 @@ function wrap_text_diff_html_fallback($old, $new) {
  * @param string $content
  * @return array
  */
-function wrap_text_diff_split_lines($content) {
+function wrap_diff_split_lines($content) {
 	if ($content === '') return [];
 	$lines = preg_split("/\r?\n/", $content);
 	if (end($lines) === '') array_pop($lines);
@@ -802,12 +802,15 @@ function wrap_text_diff_split_lines($content) {
  * @param string $new
  * @return array lines of unified diff output, or empty if diff unavailable
  */
-function wrap_text_diff_lines($old, $new) {
+function wrap_diff_exec($old, $new) {
 	$tmp_dir = wrap_setting('tmp_dir');
 	if (!$tmp_dir) return [];
+	$tmp_dir .= '/zzwrap/diff';
+	wrap_mkdir($tmp_dir);
+	if (!is_dir($tmp_dir)) return [];
 
-	$old_file = tempnam($tmp_dir, 'pot-old-');
-	$new_file = tempnam($tmp_dir, 'pot-new-');
+	$old_file = tempnam($tmp_dir, 'old-');
+	$new_file = tempnam($tmp_dir, 'new-');
 	if (!$old_file OR !$new_file) return [];
 
 	file_put_contents($old_file, $old);
