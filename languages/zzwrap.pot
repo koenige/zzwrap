@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-10 09:15+0000\n"
+"POT-Creation-Date: 2026-07-11 08:55+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -967,6 +967,10 @@ msgstr ""
 msgid "Referring URL:"
 msgstr ""
 
+#: zzwrap/extract.inc.php:238
+msgid "fallback"
+msgstr ""
+
 #: zzwrap/file.inc.php:26
 msgid "File %s is not writable."
 msgstr ""
@@ -1105,28 +1109,6 @@ msgstr ""
 msgid "The main user could not be created."
 msgstr ""
 
-#: zzwrap/extract.inc.php:238
-msgid "fallback"
-msgstr ""
-
-#: zzwrap/extract.inc.php:994
-msgid "Unknown package."
-msgstr ""
-
-#: zzwrap/extract.inc.php:1016
-msgid "Could not write file: %s"
-msgstr ""
-
-#: zzwrap/extract.inc.php:1026
-msgid "No .pot files were changed."
-msgstr ""
-
-#: zzwrap/extract.inc.php:1032
-msgid "%d .pot file written."
-msgid_plural "%d .pot files written."
-msgstr[] ""
-msgstr[] ""
-
 #: zzwrap/mail.inc.php:727
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
@@ -1172,6 +1154,24 @@ msgstr ""
 #: zzwrap/page.inc.php:590
 msgid "Template %s includes itself"
 msgstr ""
+
+#: zzwrap/pot.inc.php:348
+msgid "Unknown package."
+msgstr ""
+
+#: zzwrap/pot.inc.php:370
+msgid "Could not write file: %s"
+msgstr ""
+
+#: zzwrap/pot.inc.php:380
+msgid "No .pot files were changed."
+msgstr ""
+
+#: zzwrap/pot.inc.php:386
+msgid "%d .pot file written."
+msgid_plural "%d .pot files written."
+msgstr[] ""
+msgstr[] ""
 
 #: zzwrap/reference.inc.php:29
 msgid "Unknown reference style `%s` for `%s`."
