@@ -1188,23 +1188,23 @@ msgstr ""
 msgid "The main user could not be created."
 msgstr "Der Hauptbenutzer konnte nicht angelegt werden."
 
-#: zzwrap/language-extract.inc.php:238
+#: zzwrap/extract.inc.php:238
 msgid "fallback"
 msgstr ""
 
-#: zzwrap/language-extract.inc.php:994
+#: zzwrap/extract.inc.php:994
 msgid "Unknown package."
 msgstr "Unbekanntes Paket."
 
-#: zzwrap/language-extract.inc.php:1016
+#: zzwrap/extract.inc.php:1016
 msgid "Could not write file: %s"
 msgstr "Datei konnte nicht geschrieben werden: %s"
 
-#: zzwrap/language-extract.inc.php:1026
+#: zzwrap/extract.inc.php:1026
 msgid "No .pot files were changed."
 msgstr "Es wurden keine .pot-Dateien geändert."
 
-#: zzwrap/language-extract.inc.php:1032
+#: zzwrap/extract.inc.php:1032
 msgid "%d .pot file written."
 msgid_plural "%d .pot files written."
 msgstr[0] "%d .pot-Datei erstellt."

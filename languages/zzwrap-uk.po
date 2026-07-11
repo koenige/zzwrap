@@ -1160,23 +1160,23 @@ msgstr ""
 msgid "The main user could not be created."
 msgstr ""
 
-#: zzwrap/language-extract.inc.php:238
+#: zzwrap/extract.inc.php:238
 msgid "fallback"
 msgstr ""
 
-#: zzwrap/language-extract.inc.php:994
+#: zzwrap/extract.inc.php:994
 msgid "Unknown package."
 msgstr ""
 
-#: zzwrap/language-extract.inc.php:1016
+#: zzwrap/extract.inc.php:1016
 msgid "Could not write file: %s"
 msgstr ""
 
-#: zzwrap/language-extract.inc.php:1026
+#: zzwrap/extract.inc.php:1026
 msgid "No .pot files were changed."
 msgstr ""
 
-#: zzwrap/language-extract.inc.php:1032
+#: zzwrap/extract.inc.php:1032
 msgid "%d .pot file written."
 msgid_plural "%d .pot files written."
 msgstr[0] ""
