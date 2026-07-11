@@ -26,15 +26,14 @@
  * @param string $package package folder name, or custom
  * @return array list of entries: msgid, context, references[], pot (translate_pot suffix)
  */
-function wrap_text_sources($package) {
-	wrap_include('pot', 'zzwrap');
+function wrap_extract($package) {
 	if (!$package) return [];
 
 	$package_dir = wrap_package_folder($package);
 	if (!$package_dir) return [];
 
 	$entries = [];
-	wrap_text_sources_scan($package_dir, $entries);
+	wrap_extract_scan($package_dir, $entries);
 
 	$sources = array_values($entries);
 	usort($sources, function ($left, $right) {
@@ -60,28 +59,28 @@ function wrap_text_sources($package) {
  * @param array $entries collected entries, keyed by pot + msgid (by reference)
  * @return void
  */
-function wrap_text_sources_scan($package_dir, &$entries) {
+function wrap_extract_scan($package_dir, &$entries) {
 	wrap_include('file', 'zzwrap');
 	$handlers = [
 		'template' => [
 			'pattern' => '/%%% text (.+?) %%%/',
-			'parse' => 'wrap_text_sources_template',
+			'parse' => 'wrap_extract_template',
 		],
 		'code' => [
 			'patterns' => [
 				[
 					'pattern' => '/wrap_text\s*\(\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
-					'parse' => 'wrap_text_sources_code',
-					'context' => 'wrap_text_sources_code_context',
+					'parse' => 'wrap_extract_code',
+					'context' => 'wrap_extract_code_context',
 				],
 				[
 					'pattern' => '/brick_xhr_error\s*\(\s*[^,]+,\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
-					'parse' => 'wrap_text_sources_brick_xhr_error',
+					'parse' => 'wrap_extract_brick_xhr_error',
 				],
 			],
 		],
 		'cfg' => [
-			'parse' => 'wrap_text_sources_cfg',
+			'parse' => 'wrap_extract_cfg',
 		],
 	];
 	$translate_fields = wrap_cfg_translate_fields();
@@ -113,7 +112,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			$content = file_get_contents($file->getPathname());
 			if ($content === false OR $content === '') continue;
 			$content = str_replace(["\r\n", "\r"], "\n", $content);
-			wrap_text_sources_scan_tsv($content, $relative_path, $entries);
+			wrap_extract_scan_tsv($content, $relative_path, $entries);
 			continue;
 		} else {
 			continue;
@@ -123,7 +122,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 			$content = file_get_contents($file->getPathname());
 			if ($content === false OR $content === '') continue;
 			$content = str_replace(["\r\n", "\r"], "\n", $content);
-			$pot = wrap_text_sources_translate_pot($content);
+			$pot = wrap_extract_translate_pot($content);
 			foreach ($handler['patterns'] as $pattern) {
 				if (!preg_match_all($pattern['pattern'], $content, $matches, PREG_OFFSET_CAPTURE)) continue;
 				foreach ($matches[1] as $match) {
@@ -139,19 +138,19 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 					$reference = sprintf(
 						'%s:%d',
 						$relative_path,
-						wrap_text_sources_line_number($content, $match[1])
+						wrap_extract_line_number($content, $match[1])
 					);
-					wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
+					wrap_extract_add($entries, $msgid, $reference, $pot, $context);
 				}
 			}
-			wrap_text_sources_scan_msg_keys($content, $pot, $relative_path, $entries);
+			wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
 			continue;
 		}
 
 		$content = file_get_contents($file->getPathname());
 		if ($content === false OR $content === '') continue;
 		$content = str_replace(["\r\n", "\r"], "\n", $content);
-		$pot = wrap_text_sources_translate_pot($content);
+		$pot = wrap_extract_translate_pot($content);
 		$lines = explode("\n", $content);
 		if (!$lines) continue;
 
@@ -167,10 +166,10 @@ function wrap_text_sources_scan($package_dir, &$entries) {
 					}
 				}
 			} else {
-				$found = wrap_text_sources_cfg($line, $handler['fields']);
+				$found = wrap_extract_cfg($line, $handler['fields']);
 			}
 			foreach ($found as $entry) {
-				wrap_text_sources_add($entries, $entry['msgid'], $reference, $entry['pot']);
+				wrap_extract_add($entries, $entry['msgid'], $reference, $entry['pot']);
 			}
 		}
 	}
@@ -189,7 +188,7 @@ function wrap_text_sources_scan($package_dir, &$entries) {
  * @param array $entries collected entries (by reference)
  * @return void
  */
-function wrap_text_sources_scan_tsv($content, $relative_path, &$entries) {
+function wrap_extract_scan_tsv($content, $relative_path, &$entries) {
 	$variables = wrap_file_header_variables($content);
 	if (empty($variables['translate'])) return;
 
@@ -197,7 +196,7 @@ function wrap_text_sources_scan_tsv($content, $relative_path, &$entries) {
 	if (!$columns) return;
 
 	$context_columns = wrap_tsv_translate_context($variables['translate_context'] ?? '');
-	$pot = wrap_text_sources_translate_pot($content);
+	$pot = wrap_extract_translate_pot($content);
 	$head = [];
 	foreach (explode("\n", $content) as $line_number => $line) {
 		if (!trim($line)) continue;
@@ -224,7 +223,7 @@ function wrap_text_sources_scan_tsv($content, $relative_path, &$entries) {
 				else
 					$context = $context_spec;
 			}
-			wrap_text_sources_add($entries, $msgid, $reference, $pot, $context);
+			wrap_extract_add($entries, $msgid, $reference, $pot, $context);
 		}
 	}
 }
@@ -245,7 +244,7 @@ function wrap_text_sources_scan_tsv($content, $relative_path, &$entries) {
  * @param array $entries collected entries (by reference)
  * @return void
  */
-function wrap_text_sources_scan_msg_keys($content, $pot, $relative_path, &$entries) {
+function wrap_extract_scan_msg_keys($content, $pot, $relative_path, &$entries) {
 	$sites = [];
 
 	if (preg_match_all(
@@ -280,7 +279,7 @@ function wrap_text_sources_scan_msg_keys($content, $pot, $relative_path, &$entri
 
 	foreach ($sites as $site) {
 		$entry_pot = ($site['key'] === '_msg_dev') ? 'admin' : $pot;
-		wrap_text_sources_msg_extract_at(
+		wrap_extract_msg_extract_at(
 			$content, $site['pos'], $relative_path, $entry_pot, $entries
 		);
 	}
@@ -296,35 +295,35 @@ function wrap_text_sources_scan_msg_keys($content, $pot, $relative_path, &$entri
  * @param array $entries collected entries (by reference)
  * @return void
  */
-function wrap_text_sources_msg_extract_at($content, $pos, $relative_path, $pot, &$entries) {
+function wrap_extract_msg_extract_at($content, $pos, $relative_path, $pot, &$entries) {
 	if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
 		$pos += strlen($whitespace[0]);
 	if ($pos >= strlen($content)) return;
 
 	if ($content[$pos] === '[') {
-		foreach (wrap_text_sources_msg_array_literals($content, $pos) as $literal) {
+		foreach (wrap_extract_msg_array_literals($content, $pos) as $literal) {
 			$reference = sprintf(
 				'%s:%d',
 				$relative_path,
-				wrap_text_sources_line_number($content, $literal['offset'])
+				wrap_extract_line_number($content, $literal['offset'])
 			);
-			wrap_text_sources_add($entries, $literal['msgid'], $reference, $pot);
+			wrap_extract_add($entries, $literal['msgid'], $reference, $pot);
 		}
 		return;
 	}
 
-	$literals = wrap_text_sources_msg_value_literals($content, $pos);
+	$literals = wrap_extract_msg_value_literals($content, $pos);
 	if (!$literals)
-		$literals = wrap_text_sources_msg_null_coalesce_literals($content, $pos);
+		$literals = wrap_extract_msg_null_coalesce_literals($content, $pos);
 	if (!$literals) return;
 	$msgid = implode('', array_column($literals, 'msgid'));
 	if ($msgid === '') return;
 	$reference = sprintf(
 		'%s:%d',
 		$relative_path,
-		wrap_text_sources_line_number($content, $literals[0]['offset'])
+		wrap_extract_line_number($content, $literals[0]['offset'])
 	);
-	wrap_text_sources_add($entries, $msgid, $reference, $pot);
+	wrap_extract_add($entries, $msgid, $reference, $pot);
 }
 
 /**
@@ -334,7 +333,7 @@ function wrap_text_sources_msg_extract_at($content, $pos, $relative_path, $pot, 
  * @param int $start byte offset of opening `[`
  * @return array list of entries with msgid and offset keys
  */
-function wrap_text_sources_msg_array_literals($content, $start) {
+function wrap_extract_msg_array_literals($content, $start) {
 	$length = strlen($content);
 	if ($start >= $length OR $content[$start] !== '[') return [];
 
@@ -350,7 +349,7 @@ function wrap_text_sources_msg_array_literals($content, $start) {
 			continue;
 		}
 
-		$literals = wrap_text_sources_msg_value_literals($content, $pos);
+		$literals = wrap_extract_msg_value_literals($content, $pos);
 		if ($literals) {
 			$msgid = implode('', array_column($literals, 'msgid'));
 			if ($msgid !== '') {
@@ -362,7 +361,7 @@ function wrap_text_sources_msg_array_literals($content, $start) {
 			$pos = $literals[array_key_last($literals)]['end'];
 			continue;
 		}
-		$pos = wrap_text_sources_msg_skip_array_element($content, $pos);
+		$pos = wrap_extract_msg_skip_array_element($content, $pos);
 	}
 	return $results;
 }
@@ -374,7 +373,7 @@ function wrap_text_sources_msg_array_literals($content, $start) {
  * @param int $offset byte offset after `=>` or `=`
  * @return array list of entries with msgid, offset, and end keys
  */
-function wrap_text_sources_msg_null_coalesce_literals($content, $offset) {
+function wrap_extract_msg_null_coalesce_literals($content, $offset) {
 	if (!preg_match(
 		'/\G\s*\$[a-zA-Z_][a-zA-Z0-9_]*(?:\[[^\]]+\])*/',
 		$content,
@@ -387,7 +386,7 @@ function wrap_text_sources_msg_null_coalesce_literals($content, $offset) {
 	if (!preg_match('/\G\s*\?\?/', $content, $match, 0, $pos)) return [];
 
 	$pos += strlen($match[0]);
-	return wrap_text_sources_msg_value_literals($content, $pos);
+	return wrap_extract_msg_value_literals($content, $pos);
 }
 
 /**
@@ -397,11 +396,11 @@ function wrap_text_sources_msg_null_coalesce_literals($content, $offset) {
  * @param int $offset
  * @return array list of entries with msgid, offset, and end keys
  */
-function wrap_text_sources_msg_value_literals($content, $offset) {
+function wrap_extract_msg_value_literals($content, $offset) {
 	$literals = [];
 	$pos = $offset;
 	while (true) {
-		$literal = wrap_text_sources_string_literal_at($content, $pos);
+		$literal = wrap_extract_string_literal_at($content, $pos);
 		if (!$literal) break;
 		$literals[] = $literal;
 		$pos = $literal['end'];
@@ -418,7 +417,7 @@ function wrap_text_sources_msg_value_literals($content, $offset) {
  * @param int $offset
  * @return array|null entry with msgid, offset, and end keys
  */
-function wrap_text_sources_string_literal_at($content, $offset) {
+function wrap_extract_string_literal_at($content, $offset) {
 	if (!preg_match(
 		'/\G\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
 		$content,
@@ -429,7 +428,7 @@ function wrap_text_sources_string_literal_at($content, $offset) {
 
 	$quoted = $match[1];
 	$literal_start = $offset + strpos($match[0], $quoted[0]);
-	$msgid = wrap_text_sources_msg_literal($quoted);
+	$msgid = wrap_extract_msg_literal($quoted);
 	if ($msgid === null) return null;
 
 	return [
@@ -446,7 +445,7 @@ function wrap_text_sources_string_literal_at($content, $offset) {
  * @param int $offset
  * @return int byte offset after the element
  */
-function wrap_text_sources_msg_skip_array_element($content, $offset) {
+function wrap_extract_msg_skip_array_element($content, $offset) {
 	$length = strlen($content);
 	$pos = $offset;
 	$depth = 0;
@@ -499,7 +498,7 @@ function wrap_text_sources_msg_skip_array_element($content, $offset) {
  * @param string $content file contents
  * @return string translate_pot suffix, or empty string for the default .pot
  */
-function wrap_text_sources_translate_pot($content) {
+function wrap_extract_translate_pot($content) {
 	$variables = wrap_file_header_variables($content);
 	if (empty($variables['translate_pot'])) return '';
 	$pot = $variables['translate_pot'];
@@ -514,7 +513,7 @@ function wrap_text_sources_translate_pot($content) {
  * @param int $offset byte offset of the match
  * @return int
  */
-function wrap_text_sources_line_number($content, $offset) {
+function wrap_extract_line_number($content, $offset) {
 	return substr_count(substr($content, 0, $offset), "\n") + 1;
 }
 
@@ -524,7 +523,7 @@ function wrap_text_sources_line_number($content, $offset) {
  * @param string $chunk inner part of the template text block
  * @return string|null
  */
-function wrap_text_sources_template($chunk) {
+function wrap_extract_template($chunk) {
 	$parsed = brick_get_variables($chunk);
 	if (!$parsed['vars']) return null;
 
@@ -543,7 +542,7 @@ function wrap_text_sources_template($chunk) {
  * @param string $chunk quoted string including delimiters
  * @return string|null
  */
-function wrap_text_sources_code($chunk) {
+function wrap_extract_code($chunk) {
 	if ($chunk === '') return null;
 	$quote = $chunk[0];
 	if ($quote !== '\'' AND $quote !== '"') return null;
@@ -560,8 +559,8 @@ function wrap_text_sources_code($chunk) {
  * @param string $chunk quoted string including delimiters
  * @return string|null
  */
-function wrap_text_sources_msg_literal($chunk) {
-	$msgid = wrap_text_sources_code($chunk);
+function wrap_extract_msg_literal($chunk) {
+	$msgid = wrap_extract_code($chunk);
 	if ($msgid === null OR $msgid === '') return null;
 	if ($msgid[0] === '_') return null;
 	return $msgid;
@@ -573,8 +572,8 @@ function wrap_text_sources_msg_literal($chunk) {
  * @param string $chunk quoted string including delimiters
  * @return string|null
  */
-function wrap_text_sources_brick_xhr_error($chunk) {
-	return wrap_text_sources_msg_literal($chunk);
+function wrap_extract_brick_xhr_error($chunk) {
+	return wrap_extract_msg_literal($chunk);
 }
 
 /**
@@ -584,14 +583,14 @@ function wrap_text_sources_brick_xhr_error($chunk) {
  * @param int $offset byte offset after the msgid string literal
  * @return string empty string when no context param
  */
-function wrap_text_sources_code_context($content, $offset) {
-	$tail = wrap_text_sources_code_context_tail($content, $offset);
+function wrap_extract_code_context($content, $offset) {
+	$tail = wrap_extract_code_context_tail($content, $offset);
 	if ($tail === '') return '';
 	if (!preg_match(
 		"/['\"]context['\"]\\s*=>\\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\")/"
 		, $tail, $match
 	)) return '';
-	return wrap_text_sources_code($match[1]) ?? '';
+	return wrap_extract_code($match[1]) ?? '';
 }
 
 /**
@@ -601,7 +600,7 @@ function wrap_text_sources_code_context($content, $offset) {
  * @param int $offset byte offset after the msgid string literal
  * @return string empty string when the call ends immediately
  */
-function wrap_text_sources_code_context_tail($content, $offset) {
+function wrap_extract_code_context_tail($content, $offset) {
 	$length = strlen($content);
 	$pos = $offset;
 	$depth = 1;
@@ -653,7 +652,7 @@ function wrap_text_sources_code_context_tail($content, $offset) {
  * @param array<string, string> $fields field name => translate_pot suffix
  * @return array list of entries with msgid and pot keys
  */
-function wrap_text_sources_cfg($line, $fields) {
+function wrap_extract_cfg($line, $fields) {
 	$entries = [];
 	foreach ($fields as $field => $pot) {
 		if (!preg_match(
@@ -675,7 +674,7 @@ function wrap_text_sources_cfg($line, $fields) {
  * @param string $context gettext msgctxt, or empty string
  * @return void
  */
-function wrap_text_sources_add(&$entries, $msgid, $reference, $pot = '', $context = '') {
+function wrap_extract_add(&$entries, $msgid, $reference, $pot = '', $context = '') {
 	if ($msgid === '') return;
 
 	$key = $pot."\0".$context."\0".$msgid;
@@ -689,46 +688,4 @@ function wrap_text_sources_add(&$entries, $msgid, $reference, $pot = '', $contex
 	}
 	if (!in_array($reference, $entries[$key]['references'], true))
 		$entries[$key]['references'][] = $reference;
-}
-
-
-/**
- * Source strings grouped by .pot file, sorted by first #: reference
- *
- * @param string $package
- * @return array keyed by translate_pot suffix (empty string key = default .pot)
- */
-function wrap_text_sources_by_pot($package) {
-	wrap_include('pot', 'zzwrap');
-	$by_pot = [];
-	foreach (wrap_text_sources($package) as $entry) {
-		$by_pot[$entry['pot']][] = $entry;
-	}
-	foreach ($by_pot as $pot_suffix => $entries) {
-		usort($entries, 'wrap_pot_compare_entries');
-		$by_pot[$pot_suffix] = $entries;
-	}
-	ksort($by_pot);
-	return $by_pot;
-}
-
-/**
- * Source strings not yet present in the corresponding .pot file(s)
- *
- * @param string $package
- * @return array keyed by translate_pot suffix (empty string key = default .pot)
- */
-function wrap_text_sources_new($package) {
-	wrap_include('pot', 'zzwrap');
-	$new = [];
-	foreach (wrap_text_sources($package) as $entry) {
-		$pot_file = wrap_text_log_pot_file($package, $entry['pot']);
-		if (array_key_exists(
-			wrap_pot_entry_key($entry),
-			wrap_pot_parse_entries(file_exists($pot_file) ? file_get_contents($pot_file) : '')
-		))
-			continue;
-		$new[$entry['pot']][] = $entry;
-	}
-	return $new;
 }

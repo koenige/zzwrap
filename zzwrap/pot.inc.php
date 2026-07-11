@@ -66,7 +66,7 @@ function wrap_pot_header_data($package, $pot_suffix = '', $creation_date = null)
  *
  * @param string $package
  * @param string $pot_suffix
- * @param array $entries wrap_text_sources() entries
+ * @param array $entries wrap_extract() entries
  * @param string $creation_date POT-Creation-Date header value (empty for preview)
  * @return string
  */
@@ -87,7 +87,7 @@ function wrap_pot_build($package, $pot_suffix, array $entries, $creation_date = 
  * Keeps old entries whose references have no line number. Scanned entries
  * replace line-less references in the same file when context and msgid match.
  *
- * @param array $scanned wrap_text_sources() entries for one .pot file
+ * @param array $scanned wrap_extract() entries for one .pot file
  * @param string $old_content existing .pot file contents
  * @return array merged entries
  */
@@ -311,7 +311,7 @@ function wrap_pot_compare_entries($left, $right) {
  */
 function wrap_pot_items($package) {
 	$items = [];
-	$sources_by_pot = wrap_text_sources_by_pot($package);
+	$sources_by_pot = wrap_pot_extract($package);
 
 	foreach (wrap_pot_suffixes($package) as $pot_suffix) {
 		$scanned = $sources_by_pot[$pot_suffix] ?? [];
@@ -332,6 +332,30 @@ function wrap_pot_items($package) {
 		];
 	}
 	return $items;
+}
+
+/**
+ * Source strings grouped by .pot file, sorted by first #: reference
+ *
+ * @param string $package
+ * @return array keyed by translate_pot suffix (empty string key = default .pot)
+ */
+function wrap_pot_extract($package) {
+	static $cache = [];
+	if (array_key_exists($package, $cache)) return $cache[$package];
+
+	wrap_include('extract', 'zzwrap');
+	$by_pot = [];
+	foreach (wrap_extract($package) as $entry) {
+		$by_pot[$entry['pot']][] = $entry;
+	}
+	foreach ($by_pot as $pot_suffix => $entries) {
+		usort($entries, 'wrap_pot_compare_entries');
+		$by_pot[$pot_suffix] = $entries;
+	}
+	ksort($by_pot);
+	$cache[$package] = $by_pot;
+	return $by_pot;
 }
 
 /**
@@ -396,7 +420,7 @@ function wrap_pot_write($package) {
  */
 function wrap_pot_suffixes($package) {
 	$suffixes = [];
-	foreach (array_keys(wrap_text_sources_by_pot($package)) as $pot_suffix)
+	foreach (array_keys(wrap_pot_extract($package)) as $pot_suffix)
 		$suffixes[$pot_suffix] = true;
 
 	$lang_dir = wrap_text_languages_path($package);
@@ -492,7 +516,7 @@ function wrap_pot_parse_entry_list($content) {
 /**
  * Format translation entries as gettext .pot chunks
  *
- * @param array $entries wrap_text_sources() entries
+ * @param array $entries wrap_extract() entries
  * @return string
  */
 function wrap_pot_format_chunks(array $entries) {
