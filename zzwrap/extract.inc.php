@@ -16,12 +16,10 @@
 /**
  * Collect translatable strings from a package for .pot maintenance
  *
- * Scans template text blocks, wrap_text() string literals, `_msg` and `_msg_dev`
- * assignments (including `$variable ?? 'fallback'`), brick_xhr_error() message
- * literals, translatable configuration fields (see configuration/cfg.cfg), and
- * configuration/*.tsv files with a Variables translate list. `_msg_dev` strings
- * are collected for the admin .pot. Each entry includes file references with line
- * references with line numbers where the scanner could determine them.
+ * Loads all package extract handlers via wrap_include(), walks the package
+ * directory, and dispatches matching files to registered scan functions.
+ * Each entry includes file references with line numbers where the scanner
+ * could determine them.
  *
  * @param string $package package folder name, or custom
  * @return array list of entries: msgid, context, references[], pot (translate_pot suffix)
@@ -49,11 +47,10 @@ function wrap_extract($package) {
 }
 
 /**
- * Walk package files and merge translatable strings into $entries
+ * Walk package files and dispatch to registered extract handlers
  *
- * Dispatches per extension (.template.txt, .css, .js, .php, gated .cfg via
- * wrap_cfg_translate_fields(), configuration/*.tsv). PHP parsing follows multiline
- * wrap_text() calls and zz_error_validation_log() message arguments.
+ * Discovers handlers from all packages via *_extract_register() functions,
+ * then walks the file tree and runs all matching handlers per file (non-exclusive).
  *
  * @param string $package_dir absolute path to package folder
  * @param array $entries collected entries, keyed by pot + msgid (by reference)
@@ -61,29 +58,7 @@ function wrap_extract($package) {
  */
 function wrap_extract_scan($package_dir, &$entries) {
 	wrap_include('file', 'zzwrap');
-	$handlers = [
-		'template' => [
-			'pattern' => '/%%% text (.+?) %%%/',
-			'parse' => 'wrap_extract_template',
-		],
-		'code' => [
-			'patterns' => [
-				[
-					'pattern' => '/wrap_text\s*\(\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
-					'parse' => 'wrap_extract_code',
-					'context' => 'wrap_extract_code_context',
-				],
-				[
-					'pattern' => '/brick_xhr_error\s*\(\s*[^,]+,\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
-					'parse' => 'wrap_extract_brick_xhr_error',
-				],
-			],
-		],
-		'cfg' => [
-			'parse' => 'wrap_extract_cfg',
-		],
-	];
-	$translate_fields = wrap_cfg_translate_fields();
+	$handlers = wrap_extract_handlers();
 
 	$iterator = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator($package_dir, FilesystemIterator::SKIP_DOTS)
@@ -94,83 +69,163 @@ function wrap_extract_scan($package_dir, &$entries) {
 		$relative_path = substr($file->getPathname(), strlen($package_dir) + 1);
 		if (str_starts_with($relative_path, 'languages/')) continue;
 
-		if (str_ends_with($relative_path, '.cfg')) {
-			$cfg_file = basename($relative_path);
-			if (empty($translate_fields[$cfg_file])) continue;
-			$handler = $handlers['cfg'];
-			$handler['fields'] = $translate_fields[$cfg_file];
-		} elseif (str_ends_with($relative_path, '.template.txt')) {
-			$handler = $handlers['template'];
-		} elseif (str_ends_with($relative_path, '.css')) {
-			$handler = $handlers['template'];
-		} elseif (str_ends_with($relative_path, '.js')) {
-			$handler = $handlers['template'];
-		} elseif (str_ends_with($relative_path, '.php')) {
-			$handler = $handlers['code'];
-		} elseif (str_ends_with($relative_path, '.tsv')
-			AND str_starts_with($relative_path, 'configuration/')) {
-			$content = file_get_contents($file->getPathname());
-			if ($content === false OR $content === '') continue;
-			$content = str_replace(["\r\n", "\r"], "\n", $content);
-			wrap_extract_scan_tsv($content, $relative_path, $entries);
-			continue;
-		} else {
-			continue;
-		}
-
-		if (!empty($handler['patterns'])) {
-			$content = file_get_contents($file->getPathname());
-			if ($content === false OR $content === '') continue;
-			$content = str_replace(["\r\n", "\r"], "\n", $content);
-			$pot = wrap_extract_translate_pot($content);
-			foreach ($handler['patterns'] as $pattern) {
-				if (!preg_match_all($pattern['pattern'], $content, $matches, PREG_OFFSET_CAPTURE)) continue;
-				foreach ($matches[1] as $match) {
-					$msgid = $pattern['parse']($match[0]);
-					if ($msgid === null) continue;
-					$context = '';
-					if (!empty($pattern['context'])) {
-						$context = $pattern['context'](
-							$content,
-							$match[1] + strlen($match[0])
-						);
-					}
-					$reference = sprintf(
-						'%s:%d',
-						$relative_path,
-						wrap_extract_line_number($content, $match[1])
-					);
-					wrap_extract_add($entries, $msgid, $reference, $pot, $context);
-				}
-			}
-			wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
-			continue;
-		}
+		$matching = wrap_extract_match_handlers($handlers, $relative_path);
+		if (!$matching) continue;
 
 		$content = file_get_contents($file->getPathname());
 		if ($content === false OR $content === '') continue;
 		$content = str_replace(["\r\n", "\r"], "\n", $content);
-		$pot = wrap_extract_translate_pot($content);
-		$lines = explode("\n", $content);
-		if (!$lines) continue;
 
-		foreach ($lines as $line_number => $line) {
-			$reference = sprintf('%s:%d', $relative_path, $line_number + 1);
-			if (array_key_exists('pattern', $handler)) {
-				$found = [];
-				if (preg_match_all($handler['pattern'], $line, $matches)) {
-					foreach ($matches[1] as $chunk) {
-						$msgid = $handler['parse']($chunk);
-						if ($msgid === null) continue;
-						$found[] = ['msgid' => $msgid, 'pot' => $pot];
-					}
-				}
-			} else {
-				$found = wrap_extract_cfg($line, $handler['fields']);
+		foreach ($matching as $handler) {
+			$handler['scan']($content, $relative_path, $entries);
+		}
+	}
+}
+
+/**
+ * Collect handlers from all packages' *_extract_register() functions
+ *
+ * Since this file is already loaded when wrap_extract_handlers() runs,
+ * include_once won't re-execute it and wrap_functions() cannot discover
+ * wrap_extract_register(). Therefore zzwrap's own handlers are added
+ * directly, and wrap_include() discovers the remaining packages.
+ *
+ * @return array list of handler definitions with match and scan keys
+ */
+function wrap_extract_handlers() {
+	static $handlers = null;
+	if ($handlers !== null) return $handlers;
+
+	$handlers = [];
+	$files = wrap_include('zzwrap/extract');
+	$register_functions = wrap_functions($files, 'extract_register');
+
+	foreach ($register_functions as $register) {
+		$result = $register['function']();
+		if (!is_array($result)) continue;
+		wrap_extract_handlers_add($handlers, $result);
+	}
+	// this file is already loaded, so wrap_functions cannot discover it
+	wrap_extract_handlers_add($handlers, wrap_extract_register());
+	return $handlers;
+}
+
+/**
+ * Normalize and append handler definitions
+ *
+ * @param array $handlers collected handlers (by reference)
+ * @param array $definitions handler definitions from a register function
+ * @return void
+ */
+function wrap_extract_handlers_add(&$handlers, $definitions) {
+	foreach ($definitions as $handler) {
+		if (empty($handler['match']) OR empty($handler['scan'])) continue;
+		if (!is_array($handler['match']))
+			$handler['match'] = [$handler['match']];
+		$handlers[] = $handler;
+	}
+}
+
+/**
+ * Find all handlers whose match patterns apply to a relative path
+ *
+ * @param array $handlers registered handlers
+ * @param string $relative_path file path relative to package folder
+ * @return array matching handlers
+ */
+function wrap_extract_match_handlers($handlers, $relative_path) {
+	$matching = [];
+	foreach ($handlers as $handler) {
+		foreach ($handler['match'] as $pattern) {
+			if (fnmatch($pattern, $relative_path)) {
+				$matching[] = $handler;
+				break;
 			}
-			foreach ($found as $entry) {
-				wrap_extract_add($entries, $entry['msgid'], $reference, $entry['pot']);
-			}
+		}
+	}
+	return $matching;
+}
+
+/**
+ * Register zzwrap's own extract handlers
+ *
+ * @return array list of handler definitions
+ */
+function wrap_extract_register() {
+	return [
+		[
+			'match' => '*.php',
+			'scan' => 'wrap_extract_scan_php',
+		],
+		[
+			'match' => '*.cfg',
+			'scan' => 'wrap_extract_scan_cfg_file',
+		],
+		[
+			'match' => 'configuration/*.tsv',
+			'scan' => 'wrap_extract_scan_tsv',
+		],
+	];
+}
+
+/**
+ * Scan a PHP file for wrap_text() calls and _msg/_msg_dev assignments
+ *
+ * @param string $content file contents with Unix line endings
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_php($content, $relative_path, &$entries) {
+	$pot = wrap_extract_translate_pot($content);
+
+	if (preg_match_all(
+		'/wrap_text\s*\(\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")(?=[\s,\)])/',
+		$content, $matches, PREG_OFFSET_CAPTURE
+	)) {
+		foreach ($matches[1] as $match) {
+			$msgid = wrap_extract_code($match[0]);
+			if ($msgid === null) continue;
+			$context = wrap_extract_code_context(
+				$content, $match[1] + strlen($match[0])
+			);
+			$reference = sprintf(
+				'%s:%d', $relative_path,
+				wrap_extract_line_number($content, $match[1])
+			);
+			wrap_extract_add($entries, $msgid, $reference, $pot, $context);
+		}
+	}
+
+	wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
+}
+
+/**
+ * Scan a .cfg file for translatable field values
+ *
+ * Only processes files whose basename is registered in cfg.cfg with
+ * translate = 1. Skips files that have no translatable fields.
+ *
+ * @param string $content file contents with Unix line endings
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_cfg_file($content, $relative_path, &$entries) {
+	$cfg_file = basename($relative_path);
+	$translate_fields = wrap_cfg_translate_fields();
+	if (empty($translate_fields[$cfg_file])) return;
+
+	$fields = $translate_fields[$cfg_file];
+	$pot = wrap_extract_translate_pot($content);
+	$lines = explode("\n", $content);
+
+	foreach ($lines as $line_number => $line) {
+		$found = wrap_extract_cfg($line, $fields);
+		if (!$found) continue;
+		$reference = sprintf('%s:%d', $relative_path, $line_number + 1);
+		foreach ($found as $entry) {
+			wrap_extract_add($entries, $entry['msgid'], $reference, $entry['pot'] ?: $pot);
 		}
 	}
 }
@@ -184,6 +239,8 @@ function wrap_extract_scan($package_dir, &$entries) {
  * pairs (comma-separated) set msgctxt from another column on the same row
  * (e.g. `abbr:label` for compass bearings). Skips comment and blank lines;
  * empty cells are ignored.
+ *
+ * @param string $content file contents with Unix line endings
  * @param string $relative_path path relative to package folder
  * @param array $entries collected entries (by reference)
  * @return void
@@ -518,25 +575,6 @@ function wrap_extract_line_number($content, $offset) {
 }
 
 /**
- * Build msgid from a %%% text … %%% template chunk
- *
- * @param string $chunk inner part of the template text block
- * @return string|null
- */
-function wrap_extract_template($chunk) {
-	$parsed = brick_get_variables($chunk);
-	if (!$parsed['vars']) return null;
-
-	if (count($parsed['vars']) > 1
-		AND (str_contains($parsed['vars'][0], ' ')
-			OR !empty($parsed['in_quotes'])
-			OR !empty($parsed['quoted_indices'][0]))) {
-		return $parsed['vars'][0];
-	}
-	return implode(' ', $parsed['vars']);
-}
-
-/**
  * Build msgid from a wrap_text() string literal
  *
  * @param string $chunk quoted string including delimiters
@@ -564,16 +602,6 @@ function wrap_extract_msg_literal($chunk) {
 	if ($msgid === null OR $msgid === '') return null;
 	if ($msgid[0] === '_') return null;
 	return $msgid;
-}
-
-/**
- * Build msgid from a brick_xhr_error() message string literal (2nd argument)
- *
- * @param string $chunk quoted string including delimiters
- * @return string|null
- */
-function wrap_extract_brick_xhr_error($chunk) {
-	return wrap_extract_msg_literal($chunk);
 }
 
 /**
