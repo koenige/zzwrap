@@ -1339,7 +1339,7 @@ function wrap_text_log($string, $source = '', $translate_pot = '', $context = ''
 	}
 	if (!$log) return false;
 
-	$pot_file = wrap_text_log_pot_file($log['package'], $translate_pot);
+	$pot_file = wrap_text_pot_file($log['package'], $translate_pot);
 	if (!file_exists($pot_file)) {
 		wrap_mkdir(dirname($pot_file));
 		touch($pot_file);
@@ -1403,13 +1403,13 @@ function wrap_text_log_pot_has_entry($content, $msgid, $context = '') {
 }
 
 /**
- * path to .pot file for logging missing translations
+ * path to .pot file for translations
  *
  * @param string $package
  * @param string $translate_pot (optional) suffix before .pot
  * @return string
  */
-function wrap_text_log_pot_file($package, $translate_pot = '') {
+function wrap_text_pot_file($package, $translate_pot = '') {
 	if ($translate_pot) $translate_pot = sprintf('-%s', $translate_pot);
 	return sprintf(
 		'%s/%s%s.pot',

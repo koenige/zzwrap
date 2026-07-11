@@ -315,7 +315,7 @@ function wrap_pot_items($package) {
 
 	foreach (wrap_pot_suffixes($package) as $pot_suffix) {
 		$scanned = $sources_by_pot[$pot_suffix] ?? [];
-		$pot_file = wrap_text_log_pot_file($package, $pot_suffix);
+		$pot_file = wrap_text_pot_file($package, $pot_suffix);
 		$old = file_exists($pot_file) ? file_get_contents($pot_file) : '';
 
 		$entries = wrap_pot_merge_entries($scanned, $old);
