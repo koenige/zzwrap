@@ -167,6 +167,11 @@ function wrap_text($string, $params = []) {
 	static $replacements = [];
 	static $deprecation_error = false;
 	static $plurals = [];
+
+	if (is_array($string)) {
+		$params = array_merge($string[1] ?? [], $params);
+		$string = $string[0];
+	}
 	
 	if (!$string) return $string;
 	if (wrap_setting('character_set') !== 'utf-8' AND mb_detect_encoding($string, 'UTF-8', true))
