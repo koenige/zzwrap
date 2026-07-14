@@ -717,3 +717,33 @@ function wrap_extract_add(&$entries, $msgid, $reference, $pot = '', $context = '
 	if (!in_array($reference, $entries[$key]['references'], true))
 		$entries[$key]['references'][] = $reference;
 }
+
+/**
+ * Log an extraction warning (e.g. wrap_text() on a translatable key)
+ *
+ * Warnings are stored in wrap_static('zzwrap', 'extract_warnings') and can
+ * be retrieved after extraction completes, e.g. for display in textupdate.
+ *
+ * @param string $file relative path within package
+ * @param int $line line number
+ * @param string $message warning description
+ * @return void
+ */
+function wrap_extract_warning($file, $line, $message) {
+	static $warnings = [];
+	$warnings[] = [
+		'file' => $file,
+		'line' => $line,
+		'message' => $message,
+	];
+	wrap_static('zzwrap', 'extract_warnings', $warnings);
+}
+
+/**
+ * Retrieve extraction warnings logged during the current scan
+ *
+ * @return array list of warning arrays with file, line, message keys
+ */
+function wrap_extract_warnings() {
+	return wrap_static('zzwrap', 'extract_warnings') ?: [];
+}
