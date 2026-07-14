@@ -165,11 +165,16 @@ function wrap_extract_register() {
 			'match' => 'configuration/*.tsv',
 			'scan' => 'wrap_extract_scan_tsv',
 		],
+		[
+			'match' => 'configuration/*.sql',
+			'scan' => 'wrap_extract_scan_sql_file',
+		],
 	];
 }
 
 /**
- * Scan a PHP file for wrap_text() calls and _msg/_msg_dev assignments
+ * Scan a PHP file for wrap_text() calls, _msg/_msg_dev assignments,
+ * and _TEXT SQL comment placeholders
  *
  * @param string $content file contents with Unix line endings
  * @param string $relative_path path relative to package folder
@@ -199,6 +204,48 @@ function wrap_extract_scan_php($content, $relative_path, &$entries) {
 
 	wrap_extract_scan_text_set($content, $pot, $relative_path, $entries);
 	wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
+	wrap_extract_scan_sql_text($content, $pot, $relative_path, $entries);
+}
+
+/**
+ * Scan a configuration/*.sql file for _TEXT SQL comment placeholders
+ *
+ * @param string $content file contents with Unix line endings
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_sql_file($content, $relative_path, &$entries) {
+	$pot = wrap_extract_translate_pot($content);
+	wrap_extract_scan_sql_text($content, $pot, $relative_path, $entries);
+}
+
+/**
+ * Scan source for _TEXT SQL comment placeholders (wrap_sql_placeholders)
+ *
+ * @param string $content file contents with Unix line endings
+ * @param string $pot translate_pot suffix
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_sql_text($content, $pot, $relative_path, &$entries) {
+	if (!preg_match_all(
+		'~/\*_TEXT (.+?)_\*/~',
+		$content,
+		$matches,
+		PREG_OFFSET_CAPTURE
+	)) return;
+
+	foreach ($matches[1] as $match) {
+		$msgid = trim($match[0]);
+		if ($msgid === '') continue;
+		$reference = sprintf(
+			'%s:%d', $relative_path,
+			wrap_extract_line_number($content, $match[1])
+		);
+		wrap_extract_add($entries, $msgid, $reference, $pot);
+	}
 }
 
 /**
