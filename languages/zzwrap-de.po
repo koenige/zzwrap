@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: 2026-07-10 09:15+0000\n"
+"POT-Creation-Date: 2026-07-14 17:59+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -1035,6 +1035,10 @@ msgstr "User-Agent:"
 msgid "Referring URL:"
 msgstr "Verweisende URL:"
 
+#: zzwrap/extract.inc.php:369
+msgid "fallback"
+msgstr ""
+
 #: zzwrap/file.inc.php:26
 msgid "File %s is not writable."
 msgstr "Datei %s ist nicht schreibbar."
@@ -1188,28 +1192,6 @@ msgstr ""
 msgid "The main user could not be created."
 msgstr "Der Hauptbenutzer konnte nicht angelegt werden."
 
-#: zzwrap/extract.inc.php:238
-msgid "fallback"
-msgstr ""
-
-#: zzwrap/extract.inc.php:994
-msgid "Unknown package."
-msgstr "Unbekanntes Paket."
-
-#: zzwrap/extract.inc.php:1016
-msgid "Could not write file: %s"
-msgstr "Datei konnte nicht geschrieben werden: %s"
-
-#: zzwrap/extract.inc.php:1026
-msgid "No .pot files were changed."
-msgstr "Es wurden keine .pot-Dateien geändert."
-
-#: zzwrap/extract.inc.php:1032
-msgid "%d .pot file written."
-msgid_plural "%d .pot files written."
-msgstr[0] "%d .pot-Datei erstellt."
-msgstr[1] "%d .pot-Dateien erstellt."
-
 #: zzwrap/mail.inc.php:727
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr "Postfach %s kann nicht geöffnet werden (Server: %s)"
@@ -1257,6 +1239,24 @@ msgstr "Ungültiger Wert für XML-HTTP-Anfrage: %s"
 #: zzwrap/page.inc.php:590
 msgid "Template %s includes itself"
 msgstr "Vorlage %s schließt sich selbst ein"
+
+#: zzwrap/pot.inc.php:372
+msgid "Unknown package."
+msgstr "Unbekanntes Paket."
+
+#: zzwrap/pot.inc.php:394
+msgid "Could not write file: %s"
+msgstr "Datei konnte nicht geschrieben werden: %s"
+
+#: zzwrap/pot.inc.php:404
+msgid "No .pot files were changed."
+msgstr "Es wurden keine .pot-Dateien geändert."
+
+#: zzwrap/pot.inc.php:410
+msgid "%d .pot file written."
+msgid_plural "%d .pot files written."
+msgstr[0] "%d .pot-Datei erstellt."
+msgstr[1] "%d .pot-Dateien erstellt."
 
 #: zzwrap/reference.inc.php:29
 msgid "Unknown reference style `%s` for `%s`."
