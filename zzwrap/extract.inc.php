@@ -197,7 +197,34 @@ function wrap_extract_scan_php($content, $relative_path, &$entries) {
 		}
 	}
 
+	wrap_extract_scan_text_set($content, $pot, $relative_path, $entries);
 	wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
+}
+
+/**
+ * Scan wrap_text_set() calls: extract the second argument (replacement string)
+ *
+ * @param string $content PHP file contents with Unix line endings
+ * @param string $pot translate_pot suffix
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_text_set($content, $pot, $relative_path, &$entries) {
+	if (!preg_match_all(
+		'/wrap_text_set\s*\(\s*(?:\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")\s*,\s*(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")/',
+		$content, $matches, PREG_OFFSET_CAPTURE
+	)) return;
+
+	foreach ($matches[1] as $match) {
+		$msgid = wrap_extract_code($match[0]);
+		if ($msgid === null) continue;
+		$reference = sprintf(
+			'%s:%d', $relative_path,
+			wrap_extract_line_number($content, $match[1])
+		);
+		wrap_extract_add($entries, $msgid, $reference, $pot);
+	}
 }
 
 /**
@@ -703,7 +730,7 @@ function wrap_extract_cfg($line, $fields) {
  * @return void
  */
 function wrap_extract_add(&$entries, $msgid, $reference, $pot = '', $context = '') {
-	if ($msgid === '') return;
+	if (trim($msgid) === '') return;
 
 	$key = $pot."\0".$context."\0".$msgid;
 	if (!isset($entries[$key])) {
