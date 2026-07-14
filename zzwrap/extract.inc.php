@@ -719,6 +719,57 @@ function wrap_extract_add(&$entries, $msgid, $reference, $pot = '', $context = '
 }
 
 /**
+ * Detect a wrap_text-style array: ['msgid', ['context' => '...']]
+ *
+ * @param string $content file contents
+ * @param int $offset byte offset of opening [
+ * @return array|null entry with msgid, context, offset keys; null if not matching
+ */
+function wrap_extract_text_array($content, $offset) {
+	$length = strlen($content);
+	if ($offset >= $length OR $content[$offset] !== '[') return null;
+
+	$pos = $offset + 1;
+	if (preg_match('/\G\s*/', $content, $ws, 0, $pos))
+		$pos += strlen($ws[0]);
+
+	// first element must be a string literal
+	$char = $content[$pos] ?? '';
+	if ($char !== '\'' AND $char !== '"') return null;
+	$msgid_offset = $pos;
+	if ($char === '\'')
+		$ok = preg_match('/\G\'(?:[^\'\\\\]|\\\\.)*\'/', $content, $m, 0, $pos);
+	else
+		$ok = preg_match('/\G"(?:[^"\\\\]|\\\\.)*"/', $content, $m, 0, $pos);
+	if (!$ok) return null;
+	$msgid = wrap_extract_code($m[0]);
+	if ($msgid === null) return null;
+	$pos += strlen($m[0]);
+
+	// expect comma then nested array
+	if (!preg_match('/\G\s*,\s*/', $content, $ws, 0, $pos)) return null;
+	$pos += strlen($ws[0]);
+	if ($pos >= $length OR $content[$pos] !== '[') return null;
+
+	// look for 'context' => 'value' inside the nested array
+	$end = wrap_extract_msg_skip_array_element($content, $pos);
+	$inner = substr($content, $pos, $end - $pos + 1);
+	if (!preg_match(
+		"/['\"]context['\"]\\s*=>\\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\")/",
+		$inner, $match
+	)) return null;
+
+	$context = wrap_extract_code($match[1]);
+	if ($context === null) return null;
+
+	return [
+		'msgid' => $msgid,
+		'context' => $context,
+		'offset' => $msgid_offset,
+	];
+}
+
+/**
  * Log an extraction warning (e.g. wrap_text() on a translatable key)
  *
  * Warnings are stored in wrap_static('zzwrap', 'extract_warnings') and can
