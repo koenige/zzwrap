@@ -367,11 +367,6 @@ function wrap_htmlout_page($page) {
 		exit;
 	}
 	
-	// if globally dont_show_h1 is set, don't show it
-	if (wrap_setting('dont_show_h1')) $page['dont_show_h1'] = true;
-	$dont_show_h1 = $page['dont_show_h1'] ?? false;
-	if (wrap_setting('h1_via_template')) $dont_show_h1 = true;
-
 	if (!isset($page['text'])) $page['text'] = '';
 	// init page
 	if (file_exists($file = wrap_setting('custom').'/zzbrick_page/_init.inc.php'))
@@ -397,10 +392,7 @@ function wrap_htmlout_page($page) {
 	}
 	
 	$blocks = wrap_check_blocks(wrap_setting('template'));
-	if (in_array('breadcrumbs', $blocks) OR wrap_setting('breadcrumbs_h1_prefix')) {
-		require_once __DIR__.'/nav.inc.php';
-		list($page['breadcrumbs'], $page['breadcrumbs_h1_prefix']) = wrap_breadcrumbs($page);
-	}
+	$page = wrap_page_breadcrumbs($page, $blocks);
 	$page['link'] = wrap_page_sequential($page['link'] ?? []);
 	if (in_array('nav', $blocks) AND wrap_db_connection()) {
 		// get menus, if database connection active
@@ -419,12 +411,8 @@ function wrap_htmlout_page($page) {
 	unset($page['text']);
 	foreach ($textblocks as $position => $text) {
 		// add title to page, main text block
-		if ($position === 'text') {
-			if (!$dont_show_h1 AND !empty($page['title']))
-				$text = wrap_template('h1', $page).$text;
-			elseif (!empty($page['breadcrumbs_h1_prefix']))
-				$text = wrap_page_h1_prefix($text, $page['breadcrumbs_h1_prefix']);
-		}
+		if ($position === 'text')
+			$text = wrap_page_h1($page, $text);
 		// do not overwrite other keys
 		if ($position !== 'text') $position = 'text_'.$position;
 		// allow return of %%% encoding for later decoding, e. g. for image
@@ -517,6 +505,24 @@ function wrap_page_json($page, $text = NULL) {
 		wrap_quit(503, 'JSON error: '.json_last_error_msg());
 	}
 	return $json;
+}
+
+/**
+ * load breadcrumbs
+ *
+ * @param array $page
+ * @param array $blocks (optional) template blocks
+ * @return array
+ */
+function wrap_page_breadcrumbs($page, $blocks = []) {
+	$show = false;
+	if ($blocks AND in_array('breadcrumbs', $blocks)) $show = true;
+	elseif (wrap_setting('breadcrumbs_h1_prefix')) $show = true;
+	if (!$show) return $page;
+	
+	require_once __DIR__.'/nav.inc.php';
+	list($page['breadcrumbs'], $page['breadcrumbs_h1_prefix']) = wrap_breadcrumbs($page);
+	return $page;
 }
 
 /**
@@ -792,6 +798,35 @@ function wrap_page_sequential($links) {
 		];
 	}
 	return $links;
+}
+
+/**
+ * add h1 heading to page text
+ *
+ * @param array $page
+ * @param string $text
+ * @return string
+ */
+function wrap_page_h1($page, $text) {
+	$dont_show_h1 = wrap_page_dont_show_h1($page);
+
+	if (!$dont_show_h1 AND !empty($page['title']))
+		return wrap_template('h1', $page).$text;
+	if (!empty($page['breadcrumbs_h1_prefix']))
+		return wrap_page_h1_prefix($text, $page['breadcrumbs_h1_prefix']);
+	return $text;
+}
+
+/**
+ * should page title be omitted from automatic h1 output?
+ *
+ * @param array $page
+ * @return bool
+ */
+function wrap_page_dont_show_h1($page) {
+	if (wrap_setting('h1_via_template')) return true;
+	if (wrap_setting('dont_show_h1')) return true;
+	return $page['dont_show_h1'] ?? false;
 }
 
 /**
