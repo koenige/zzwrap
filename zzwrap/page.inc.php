@@ -479,13 +479,17 @@ function wrap_htmlout_page($page) {
  * send page as JSON
  *
  * @param array $page
- * @param string $text (optional)
  * @return string
  */
-function wrap_page_json($page, $text = NULL) {
+function wrap_page_json($page) {
 	$content = $page['content_type'] ?? 'html';
+	$text = $page['text']['text'] ?? $page['text'] ?? '';
+	if ($content === 'html') {
+		$page = wrap_page_breadcrumbs($page);
+		$text = wrap_page_h1($page, $text);
+	}
 	$output = [
-		$content => $text ?? $page['text']['text'] ?? $page['text'],
+		$content => $text,
 		'title' => $page['pagetitle'],
 		'url' => $page['url'] ?? wrap_setting('request_uri')
 	];
