@@ -425,7 +425,10 @@ function wrap_match_file() {
  * @return array (array $full_url, array $leftovers)
  */
 function wrap_match_placeholders($full_url) {
-	if (!wrap_setting('url_placeholders')) return [$full_url, []];
+	if (!array_key_exists('package', wrap_setting('url_placeholders')))
+		wrap_setting('url_placeholders[package]', array_merge(
+			wrap_setting('modules'), wrap_setting('themes'), ['custom']
+		));
 	// cut url in parts
 	$url_parts[0] = explode('/', $full_url[0]['path']);
 	$i = 1;
