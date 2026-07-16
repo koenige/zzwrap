@@ -584,15 +584,15 @@ function wrap_path_placeholder($path, $char = '%s') {
 /**
  * get a path for a certain help text
  *
- * @param string $helptext
+ * @param string $help
  * @return string
  */
 function wrap_path_helptext($help) {
 	$identifier = str_replace('_', '-', $help);
-	wrap_include('zzbrick_request_get/helptexts', 'default');
-	$files = mf_default_helptexts_files();
+	wrap_include('zzbrick_request_get/help', 'default');
+	$files = mf_default_help_files();
 	if (!array_key_exists($identifier, $files)) return '';
-	return wrap_path('default_helptext', $help);
+	return wrap_path('default_help', $help);
 }
 
 /**
