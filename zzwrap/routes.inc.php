@@ -5,7 +5,7 @@
  * routes and path functions
  *
  * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
- * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder(), wrap_path_helptext()
+ * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder()
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -579,20 +579,6 @@ function wrap_path_placeholder($path, $char = '%s') {
 	while (strstr($path, $char.$char))
 		$path = str_replace($char.$char, $char, $path);
 	return $path;
-}
-
-/**
- * get a path for a certain help text
- *
- * @param string $help
- * @return string
- */
-function wrap_path_helptext($help) {
-	$identifier = str_replace('_', '-', $help);
-	wrap_include('zzbrick_request_get/help', 'default');
-	$files = mf_default_help_files();
-	if (!array_key_exists($identifier, $files)) return '';
-	return wrap_path('default_help', $help);
 }
 
 /**
