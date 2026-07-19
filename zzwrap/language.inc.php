@@ -146,7 +146,10 @@ function wrap_language_get_text($lang) {
  * Translate text from textfile if possible 
  * or write back text string to be translated
  * 
- * @param string $string	Text string to be translated
+ * @param string|array $string
+ *		Text string to be translated, array shorthand `[msgid, $params]`, or a
+ *		list of sentences `[['First.'], ['Second %s', ['values' => [$x]]]]`
+ *		(each item uses the same `[msgid]` / `[msgid, $params]` shorthand)
  * @param mixed $params
  *		array list of parameters
  *			'lang': different language
@@ -169,6 +172,8 @@ function wrap_text($string, $params = []) {
 	static $plurals = [];
 
 	if (is_array($string)) {
+		if (wrap_text_is_sentence_list($string))
+			return wrap_text_sentences($string, $params);
 		$params = array_merge($string[1] ?? [], $params);
 		$string = $string[0];
 	}
@@ -280,6 +285,43 @@ function wrap_text($string, $params = []) {
 		return wrap_text_values([], $string, $params);
 	}
 	return wrap_text_values($my_text, $string, $params);
+}
+
+/**
+ * Check if an array argument to wrap_text() is a sentence list
+ *
+ * Sentence lists use uniform tuples: each item is `[msgid]` or
+ * `[msgid, $params]`. This is distinct from wrap_text() array shorthand
+ * `[$msgid, $params]`, where the first element is a string.
+ *
+ * @param mixed $string
+ * @return bool
+ */
+function wrap_text_is_sentence_list($string) {
+	if (!is_array($string)) return false;
+	if (!array_is_list($string)) return false;
+	if ($string === []) return false;
+	return is_array($string[0]);
+}
+
+/**
+ * Translate a wrap_text() sentence list
+ *
+ * Each sentence is translated separately (separate msgids) and the results
+ * are joined with a space. Empty or non-array items are skipped.
+ *
+ * @param array $sentences	list of `[msgid]` or `[msgid, $params]` tuples
+ * @param array $params		parameters passed to wrap_text() for every sentence
+ * @return string
+ */
+function wrap_text_sentences($sentences, $params = []) {
+	$parts = [];
+	foreach ($sentences as $sentence) {
+		if (!$sentence) continue;
+		if (!is_array($sentence)) continue;
+		$parts[] = wrap_text($sentence[0], array_merge($sentence[1] ?? [], $params));
+	}
+	return implode(' ', $parts);
 }
 
 /**
