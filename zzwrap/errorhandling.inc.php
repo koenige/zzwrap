@@ -16,7 +16,8 @@
 /**
  * error handling: log errors, mail errors, exits script if critical error
  *
- * @param mixed $msg error message (arrays will be JSON-encoded)
+ * @param mixed $msg error message: string; or translatable admin tuple
+ *		`[msgid]` / `[msgid, params]` (same as wrap_text()); other arrays are JSON-encoded
  * @param int $error_type E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
@@ -34,6 +35,10 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		exit;
 	}
 	wrap_lib(); // for mail template, maybe zzbrick is used
+
+	if (wrap_error_is_text($msg)) {
+		$msg = wrap_text($msg);
+	}
 
 	if (!empty($settings['collect_start'])) {
 		$collect = true;
@@ -165,6 +170,23 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_errorpage($page);
 		exit;
 	}
+}
+
+/**
+ * Whether a wrap_error() message uses the wrap_text() array form
+ *
+ * @param mixed $msg
+ * @return bool
+ */
+function wrap_error_is_text($msg) {
+	if (!is_array($msg)) return false;
+	if (!array_is_list($msg)) return false;
+	if ($msg === []) return false;
+	if (wrap_text_is_sentence_list($msg)) return true;
+	if (!is_string($msg[0])) return false;
+	if (count($msg) === 1) return true;
+	if (count($msg) === 2 && is_array($msg[1])) return true;
+	return false;
 }
 
 /**
