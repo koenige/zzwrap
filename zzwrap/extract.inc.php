@@ -173,8 +173,8 @@ function wrap_extract_register() {
 }
 
 /**
- * Scan a PHP file for wrap_text() calls, _msg/_msg_dev assignments,
- * and _TEXT SQL comment placeholders
+ * Scan a PHP file for wrap_text() calls, wrap_error() translatable tuples,
+ * _msg/_msg_dev assignments, and _TEXT SQL comment placeholders
  *
  * @param string $content file contents with Unix line endings
  * @param string $relative_path path relative to package folder
@@ -203,8 +203,124 @@ function wrap_extract_scan_php($content, $relative_path, &$entries) {
 	}
 
 	wrap_extract_scan_text_set($content, $pot, $relative_path, $entries);
+	wrap_extract_scan_wrap_error($content, $relative_path, $entries);
 	wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
 	wrap_extract_scan_sql_text($content, $pot, $relative_path, $entries);
+}
+
+/**
+ * Scan wrap_error() calls with a translatable tuple as first argument
+ *
+ * Matches `[msgid]` and `[msgid, params]` (and sentence lists thereof).
+ * Entries go to the admin translate_pot suffix.
+ *
+ * @param string $content PHP file contents with Unix line endings
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_wrap_error($content, $relative_path, &$entries) {
+	if (!preg_match_all(
+		'/wrap_error\s*\(\s*\[/',
+		$content,
+		$matches,
+		PREG_OFFSET_CAPTURE
+	)) return;
+
+	foreach ($matches[0] as $match) {
+		$bracket = $match[1] + strlen($match[0]) - 1;
+		foreach (wrap_extract_wrap_error_arrays($content, $bracket) as $tuple) {
+			$reference = sprintf(
+				'%s:%d',
+				$relative_path,
+				wrap_extract_line_number($content, $tuple['offset'])
+			);
+			wrap_extract_add($entries, $tuple['msgid'], $reference, 'admin', $tuple['context']);
+		}
+	}
+}
+
+/**
+ * Translatable tuples inside one wrap_error([ … ]) array literal
+ *
+ * @param string $content
+ * @param int $start byte offset of opening `[`
+ * @return array list of entries with msgid, context, and offset keys
+ */
+function wrap_extract_wrap_error_arrays($content, $start) {
+	if (($content[$start] ?? '') !== '[') return [];
+
+	$pos = $start + 1;
+	if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+		$pos += strlen($whitespace[0]);
+
+	if (($content[$pos] ?? '') === '[') {
+		$results = [];
+		$pos = $start + 1;
+		$length = strlen($content);
+		while ($pos < $length) {
+			if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+				$pos += strlen($whitespace[0]);
+			if ($pos >= $length) break;
+			if ($content[$pos] === ']') break;
+			if ($content[$pos] === ',') {
+				$pos++;
+				continue;
+			}
+			if ($content[$pos] !== '[') break;
+			$tuple = wrap_extract_wrap_error_tuple($content, $pos);
+			if ($tuple) $results[] = $tuple;
+			$pos = wrap_extract_msg_skip_array_element($content, $pos);
+		}
+		return $results;
+	}
+
+	$tuple = wrap_extract_wrap_error_tuple($content, $start);
+	if (!$tuple) return [];
+	return [$tuple];
+}
+
+/**
+ * One `[msgid]` or `[msgid, params]` tuple inside wrap_error()
+ *
+ * @param string $content
+ * @param int $start byte offset of opening `[`
+ * @return array|null entry with msgid, context, and offset keys
+ */
+function wrap_extract_wrap_error_tuple($content, $start) {
+	if (($content[$start] ?? '') !== '[') return null;
+
+	$pos = $start + 1;
+	if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+		$pos += strlen($whitespace[0]);
+
+	$literal = wrap_extract_string_literal_at($content, $pos);
+	if (!$literal) return null;
+
+	$context = '';
+	$pos = $literal['end'];
+	if (preg_match('/\G\s*,/', $content, $comma, 0, $pos)) {
+		$pos += strlen($comma[0]);
+		if (preg_match('/\G\s*/', $content, $whitespace, 0, $pos))
+			$pos += strlen($whitespace[0]);
+		if (($content[$pos] ?? '') === '[') {
+			$inner_end = wrap_extract_msg_skip_array_element($content, $pos);
+			$inner = substr($content, $pos, $inner_end - $pos + 1);
+			if (preg_match(
+				"/['\"]context['\"]\\s*=>\\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\")/",
+				$inner,
+				$match
+			)) {
+				$context = wrap_extract_code($match[1]) ?? '';
+			}
+		}
+	}
+
+	return [
+		'msgid' => $literal['msgid'],
+		'context' => $context,
+		'offset' => $literal['offset'],
+	];
 }
 
 /**
