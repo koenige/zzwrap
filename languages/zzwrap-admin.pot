@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-09 20:11+0000\n"
+"POT-Creation-Date: 2026-07-21 13:09+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -64,300 +64,304 @@ msgstr ""
 msgid "Default value for variable"
 msgstr ""
 
-#: configuration/cfg.cfg:65
+#: configuration/cfg.cfg:66
 msgid "Use empty string as default, not NULL value"
 msgstr ""
 
-#: configuration/cfg.cfg:70
+#: configuration/cfg.cfg:71
 msgid "Default value for variable, taken from another variable"
 msgstr ""
 
-#: configuration/cfg.cfg:74
+#: configuration/cfg.cfg:75
 msgid "Get default value by calling this function"
 msgstr ""
 
-#: configuration/cfg.cfg:79
+#: configuration/cfg.cfg:80
 msgid "Default value for variable, set by module?"
 msgstr ""
 
-#: configuration/cfg.cfg:84
+#: configuration/cfg.cfg:85
 msgid "Default value for variable, take from this PHP setting"
 msgstr ""
 
-#: configuration/cfg.cfg:88
+#: configuration/cfg.cfg:89
 msgid "Default value for variable, take from this setting"
 msgstr ""
 
-#: configuration/cfg.cfg:92
+#: configuration/cfg.cfg:93
 msgid "Mark this variable as deprecated"
 msgstr ""
 
-#: configuration/cfg.cfg:100
+#: configuration/cfg.cfg:101
 msgid "Description of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:114
+#: configuration/cfg.cfg:116
 msgid "Default destination filetype for file conversion"
 msgstr ""
 
-#: configuration/cfg.cfg:119
+#: configuration/cfg.cfg:121
 msgid "How to handle transparency when converting to destination filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:123
+#: configuration/cfg.cfg:125
 msgid "Character encoding for file content"
 msgstr ""
 
-#: configuration/cfg.cfg:127
+#: configuration/cfg.cfg:129
 msgid "List of possible variables"
 msgstr ""
 
-#: configuration/cfg.cfg:137
+#: configuration/cfg.cfg:139
 msgid "Example for variable"
 msgstr ""
 
-#: configuration/cfg.cfg:144
+#: configuration/cfg.cfg:146
 msgid "File format supports EXIF metadata"
 msgstr ""
 
-#: configuration/cfg.cfg:149
+#: configuration/cfg.cfg:151
 msgid "File format is supported by exiftool"
 msgstr ""
 
-#: configuration/cfg.cfg:154
+#: configuration/cfg.cfg:156
 msgid "Exiftool can extract or generate thumbnails for this file format"
 msgstr ""
 
-#: configuration/cfg.cfg:159
+#: configuration/cfg.cfg:161
 msgid "File extension(s) for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:164
+#: configuration/cfg.cfg:166
 msgid "This variable can be used with this zzform field type"
 msgstr ""
 
-#: configuration/cfg.cfg:169
+#: configuration/cfg.cfg:171
 msgid "Scope definition for form fields"
 msgstr ""
 
-#: configuration/cfg.cfg:173
+#: configuration/cfg.cfg:175
 msgid "Name of file(s) where this variable is used"
 msgstr ""
 
-#: configuration/cfg.cfg:178
+#: configuration/cfg.cfg:180
 msgid "Type classification for file"
 msgstr ""
 
-#: configuration/cfg.cfg:182
+#: configuration/cfg.cfg:184
 msgid "Filetype identifier for filetree display"
 msgstr ""
 
-#: configuration/cfg.cfg:186
+#: configuration/cfg.cfg:188
 msgid "Group classification for related filetypes"
 msgstr ""
 
-#: configuration/cfg.cfg:190
+#: configuration/cfg.cfg:192
 msgid "Script path for form processing"
 msgstr ""
 
-#: configuration/cfg.cfg:195
+#: configuration/cfg.cfg:197
 msgid "Name of group that has access"
 msgstr ""
 
-#: configuration/cfg.cfg:200
+#: configuration/cfg.cfg:202
 msgid "Content contains or allows HTML markup"
 msgstr ""
 
-#: configuration/cfg.cfg:205
+#: configuration/cfg.cfg:207
 msgid "File format can be used in HTML <audio> tag"
 msgstr ""
 
-#: configuration/cfg.cfg:210
+#: configuration/cfg.cfg:212
 msgid "File format can be used in HTML <video> tag"
 msgstr ""
 
-#: configuration/cfg.cfg:215
+#: configuration/cfg.cfg:217
 msgid "Ignore query string parameters in URLs"
 msgstr ""
 
-#: configuration/cfg.cfg:220
+#: configuration/cfg.cfg:222
 msgid "When checking this access key, also accept usergroups (and config group) from these keys; one level only, includes and conditions of listed keys are not applied recursively"
 msgstr ""
 
-#: configuration/cfg.cfg:226
+#: configuration/cfg.cfg:228
 msgid "Request a value for this variable during installation"
 msgstr ""
 
-#: configuration/cfg.cfg:231
+#: configuration/cfg.cfg:233
 msgid "Request folder path for this variable during installation"
 msgstr ""
 
-#: configuration/cfg.cfg:236
+#: configuration/cfg.cfg:238
 msgid "Allow to set language specific settings, e. g. key[en]=English version"
 msgstr ""
 
-#: configuration/cfg.cfg:240
+#: configuration/cfg.cfg:242
 msgid "List of error levels"
 msgstr ""
 
-#: configuration/cfg.cfg:244
+#: configuration/cfg.cfg:246
 msgid "Filetype may contain outbound links and serve as HTTP Referer"
 msgstr ""
 
-#: configuration/cfg.cfg:249
+#: configuration/cfg.cfg:251
 msgid "Variable is an array"
 msgstr ""
 
-#: configuration/cfg.cfg:259
+#: configuration/cfg.cfg:261
 msgid "For zzform, this variable controls the display of the zzform list view"
 msgstr ""
 
-#: configuration/cfg.cfg:265
+#: configuration/cfg.cfg:267
 msgid "Setting is only relevant locally, not for deployment"
 msgstr ""
 
-#: configuration/cfg.cfg:270
+#: configuration/cfg.cfg:272
 msgid "Enable or disable logging for this operation"
 msgstr ""
 
-#: configuration/cfg.cfg:275
+#: configuration/cfg.cfg:277
 msgid "MIME type(s) for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:280
+#: configuration/cfg.cfg:282
 msgid "This variable has been moved to another key name"
 msgstr ""
 
-#: configuration/cfg.cfg:285
+#: configuration/cfg.cfg:287
 msgid "This variable has been moved to a $zz array key"
 msgstr ""
 
-#: configuration/cfg.cfg:289
+#: configuration/cfg.cfg:291
 msgid "File format supports multiple pages or frames"
 msgstr ""
 
-#: configuration/cfg.cfg:294
+#: configuration/cfg.cfg:296
 msgid "Which frame/page number to use for thumbnail generation"
 msgstr ""
 
-#: configuration/cfg.cfg:299
+#: configuration/cfg.cfg:301
 msgid "Name identifier for this entry"
 msgstr ""
 
-#: configuration/cfg.cfg:303
+#: configuration/cfg.cfg:307
 msgid "Short descriptive line about the package; use inside [about] section in configuration/package.cfg"
 msgstr ""
 
-#: configuration/cfg.cfg:309
+#: configuration/cfg.cfg:313
 msgid "Do not automatically initialize this variable"
 msgstr ""
 
-#: configuration/cfg.cfg:314
+#: configuration/cfg.cfg:318
 msgid "Do not initialize this variable during standard initialization"
 msgstr ""
 
-#: configuration/cfg.cfg:319
+#: configuration/cfg.cfg:323
 msgid "Do not trim whitespace from this value"
 msgstr ""
 
-#: configuration/cfg.cfg:324
+#: configuration/cfg.cfg:328
 msgid "This variable can be passed as a page parameter in the URL"
 msgstr ""
 
-#: configuration/cfg.cfg:329
+#: configuration/cfg.cfg:333
 msgid "File format can be analyzed with pdfinfo tool"
 msgstr ""
 
-#: configuration/cfg.cfg:334
+#: configuration/cfg.cfg:338
 msgid "PHP constant identifier for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:338
+#: configuration/cfg.cfg:342
 msgid "This is a private setting, not for public configuration"
 msgstr ""
 
-#: configuration/cfg.cfg:343
+#: configuration/cfg.cfg:347
 msgid "For zzform, this variable controls the display of the zzform record view"
 msgstr ""
 
-#: configuration/cfg.cfg:348
+#: configuration/cfg.cfg:352
 msgid "Additional remarks or notes about this variable"
 msgstr ""
 
-#: configuration/cfg.cfg:352
+#: configuration/cfg.cfg:356
 msgid "This variable must be set"
 msgstr ""
 
-#: configuration/cfg.cfg:358
+#: configuration/cfg.cfg:362
 msgid "Scope(s) where this variable can be set"
 msgstr ""
 
-#: configuration/cfg.cfg:368
+#: configuration/cfg.cfg:372
 msgid "Store this setting globally (website_id = 1) when running multiple websites"
 msgstr ""
 
-#: configuration/cfg.cfg:373
+#: configuration/cfg.cfg:377
 msgid "Path to script for processing"
 msgstr ""
 
-#: configuration/cfg.cfg:378
+#: configuration/cfg.cfg:382
 msgid "Link to another variable that does something similar, @see"
 msgstr ""
 
-#: configuration/cfg.cfg:383
+#: configuration/cfg.cfg:387
 msgid "Field name for source record identifier in synchronization"
 msgstr ""
 
-#: configuration/cfg.cfg:388
+#: configuration/cfg.cfg:392
 msgid "Function for processing raw SPARQL results"
 msgstr ""
 
-#: configuration/cfg.cfg:393
+#: configuration/cfg.cfg:397
 msgid "SPARQL endpoint URI"
 msgstr ""
 
-#: configuration/cfg.cfg:398
+#: configuration/cfg.cfg:402
 msgid "SQL query or SQL-related configuration"
 msgstr ""
 
-#: configuration/cfg.cfg:403
+#: configuration/cfg.cfg:407
 msgid "Number of records to process per synchronization run"
 msgstr ""
 
-#: configuration/cfg.cfg:408
+#: configuration/cfg.cfg:412
 msgid "This variable is for testing purposes only"
 msgstr ""
 
-#: configuration/cfg.cfg:413
+#: configuration/cfg.cfg:417
 msgid "Thumbnail generation is supported for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:418
+#: configuration/cfg.cfg:422
 msgid "Display title or label for this entry"
 msgstr ""
 
-#: configuration/cfg.cfg:423
+#: configuration/cfg.cfg:427
 msgid "To do, @todo"
 msgstr ""
 
-#: configuration/cfg.cfg:426
+#: configuration/cfg.cfg:430
 msgid "Values of this property are automatically translated"
 msgstr ""
 
-#: configuration/cfg.cfg:432
+#: configuration/cfg.cfg:436
 msgid "If a translation is missing, which .pot file gets the new msgid"
 msgstr ""
 
-#: configuration/cfg.cfg:438
+#: configuration/cfg.cfg:442
 msgid "Type of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:469
+#: configuration/cfg.cfg:473
 msgid "URL value"
 msgstr ""
 
-#: configuration/cfg.cfg:474
+#: configuration/cfg.cfg:478
 msgid "Image format suitable for web display"
+msgstr ""
+
+#: configuration/package.cfg:13
+msgid "zzwrap module"
 msgstr ""
 
 #: configuration/package.cfg:15
@@ -1443,29 +1447,461 @@ msgid "List of years that appear in URL"
 msgstr ""
 
 #: configuration/settings.cfg:1358
-msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
+msgid "List of available packages"
 msgstr ""
 
 #: configuration/settings.cfg:1363
+msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
+msgstr ""
+
+#: configuration/settings.cfg:1368
 msgid "ID of current website"
 msgstr ""
 
-#: configuration/settings.cfg:1369
+#: configuration/settings.cfg:1374
 msgid "If running more than one website with one system, this is the default website that will answer to unknown domain names"
 msgstr ""
 
-#: configuration/settings.cfg:1374
+#: configuration/settings.cfg:1379
 msgid "Seconds between websites cache checks"
 msgstr ""
 
-#: configuration/settings.cfg:1379
+#: configuration/settings.cfg:1384
 msgid "Filename for cached websites list"
 msgstr ""
 
-#: configuration/settings.cfg:1383
+#: configuration/settings.cfg:1388
 msgid "Random ID for logs to mark a process as unique"
 msgstr ""
 
-#: configuration/settings.cfg:1388
+#: configuration/settings.cfg:1393
 msgid "Initial installation date of Zugzwang Project CMS (for updates)"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:116
+msgid "Request for password with invalid e-mail address: %s (%s)"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:194
+msgid "Login without username"
+msgstr ""
+
+#: zzbrick_request/login.inc.php:203
+msgid "Password or username incorrect."
+msgstr ""
+
+#: zzbrick_request/test.inc.php:36
+msgid "JSON file %s seems to be malformed."
+msgstr ""
+
+#: zzbrick_request/test.inc.php:70
+msgid "Variable %s not found in test data."
+msgstr ""
+
+#: zzwrap/access.inc.php:308
+msgid "No query for %s found."
+msgstr ""
+
+#: zzwrap/access.inc.php:517
+msgid "List of allowed IPs not found in configuration (%s)."
+msgstr ""
+
+#: zzwrap/access.inc.php:524
+msgid "Your IP address %s is not in the allowed range."
+msgstr ""
+
+#: zzwrap/auth.inc.php:448
+msgid "Login via %s is currently not supported."
+msgstr ""
+
+#: zzwrap/auth.inc.php:490
+msgid "Unable to add external login for username %s and category ID %d"
+msgstr ""
+
+#: zzwrap/auth.inc.php:740
+msgid "A password was requested for e-mail %s, but there was no login in the database."
+msgstr ""
+
+#: zzwrap/auth.inc.php:746
+msgid "A password was requested for e-mail %s, but the login is disabled."
+msgstr ""
+
+#: zzwrap/auth.inc.php:824
+msgid "FORMAUTH login failed. Status %s."
+msgstr ""
+
+#: zzwrap/background.inc.php:37
+msgid "Job with URL %s failed. (Status: %d)"
+msgstr ""
+
+#: zzwrap/background.inc.php:247
+msgid "Empty URL given to wrap_get_protected_url(), function: %s"
+msgstr ""
+
+#: zzwrap/cache.inc.php:45
+msgid "Could not create cache directory %s."
+msgstr ""
+
+#: zzwrap/cache.inc.php:488
+msgid "Cache file `%s` for headers has no content"
+msgstr ""
+
+#: zzwrap/cache.inc.php:555
+msgid "Caching for URL %s disabled, looks like filename with / at the end?"
+msgstr ""
+
+#: zzwrap/cache.inc.php:568
+msgid "Cache filename `%s` too long, caching disabled"
+msgstr ""
+
+#: zzwrap/core.inc.php:67
+msgid "Wrong relative path: %s"
+msgstr ""
+
+#: zzwrap/core.inc.php:307
+msgid "Creating hierarchy impossible because ID %d is not part of the given list"
+msgstr ""
+
+#: zzwrap/core.inc.php:359
+#: zzwrap/core.inc.php:367
+msgid "Unable to create folder %s."
+msgstr ""
+
+#: zzwrap/core.inc.php:458
+msgid "Cannot determine filetype by extension: `%s`"
+msgstr ""
+
+#: zzwrap/core.inc.php:506
+msgid "No filetype `%s` exists."
+msgstr ""
+
+#: zzwrap/data.inc.php:30
+#: zzwrap/data.inc.php:49
+msgid "No data function found for `%s`."
+msgstr ""
+
+#: zzwrap/data.inc.php:36
+msgid "Function `%s` uses not recommended naming scheme"
+msgstr ""
+
+#: zzwrap/database.inc.php:62
+msgid "Error with database connection: %s"
+msgstr ""
+
+#: zzwrap/database.inc.php:163
+msgid "No character set for %s found."
+msgstr ""
+
+#: zzwrap/database.inc.php:707
+msgid "Infinite recursion in query %s with ID %d"
+msgstr ""
+
+#: zzwrap/database.inc.php:778
+msgid "String expected, got %s."
+msgstr ""
+
+#: zzwrap/database.inc.php:1543
+msgid "Unable to replace placeholder %s (%s)"
+msgstr ""
+
+#: zzwrap/database.inc.php:1569
+msgid "No connection to SQL server. (Host: %s)"
+msgstr ""
+
+#: zzwrap/database.inc.php:1660
+msgid "ID value for table `%s`, key `%s` not found."
+msgstr ""
+
+#: zzwrap/database.inc.php:1695
+msgid "Table %s is not supported by wrap_id()"
+msgstr ""
+
+#: zzwrap/database.inc.php:2031
+msgid "Primary Key for table %s was not found."
+msgstr ""
+
+#: zzwrap/database.inc.php:2035
+msgid "Primary Key for table %s spans over more than one field."
+msgstr ""
+
+#: zzwrap/defaults.inc.php:650
+msgid "Temp directory %s does not exist."
+msgstr ""
+
+#: zzwrap/defaults.inc.php:706
+msgid "Cache directory %s does not exist. Caching disabled."
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:591
+msgid "Status %s is not a valid HTTP status code."
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:776
+msgid "File %s is wrong in line %s."
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:842
+msgid "Case %s in line %s not supported."
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:868
+msgid "The server responds to the hostname %s, but this is not in the list of possible hostnames."
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:1110
+msgid "Username must be string."
+msgstr ""
+
+#: zzwrap/file.inc.php:157
+msgid "Unable to determine which file this package belongs to: %s"
+msgstr ""
+
+#: zzwrap/files.inc.php:423
+msgid "The required library %s does not exist. Please install it in the `_inc/library` folder."
+msgstr ""
+
+#: zzwrap/format.inc.php:224
+msgid "wrap_filename() only accepts strings."
+msgstr ""
+
+#: zzwrap/format.inc.php:354
+msgid "Date %s is currently either not supported as ISO date or no ISO date at all."
+msgstr ""
+
+#: zzwrap/format.inc.php:371
+msgid "Unknown input format %s"
+msgstr ""
+
+#: zzwrap/format.inc.php:395
+msgid "Unknown output format %s"
+msgstr ""
+
+#: zzwrap/format.inc.php:446
+msgid "Language %s currently not supported"
+msgstr ""
+
+#: zzwrap/format.inc.php:916
+msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
+msgstr ""
+
+#: zzwrap/format.inc.php:949
+msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
+msgstr ""
+
+#: zzwrap/format.inc.php:971
+msgid "Sorry, the number format <strong>%s</strong> is not supported."
+msgstr ""
+
+#: zzwrap/format.inc.php:1047
+msgid "wrap_html_escape() only handles strings"
+msgstr ""
+
+#: zzwrap/format.inc.php:1072
+msgid "wrap_html_escape_text() only handles strings"
+msgstr ""
+
+#: zzwrap/format.inc.php:1420
+msgid "Need function `idn_to_ascii` to check value %s, but it does not exist."
+msgstr ""
+
+#: zzwrap/format.inc.php:1839
+msgid "Placeholder %s not found."
+msgstr ""
+
+#: zzwrap/http.inc.php:355
+#: zzwrap/http.inc.php:385
+msgid "Unknown IP Address: %s"
+msgstr ""
+
+#: zzwrap/language.inc.php:444
+msgid "wrap_text_values(): %d sprintf placeholder(s) in translation for key %s but only %d value(s) given; values: %s"
+msgstr ""
+
+#: zzwrap/language.inc.php:771
+msgid "Cannot parse translation map."
+msgstr ""
+
+#: zzwrap/language.inc.php:1380
+msgid "Unable to determine translation log."
+msgstr ""
+
+#: zzwrap/mail.inc.php:628
+msgid "System’s e-mail address not set (setting `own_e_mail`)."
+msgstr ""
+
+#: zzwrap/mail.inc.php:727
+msgid "Unable to open mailbox %s (Server: %s)"
+msgstr ""
+
+#: zzwrap/nav.inc.php:739
+msgid "Unable to parse this breadcrumb: %s"
+msgstr ""
+
+#: zzwrap/page.inc.php:166
+msgid "No text line for HTTP status %d found."
+msgstr ""
+
+#: zzwrap/page.inc.php:205
+msgid "zzbrick returned with an error. Sorry, that’s all we know."
+msgstr ""
+
+#: zzwrap/page.inc.php:216
+msgid "An error occurred while filling the template %s. Status code %d"
+msgstr ""
+
+#: zzwrap/page.inc.php:221
+msgid "An error occurred while creating the resource %s. Status code %d"
+msgstr ""
+
+#: zzwrap/page.inc.php:600
+msgid "Template %s includes itself"
+msgstr ""
+
+#: zzwrap/reference.inc.php:29
+msgid "Unknown reference style `%s` for `%s`."
+msgstr ""
+
+#: zzwrap/reference.inc.php:120
+msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
+msgstr ""
+
+#: zzwrap/reference.inc.php:129
+msgid "Reference `%s` is empty."
+msgstr ""
+
+#: zzwrap/routes.inc.php:410
+msgid "No route found for `%s`."
+msgstr ""
+
+#: zzwrap/routes.inc.php:477
+msgid "Calling for path `%s` for non-existent website `%s`."
+msgstr ""
+
+#: zzwrap/send.inc.php:36
+msgid "Unable to send file: %s is a folder, not a file."
+msgstr ""
+
+#: zzwrap/send.inc.php:51
+msgid "Unable to send file: %s does not exist"
+msgstr ""
+
+#: zzwrap/send.inc.php:381
+msgid "Unable to open file %s"
+msgstr ""
+
+#: zzwrap/send.inc.php:590
+msgid "Redirect to array not supported."
+msgstr ""
+
+#: zzwrap/send.inc.php:747
+msgid "URI path too long: %s"
+msgstr ""
+
+#: zzwrap/send.inc.php:749
+msgid "URI query too long: %s"
+msgstr ""
+
+#: zzwrap/session.inc.php:53
+msgid "Session start not possible."
+msgstr ""
+
+#: zzwrap/session.inc.php:237
+msgid "Illegal session cookie value found: %s"
+msgstr ""
+
+#: zzwrap/settings.inc.php:54
+msgid "Unable to add value %s to key, it is not an array."
+msgstr ""
+
+#: zzwrap/settings.inc.php:297
+msgid "Setting `%s` not found in settings.cfg files."
+msgstr ""
+
+#: zzwrap/settings.inc.php:363
+msgid "Could not change setting. Key: %s, value: %s, login: %s"
+msgstr ""
+
+#: zzwrap/settings.inc.php:493
+#: zzwrap/settings.inc.php:518
+msgid "Too many arrays in %s, not implemented."
+msgstr ""
+
+#: zzwrap/settings.inc.php:709
+msgid "Value for setting %s must be an array: %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:101
+msgid "Syndication from URL %s failed with redirect status code %s. Use URL %s instead."
+msgstr ""
+
+#: zzwrap/syndication.inc.php:110
+msgid "Syndication from URL %s failed. Status code %s. Using cached file instead."
+msgstr ""
+
+#: zzwrap/syndication.inc.php:116
+msgid "Syndication from URL %s failed. Status code %s."
+msgstr ""
+
+#: zzwrap/syndication.inc.php:132
+msgid "Syndication: Cannot convert JSON data %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:270
+msgid "Geocoder %s not supported."
+msgstr ""
+
+#: zzwrap/syndication.inc.php:318
+msgid "%s is not supported for geocoding."
+msgstr ""
+
+#: zzwrap/syndication.inc.php:322
+msgid "Syndication from %s failed with status %s. %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:592
+msgid "cURL getinfo()"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:609
+msgid "Syndication from URL %s failed. Reason: %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:615
+msgid "cURL incomplete download, URL %s: total %s, received %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:617
+msgid "cURL error, URL %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:904
+msgid "wrap_lock_wait(%s, %d) gave up after %d seconds"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:1084
+msgid "FTP: Failed to connect to %s (Port: %d)"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:1089
+msgid "FTP: Failed login to %s (User: %s, Password: %s)"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:1105
+msgid "FTP: Directory was not changed to %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:1111
+msgid "FTP: Upload local file %s to remote file %s failed"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:1130
+msgid "It was not possible to %s file %s to file %s"
+msgstr ""
+
+#: zzwrap/template.inc.php:125
+msgid "Template name %s not valid."
+msgstr ""
+
+#: zzwrap/url.inc.php:401
+msgid "Wrong URL: query string %s [%s], Referer: %s"
 msgstr ""

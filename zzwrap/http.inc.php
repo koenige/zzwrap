@@ -160,10 +160,10 @@ function wrap_http_value($key, $source = 'GET', $type = 'string') {
 	if (!isset($data[$key])) return null;
 	if (is_array($data[$key])) {
 		$var = '$_' . $source . "['" . $key . "']";
-		wrap_quit(400, wrap_text([
+		wrap_quit(400, wrap_text(
 			'This value for %s sent via HTTP must not be an array: %s',
 			['values' => [$var, json_encode($data[$key])]]
-		]));
+		));
 	}
 	return wrap_type_convert($data[$key], $type);
 }

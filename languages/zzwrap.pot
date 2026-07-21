@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-14 17:59+0000\n"
+"POT-Creation-Date: 2026-07-21 13:09+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -801,7 +801,7 @@ msgid "Method:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:922
+#: zzwrap/errorhandling.inc.php:1186
 msgid "IP:"
 msgstr ""
 
@@ -810,7 +810,7 @@ msgid "Browser:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:924
+#: zzwrap/errorhandling.inc.php:1188
 msgid "unknown"
 msgstr ""
 
@@ -838,36 +838,28 @@ msgstr ""
 msgid "Please get a new one."
 msgstr ""
 
-#: zzbrick_request/login.inc.php:138
+#: zzbrick_request/login.inc.php:135
 msgid "Password or username are empty. Please try again."
 msgstr ""
 
-#: zzbrick_request/login.inc.php:182
+#: zzbrick_request/login.inc.php:179
 msgid "Password or username incorrect. Please try again."
 msgstr ""
 
-#: zzbrick_request/login.inc.php:197
-msgid "Login without username"
-msgstr ""
-
-#: zzbrick_request/login.inc.php:206
-msgid "Password or username incorrect:"
-msgstr ""
-
-#: zzbrick_request/login.inc.php:271
+#: zzbrick_request/login.inc.php:267
 msgid "The “Forgot password” link is not activated."
 msgstr ""
 
-#: zzbrick_request/login.inc.php:273
-#: zzwrap/auth.inc.php:731
+#: zzbrick_request/login.inc.php:269
+#: zzwrap/auth.inc.php:734
 msgid "The “Forgot password” query is missing."
 msgstr ""
 
-#: zzbrick_request/login.inc.php:275
+#: zzbrick_request/login.inc.php:271
 msgid "Login"
 msgstr ""
 
-#: zzbrick_request/login.inc.php:276
+#: zzbrick_request/login.inc.php:272
 msgid "Request password"
 msgstr ""
 
@@ -884,16 +876,8 @@ msgstr ""
 msgid "Tests"
 msgstr ""
 
-#: zzwrap/access.inc.php:255
+#: zzwrap/access.inc.php:258
 msgid "You need `%s` access rights. (Login: %s)"
-msgstr ""
-
-#: zzwrap/access.inc.php:514
-msgid "List of allowed IPs not found in configuration (%s)."
-msgstr ""
-
-#: zzwrap/access.inc.php:521
-msgid "Your IP address %s is not in the allowed range."
 msgstr ""
 
 #: zzwrap/auth.inc.php
@@ -904,34 +888,29 @@ msgstr ""
 msgid "Username:"
 msgstr ""
 
-#: zzwrap/auth.inc.php:591
+#: zzwrap/auth.inc.php:594
 msgid "Too many failed login attempts. Please wait %d second."
 msgid_plural "Too many failed login attempts. Please wait %d seconds."
 msgstr[0] ""
 msgstr[1] ""
 
-#: zzwrap/background.inc.php:86
+#: zzwrap/auth.inc.php:826
+#: zzwrap/background.inc.php:142
+msgid "Data"
+msgstr ""
+
+#: zzwrap/auth.inc.php:826
+#: zzwrap/background.inc.php:38
+#: zzwrap/background.inc.php:271
+msgid "Headers"
+msgstr ""
+
+#: zzwrap/background.inc.php:89
 msgid "not found"
 msgstr ""
 
-#: zzwrap/cache.inc.php:555
-msgid "Caching for URL %s disabled, looks like filename with / at the end?"
-msgstr ""
-
-#: zzwrap/core.inc.php:67
-msgid "Wrong relative path: %s"
-msgstr ""
-
-#: zzwrap/database.inc.php:543
+#: zzwrap/database.inc.php:544
 msgid "Fields <code>%s</code> are missing in SQL query"
-msgstr ""
-
-#: zzwrap/database.inc.php:2032
-msgid "Primary Key for table %s was not found."
-msgstr ""
-
-#: zzwrap/database.inc.php:2036
-msgid "Primary Key for table %s spans over more than one field."
 msgstr ""
 
 #: zzwrap/defaults.inc.php:186
@@ -942,32 +921,28 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:143
+#: zzwrap/errorhandling.inc.php:163
 msgid "Error on website"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:344
+#: zzwrap/errorhandling.inc.php:608
 msgid "Please try to find the content you were looking for from our <a href=\"%s\">main page</a>."
 msgstr ""
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php:456
+#: zzwrap/errorhandling.inc.php:720
 msgid "Unsupported server protocol (%s)"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:604
-msgid "The server responds to the hostname %s, but this is not in the list of possible hostnames."
-msgstr ""
-
-#: zzwrap/errorhandling.inc.php:924
+#: zzwrap/errorhandling.inc.php:1188
 msgid "User agent:"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:926
+#: zzwrap/errorhandling.inc.php:1190
 msgid "Referring URL:"
 msgstr ""
 
-#: zzwrap/extract.inc.php:369
+#: zzwrap/extract.inc.php:485
 msgid "fallback"
 msgstr ""
 
@@ -980,7 +955,7 @@ msgid "No lines deleted."
 msgstr ""
 
 #: zzwrap/file.inc.php:46
-#: zzwrap/syndication.inc.php:1227
+#: zzwrap/syndication.inc.php:1186
 msgid "Cannot open %s for writing."
 msgstr ""
 
@@ -989,10 +964,6 @@ msgid "1 line deleted."
 msgid_plural "%d lines deleted."
 msgstr[0] ""
 msgstr[1] ""
-
-#: zzwrap/files.inc.php:423
-msgid "The required library %s does not exist. Please install it in the `_inc/library` folder."
-msgstr ""
 
 # duration
 #: zzwrap/format.inc.php
@@ -1072,18 +1043,6 @@ msgctxt "time"
 msgid "%s:%s"
 msgstr ""
 
-#: zzwrap/format.inc.php:916
-msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
-msgstr ""
-
-#: zzwrap/format.inc.php:949
-msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
-msgstr ""
-
-#: zzwrap/format.inc.php:971
-msgid "Sorry, the number format <strong>%s</strong> is not supported."
-msgstr ""
-
 # access
 #: zzwrap/http.inc.php:45
 msgid "Access to this website for your IP address is restricted."
@@ -1094,7 +1053,7 @@ msgid "This website is currently offline."
 msgstr ""
 
 #: zzwrap/http.inc.php:164
-msgid "This value sent via HTTP must not be an array. %s: %s"
+msgid "This value for %s sent via HTTP must not be an array: %s"
 msgstr ""
 
 #: zzwrap/http.inc.php:312
@@ -1109,14 +1068,6 @@ msgstr ""
 msgid "The main user could not be created."
 msgstr ""
 
-#: zzwrap/mail.inc.php:727
-msgid "Unable to open mailbox %s (Server: %s)"
-msgstr ""
-
-#: zzwrap/nav.inc.php:739
-msgid "Unable to parse this breadcrumb: %s"
-msgstr ""
-
 #: zzwrap/nav.inc.php:930
 msgid "Previous page"
 msgstr ""
@@ -1126,33 +1077,13 @@ msgid "Next page"
 msgstr ""
 
 #: zzwrap/nav.inc.php:938
-#: zzwrap/page.inc.php:702
-#: zzwrap/page.inc.php:715
+#: zzwrap/page.inc.php:712
+#: zzwrap/page.inc.php:725
 msgid "Overview"
-msgstr ""
-
-#: zzwrap/page.inc.php:166
-msgid "No text line for HTTP status %d found."
-msgstr ""
-
-#: zzwrap/page.inc.php:205
-msgid "zzbrick returned with an error. Sorry, that’s all we know."
-msgstr ""
-
-#: zzwrap/page.inc.php:216
-msgid "An error occurred while filling the template %s. Status code %d"
-msgstr ""
-
-#: zzwrap/page.inc.php:221
-msgid "An error occurred while creating the resource %s. Status code %d"
 msgstr ""
 
 #: zzwrap/page.inc.php:248
 msgid "Illegal value for XML HTTP request: %s"
-msgstr ""
-
-#: zzwrap/page.inc.php:590
-msgid "Template %s includes itself"
 msgstr ""
 
 #: zzwrap/pot.inc.php:372
@@ -1173,48 +1104,8 @@ msgid_plural "%d .pot files written."
 msgstr[] ""
 msgstr[] ""
 
-#: zzwrap/reference.inc.php:29
-msgid "Unknown reference style `%s` for `%s`."
-msgstr ""
-
-#: zzwrap/reference.inc.php:120
-msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
-msgstr ""
-
-#: zzwrap/reference.inc.php:129
-msgid "Reference `%s` is empty."
-msgstr ""
-
-#: zzwrap/routes.inc.php:410
-msgid "No route found for `%s`."
-msgstr ""
-
-#: zzwrap/routes.inc.php:477
-msgid "Calling for path `%s` for non-existent website `%s`."
-msgstr ""
-
-#: zzwrap/send.inc.php:36
-msgid "Unable to send file: %s is a folder, not a file."
-msgstr ""
-
-#: zzwrap/send.inc.php:51
-msgid "Unable to send file: %s does not exist"
-msgstr ""
-
-#: zzwrap/send.inc.php:381
-msgid "Unable to open file %s"
-msgstr ""
-
 #: zzwrap/session.inc.php:54
 msgid "Temporarily, a login is not possible."
-msgstr ""
-
-#: zzwrap/settings.inc.php:366
-msgid "Could not change setting. Key: %s, value: %s, login: %s"
-msgstr ""
-
-#: zzwrap/template.inc.php:125
-msgid "Template name %s not valid."
 msgstr ""
 
 #: zzwrap/template.inc.php:154
