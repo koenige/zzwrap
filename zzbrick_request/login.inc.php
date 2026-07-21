@@ -200,8 +200,7 @@ function mod_zzwrap_login($params, $settings = []) {
 					'log_post_data' => false,
 					'logfile_append' => wrap_error_msg(['HTTP_USER_AGENT'])
 				];
-				wrap_error(sprintf(wrap_text('Password or username incorrect:')."\n\n%s%s", 
-					$user, wrap_password_hash($login['password'])), E_USER_NOTICE, $error_settings);
+				wrap_error(['Password or username incorrect.'], E_USER_NOTICE, $error_settings);
 			}
 		} else {
 			// Hooray! User has been logged in
