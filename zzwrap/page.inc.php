@@ -730,16 +730,23 @@ function wrap_page_links($data, $path = false, $path_overview = false) {
 
 /**
  * return path
- * if path contains % treat as full path
- * otherwise use wrap_path()
+ * if path contains %s treat as full path template (sprintf)
+ * if path starts with / treat as literal URL path, not resolvable
+ * otherwise use wrap_path() with path as route key
  *
  * @param string $path
  * @param string $identifier
  * @return string
  */
 function wrap_page_links_path($path, $identifier) {
-	if (strstr($path, '%s')) $link = sprintf($path, $identifier);
-	else $link = wrap_path($path, $identifier);
+	if (strstr($path, '%s')) {
+		$link = sprintf($path, $identifier);
+	} elseif (!str_starts_with($path, '/')) {
+		$link = wrap_path($path, $identifier);
+	} else {
+		// most likely top level
+		return '';
+	}
 	if ($link AND str_ends_with($link, '//')) $link = substr($link, 0, -1); // top folder
 	return $link;
 }
