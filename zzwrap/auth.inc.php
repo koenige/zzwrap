@@ -686,7 +686,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 	$username = wrap_username($username);
 	if ($log_username_suffix)
 		wrap_setting('log_username_suffix', $log_username_suffix);
-	if (!$username) wrap_error('No username found for password token');
+	if (!$username) wrap_error(['No username found for password token']);
 	if ($secret_key === 'sso_key') {
 		// don't check against database, user might not exist yet
 		// it will be created and a check is performed later on
@@ -751,7 +751,7 @@ function wrap_password_reminder($address, $additional_data = []) {
 	$data = array_merge($additional_data, $data);
 	$token = wrap_password_token($data['username'], 'password_key');
 	if (!$token) {
-		wrap_error('Password reminder cannot be sent, no token was generated.', E_USER_WARNING);
+		wrap_error(['Password reminder cannot be sent, no token was generated.'], E_USER_WARNING);
 		return false;
 	}
 	$data['token'] = $data['username'].'-'.$token;

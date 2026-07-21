@@ -322,8 +322,9 @@ function wrap_date($date, $format = false) {
 	if (!$format) {
 		$format = wrap_setting('date_format');
 		if (!$format) {
-			wrap_error('Please set at least a default format for wrap_date().
-				via setting "date_format" = "dates-de" or so');
+			wrap_error([
+				'Please set at least a default format for wrap_date() via setting "date_format" = "dates-de" or so'
+			]);
 			return $date;
 		}
 	}
@@ -1436,7 +1437,7 @@ function wrap_punycode_decode($string) {
 	foreach ($subdomains as $index => $part) {
 		if (substr($part, 0, 4) !== 'xn--') continue;
 		if (!function_exists('idn_to_utf8')) {
-			wrap_error('missing function `idn_to_utf8`', E_USER_NOTICE);
+			wrap_error(['missing function `idn_to_utf8`'], E_USER_NOTICE);
 			continue;
 		}
 		$subdomains[$index] = idn_to_utf8($part);
@@ -1569,7 +1570,7 @@ function wrap_duration($duration, $unit = 'second', $format = '') {
 	];
 	if ($unit !== 'second') {
 		if (!in_array($unit, array_keys($seconds))) {
-			wrap_error('Unit %s not recognized for calculating duration.');
+			wrap_error(['Unit %s not recognized for calculating duration.', ['values' => [$unit]]]);
 			return $duration;
 		}
 		$duration *= $seconds[$unit];

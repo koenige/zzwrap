@@ -355,7 +355,7 @@ function wrap_send_cache($age = 0, $log_error = true) {
 
 	// Log if cached version is used because there's no connection to database
 	if (!wrap_db_connection() AND !$age) {
-		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
+		wrap_error(['No connection to SQL server. Using cached file instead.'], E_USER_NOTICE);
 		wrap_error_collect_end();
 	}
 	

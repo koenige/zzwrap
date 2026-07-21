@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-21 13:09+0000\n"
+"POT-Creation-Date: 2026-07-21 16:50+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1502,6 +1502,14 @@ msgstr ""
 msgid "No query for %s found."
 msgstr ""
 
+#: zzwrap/access.inc.php:473
+msgid "At least one base is below 2, this is not allowed."
+msgstr ""
+
+#: zzwrap/access.inc.php:475
+msgid "At least one base is above 62, this is not allowed."
+msgstr ""
+
 #: zzwrap/access.inc.php:517
 msgid "List of allowed IPs not found in configuration (%s)."
 msgstr ""
@@ -1518,12 +1526,20 @@ msgstr ""
 msgid "Unable to add external login for username %s and category ID %d"
 msgstr ""
 
+#: zzwrap/auth.inc.php:689
+msgid "No username found for password token"
+msgstr ""
+
 #: zzwrap/auth.inc.php:740
 msgid "A password was requested for e-mail %s, but there was no login in the database."
 msgstr ""
 
 #: zzwrap/auth.inc.php:746
 msgid "A password was requested for e-mail %s, but the login is disabled."
+msgstr ""
+
+#: zzwrap/auth.inc.php:754
+msgid "Password reminder cannot be sent, no token was generated."
 msgstr ""
 
 #: zzwrap/auth.inc.php:824
@@ -1540,6 +1556,10 @@ msgstr ""
 
 #: zzwrap/cache.inc.php:45
 msgid "Could not create cache directory %s."
+msgstr ""
+
+#: zzwrap/cache.inc.php:358
+msgid "No connection to SQL server. Using cached file instead."
 msgstr ""
 
 #: zzwrap/cache.inc.php:488
@@ -1588,39 +1608,59 @@ msgstr ""
 msgid "Error with database connection: %s"
 msgstr ""
 
+#: zzwrap/database.inc.php:138
+msgid "No password file for database found."
+msgstr ""
+
 #: zzwrap/database.inc.php:163
 msgid "No character set for %s found."
 msgstr ""
 
-#: zzwrap/database.inc.php:707
+#: zzwrap/database.inc.php:272
+msgid "MySQL reports a problem."
+msgstr ""
+
+#: zzwrap/database.inc.php:304
+msgid "Database server has gone away."
+msgstr ""
+
+#: zzwrap/database.inc.php:310
+msgid "Error in SQL query."
+msgstr ""
+
+#: zzwrap/database.inc.php:723
 msgid "Infinite recursion in query %s with ID %d"
 msgstr ""
 
-#: zzwrap/database.inc.php:778
+#: zzwrap/database.inc.php:761
+msgid "Checking table updates. Error: Table name `%s` has too many dots."
+msgstr ""
+
+#: zzwrap/database.inc.php:797
 msgid "String expected, got %s."
 msgstr ""
 
-#: zzwrap/database.inc.php:1543
+#: zzwrap/database.inc.php:1562
 msgid "Unable to replace placeholder %s (%s)"
 msgstr ""
 
-#: zzwrap/database.inc.php:1569
+#: zzwrap/database.inc.php:1588
 msgid "No connection to SQL server. (Host: %s)"
 msgstr ""
 
-#: zzwrap/database.inc.php:1660
+#: zzwrap/database.inc.php:1679
 msgid "ID value for table `%s`, key `%s` not found."
 msgstr ""
 
-#: zzwrap/database.inc.php:1695
+#: zzwrap/database.inc.php:1714
 msgid "Table %s is not supported by wrap_id()"
 msgstr ""
 
-#: zzwrap/database.inc.php:2031
+#: zzwrap/database.inc.php:2050
 msgid "Primary Key for table %s was not found."
 msgstr ""
 
-#: zzwrap/database.inc.php:2035
+#: zzwrap/database.inc.php:2054
 msgid "Primary Key for table %s spans over more than one field."
 msgstr ""
 
@@ -1632,23 +1672,27 @@ msgstr ""
 msgid "Cache directory %s does not exist. Caching disabled."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:591
+#: zzwrap/errorhandling.inc.php:570
+msgid "mod_rewrite does not work as expected"
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:596
 msgid "Status %s is not a valid HTTP status code."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:776
+#: zzwrap/errorhandling.inc.php:781
 msgid "File %s is wrong in line %s."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:842
+#: zzwrap/errorhandling.inc.php:847
 msgid "Case %s in line %s not supported."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:868
+#: zzwrap/errorhandling.inc.php:873
 msgid "The server responds to the hostname %s, but this is not in the list of possible hostnames."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1110
+#: zzwrap/errorhandling.inc.php:1115
 msgid "Username must be string."
 msgstr ""
 
@@ -1664,47 +1708,59 @@ msgstr ""
 msgid "wrap_filename() only accepts strings."
 msgstr ""
 
-#: zzwrap/format.inc.php:354
+#: zzwrap/format.inc.php:326
+msgid "Please set at least a default format for wrap_date() via setting \"date_format\" = \"dates-de\" or so"
+msgstr ""
+
+#: zzwrap/format.inc.php:355
 msgid "Date %s is currently either not supported as ISO date or no ISO date at all."
 msgstr ""
 
-#: zzwrap/format.inc.php:371
+#: zzwrap/format.inc.php:372
 msgid "Unknown input format %s"
 msgstr ""
 
-#: zzwrap/format.inc.php:395
+#: zzwrap/format.inc.php:396
 msgid "Unknown output format %s"
 msgstr ""
 
-#: zzwrap/format.inc.php:446
+#: zzwrap/format.inc.php:447
 msgid "Language %s currently not supported"
 msgstr ""
 
-#: zzwrap/format.inc.php:916
+#: zzwrap/format.inc.php:917
 msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
 msgstr ""
 
-#: zzwrap/format.inc.php:949
+#: zzwrap/format.inc.php:950
 msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
 msgstr ""
 
-#: zzwrap/format.inc.php:971
+#: zzwrap/format.inc.php:972
 msgid "Sorry, the number format <strong>%s</strong> is not supported."
 msgstr ""
 
-#: zzwrap/format.inc.php:1047
+#: zzwrap/format.inc.php:1048
 msgid "wrap_html_escape() only handles strings"
 msgstr ""
 
-#: zzwrap/format.inc.php:1072
+#: zzwrap/format.inc.php:1073
 msgid "wrap_html_escape_text() only handles strings"
 msgstr ""
 
-#: zzwrap/format.inc.php:1420
+#: zzwrap/format.inc.php:1421
 msgid "Need function `idn_to_ascii` to check value %s, but it does not exist."
 msgstr ""
 
-#: zzwrap/format.inc.php:1839
+#: zzwrap/format.inc.php:1440
+msgid "missing function `idn_to_utf8`"
+msgstr ""
+
+#: zzwrap/format.inc.php:1573
+msgid "Unit %s not recognized for calculating duration."
+msgstr ""
+
+#: zzwrap/format.inc.php:1840
 msgid "Placeholder %s not found."
 msgstr ""
 
@@ -1725,11 +1781,32 @@ msgstr ""
 msgid "Unable to determine translation log."
 msgstr ""
 
-#: zzwrap/mail.inc.php:628
+#: zzwrap/mail.inc.php:39
+#: zzwrap/mail.inc.php:386
+msgid "File `%s` not found"
+msgstr ""
+
+#: zzwrap/mail.inc.php:140
+msgid "Mail could not be sent."
+msgstr ""
+
+#: zzwrap/mail.inc.php:294
+msgid "Checking DNS record for host `%s` (e-mail: %s) took too long, so probably it is a timeout"
+msgstr ""
+
+#: zzwrap/mail.inc.php:434
+msgid "Send mail with phpmailer failed: %s"
+msgstr ""
+
+#: zzwrap/mail.inc.php:638
 msgid "System’s e-mail address not set (setting `own_e_mail`)."
 msgstr ""
 
-#: zzwrap/mail.inc.php:727
+#: zzwrap/mail.inc.php:666
+msgid "PHP IMAP extension is not installed."
+msgstr ""
+
+#: zzwrap/mail.inc.php:737
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
 

@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: 2026-07-21 13:09+0000\n"
+"POT-Creation-Date: 2026-07-21 16:50+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -858,7 +858,7 @@ msgid "Method:"
 msgstr "Methode:"
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1186
+#: zzwrap/errorhandling.inc.php:1191
 msgid "IP:"
 msgstr "IP:"
 
@@ -867,7 +867,7 @@ msgid "Browser:"
 msgstr "Browser:"
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1188
+#: zzwrap/errorhandling.inc.php:1193
 msgid "unknown"
 msgstr "unbekannt"
 
@@ -953,18 +953,30 @@ msgstr[1] ""
 
 #: zzwrap/auth.inc.php:826 zzwrap/background.inc.php:142
 msgid "Data"
-msgstr ""
+msgstr "Daten"
 
 #: zzwrap/auth.inc.php:826 zzwrap/background.inc.php:38
 #: zzwrap/background.inc.php:271
 msgid "Headers"
-msgstr ""
+msgstr "Kopfzeilen"
 
 #: zzwrap/background.inc.php:89
 msgid "not found"
 msgstr "nicht gefunden"
 
-#: zzwrap/database.inc.php:544
+#: zzwrap/database.inc.php:275
+msgid "Warnings"
+msgstr "Warnungen"
+
+#: zzwrap/database.inc.php:276 zzwrap/database.inc.php:314
+msgid "SQL"
+msgstr "SQL"
+
+#: zzwrap/database.inc.php:313
+msgid "Message"
+msgstr "Nachricht"
+
+#: zzwrap/database.inc.php:560
 msgid "Fields <code>%s</code> are missing in SQL query"
 msgstr "In der SQL-Abfrage fehlen Felder: <code>%s</code>"
 
@@ -981,7 +993,15 @@ msgstr "Nutzer"
 msgid "Error on website"
 msgstr "Fehler auf der Website"
 
-#: zzwrap/errorhandling.inc.php:608
+#: zzwrap/errorhandling.inc.php:572
+msgid "URL"
+msgstr "URL"
+
+#: zzwrap/errorhandling.inc.php:573
+msgid "Script"
+msgstr "Skript"
+
+#: zzwrap/errorhandling.inc.php:613
 msgid ""
 "Please try to find the content you were looking for from our <a "
 "href=\"%s\">main page</a>."
@@ -990,15 +1010,15 @@ msgstr ""
 "href=\"%s\">unsere Hauptseite</a> zu finden."
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php:720
+#: zzwrap/errorhandling.inc.php:725
 msgid "Unsupported server protocol (%s)"
 msgstr "Server-Protokoll wird nicht unterstützt (%s)"
 
-#: zzwrap/errorhandling.inc.php:1188
+#: zzwrap/errorhandling.inc.php:1193
 msgid "User agent:"
 msgstr "User-Agent:"
 
-#: zzwrap/errorhandling.inc.php:1190
+#: zzwrap/errorhandling.inc.php:1195
 msgid "Referring URL:"
 msgstr "Verweisende URL:"
 
@@ -1085,19 +1105,19 @@ msgid "1 year"
 msgstr "1 Jahr"
 
 # duration
-#: zzwrap/format.inc.php:638
+#: zzwrap/format.inc.php:639
 msgctxt "time"
 msgid "%s&nbsp;h"
 msgstr "%s&nbsp;Uhr"
 
 # duration
-#: zzwrap/format.inc.php:651
+#: zzwrap/format.inc.php:652
 msgctxt "time"
 msgid "%s–%s&nbsp;h"
 msgstr "%s–%s&nbsp;Uhr"
 
 # Separator for time (hours:minutes)
-#: zzwrap/format.inc.php:669
+#: zzwrap/format.inc.php:670
 msgctxt "time"
 msgid "%s:%s"
 msgstr "%s.%s"
@@ -1134,6 +1154,22 @@ msgstr ""
 #: zzwrap/install.inc.php:234
 msgid "The main user could not be created."
 msgstr "Der Hauptbenutzer konnte nicht angelegt werden."
+
+#: zzwrap/mail.inc.php:142
+msgid "To"
+msgstr "An"
+
+#: zzwrap/mail.inc.php:143
+msgid "From"
+msgstr "Von"
+
+#: zzwrap/mail.inc.php:144
+msgid "Subject"
+msgstr "Betreff"
+
+#: zzwrap/mail.inc.php:145
+msgid "Parameters"
+msgstr "Parameter"
 
 #: zzwrap/nav.inc.php:930
 msgid "Previous page"

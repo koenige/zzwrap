@@ -135,7 +135,7 @@ function wrap_db_credentials() {
 		$found = true;
 		break;
 	}
-	if (!$found) wrap_error('No password file for database found.', E_USER_ERROR);
+	if (!$found) wrap_error(['No password file for database found.'], E_USER_ERROR);
 	if ($rewrite) {
 		// @deprecated
 		// $zz_conf['db_name'] should be set in pwd.inc.php
@@ -268,8 +268,15 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 				if ($warning['Level'] === 'Error') $warning_error = $error;
 			}
 			if ($db_msg and $error)
-				wrap_error('['.$_SERVER['REQUEST_URI'].'] MySQL reports a problem.'
-					.sprintf("\n\n%s\n\n%s", implode("\n\n", $db_msg), $sql), $warning_error);
+				wrap_error([
+					'MySQL reports a problem.', [
+						'intro' => '['.wrap_setting('request_uri').']',
+						'data' => [
+							wrap_text('Warnings') => $db_msg,
+							wrap_text('SQL') => $sql,
+						]
+					]
+				], $warning_error);
 		}
 	} else {
 		$warnings = [];
@@ -293,12 +300,21 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 		// try to send file from cache
 		wrap_send_cache();
 		// if there’s no cache, send error
-		wrap_error('['.$_SERVER['REQUEST_URI'].'] Database server has gone away', $error);
+		wrap_error([
+			'Database server has gone away.', ['intro' => '['.wrap_setting('request_uri').']']
+		], $error);
 	} elseif ($error) {
 		$error_msg = mysqli_error(wrap_db_connection());
 		if (!$warnings) {
-			wrap_error('['.$_SERVER['REQUEST_URI'].'] '
-				.sprintf('Error in SQL query:'."\n\n%s\n\n%s", $error_msg, $sql), $error);
+			wrap_error([
+				'Error in SQL query.', [
+					'intro' => '['.wrap_setting('request_uri').']',
+					'data' => array_filter([
+						wrap_text('Message') => $error_msg,
+						wrap_text('SQL') => $sql,
+					])
+				]
+			], $error);
 		} elseif (wrap_setting('error_handling') === 'output') {
 			wrap_notice($error_msg, 'error');
 			wrap_notice($sql, 'error');
@@ -741,7 +757,10 @@ function wrap_db_tables_last_update($tables, $last_sync = false) {
 		elseif (count($db_table) === 1)
 			$my_tables['NULL'][] = $db_table[0];
 		else {
-			wrap_error('Checking table updates. Error: Table name '.$table.' has too many dots.', E_USER_WARNING);
+			wrap_error([
+				'Checking table updates. Error: Table name `%s` has too many dots.',
+				['values' => [$table]]
+			], E_USER_WARNING);
 			wrap_quit(503);
 		}
 	}

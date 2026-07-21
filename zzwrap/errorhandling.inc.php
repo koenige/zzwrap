@@ -566,8 +566,13 @@ function wrap_errorpage($page = []) {
 		AND $_SERVER['SCRIPT_NAME'] !== '/_scripts/main.php') {
 		$first_char = substr($_SERVER['REQUEST_URI'], 1, 1);
 		if ($first_char !== '' && ctype_alnum($first_char)) {
-			wrap_error('mod_rewrite does not work as expected: '
-				.$_SERVER['REQUEST_URI'].' ('.$_SERVER['SCRIPT_NAME'].')', E_USER_NOTICE);
+			wrap_error([
+				'mod_rewrite does not work as expected',
+				['data' => [
+					wrap_text('URL') => $_SERVER['REQUEST_URI'],
+					wrap_text('Script') => $_SERVER['SCRIPT_NAME']
+				]]
+			], E_USER_NOTICE);
 			$page['status'] = 503;
 		}
 	}

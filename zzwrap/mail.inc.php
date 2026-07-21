@@ -36,7 +36,7 @@ function wrap_mail($mail, $list = []) {
 				$binary = fread(fopen($file['path_local'], "r"), filesize($file['path_local']));
 				$mail['multipart']['files'][$index]['file_base64_encoded'] = chunk_split(base64_encode($binary));
 			} else {
-				wrap_error('File not found. '.$file['path_local']);
+				wrap_error(['File `%s` not found', ['values' => [$file['path_local']]]]);
 			}
 		}
 		foreach ($mail['multipart']['blobs'] as $index => $file) {
@@ -136,9 +136,16 @@ function wrap_mail($mail, $list = []) {
 			$success = wrap_mail_php($mail, $additional_headers);
 		}
 		if (!$success) {
-			wrap_error('Mail could not be sent. (To: '.str_replace('<', '&lt;', $mail['to']).', From: '
-				.str_replace('<', '&lt;', $mail['headers']['From']).', Subject: '.$mail['subject']
-				.', Parameters: '.$mail['parameters'].')', E_USER_NOTICE);
+			wrap_error([
+				'Mail could not be sent.', [
+					'data' => [
+						wrap_text('To') => str_replace('<', '&lt;', $mail['to']),
+						wrap_text('From') => str_replace('<', '&lt;', $mail['headers']['From']),
+						wrap_text('Subject') => $mail['subject'],
+						wrap_text('Parameters') => $mail['parameters'],
+					]
+				]
+			], E_USER_NOTICE);
 		}
 	}
 	if (wrap_setting('log_mail')) {
@@ -283,7 +290,10 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	// MX record is not obligatory, so use ANY
 	$exists = checkdnsrr($host[1], 'ANY');
 	if ($wait_ms = wrap_setting('mail_mx_check_wait_ms') AND microtime(true) - $time > $wait_ms / 1000) {
-		wrap_error('Checking DNS record took to long, so probably it is a timeout: '.$e_mail.' host:'.$host[1]);
+		wrap_error([
+			'Checking DNS record for host `%s` (e-mail: %s) took too long, so probably it is a timeout',
+			['values' => [$host[1], $e_mail]]
+		]);
 		$status = 'timeout';
 	} elseif ($exists) {
 		$status = 'valid';
@@ -373,7 +383,7 @@ function wrap_mail_phpmailer($msg, $list) {
 	if (!empty($msg['multipart'])) {
 		foreach ($msg['multipart']['files'] as $file) {
 			if (!file_exists($file['path_local'])) {
-				wrap_error('File not found. '.$file['path_local']);
+				wrap_error(['File `%s` not found', ['values' => [$file['path_local']]]]);
 				continue;
 			}
 			if ($file['disposition'] === 'inline')
@@ -421,7 +431,7 @@ function wrap_mail_phpmailer($msg, $list) {
 			}
 			// write to db that message was sent
 		} catch (Exception $e) {
-			wrap_error('Send mail with phpmailer failed. '.$mail->ErrorInfo);
+			wrap_error(['Send mail with phpmailer failed: %s', ['values' => [$mail->ErrorInfo]]]);
 			// Reset the connection to abort sending this message
 			// The loop will continue trying to send to the rest of the list
 			$mail->getSMTPInstance()->reset();
@@ -653,7 +663,7 @@ function wrap_mail_reply_to($headers) {
  */
 function wrap_mail_imap_extension() {
 	if (function_exists('imap_open')) return true;
-	wrap_error('PHP IMAP extension is not installed.', E_USER_WARNING);
+	wrap_error(['PHP IMAP extension is not installed.'], E_USER_WARNING);
 	return false;
 }
 

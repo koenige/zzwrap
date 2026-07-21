@@ -470,9 +470,9 @@ function wrap_set_hash($string, $key = 'secret_key', $period = 0) {
  */
 function wrap_base_convert($input, $frombase, $tobase) {
 	if ($frombase < 2 OR $tobase < 2)
-		wrap_error('At least one base is below 2, this is not allowed.', E_USER_ERROR);
+		wrap_error(['At least one base is below 2, this is not allowed.'], E_USER_ERROR);
 	elseif ($frombase > 62 OR $tobase > 62)
-		wrap_error('At least one base is above 62, this is not allowed.', E_USER_ERROR);
+		wrap_error(['At least one base is above 62, this is not allowed.'], E_USER_ERROR);
 
 	$all_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	$chars = substr($all_chars, 0, $frombase);

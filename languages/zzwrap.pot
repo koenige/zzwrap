@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-21 13:09+0000\n"
+"POT-Creation-Date: 2026-07-21 16:50+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -801,7 +801,7 @@ msgid "Method:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1186
+#: zzwrap/errorhandling.inc.php:1191
 msgid "IP:"
 msgstr ""
 
@@ -810,7 +810,7 @@ msgid "Browser:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1188
+#: zzwrap/errorhandling.inc.php:1193
 msgid "unknown"
 msgstr ""
 
@@ -909,7 +909,20 @@ msgstr ""
 msgid "not found"
 msgstr ""
 
-#: zzwrap/database.inc.php:544
+#: zzwrap/database.inc.php:275
+msgid "Warnings"
+msgstr ""
+
+#: zzwrap/database.inc.php:276
+#: zzwrap/database.inc.php:314
+msgid "SQL"
+msgstr ""
+
+#: zzwrap/database.inc.php:313
+msgid "Message"
+msgstr ""
+
+#: zzwrap/database.inc.php:560
 msgid "Fields <code>%s</code> are missing in SQL query"
 msgstr ""
 
@@ -925,20 +938,28 @@ msgstr ""
 msgid "Error on website"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:608
+#: zzwrap/errorhandling.inc.php:572
+msgid "URL"
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:573
+msgid "Script"
+msgstr ""
+
+#: zzwrap/errorhandling.inc.php:613
 msgid "Please try to find the content you were looking for from our <a href=\"%s\">main page</a>."
 msgstr ""
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php:720
+#: zzwrap/errorhandling.inc.php:725
 msgid "Unsupported server protocol (%s)"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1188
+#: zzwrap/errorhandling.inc.php:1193
 msgid "User agent:"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1190
+#: zzwrap/errorhandling.inc.php:1195
 msgid "Referring URL:"
 msgstr ""
 
@@ -1026,19 +1047,19 @@ msgid "1 year"
 msgstr ""
 
 # duration
-#: zzwrap/format.inc.php:638
+#: zzwrap/format.inc.php:639
 msgctxt "time"
 msgid "%s&nbsp;h"
 msgstr ""
 
 # duration
-#: zzwrap/format.inc.php:651
+#: zzwrap/format.inc.php:652
 msgctxt "time"
 msgid "%s–%s&nbsp;h"
 msgstr ""
 
 # Separator for time (hours:minutes)
-#: zzwrap/format.inc.php:669
+#: zzwrap/format.inc.php:670
 msgctxt "time"
 msgid "%s:%s"
 msgstr ""
@@ -1066,6 +1087,22 @@ msgstr ""
 
 #: zzwrap/install.inc.php:234
 msgid "The main user could not be created."
+msgstr ""
+
+#: zzwrap/mail.inc.php:142
+msgid "To"
+msgstr ""
+
+#: zzwrap/mail.inc.php:143
+msgid "From"
+msgstr ""
+
+#: zzwrap/mail.inc.php:144
+msgid "Subject"
+msgstr ""
+
+#: zzwrap/mail.inc.php:145
+msgid "Parameters"
 msgstr ""
 
 #: zzwrap/nav.inc.php:930
