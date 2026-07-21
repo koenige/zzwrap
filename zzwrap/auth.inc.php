@@ -447,7 +447,7 @@ function wrap_login_external($login) {
 				break;
 			case 'ldap':
 			default:
-				wrap_error(sprintf('Login via %s is currently not supported.', strtoupper($server['parameters']['type'])), E_USER_ERROR);
+				wrap_error(['Login via %s is currently not supported.', ['values' => [strtoupper($server['parameters']['type'])]]], E_USER_ERROR);
 		}
 	}
 	if ($data) {
@@ -486,7 +486,7 @@ function wrap_login_external_sync($data, $settings) {
 	];
 	$login_id = zzform_insert('logins', $values);
 	if (!$login_id)
-		wrap_error(sprintf('Unable to add external login for username %s and category ID %d', $data['username'], $settings['category_id']), E_USER_ERROR);
+		wrap_error(['Unable to add external login for username %s and category ID %d', ['values' => [$data['username'], $settings['category_id']]]], E_USER_ERROR);
 	return $login_id;
 }
 
@@ -722,7 +722,7 @@ function wrap_password_token($username = '', $secret_key = 'login_key') {
 /**
  * send a password reminder
  *
- * @param string $address E-Mail
+ * @param string $address e-mail
  * @param array $additional_data (optional)
  * @return bool
  */
@@ -733,10 +733,10 @@ function wrap_password_reminder($address, $additional_data = []) {
 	$sql = sprintf($sql, wrap_db_escape($address), wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
 	if (!$data) {
-		wrap_error(sprintf('A password was requested for e-mail %s, but there was no login in the database.', $address));
+		wrap_error(['A password was requested for e-mail %s, but there was no login in the database.', ['values' => [$address]]]);
 		return false;
 	} elseif (!$data['active']) {
-		wrap_error(sprintf('A password was requested for e-mail %s, but the login is disabled.', $address));
+		wrap_error(['A password was requested for e-mail %s, but the login is disabled.', ['values' => [$address]]]);
 		return false;
 	}
 	$data = array_merge($additional_data, $data);
@@ -811,9 +811,12 @@ function wrap_auth_form($login, $settings) {
 			]);
 	}
 	if ($status !== 200) {
-		wrap_error(sprintf('FORMAUTH login failed. Status %s, Headers %s, Data %s',
-			$status, json_encode($headers), json_encode($data)
-		));
+		wrap_error([
+			'FORMAUTH login failed. Status %s.', [
+				'values' => [$status],
+				'data' => [wrap_text('Headers') => $headers, wrap_text('Data') => $data]
+			]
+		]);
 		return [];
 	}
 	return json_decode($data, true);

@@ -407,7 +407,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 			if ($path !== NULL)
 				return $path;
 			if (empty($settings['testing']) AND empty($settings['hide_missing']))
-				wrap_error(wrap_text('No route found for `%s`.', ['values' => [$area]]), E_USER_WARNING);
+				wrap_error(['No route found for `%s`.', ['values' => [$area]]], E_USER_WARNING);
 			return NULL;
 		}
 	}
@@ -473,10 +473,10 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
  */
 function wrap_path_website($site, $area, $value = [], $settings = []) {
 	if (!$website_id = wrap_id('websites', $site)) {
-		wrap_error(wrap_text(
+		wrap_error([
 			'Calling for path `%s` for non-existent website `%s`.',
 			['values' => [$area, $site]]
-		));
+		]);
 		return NULL;
 	}
 

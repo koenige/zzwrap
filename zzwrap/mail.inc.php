@@ -614,7 +614,7 @@ function wrap_mail_queue_send() {
 }
 
 /**
- * use From: address as Reply-To: address, set From: to mailbox address
+ * use From address as Reply-To: address, set From: to mailbox address
  * for use with phpmailer and e. g. Exchange Online (which does not permit
  * sending from random addresses)
  *
@@ -625,7 +625,7 @@ function wrap_mail_reply_to($headers) {
 	if (!wrap_setting('mail_reply_to')) return $headers;
 	$e_mail = wrap_setting('own_e_mail');
 	if (!$e_mail)
-		wrap_error('System’s E-Mail address not set (setting `own_e_mail`).', E_USER_ERROR);
+		wrap_error(['System’s e-mail address not set (setting `own_e_mail`).'], E_USER_ERROR);
 
 	if (!is_array($headers['From'])) {
 		$from = [];
@@ -653,7 +653,7 @@ function wrap_mail_reply_to($headers) {
  */
 function wrap_mail_imap_extension() {
 	if (function_exists('imap_open')) return true;
-	wrap_error('IMAP extension for PHP not installed', E_USER_WARNING);
+	wrap_error('PHP IMAP extension is not installed.', E_USER_WARNING);
 	return false;
 }
 
@@ -723,10 +723,10 @@ function wrap_mail_mailbox_open() {
 	$mailbox = sprintf('{%s:%d/imap/ssl}INBOX', wrap_setting('mail_imap'), wrap_setting('mail_imap_port'));
 	$mbox = imap_open($mailbox, wrap_setting('mail_username'), wrap_setting('mail_password'));
 	if (!$mbox) {
-		wrap_error(wrap_text(
+		wrap_error([
 			'Unable to open mailbox %s (Server: %s)',
 			['values' => [wrap_setting('mail_username'), wrap_setting('mail_imap')]]
-		), E_USER_ERROR);
+		], E_USER_ERROR);
 	}
 	return $mbox;
 }

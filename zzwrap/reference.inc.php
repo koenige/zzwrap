@@ -26,7 +26,7 @@
  */
 function wrap_reference($name, $style = 'long', $lang = null) {
 	if (!in_array($style, ['long', 'short', 'all'], true)) {
-		wrap_error(wrap_text('Unknown reference style `%s` for `%s`.', ['values' => [$style, $name]]));
+		wrap_error(['Unknown reference style `%s` for `%s`.', ['values' => [$style, $name]]]);
 		return null;
 	}
 
@@ -116,17 +116,17 @@ function wrap_reference_all($name, $lang = null) {
 
 	$variables = wrap_reference_tsv_variables($name);
 	if (($variables['reference'] ?? '') !== '1') {
-		wrap_error(wrap_text(
+		wrap_error([
 			'Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`).',
 			['values' => [$name, $name]]
-		));
+		]);
 		$cache[$cache_key] = null;
 		return null;
 	}
 
 	$rows = wrap_tsv_parse($name);
 	if (!$rows) {
-		wrap_error(wrap_text('Reference `%s` is empty.', ['values' => [$name]]));
+		wrap_error(['Reference `%s` is empty.', ['values' => [$name]]]);
 		$cache[$cache_key] = null;
 		return null;
 	}

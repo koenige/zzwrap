@@ -736,7 +736,7 @@ function wrap_breadcrumbs_prepare($breadcrumbs) {
 					'url_path' => $matches[1]
 				];
 			} else {
-				wrap_error(wrap_text('Unable to parse this breadcrumb: %s', ['values' => [$breadcrumb]]));
+				wrap_error(['Unable to parse this breadcrumb: %s', ['values' => [$breadcrumb]]]);
 				$new[$index] = [
 					'html' => $breadcrumb
 				];
@@ -825,7 +825,7 @@ function wrap_nav_base() {
 }
 
 function wrap_get_top_nav_id($menu) {
-	wrap_error('@deprecated: Use `wrap_nav_top()` instead of `wrap_get_top_nav_id()`', E_USER_DEPRECATED);
+	wrap_error('Use `wrap_nav_top()` instead of `wrap_get_top_nav_id()`', E_USER_DEPRECATED);
 	return wrap_nav_top($menu);
 }
 

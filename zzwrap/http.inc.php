@@ -160,10 +160,10 @@ function wrap_http_value($key, $source = 'GET', $type = 'string') {
 	if (!isset($data[$key])) return null;
 	if (is_array($data[$key])) {
 		$var = '$_' . $source . "['" . $key . "']";
-		wrap_quit(400, wrap_text(
-			'This value sent via HTTP must not be an array. %s: %s',
+		wrap_quit(400, wrap_text([
+			'This value for %s sent via HTTP must not be an array: %s',
 			['values' => [$var, json_encode($data[$key])]]
-		));
+		]));
 	}
 	return wrap_type_convert($data[$key], $type);
 }
@@ -352,7 +352,7 @@ function wrap_http_localhost_ip() {
  */
 function wrap_http_anonymize_ip($ip, $anonymize_level) {
 	if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-		wrap_error(sprintf('Unknown IP Address: %s', $ip));
+		wrap_error(['Unknown IP Address: %s', ['values' => [$ip]]]);
 		return $ip;
 	}
 	if (!$anonymize_level) return $ip;
@@ -382,7 +382,7 @@ function wrap_http_anonymize_ip($ip, $anonymize_level) {
 			$parts = explode(':', $ip);
 		}
 	} else {
-		wrap_error(sprintf('Unknown IP Address: %s', $ip));
+		wrap_error(['Unknown IP Address: %s', ['values' => [$ip]]]);
 		return $ip;
 	}
 	for ($i = 0; $i < $anonymize_level; $i++)

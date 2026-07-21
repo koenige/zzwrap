@@ -58,7 +58,8 @@ function wrap_db_connect() {
 		wrap_db_connection($db);
 	} catch (Exception $e) {
 		wrap_db_connection(false);
-		wrap_error(sprintf('Error with database connection: %s', $e->getMessage()), E_USER_NOTICE, ['collect_start' => true]);
+		wrap_error_collect_start();
+		wrap_error(['Error with database connection: %s', ['values' => [$e->getMessage()]]], E_USER_NOTICE);
 	}
 	if (!wrap_db_connection()) return false;
 	mysqli_report(MYSQLI_REPORT_OFF);
@@ -159,7 +160,7 @@ function wrap_db_charset($charset = '') {
 	if (!$charset) {
 		$charset = wrap_setting('encoding_to_mysql_encoding['.wrap_setting('character_set').']');
 		if (!$charset) {
-			wrap_error(sprintf('No character set for %s found.', wrap_setting('character_set')), E_USER_NOTICE);
+			wrap_error(['No character set for %s found.', ['values' => [wrap_setting('character_set')]]], E_USER_NOTICE);
 			return;
 		}
 	}
@@ -703,7 +704,7 @@ function wrap_db_parents($id, $sql) {
 				// no infinite recursion please:
 				if (in_array($id, $ids)) {
 					// throw a notice because warnings might be sent via mail
-					wrap_error(sprintf('Infinite recursion in query %s with ID %d', $sql, $id), E_USER_NOTICE);
+					wrap_error(['Infinite recursion in query %s with ID %d', ['values' => [$sql, $id]]], E_USER_NOTICE);
 					break 2;
 				} else {
 					$ids[] = $id;
@@ -773,7 +774,10 @@ function wrap_db_escape($value) {
 	// should never happen, just during development
 	if (!$value AND $value !== '0' AND $value !== 0) return '';
 	if (is_array($value) OR is_object($value)) {
-		wrap_error(__FUNCTION__.'() - value is not a string: '.json_encode($value));
+		wrap_error([
+			'String expected, got %s.',
+			['values' => [gettype($value)], 'data' => $value]
+		]);
 		return '';
 	}
 	if (!wrap_db_connection()) {
@@ -1536,10 +1540,7 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 		$match = explode(' ', trim(strtolower($match)));
 		$value = wrap_setting($match[0]);
 		if (is_null($value))
-			wrap_error(sprintf(
-				'Unable to replace placeholder %s (%s)'
-				, $keyword, implode(': ', $match)
-			));
+			wrap_error(['Unable to replace placeholder %s (%s)', ['values' => [$keyword, implode(': ', $match)]]]);
 		return $value;
 	case 'table':
 		$match = explode(' ', trim(strtolower($match)));
@@ -1565,8 +1566,8 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 function wrap_check_db_connection() {
 	if (wrap_db_connection()) return true;
 	wrap_send_cache();
-	wrap_error(sprintf('No connection to SQL server. (Host: %s)', wrap_setting('hostname')), E_USER_ERROR);
-	wrap_error(false, false, ['collect_end' => true]);
+	wrap_error(['No connection to SQL server. (Host: %s)', ['values' => [wrap_setting('hostname')]]], E_USER_ERROR);
+	wrap_error_collect_end();
 	exit;
 }
 
@@ -1656,9 +1657,7 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 	case 'read':
 		if (!array_key_exists($identifier, $data[$table])) {
 			if ($action === 'read' AND $identifier)
-				wrap_error(sprintf(
-					'ID value for table `%s`, key `%s` not found.', $table, $identifier
-				));
+				wrap_error(['ID value for table `%s`, key `%s` not found.', ['values' => [$table, $identifier]]]);
 			return NULL;
 		}
 		return $data[$table][$identifier];
@@ -1693,7 +1692,7 @@ function wrap_id_read($table, $sql) {
 			$sql_table = wrap_edit_sql($sql, 'FROM', false, 'list');
 			if (!wrap_database_table_check($sql_table[0])) return [];
 		} else {
-			wrap_error(sprintf('Table %s is not supported by wrap_id()', $table));
+			wrap_error(['Table %s is not supported by wrap_id()', ['values' => [$table]]]);
 			return [];
 		}
 	}
@@ -2029,11 +2028,11 @@ function wrap_mysql_primary_key($table) {
 		$keys = wrap_db_fetch($sql, ['TABLE_NAME', 'ORDINAL_POSITION']);
 	}
 	if (!array_key_exists($table, $keys)) {
-		wrap_error(wrap_text('Primary Key for table %s was not found.', ['values' => [$table]]), E_USER_WARNING);
+		wrap_error(['Primary Key for table %s was not found.', ['values' => [$table]]], E_USER_WARNING);
 		return '';
 	}
 	if (count($keys[$table]) > 1) {
-		wrap_error(wrap_text('Primary Key for table %s spans over more than one field.', ['values' => [$table]]), E_USER_WARNING);
+		wrap_error(['Primary Key for table %s spans over more than one field.', ['values' => [$table]]], E_USER_WARNING);
 		return '';
 	}
 	

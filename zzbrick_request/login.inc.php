@@ -113,10 +113,7 @@ function mod_zzwrap_login($params, $settings = []) {
 				wrap_password_reminder($loginform['mail'], $settings['reminder_data'] ?? []);
 			} else {
 				$loginform['mail_invalid'] = true;
-				wrap_error(sprintf(
-					'Request for password with invalid e-mail address: %s (%s)',
-					$_POST['mail'], $loginform['name']
-				));
+				wrap_error(['Request for password with invalid e-mail address: %s (%s)', ['values' => [$_POST['mail'], $loginform['name']]]]);
 			}
 		} else {
 			$loginform['mail_missing'] = true;
@@ -194,7 +191,7 @@ function mod_zzwrap_login($params, $settings = []) {
 				$user_empty = true;
 			}
 			if ($user_empty) {
-				wrap_error(wrap_text('Login without username'), E_USER_NOTICE, [
+				wrap_error(['Login without username'], E_USER_NOTICE, [
 					'logfile_append' => wrap_error_msg(['HTTP_USER_AGENT'])
 				]);
 			} else {

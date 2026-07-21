@@ -42,7 +42,7 @@ function wrap_cache_resource($text = '', $existing_etag = '', $url = false, $hea
 	$cache = wrap_cache_filenames($url);
 	if (!file_exists($cache['domain'])) {
 		$success = wrap_mkdir($cache['domain']);
-		if (!$success) wrap_error(sprintf('Could not create cache directory %s.', $cache['domain']), E_USER_NOTICE);
+		if (!$success) wrap_error(['Could not create cache directory %s.', ['values' => [$cache['domain']]]], E_USER_NOTICE);
 	}
 	// URL with 'filename.ext/': both doc and head are false
 	if (!$cache['url'] and !$cache['headers']) return NULL;
@@ -356,7 +356,7 @@ function wrap_send_cache($age = 0, $log_error = true) {
 	// Log if cached version is used because there's no connection to database
 	if (!wrap_db_connection() AND !$age) {
 		wrap_error('No connection to SQL server. Using cached file instead.', E_USER_NOTICE);
-		wrap_error(false, false, ['collect_end' => true]);
+		wrap_error_collect_end();
 	}
 	
 	// is it a cached redirect? that's it. exit.
@@ -485,7 +485,7 @@ function wrap_cache_get_header($file, $type, $send = false) {
 		$headers = explode("\r\n", $headers);
 	}
 	if (!$headers) {
-		wrap_error(sprintf('Cache file for headers has no content (%s)', $file), E_USER_NOTICE);
+		wrap_error(['Cache file `%s` for headers has no content', ['values' => [$file]]], E_USER_NOTICE);
 		return '';
 	}
 	$value = '';
@@ -551,10 +551,10 @@ function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 				$extension = wrap_file_extension($last_path);
 				if (wrap_filetypes($extension, 'check-per-extension')) {
 					if (file_exists(substr($file, 0, -1))) return false;
-					if ($log_error) wrap_error(wrap_text(
+					if ($log_error) wrap_error([
 						'Caching for URL %s disabled, looks like filename with / at the end?',
 						['values' => wrap_setting('request_uri')]
-					), E_USER_NOTICE);
+					], E_USER_NOTICE);
 					return false;
 				}
 			}
@@ -565,7 +565,7 @@ function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 	}
 	if (!empty($url['query'])) $file .= urlencode('?'.$url['query']);
 	if (strlen(basename($file)) > (255 - 8)) {
-		if ($log_error) wrap_error(sprintf('Cache filename too long, caching disabled: %s', $file), E_USER_NOTICE);
+		if ($log_error) wrap_error(['Cache filename `%s` too long, caching disabled', ['values' => [$file]]], E_USER_NOTICE);
 		return false;
 	}
 	if ($type === 'url') {

@@ -553,7 +553,7 @@ function wrap_errorpage($page = []) {
 	}
 	$status = wrap_http_status_list($page['status']);
 	if (!$status) {
-		wrap_error(sprintf('Status %s is not a valid HTTP status code.', $page['status']), E_USER_NOTICE);
+		wrap_error(['Status %s is not a valid HTTP status code.', ['values' => [$page['status']]]], E_USER_NOTICE);
 		$page['status'] = 404;
 		$status = wrap_http_status_list($page['status']);
 	}
@@ -738,7 +738,7 @@ function wrap_error_ignore($status, $string = false) {
 	foreach ($ignores[$status] as $line) {
 		if (array_key_exists('_package', $line)) unset($line['_package']);
 		if (count($line) !== 3) {
-			wrap_error(sprintf('File %s is wrong in line %s.', $file, implode(' ', $line)), E_USER_NOTICE);
+			wrap_error(['File %s is wrong in line %s.', ['values' => [$file, implode(' ', $line)]]], E_USER_NOTICE);
 			continue;
 		}
 		switch ($line['type']) {
@@ -804,7 +804,7 @@ function wrap_error_ignore($status, $string = false) {
 			}
 			break;
 		default:
-			wrap_error(sprintf('Case %s in line %s not supported.', $line['type'], implode(' ', $line)), E_USER_NOTICE);
+			wrap_error(['Case %s in line %s not supported.', ['values' => [$line['type'], implode(' ', $line)]]], E_USER_NOTICE);
 		}
 	}
 	return false;
@@ -829,10 +829,10 @@ function wrap_errorpage_logignore() {
 
 	if (!empty($_SERVER['SERVER_NAME'])) {
 		if (!in_array(strtolower(wrap_url_dev_remove($_SERVER['SERVER_NAME'])), wrap_error_hostnames())) {
-			wrap_error(wrap_text(
+			wrap_error([
 				'The server responds to the hostname %s, but this is not in the list of possible hostnames.',
 				['values' => $_SERVER['SERVER_NAME']]
-			));
+			]);
 			return true;
 		}
 	}
@@ -1072,7 +1072,7 @@ function wrap_log($line, $level = 'notice', $module = '', $file = false) {
 	if (!$user) $user = 'unknown'; // forwared connections from localhost
 	if (is_array($user)) {
 		// @todo avoid this earlier on
-		wrap_error('Username must be string. '.json_encode($user));
+		wrap_error(['Username must be string.', ['data' => $user]]);
 		$user = 'unknown';
 	}
 	$line = sprintf('[%s] %s %s: %s'

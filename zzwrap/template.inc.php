@@ -122,7 +122,7 @@ function wrap_template_file($template, $show_error = true) {
 		elseif (in_array($parts[0], ['layout', 'behaviour']))
 			$tpl['folder'] = $parts[0];
 		elseif ($parts[0] AND $parts[0] !== '.')
-			wrap_error(wrap_text('Template name %s not valid.', ['values' => [$template]]));
+			wrap_error(['Template name %s not valid.', ['values' => [$template]]]);
 		break;
 	}
 

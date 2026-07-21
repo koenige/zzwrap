@@ -50,10 +50,10 @@ function wrap_setting($key, $value = NULL, $login_id = NULL) {
 function wrap_setting_add($key, $value) {
 	if (!$value && $value !== '0' && $value !== 0) return;
 	if (!is_array(wrap_setting($key)))
-		wrap_error(sprintf(
-			'Unable to add value %s to key %s, it is not an array.'
-			, $key, json_encode($value)), E_USER_WARNING
-		);
+		wrap_error([
+			'Unable to add value %s to key, it is not an array.',
+			['values' => [$key], 'data' => $value]
+		], E_USER_WARNING);
 
 	$existing = wrap_setting($key);
 	if (is_array($value))
@@ -294,9 +294,7 @@ function wrap_setting_log_missing($key, $cfg) {
 		if (in_array($package, $ignore_packages)) return;
 	}
 
-	wrap_error(sprintf(
-		'Setting `%s` not found in settings.cfg files.', $base_key
-	), E_USER_NOTICE);
+	wrap_error(['Setting `%s` not found in settings.cfg files.', ['values' => [$base_key]]], E_USER_NOTICE);
 }
 
 /**
@@ -362,10 +360,7 @@ function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
 		return true;
 	}
 
-	wrap_error(sprintf(
-		wrap_text('Could not change setting. Key: %s, value: %s, login: %s'),
-		wrap_html_escape($key), wrap_html_escape($value), $login_id
-	));	
+	wrap_error(['Could not change setting. Key: %s, value: %s, login: %s', ['values' => [wrap_html_escape($key), wrap_html_escape($value), $login_id]]]);	
 	return false;
 }
 
@@ -495,7 +490,7 @@ function wrap_setting_key($key, $value, $settings = []) {
 			$settings[$keys[0]][$keys[1]][$keys[2]][$keys[3]] = $value;
 			break;
 		default:
-			wrap_error(sprintf('Too many arrays in %s, not implemented.', $key), E_USER_ERROR);
+			wrap_error(['Too many arrays in %s, not implemented.', ['values' => [$key]]], E_USER_ERROR);
 	}
 	return $settings;
 }
@@ -520,7 +515,7 @@ function wrap_setting_key_read($source, $key) {
 		case 4:
 			return $source[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? NULL;
 		default:
-			wrap_error(sprintf('Too many arrays in %s, not implemented.', $key), E_USER_ERROR);
+			wrap_error(['Too many arrays in %s, not implemented.', ['values' => [$key]]], E_USER_ERROR);
 	}
 }
 
@@ -711,9 +706,7 @@ function wrap_setting_register($config) {
 				$zz_setting[$key] = $value;
 			else {
 				if (!is_array($value)) {
-					wrap_error(sprintf(
-						'Value for setting %s must be an array: %s', $skey, $value
-					), E_USER_WARNING);
+					wrap_error(['Value for setting %s must be an array: %s', ['values' => [$skey, $value]]], E_USER_WARNING);
 					$value = [$value];
 				}
 				$zz_setting[$key] = array_merge_recursive($zz_setting[$key], $value);

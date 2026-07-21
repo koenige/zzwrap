@@ -27,13 +27,13 @@ function wrap_data($table, $data, $settings = []) {
 
 	$files = wrap_include('data/'.$table);
 	if (!$files)
-		wrap_error(sprintf('No data function found for `%s`.', $table), E_USER_ERROR);
+		wrap_error(['No data function found for `%s`.', ['values' => [$table]]], E_USER_ERROR);
 
 	$data_function = NULL;
 	$finalize_function = NULL;
 	foreach ($files['functions'] as $function) {
 		if (!array_key_exists('short', $function)) {
-			wrap_error(sprintf('Function `%s` uses not recommended naming scheme', $function['function']));
+			wrap_error(['Function `%s` uses not recommended naming scheme', ['values' => [$function['function']]]]);
 			continue;
 		}
 		if ($function['package'] === $table AND $function['short'] === 'data')
@@ -46,7 +46,7 @@ function wrap_data($table, $data, $settings = []) {
 			$finalize_function = $function['function'];
 	}
 	if (!$data_function)
-		wrap_error(sprintf('No data function found for `%s`.', $table), E_USER_ERROR);
+		wrap_error(['No data function found for `%s`.', ['values' => [$table]]], E_USER_ERROR);
 
 	// (optional, if key does not equal primary key)
 	$id_field_name = $settings['id_field_name'] ?? NULL;

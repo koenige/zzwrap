@@ -32,10 +32,10 @@
 function wrap_send_file($file) {
 	if (is_dir($file['name'])) {
 		if (wrap_setting('cache')) wrap_cache_delete(404);
-		wrap_error(wrap_text(
+		wrap_error([
 			'Unable to send file: %s is a folder, not a file.',
 			['values' => [$file['name']]]
-		));
+		]);
 		wrap_quit(503);
 	}
 	if (!file_exists($file['name'])) {
@@ -47,10 +47,10 @@ function wrap_send_file($file) {
 		}
 		wrap_send_file_cleanup($file);
 		if (wrap_setting('cache')) wrap_cache_delete(404);
-		wrap_error(wrap_text(
+		wrap_error([
 			'Unable to send file: %s does not exist',
 			['values' => [$file['name']]]
-		));
+		]);
 		wrap_quit(404);
 	}
 	if (wrap_url('redirect')) {
@@ -378,7 +378,7 @@ function wrap_send_resource($type, $content, $etag_header = []) {
 				}
 				fclose($handle);
 			} else {
-				wrap_error(wrap_text('Unable to open file %s', ['values' => [$content['name']]]), E_USER_ERROR);
+				wrap_error(['Unable to open file %s', ['values' => [$content['name']]]], E_USER_ERROR);
 			}
 		} else {
 			readfile($content['name']);
@@ -586,7 +586,9 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 				$new = wrap_glue_url(wrap_url());
 				wrap_setting('base', $old_base); // keep old base for caching
 			} elseif (is_array($page['redirect'])) {
-				wrap_error(sprintf('Redirect to array not supported: %s', json_encode($page['redirect'])));
+				wrap_error([
+					'Redirect to array not supported.', ['data' => $page['redirect']]
+				]);
 			} else {
 				$new = $page['redirect'];
 			}
@@ -742,9 +744,9 @@ function wrap_log_uri($status = 0) {
 		);
 		wrap_db_query($sql, E_USER_NOTICE);
 	} elseif (strlen($path) >= 128) {
-		wrap_error(sprintf('URI path too long: %s', $path));
+		wrap_error(['URI path too long: %s', ['values' => [$path]]]);
 	} else {
-		wrap_error(sprintf('URI query too long: %s', $query));
+		wrap_error(['URI query too long: %s', ['values' => [$query]]]);
 	}
 	return true;
 }

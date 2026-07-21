@@ -440,13 +440,10 @@ function wrap_text_values_format($format, $values, $key) {
 		if ($values_json === false) {
 			$values_json = '(json_encode failed)';
 		}
-		wrap_error(sprintf(
+		wrap_error([
 			'wrap_text_values(): %d sprintf placeholder(s) in translation for key %s but only %d value(s) given; values: %s',
-			$placeholders,
-			$key,
-			count($values),
-			$values_json
-		));
+			['values' => [$placeholders, $key, count($values), $values_json]]
+		]);
 		return $format;
 	}
 	return vsprintf($format, $values);
@@ -770,7 +767,10 @@ function wrap_translate_po($map, $data, $target_language, $foreign_key_field_nam
 	
 	foreach ($map as $target => $source) {
 		if (strpos($source, '.') === false) {
-			wrap_error('Cannot parse translation map: '.json_encode(['target' => $target, 'source' => $source]));
+			wrap_error([
+				'Cannot parse translation map.',
+				['data' => ['target' => $target, 'source' => $source]]
+			]);
 			continue;
 		}
 		$source = explode('.', $source);
@@ -1377,7 +1377,7 @@ function wrap_text_log($string, $source = '', $translate_pot = '', $context = ''
 			// get last item
 			$log = wrap_file_package($calls[$index - 1]['file']);
 			if (!$log) {
-				wrap_error('Unable to determine translation log: '.json_encode($call));
+				wrap_error(['Unable to determine translation log.', ['data' => $call]]);
 				return false;
 			}
 			$log['line'] = $calls[$index - 1]['line'];

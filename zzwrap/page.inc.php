@@ -163,9 +163,9 @@ function wrap_page_title($page) {
 		} elseif ($page['status'] !== 200) {
 			$status = wrap_http_status_list($page['status']);
 			if (!array_key_exists('text', $status))
-				wrap_error(wrap_text('No text line for HTTP status %d found.',
+				wrap_error(['No text line for HTTP status %d found.',
 					['values' => [$page['status']]]
-				));
+				]);
 			$page['title'] = $status['text'];
 		} else {
 			// no page title, e. g. JS file or other
@@ -202,7 +202,7 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 
 	if (!empty($page['error']['level'])) {
 		if (empty($page['error']['_msg'])) {
-			wrap_error(wrap_text('zzbrick returned with an error. Sorry, that’s all we know.'), $page['error']['level']);
+			wrap_error(['zzbrick returned with an error. Sorry, that’s all we know.'], $page['error']['level']);
 		} else {
 			wrap_error(wrap_text_msg($page['error']), $page['error']['level']);
 		}
@@ -212,15 +212,15 @@ function wrap_page_check_if_error($page, $scope = 'page') {
 			// allow 403 from variables that are used as templates, i. e. only hidden results
 			$page['status'] = 200;
 		} elseif ($scope === 'template') {
-			wrap_error(wrap_text(
+			wrap_error([
 				'An error occurred while filling the template %s. Status code %d',
 				['values' => [wrap_setting('current_template'), $page['status']]]
-			), E_USER_WARNING);
+			], E_USER_WARNING);
 		} elseif (!in_array($page['status'], [403, 404, 410])) {
-			wrap_error(wrap_text(
+			wrap_error([
 				'An error occurred while creating the resource %s. Status code %d',
 				['values' => [wrap_setting('request_uri'), $page['status']]]
-			), E_USER_WARNING);
+			], E_USER_WARNING);
 		}
 	}
 	if ($page['status'] != 200) {
@@ -597,7 +597,7 @@ function wrap_check_blocks($template) {
 		$block = substr($block, 11);
 		$block = trim(substr($block, 0, strpos($block, '%%%')));
 		if (in_array($block, $includes)) {
-			wrap_error(wrap_text('Template %s includes itself', ['values' => [$block]]), E_USER_ERROR);
+			wrap_error(['Template %s includes itself', ['values' => [$block]]], E_USER_ERROR);
 		} else {
 			$includes[] = $block;
 			$blocks = array_merge($blocks, wrap_check_blocks($block));

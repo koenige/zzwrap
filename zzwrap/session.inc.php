@@ -50,7 +50,7 @@ function wrap_session_start() {
 		$session_error = wrap_error_handler('last_error');
 		if ($last_error != $session_error
 			AND str_starts_with($session_error['message'], 'session_start()')) {
-			wrap_error('Session start not possible: '.json_encode($session_error));
+			wrap_error(['Session start not possible.', ['data' => $session_error]]);
 			wrap_quit(503, wrap_text('Temporarily, a login is not possible.'));
 		}
 	}
@@ -234,7 +234,7 @@ function wrap_session_cookie_injection($session_name) {
 		wrap_quit(400, 'Don’t crumble my cookies.');
 	}
 	if (!preg_match('/^[A-Za-z0-9-,]+$/', $_COOKIE[$session_name])) {
-		wrap_error(sprintf('Illegal session cookie value found: %s', $_COOKIE[$session_name]), E_USER_NOTICE);
+		wrap_error(['Illegal session cookie value found: %s', ['values' => [$_COOKIE[$session_name]]]], E_USER_NOTICE);
 		unset($_COOKIE[$session_name]);
 	}
 }

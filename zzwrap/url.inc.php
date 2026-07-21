@@ -398,11 +398,7 @@ function wrap_url_canonical($page) {
 				$wrong_qs[] = $qs_key_value;
 		}
 		if ($wrong_qs)
-			wrap_error(sprintf('Wrong URL: query string %s [%s], Referer: %s'
-				, implode('&', $wrong_qs)
-				, wrap_setting('request_uri')
-				, $_SERVER['HTTP_REFERER'] ?? '--'
-			), E_USER_NOTICE);
+			wrap_error(['Wrong URL: query string %s [%s], Referer: %s', ['values' => [implode('&', $wrong_qs), wrap_setting('request_uri'), $_SERVER['HTTP_REFERER'] ?? '--']]], E_USER_NOTICE);
 
 		wrap_url('query', http_build_query($params));
 	}

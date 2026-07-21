@@ -302,7 +302,7 @@ function wrap_conditions($config, $detail) {
 			$data[$key] = wrap_db_fetch($sql);
 			$data[$key] = wrap_parameters($data[$key]);
 		} else {
-			wrap_error(sprintf('No query for %s found.', $keys[0]));
+			wrap_error(['No query for %s found.', ['values' => [$keys[0]]]]);
 		}
 	}
 
@@ -511,15 +511,15 @@ function wrap_base_convert($input, $frombase, $tobase) {
 function wrap_restrict_ip_access($ip_list) {
 	$ip_list = wrap_setting($ip_list);
 	if ($ip_list === NULL) {
-		wrap_error(wrap_text('List of allowed IPs not found in configuration (%s).',
-			 ['values' => $ip_list]), E_USER_NOTICE);
+		wrap_error(['List of allowed IPs not found in configuration (%s).',
+			 ['values' => $ip_list]], E_USER_NOTICE);
 		wrap_quit(403);
 	}
 	if (!is_array($ip_list)) $ip_list = [$ip_list];
 	$remote_ip = wrap_http_remote_ip();
 	if (!wrap_http_ip_in_list($remote_ip, $ip_list)) {
-		wrap_error(wrap_text('Your IP address %s is not in the allowed range.',
-			 ['values' => wrap_html_escape($remote_ip)]), E_USER_NOTICE);
+		wrap_error(['Your IP address %s is not in the allowed range.',
+			 ['values' => wrap_html_escape($remote_ip)]], E_USER_NOTICE);
 		wrap_quit(403);
 	}
 	return true;

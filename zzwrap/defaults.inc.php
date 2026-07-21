@@ -647,7 +647,7 @@ function wrap_defaults_post_conf() {
 	if (!is_dir(wrap_setting('tmp_dir'))) {
 		$success = wrap_mkdir(wrap_setting('tmp_dir'));
 		if (!$success) {
-			wrap_error(sprintf('Temp directory %s does not exist.', wrap_setting('tmp_dir')));
+			wrap_error(['Temp directory %s does not exist.', ['values' => [wrap_setting('tmp_dir')]]]);
 			wrap_setting('tmp_dir', false);
 			if ($dir = ini_get('upload_tmp_dir')) {
 				if ($dir AND is_dir($dir)) wrap_setting('tmp_dir', $dir);
@@ -703,8 +703,7 @@ function wrap_tests() {
 	// check if cache directory exists
 	if (wrap_setting('cache')) {
 		if (!file_exists(wrap_setting('cache_dir'))) {
-			wrap_error(sprintf('Cache directory %s does not exist. Caching disabled.', 
-				wrap_setting('cache_dir')), E_USER_WARNING);
+			wrap_error(['Cache directory %s does not exist. Caching disabled.', ['values' => [wrap_setting('cache_dir')]]], E_USER_WARNING);
 			wrap_setting('cache', false);
 		}
 		// @todo not is writable

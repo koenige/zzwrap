@@ -64,7 +64,7 @@ function wrap_url_expand($url = false) {
 			$request_path = substr($request_path, 0, strrpos($request_path, '/'));
 			$request_path = substr($request_path, 0, strrpos($request_path, '/') + 1);
 			if (!$request_path) {
-				wrap_error(wrap_text('Wrong relative path: %s', ['values' => $url]));
+				wrap_error(['Wrong relative path: %s', ['values' => $url]]);
 				$request_path = '/';
 			}
 		}
@@ -304,9 +304,7 @@ function wrap_hierarchy($data, $main_field_name, $top_id = 'NULL') {
  */
 function wrap_hierarchy_recursive($indexed_by_main, $top_id, $level = 0) {
 	if (!array_key_exists($top_id, $indexed_by_main)) {
-		wrap_error(sprintf(
-			'Creating hierarchy impossible because ID %d is not part of the given list'
-			, $top_id)
+		wrap_error(['Creating hierarchy impossible because ID %d is not part of the given list', ['values' => [$top_id]]]
 		);
 		return [];
 	}
@@ -358,7 +356,7 @@ function wrap_mkdir($folder) {
 		if (!file_exists($current_folder)) {
 			$success = mkdir($current_folder);
 			if (!$success) {
-				wrap_error(sprintf('Unable to create folder %s.', $current_folder), E_USER_WARNING);
+				wrap_error(['Unable to create folder %s.', ['values' => [$current_folder]]], E_USER_WARNING);
 				return false;
 			}
 			$created[] = $current_folder;
@@ -366,7 +364,7 @@ function wrap_mkdir($folder) {
 		// check if folder is a folder, not a file
 		// might happen e. g. in caching for non-existing URLs with paths below non-existing URLs
 		if (!is_dir($current_folder)) {
-			wrap_error(sprintf('Unable to create folder %s.', $current_folder), E_USER_WARNING);
+			wrap_error(['Unable to create folder %s.', ['values' => [$current_folder]]], E_USER_WARNING);
 			return false;
 		}
 	}
@@ -457,7 +455,7 @@ function wrap_filetypes($filetype = false, $action = 'read', $definition = []) {
 		}
 		if (count($found) === 1) return $filetypes[$found[0]];
 		if ($action === 'read-per-extension')
-			wrap_error(sprintf('Cannot determine filetype by extension: `%s`', $filetype));
+			wrap_error(['Cannot determine filetype by extension: `%s`', ['values' => [$filetype]]]);
 		break;
 	case 'write':
 		// @todo not yet supported
@@ -505,7 +503,7 @@ function wrap_filetypes_init() {
 	// support changes via settings, too, e. g. filetypes[m4v][multipage_thumbnail_frame] = 50
 	foreach (wrap_setting('filetypes') as $filetype => $config)
 		if (!array_key_exists($filetype, $filetypes))
-			wrap_error(sprintf('No filetype `%s` exists.', $filetype));
+			wrap_error(['No filetype `%s` exists.', ['values' => [$filetype]]]);
 		else $filetypes[$filetype] = wrap_array_merge($filetypes[$filetype], $config);
 	$filetypes = wrap_filetypes_array($filetypes);
 	return $filetypes;

@@ -57,7 +57,7 @@ function wrap_syndication($url, $settings = []) {
 		}
 	}
 	if (!$data) {
-		wrap_error(false, false, ['collect_start' => true]);
+		wrap_error_collect_start();
 		$headers_to_send = $settings['headers_to_send'] ?? [];
 		if ($etag) $headers_to_send[] = 'If-None-Match: "'.$etag.'"';
 		if ($last_modified) $headers_to_send[] = 'If-Modified-Since: '.$last_modified;
@@ -98,10 +98,7 @@ function wrap_syndication($url, $settings = []) {
 		case 307:
 			$data = NULL;
 			$syndication_error_code = $settings['error_code'] ?? wrap_setting('syndication_error_code');
-			wrap_error(sprintf(
-				'Syndication from URL %s failed with redirect status code %s. Use URL %s instead.',
-				$url, $status, wrap_syndication_http_header('Location', $headers)
-			), $syndication_error_code);
+			wrap_error(['Syndication from URL %s failed with redirect status code %s. Use URL %s instead.', ['values' => [$url, $status, wrap_syndication_http_header('Location', $headers)]]], $syndication_error_code);
 			break;
 		case 404:
 			$data = [];
@@ -110,23 +107,17 @@ function wrap_syndication($url, $settings = []) {
 			if (!empty($cache['url']) AND file_exists($cache['url'])) {
 				// connection error, use (possibly stale) cache file
 				$data = file_get_contents($cache['url']);
-				wrap_error(sprintf(
-					'Syndication from URL %s failed. Status code %s. Using cached file instead.',
-					$url, $status
-				), E_USER_NOTICE);
+				wrap_error(['Syndication from URL %s failed. Status code %s. Using cached file instead.', ['values' => [$url, $status]]], E_USER_NOTICE);
 				if (wrap_setting('cache'))
 					$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			} else {
 				$data = NULL;
 				$syndication_error_code = $settings['error_code'] ?? wrap_setting('syndication_error_code');
-				wrap_error(sprintf(
-					'Syndication from URL %s failed. Status code %s.',
-					$url, $status
-				), $syndication_error_code);
+				wrap_error(['Syndication from URL %s failed. Status code %s.', ['values' => [$url, $status]]], $syndication_error_code);
 			}
 			break;
 		}
-		wrap_error(false, false, ['collect_end' => true]);
+		wrap_error_collect_end();
 	}
 
 	if (!$data) return [];
@@ -138,7 +129,7 @@ function wrap_syndication($url, $settings = []) {
 			// so convert it into an array
 			$object = json_decode('['.$data.']', true);
 			if (!$object)
-				wrap_error(sprintf('Syndication: Cannot convert JSON data %s', $data), E_USER_ERROR);
+				wrap_error(['Syndication: Cannot convert JSON data %s', ['values' => [$data]]], E_USER_ERROR);
 			// convert it back to a string
 			if (count($object) == 1 AND isset($object[0]))
 				$object = $object[0];
@@ -279,7 +270,7 @@ function wrap_syndication_geocode($address, $error_check = true) {
 	if (!$geocoders) return false;
 	foreach ($geocoders as $geocoder) {
 		if (!array_key_exists($geocoder, $urls)) {
-			wrap_error(sprintf('Geocoder %s not supported.', $geocoder), E_USER_WARNING);
+			wrap_error(['Geocoder %s not supported.', ['values' => [$geocoder]]], E_USER_WARNING);
 			return false;
 		}
 		foreach ($add as $index => $add_values) {
@@ -327,12 +318,11 @@ function wrap_syndication_geocode($address, $error_check = true) {
 			}
 			break;
 		default:
-			wrap_error(sprintf('%s is not supported for geocoding.', $gc['geocoder']));
+			wrap_error(['%s is not supported for geocoding.', ['values' => [$gc['geocoder']]]]);
 			break;
 		}
 		if (!$success) {
-			wrap_error(sprintf('Syndication from %s failed with status %s. %s',
-				$gc['geocoder'], $coords['status'], $url));
+			wrap_error(['Syndication from %s failed with status %s. %s', ['values' => [$gc['geocoder'], $coords['status'], $url]]]);
 			continue;
 		}
 
@@ -602,7 +592,7 @@ function wrap_syndication_http_request($url, $settings = []) {
 		if ($timeout_ignore) {
 			if (wrap_setting('debug')) {
 				$info = curl_getinfo($ch);
-				wrap_error('JSON '.json_encode($info));
+				wrap_error(['cURL getinfo()', ['data' => $info]]);
 			}
 			// we don't know what happened but can't check it
 			$status = 200;
@@ -619,21 +609,15 @@ function wrap_syndication_http_request($url, $settings = []) {
 					elseif (str_starts_with($header_to_send, 'If-Modified-Since:'))
 						$syndication_error_code = E_USER_NOTICE;
 				}
-				wrap_error(sprintf(
-					'Syndication from URL %s failed. Reason: %s',
-					$url, $curl_error
-				), $syndication_error_code);
+				wrap_error(['Syndication from URL %s failed. Reason: %s', ['values' => [$url, $curl_error]]], $syndication_error_code);
 			}
 		}
 		if ($status === 200 AND !$data AND !$timeout_ignore) {
 			$info = curl_getinfo($ch);
 			if ($info['download_content_length'] > $info['size_download']) {
-				wrap_error(sprintf(
-					'cURL incomplete download, URL %s: total %s, received %s'
-					, $url, $info['download_content_length'], $info['size_download']
-				));
+				wrap_error(['cURL incomplete download, URL %s: total %s, received %s', ['values' => [$url, $info['download_content_length'], $info['size_download']]]]);
 			} else {
-				wrap_error(sprintf('cURL error, URL %s: %s', $url, json_encode($info)));
+				wrap_error(['cURL error, URL %s', ['values' => [$url], 'data' => $info]]);
 			}
 		}
 		if (!$timeout_ignore) {
@@ -922,10 +906,7 @@ function wrap_lock_wait($realm, $sec, $max_seconds = null) {
 	$started = time();
 	while (wrap_lock($realm, 'wait', $sec)) {
 		if (time() - $started >= $max_seconds) {
-			wrap_error(sprintf(
-				'wrap_lock_wait(%s, %d) gave up after %d seconds',
-				$realm, $sec, time() - $started
-			), E_USER_NOTICE);
+			wrap_error(['wrap_lock_wait(%s, %d) gave up after %d seconds', ['values' => [$realm, $sec, time() - $started]]], E_USER_NOTICE);
 			return false;
 		}
 		sleep($sec);
@@ -1107,18 +1088,12 @@ function wrap_watchdog_move_ftp($source, $destination) {
 	$url = parse_url($destination);
 	$ftp_stream = ftp_connect($url['host'], $url['port'] ?? 21);
 	if (!$ftp_stream) {
-		wrap_error(sprintf(
-			'FTP: Failed to connect to %s (Port: %d)',
-			$url['host'], $url['port'] ?? 21
-		));
+		wrap_error(['FTP: Failed to connect to %s (Port: %d)', ['values' => [$url['host'], $url['port'] ?? 21]]]);
 		return false;
 	}
 	$success = ftp_login($ftp_stream, $url['user'], $url['pass']);
 	if (!$success) {
-		wrap_error(sprintf(
-			'FTP: Failed login to %s (User: %s, Password: %s)',
-			$url['host'], $url['user'], $url['pass']
-		));
+		wrap_error(['FTP: Failed login to %s (User: %s, Password: %s)', ['values' => [$url['host'], $url['user'], $url['pass']]]]);
 		return false;
 	}
 	$dir = dirname($url['path']);
@@ -1134,19 +1109,13 @@ function wrap_watchdog_move_ftp($source, $destination) {
 		}
 	}
 	if (!$success) {
-		wrap_error(sprintf(
-			'FTP: Directory was not changed to %s',
-			dirname($url['path'])
-		));
+		wrap_error(['FTP: Directory was not changed to %s', ['values' => [dirname($url['path'])]]]);
 		return false;
 	}
 	ftp_pasv($ftp_stream, true);
 	$upload = ftp_put($ftp_stream, basename($url['path']), $source, FTP_BINARY);
 	if (!$upload) {
-		wrap_error(sprintf(
-			'FTP: Upload local file %s to remote file %s failed',
-			$source, basename($url['path'])
-		));
+		wrap_error(['FTP: Upload local file %s to remote file %s failed', ['values' => [$source, basename($url['path'])]]]);
 		return false;
 	}
 	ftp_close($ftp_stream);
@@ -1165,10 +1134,7 @@ function wrap_watchdog_move_file($source, $destination, $function) {
 	wrap_mkdir(dirname($destination));
 	$success = $function($source, $destination);
 	if (!$success) {
-		wrap_error(sprintf(
-			'It was not possible to %s file %s to file %s',
-			$function, $source, $destination
-		));
+		wrap_error(['It was not possible to %s file %s to file %s', ['values' => [$function, $source, $destination]]]);
 		return false;
 	}
 	return true;

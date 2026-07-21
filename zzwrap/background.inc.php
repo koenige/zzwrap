@@ -33,7 +33,10 @@ function wrap_job($url, $data = []) {
 	else
 		list($status, $headers, $response) = wrap_get_protected_url($path, [], 'POST', $data);
 	if ($status === 200) return true;
-	wrap_error(sprintf('Job with URL %s failed. (Status: %d, Headers: %s)', $url, $status, json_encode($headers)));
+	wrap_error([
+		'Job with URL %s failed. (Status: %d)',
+		['values' => [$url, $status], 'data' => [wrap_text('Headers') => $headers]]
+	]);
 	return false;
 }
 
@@ -251,7 +254,7 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
 function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = [], $username = false) {
 	if (!$url) {
 		$caller = debug_backtrace()[1];
-		wrap_error(sprintf('Empty URL given to wrap_get_protected_url(), function: %s', $caller['function']), E_USER_WARNING);
+		wrap_error(['Empty URL given to wrap_get_protected_url(), function: %s', ['values' => [$caller['function']]]], E_USER_WARNING);
 		return [false, false, false];
 	}
 	$username = wrap_username($username, false);

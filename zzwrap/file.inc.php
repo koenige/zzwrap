@@ -154,7 +154,7 @@ function wrap_file_package($filename) {
 		$prefix_len = strlen(wrap_setting('custom'))
 			- strlen(substr(wrap_setting('custom'), strrpos(wrap_setting('custom'), '/')));
 	} else {
-		wrap_error(sprintf('Unable to determine which file this package belongs to: %s', $filename));
+		wrap_error(['Unable to determine which file this package belongs to: %s', ['values' => [$filename]]]);
 		return [];
 	}
 	$filename = substr($filename, $prefix_len + 1);

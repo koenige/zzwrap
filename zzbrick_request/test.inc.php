@@ -33,7 +33,7 @@ function mod_zzwrap_test($params, $settings = []) {
 	
 	$json = json_decode(file_get_contents($functions[$data['function']]['file']), true);
 	if (!$json) {
-		wrap_error(sprintf('JSON file %s seems to be malformed.', $functions[$data['function']]['file']), E_USER_ERROR);
+		wrap_error(['JSON file %s seems to be malformed.', ['values' => [$functions[$data['function']]['file']]]], E_USER_ERROR);
 	}
 	$data += $json;
 
@@ -67,7 +67,7 @@ function mod_zzwrap_test($params, $settings = []) {
 			$args = [];
 			foreach ($data['variables'] as $var) {
 				if (!array_key_exists($var, $value)) {
-					wrap_error(sprintf('Variable %s not found in test data.', $var), E_USER_ERROR);
+					wrap_error(['Variable %s not found in test data.', ['values' => [$var]]], E_USER_ERROR);
 					continue;
 				}
 				$args[] = $value[$var];

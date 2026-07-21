@@ -220,7 +220,9 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
 		$characters = wrap_tsv_parse('transliteration-characters');
 	
 	if (is_array($str)) {
-		wrap_error('wrap_filename() only accepts strings: '.json_encode($str));
+		wrap_error([
+			'wrap_filename() only accepts strings.', ['data' => $str]
+		]);
 		$str = 'unknown';
 	}
 	$str = wrap_convert_string($str, 'UTF-8');
@@ -349,9 +351,7 @@ function wrap_date($date, $format = false) {
 				// DATETIME YYYY-MM-DD HH:ii:ss
 				$dates[$index] = $match[1]; // ignore time, it's a date function
 			} elseif (!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/", $mydate)) {
-				wrap_error(sprintf(
-					'Date %s is currently either not supported as ISO date or no ISO date at all.', $date
-				));
+				wrap_error(['Date %s is currently either not supported as ISO date or no ISO date at all.', ['values' => [$date]]]);
 				return $date;
 			}
 		}
@@ -368,7 +368,7 @@ function wrap_date($date, $format = false) {
 		$time = $date;
 		break;
 	default:
-		wrap_error(sprintf('Unknown input format %s', $input_format));
+		wrap_error(['Unknown input format %s', ['values' => [$input_format]]]);
 		break;
 	}
 
@@ -392,7 +392,7 @@ function wrap_date($date, $format = false) {
 		// output Sun, 06 Nov 1994 08:49:37 GMT
 		return gmdate('D, d M Y H:i:s', $time). ' GMT';
 	}
-	wrap_error(sprintf('Unknown output format %s', $output_format));
+	wrap_error(['Unknown output format %s', ['values' => [$output_format]]]);
 	return '';
 }
 
@@ -443,7 +443,7 @@ function _wrap_dates($begin, $end, $formats) {
 			if (in_array('long', $formats)) $set['sep'] = ['. ', ' '];
 			break;
 		default:
-			wrap_error(sprintf('Language %s currently not supported', $lang));
+			wrap_error(['Language %s currently not supported', ['values' => [$lang]]]);
 			$set['order'] = 'YMD';
 			$set['sep'] = ' ';
 			break;
@@ -912,9 +912,9 @@ function wrap_number($number, $format = false) {
 		if (is_numeric($number)) {
 			// arabic/roman
 			if ($number > 3999 OR $number < 1) {
-				wrap_error(wrap_text(
+				wrap_error([
 					'Sorry, we can only convert numbers between 1 and 3999 to roman numbers.'
-				), E_USER_NOTICE);
+				], E_USER_NOTICE);
 				return '';
 			}
 			$output = '';
@@ -945,9 +945,9 @@ function wrap_number($number, $format = false) {
 			// if it's a valid number, no character may remain
 			if ($number) $error = true;
 			if ($error) {
-				wrap_error(wrap_text(
+				wrap_error([
 					'Sorry, <strong>%s</strong> appears not to be a valid roman number.'
-				, ['values' => wrap_html_escape($input)]), E_USER_NOTICE);
+				, ['values' => wrap_html_escape($input)]], E_USER_NOTICE);
 				return '';
 			}
 		}
@@ -968,8 +968,8 @@ function wrap_number($number, $format = false) {
 		}
 		return $output;
 	default:
-		wrap_error(wrap_text('Sorry, the number format <strong>%s</strong> is not supported.',
-			['values' => wrap_html_escape($format)]), E_USER_NOTICE);
+		wrap_error(['Sorry, the number format <strong>%s</strong> is not supported.',
+			['values' => wrap_html_escape($format)]], E_USER_NOTICE);
 		return '';
 	}
 }
@@ -1043,7 +1043,9 @@ function wrap_currency($currency) {
 function wrap_html_escape($string) {
 	if (!$string) return $string;
 	if (is_array($string)) {
-		wrap_error(sprintf('wrap_html_escape() only handles strings (%s)', json_encode($string)));
+		wrap_error([
+			'wrap_html_escape() only handles strings', ['data' => $string]
+		]);
 		return '';
 	}
 	// overwrite default character set UTF-8 because htmlspecialchars will
@@ -1066,7 +1068,9 @@ function wrap_html_escape($string) {
 function wrap_html_escape_text($string) {
 	if (!$string) return $string;
 	if (is_array($string)) {
-		wrap_error(sprintf('wrap_html_escape_text() only handles strings (%s)', json_encode($string)));
+		wrap_error([
+			'wrap_html_escape_text() only handles strings', ['data' => $string]
+		]);
 		return '';
 	}
 	switch (wrap_setting('character_set')) {
@@ -1413,10 +1417,7 @@ function _wrap_hex2chars($string) {
  */
 function wrap_punycode_encode($string) {
 	if (!function_exists('idn_to_ascii')) {
-		wrap_error(sprintf(
-			'Need function `idn_to_ascii` to check value %s, but it does not exist.'
-			, $string
-		));
+		wrap_error(['Need function `idn_to_ascii` to check value %s, but it does not exist.', ['values' => [$string]]]);
 		return $string;
 	}
 	return idn_to_ascii($string);
@@ -1835,7 +1836,7 @@ function wrap_placeholder($placeholder) {
 		}
 		break;
 	default:
-		wrap_error(sprintf('Placeholder %s not found.', wrap_html_escape($placeholder)));	
+		wrap_error(['Placeholder %s not found.', ['values' => [wrap_html_escape($placeholder)]]]);	
 		return '';
 	}
 }
