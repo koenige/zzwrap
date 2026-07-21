@@ -166,10 +166,7 @@ function wrap_syndication($url, $settings = []) {
  * @deprecated use wrap_syndication() instead
  */
 function wrap_syndication_get($url, $type = 'json', $settings = []) {
-	wrap_error(sprintf(
-		'Function %s() is deprecated, use %s() instead'
-		, __FUNCTION__, 'wrap_syndication'
-	), E_USER_DEPRECATED);
+	wrap_error('Function wrap_syndication_get() is deprecated, use wrap_syndication() instead', E_USER_DEPRECATED);
 	$settings['type'] = $type;
 	return wrap_syndication($url, $settings);
 }
@@ -671,9 +668,7 @@ function wrap_syndication_http_request($url, $settings = []) {
  * @deprecated use wrap_syndication_http_request() instead
  */
 function wrap_syndication_retrieve_via_http($url, $headers_to_send = [], $method = 'GET', $data_to_send = [], $pwd = false) {
-	wrap_error(sprintf('%s() is deprecated, use %s() instead'
-		, __FUNCTION__, 'wrap_syndication_http_request'
-	), E_USER_DEPRECATED);
+	wrap_error('Function wrap_syndication_retrieve_via_http() is deprecated, use wrap_syndication_http_request() instead', E_USER_DEPRECATED);
 	return wrap_syndication_http_request($url, [
 		'headers' => $headers_to_send,
 		'method' => $method,
