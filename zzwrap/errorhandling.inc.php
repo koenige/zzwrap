@@ -186,6 +186,31 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 }
 
 /**
+ * Log a debug-only message via wrap_error() (debug.log, no error mail).
+ *
+ * When $settings is a string or contains `area`, the named wrap_setting must be
+ * true or the call is skipped. The setting name is prepended as intro `[area]`
+ * on the log line.
+ *
+ * @param mixed $msg same as wrap_error(): string or `[msgid]` / `[msgid, params]`
+ * @param array|string $settings wrap_error() settings plus:
+ *		string `area`: wrap_setting name (e.g. `debug_access`); may be passed as
+ *		the whole $settings argument
+ * @return void
+ */
+function wrap_debug($msg, $settings) {
+	if (is_string($settings))
+		$settings = ['area' => $settings];
+	$settings['debug'] = true;
+	if (!empty($settings['area'])) {
+		if (!wrap_setting($settings['area'])) return;
+		$settings['intro'] = sprintf('[%s]', $settings['area']);
+		unset($settings['area']);
+	}
+	wrap_error($msg, E_USER_NOTICE, $settings);
+}
+
+/**
  * Start buffering wrap_error() calls (see wrap_error_collect_end())
  *
  * @return void

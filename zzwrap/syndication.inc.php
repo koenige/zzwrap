@@ -948,14 +948,12 @@ function wrap_lock_hash($regenerate = false) {
  * @return void
  */
 function wrap_lock_hash_debug(&$logged, $lock_hash, $source) {
-	if ($logged OR !wrap_setting('debug_access')) return;
+	if ($logged) return;
 	$logged = true;
-	wrap_error(sprintf(
-		'Access debug: X-Lock-Hash %s (%s) on %s',
-		$lock_hash,
-		$source,
-		wrap_setting('request_uri')
-	), E_USER_NOTICE);
+	wrap_debug([
+		'Access: X-Lock-Hash %s (%s) on %s',
+		['values' => [$lock_hash, $source, wrap_setting('request_uri')]]
+	], 'debug_access');
 }
 
 /**

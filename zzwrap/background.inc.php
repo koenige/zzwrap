@@ -136,12 +136,11 @@ function wrap_job_page($type) {
 function wrap_job_debug($msg, $data = []) {
 	$page_parameters = wrap_page_field('parameters') ?? [];
 	if (empty($page_parameters['job_debug'])) return;
-	wrap_error(sprintf('%s %s%s (%s)',
-		wrap_setting('zzwrap_id'),
-		$msg,
-		$data ? ' DATA: '.json_encode($data) : '',
-		wrap_setting('request_uri')
-	));
+	wrap_debug([
+		'%s %s (%s)',
+		['values' => [wrap_setting('zzwrap_id'), $msg, wrap_setting('request_uri')],
+		'data' => $data ? [wrap_text('Data') => $data] : []]
+	]);
 }
 
 /**
@@ -224,18 +223,9 @@ function wrap_trigger_protected_url($url, $username = false, $send_lock = true, 
 	if (function_exists('wrap_lock_hash') AND $send_lock) {
 		$lock_hash = wrap_lock_hash($data['regnerate_hash'] ?? false);
 		$headers[] = sprintf('X-Lock-Hash: %s', $lock_hash);
-		if (wrap_setting('debug_access')) {
-			wrap_error(sprintf(
-				'Access debug: X-Lock-Hash sent to %s: %s',
-				$url,
-				$lock_hash
-			), E_USER_NOTICE);
-		}
-	} elseif (wrap_setting('debug_access')) {
-		wrap_error(sprintf(
-			'Access debug: X-Lock-Hash not sent to %s (send_lock off)',
-			$url
-		), E_USER_NOTICE);
+		wrap_debug(['Access: X-Lock-Hash sent to %s: %s', ['values' => [$url, $lock_hash]]], 'debug_access');
+	} else {
+		wrap_debug(['Access: X-Lock-Hash not sent to %s (send_lock off)', ['values' => [$url]]], 'debug_access');
 	}
 	return wrap_get_protected_url($url, $headers, 'POST', $data, $username);
 }
@@ -265,10 +255,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 		$headers[] = 'Accept: application/json';
 	$url = wrap_job_url_base($url);
 
-	if (wrap_setting('debug_access')) wrap_error(sprintf(
-		'Access debug: protected request %s %s',
-		$method, $url
-	), E_USER_NOTICE);
+	wrap_debug(['Access: protected request %s %s', ['values' => [$method, $url]]], 'debug_access');
 
 	require_once __DIR__.'/syndication.inc.php';
 	$result = wrap_syndication_http_request($url, [
@@ -279,10 +266,10 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 		$status = $result[0] ?? '(none)';
 		$response_headers = $result[1] ?? [];
 		$body_excerpt = is_string($result[2] ?? null) ? substr($result[2], 0, 200) : '(empty)';
-		wrap_error(sprintf(
-			'Access debug: protected response status %s from %s, headers: %s, body: %s',
-			$status, $url, json_encode($response_headers), $body_excerpt
-		), E_USER_NOTICE);
+		wrap_debug([
+			'Access: protected response status %s from %s, body: %s',
+			['values' => [$status, $url, $body_excerpt], 'data' => [wrap_text('Headers') => $response_headers]]
+		], 'debug_access');
 	}
 
 	return $result;

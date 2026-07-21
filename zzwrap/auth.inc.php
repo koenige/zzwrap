@@ -309,7 +309,7 @@ function wrap_login_ip() {
  */
 function wrap_login_http_auth() {
 	if (empty($_SERVER['HTTP_X_REQUEST_WWW_AUTHENTICATION'])) {
-		if (wrap_setting('debug_access')) wrap_error('Auth debug: no X-Request-WWW-Authentication header', E_USER_NOTICE);
+		wrap_debug(['Auth: no X-Request-WWW-Authentication header'], 'debug_access');
 		return false;
 	}
 
@@ -321,43 +321,40 @@ function wrap_login_http_auth() {
 	// HTTP_AUTHORIZATION
 	if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
 		if (str_starts_with($_SERVER['HTTP_AUTHORIZATION'], 'Bearer ')) {
-			if (wrap_setting('debug_access')) wrap_error('Auth debug: Bearer token found, trying OAuth', E_USER_NOTICE);
+			wrap_debug(['Auth: Bearer token found, trying OAuth'], 'debug_access');
 			return wrap_login_http_oauth(substr($_SERVER['HTTP_AUTHORIZATION'], strlen('Bearer ')));
 		}
 		list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) =
 			explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
-		if (wrap_setting('debug_access')) wrap_error('Auth debug: HTTP_AUTHORIZATION decoded', E_USER_NOTICE);
+		wrap_debug(['Auth: HTTP_AUTHORIZATION decoded'], 'debug_access');
 	}
 
 	// send WWW-Authenticate header to get username if not yet there
 	if (empty($_SERVER['PHP_AUTH_USER']))
 		wrap_login_http_auth_request();
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
-		if (wrap_setting('debug_access')) wrap_error('Auth debug: no PHP_AUTH_USER after auth request', E_USER_NOTICE);
+		wrap_debug(['Auth: no PHP_AUTH_USER after auth request'], 'debug_access');
 		return false;
 	}
 	if (empty($_SERVER['PHP_AUTH_PW'])) {
-		if (wrap_setting('debug_access')) wrap_error('Auth debug: no PHP_AUTH_PW', E_USER_NOTICE);
+		wrap_debug(['Auth: no PHP_AUTH_PW'], 'debug_access');
 		return false;
 	}
 
 	// check password
 	$password = wrap_password_token($_SERVER['PHP_AUTH_USER']);
 	if ($password !== $_SERVER['PHP_AUTH_PW']) {
-		if (wrap_setting('debug_access')) wrap_error(sprintf(
-			'Auth debug: password token mismatch (expected length: %d, received length: %d)',
-			strlen($password), strlen($_SERVER['PHP_AUTH_PW'])
-		), E_USER_NOTICE);
+		wrap_debug([
+			'Auth: password token mismatch (expected length: %d, received length: %d)',
+			['values' => [strlen($password), strlen($_SERVER['PHP_AUTH_PW'])]]
+		], 'debug_access');
 		return false;
 	}
 
 	$login['different_sign_on'] = true;
 	$login['username'] = $_SERVER['PHP_AUTH_USER'];
 	$result = wrap_login($login);
-	if (wrap_setting('debug_access')) wrap_error(sprintf(
-		'Auth debug: wrap_login() returned %s',
-		$result ? 'true' : 'false'
-	), E_USER_NOTICE);
+	wrap_debug(['Auth: wrap_login() returned %s', ['values' => [$result ? 'true' : 'false']]], 'debug_access');
 	return $result;
 }
 
@@ -447,7 +444,10 @@ function wrap_login_external($login) {
 				break;
 			case 'ldap':
 			default:
-				wrap_error(['Login via %s is currently not supported.', ['values' => [strtoupper($server['parameters']['type'])]]], E_USER_ERROR);
+				wrap_error([
+					'Login via %s is currently not supported.',
+					['values' => [strtoupper($server['parameters']['type'])]]
+				], E_USER_ERROR);
 		}
 	}
 	if ($data) {
@@ -486,7 +486,10 @@ function wrap_login_external_sync($data, $settings) {
 	];
 	$login_id = zzform_insert('logins', $values);
 	if (!$login_id)
-		wrap_error(['Unable to add external login for username %s and category ID %d', ['values' => [$data['username'], $settings['category_id']]]], E_USER_ERROR);
+		wrap_error([
+			'Unable to add external login for username %s and category ID %d',
+			['values' => [$data['username'], $settings['category_id']]]
+		], E_USER_ERROR);
 	return $login_id;
 }
 
@@ -733,10 +736,16 @@ function wrap_password_reminder($address, $additional_data = []) {
 	$sql = sprintf($sql, wrap_db_escape($address), wrap_db_escape($address));
 	$data = wrap_db_fetch($sql);
 	if (!$data) {
-		wrap_error(['A password was requested for e-mail %s, but there was no login in the database.', ['values' => [$address]]]);
+		wrap_error([
+			'A password was requested for e-mail %s, but there was no login in the database.',
+			['values' => [$address]]
+		]);
 		return false;
 	} elseif (!$data['active']) {
-		wrap_error(['A password was requested for e-mail %s, but the login is disabled.', ['values' => [$address]]]);
+		wrap_error([
+			'A password was requested for e-mail %s, but the login is disabled.',
+			['values' => [$address]]
+		]);
 		return false;
 	}
 	$data = array_merge($additional_data, $data);

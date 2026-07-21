@@ -30,35 +30,41 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		// super simple rights system: allow everything, but not preview
 		$logged_in = wrap_session_value('logged_in');
 		if (($area === 'preview' OR str_ends_with($area, '_preview')) AND !$logged_in) {
-			if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: denied, no brick_access_rights(), preview area, not logged in', $area), E_USER_NOTICE);
+			wrap_debug([
+				'Access for `%s` denied, no brick_access_rights(), preview area, not logged in',
+				['values' => [$area]]
+			], 'debug_access');
 			return false;
 		}
-		if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: granted, no brick_access_rights() function', $area), E_USER_NOTICE);
+		wrap_debug([
+			'Access for `%s` granted, no brick_access_rights() function',
+			['values' => [$area]]
+		], 'debug_access');
 		return true;
 	}
 	
 	// @todo global access rights for local users can be overwritten
 	// if user has access to webpages table and can write bricks
 	if (wrap_setting('access_global')) {
-		if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: granted via access_global', $area), E_USER_NOTICE);
+		wrap_debug(['Access for `%s` granted via access_global', ['values' => [$area]]], 'debug_access');
 		return true;
 	}
 	
 	// directly given access via session or setting?
 	if (in_array($area, wrap_setting('no_access'))) {
-		if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: denied via no_access setting', $area), E_USER_NOTICE);
+		wrap_debug(['Access for `%s` denied via no_access setting', ['values' => [$area]]], 'debug_access');
 		return false;
 	}
 	if (in_array($area, wrap_setting('access'))) {
-		if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: granted via access setting', $area), E_USER_NOTICE);
+		wrap_debug(['Access for `%s` granted via access setting', ['values' => [$area]]], 'debug_access');
 		return true;
 	}
 	if (!empty($_SESSION['no_access']) AND in_array($area, $_SESSION['no_access'])) {
-		if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: denied via session no_access', $area), E_USER_NOTICE);
+		wrap_debug(['Access for `%s` denied via session no_access', ['values' => [$area]]], 'debug_access');
 		return false;
 	}
 	if (!empty($_SESSION['access']) AND in_array($area, $_SESSION['access'])) {
-		if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: granted via session access', $area), E_USER_NOTICE);
+		wrap_debug(['Access for `%s` granted via session access', ['values' => [$area]]], 'debug_access');
 		return true;
 	}
 
@@ -68,10 +74,10 @@ function wrap_access($area, $detail = '', $conditions = true) {
 		if (wrap_setting('debug_access')) {
 			$groups = $config[$area]['group'] ?? '(none)';
 			if (is_array($groups)) $groups = implode(', ', $groups);
-			wrap_error(sprintf(
-				'Access debug [%s]: denied by wrap_access_groups(), required group: %s, login_rights: %s',
-				$area, $groups, wrap_session_value('login_rights') ?? '(none)'
-			), E_USER_NOTICE);
+			wrap_debug([
+				'Access for `%s` denied by wrap_access_groups(), required group: %s, login_rights: %s',
+				['values' => [$area, $groups, wrap_session_value('login_rights') ?? '(none)']]
+			], 'debug_access');
 		}
 		return false;
 	}
@@ -80,12 +86,12 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	if ($conditions AND array_key_exists($area, $config)) {
 		$condition = wrap_conditions($config[$area], $detail);
 		if (!$condition) {
-			if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: denied by condition check', $area), E_USER_NOTICE);
+			wrap_debug(['Access for `%s` denied by condition check', ['values' => [$area]]], 'debug_access');
 			return NULL;
 		}
 	}
 
-	if (wrap_setting('debug_access')) wrap_error(sprintf('Access debug [%s]: granted', $area), E_USER_NOTICE);
+	wrap_debug(['Access for `%s` granted', ['values' => [$area]]], 'debug_access');
 	return $access;
 }
 
@@ -245,13 +251,10 @@ function wrap_access_detail_key($detail, $area_config) {
 function wrap_access_quit($area, $detail = '', $conditions = true) {
 	$access = wrap_access($area, $detail, $conditions);
 	if (!$access) {
-		if (wrap_setting('debug_access'))
-			wrap_error(sprintf(
-				'Access debug [%s]: 403 quit, IP: %s, session ID: %s',
-				$area,
-				$_SERVER['REMOTE_ADDR'] ?? '(unknown)',
-				session_id() ?: '(no session)'
-			), E_USER_NOTICE);
+		wrap_debug([
+			'Access for `%s` 403 quit, IP: %s, session ID: %s',
+			['values' => [$area, $_SERVER['REMOTE_ADDR'] ?? '(unknown)', session_id() ?: '(no session)']]
+		], 'debug_access');
 		wrap_quit(403, wrap_text('You need `%s` access rights. (Login: %s)'
 			, ['values' => [$area, wrap_username()]]
 		));
