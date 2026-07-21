@@ -17,66 +17,83 @@
  * error handling: log errors, mail errors, exits script if critical error
  *
  * @param mixed $msg error message: string; or translatable admin tuple
- *		`[msgid]` / `[msgid, params]` (same as wrap_text()); other arrays are JSON-encoded
+ *		`[msgid]` / `[msgid, params]` (same as wrap_text()); params key `data` adds
+ *		structured data for the admin log; `log_text_parts` (default 1) sets how many
+ *		leading values the admin log shows before wrap_print(); `intro` prepends text
+ *		before the translated message (not wrap_setting `error_prefix`); `outro`
+ *		appends text after it; other arrays are pure data arrays
  * @param int $error_type E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
- *		'subject', bool 'log_post_data', bool 'collect_start', bool 'collect_end',
- *		string 'class'
+ *		'subject', bool 'log_post_data', string 'class'
+ * @see wrap_error_collect_start() wrap_error_collect_end() to buffer errors and log once
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
-	static $collect = false;
-	static $collect_messages = [];
-	static $collect_error_type = NULL;
-
 	if (wrap_setting('install')) {
 		echo $msg;
 		exit;
 	}
+
+	if (wrap_error_collect_state('active') && !wrap_error_collect_state('flushing')) {
+		if ($msg !== false && $msg !== null && $msg !== '')
+			wrap_error_collect_add($msg, $error_type, $settings);
+		return false;
+	}
+
 	wrap_lib(); // for mail template, maybe zzbrick is used
 
+	$error = [
+		'data' => null,
+		'intro' => null,
+		'log_text_parts' => 1,
+		'outro' => null,
+		'text' => null,
+		'type' => $error_type
+	];
+
 	if (wrap_error_is_text($msg)) {
-		$msg = wrap_text($msg);
+		if (!empty($msg[1]) && is_array($msg[1])) {
+			if (isset($msg[1]['intro'])) {
+				$error['intro'] = $msg[1]['intro'];
+				unset($msg[1]['intro']);
+			}
+			if (isset($msg[1]['outro'])) {
+				$error['outro'] = $msg[1]['outro'];
+				unset($msg[1]['outro']);
+			}
+			if (isset($msg[1]['log_text_parts'])) {
+				$error['log_text_parts'] = max(1, (int) $msg[1]['log_text_parts']);
+				unset($msg[1]['log_text_parts']);
+			}
+			if (!empty($msg[1]['data'])) {
+				$error['data'] = $msg[1]['data'];
+				unset($msg[1]['data']);
+			}
+			if ($msg[1] === []) unset($msg[1]);
+		}
+		$error['text'] = wrap_text($msg);
+	} elseif (is_array($msg)) {
+		$error['data'] = $msg;
+		$error['text'] = '';
+	} else {
+		$error['text'] = $msg;
 	}
 
-	if (!empty($settings['collect_start'])) {
-		$collect = true;
-		$collect_messages = [];
+	if ($error['data'] !== null) {
+		$log_message = wrap_error_log_line($error);
+	} elseif (wrap_error_message($error)) {
+		$log_message = wrap_error_message($error);
+	} else {
+		return false;
 	}
-	if ($collect AND $msg) {
-		// Split message per sentence to avoid redundant messages
-		$msg .= ' ';
-		$msg = explode('. ', $msg);
-		foreach ($msg as $mymsg) {
-			$mymsg = trim($mymsg);
-			if (!$mymsg) continue;
-			$collect_messages[$mymsg] = $mymsg.'. ';
-		}
-		$msg = false;
-		if (!$collect_error_type) {
-			$collect_error_type = $error_type;
-		} else {
-			// keep the more severe error type (lower number = more severe)
-			$collect_error_type = min($collect_error_type, $error_type);
-		}
-	}
-	if (!empty($settings['collect_end'])) {
-		$collect = false;
-		$msg = implode('', $collect_messages);
-		$collect_messages = NULL;
-		if ($collect_error_type) {
-			$error_type = $collect_error_type;
-		}
-	}
-	if (!$msg) return false;
 
 	$return = false;
-	switch ($error_type) {
+	switch ($error['type']) {
 	case E_ERROR:
 	case E_USER_ERROR: // critical error: stop!
 		if (wrap_setting('error_exit_503')) $settings['no_return'] = true;
-		$level = ($error_type === E_USER_ERROR ? 'error' : 'fatal');
+		$level = ($error['type'] === E_USER_ERROR ? 'error' : 'fatal');
 		if (empty($settings['no_return'])) 
 			$return = 'exit'; // get out of this function immediately
 		wrap_setting('error_exit_503', true);
@@ -99,15 +116,11 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 
 	$log_encoding = wrap_log_encoding();
 
-	if (is_array($msg)) $msg = 'JSON '.json_encode($msg);
-
-	// Log prefix?
-	$error_prefix = wrap_setting('error_prefix');
-	if ($error_prefix)
-		$msg = $error_prefix.' '.$msg;
-	
 	// Log output
-	$log_output = $msg;
+	$log_output = $log_message;
+	// Log prefix?
+	if (wrap_setting('error_prefix'))
+		$log_output = wrap_setting('error_prefix').' '.$log_output;
 	$log_output = str_replace('<br>', "\n\n", $log_output);
 	$log_output = str_replace('<br class="nonewline_in_mail">', "; ", $log_output);
 	$log_output = strip_tags($log_output);
@@ -120,27 +133,29 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	$error_handling = wrap_setting('error_handling');
 	if (wrap_setting('debug')) $error_handling = 'output';
 
-	$log_status = wrap_error_log($log_output, $error_type, $level, $settings);
+	$log_status = wrap_error_log($log_output, $error['type'], $level, $settings);
 	if ($log_status === false) $error_handling = false;
 
 	switch ($error_handling) {
 	case 'mail_summary':
 		if (!in_array($level, wrap_setting('error_mail_level'))) break;
-		wrap_error_summary($msg, $level);
+		wrap_error_summary(
+			wrap_error_detail($error, $log_encoding),
+			$level
+		);
 		break;
 	case 'mail':
 		if (!in_array($level, wrap_setting('error_mail_level'))) break;
 		if (!wrap_setting('error_mail_to')) break;
-		$msg = html_entity_decode($msg, ENT_QUOTES, $log_encoding);
 		// add some technical information to mail
 		$data = $settings;
 		$data['username'] = wrap_username();
 		$data['http_method'] = $_SERVER['REQUEST_METHOD'] !== 'GET' ? $_SERVER['REQUEST_METHOD'] : NULL;
-		$foot = wrap_template('error-footer-mail', $data);
-		if (trim($foot)) $msg .= "\n\n".$foot;
 
+		$mail['message'] = wrap_error_detail($error, $log_encoding);
+		$foot = wrap_template('error-footer-mail', $data);
+		if (trim($foot)) $mail['message'] .= "\n\n".$foot;
 		$mail['to'] = wrap_setting('error_mail_to');
-		$mail['message'] = $msg;
 		$mail['parameters'] = wrap_setting('error_mail_parameters');
 		$mail['subject'] = '';
 		if (!wrap_setting('mail_subject_prefix'))
@@ -153,12 +168,10 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_mail($mail);
 		break;
 	case 'output':
-		if (str_starts_with($msg, 'JSON ')) {
-			$msg = json_decode(substr($msg, 5));
-			$msg = json_encode($msg, JSON_PRETTY_PRINT);
+		$notice = wrap_error_detail($error, $log_encoding);
+		if ($error['data'] !== null)
 			$settings['class'] = 'pre';
-		}
-		wrap_notice($msg, $settings['class'] ?? 'error');
+		wrap_notice($notice, $settings['class'] ?? 'error');
 		break;
 	default:
 		break;
@@ -170,6 +183,109 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_errorpage($page);
 		exit;
 	}
+}
+
+/**
+ * Start buffering wrap_error() calls (see wrap_error_collect_end())
+ *
+ * @return void
+ */
+function wrap_error_collect_start() {
+	wrap_error_collect_state('reset');
+}
+
+/**
+ * Buffer one wrap_error() call while collecting
+ *
+ * @param mixed $msg
+ * @param int $error_type
+ * @param array $settings
+ * @return void
+ */
+function wrap_error_collect_add($msg, $error_type, $settings) {
+	if (!wrap_error_collect_state('active')) return;
+
+	$hash = wrap_error_collect_hash($msg, $error_type, $settings);
+	wrap_error_collect_state('entry', [
+		'hash' => $hash,
+		'msg' => $msg,
+		'settings' => $settings,
+		'type' => $error_type,
+	]);
+}
+
+/**
+ * Flush buffered wrap_error() calls (one log line per distinct error)
+ *
+ * @return void
+ */
+function wrap_error_collect_end() {
+	wrap_error_collect_state('active', false);
+	$entries = array_values(wrap_error_collect_state('entries'));
+	wrap_error_collect_state('clear');
+	if (!$entries) return;
+
+	wrap_error_collect_state('flushing', true);
+	foreach ($entries as $entry) {
+		wrap_error($entry['msg'], $entry['type'], $entry['settings']);
+	}
+	wrap_error_collect_state('flushing', false);
+}
+
+/**
+ * Shared state for wrap_error_collect_*()
+ *
+ * @param string $key reset | clear | active | flushing | entry | entries
+ * @param mixed $value
+ * @return mixed
+ */
+function wrap_error_collect_state($key, $value = null) {
+	static $collect = false;
+	static $collect_flushing = false;
+	static $collect_entries = [];
+
+	switch ($key) {
+	case 'reset':
+		$collect = true;
+		$collect_flushing = false;
+		$collect_entries = [];
+		return null;
+	case 'clear':
+		$collect = false;
+		$collect_flushing = false;
+		$collect_entries = [];
+		return null;
+	case 'active':
+		if ($value !== null) {
+			$collect = $value;
+			return null;
+		}
+		return $collect;
+	case 'flushing':
+		if ($value !== null) {
+			$collect_flushing = $value;
+			return null;
+		}
+		return $collect_flushing;
+	case 'entry':
+		$collect_entries[$value['hash']] = $value;
+		return null;
+	case 'entries':
+		return $collect_entries;
+	}
+	return null;
+}
+
+/**
+ * Hash one buffered wrap_error() call for deduplication while collecting
+ *
+ * @param mixed $msg
+ * @param int $error_type
+ * @param array $settings
+ * @return string
+ */
+function wrap_error_collect_hash($msg, $error_type, $settings) {
+	return hash('sha256', json_encode([$msg, $error_type, $settings], JSON_INVALID_UTF8_IGNORE));
 }
 
 /**
@@ -187,6 +303,97 @@ function wrap_error_is_text($msg) {
 	if (count($msg) === 1) return true;
 	if (count($msg) === 2 && is_array($msg[1])) return true;
 	return false;
+}
+
+/**
+ * format a single log line if data is present
+ *
+ * @param array $error
+ *	string $text
+ * 	mixed|null $data
+ * 	int $log_text_parts
+ * @return string
+ */
+function wrap_error_log_line($error) {
+	if ($error['data'] === null) return wrap_error_message($error);
+	[$parts, $payload] = wrap_error_log_payload($error);
+	return '[json]'.$parts.' '.json_encode($payload, JSON_INVALID_UTF8_IGNORE);
+}
+
+/**
+ * Build admin-log JSON payload for wrap_error_log_line()
+ *
+ * @param array $error
+ * @return array [int $log_text_parts, array $payload]
+ */
+function wrap_error_log_payload($error) {
+	$parts = max(1, (int) ($error['log_text_parts'] ?? 1));
+	$payload = [wrap_error_message($error)];
+	$data = $error['data'];
+	if ($parts > 1 && is_array($data)) {
+		for ($index = 1; $index < $parts; $index++) {
+			if (!$data) break;
+			$payload[] = array_shift($data);
+		}
+	}
+	if ($data === null || $data === []) return [$parts, $payload];
+	if (is_array($data))
+		$payload = array_merge($payload, $data);
+	else
+		$payload[] = $data;
+	return [$parts, $payload];
+}
+
+/**
+ * Human-readable error text plus optional structured data (pretty-printed)
+ * for mail and debug output
+ *
+ * @param array $error
+ *	string $text
+ * 	mixed $data (optional)
+ * 	int $log_text_parts (optional)
+ * @param string $encoding
+ * @return string
+ */
+function wrap_error_detail($error, $encoding) {
+	$text = wrap_error_message($error);
+	if (wrap_setting('error_prefix') && wrap_setting('error_handling') !== 'mail_summary')
+		$text = wrap_setting('error_prefix').' '.$text;
+	$text = html_entity_decode($text, ENT_QUOTES, $encoding);
+
+	$data = $error['data'] ?? null;
+	$parts = max(1, (int) ($error['log_text_parts'] ?? 1));
+	if ($parts > 1 && is_array($data)) {
+		for ($index = 1; $index < $parts; $index++) {
+			if (!$data) break;
+			$value = array_shift($data);
+			if (is_scalar($value) || $value === null)
+				$text .= "\n".$value;
+			else
+				$text .= "\n".json_encode($value, JSON_INVALID_UTF8_IGNORE);
+		}
+	}
+	if ($data)
+		$text .= "\n\n".json_encode($data, JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
+	return $text;
+}
+
+/**
+ * Compose intro, main text and outro for one error
+ *
+ * @param array $error
+ * @return string
+ */
+function wrap_error_message($error) {
+	$sentences = [];
+	if (!empty($error['intro']))
+		$sentences[0] = $error['intro'];
+	if (($error['text'] ?? '') !== '')
+		$sentences[1] = $error['text'];
+	if (!empty($error['outro']))
+		$sentences[2] = $error['outro'];
+	if (!$sentences) return '';
+	return implode(' ', $sentences);
 }
 
 /**

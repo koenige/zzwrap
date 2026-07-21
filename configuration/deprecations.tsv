@@ -92,3 +92,9 @@
 2026-06-17-1	code	wrap_weekdays	use `format=date_weekday` or `format=date_weekday_long` on date field
 2026-07-03-1	code	['error']['msg_text']	use `['error']['_msg']` instead
 2026-07-03-2	code	['error']['msg_vars']	use `['error']['_msg_values']` instead
+2026-07-20-1	code	wrap_error('JSON	use wrap_error(['… message …', ['data' => $data]]) where $data is an array, not JSON
+2026-07-20-2	code_regex	wrap_error\s*\([^)]*\.json_encode\(	use wrap_error(['…', ['data' => $array]]) instead of concatenating json_encode()
+2026-07-20-3	code	wrap_error('[json]	use ['data' => …] in wrap_error(); do not build [json]N wire format at call sites
+2026-07-20-4	code_regex	'values'\]\s*=>\s*\[[^\]]*json_encode\(	use ['data' => $array] for structured payload instead of json_encode() in values
+2026-07-21-1	code	'collect_start' => true	use wrap_error_collect_start() instead of wrap_error(..., ['collect_start' => true])
+2026-07-21-2	code	'collect_end' => true	use wrap_error_collect_end() instead of wrap_error(..., ['collect_end' => true])
