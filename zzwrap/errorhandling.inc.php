@@ -192,6 +192,10 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
  * true or the call is skipped. The setting name is prepended as intro `[area]`
  * on the log line.
  *
+ * Tuple messages are English log text only: `ignore_missing_translation` is set
+ * so they are not looked up in language catalogs and do not trigger
+ * log_missing_text.
+ *
  * @param mixed $msg same as wrap_error(): string or `[msgid]` / `[msgid, params]`
  * @param array|string $settings wrap_error() settings plus:
  *		string `area`: wrap_setting name (e.g. `debug_access`); may be passed as
@@ -206,6 +210,12 @@ function wrap_debug($msg, $settings) {
 		if (!wrap_setting($settings['area'])) return;
 		$settings['intro'] = sprintf('[%s]', $settings['area']);
 		unset($settings['area']);
+	}
+	if (wrap_error_is_text($msg) && is_string($msg[0])) {
+		if (count($msg) === 1)
+			$msg = [$msg[0], ['ignore_missing_translation' => true]];
+		else
+			$msg[1]['ignore_missing_translation'] = true;
 	}
 	wrap_error($msg, E_USER_NOTICE, $settings);
 }
