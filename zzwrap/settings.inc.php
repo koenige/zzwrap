@@ -217,6 +217,9 @@ function wrap_get_setting_default($key, $params) {
 function wrap_get_setting_prepare($setting, $key, $cfg) {
 	if (!array_key_exists($key, $cfg)) return $setting;
 
+	// modules required?
+	if (!wrap_setting_modules($key, false)) return NULL;
+
 	// depending on type
 	if (!empty($cfg[$key]['type']) AND !is_null($setting))
 		switch ($cfg[$key]['type']) {
@@ -250,6 +253,37 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 			return NULL;
 	return $setting;
 }
+
+/**
+ * check modules[] from settings.cfg for a setting key
+ *
+ * @param string $key setting key
+ * @param bool $log_error if true, log a notice when a required module is missing
+ * @return bool true if no modules[] are defined or all are installed
+ */
+function wrap_setting_modules($key, $log_error = false) {
+	$cfg = wrap_cfg_files('settings');
+	if (empty($cfg[$key]['modules'])) return true;
+	
+	if (is_string($cfg[$key]['modules'])) {
+		$modules = [$cfg[$key]['modules']];
+	} elseif (is_array($cfg[$key]['modules'])) {
+		$modules = $cfg[$key]['modules'];
+	} else {
+		$modules = [];
+	}
+	foreach ($modules as $module) {
+		if (wrap_package($module)) continue;
+		if ($log_error) {
+			wrap_error([
+				'Setting `%s` requires module(s) %s.',
+				['values' => [$key, implode(', ', $modules)]]
+			], E_USER_NOTICE);
+		}
+		return false;
+	}
+	return true;
+}	
 
 /**
  * log missing keys in settings.cfg
@@ -319,6 +353,8 @@ function wrap_setting_cfg_global($key) {
  * @return bool
  */
 function wrap_setting_write($key, $value, $login_id = 0, $settings = []) {
+	if ($value AND $value !== 'false' AND !wrap_setting_modules($key, true)) return false;
+
 	$existing_setting = wrap_setting_read($key, $login_id);
 	if ($existing_setting) {
 		// support for keys that are arrays
