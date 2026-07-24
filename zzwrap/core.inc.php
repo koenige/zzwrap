@@ -277,6 +277,20 @@ function wrap_array_merge($old, $new, $overwrite_with_empty = true) {
 }
 
 /**
+ * Normalize a scalar, list, or empty value to a sequential list
+ *
+ * @param mixed $value
+ * @return array
+ */
+function wrap_array_list($value) {
+	if ($value === null OR $value === '') return [];
+	if (is_array($value)) return array_values($value);
+	$value = trim($value);
+	if ($value === '') return [];
+	return [$value];
+}
+
+/**
  * get list of ids and levels to show a hierarchical output
  *
  * @param array $data (indexed by ID = $values)
