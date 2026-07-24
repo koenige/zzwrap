@@ -203,9 +203,43 @@ function wrap_extract_scan_php($content, $relative_path, &$entries) {
 	}
 
 	wrap_extract_scan_text_set($content, $pot, $relative_path, $entries);
+	wrap_extract_scan_wrap_text_arrays($content, $pot, $relative_path, $entries);
 	wrap_extract_scan_wrap_error($content, $relative_path, $entries);
 	wrap_extract_scan_msg_keys($content, $pot, $relative_path, $entries);
 	wrap_extract_scan_sql_text($content, $pot, $relative_path, $entries);
+}
+
+/**
+ * Scan wrap_text() calls with a tuple or sentence list as first argument
+ *
+ * Matches `wrap_text(['msgid', params])` and sentence lists
+ * `wrap_text([['First.'], ['Second %s', ['values' => …]]])`.
+ *
+ * @param string $content PHP file contents with Unix line endings
+ * @param string $pot translate_pot suffix
+ * @param string $relative_path path relative to package folder
+ * @param array $entries collected entries (by reference)
+ * @return void
+ */
+function wrap_extract_scan_wrap_text_arrays($content, $pot, $relative_path, &$entries) {
+	if (!preg_match_all(
+		'/wrap_text\s*\(\s*\[/',
+		$content,
+		$matches,
+		PREG_OFFSET_CAPTURE
+	)) return;
+
+	foreach ($matches[0] as $match) {
+		$bracket = $match[1] + strlen($match[0]) - 1;
+		foreach (wrap_extract_text_tuples($content, $bracket) as $tuple) {
+			$reference = sprintf(
+				'%s:%d',
+				$relative_path,
+				wrap_extract_line_number($content, $tuple['offset'])
+			);
+			wrap_extract_add($entries, $tuple['msgid'], $reference, $pot, $tuple['context']);
+		}
+	}
 }
 
 /**
@@ -229,7 +263,7 @@ function wrap_extract_scan_wrap_error($content, $relative_path, &$entries) {
 
 	foreach ($matches[0] as $match) {
 		$bracket = $match[1] + strlen($match[0]) - 1;
-		foreach (wrap_extract_wrap_error_arrays($content, $bracket) as $tuple) {
+		foreach (wrap_extract_text_tuples($content, $bracket) as $tuple) {
 			$reference = sprintf(
 				'%s:%d',
 				$relative_path,
@@ -241,13 +275,16 @@ function wrap_extract_scan_wrap_error($content, $relative_path, &$entries) {
 }
 
 /**
- * Translatable tuples inside one wrap_error([ … ]) array literal
+ * Translatable tuples inside one wrap_text()/wrap_error() array literal
+ *
+ * Handles a single `[msgid]` / `[msgid, params]` tuple, or a sentence list
+ * of such tuples when the first element is itself an array.
  *
  * @param string $content
  * @param int $start byte offset of opening `[`
  * @return array list of entries with msgid, context, and offset keys
  */
-function wrap_extract_wrap_error_arrays($content, $start) {
+function wrap_extract_text_tuples($content, $start) {
 	if (($content[$start] ?? '') !== '[') return [];
 
 	$pos = $start + 1;
@@ -268,26 +305,26 @@ function wrap_extract_wrap_error_arrays($content, $start) {
 				continue;
 			}
 			if ($content[$pos] !== '[') break;
-			$tuple = wrap_extract_wrap_error_tuple($content, $pos);
+			$tuple = wrap_extract_text_tuple($content, $pos);
 			if ($tuple) $results[] = $tuple;
 			$pos = wrap_extract_msg_skip_array_element($content, $pos);
 		}
 		return $results;
 	}
 
-	$tuple = wrap_extract_wrap_error_tuple($content, $start);
+	$tuple = wrap_extract_text_tuple($content, $start);
 	if (!$tuple) return [];
 	return [$tuple];
 }
 
 /**
- * One `[msgid]` or `[msgid, params]` tuple inside wrap_error()
+ * One `[msgid]` or `[msgid, params]` tuple
  *
  * @param string $content
  * @param int $start byte offset of opening `[`
  * @return array|null entry with msgid, context, and offset keys
  */
-function wrap_extract_wrap_error_tuple($content, $start) {
+function wrap_extract_text_tuple($content, $start) {
 	if (($content[$start] ?? '') !== '[') return null;
 
 	$pos = $start + 1;
