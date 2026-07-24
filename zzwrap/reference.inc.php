@@ -17,27 +17,50 @@
  * Translated reference table from configuration/{$name}.tsv
  *
  * TSV header Variables: `reference = 1` opts in; `translate`, `translate_context`,
- * optional `reference_short` / `reference_long` column names (default abbr/label).
+ * optional `reference_short` / `reference_long` column names (default abbr/label),
+ * optional `extra_columns` (comma-separated TSV column names exposed as extra
+ * styles, e.g. `extra_columns = unicode` for `wrap_reference($name, 'unicode')`).
  *
  * @param string $name TSV basename under configuration/ (must declare reference = 1)
- * @param string $style long, short, or all (rows with short and long keys)
+ * @param string $style long, short, all, or an extra_columns name
  * @param string|null $lang language code, or null for setting lang
  * @return array|null keyed lookup, or null if $name/style is invalid or TSV missing
  */
 function wrap_reference($name, $style = 'long', $lang = null) {
-	if (!in_array($style, ['long', 'short', 'all'], true)) {
+	$variables = wrap_reference_tsv_variables($name);
+	if (($variables['reference'] ?? '') !== '1') {
+		wrap_error([
+			'Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`).',
+			['values' => [$name, $name]]
+		]);
+		return null;
+	}
+	if (!in_array($style, wrap_reference_styles($variables), true)) {
 		wrap_error(['Unknown reference style `%s` for `%s`.', ['values' => [$style, $name]]]);
 		return null;
 	}
 
-	$all = wrap_reference_all($name, $lang);
-	if ($all === null) return null;
+	$all = wrap_reference_all($name, $lang, $variables);
+	if (!$all) return null;
 	if ($style === 'all') return $all;
 
 	$result = [];
 	foreach ($all as $key => $row)
 		$result[$key] = $row[$style];
 	return $result;
+}
+
+/**
+ * Output style names for a reference TSV Variables block
+ *
+ * @param array<string, string|string[]> $variables
+ * @return string[]
+ */
+function wrap_reference_styles($variables) {
+	return array_merge(
+		['short', 'long', 'all'],
+		wrap_array_list($variables['extra_columns'] ?? null)
+	);
 }
 
 /**
@@ -105,24 +128,15 @@ function wrap_bearings_short($lang = null) {
  *
  * @param string $name
  * @param string|null $lang
+ * @param array<string, string|string[]> $variables parsed Variables block
  * @return array|null
  */
-function wrap_reference_all($name, $lang = null) {
+function wrap_reference_all($name, $lang, $variables) {
 	static $cache = [];
 
 	if (!$lang) $lang = wrap_setting('lang');
 	$cache_key = $name."\0".$lang;
 	if (array_key_exists($cache_key, $cache)) return $cache[$cache_key];
-
-	$variables = wrap_reference_tsv_variables($name);
-	if (($variables['reference'] ?? '') !== '1') {
-		wrap_error([
-			'Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`).',
-			['values' => [$name, $name]]
-		]);
-		$cache[$cache_key] = null;
-		return null;
-	}
 
 	$rows = wrap_tsv_parse($name);
 	if (!$rows) {
@@ -131,32 +145,55 @@ function wrap_reference_all($name, $lang = null) {
 		return null;
 	}
 
-	$short_col = $variables['reference_short'] ?? 'abbr';
-	$long_col = $variables['reference_long'] ?? 'label';
+	$col['short'] = $variables['reference_short'] ?? 'abbr';
+	$col['long'] = $variables['reference_long'] ?? 'label';
 	$translate_cols = wrap_array_list($variables['translate'] ?? null);
 	$context_columns = wrap_tsv_translate_context($variables['translate_context'] ?? '');
+	$extra_columns = wrap_array_list($variables['extra_columns'] ?? null);
+	$tsv_columns = wrap_reference_tsv_head($rows);
+	foreach ($extra_columns as $column) {
+		if (in_array($column, $tsv_columns, true)) continue;
+		wrap_error([
+			'Reference `%s`: unknown extra_columns `%s` (TSV columns: %s).',
+			['values' => [$name, $column, implode(', ', $tsv_columns)]]
+		]);
+		$cache[$cache_key] = null;
+		return null;
+	}
+	foreach ($extra_columns as $column)
+		$col[$column] = $column;
 
 	$all = [];
 	foreach ($rows as $key => $row) {
 		if (!is_array($row)) continue;
-		$all[$key] = [
-			'short' => wrap_reference_cell(
-				$row, $short_col, $translate_cols, $context_columns, $lang
-			),
-			'long' => wrap_reference_cell(
-				$row, $long_col, $translate_cols, $context_columns, $lang
-			),
-		];
+		foreach (array_keys($col) as $column_key)
+			$all[$key][$column_key] = wrap_reference_cell(
+				$row, $col[$column_key], $translate_cols, $context_columns, $lang
+			);
 	}
 	$cache[$cache_key] = $all;
 	return $all;
 }
 
 /**
+ * Column names from a parsed reference TSV (#: header)
+ *
+ * @param array $rows wrap_tsv_parse() result
+ * @return string[]
+ */
+function wrap_reference_tsv_head($rows) {
+	foreach ($rows as $row) {
+		if (!is_array($row)) continue;
+		return array_values(array_diff(array_keys($row), ['_package']));
+	}
+	return [];
+}
+
+/**
  * Variables block from configuration/{$name}.tsv
  *
  * @param string $name
- * @return array<string, string>
+ * @return array<string, string|string[]>
  */
 function wrap_reference_tsv_variables($name) {
 	$tsv_files = wrap_collect_files('configuration/'.$name.'.tsv');
