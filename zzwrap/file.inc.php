@@ -174,7 +174,7 @@ function wrap_file_package($filename) {
  *
  * @param string $content file contents
  * @param string $section section title line before key = value pairs
- * @return array<string, string>
+ * @return array<string, string|string[]> comma-containing values are string lists
  */
 function wrap_file_header_variables($content, $section = 'Variables') {
 	$content = str_replace(["\r\n", "\r"], "\n", $content);
@@ -199,9 +199,28 @@ function wrap_file_header_variables($content, $section = 'Variables') {
 		}
 		if (!$in_section) continue;
 		if (!preg_match('/^(\w+)\s*=\s*(.+)$/', $text, $match)) break;
-		$variables[$match[1]] = trim($match[2]);
+		$value = trim($match[2]);
+		if (str_contains($value, ','))
+			$variables[$match[1]] = wrap_file_header_split_list($value);
+		else
+			$variables[$match[1]] = $value;
 	}
 	return $variables;
+}
+
+/**
+ * Comma-separated items from one file header variable value
+ *
+ * @param string $value
+ * @return string[]
+ */
+function wrap_file_header_split_list($value) {
+	$items = [];
+	foreach (preg_split('/\s*,\s*/', $value) as $item) {
+		$item = trim($item);
+		if ($item !== '') $items[] = $item;
+	}
+	return $items;
 }
 
 /**

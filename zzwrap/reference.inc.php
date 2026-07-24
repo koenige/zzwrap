@@ -133,7 +133,7 @@ function wrap_reference_all($name, $lang = null) {
 
 	$short_col = $variables['reference_short'] ?? 'abbr';
 	$long_col = $variables['reference_long'] ?? 'label';
-	$translate_cols = wrap_tsv_translate_columns($variables['translate'] ?? '');
+	$translate_cols = wrap_array_list($variables['translate'] ?? null);
 	$context_columns = wrap_tsv_translate_context($variables['translate_context'] ?? '');
 
 	$all = [];

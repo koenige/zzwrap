@@ -439,7 +439,7 @@ function wrap_extract_scan_tsv($content, $relative_path, &$entries) {
 	$variables = wrap_file_header_variables($content);
 	if (empty($variables['translate'])) return;
 
-	$columns = wrap_tsv_translate_columns($variables['translate']);
+	$columns = wrap_array_list($variables['translate']);
 	if (!$columns) return;
 
 	$context_columns = wrap_tsv_translate_context($variables['translate_context'] ?? '');
