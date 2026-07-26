@@ -26,7 +26,7 @@
  * @param array $settings (optional internal settings)
  *		'logfile': extra text for logfile only, 'no_return': does not return but
  *		exit, 'mail_no_request_uri', 'mail_no_ip', 'mail_no_user_agent',
- *		'subject', bool 'log_post_data', string 'class'
+ *		'subject', bool 'log_post_data', string 'class', array 'data'
  * @see wrap_error_collect_start() wrap_error_collect_end() to buffer errors and log once
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
@@ -79,6 +79,11 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	} else {
 		$error['text'] = $msg;
 	}
+
+	if (!empty($settings['data']) AND !$error['data'])
+		$error['data'] = $settings['data'];
+	elseif (!empty($settings['data'])) // not recommended
+		$error['data'] = array_merge($error['data'], $settings['data']);
 
 	if ($error['data'] !== null) {
 		$log_message = wrap_error_log_line($error);
