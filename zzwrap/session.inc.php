@@ -231,7 +231,7 @@ function wrap_session_cookie_injection($session_name) {
 	if (empty($_COOKIE[$session_name])) return true;
 	if (is_array($_COOKIE[$session_name])) {
 		unset($_COOKIE[$session_name]);
-		wrap_quit(400, 'Don’t crumble my cookies.');
+		wrap_quit(400, wrap_text('Don’t crumble my cookies.'));
 	}
 	if (!preg_match('/^[A-Za-z0-9-,]+$/', $_COOKIE[$session_name])) {
 		wrap_error(['Illegal session cookie value found: %s', ['values' => [$_COOKIE[$session_name]]]], E_USER_NOTICE);

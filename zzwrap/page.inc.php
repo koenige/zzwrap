@@ -506,7 +506,7 @@ function wrap_page_json($page) {
 			$json = json_encode($output);
 			if ($json) return $json;
 		}
-		wrap_quit(503, 'JSON error: '.json_last_error_msg());
+		wrap_quit(503, wrap_text('JSON error: %s', ['values' => [json_last_error_msg()]]));
 	}
 	return $json;
 }

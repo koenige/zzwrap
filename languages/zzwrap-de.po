@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: 2026-07-21 16:50+0000\n"
+"POT-Creation-Date: 2026-07-26 23:30+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -858,7 +858,7 @@ msgid "Method:"
 msgstr "Methode:"
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1191
+#: zzwrap/errorhandling.inc.php:1196
 msgid "IP:"
 msgstr "IP:"
 
@@ -867,7 +867,7 @@ msgid "Browser:"
 msgstr "Browser:"
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1193
+#: zzwrap/errorhandling.inc.php:1198
 msgid "unknown"
 msgstr "unbekannt"
 
@@ -894,6 +894,10 @@ msgstr "Der Link fürs Login ist falsch oder abgelaufen."
 #: zzbrick_request/login.inc.php:79
 msgid "Please get a new one."
 msgstr "Bitte besorgen Sie sich einen neuen."
+
+#: zzbrick_request/login.inc.php:108
+msgid "The e-mail address was not entered correctly."
+msgstr "Die E-Mail-Adresse wurde nicht korrekt eingegeben."
 
 #: zzbrick_request/login.inc.php:135
 msgid "Password or username are empty. Please try again."
@@ -964,6 +968,10 @@ msgstr "Kopfzeilen"
 msgid "not found"
 msgstr "nicht gefunden"
 
+#: zzwrap/core.inc.php:654
+msgid "You sent the null character in your data. No use for that."
+msgstr "Sie haben das Nullzeichen in Ihren Daten gesendet. Das ist sinnlos."
+
 #: zzwrap/database.inc.php:275
 msgid "Warnings"
 msgstr "Warnungen"
@@ -989,19 +997,19 @@ msgstr ""
 msgid "User"
 msgstr "Nutzer"
 
-#: zzwrap/errorhandling.inc.php:163
+#: zzwrap/errorhandling.inc.php:168
 msgid "Error on website"
 msgstr "Fehler auf der Website"
 
-#: zzwrap/errorhandling.inc.php:572
+#: zzwrap/errorhandling.inc.php:577
 msgid "URL"
 msgstr "URL"
 
-#: zzwrap/errorhandling.inc.php:573
+#: zzwrap/errorhandling.inc.php:578
 msgid "Script"
 msgstr "Skript"
 
-#: zzwrap/errorhandling.inc.php:613
+#: zzwrap/errorhandling.inc.php:618
 msgid ""
 "Please try to find the content you were looking for from our <a "
 "href=\"%s\">main page</a>."
@@ -1010,19 +1018,19 @@ msgstr ""
 "href=\"%s\">unsere Hauptseite</a> zu finden."
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php:725
+#: zzwrap/errorhandling.inc.php:730
 msgid "Unsupported server protocol (%s)"
 msgstr "Server-Protokoll wird nicht unterstützt (%s)"
 
-#: zzwrap/errorhandling.inc.php:1193
+#: zzwrap/errorhandling.inc.php:1198
 msgid "User agent:"
 msgstr "User-Agent:"
 
-#: zzwrap/errorhandling.inc.php:1195
+#: zzwrap/errorhandling.inc.php:1200
 msgid "Referring URL:"
 msgstr "Verweisende URL:"
 
-#: zzwrap/extract.inc.php:485
+#: zzwrap/extract.inc.php:522
 msgid "fallback"
 msgstr ""
 
@@ -1133,7 +1141,7 @@ msgstr "Diese Website ist derzeit offline."
 
 #: zzwrap/http.inc.php:164
 msgid "This value for %s sent via HTTP must not be an array: %s"
-msgstr ""
+msgstr "Dieser über HTTP übermittelte Wert für %s darf kein Array sein: %s"
 
 #: zzwrap/http.inc.php:312
 msgid ""
@@ -1187,6 +1195,10 @@ msgstr "Übersicht"
 msgid "Illegal value for XML HTTP request: %s"
 msgstr "Ungültiger Wert für XML-HTTP-Anfrage: %s"
 
+#: zzwrap/page.inc.php:509
+msgid "JSON error: %s"
+msgstr "JSON-Fehler: %s"
+
 #: zzwrap/pot.inc.php:372
 msgid "Unknown package."
 msgstr "Unbekanntes Paket."
@@ -1209,6 +1221,10 @@ msgstr[1] "%d .pot-Dateien erstellt."
 msgid "Temporarily, a login is not possible."
 msgstr "Vorübergehend ist keine Anmeldung möglich."
 
+#: zzwrap/session.inc.php:234
+msgid "Don’t crumble my cookies."
+msgstr "Zerbröckle meine Kekse nicht."
+
 #: zzwrap/template.inc.php:154
 msgid "Template <code>%s</code> does not exist."
 msgstr "Vorlage <code>%s</code> existiert nicht."
@@ -1225,3 +1241,6 @@ msgstr "Ungültige Anfrage-URI: %s%s"
 #: zzwrap/url.inc.php:88
 msgid "URIs with more than %d slashes are not processed."
 msgstr "URIs mit mehr als %d Schrägstrichen werden nicht verarbeitet."
+
+#~ msgid "JSON error:"
+#~ msgstr "JSON-Fehler:"

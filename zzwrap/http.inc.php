@@ -95,7 +95,10 @@ function wrap_http_check_request() {
 
 	// check if REMOTE_ADDR is valid IP
 	if (!filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
-		wrap_quit(400, sprintf('Request with a malformed IP address: %s', wrap_html_escape($_SERVER['REMOTE_ADDR'])));
+		wrap_quit(400, wrap_error(
+			'Request with a malformed IP address: %s',
+			['values' => [wrap_html_escape($_SERVER['REMOTE_ADDR'])]]
+		));
 }
 
 /**

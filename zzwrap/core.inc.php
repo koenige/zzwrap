@@ -651,6 +651,6 @@ function wrap_validate_post_recursive($data) {
         if (is_array($value))
         	wrap_validate_post_recursive($value);
         elseif (strpos($value, "\0") !== false)
-        	wrap_quit(400, 'You sent the null character in your data. No use for that.');
+        	wrap_quit(400, wrap_text('You sent the null character in your data. No use for that.'));
 	}
 }

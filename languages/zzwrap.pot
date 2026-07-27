@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-21 16:50+0000\n"
+"POT-Creation-Date: 2026-07-26 23:30+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -801,7 +801,7 @@ msgid "Method:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1191
+#: zzwrap/errorhandling.inc.php:1196
 msgid "IP:"
 msgstr ""
 
@@ -810,7 +810,7 @@ msgid "Browser:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1193
+#: zzwrap/errorhandling.inc.php:1198
 msgid "unknown"
 msgstr ""
 
@@ -836,6 +836,10 @@ msgstr ""
 
 #: zzbrick_request/login.inc.php:79
 msgid "Please get a new one."
+msgstr ""
+
+#: zzbrick_request/login.inc.php:108
+msgid "The e-mail address was not entered correctly."
 msgstr ""
 
 #: zzbrick_request/login.inc.php:135
@@ -909,6 +913,10 @@ msgstr ""
 msgid "not found"
 msgstr ""
 
+#: zzwrap/core.inc.php:654
+msgid "You sent the null character in your data. No use for that."
+msgstr ""
+
 #: zzwrap/database.inc.php:275
 msgid "Warnings"
 msgstr ""
@@ -934,36 +942,36 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:163
+#: zzwrap/errorhandling.inc.php:168
 msgid "Error on website"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:572
+#: zzwrap/errorhandling.inc.php:577
 msgid "URL"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:573
+#: zzwrap/errorhandling.inc.php:578
 msgid "Script"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:613
+#: zzwrap/errorhandling.inc.php:618
 msgid "Please try to find the content you were looking for from our <a href=\"%s\">main page</a>."
 msgstr ""
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php:725
+#: zzwrap/errorhandling.inc.php:730
 msgid "Unsupported server protocol (%s)"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1193
+#: zzwrap/errorhandling.inc.php:1198
 msgid "User agent:"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1195
+#: zzwrap/errorhandling.inc.php:1200
 msgid "Referring URL:"
 msgstr ""
 
-#: zzwrap/extract.inc.php:485
+#: zzwrap/extract.inc.php:522
 msgid "fallback"
 msgstr ""
 
@@ -1123,6 +1131,10 @@ msgstr ""
 msgid "Illegal value for XML HTTP request: %s"
 msgstr ""
 
+#: zzwrap/page.inc.php:509
+msgid "JSON error: %s"
+msgstr ""
+
 #: zzwrap/pot.inc.php:372
 msgid "Unknown package."
 msgstr ""
@@ -1143,6 +1155,10 @@ msgstr[] ""
 
 #: zzwrap/session.inc.php:54
 msgid "Temporarily, a login is not possible."
+msgstr ""
+
+#: zzwrap/session.inc.php:234
+msgid "Don’t crumble my cookies."
 msgstr ""
 
 #: zzwrap/template.inc.php:154

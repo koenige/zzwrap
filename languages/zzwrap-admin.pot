@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-21 16:50+0000\n"
+"POT-Creation-Date: 2026-07-26 23:15+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -293,70 +293,74 @@ msgid "Scope(s) where this variable can be set"
 msgstr ""
 
 #: configuration/cfg.cfg:372
-msgid "Store this setting globally (website_id = 1) when running multiple websites"
+msgid "Module(s) that must be installed for this setting to take effect"
 msgstr ""
 
 #: configuration/cfg.cfg:377
-msgid "Path to script for processing"
+msgid "Store this setting globally (website_id = 1) when running multiple websites"
 msgstr ""
 
 #: configuration/cfg.cfg:382
-msgid "Link to another variable that does something similar, @see"
+msgid "Path to script for processing"
 msgstr ""
 
 #: configuration/cfg.cfg:387
-msgid "Field name for source record identifier in synchronization"
+msgid "Link to another variable that does something similar, @see"
 msgstr ""
 
 #: configuration/cfg.cfg:392
-msgid "Function for processing raw SPARQL results"
+msgid "Field name for source record identifier in synchronization"
 msgstr ""
 
 #: configuration/cfg.cfg:397
-msgid "SPARQL endpoint URI"
+msgid "Function for processing raw SPARQL results"
 msgstr ""
 
 #: configuration/cfg.cfg:402
-msgid "SQL query or SQL-related configuration"
+msgid "SPARQL endpoint URI"
 msgstr ""
 
 #: configuration/cfg.cfg:407
-msgid "Number of records to process per synchronization run"
+msgid "SQL query or SQL-related configuration"
 msgstr ""
 
 #: configuration/cfg.cfg:412
-msgid "This variable is for testing purposes only"
+msgid "Number of records to process per synchronization run"
 msgstr ""
 
 #: configuration/cfg.cfg:417
-msgid "Thumbnail generation is supported for this filetype"
+msgid "This variable is for testing purposes only"
 msgstr ""
 
 #: configuration/cfg.cfg:422
-msgid "Display title or label for this entry"
+msgid "Thumbnail generation is supported for this filetype"
 msgstr ""
 
 #: configuration/cfg.cfg:427
+msgid "Display title or label for this entry"
+msgstr ""
+
+#: configuration/cfg.cfg:432
 msgid "To do, @todo"
 msgstr ""
 
-#: configuration/cfg.cfg:430
+#: configuration/cfg.cfg:435
 msgid "Values of this property are automatically translated"
 msgstr ""
 
-#: configuration/cfg.cfg:436
+#: configuration/cfg.cfg:441
 msgid "If a translation is missing, which .pot file gets the new msgid"
 msgstr ""
 
-#: configuration/cfg.cfg:442
+#: configuration/cfg.cfg:447
 msgid "Type of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:473
+#: configuration/cfg.cfg:478
 msgid "URL value"
 msgstr ""
 
-#: configuration/cfg.cfg:478
+#: configuration/cfg.cfg:483
 msgid "Image format suitable for web display"
 msgstr ""
 
@@ -1578,20 +1582,20 @@ msgstr ""
 msgid "Wrong relative path: %s"
 msgstr ""
 
-#: zzwrap/core.inc.php:307
+#: zzwrap/core.inc.php:321
 msgid "Creating hierarchy impossible because ID %d is not part of the given list"
 msgstr ""
 
-#: zzwrap/core.inc.php:359
-#: zzwrap/core.inc.php:367
+#: zzwrap/core.inc.php:373
+#: zzwrap/core.inc.php:381
 msgid "Unable to create folder %s."
 msgstr ""
 
-#: zzwrap/core.inc.php:458
+#: zzwrap/core.inc.php:472
 msgid "Cannot determine filetype by extension: `%s`"
 msgstr ""
 
-#: zzwrap/core.inc.php:506
+#: zzwrap/core.inc.php:520
 msgid "No filetype `%s` exists."
 msgstr ""
 
@@ -1672,27 +1676,27 @@ msgstr ""
 msgid "Cache directory %s does not exist. Caching disabled."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:570
+#: zzwrap/errorhandling.inc.php:575
 msgid "mod_rewrite does not work as expected"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:596
+#: zzwrap/errorhandling.inc.php:601
 msgid "Status %s is not a valid HTTP status code."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:781
+#: zzwrap/errorhandling.inc.php:786
 msgid "File %s is wrong in line %s."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:847
+#: zzwrap/errorhandling.inc.php:852
 msgid "Case %s in line %s not supported."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:873
+#: zzwrap/errorhandling.inc.php:878
 msgid "The server responds to the hostname %s, but this is not in the list of possible hostnames."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1115
+#: zzwrap/errorhandling.inc.php:1120
 msgid "Username must be string."
 msgstr ""
 
@@ -1700,7 +1704,7 @@ msgstr ""
 msgid "Unable to determine which file this package belongs to: %s"
 msgstr ""
 
-#: zzwrap/files.inc.php:423
+#: zzwrap/files.inc.php:398
 msgid "The required library %s does not exist. Please install it in the `_inc/library` folder."
 msgstr ""
 
@@ -1834,16 +1838,20 @@ msgstr ""
 msgid "Template %s includes itself"
 msgstr ""
 
-#: zzwrap/reference.inc.php:29
-msgid "Unknown reference style `%s` for `%s`."
-msgstr ""
-
-#: zzwrap/reference.inc.php:120
+#: zzwrap/reference.inc.php:33
 msgid "Unknown reference `%s` (configuration/%s.tsv has no `reference = 1`)."
 msgstr ""
 
-#: zzwrap/reference.inc.php:129
+#: zzwrap/reference.inc.php:39
+msgid "Unknown reference style `%s` for `%s`."
+msgstr ""
+
+#: zzwrap/reference.inc.php:143
 msgid "Reference `%s` is empty."
+msgstr ""
+
+#: zzwrap/reference.inc.php:157
+msgid "Reference `%s`: unknown extra_columns `%s` (TSV columns: %s)."
 msgstr ""
 
 #: zzwrap/routes.inc.php:410
@@ -1890,20 +1898,24 @@ msgstr ""
 msgid "Unable to add value %s to key, it is not an array."
 msgstr ""
 
-#: zzwrap/settings.inc.php:297
+#: zzwrap/settings.inc.php:279
+msgid "Setting `%s` requires module(s) %s."
+msgstr ""
+
+#: zzwrap/settings.inc.php:331
 msgid "Setting `%s` not found in settings.cfg files."
 msgstr ""
 
-#: zzwrap/settings.inc.php:363
+#: zzwrap/settings.inc.php:399
 msgid "Could not change setting. Key: %s, value: %s, login: %s"
 msgstr ""
 
-#: zzwrap/settings.inc.php:493
-#: zzwrap/settings.inc.php:518
+#: zzwrap/settings.inc.php:529
+#: zzwrap/settings.inc.php:554
 msgid "Too many arrays in %s, not implemented."
 msgstr ""
 
-#: zzwrap/settings.inc.php:709
+#: zzwrap/settings.inc.php:745
 msgid "Value for setting %s must be an array: %s"
 msgstr ""
 
