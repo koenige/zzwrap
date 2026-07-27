@@ -156,6 +156,8 @@ function wrap_language_get_text($lang) {
  *			'set': set new key for translation
  *			'translate_pot': if a translation is missing, log to {package}-{value}.pot
  *			'values': values for sprintf() use
+ *			'prefix': markup or text before the translated string (not translated)
+ *			'suffix': markup or text after the translated string (not translated)
  *		string	Language to translate into (if different from
  *		actively used language on website @deprecated)
  * @global array $zz_conf	configuration variables
@@ -172,8 +174,11 @@ function wrap_text($string, $params = []) {
 	static $plurals = [];
 
 	if (is_array($string)) {
-		if (wrap_text_is_sentence_list($string))
-			return wrap_text_sentences($string, $params);
+		if (wrap_text_is_sentence_list($string)) {
+			$affixes = wrap_text_strip_affixes($params);
+			$translation = wrap_text_sentences($string, $params);
+			return wrap_text_affixes($translation, $affixes);
+		}
 		$params = array_merge($string[1] ?? [], $params);
 		$string = $string[0];
 	}
@@ -325,6 +330,37 @@ function wrap_text_sentences($sentences, $params = []) {
 }
 
 /**
+ * Remove prefix/suffix from wrap_text() params
+ *
+ * @param array $params parameters (by reference)
+ * @return array with prefix and suffix keys
+ */
+function wrap_text_strip_affixes(&$params) {
+	$affixes = [
+		'prefix' => $params['prefix'] ?? '',
+		'suffix' => $params['suffix'] ?? '',
+	];
+	unset($params['prefix'], $params['suffix']);
+	return $affixes;
+}
+
+/**
+ * Wrap a translated string with prefix/suffix markup
+ *
+ * @param string $text translated text
+ * @param array $params
+ *		string $prefix
+ * 		string $suffix
+ * @return string
+ */
+function wrap_text_affixes($text, $params) {
+	$prefix = $params['prefix'] ?? '';
+	$suffix = $params['suffix'] ?? '';
+	if ($prefix === '' AND $suffix === '') return $text;
+	return $prefix.$text.$suffix;
+}
+
+/**
  * get a list of files to include for wrap_text()
  * dependent on language and packages
  *
@@ -403,6 +439,8 @@ function wrap_text_files_add(&$files, $language, $module) {
 /**
  * format string with sprintf
  *
+ * Applies prefix/suffix from $params after translation and values.
+ *
  * @param array $text
  * @param string $key
  * @param array $params
@@ -411,12 +449,14 @@ function wrap_text_files_add(&$files, $language, $module) {
 function wrap_text_values($text, $key, $params) {
 	$translation = $text[$key] ?? $key;
 	if (!isset($params['values'])) {
-		if (!is_array($translation)) return $translation;
+		if (!is_array($translation))
+			return wrap_text_affixes($translation, $params);
 		$params['values'] = [0]; // array = plural, no value = plural for 0 occurences
 	}
 	if (!is_array($params['values'])) $params['values'] = [$params['values']];
 	if (!is_array($translation)) {
-		return wrap_text_values_format($translation, $params['values'], $key);
+		$translation = wrap_text_values_format($translation, $params['values'], $key);
+		return wrap_text_affixes($translation, $params);
 	}
 	// @todo check for %d and support strings with more than one placeholder
 	// currently, has to be first placeholder
@@ -424,7 +464,8 @@ function wrap_text_values($text, $key, $params) {
 	$index = wrap_text_plurals($counter, $params['plurals']);
 	// translation might be missing, other language might only have one plural
 	if (!array_key_exists($index, $translation)) $index = 1;
-	return wrap_text_values_format($translation[$index], $params['values'], $key);
+	$translation[$index] = wrap_text_values_format($translation[$index], $params['values'], $key);
+	return wrap_text_affixes($translation[$index], $params);
 }
 
 /**
