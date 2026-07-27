@@ -212,8 +212,8 @@ function wrap_extract_scan_php($content, $relative_path, &$entries) {
 /**
  * Scan wrap_text() calls with a tuple or sentence list as first argument
  *
- * Matches `wrap_text(['msgid', params])` and sentence lists
- * `wrap_text([['First.'], ['Second %s', ['values' => …]]])`.
+ * Matches `[msgid, params]` and sentence lists thereof
+ * (each element is `[msgid]` or `[msgid, params]`).
  *
  * @param string $content PHP file contents with Unix line endings
  * @param string $pot translate_pot suffix
