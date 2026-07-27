@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap\n"
-"POT-Creation-Date: 2026-07-26 23:30+0000\n"
+"POT-Creation-Date: 2026-07-27 04:58+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Gustaf Mossakowski <gustaf@koenige.org>\n"
 "Language-Team: \n"
@@ -959,11 +959,6 @@ msgstr[1] ""
 msgid "Data"
 msgstr "Daten"
 
-#: zzwrap/auth.inc.php:826 zzwrap/background.inc.php:38
-#: zzwrap/background.inc.php:271
-msgid "Headers"
-msgstr "Kopfzeilen"
-
 #: zzwrap/background.inc.php:89
 msgid "not found"
 msgstr "nicht gefunden"
@@ -1139,11 +1134,11 @@ msgstr "Der Zugriff auf diese Website für Ihre IP-Adresse ist eingeschränkt."
 msgid "This website is currently offline."
 msgstr "Diese Website ist derzeit offline."
 
-#: zzwrap/http.inc.php:164
+#: zzwrap/http.inc.php:167
 msgid "This value for %s sent via HTTP must not be an array: %s"
 msgstr "Dieser über HTTP übermittelte Wert für %s darf kein Array sein: %s"
 
-#: zzwrap/http.inc.php:312
+#: zzwrap/http.inc.php:315
 msgid ""
 "HTTP Header spoofing detected. The client is attempting to impersonate "
 "localhost."
@@ -1151,7 +1146,7 @@ msgstr ""
 "HTTP-Header-Spoofing erkannt. Der Client versucht, sich als „localhost“ "
 "auszugeben."
 
-#: zzwrap/http.inc.php:327
+#: zzwrap/http.inc.php:330
 msgid ""
 "HTTP Header spoofing detected. The client uses an invalid forwarding IP "
 "address: %s"
@@ -1241,6 +1236,3 @@ msgstr "Ungültige Anfrage-URI: %s%s"
 #: zzwrap/url.inc.php:88
 msgid "URIs with more than %d slashes are not processed."
 msgstr "URIs mit mehr als %d Schrägstrichen werden nicht verarbeitet."
-
-#~ msgid "JSON error:"
-#~ msgstr "JSON-Fehler:"

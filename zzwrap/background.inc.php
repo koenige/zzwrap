@@ -35,7 +35,7 @@ function wrap_job($url, $data = []) {
 	if ($status === 200) return true;
 	wrap_error([
 		'Job with URL %s failed. (Status: %d)',
-		['values' => [$url, $status], 'data' => [wrap_text('Headers') => $headers]]
+		['values' => [$url, $status], 'data' => ['Headers' => $headers]]
 	]);
 	return false;
 }
@@ -268,7 +268,7 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 		$body_excerpt = is_string($result[2] ?? null) ? substr($result[2], 0, 200) : '(empty)';
 		wrap_debug([
 			'Access: protected response status %s from %s, body: %s',
-			['values' => [$status, $url, $body_excerpt], 'data' => [wrap_text('Headers') => $response_headers]]
+			['values' => [$status, $url, $body_excerpt], 'data' => ['Headers' => $response_headers]]
 		], 'debug_access');
 	}
 

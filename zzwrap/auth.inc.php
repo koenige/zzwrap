@@ -823,7 +823,7 @@ function wrap_auth_form($login, $settings) {
 		wrap_error([
 			'FORMAUTH login failed. Status %s.', [
 				'values' => [$status],
-				'data' => [wrap_text('Headers') => $headers, wrap_text('Data') => $data]
+				'data' => ['Headers' => $headers, wrap_text('Data') => $data]
 			]
 		]);
 		return [];
