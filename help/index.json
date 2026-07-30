@@ -64,19 +64,6 @@
             ]
         }
     ],
-    "routes": [
-        {
-            "title": "URLs, webpages, and named routes",
-            "language": "en",
-            "package": "zzwrap",
-            "filename": "help/Routes.md",
-            "identifier": "routes",
-            "type": "md",
-            "audience": [
-                "programmer"
-            ]
-        }
-    ],
     "translating-text": [
         {
             "title": "Translating Text",
@@ -84,6 +71,19 @@
             "package": "zzwrap",
             "filename": "help/Translating Text.md",
             "identifier": "translating-text",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "urls-and-routes": [
+        {
+            "title": "URLs, webpages, and named routes",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/URLs and Routes.md",
+            "identifier": "urls-and-routes",
             "type": "md",
             "audience": [
                 "programmer"
