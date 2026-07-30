@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-27 04:58+0000\n"
+"POT-Creation-Date: 2026-07-30 17:33+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1129,19 +1129,19 @@ msgstr ""
 msgid "JSON error: %s"
 msgstr ""
 
-#: zzwrap/pot.inc.php:372
+#: zzwrap/pot.inc.php:390
 msgid "Unknown package."
 msgstr ""
 
-#: zzwrap/pot.inc.php:394
+#: zzwrap/pot.inc.php:412
 msgid "Could not write file: %s"
 msgstr ""
 
-#: zzwrap/pot.inc.php:404
+#: zzwrap/pot.inc.php:422
 msgid "No .pot files were changed."
 msgstr ""
 
-#: zzwrap/pot.inc.php:410
+#: zzwrap/pot.inc.php:428
 msgid "%d .pot file written."
 msgid_plural "%d .pot files written."
 msgstr[] ""

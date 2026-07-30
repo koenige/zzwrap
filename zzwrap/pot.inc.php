@@ -50,15 +50,33 @@ function wrap_pot_header_data($package, $pot_suffix = '', $creation_date = null)
 	if (!$type) return $data;
 
 	$data['package_type'] = $type;
-	$pkg = wrap_cfg_files('package', ['package' => $package]);
-	if (!empty($pkg['about']['name']))
-		$data['package_label'] = $pkg['about']['name'];
-	elseif ($type === 'modules')
-		$data['package_label'] = $package.' module';
-	else
-		$data['package_label'] = $package.' theme';
+	$data['package_label'] = wrap_pot_package_label($package, $type);
 
 	return $data;
+}
+
+/**
+ * Package label for .pot headers from configuration/package.cfg
+ *
+ * Reads the file directly so runtime cfg translation (e.g. on sourcecheck)
+ * cannot change Project-Id-Version or comment headers in rebuilt .pot files.
+ *
+ * @param string $package
+ * @param string $type modules or themes
+ * @return string
+ */
+function wrap_pot_package_label($package, $type) {
+	$folder = wrap_package_folder($package);
+	if ($folder) {
+		$file = $folder.'/configuration/package.cfg';
+		if (is_readable($file)) {
+			$about = parse_ini_file($file, true);
+			if (!empty($about['about']['name']))
+				return $about['about']['name'];
+		}
+	}
+	if ($type === 'modules') return $package.' module';
+	return $package.' theme';
 }
 
 /**
