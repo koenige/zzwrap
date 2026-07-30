@@ -1,0 +1,93 @@
+{
+    "format": [
+        {
+            "title": "Formatting",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Format.md",
+            "identifier": "format",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "including-files": [
+        {
+            "title": "Including files",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Including Files.md",
+            "identifier": "including-files",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "installation": [
+        {
+            "title": "Installation",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Installation.md",
+            "identifier": "installation",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "modules": [
+        {
+            "title": "Modules",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Modules.md",
+            "identifier": "modules",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "page-elements": [
+        {
+            "title": "Page Elements",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Page Elements.md",
+            "identifier": "page-elements",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "routes": [
+        {
+            "title": "URLs, webpages, and named routes",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Routes.md",
+            "identifier": "routes",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
+    "translating-text": [
+        {
+            "title": "Translating Text",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Translating Text.md",
+            "identifier": "translating-text",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ]
+}
