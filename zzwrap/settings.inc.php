@@ -777,6 +777,71 @@ function wrap_setting_backend() {
 }
 
 /**
+ * add page parameters to settings
+ *
+ * whitelist of possible parameters is generated from settings.cfg in modules
+ * setting needs page_parameter = 1
+ * @param string $params
+ * @return bool
+ */
+function wrap_setting_from_page($params) {
+	if (!$params) return false;
+	$cfg = wrap_cfg_files('settings');
+	
+	foreach ($params as $key => $value) {
+		if (!array_key_exists($key, $cfg)) continue;
+		if (empty($cfg[$key]['page_parameter'])) continue;
+		wrap_setting($key, $value);
+	}
+	return true;
+}
+
+/**
+ * add table parameters to settings
+ *
+ * whitelist of possible parameters is generated from settings.cfg in modules
+ * setting needs scope = table
+ * @param string $scope
+ * @param mixed $params
+ * @param bool $reset reset values from other functions in each call
+ * @return bool
+ */
+function wrap_setting_from_table($scope, $params, $reset = true) {
+	static $unchanged = [];
+	$changed = [];
+	
+	if (!$params) return false;
+	if (!is_array($params)) {
+		parse_str($params, $params);
+		if (!$params) return false;
+	}
+
+	$cfg = wrap_cfg_files('settings');
+	foreach ($params as $key => $value) {
+		if (!array_key_exists($key, $cfg)) continue;
+		if (empty($cfg[$key]['scope'])) continue;
+		if (!in_array($scope, $cfg[$key]['scope'])) continue;
+		if (is_null(wrap_setting($key))) {
+			$unchanged[$key] = NULL;
+			wrap_setting($key, $value);
+			$changed[] = $key;
+		} elseif (wrap_setting($key) !== $value) {
+			$unchanged[$key] = wrap_setting($key);
+			wrap_setting($key, $value);
+			$changed[] = $key;
+		}
+	}
+	// multiple calls: change unchanged parameters back to original value
+	if ($reset) {
+		foreach (array_keys($unchanged) as $key) {
+			if (in_array($key, $changed)) continue;
+			wrap_setting($key, $unchanged[$key]);
+		}
+	}
+	return true;
+}
+
+/**
  * read default settings from .cfg files
  *
  * @param string $type (settings, access, etc.)
