@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-07-30 17:10+0000\n"
+"POT-Creation-Date: 2026-07-31 07:27+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -293,74 +293,78 @@ msgid "Scope(s) where this variable can be set"
 msgstr ""
 
 #: configuration/cfg.cfg:372
-msgid "Module(s) that must be installed for this setting to take effect"
+msgid "Category path segment(s) where this setting applies (with scope[] = categories)"
 msgstr ""
 
 #: configuration/cfg.cfg:377
-msgid "Store this setting globally (website_id = 1) when running multiple websites"
+msgid "Module(s) that must be installed for this setting to take effect"
 msgstr ""
 
 #: configuration/cfg.cfg:382
-msgid "Path to script for processing"
+msgid "Store this setting globally (website_id = 1) when running multiple websites"
 msgstr ""
 
 #: configuration/cfg.cfg:387
-msgid "Link to another variable that does something similar, @see"
+msgid "Path to script for processing"
 msgstr ""
 
 #: configuration/cfg.cfg:392
-msgid "Field name for source record identifier in synchronization"
+msgid "Link to another variable that does something similar, @see"
 msgstr ""
 
 #: configuration/cfg.cfg:397
-msgid "Function for processing raw SPARQL results"
+msgid "Field name for source record identifier in synchronization"
 msgstr ""
 
 #: configuration/cfg.cfg:402
-msgid "SPARQL endpoint URI"
+msgid "Function for processing raw SPARQL results"
 msgstr ""
 
 #: configuration/cfg.cfg:407
-msgid "SQL query or SQL-related configuration"
+msgid "SPARQL endpoint URI"
 msgstr ""
 
 #: configuration/cfg.cfg:412
-msgid "Number of records to process per synchronization run"
+msgid "SQL query or SQL-related configuration"
 msgstr ""
 
 #: configuration/cfg.cfg:417
-msgid "This variable is for testing purposes only"
+msgid "Number of records to process per synchronization run"
 msgstr ""
 
 #: configuration/cfg.cfg:422
-msgid "Thumbnail generation is supported for this filetype"
+msgid "This variable is for testing purposes only"
 msgstr ""
 
 #: configuration/cfg.cfg:427
-msgid "Display title or label for this entry"
+msgid "Thumbnail generation is supported for this filetype"
 msgstr ""
 
 #: configuration/cfg.cfg:432
+msgid "Display title or label for this entry"
+msgstr ""
+
+#: configuration/cfg.cfg:437
 msgid "To do, @todo"
 msgstr ""
 
-#: configuration/cfg.cfg:435
+#: configuration/cfg.cfg:440
 msgid "Values of this property are automatically translated"
 msgstr ""
 
-#: configuration/cfg.cfg:441
+#: configuration/cfg.cfg:446
 msgid "If a translation is missing, which .pot file gets the new msgid"
 msgstr ""
 
-#: configuration/cfg.cfg:447
+#: configuration/cfg.cfg:452
 msgid "Type of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:478
+#: configuration/cfg.cfg:483
 msgid "URL value"
 msgstr ""
 
-#: configuration/cfg.cfg:483
+#: configuration/cfg.cfg:488
 msgid "Image format suitable for web display"
 msgstr ""
 
@@ -404,1085 +408,1093 @@ msgstr ""
 msgid "List of access areas where access is granted via setting"
 msgstr ""
 
-#: configuration/settings.cfg:29
+#: configuration/settings.cfg:32
 msgid "List of IPs that have no access to this site (better use only temporarily, as IP allocations change)"
 msgstr ""
 
-#: configuration/settings.cfg:34
+#: configuration/settings.cfg:37
 msgid "Grant access to all areas"
 msgstr ""
 
-#: configuration/settings.cfg:38
+#: configuration/settings.cfg:41
 msgid "List of active modules"
 msgstr ""
 
-#: configuration/settings.cfg:44
+#: configuration/settings.cfg:47
 msgid "List of active themes"
 msgstr ""
 
-#: configuration/settings.cfg:50
+#: configuration/settings.cfg:53
 msgid "Identifier of active module"
 msgstr ""
 
-#: configuration/settings.cfg:55
+#: configuration/settings.cfg:58
 msgid "Identifier of active theme (if there are multiple themes)"
 msgstr ""
 
-#: configuration/settings.cfg:61
+#: configuration/settings.cfg:64
 msgid "If administration and jobs are running on a different server, hostname"
 msgstr ""
 
-#: configuration/settings.cfg:64
+#: configuration/settings.cfg:67
 msgid "URLs below which authentication is required"
 msgstr ""
 
-#: configuration/settings.cfg:70
+#: configuration/settings.cfg:73
 msgid "Can a user authenticate on this website?"
 msgstr ""
 
-#: configuration/settings.cfg:75
+#: configuration/settings.cfg:78
 msgid "If backend is different from main website, use as path to set backend URL via placeholder"
 msgstr ""
 
-#: configuration/settings.cfg:82
+#: configuration/settings.cfg:86
 msgid "Website ID if the website that is worked on in the backend is different from main website"
 msgstr ""
 
-#: configuration/settings.cfg:88
+#: configuration/settings.cfg:92
 msgid "Marker if request runs as a background job"
 msgstr ""
 
-#: configuration/settings.cfg:93
+#: configuration/settings.cfg:97
 msgid "Base URL, e. g. for languages"
 msgstr ""
 
-#: configuration/settings.cfg:98
+#: configuration/settings.cfg:102
 msgid "If website does not cover all URLs under a domain, path which belongs to CMS (no trailing slash!)"
 msgstr ""
 
-#: configuration/settings.cfg:104
+#: configuration/settings.cfg:108
 msgid "URL path to public script folder on server, defaults to `/_behaviour`"
 msgstr ""
 
-#: configuration/settings.cfg:109
+#: configuration/settings.cfg:113
 msgid "Add breadcrumb(s) before h1, all: all of them, number: just the last n breadcrumbs"
 msgstr ""
 
-#: configuration/settings.cfg:123
+#: configuration/settings.cfg:127
 msgid "Cache website content"
 msgstr ""
 
-#: configuration/settings.cfg:131
+#: configuration/settings.cfg:135
 msgid "Seconds while content is always considered fresh"
 msgstr ""
 
-#: configuration/settings.cfg:136
+#: configuration/settings.cfg:140
 msgid "Time in seconds how long a syndicated file should be considered as fresh"
 msgstr ""
 
-#: configuration/settings.cfg:141
+#: configuration/settings.cfg:145
 msgid "Seconds a standard file is considered fresh, sent with cache-control-header"
 msgstr ""
 
-#: configuration/settings.cfg:146
+#: configuration/settings.cfg:150
 msgid "Seconds a standard text resource is considered fresh, sent with cache-control-header"
 msgstr ""
 
-#: configuration/settings.cfg:151
+#: configuration/settings.cfg:155
 msgid "Use directory structure for caching (for larger websites)"
 msgstr ""
 
-#: configuration/settings.cfg:155
+#: configuration/settings.cfg:159
 msgid "Location of cache folder"
 msgstr ""
 
-#: configuration/settings.cfg:161
+#: configuration/settings.cfg:165
 msgid "Base directory inside cache folder, internal"
 msgstr ""
 
-#: configuration/settings.cfg:166
+#: configuration/settings.cfg:170
 msgid "Extension of file for caching"
 msgstr ""
 
-#: configuration/settings.cfg:170
+#: configuration/settings.cfg:174
 msgid "Canonical host name; other host names will redirect to this"
 msgstr ""
 
-#: configuration/settings.cfg:176
+#: configuration/settings.cfg:180
 msgid "Character encoding of website"
 msgstr ""
 
-#: configuration/settings.cfg:181
+#: configuration/settings.cfg:185
 msgid "CSS class for body element"
 msgstr ""
 
-#: configuration/settings.cfg:186
+#: configuration/settings.cfg:190
 msgid "Check redirects table for redirected URLs"
 msgstr ""
 
-#: configuration/settings.cfg:191
+#: configuration/settings.cfg:195
 msgid "Folder where CMS is in; recommended: one folder below root folder"
 msgstr ""
 
-#: configuration/settings.cfg:195
+#: configuration/settings.cfg:199
 msgid "Folder for JSON config files"
 msgstr ""
 
-#: configuration/settings.cfg:201
+#: configuration/settings.cfg:205
 msgid "Folder of zzwrap module"
 msgstr ""
 
-#: configuration/settings.cfg:207
+#: configuration/settings.cfg:211
 msgid "When using cURL, do not verify SSL connection (for development only)"
 msgstr ""
 
-#: configuration/settings.cfg:211
+#: configuration/settings.cfg:215
 msgid "Part of filename of current template"
 msgstr ""
 
-#: configuration/settings.cfg:216
+#: configuration/settings.cfg:220
 msgid "Filename where current template is from"
 msgstr ""
 
-#: configuration/settings.cfg:221
+#: configuration/settings.cfg:225
 msgid "Folder for custom module"
 msgstr ""
 
-#: configuration/settings.cfg:226
+#: configuration/settings.cfg:230
 msgid "Folder for access rights and usergroups functions"
 msgstr ""
 
-#: configuration/settings.cfg:231
+#: configuration/settings.cfg:235
 msgid "Standard formatting of dates"
 msgstr ""
 
-#: configuration/settings.cfg:237
+#: configuration/settings.cfg:241
 msgid "URL path that is used by WebDAV"
 msgstr ""
 
-#: configuration/settings.cfg:241
+#: configuration/settings.cfg:245
 msgid "Fields or field endings behind _ that are removed from data array by cleanup function"
 msgstr ""
 
-#: configuration/settings.cfg:249
+#: configuration/settings.cfg:253
 msgid "Root folder for module-owned data files not managed by the media module"
 msgstr ""
 
-#: configuration/settings.cfg:255
+#: configuration/settings.cfg:259
 msgid "Database name on production server"
 msgstr ""
 
-#: configuration/settings.cfg:259
+#: configuration/settings.cfg:263
 msgid "Database name on local development server"
 msgstr ""
 
-#: configuration/settings.cfg:263
+#: configuration/settings.cfg:267
 msgid "List of password files to use"
 msgstr ""
 
-#: configuration/settings.cfg:268
+#: configuration/settings.cfg:272
 msgid "Prefix for all database tables"
 msgstr ""
 
-#: configuration/settings.cfg:272
+#: configuration/settings.cfg:276
 msgid "Activate debugging"
 msgstr ""
 
-#: configuration/settings.cfg:276
+#: configuration/settings.cfg:280
 msgid "Log access and authentication decisions"
 msgstr ""
 
-#: configuration/settings.cfg:280
+#: configuration/settings.cfg:284
 msgid "When routes.json is regenerated, backup the previous file"
 msgstr ""
 
-#: configuration/settings.cfg:284
+#: configuration/settings.cfg:288
 msgid "Decimal point"
 msgstr ""
 
-#: configuration/settings.cfg:288
+#: configuration/settings.cfg:292
 msgid "Use a pre-defined system for access rights"
 msgstr ""
 
-#: configuration/settings.cfg:292
+#: configuration/settings.cfg:296
 msgid "If content is translated, default source language, ISO 639-1 code"
 msgstr ""
 
-#: configuration/settings.cfg:297
+#: configuration/settings.cfg:301
 msgid "List of domains a user can log on to (defaults to hostname)"
 msgstr ""
 
-#: configuration/settings.cfg:302
+#: configuration/settings.cfg:306
 msgid "Paths on server where no language negotiation should take place (e. g. files)"
 msgstr ""
 
-#: configuration/settings.cfg:311
+#: configuration/settings.cfg:315
 msgid "If set to true, h1 is not created and added automatically from webpages.title"
 msgstr ""
 
-#: configuration/settings.cfg:318
+#: configuration/settings.cfg:322
 msgid "Formatting of a period of time"
 msgstr ""
 
-#: configuration/settings.cfg:324
+#: configuration/settings.cfg:328
 msgid "Mapping of character encoding; MySQL uses different identifiers for character encoding than HTML"
 msgstr ""
 
-#: configuration/settings.cfg:331
+#: configuration/settings.cfg:335
 msgid "Add link to homepage URL in breadcrumbs on error pages"
 msgstr ""
 
-#: configuration/settings.cfg:335
+#: configuration/settings.cfg:339
 msgid "Exit after a 503 to not get into a loop (internal variable)"
 msgstr ""
 
-#: configuration/settings.cfg:340
+#: configuration/settings.cfg:344
 msgid "Value for admin error logging: false: no output, just write into log if set; mail: send admin errors via mail, output: send admin errors via html, save_mail (internal parameter), mail_summary (internal parameter)"
 msgstr ""
 
-#: configuration/settings.cfg:347
+#: configuration/settings.cfg:351
 msgid "Ignore 404 errors for logging and mail"
 msgstr ""
 
-#: configuration/settings.cfg:351
+#: configuration/settings.cfg:355
 msgid "Name of debug.log file for logs of type DEBUG"
 msgstr ""
 
-#: configuration/settings.cfg:356
+#: configuration/settings.cfg:360
 msgid "Name of error.log file for logs of type ERROR"
 msgstr ""
 
-#: configuration/settings.cfg:362
+#: configuration/settings.cfg:366
 msgid "Name of error.log file for logs of type WARNING"
 msgstr ""
 
-#: configuration/settings.cfg:368
+#: configuration/settings.cfg:372
 msgid "Name of error.log file for logs of type NOTICE"
 msgstr ""
 
-#: configuration/settings.cfg:374
+#: configuration/settings.cfg:378
 msgid "Log posted values if an error occurs (re: data protection)"
 msgstr ""
 
-#: configuration/settings.cfg:378
+#: configuration/settings.cfg:382
 msgid "Delay error mails and combine several to reduce amount of mails sent in case of error"
 msgstr ""
 
-#: configuration/settings.cfg:383
+#: configuration/settings.cfg:387
 msgid "Sender of error mails"
 msgstr ""
 
-#: configuration/settings.cfg:388
+#: configuration/settings.cfg:392
 msgid "Minimum error level for sending errors via mail"
 msgstr ""
 
-#: configuration/settings.cfg:397
+#: configuration/settings.cfg:401
 msgid "Parameters for error mails"
 msgstr ""
 
-#: configuration/settings.cfg:401
+#: configuration/settings.cfg:405
 msgid "Where to send errors per mail"
 msgstr ""
 
-#: configuration/settings.cfg:406
+#: configuration/settings.cfg:410
 msgid "Prefix (text before) for error message"
 msgstr ""
 
-#: configuration/settings.cfg:409
+#: configuration/settings.cfg:413
 msgid "External libraries to always include"
 msgstr ""
 
-#: configuration/settings.cfg:415
+#: configuration/settings.cfg:419
 msgid "Host names that redirect to this webpage"
 msgstr ""
 
-#: configuration/settings.cfg:421
+#: configuration/settings.cfg:425
 msgid "Like `dont_negotiate_language_paths`, but keep the default paths"
 msgstr ""
 
-#: configuration/settings.cfg:433
+#: configuration/settings.cfg:437
 msgid "URL path under which all media files are located"
 msgstr ""
 
-#: configuration/settings.cfg:438
+#: configuration/settings.cfg:442
 msgid "List of own modifications for filetype.cfg"
 msgstr ""
 
-#: configuration/settings.cfg:442
+#: configuration/settings.cfg:446
 msgid "String that is used if there is nothing else left to create a filename from a string"
 msgstr ""
 
-#: configuration/settings.cfg:446
+#: configuration/settings.cfg:450
 msgid "Maximum of UTF-8 characters per string (0 = no limit) in `wrap_print()`"
 msgstr ""
 
-#: configuration/settings.cfg:451
+#: configuration/settings.cfg:455
 msgid "Maximal default length for text prepared with `format=word_cut`"
 msgstr ""
 
-#: configuration/settings.cfg:456
+#: configuration/settings.cfg:460
 msgid "Allow login via remote web form (FORMAUTH)"
 msgstr ""
 
-#: configuration/settings.cfg:460
+#: configuration/settings.cfg:464
 msgid "Whitelist of hostnames that are accepted via a forwarding proxy, used in host_base"
 msgstr ""
 
-#: configuration/settings.cfg:464
+#: configuration/settings.cfg:468
 msgid "Rounding for geographical coordinates"
 msgstr ""
 
-#: configuration/settings.cfg:469
+#: configuration/settings.cfg:473
 msgid "Space character between values of geographical coordinates"
 msgstr ""
 
-#: configuration/settings.cfg:473
+#: configuration/settings.cfg:477
 msgid "List of services used for geocoding"
 msgstr ""
 
-#: configuration/settings.cfg:479
+#: configuration/settings.cfg:483
 msgid "List of strings that indicate a c/o address line"
 msgstr ""
 
-#: configuration/settings.cfg:486
+#: configuration/settings.cfg:490
 msgid "List of strings that indicate a postbox"
 msgstr ""
 
-#: configuration/settings.cfg:504
+#: configuration/settings.cfg:508
 msgid "Use gzip to encode text content"
 msgstr ""
 
-#: configuration/settings.cfg:509
+#: configuration/settings.cfg:513
 msgid "Create h1 heading in page template (otherwise is added to `text` automatically)"
 msgstr ""
 
-#: configuration/settings.cfg:516
+#: configuration/settings.cfg:520
 msgid "Base-2 logarithm of the iteration count used for password stretching"
 msgstr ""
 
-#: configuration/settings.cfg:521
+#: configuration/settings.cfg:525
 msgid "Name of password hash function to use for passwords"
 msgstr ""
 
-#: configuration/settings.cfg:526
+#: configuration/settings.cfg:530
 msgid "Extra password salt for **all** passwords"
 msgstr ""
 
-#: configuration/settings.cfg:531
+#: configuration/settings.cfg:535
 msgid "If phpass is used: do we require the hashes to be portable to older systems (less secure)?"
 msgstr ""
 
-#: configuration/settings.cfg:536
+#: configuration/settings.cfg:540
 msgid "HTTP headers to send"
 msgstr ""
 
-#: configuration/settings.cfg:542
+#: configuration/settings.cfg:546
 msgid "Protocol and hostname of website"
 msgstr ""
 
-#: configuration/settings.cfg:547
+#: configuration/settings.cfg:551
 msgid "Hostname of server"
 msgstr ""
 
-#: configuration/settings.cfg:551
+#: configuration/settings.cfg:555
 msgid "Check for hostname in URL path (for use with proxy server that rewrites domains)"
 msgstr ""
 
-#: configuration/settings.cfg:555
+#: configuration/settings.cfg:559
 msgid "HTML code: put label after input element, not label around input element"
 msgstr ""
 
-#: configuration/settings.cfg:559
+#: configuration/settings.cfg:563
 msgid "List of HTTP verbs that are allowed"
 msgstr ""
 
-#: configuration/settings.cfg:563
+#: configuration/settings.cfg:567
 msgid "List of HTTP verbs that are explicitly not allowed"
 msgstr ""
 
-#: configuration/settings.cfg:567
+#: configuration/settings.cfg:571
 msgid "Forwarded IP, if it is unknown to server"
 msgstr ""
 
-#: configuration/settings.cfg:572
+#: configuration/settings.cfg:576
 msgid "Check blocked paths, matching requests get 404 immediately without DB request"
 msgstr ""
 
-#: configuration/settings.cfg:577
+#: configuration/settings.cfg:581
 msgid "Enable Apache style HTTP logging (e. g. if unavailable from hoster)"
 msgstr ""
 
-#: configuration/settings.cfg:581
+#: configuration/settings.cfg:585
 msgid "Anonymize HTTP logging, no. of octets or hextets (1–8, reduced to max. 4 for IPv4)"
 msgstr ""
 
-#: configuration/settings.cfg:585
+#: configuration/settings.cfg:589
 msgid "Use https for connections?"
 msgstr ""
 
-#: configuration/settings.cfg:590
+#: configuration/settings.cfg:594
 msgid "List of URLs below which https is required"
 msgstr ""
 
-#: configuration/settings.cfg:596
+#: configuration/settings.cfg:600
 msgid "List of word parts to be followed by a soft hyphen"
 msgstr ""
 
-#: configuration/settings.cfg:600
+#: configuration/settings.cfg:604
 msgid "List of word parts to be preceded by a soft hyphen"
 msgstr ""
 
-#: configuration/settings.cfg:604
+#: configuration/settings.cfg:608
 msgid "Special paths for system icons (e. g. not for translations, no match for * URLs)"
 msgstr ""
 
-#: configuration/settings.cfg:612
+#: configuration/settings.cfg:616
 msgid "Ignore whether scheme is http or https"
 msgstr ""
 
-#: configuration/settings.cfg:616
+#: configuration/settings.cfg:620
 msgid "Paths accessible under both http and https without redirection"
 msgstr ""
 
-#: configuration/settings.cfg:624
+#: configuration/settings.cfg:628
 msgid "Path to include folder"
 msgstr ""
 
-#: configuration/settings.cfg:628
+#: configuration/settings.cfg:632
 msgid "Marker that installation is running"
 msgstr ""
 
-#: configuration/settings.cfg:633
+#: configuration/settings.cfg:637
 msgid "Do not use field logins.login_rights while installing"
 msgstr ""
 
-#: configuration/settings.cfg:637
+#: configuration/settings.cfg:641
+msgid "Run page as background job via job manager"
+msgstr ""
+
+#: configuration/settings.cfg:645
+msgid "Enable debug output for background jobs on this page"
+msgstr ""
+
+#: configuration/settings.cfg:649
 msgid "Language of website, ISO 639-1 code"
 msgstr ""
 
-#: configuration/settings.cfg:647
+#: configuration/settings.cfg:659
 msgid "Use other language than source language as default if translation do not exist (iso=>iso)"
 msgstr ""
 
-#: configuration/settings.cfg:651
+#: configuration/settings.cfg:663
 msgid "Is language code part of URL?"
 msgstr ""
 
-#: configuration/settings.cfg:657
+#: configuration/settings.cfg:669
 msgid "Remove language strings from navigation"
 msgstr ""
 
-#: configuration/settings.cfg:661
+#: configuration/settings.cfg:673
 msgid "Activate variation of language, e. g. `formal` or `informal`"
 msgstr ""
 
-#: configuration/settings.cfg:668
+#: configuration/settings.cfg:680
 msgid "List of additional language files to include, notation: `module/file/pot_language` or `module/file`, if pot language is english"
 msgstr ""
 
-#: configuration/settings.cfg:672
+#: configuration/settings.cfg:684
 msgid "Which languages are allowed on website? ISO 639-1 code"
 msgstr ""
 
-#: configuration/settings.cfg:678
+#: configuration/settings.cfg:690
 msgid "Languages that are allowed but not shown in links or negotiated (e. g. for development)"
 msgstr ""
 
-#: configuration/settings.cfg:684
+#: configuration/settings.cfg:696
 msgid "URL path to public layout folder on server, defaults to `/_layout`"
 msgstr ""
 
-#: configuration/settings.cfg:689
+#: configuration/settings.cfg:701
 msgid "Use LDAP server for login"
 msgstr ""
 
-#: configuration/settings.cfg:693
+#: configuration/settings.cfg:705
 msgid "Folder for external libraries"
 msgstr ""
 
-#: configuration/settings.cfg:698
+#: configuration/settings.cfg:710
 msgid "Is this a development website (ending .local or starting dev.) or not?"
 msgstr ""
 
-#: configuration/settings.cfg:703
+#: configuration/settings.cfg:715
 msgid "Use https for local development connections, too"
 msgstr ""
 
-#: configuration/settings.cfg:708
+#: configuration/settings.cfg:720
 msgid "Full filename of password file on local development server"
 msgstr ""
 
-#: configuration/settings.cfg:712
+#: configuration/settings.cfg:724
 msgid "Folder for log files"
 msgstr ""
 
-#: configuration/settings.cfg:718
+#: configuration/settings.cfg:730
 msgid "Write errors in logfile?"
 msgstr ""
 
-#: configuration/settings.cfg:723
+#: configuration/settings.cfg:735
 msgid "Log filename if different from module, will be put into module folder inside logs"
 msgstr ""
 
-#: configuration/settings.cfg:727
+#: configuration/settings.cfg:739
 msgid "Write all mails sent via website into logfile"
 msgstr ""
 
-#: configuration/settings.cfg:732
+#: configuration/settings.cfg:744
 msgid "Log missing text for new translations only, should not be used continuously"
 msgstr ""
 
-#: configuration/settings.cfg:736
+#: configuration/settings.cfg:748
 msgid "If you suspect that the server has problems with mod_rewrite, log these errors"
 msgstr ""
 
-#: configuration/settings.cfg:740
+#: configuration/settings.cfg:752
 msgid "Decode and encode logfiles with a certain encoding to a different encoding"
 msgstr ""
 
-#: configuration/settings.cfg:744
+#: configuration/settings.cfg:756
 msgid "Trigger logfiles, true or filename of log file"
 msgstr ""
 
-#: configuration/settings.cfg:747
+#: configuration/settings.cfg:759
 msgid "Username for use with internal operations"
 msgstr ""
 
-#: configuration/settings.cfg:751
+#: configuration/settings.cfg:763
 msgid "Default username for use with internal operations, if no other username is available (e. g. from SESSION)"
 msgstr ""
 
-#: configuration/settings.cfg:755
+#: configuration/settings.cfg:767
 msgid "Suffix for username for logging, used as username if no other alternative is available"
 msgstr ""
 
-#: configuration/settings.cfg:759
+#: configuration/settings.cfg:771
 msgid "Use 404 error log to ignore automated 404 requests"
 msgstr ""
 
-#: configuration/settings.cfg:764
+#: configuration/settings.cfg:776
 msgid "List of fields for 404 error log"
 msgstr ""
 
-#: configuration/settings.cfg:771
-#: configuration/settings.cfg:798
-#: configuration/settings.cfg:849
+#: configuration/settings.cfg:783
+#: configuration/settings.cfg:810
+#: configuration/settings.cfg:861
 msgid "Logfile tokens might contain spaces?"
 msgstr ""
 
-#: configuration/settings.cfg:776
+#: configuration/settings.cfg:788
 msgid "No. of 404 requests per validity period from one IP, after which no more emails are sent to the admin"
 msgstr ""
 
-#: configuration/settings.cfg:781
+#: configuration/settings.cfg:793
 msgid "Validity of entries in 404 error log"
 msgstr ""
 
-#: configuration/settings.cfg:786
+#: configuration/settings.cfg:798
 msgid "Use maildomain log"
 msgstr ""
 
-#: configuration/settings.cfg:791
+#: configuration/settings.cfg:803
 msgid "List of fields for maildomain log"
 msgstr ""
 
-#: configuration/settings.cfg:803
+#: configuration/settings.cfg:815
 msgid "Validity of entries in maildomain log"
 msgstr ""
 
-#: configuration/settings.cfg:808
+#: configuration/settings.cfg:820
 msgid "List of fields used for login"
 msgstr ""
 
-#: configuration/settings.cfg:813
+#: configuration/settings.cfg:825
 msgid "Reformats login field values with custom function"
 msgstr ""
 
-#: configuration/settings.cfg:817
+#: configuration/settings.cfg:829
 msgid "HTML output for each login field"
 msgstr ""
 
-#: configuration/settings.cfg:822
+#: configuration/settings.cfg:834
 msgid "List of IDs to use with `login_foreign`-query"
 msgstr ""
 
-#: configuration/settings.cfg:827
+#: configuration/settings.cfg:839
 msgid "Secret key which forms a hash that allows a login without password"
 msgstr ""
 
-#: configuration/settings.cfg:832
+#: configuration/settings.cfg:844
 msgid "Timeframe in minutes during which the login_key is valid"
 msgstr ""
 
-#: configuration/settings.cfg:837
+#: configuration/settings.cfg:849
 msgid "Use logfile for login with list of IP addresses"
 msgstr ""
 
-#: configuration/settings.cfg:842
+#: configuration/settings.cfg:854
 msgid "List of fields for login IP log"
 msgstr ""
 
-#: configuration/settings.cfg:854
+#: configuration/settings.cfg:866
 msgid "Validity of entries in login IP log"
 msgstr ""
 
-#: configuration/settings.cfg:859
+#: configuration/settings.cfg:871
 msgid "Default value for logins.login_rights if an external login is used"
 msgstr ""
 
-#: configuration/settings.cfg:863
+#: configuration/settings.cfg:875
 msgid "Base for calculation of time to wait for next login attempt"
 msgstr ""
 
-#: configuration/settings.cfg:868
+#: configuration/settings.cfg:880
 msgid "Is every login linked to a contact?"
 msgstr ""
 
-#: configuration/settings.cfg:872
+#: configuration/settings.cfg:884
 msgid "Use e-mail address as username"
 msgstr ""
 
-#: configuration/settings.cfg:876
+#: configuration/settings.cfg:888
 msgid "Login was performed without a session cookie (e.g. HTTP auth, IP login)"
 msgstr ""
 
-#: configuration/settings.cfg:881
+#: configuration/settings.cfg:893
 msgid "Time of inactivity (in minutes) after a user gets logged out automatically"
 msgstr ""
 
-#: configuration/settings.cfg:886
+#: configuration/settings.cfg:898
 msgid "Check MX record for the domain part of each mail address"
 msgstr ""
 
-#: configuration/settings.cfg:890
+#: configuration/settings.cfg:902
 msgid "Mail header lines should be separated by CRLF; some postfix versions handle mail internally with LF and replace LF with CRLF for outgoing mail, ending with CRCRLF"
 msgstr ""
 
-#: configuration/settings.cfg:894
+#: configuration/settings.cfg:906
 msgid "Hostname for SMTP server used with PHPMailer"
 msgstr ""
 
-#: configuration/settings.cfg:897
+#: configuration/settings.cfg:909
 msgid "Hostname for imap mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:900
+#: configuration/settings.cfg:912
 msgid "Flags for communication with imap mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:904
+#: configuration/settings.cfg:916
 msgid "Port for imap mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:909
+#: configuration/settings.cfg:921
 msgid "Name of mailbox for sent mails"
 msgstr ""
 
-#: configuration/settings.cfg:912
+#: configuration/settings.cfg:924
 msgid "Copy sent mails to sent folder in mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:917
+#: configuration/settings.cfg:929
 msgid "List of mail domains that are invalid"
 msgstr ""
 
-#: configuration/settings.cfg:929
+#: configuration/settings.cfg:941
 msgid "Milliseconds of runtime of the checkdnsrr() function, after which a negative result is considered true"
 msgstr ""
 
-#: configuration/settings.cfg:934
+#: configuration/settings.cfg:946
 msgid "List of domains that regularly fail the DNS check but still exist"
 msgstr ""
 
-#: configuration/settings.cfg:938
+#: configuration/settings.cfg:950
 msgid "Password for mailbox used with PHPMailer"
 msgstr ""
 
-#: configuration/settings.cfg:942
+#: configuration/settings.cfg:954
 msgid "Show debug messages for PHPMailer"
 msgstr ""
 
-#: configuration/settings.cfg:946
+#: configuration/settings.cfg:958
 msgid "Always use `own_e_mail` as From:, re-write different sender to Reply-To:"
 msgstr ""
 
-#: configuration/settings.cfg:950
+#: configuration/settings.cfg:962
 msgid "Port for sending mails via SMTP"
 msgstr ""
 
-#: configuration/settings.cfg:954
+#: configuration/settings.cfg:966
 msgid "Subject prefix for all mails sent via website"
 msgstr ""
 
-#: configuration/settings.cfg:958
+#: configuration/settings.cfg:970
 msgid "Username for mailbox used with PHPMailer"
 msgstr ""
 
-#: configuration/settings.cfg:961
+#: configuration/settings.cfg:973
 msgid "Add signature below each text mail?"
 msgstr ""
 
-#: configuration/settings.cfg:966
+#: configuration/settings.cfg:978
 msgid "Key of main menu in database"
 msgstr ""
 
-#: configuration/settings.cfg:972
+#: configuration/settings.cfg:983
 msgid "How to display submenu items: 'all': always display all submenu items; 'current': only display submenu items when item from menu branch is selected; 'none'/false: never display submenu items"
 msgstr ""
 
-#: configuration/settings.cfg:983
+#: configuration/settings.cfg:994
 msgid "Show menu entries one level below main menu"
 msgstr ""
 
-#: configuration/settings.cfg:987
+#: configuration/settings.cfg:998
 msgid "Show menu entries two levels below main menu"
 msgstr ""
 
-#: configuration/settings.cfg:991
+#: configuration/settings.cfg:1002
 msgid "Show menu entries three levels below main menu"
 msgstr ""
 
-#: configuration/settings.cfg:995
+#: configuration/settings.cfg:1006
 msgid "Show menu items with id generated from identifier"
 msgstr ""
 
-#: configuration/settings.cfg:999
+#: configuration/settings.cfg:1010
 msgid "List of available modules"
 msgstr ""
 
-#: configuration/settings.cfg:1005
+#: configuration/settings.cfg:1016
 msgid "Path to modules"
 msgstr ""
 
-#: configuration/settings.cfg:1010
+#: configuration/settings.cfg:1021
 msgid "Use more than one website with this CMS"
 msgstr ""
 
-#: configuration/settings.cfg:1014
+#: configuration/settings.cfg:1025
 msgid "Enable for each URL language negotiation, URL redirects to language prefix variant"
 msgstr ""
 
-#: configuration/settings.cfg:1021
+#: configuration/settings.cfg:1032
 msgid "Follow HTTP specification, strict mode: Do not try to fall back from de-AT to de or similar"
 msgstr ""
 
-#: configuration/settings.cfg:1025
+#: configuration/settings.cfg:1036
 msgid "List of access areas where access is denied via setting"
 msgstr ""
 
-#: configuration/settings.cfg:1029
+#: configuration/settings.cfg:1040
 msgid "URLs without authentication"
 msgstr ""
 
-#: configuration/settings.cfg:1042
+#: configuration/settings.cfg:1053
 msgid "Do not allow https, https is not supported"
 msgstr ""
 
-#: configuration/settings.cfg:1046
+#: configuration/settings.cfg:1057
 msgid "Cause no redirects if a query string is not wanted by the system"
 msgstr ""
 
-#: configuration/settings.cfg:1050
+#: configuration/settings.cfg:1061
 msgid "Number formatting, in the format input->output, @see wrap_number()"
 msgstr ""
 
-#: configuration/settings.cfg:1054
+#: configuration/settings.cfg:1065
 msgid "Own e-mail address"
 msgstr ""
 
-#: configuration/settings.cfg:1060
+#: configuration/settings.cfg:1071
 msgid "Own name, sender name for e-mail"
 msgstr ""
 
-#: configuration/settings.cfg:1064
+#: configuration/settings.cfg:1075
 msgid "Cache age of a URL from file system that has a version number in it"
 msgstr ""
 
-#: configuration/settings.cfg:1069
+#: configuration/settings.cfg:1080
 msgid "Keys that are read from $page['extra'] and written to $page['extra_body_attributes']"
 msgstr ""
 
-#: configuration/settings.cfg:1076
+#: configuration/settings.cfg:1087
 msgid "Keys that are read from webpages.parameters and written to $page['extra']"
 msgstr ""
 
-#: configuration/settings.cfg:1084
+#: configuration/settings.cfg:1095
 msgid "Body class name for preview content"
 msgstr ""
 
-#: configuration/settings.cfg:1088
+#: configuration/settings.cfg:1099
 msgid "Name of function that edits complete page (e. g. to replace some text blocks)"
 msgstr ""
 
-#: configuration/settings.cfg:1092
+#: configuration/settings.cfg:1103
 msgid "Subtitle for pages, added to h1 (newline) and title after regular title"
 msgstr ""
 
-#: configuration/settings.cfg:1099
+#: configuration/settings.cfg:1110
 msgid "HTML code to put between page title and subtitle in TITLE element"
 msgstr ""
 
-#: configuration/settings.cfg:1106
+#: configuration/settings.cfg:1117
 msgid "Key that encrypts passwords if a login link is sent via the password forgotten form."
 msgstr ""
 
-#: configuration/settings.cfg:1111
+#: configuration/settings.cfg:1122
 msgid "Timeframe in minutes during which the password login link is valid"
 msgstr ""
 
-#: configuration/settings.cfg:1115
+#: configuration/settings.cfg:1126
 msgid "Show a “forgotten password?” link below login form"
 msgstr ""
 
-#: configuration/settings.cfg:1119
+#: configuration/settings.cfg:1130
 msgid "Custom function to call if there are not enough values for path placeholder"
 msgstr ""
 
-#: configuration/settings.cfg:1123
+#: configuration/settings.cfg:1134
 msgid "Website ID for routes that are resolved from a foreign website (similar to backend_website_id)"
 msgstr ""
 
-#: configuration/settings.cfg:1128
+#: configuration/settings.cfg:1139
 msgid "Website domain to resolve routes from when they are not found on the current site"
 msgstr ""
 
-#: configuration/settings.cfg:1131
+#: configuration/settings.cfg:1142
 msgid "List of profiles for use with wrap_profiles()"
 msgstr ""
 
-#: configuration/settings.cfg:1135
+#: configuration/settings.cfg:1146
 msgid "Title of website project, part of every page title"
 msgstr ""
 
-#: configuration/settings.cfg:1146
+#: configuration/settings.cfg:1157
 msgid "HTTP protocol of website URL"
 msgstr ""
 
-#: configuration/settings.cfg:1151
+#: configuration/settings.cfg:1162
 msgid "List of additional valid hostnames if server is accessed via a proxy"
 msgstr ""
 
-#: configuration/settings.cfg:1156
+#: configuration/settings.cfg:1167
 msgid "List of IP addresses through which the server is accessed via proxy"
 msgstr ""
 
-#: configuration/settings.cfg:1161
+#: configuration/settings.cfg:1172
 msgid "List of query strings that are allowed on a page, others force a redirect"
 msgstr ""
 
-#: configuration/settings.cfg:1165
+#: configuration/settings.cfg:1176
 msgid "List of query strings that force a redirect but won’t be logged"
 msgstr ""
 
-#: configuration/settings.cfg:1169
+#: configuration/settings.cfg:1180
 msgid "Format identifier for quotation marks, e. g. de = de-guillemets"
 msgstr ""
 
-#: configuration/settings.cfg:1173
+#: configuration/settings.cfg:1184
 msgid "URL-relative prefix from the current path to the site root for static linking (e.g. ../../ or /)"
 msgstr ""
 
-#: configuration/settings.cfg:1178
+#: configuration/settings.cfg:1189
 msgid "IP address of user"
 msgstr ""
 
-#: configuration/settings.cfg:1183
+#: configuration/settings.cfg:1194
 msgid "HTTP request URI"
 msgstr ""
 
-#: configuration/settings.cfg:1188
+#: configuration/settings.cfg:1199
 msgid "Route key to bind this page to a route from routes.cfg"
 msgstr ""
 
-#: configuration/settings.cfg:1193
+#: configuration/settings.cfg:1204
 msgid "URL fragment for this route"
 msgstr ""
 
-#: configuration/settings.cfg:1199
+#: configuration/settings.cfg:1211
 msgid "Seconds between route cache checks"
 msgstr ""
 
-#: configuration/settings.cfg:1204
+#: configuration/settings.cfg:1216
 msgid "Web root = $_SERVER['DOCUMENT_ROOT'], just change if provider has problems with correct setting of this variable"
 msgstr ""
 
-#: configuration/settings.cfg:1209
+#: configuration/settings.cfg:1221
 msgid "Send content in JSON format (without page template)"
 msgstr ""
 
-#: configuration/settings.cfg:1214
+#: configuration/settings.cfg:1226
 msgid "Show a sequential navigation on the webpage, linking to pages on same level backwards and forwards"
 msgstr ""
 
-#: configuration/settings.cfg:1219
+#: configuration/settings.cfg:1231
 msgid "Database key of menu shown if you are logged in"
 msgstr ""
 
-#: configuration/settings.cfg:1225
+#: configuration/settings.cfg:1236
 msgid "Name of menu where session menu shall appear"
 msgstr ""
 
-#: configuration/settings.cfg:1229
+#: configuration/settings.cfg:1240
 msgid "Name of session cookie"
 msgstr ""
 
-#: configuration/settings.cfg:1233
+#: configuration/settings.cfg:1244
 msgid "Path where sessions are saved"
 msgstr ""
 
-#: configuration/settings.cfg:1238
+#: configuration/settings.cfg:1249
 msgid "Use secure session cookies only"
 msgstr ""
 
-#: configuration/settings.cfg:1243
+#: configuration/settings.cfg:1254
 msgid "Show mail in browser instead of logging it (development server only)"
 msgstr ""
 
-#: configuration/settings.cfg:1247
+#: configuration/settings.cfg:1258
 msgid "Secret to share with other server for hashing credentials of single sign on"
 msgstr ""
 
-#: configuration/settings.cfg:1252
+#: configuration/settings.cfg:1263
 msgid "Name of website, hostname without www"
 msgstr ""
 
-#: configuration/settings.cfg:1256
+#: configuration/settings.cfg:1267
 msgid "Put site offline (return 503 error)"
 msgstr ""
 
-#: configuration/settings.cfg:1260
+#: configuration/settings.cfg:1271
 msgid "Template to show if site is offline"
 msgstr ""
 
-#: configuration/settings.cfg:1263
+#: configuration/settings.cfg:1274
 msgid "List of keys that replace a key for an SQL query just for this request"
 msgstr ""
 
-#: configuration/settings.cfg:1267
+#: configuration/settings.cfg:1278
 msgid "Secret key which forms a hash that allows a single sign-on login without password (must be identical with other server(s))"
 msgstr ""
 
-#: configuration/settings.cfg:1272
+#: configuration/settings.cfg:1283
 msgid "Timeframe in minutes during which the sso_key is valid"
 msgstr ""
 
-#: configuration/settings.cfg:1276
+#: configuration/settings.cfg:1287
 msgid "Hostname of staging server, if different from final hostname"
 msgstr ""
 
-#: configuration/settings.cfg:1280
+#: configuration/settings.cfg:1291
 msgid "PHP error code to use if there’s an error during syndication of content"
 msgstr ""
 
-#: configuration/settings.cfg:1285
+#: configuration/settings.cfg:1296
 msgid "Timeout in milliseconds when requesting a URL with cURL"
 msgstr ""
 
-#: configuration/settings.cfg:1289
+#: configuration/settings.cfg:1300
 msgid "Timeout in milliseconds when triggering a URL with cURL, increase on slow servers"
 msgstr ""
 
-#: configuration/settings.cfg:1294
+#: configuration/settings.cfg:1305
 msgid "Website page template, if different from default (needs to end in `-page`)"
 msgstr ""
 
-#: configuration/settings.cfg:1302
+#: configuration/settings.cfg:1315
 msgid "HTML template for page title, max. two variables %1$s + %2$s"
 msgstr ""
 
-#: configuration/settings.cfg:1309
+#: configuration/settings.cfg:1322
 msgid "HTML template for page title on home page, max. two variables %1$s + %2$s"
 msgstr ""
 
-#: configuration/settings.cfg:1313
+#: configuration/settings.cfg:1326
 msgid "List of available themes"
 msgstr ""
 
-#: configuration/settings.cfg:1319
+#: configuration/settings.cfg:1332
 msgid "Folder for website themes"
 msgstr ""
 
-#: configuration/settings.cfg:1325
+#: configuration/settings.cfg:1338
 msgid "Thousands separator"
 msgstr ""
 
-#: configuration/settings.cfg:1329
+#: configuration/settings.cfg:1342
 msgid "Internal timezone, format: continent/city"
 msgstr ""
 
-#: configuration/settings.cfg:1335
+#: configuration/settings.cfg:1348
 msgid "Folder for temporary items"
 msgstr ""
 
-#: configuration/settings.cfg:1342
+#: configuration/settings.cfg:1355
 msgid "Translate page titles?"
 msgstr ""
 
-#: configuration/settings.cfg:1346
+#: configuration/settings.cfg:1359
 msgid "Translate text via database"
 msgstr ""
 
-#: configuration/settings.cfg:1350
+#: configuration/settings.cfg:1363
 msgid "Translate field values in database"
 msgstr ""
 
-#: configuration/settings.cfg:1354
+#: configuration/settings.cfg:1367
 msgid "Marker that is set if a translation is not complete"
 msgstr ""
 
-#: configuration/settings.cfg:1360
+#: configuration/settings.cfg:1373
 msgid "List of MySQL sql_modes to disable"
 msgstr ""
 
-#: configuration/settings.cfg:1365
+#: configuration/settings.cfg:1378
 msgid "Use uris table for logging of requests"
 msgstr ""
 
-#: configuration/settings.cfg:1370
+#: configuration/settings.cfg:1383
 msgid "Maximum parts of path in URL, no. of slashes"
 msgstr ""
 
-#: configuration/settings.cfg:1375
+#: configuration/settings.cfg:1388
 msgid "Named URL placeholders with lists of allowed values"
 msgstr ""
 
-#: configuration/settings.cfg:1381
+#: configuration/settings.cfg:1394
 msgid "Years into the future to include in url_placeholders[year]"
 msgstr ""
 
-#: configuration/settings.cfg:1387
+#: configuration/settings.cfg:1400
 msgid "List of years that appear in URL"
 msgstr ""
 
-#: configuration/settings.cfg:1393
+#: configuration/settings.cfg:1406
 msgid "List of available packages"
 msgstr ""
 
-#: configuration/settings.cfg:1398
+#: configuration/settings.cfg:1411
 msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:1403
+#: configuration/settings.cfg:1416
 msgid "ID of current website"
 msgstr ""
 
-#: configuration/settings.cfg:1409
+#: configuration/settings.cfg:1422
 msgid "If running more than one website with one system, this is the default website that will answer to unknown domain names"
 msgstr ""
 
-#: configuration/settings.cfg:1414
+#: configuration/settings.cfg:1427
 msgid "Seconds between websites cache checks"
 msgstr ""
 
-#: configuration/settings.cfg:1419
+#: configuration/settings.cfg:1432
 msgid "Filename for cached websites list"
 msgstr ""
 
-#: configuration/settings.cfg:1423
+#: configuration/settings.cfg:1436
 msgid "Random ID for logs to mark a process as unique"
 msgstr ""
 
-#: configuration/settings.cfg:1428
+#: configuration/settings.cfg:1441
 msgid "Initial installation date of Zugzwang Project CMS (for updates)"
 msgstr ""
 
