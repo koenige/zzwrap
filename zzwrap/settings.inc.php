@@ -819,7 +819,7 @@ function wrap_setting_from_table($scope, $params, $reset = true) {
 	$cfg = wrap_cfg_files('settings');
 	foreach ($params as $key => $value) {
 		if (!array_key_exists($key, $cfg)) continue;
-		if (!wrap_match_module_parameters_applies($scope, $cfg[$key])) continue;
+		if (!wrap_setting_from_table_applies($scope, $cfg[$key])) continue;
 		if (is_null(wrap_setting($key))) {
 			$unchanged[$key] = NULL;
 			wrap_setting($key, $value);
