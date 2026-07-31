@@ -819,8 +819,7 @@ function wrap_setting_from_table($scope, $params, $reset = true) {
 	$cfg = wrap_cfg_files('settings');
 	foreach ($params as $key => $value) {
 		if (!array_key_exists($key, $cfg)) continue;
-		if (empty($cfg[$key]['scope'])) continue;
-		if (!in_array($scope, $cfg[$key]['scope'])) continue;
+		if (!wrap_match_module_parameters_applies($scope, $cfg[$key])) continue;
 		if (is_null(wrap_setting($key))) {
 			$unchanged[$key] = NULL;
 			wrap_setting($key, $value);
@@ -840,6 +839,36 @@ function wrap_setting_from_table($scope, $params, $reset = true) {
 	}
 	return true;
 }
+
+/*
+ * whether a settings.cfg entry applies for wrap_setting_from_table()
+ *
+ * @param string $scope
+ * @param array $config merged settings.cfg line
+ * @return bool
+ */
+function wrap_setting_from_table_applies($scope, array $config) {
+	if (empty($config['scope'])) return false;
+
+	$scopes = $config['scope'];
+	if (!is_array($scopes)) $scopes = [$scopes];
+
+	if ($scope === 'categories') {
+		return in_array('categories', $scopes, true);
+	}
+	if (str_contains($scope, '/')) {
+		[$scope, $subtree] = explode('/', $scope, 2);
+		if ($scope !== 'categories' || $subtree === '') return false;
+		if (!in_array('categories', $scopes, true)) return false;
+		if (empty($config['subtree'])) return true;
+		$subtrees = $config['subtree'];
+		if (!is_array($subtrees)) $subtrees = [$subtrees];
+		return in_array($subtree, $subtrees, true);
+	}
+
+	return in_array($scope, $scopes, true);
+}
+
 
 /**
  * read default settings from .cfg files
