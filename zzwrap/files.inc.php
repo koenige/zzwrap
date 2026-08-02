@@ -414,6 +414,7 @@ function wrap_lib($libraries = []) {
  * @return string
  */
 function wrap_package($name) {
+	if ($name === 'custom') return 'custom';
 	if (in_array($name, wrap_setting('modules'))) return 'modules';
 	if (in_array($name, wrap_setting('themes'))) return 'themes';
 	return NULL;
