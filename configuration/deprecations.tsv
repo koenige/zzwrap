@@ -99,3 +99,4 @@
 2026-07-21-1	code	'collect_start' => true	use wrap_error_collect_start() instead of wrap_error(..., ['collect_start' => true])
 2026-07-21-2	code	'collect_end' => true	use wrap_error_collect_end() instead of wrap_error(..., ['collect_end' => true])
 2026-07-31-1	code	wrap_match_module_parameters	renamed to `wrap_setting_from_table()`
+2026-08-02-1	code	wrap_money_format	use wrap_money(), format=money in zzbrick

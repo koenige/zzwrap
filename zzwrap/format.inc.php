@@ -20,7 +20,6 @@
  *	wrap_print()
  *  wrap_number()
  *  wrap_money()
- *		wrap_money_format()
  *  wrap_html_escape()
  *  wrap_html_escape_text()
  *	_wrap_unit_format()
@@ -997,10 +996,6 @@ function wrap_percent($number) {
  * @todo read default format from settings, as in wrap_number()
  */
 function wrap_money($number, $format = false) {
-	return wrap_money_format($number, $format);
-}
-
-function wrap_money_format($number, $format = false) {
 	if (!$format) $format = wrap_setting('lang');
 	if (!is_numeric($number)) return $number;
 	switch ($format) {
