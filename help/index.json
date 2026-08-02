@@ -1,4 +1,17 @@
 {
+    "database-structure": [
+        {
+            "title": "Database structure",
+            "language": "en",
+            "package": "zzwrap",
+            "filename": "help/Database Structure.md",
+            "identifier": "database-structure",
+            "type": "md",
+            "audience": [
+                "programmer"
+            ]
+        }
+    ],
     "format": [
         {
             "title": "Formatting",
