@@ -20,6 +20,9 @@
  *	wrap_print()
  *  wrap_number()
  *  wrap_money()
+ *		_wrap_money_currency_text()
+ *  wrap_currency()
+ *		_wrap_money_currency()
  *  wrap_html_escape()
  *  wrap_html_escape_text()
  *	_wrap_unit_format()
@@ -988,23 +991,114 @@ function wrap_percent($number) {
 }
 
 /**
- * returns own money_format
+ * Format a monetary amount
  *
- * @param double $number
- * @param string $format (optional)
+ * Uses decimal_point and thousands_separator from settings (see wrap_set_units()).
+ * Decimal places follow the ISO 4217 minor units of the currency, if known;
+ * otherwise two decimal places are used.
+ * The currency may be part of the value, as prepended or appended alphabetic
+ * code ('EUR 4372.28', '446.44 USD'); it is shown again in the same position.
+ *
+ * @param string $number amount, optionally with ISO 4217 code prepended/appended
+ * @param string $format one or more format tokens, also space-separated
+ *		in a single string (optional):
+ *		[A-Z]{3}: ISO 4217 alphabetic code, e.g. EUR
+ *		short: show currency as alphabetic code with the name as title,
+ *			e.g. <abbr title="Euro">EUR</abbr>
+ *			(default if currency is part of the value)
+ *		symbol: show currency as symbol via wrap_currency(),
+ *			e.g. <abbr title="Euro (EUR)">€</abbr>
+ *		long: show currency name, e.g. Euro
+ *		prepended: show currency before the amount
+ *		appended: show currency after the amount
+ *			(default is the position in the value, or appended)
+ *		plain: plain text for e-mail etc., no HTML markup
  * @return string
- * @todo read default format from settings, as in wrap_number()
  */
-function wrap_money($number, $format = false) {
-	if (!$format) $format = wrap_setting('lang');
+function wrap_money($number, ...$format) {
+	$currency = '';
+	$style = '';
+	$position = '';
+	$plain = false;
+
+	$tokens = [];
+	foreach ($format as $part) {
+		if (!$part) continue;
+		$tokens = array_merge($tokens, explode(' ', $part));
+	}
+	foreach ($tokens as $token) {
+		if (preg_match('/^[A-Z]{3}$/', $token)) {
+			$currency = $token;
+			continue;
+		}
+		if (in_array($token, ['prepended', 'appended'])) {
+			$position = $token;
+			continue;
+		}
+		if ($token === 'plain') {
+			$plain = true;
+			continue;
+		}
+		if (in_array($token, ['short', 'symbol', 'long'])) {
+			$style = $token;
+			continue;
+		}
+		wrap_error(['Sorry, the money format <strong>%s</strong> is not supported.',
+			['values' => wrap_html_escape($token)]], E_USER_NOTICE);
+	}
+	// an explicit position means the currency should be shown
+	if ($position AND !$style) $style = 'short';
+
+	// currency code prepended or appended to the value?
+	if (is_string($number)) {
+		if (preg_match('/^([A-Z]{3})\s+(.+)$/', trim($number), $matches)) {
+			$currency = $matches[1];
+			if (!$position) $position = 'prepended';
+			$number = $matches[2];
+			if (!$style) $style = 'short';
+		} elseif (preg_match('/^(.+)\s+([A-Z]{3})$/', trim($number), $matches)) {
+			$currency = $matches[2];
+			$number = $matches[1];
+			if (!$style) $style = 'short';
+		}
+	}
 	if (!is_numeric($number)) return $number;
-	switch ($format) {
-	case 'de':
-		return number_format($number, 2, ',', '.');
-	case 'en':
-		return number_format($number, 2, '.', ',');
+
+	$currency_data = _wrap_money_currency($currency);
+	$decimals = 2;
+	if (is_numeric($currency_data['Minor unit'] ?? ''))
+		$decimals = (int) $currency_data['Minor unit'];
+	$text = number_format($number, $decimals, wrap_setting('decimal_point'), wrap_setting('thousands_separator'));
+
+	if (!$currency OR !$style) return $text;
+	$currency_text = _wrap_money_currency_text($currency, $style, $currency_data, $plain);
+	$separator = "\xC2\xA0";
+	if ($position === 'prepended')
+		return $currency_text.$separator.$text;
+	return $text.$separator.$currency_text;
+}
+
+/**
+ * currency for display, as code, symbol or name
+ *
+ * @param string $currency ISO 4217 alphabetic code
+ * @param string $style 'short', 'symbol' or 'long'
+ * @param array $currency_data data from currencies.tsv
+ * @param bool $plain plain text, no HTML
+ * @return string
+ */
+function _wrap_money_currency_text($currency, $style, $currency_data, $plain = false) {
+	if (!$currency_data) return $currency;
+	switch ($style) {
+	case 'symbol':
+		if ($plain) return $currency_data['Symbol'] ?: $currency;
+		return wrap_currency($currency);
+	case 'long':
+		return $currency_data['Currency'];
 	default:
-		return $number;
+		if ($plain) return $currency;
+		return sprintf('<abbr title="%s">%s</abbr>'
+			, $currency_data['Currency'], $currency);
 	}
 }
 
@@ -1013,21 +1107,31 @@ function wrap_money($number, $format = false) {
  *
  * @param string $currency
  * @return string
- * @todo merge with wrap_money to get correct no of minor units
  * @todo some currencies have different symbols for singular and plural
  */
 function wrap_currency($currency) {
+	$currency_data = _wrap_money_currency($currency);
+	if (!$currency_data) return $currency;
+	$text = sprintf('<abbr title="%s (%s)">%s</abbr>'
+		, $currency_data['Currency']
+		, $currency_data['Alphabetic Code']
+		, $currency_data['Symbol'] ?: $currency_data['Alphabetic Code']
+	);
+	return $text;
+}
+
+/**
+ * get currency data from currencies.tsv
+ *
+ * @param string $currency ISO 4217 alphabetic code
+ * @return array
+ */
+function _wrap_money_currency($currency) {
+	if (!$currency) return [];
 	static $currencies = [];
 	if (!$currencies)
 		$currencies = wrap_tsv_parse('currencies', 'default/custom');
-
-	if (!array_key_exists($currency, $currencies)) return $currency;
-	$text = sprintf('<abbr title="%s (%s)">%s</abbr>'
-		, $currencies[$currency]['Currency']
-		, $currencies[$currency]['Alphabetic Code']
-		, $currencies[$currency]['Symbol'] ?? $currencies[$currency]['Alphabetic Code']		
-	);
-	return $text;
+	return $currencies[$currency] ?? [];
 }
 
 /**
