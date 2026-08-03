@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-02 13:19+0000\n"
+"POT-Creation-Date: 2026-08-03 01:58+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1732,63 +1732,67 @@ msgstr ""
 msgid "The required library %s does not exist. Please install it in the `_inc/library` folder."
 msgstr ""
 
-#: zzwrap/format.inc.php:224
+#: zzwrap/format.inc.php:226
 msgid "wrap_filename() only accepts strings."
 msgstr ""
 
-#: zzwrap/format.inc.php:326
+#: zzwrap/format.inc.php:328
 msgid "Please set at least a default format for wrap_date() via setting \"date_format\" = \"dates-de\" or so"
 msgstr ""
 
-#: zzwrap/format.inc.php:355
+#: zzwrap/format.inc.php:357
 msgid "Date %s is currently either not supported as ISO date or no ISO date at all."
 msgstr ""
 
-#: zzwrap/format.inc.php:372
+#: zzwrap/format.inc.php:374
 msgid "Unknown input format %s"
 msgstr ""
 
-#: zzwrap/format.inc.php:396
+#: zzwrap/format.inc.php:398
 msgid "Unknown output format %s"
 msgstr ""
 
-#: zzwrap/format.inc.php:447
+#: zzwrap/format.inc.php:449
 msgid "Language %s currently not supported"
 msgstr ""
 
-#: zzwrap/format.inc.php:917
+#: zzwrap/format.inc.php:919
 msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
 msgstr ""
 
-#: zzwrap/format.inc.php:950
+#: zzwrap/format.inc.php:952
 msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
 msgstr ""
 
-#: zzwrap/format.inc.php:972
+#: zzwrap/format.inc.php:974
 msgid "Sorry, the number format <strong>%s</strong> is not supported."
 msgstr ""
 
-#: zzwrap/format.inc.php:1048
+#: zzwrap/format.inc.php:1046
+msgid "Sorry, the money format <strong>%s</strong> is not supported."
+msgstr ""
+
+#: zzwrap/format.inc.php:1147
 msgid "wrap_html_escape() only handles strings"
 msgstr ""
 
-#: zzwrap/format.inc.php:1073
+#: zzwrap/format.inc.php:1172
 msgid "wrap_html_escape_text() only handles strings"
 msgstr ""
 
-#: zzwrap/format.inc.php:1421
+#: zzwrap/format.inc.php:1520
 msgid "Need function `idn_to_ascii` to check value %s, but it does not exist."
 msgstr ""
 
-#: zzwrap/format.inc.php:1440
+#: zzwrap/format.inc.php:1539
 msgid "missing function `idn_to_utf8`"
 msgstr ""
 
-#: zzwrap/format.inc.php:1573
+#: zzwrap/format.inc.php:1672
 msgid "Unit %s not recognized for calculating duration."
 msgstr ""
 
-#: zzwrap/format.inc.php:1840
+#: zzwrap/format.inc.php:1939
 msgid "Placeholder %s not found."
 msgstr ""
 
