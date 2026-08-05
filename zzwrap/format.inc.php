@@ -528,6 +528,9 @@ function _wrap_date_format($date, $set, $formats = []) {
 	if (!$date) return '';
 	list($year, $month, $day) = explode('-', $date);
 
+	if (in_array('long', $formats) && $day !== '00')
+		$day = (string) (int) $day;
+
 	while (substr($year, 0, 1) === '0') {
 		// 0800 = 800 etc.
 		$year = substr($year, 1);
