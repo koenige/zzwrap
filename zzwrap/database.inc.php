@@ -1841,7 +1841,12 @@ function wrap_db_log_table($sql) {
 		}
 	}
 	if (empty($table)) return NULL;
-	if ($pos = strpos($table, ' ')) $table = substr($table, 0, $pos);
+	$table = substr($table, 0, strcspn($table, " \t\n\r("));
+	$table = trim($table, '`');
+	$table = wrap_db_prefix($table);
+	if (str_contains($table, '/*_')) {
+		$table = wrap_sql_placeholders($table);
+	}
 	$table = trim($table, '`');
 	if (strpos($table, '.')) {
 		$table = explode('.', $table);
