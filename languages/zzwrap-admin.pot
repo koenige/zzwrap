@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-05 17:27+0000\n"
+"POT-Creation-Date: 2026-08-10 22:55+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1672,27 +1672,27 @@ msgstr ""
 msgid "String expected, got %s."
 msgstr ""
 
-#: zzwrap/database.inc.php:1562
+#: zzwrap/database.inc.php:1584
 msgid "Unable to replace placeholder %s (%s)"
 msgstr ""
 
-#: zzwrap/database.inc.php:1588
+#: zzwrap/database.inc.php:1610
 msgid "No connection to SQL server. (Host: %s)"
 msgstr ""
 
-#: zzwrap/database.inc.php:1679
+#: zzwrap/database.inc.php:1701
 msgid "ID value for table `%s`, key `%s` not found."
 msgstr ""
 
-#: zzwrap/database.inc.php:1714
+#: zzwrap/database.inc.php:1736
 msgid "Table %s is not supported by wrap_id()"
 msgstr ""
 
-#: zzwrap/database.inc.php:2050
+#: zzwrap/database.inc.php:2129
 msgid "Primary Key for table %s was not found."
 msgstr ""
 
-#: zzwrap/database.inc.php:2054
+#: zzwrap/database.inc.php:2133
 msgid "Primary Key for table %s spans over more than one field."
 msgstr ""
 

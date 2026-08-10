@@ -839,6 +839,28 @@ function wrap_db_data($query, $values = []) {
 }
 
 /**
+ * get all column names of a table
+ *
+ * @param string $table
+ * @return array
+ */
+function wrap_db_columns($table) {
+	static $definition = [];
+	if (array_key_exists($table, $definition))
+		return $definition[$table];
+	if (strstr($table, '.')) {
+		list($db_name, $db_table) = explode('.', $table);
+	} else {
+		$db_name = wrap_setting('db_name');
+		$db_table = $table;
+	}
+	$sql = 'SHOW COLUMNS FROM `%s`.`%s`';
+	$sql = sprintf($sql, $db_name, $db_table);
+	$data = wrap_db_fetch($sql, 'Field');
+	return $definition[$table] = array_keys($data);
+}
+
+/**
  * puts parts of SQL query in correct order when they have to be added
  *
  * this function works only for sql queries without UNION:
@@ -1839,13 +1861,19 @@ function wrap_db_log_find($query, $since = false) {
 	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
 	if (!$logging_table) return false;
 
-	$db_table = wrap_db_log_table($query);
-	if ($db_table) {
-		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE (db_table = "%s" OR db_table IS NULL) AND query = "%s"';
-		$sql = sprintf($sql, wrap_db_escape($db_table), wrap_db_escape($query));
-	} else {
-		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE db_table IS NULL AND query = "%s"';
+	$columns = wrap_db_columns(wrap_sql_table('zzform_logging'));
+	if (!in_array('db_table', $columns)) {
+		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
 		$sql = sprintf($sql, wrap_db_escape($query));
+	} else {
+		$db_table = wrap_db_log_table($query);
+		if ($db_table) {
+			$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE (db_table = "%s" OR db_table IS NULL) AND query = "%s"';
+			$sql = sprintf($sql, wrap_db_escape($db_table), wrap_db_escape($query));
+		} else {
+			$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE db_table IS NULL AND query = "%s"';
+			$sql = sprintf($sql, wrap_db_escape($query));
+		}
 	}
 	if ($since) $sql .= sprintf(' AND last_update > "%s"', wrap_db_escape($since));
 	return wrap_db_fetch($sql) ? true : false;
