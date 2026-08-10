@@ -152,16 +152,9 @@ function wrap_install_module($module) {
  * @return bool
  */
 function wrap_install_queries($queries, $scope = 'create') {
-	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
-
 	foreach ($queries as $query) {
 		// install already in logging table?
-		if ($logging_table) {
-			$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
-			$sql = sprintf($sql, wrap_db_escape($query));
-			$record = wrap_db_fetch($sql);
-			if ($record) continue;
-		}
+		if (wrap_db_log_find($query)) continue;
 		if ($scope === 'create' AND str_starts_with($query, 'ALTER')) {
 			// do ALTER TABLE etc. later
 			wrap_install_alter_table($query);

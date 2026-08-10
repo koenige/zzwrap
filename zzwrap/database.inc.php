@@ -1801,6 +1801,51 @@ function wrap_database_table_check($table, $only_if_install = false) {
 }
 
 /**
+ * table affected by an SQL query
+ *
+ * @param string $sql
+ * @return string|null
+ */
+function wrap_db_log_table($sql) {
+	$sql_verbs = [
+		'ALTER TABLE', 'DELETE FROM', 'UPDATE', 'INSERT INTO', 'CREATE TABLE',
+		'DROP TABLE', 'DELETE'
+	];
+	$sql = trim($sql);
+	foreach ($sql_verbs as $verb) {
+		if (str_starts_with($sql, $verb.' ')) {
+			$table = substr($sql, strlen($verb) + 1);
+			break;
+		}
+	}
+	if (empty($table)) return NULL;
+	if ($pos = strpos($table, ' ')) $table = substr($table, 0, $pos);
+	$table = trim($table, '`');
+	if (strpos($table, '.')) {
+		$table = explode('.', $table);
+		$table = trim(end($table), '`');
+	}
+	return $table ?: NULL;
+}
+
+/**
+ * check if query was already logged
+ *
+ * @param string $query
+ * @param string|false $since optional date (Y-m-d), match only if logged after
+ * @return bool
+ */
+function wrap_db_log_find($query, $since = false) {
+	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
+	if (!$logging_table) return false;
+
+		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
+		$sql = sprintf($sql, wrap_db_escape($query));
+	if ($since) $sql .= sprintf(' AND last_update > "%s"', wrap_db_escape($since));
+	return wrap_db_fetch($sql) ? true : false;
+}
+
+/**
  * split query in string and non-string parts
  * to replace some placeholders only in non-string parts
  *
