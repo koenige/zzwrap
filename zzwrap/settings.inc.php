@@ -1003,19 +1003,74 @@ function wrap_cfg_files_parse($type) {
 			if (wrap_db_connection()) {
 				wrap_cfg_translate($single_cfg[$package], $cfg_file);
 			}
-			// no merging, let custom cfg overwrite single settings from modules
-			foreach ($single_cfg[$package] as $key => $line) {
-				if (array_key_exists($key, $cfg))
-					foreach ($line as $subkey => $value) {
-						if ($subkey === 'package') continue;
-						$cfg[$key][$subkey] = $value;
-					}
-				else
-					$cfg[$key] = $line;
-			}
+			// merge list fields across packages; scalars: later package wins
+			foreach ($single_cfg[$package] as $key => $line)
+				wrap_cfg_merge_line($cfg, $key, $line, $list_fields);
 		}
 	}
 	return [$cfg, $single_cfg];
+}
+
+/**
+ * merge one settings.cfg (or other .cfg) section into the combined config
+ *
+ * list fields from cfg.cfg (subtree, example, default, …) are appended
+ * with duplicates removed; other subkeys are overwritten by later packages
+ *
+ * @param array $cfg merged configuration, changed in place
+ * @param string $key setting key
+ * @param array $line one section from a single package file
+ * @param array $list_fields keys that may hold list values
+ * @return void
+ */
+function wrap_cfg_merge_line(array &$cfg, $key, array $line, array $list_fields) {
+	if (!array_key_exists($key, $cfg)) {
+		$cfg[$key] = $line;
+		return;
+	}
+	foreach ($line as $subkey => $value) {
+		if ($subkey === 'package') continue;
+		if ($subkey === 'default' OR in_array($subkey, $list_fields, true)) {
+			$cfg[$key][$subkey] = wrap_cfg_merge_list_values(
+				$cfg[$key][$subkey] ?? null,
+				$value
+			);
+			continue;
+		}
+		$cfg[$key][$subkey] = $value;
+	}
+}
+
+/**
+ * merge two list values from settings.cfg metadata fields
+ *
+ * @param mixed $existing
+ * @param mixed $incoming
+ * @return mixed
+ */
+function wrap_cfg_merge_list_values($existing, $incoming) {
+	if (!is_array($existing) AND !is_array($incoming)) {
+		if ($existing === null OR $existing === '') return $incoming;
+		if ($incoming === null OR $incoming === '') return $existing;
+		return $incoming;
+	}
+	$existing_list = wrap_cfg_normalize_list_value($existing);
+	$incoming_list = wrap_cfg_normalize_list_value($incoming);
+	if (!$existing_list) return $incoming_list ?: $incoming;
+	if (!$incoming_list) return $existing_list;
+	return array_values(array_unique(array_merge($existing_list, $incoming_list), SORT_REGULAR));
+}
+
+/**
+ * normalize a settings.cfg list metadata value to a zero-indexed array
+ *
+ * @param mixed $value
+ * @return array
+ */
+function wrap_cfg_normalize_list_value($value) {
+	if ($value === null OR $value === '') return [];
+	if (is_array($value)) return array_values($value);
+	return [$value];
 }
 
 /**
