@@ -1839,8 +1839,14 @@ function wrap_db_log_find($query, $since = false) {
 	$logging_table = wrap_database_table_check(wrap_sql_table('zzform_logging'), true);
 	if (!$logging_table) return false;
 
-		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE query = "%s"';
+	$db_table = wrap_db_log_table($query);
+	if ($db_table) {
+		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE (db_table = "%s" OR db_table IS NULL) AND query = "%s"';
+		$sql = sprintf($sql, wrap_db_escape($db_table), wrap_db_escape($query));
+	} else {
+		$sql = 'SELECT log_id FROM /*_TABLE zzform_logging _*/ WHERE db_table IS NULL AND query = "%s"';
 		$sql = sprintf($sql, wrap_db_escape($query));
+	}
 	if ($since) $sql .= sprintf(' AND last_update > "%s"', wrap_db_escape($since));
 	return wrap_db_fetch($sql) ? true : false;
 }
