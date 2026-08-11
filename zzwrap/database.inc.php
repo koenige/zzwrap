@@ -1831,7 +1831,7 @@ function wrap_database_table_check($table, $only_if_install = false) {
 function wrap_db_log_table($sql) {
 	$sql_verbs = [
 		'ALTER TABLE', 'DELETE FROM', 'UPDATE', 'INSERT INTO', 'CREATE TABLE',
-		'DROP TABLE', 'DELETE'
+		'DROP TABLE', 'DELETE', 'RENAME TABLE'
 	];
 	$sql = trim($sql);
 	foreach ($sql_verbs as $verb) {
