@@ -1723,9 +1723,12 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
  *
  * @param string $table
  * @param string $sql
+ * @param string $identifiers Which keys to include after alias expansion:
+ *   'all'     — canonical identifiers and aliases (default; used by wrap_id())
+ *   'aliases' — alias keys only; canonical path keys removed when an alias exists
  * @return array
  */
-function wrap_id_read($table, $sql) {
+function wrap_id_read($table, $sql, $identifiers = 'all') {
 	if (!$sql) {
 		$queries = wrap_system_sql('ids');
 		if (array_key_exists($table, $queries) AND $queries[$table]) {
@@ -1748,6 +1751,7 @@ function wrap_id_read($table, $sql) {
 	if (!$sql_aliases) return $data;
 
 	$aliases = wrap_db_fetch($sql_aliases, '_dummy_', 'key/value');
+	$canonical = $data;
 	foreach ($aliases as $id => $alias) {
 		parse_str($alias, $parameters);
 		if (empty($parameters['alias'])) continue;
@@ -1759,13 +1763,19 @@ function wrap_id_read($table, $sql) {
 		}
 		foreach ($parameters['alias'] as $my_alias) {
 			$data[$my_alias] = strval($id);
-			$identifier_prefix = array_search($id, $data);
+			$identifier_prefix = array_search($id, $canonical);
+			if ($identifier_prefix === false) continue;
 			foreach ($data as $identifier => $value) {
 				if (!str_starts_with($identifier, $identifier_prefix.'/')) continue;
 				$new_identifier = $my_alias.substr($identifier, strlen($identifier_prefix));
-				if (array_key_exists($new_identifier, $data)) continue;
+				if (array_key_exists($new_identifier, $data)) {
+					if ($identifiers !== 'all' && $identifier !== $new_identifier) unset($data[$identifier]);
+					continue;
+				}
 				$data[$new_identifier] = $value;
+				if ($identifiers !== 'all') unset($data[$identifier]);
 			}
+			if ($identifiers !== 'all' && $identifier_prefix !== $my_alias) unset($data[$identifier_prefix]);
 		}
 	}
 	$data = array_change_key_case($data, CASE_LOWER);
