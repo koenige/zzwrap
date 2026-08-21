@@ -9,10 +9,25 @@
 # @license http://opensource.org/licenses/lgpl-3.0.html LGPL-3.0
 #
 %%% loop start %%%
+%%% if data %%%
+<div class="%%% item class %%%">
+%%% if msg %%%<p>%%% item msg format[]=html_escape format[]=nl2br %%%</p>%%% endif %%%
+%%% if data_simple %%%
+<dl>
+%%% loop data_lines %%%
+<dt>%%% item key format=html_escape %%%</dt><dd>%%% item value format=html_escape %%%</dd>
+%%% loop end %%%
+</dl>
+%%% else %%%
+<pre>%%% item data_json format=html_escape %%%</pre>
+%%% endif %%%
+</div>
+%%% else %%%
 %%% switch class %%%
 %%% case pre %%%
-<pre> %%% item msg format[]=wrap_html_escape %%% </pre>
+<pre> %%% item msg format=html_escape %%% </pre>
 %%% default %%%
-<p class="%%% item class %%%">%%% item msg format[]=nl2br %%%</p>
+<p class="%%% item class %%%">%%% item msg format[]=html_escape format[]=nl2br %%%</p>
 %%% switch - %%%
+%%% endif %%%
 %%% loop end %%%

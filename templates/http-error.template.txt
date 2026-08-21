@@ -15,7 +15,7 @@
 <div id="text">
 <p>%%% page error_description %%%</p>
 %%% if page error_explanation %%%
-<p>%%% page error_explanation %%%</p>
+<div>%%% page error_explanation %%%</div>
 %%% endif %%%
 </div>
 </div>

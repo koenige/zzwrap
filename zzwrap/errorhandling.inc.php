@@ -173,10 +173,11 @@ function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 		wrap_mail($mail);
 		break;
 	case 'output':
-		$notice = wrap_error_detail($error, $log_encoding);
-		if ($error['data'] !== null)
-			$settings['class'] = 'pre';
-		wrap_notice($notice, $settings['class'] ?? 'error');
+		$prepared = wrap_error_prepare($error, $log_encoding, [
+			'skip_request_uri_intro' => true,
+		]);
+		if ($prepared['text'] === '' && !$prepared['data']) break;
+		wrap_notice(wrap_error_notice($prepared), $settings['class'] ?? 'error');
 		break;
 	default:
 		break;
@@ -367,16 +368,9 @@ function wrap_error_log_line($error) {
  * @return array [int $log_text_parts, array $payload]
  */
 function wrap_error_log_payload($error) {
-	$parts = max(1, (int) ($error['log_text_parts'] ?? 1));
-	$payload = [wrap_error_message($error)];
-	$data = $error['data'];
-	if ($parts > 1 && is_array($data)) {
-		for ($index = 1; $index < $parts; $index++) {
-			if (!$data) break;
-			$payload[] = array_shift($data);
-		}
-	}
-	if ($data === null || $data === []) return [$parts, $payload];
+	[$parts, $shifted, $data] = wrap_error_shift_data($error);
+	$payload = array_merge([wrap_error_message($error)], $shifted);
+	if ($data === null) return [$parts, $payload];
 	if (is_array($data))
 		$payload = array_merge($payload, $data);
 	else
@@ -396,26 +390,118 @@ function wrap_error_log_payload($error) {
  * @return string
  */
 function wrap_error_detail($error, $encoding) {
-	$text = wrap_error_message($error);
-	if (wrap_setting('error_prefix') && wrap_setting('error_handling') !== 'mail_summary')
+	$prepared = wrap_error_prepare($error, $encoding);
+	$text = $prepared['text'];
+	if ($prepared['data'])
+		$text .= "\n\n".json_encode($prepared['data'], JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
+	return $text;
+}
+
+/**
+ * Normalize error message and remaining data for human-readable output
+ *
+ * @param array $error
+ * @param string $encoding
+ * @param array $options
+ *		bool skip_request_uri_intro: omit `[request_uri]` intro (screen output)
+ *		bool with_prefix: prepend wrap_setting(error_prefix); default false for
+ *			mail_summary, true otherwise
+ * @return array{text: string, data: mixed|null}
+ */
+function wrap_error_prepare($error, $encoding, $options = []) {
+	$error_work = $error;
+	if (!empty($options['skip_request_uri_intro'])
+		&& !empty($error_work['intro'])
+		&& $error_work['intro'] === '['.wrap_setting('request_uri').']')
+		unset($error_work['intro']);
+
+	$text = wrap_error_message($error_work);
+	$with_prefix = $options['with_prefix'] ?? (wrap_setting('error_handling') !== 'mail_summary');
+	if ($with_prefix && wrap_setting('error_prefix'))
 		$text = wrap_setting('error_prefix').' '.$text;
 	$text = html_entity_decode($text, ENT_QUOTES, $encoding);
 
+	[, $shifted, $data] = wrap_error_shift_data($error);
+	foreach ($shifted as $value) {
+		if (is_scalar($value) || $value === null)
+			$text .= "\n".$value;
+		else
+			$text .= "\n".json_encode($value, JSON_INVALID_UTF8_IGNORE);
+	}
+	return ['text' => $text, 'data' => $data];
+}
+
+/**
+ * Split error data per log_text_parts
+ *
+ * @param array $error
+ * @return array [int $log_text_parts, array $shifted, mixed|null $data]
+ */
+function wrap_error_shift_data($error) {
 	$data = $error['data'] ?? null;
 	$parts = max(1, (int) ($error['log_text_parts'] ?? 1));
+	$shifted = [];
 	if ($parts > 1 && is_array($data)) {
 		for ($index = 1; $index < $parts; $index++) {
 			if (!$data) break;
-			$value = array_shift($data);
-			if (is_scalar($value) || $value === null)
-				$text .= "\n".$value;
-			else
-				$text .= "\n".json_encode($value, JSON_INVALID_UTF8_IGNORE);
+			$shifted[] = array_shift($data);
 		}
 	}
-	if ($data)
-		$text .= "\n\n".json_encode($data, JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
-	return $text;
+	if ($data === []) $data = null;
+	return [$parts, $shifted, $data];
+}
+
+/**
+ * Whether error data is a flat list of scalar values (for dl output)
+ *
+ * @param mixed $data
+ * @return bool
+ */
+function wrap_error_data_is_simple($data) {
+	if (!is_array($data)) return false;
+	if ($data === []) return false;
+	foreach ($data as $value) {
+		if (is_array($value) || is_object($value)) return false;
+	}
+	return true;
+}
+
+/**
+ * Convert flat error data to template loop rows
+ *
+ * @param array $data
+ * @return array
+ */
+function wrap_error_data_lines($data) {
+	$lines = [];
+	foreach ($data as $key => $value)
+		$lines[] = ['key' => $key, 'value' => $value];
+	return $lines;
+}
+
+/**
+ * Build a wrap_notice() item from prepared error data
+ *
+ * @param array $prepared wrap_error_prepare() result
+ * @return array
+ */
+function wrap_error_notice($prepared) {
+	$notice = [
+		'msg' => $prepared['text'],
+	];
+	if (!$prepared['data']) return $notice;
+
+	$notice['data'] = true;
+	if (wrap_error_data_is_simple($prepared['data'])) {
+		$notice['data_simple'] = true;
+		$notice['data_lines'] = wrap_error_data_lines($prepared['data']);
+	} else {
+		$notice['data_json'] = json_encode(
+			$prepared['data'],
+			JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE
+		);
+	}
+	return $notice;
 }
 
 /**
@@ -439,7 +525,7 @@ function wrap_error_message($error) {
 /**
  * Queue a user-visible notice (plain text) or manage the per-request queue.
  *
- * @param string|null $msg message to append; ignored for init
+ * @param string|array|null $msg message to append, or notice array with msg/class/data; ignored for init
  * @param string $class CSS class when appending (e.g. error, warning)
  * @param string $action set | init
  * @return array
@@ -448,10 +534,15 @@ function wrap_notice($msg = null, $class = 'error', $action = 'set') {
 	static $queue = [];
 	if ($action === 'init') return $queue = [];
 	if (!$msg) return $queue;
-	$queue[] = [
-		'msg' => $msg,
-		'class' => $class,
-	];
+	if (is_array($msg)) {
+		$msg['class'] = $class;
+		$queue[] = $msg;
+	} else {
+		$queue[] = [
+			'msg' => $msg,
+			'class' => $class,
+		];
+	}
 	return $queue;
 }
 
