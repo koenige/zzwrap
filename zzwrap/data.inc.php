@@ -67,7 +67,7 @@ function wrap_data($table, $data, $settings = []) {
 	}
 	
 	if ($finalize_function)
-		$data = $finalize_function($data, $ids);
+		$data = $finalize_function($data, $ids, $settings);
 
 	return $data;
 }
