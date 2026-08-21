@@ -1719,6 +1719,21 @@ function wrap_id($table, $identifier, $action = 'read', $value = '', $sql = '') 
 }
 
 /**
+ * resolve symbolic identifiers on *_id fields
+ *
+ * @param string $field_name
+ * @param mixed $value
+ * @return mixed
+ */
+function wrap_field_value($field_name, $value) {
+	if (!str_ends_with($field_name, '_id')) return $value;
+	if (!$value) return $value;
+	if (is_numeric($value)) return $value;
+
+	return wrap_id(wrap_sql_plural($field_name), $value);
+}
+
+/**
  * read IDs and aliases for table
  *
  * @param string $table
