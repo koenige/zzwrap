@@ -21,35 +21,77 @@
  * @return string
  */
 function wrap_file_delete_line($file, $lines) {
-	// check if file exists and is writable
 	if (!is_writable($file))
 		return wrap_text('File %s is not writable.', ['values' => $file]);
-	if (!$lines) return wrap_text('No lines deleted.');
+	if (!$lines)
+		return wrap_text('No lines deleted.');
 
-	$deleted = 0;
-	$content = file($file);
-	foreach ($lines as $line) {
-		if (strstr($line, '-')) {
-			$line = explode('-', $line);
-			$line = range($line[0], $line[1]);
-		} else {
-			$line = explode(',', $line);
-		}
-		foreach ($line as $no) {
-			unset($content[$no]);
-			$deleted++;
-		}
+	$delete = wrap_file_delete_line_numbers($lines);
+	if (!$delete['numbers'])
+		return wrap_text('No lines deleted.');
+
+	$source = fopen($file, 'rb');
+	if (!$source)
+		return wrap_text('Cannot open %s for reading.', ['values' => $file]);
+
+	$mode = fileperms($file) & 0777;
+	$temp = tempnam(dirname($file), basename($file).'.');
+	if (!$temp) {
+		fclose($source);
+		return wrap_text('Cannot create temporary file for %s.', ['values' => $file]);
 	}
 
-	// open file for writing
-	if (!$handle = fopen($file, 'w+'))
-		return wrap_text('Cannot open %s for writing.', ['values' => $file]);
+	$target = fopen($temp, 'wb');
+	if (!$target) {
+		fclose($source);
+		unlink($temp);
+		return wrap_text('Cannot open temporary file for %s.', ['values' => $file]);
+	}
 
-	foreach($content as $line)
-		fwrite($handle, $line);
+	$line_no = 0;
+	while (($line = fgets($source)) !== false) {
+		if (!isset($delete['numbers'][$line_no]))
+			fwrite($target, $line);
+		$line_no++;
+	}
+	fclose($source);
+	fclose($target);
 
-	fclose($handle);
-	return wrap_text('%d lines deleted.', ['values' => $deleted]);
+	if (!rename($temp, $file)) {
+		unlink($temp);
+		return wrap_text('Cannot write %s.', ['values' => $file]);
+	}
+	chmod($file, $mode);
+
+	return wrap_text('%d lines deleted.', ['values' => $delete['count']]);
+}
+
+/**
+ * line numbers to delete from wrap_file_delete_line()
+ *
+ * @param array $lines list entries, line numbers, ranges, or comma lists
+ * @return array{numbers: array<int, true>, count: int}
+ */
+function wrap_file_delete_line_numbers($lines) {
+	$numbers = [];
+	$count = 0;
+
+	foreach ($lines as $line) {
+		$line = (string) $line;
+		if (str_contains($line, '-')) {
+			$parts = explode('-', $line);
+			$range = range($parts[0], $parts[1]);
+		} else {
+			$range = explode(',', $line);
+		}
+		foreach ($range as $no) {
+			$no = (int) $no;
+			if (!isset($numbers[$no]))
+				$numbers[$no] = true;
+			$count++;
+		}
+	}
+	return ['numbers' => $numbers, 'count' => $count];
 }
 
 /**

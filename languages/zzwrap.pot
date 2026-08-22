@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-21 11:18+0000\n"
+"POT-Creation-Date: 2026-08-22 14:29+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -969,20 +969,32 @@ msgstr ""
 msgid "fallback"
 msgstr ""
 
-#: zzwrap/file.inc.php:26
+#: zzwrap/file.inc.php:25
 msgid "File %s is not writable."
 msgstr ""
 
 #: zzwrap/file.inc.php:27
+#: zzwrap/file.inc.php:31
 msgid "No lines deleted."
 msgstr ""
 
-#: zzwrap/file.inc.php:46
-#: zzwrap/syndication.inc.php:1186
-msgid "Cannot open %s for writing."
+#: zzwrap/file.inc.php:35
+msgid "Cannot open %s for reading."
 msgstr ""
 
-#: zzwrap/file.inc.php:52
+#: zzwrap/file.inc.php:41
+msgid "Cannot create temporary file for %s."
+msgstr ""
+
+#: zzwrap/file.inc.php:48
+msgid "Cannot open temporary file for %s."
+msgstr ""
+
+#: zzwrap/file.inc.php:62
+msgid "Cannot write %s."
+msgstr ""
+
+#: zzwrap/file.inc.php:66
 msgid "1 line deleted."
 msgid_plural "%d lines deleted."
 msgstr[0] ""
@@ -1153,6 +1165,10 @@ msgstr ""
 
 #: zzwrap/session.inc.php:234
 msgid "Don’t crumble my cookies."
+msgstr ""
+
+#: zzwrap/syndication.inc.php:1186
+msgid "Cannot open %s for writing."
 msgstr ""
 
 #: zzwrap/template.inc.php:154
