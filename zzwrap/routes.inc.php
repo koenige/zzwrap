@@ -5,6 +5,7 @@
  * routes and path functions
  *
  * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
+ * - wrap_routes_menu()
  * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder()
  *
  * Part of »Zugzwang Project«
@@ -654,4 +655,47 @@ function wrap_routes_page_ids($area, $paths = [], $setting_key = '') {
 	}
 	wrap_setting_write($setting, sprintf('[%s]', implode(',', $page_ids)));
 	return $page_ids;
+}
+
+/**
+ * menu items from routes with a menu group
+ *
+ * @param string $menu website, content, or module
+ * @return array list of items with path, title, description, priority, key
+ */
+function wrap_routes_menu($menu) {
+	$routes_cfg = wrap_cfg_files('routes');
+	if (!$routes_cfg) return [];
+
+	$routes_paths = wrap_routes_read();
+	$items = [];
+	foreach ($routes_cfg as $key => $route) {
+		if (empty($route['menu'])) continue;
+		if (empty($route['menu_title'])) continue;
+		if ($route['menu'] !== $menu) continue;
+
+		$settings = $route['condition_if_setting'] ?? [];
+		if (!is_array($settings)) $settings = [$settings];
+		foreach ($settings as $setting) {
+			if (!wrap_setting($setting)) continue 2;
+		}
+
+		if (!array_key_exists($key, $routes_paths)) continue;
+		if (is_array($routes_paths[$key])) continue;
+		if (!$routes_paths[$key]) continue;
+
+		$path = wrap_path($key, [], ['hide_missing' => true]);
+		if (!$path) continue;
+
+		$items[] = [
+			'path' => $path,
+			'title' => $route['menu_title'],
+			'description' => $route['menu_description'] ?? '',
+			'priority' => array_key_exists('menu_priority', $route)
+				? (int) $route['menu_priority']
+				: null,
+			'key' => $key,
+		];
+	}
+	return $items;
 }
