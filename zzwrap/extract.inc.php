@@ -910,11 +910,21 @@ function wrap_extract_code_context_tail($content, $offset) {
 function wrap_extract_cfg($line, $fields) {
 	$entries = [];
 	foreach ($fields as $field => $pot) {
-		if (!preg_match(
+		if (preg_match(
 			'/^\s*'.preg_quote($field, '/').'\s*=\s*"((?:[^"\\\\]|\\\\.)*)"\s*(?:;.*)?$/'
 			, $line, $match
-		)) continue;
-		$entries[] = ['msgid' => stripcslashes($match[1]), 'pot' => $pot];
+		)) {
+			$entries[] = ['msgid' => stripcslashes($match[1]), 'pot' => $pot];
+			continue;
+		}
+		if (preg_match(
+			'/^\s*'.preg_quote($field, '/').'\s*=\s*([^;#]+?)\s*(?:;.*)?$/'
+			, $line, $match
+		)) {
+			$value = trim($match[1]);
+			if ($value === '') continue;
+			$entries[] = ['msgid' => $value, 'pot' => $pot];
+		}
 	}
 	return $entries;
 }
