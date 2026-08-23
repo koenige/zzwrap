@@ -75,6 +75,10 @@ function wrap_routes_write($site = NULL) {
 	foreach ($routes as $key => $route) {
 		if (!empty($route['match_parameters']))
 			if (wrap_routes_write_params($key, $pages, $paths)) continue;
+		$settings = $route['condition_if_setting'] ?? [];
+		if (!is_array($settings)) $settings = [$settings];
+		foreach ($settings as $setting)
+			if (!wrap_setting($setting)) continue 2;
 		wrap_routes_write_brick($key, $route, $pages, $paths);
 	}
 
@@ -212,6 +216,9 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 				else
 					$paths[$key][$subkey] = $path;
 			}
+		} elseif (str_starts_with($brick, 'tables ')) {
+			$path = wrap_path_default($paths['default_tables'] ?? '', substr($brick, strlen('tables ')));
+			if ($path) $paths[$key] = $path;
 		}
 		if (empty($paths[$key])) {
 			if (wrap_routes_write_params($key, $pages, $paths)) return;
@@ -285,7 +292,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 		// fallback for `tables` brick
 		$brick = explode(' ', $brick);
 		if (count($brick) === 2 AND $brick[0] === 'tables') {
-			$path = wrap_path('default_tables', $brick[1]);
+			$path = wrap_path_default($paths['default_tables'] ?? '', $brick[1]);
 			if ($path) $paths[$key] = $path;
 			return;
 		}
@@ -296,6 +303,19 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 
 	$match = reset($matches);
 	$paths[$key] = wrap_routes_path_prepare($match['path'], $key, $match['parameters'] ?? '');
+}
+
+/**
+ * check if there is a default path available
+ *
+ * @param string $path
+ * @param string $key
+ * @return string|null
+ */
+function wrap_path_default($path, $key) {
+	if (!is_string($path)) return null;
+	if (!$path) return null;
+	return sprintf($path, $key);
 }
 
 /**
@@ -667,22 +687,11 @@ function wrap_routes_menu($menu) {
 	$routes_cfg = wrap_cfg_files('routes');
 	if (!$routes_cfg) return [];
 
-	$routes_paths = wrap_routes_read();
 	$items = [];
 	foreach ($routes_cfg as $key => $route) {
 		if (empty($route['menu'])) continue;
 		if (empty($route['menu_title'])) continue;
 		if ($route['menu'] !== $menu) continue;
-
-		$settings = $route['condition_if_setting'] ?? [];
-		if (!is_array($settings)) $settings = [$settings];
-		foreach ($settings as $setting) {
-			if (!wrap_setting($setting)) continue 2;
-		}
-
-		if (!array_key_exists($key, $routes_paths)) continue;
-		if (is_array($routes_paths[$key])) continue;
-		if (!$routes_paths[$key]) continue;
 
 		$path = wrap_path($key, [], ['hide_missing' => true]);
 		if (!$path) continue;
