@@ -49,7 +49,7 @@ function wrap_syndication($url, $settings = []) {
 			if (!$last_modified)
 				$last_modified = wrap_date(filemtime($cache['url']), 'timestamp->rfc1123');
 			if ($fresh) {
-				$data = file_get_contents($cache['url']);
+				$data = wrap_syndication_cache_data($cache, $type);
 			} else {
 				// get ETag and Last-Modified from cache file
 				$etag = wrap_cache_get_header($cache['headers'], 'ETag');
@@ -87,7 +87,7 @@ function wrap_syndication($url, $settings = []) {
 		case 304:
 			// cache file must exist, we would not have an etag header
 			// so use it
-			$data = file_get_contents($cache['url']);
+			$data = wrap_syndication_cache_data($cache, $type);
 			if (wrap_setting('cache')) {
 				$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
 			}
@@ -106,7 +106,7 @@ function wrap_syndication($url, $settings = []) {
 		default:
 			if (!empty($cache['url']) AND file_exists($cache['url'])) {
 				// connection error, use (possibly stale) cache file
-				$data = file_get_contents($cache['url']);
+				$data = wrap_syndication_cache_data($cache, $type);
 				wrap_error(['Syndication from URL %s failed. Status code %s. Using cached file instead.', ['values' => [$url, $status]]], E_USER_NOTICE);
 				if (wrap_setting('cache'))
 					$last_modified = wrap_cache_get_header($cache['headers'], 'Last-Modified');
@@ -153,6 +153,25 @@ function wrap_syndication($url, $settings = []) {
 		$object['_']['type'] = $type;
 		return $object;
 	}
+}
+
+/**
+ * Read syndicated cache from disk.
+ *
+ * JSON is loaded into memory. Other types only need a truthy marker; callers
+ * use the cache filename.
+ *
+ * @param array $cache
+ * @param string $type
+ * @return mixed string JSON body, true if a non-JSON cache file exists, array otherwise
+ */
+function wrap_syndication_cache_data($cache, $type) {
+	if (empty($cache['url'])) return [];
+	if (!file_exists($cache['url'])) return [];
+	if ($type === 'json') {
+		return file_get_contents($cache['url']);
+	}
+	return true;
 }
 
 /**
