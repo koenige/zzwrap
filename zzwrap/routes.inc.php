@@ -439,15 +439,22 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	$path = $routes[$area];
 	if (!$path) return '';
 	// route has parameterized variants, e. g. news_article[news], news_article[projects]
-	// extract first identifier fragment to find the matching sub-route
+	// match longest sub-route key prefix (supports slashes in keys, e. g. lsb/nachrichten)
 	if (is_array($path)) {
 		if (!is_array($value)) $value = [$value];
 		$values = implode('/', $value);
-		$pos = strpos($values, '/');
-		if ($pos === false) return '';
-		$path = $path[substr($values, 0, $pos)] ?? '';
-		if (!$path) return '';
-		$value = [substr($values, $pos + 1)];
+		$subkey = '';
+		$subpath = '';
+		foreach ($path as $key => $route_path) {
+			if (!$route_path) continue;
+			if ($values !== $key && !str_starts_with($values, $key.'/')) continue;
+			if (strlen($key) <= strlen($subkey)) continue;
+			$subkey = $key;
+			$subpath = $route_path;
+		}
+		if (!$subkey) return '';
+		$path = $subpath;
+		$value = ($values === $subkey) ? [''] : [substr($values, strlen($subkey) + 1)];
 	}
 
 	// replace page placeholders with %s
