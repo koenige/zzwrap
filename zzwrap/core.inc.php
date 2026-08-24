@@ -258,7 +258,7 @@ function wrap_static($var, $key = '', $value = NULL, $action = NULL) {
 function wrap_array_merge($old, $new, $overwrite_with_empty = true) {
 	foreach ($new as $index => $value) {
 		if (is_array($value)) {
-			if (!empty($old[$index])) {
+			if (!empty($old[$index]) AND is_array($old[$index])) {
 				$old[$index] = wrap_array_merge($old[$index], $new[$index], $overwrite_with_empty);
 			} else
 				$old[$index] = $new[$index];
