@@ -25,7 +25,9 @@
  *		'error_msg' => additional error message that appears on error page,
  *		'etag_generate_md5' => creates 'etag' if not send with MD5,
  *		'caching' => bool; defaults to true, false = no caching allowed,
- *		'ext' => use this extension, do not try to determine it from file ending
+ *		'ext' => use this extension, do not try to determine it from file ending,
+ *		'last_modified' => int timestamp or RFC 1123 date from origin,
+ *		'content_type' => string MIME type from origin (optional)
  * @todo send pragma public header only if browser that is affected by this bug
  * @todo implement Ranges for bytes
  */
@@ -80,7 +82,9 @@ function wrap_send_file($file) {
 	// Read mime type from .cfg or database
 	// Canonicalize suffices
 	$filetype_cfg = wrap_filetypes($extension, 'read-per-extension');
-	if (!empty($filetype_cfg['mime'][0]))
+	if (!empty($file['content_type']))
+		wrap_http_header('content_type', $file['content_type']);
+	elseif (!empty($filetype_cfg['mime'][0]))
 		wrap_http_header('content_type', $filetype_cfg['mime'][0]);
 	elseif ($sql = sprintf(wrap_sql_query('core_filetypes'), $extension))
 		wrap_http_header('content_type', wrap_db_fetch($sql, '', 'single value'));
@@ -96,7 +100,14 @@ function wrap_send_file($file) {
 	}
 	
 	// Last-Modified HTTP header
-	wrap_if_modified_since(filemtime($file['name']), 200, $file);
+	$mtime = filemtime($file['name']);
+	if (!empty($file['last_modified']) AND is_numeric($file['last_modified'])) {
+		$mtime = (int) $file['last_modified'];
+	} elseif (!empty($file['last_modified'])) {
+		$from_header = wrap_date($file['last_modified'], 'rfc1123->timestamp');
+		if ($from_header) $mtime = $from_header;
+	}
+	wrap_if_modified_since($mtime, 200, $file);
 
 	if ($file['caching'])
 		wrap_cache_allow_private();
