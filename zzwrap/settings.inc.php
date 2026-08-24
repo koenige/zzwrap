@@ -328,7 +328,8 @@ function wrap_setting_log_missing($key, $cfg) {
 		if (in_array($package, $ignore_packages)) return;
 	}
 
-	wrap_error(['Setting `%s` not found in settings.cfg files.', ['values' => [$base_key]]], E_USER_NOTICE);
+	if (wrap_setting('setting_log_missing'))
+		wrap_error(['Setting `%s` not found in settings.cfg files.', ['values' => [$base_key]]], E_USER_NOTICE);
 }
 
 /**

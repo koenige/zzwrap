@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-22 14:29+0000\n"
+"POT-Creation-Date: 2026-08-24 22:36+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1167,7 +1167,7 @@ msgstr ""
 msgid "Don’t crumble my cookies."
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1186
+#: zzwrap/syndication.inc.php:1205
 msgid "Cannot open %s for writing."
 msgstr ""
 

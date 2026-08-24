@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-24 15:05+0000\n"
+"POT-Creation-Date: 2026-08-24 22:36+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -412,11 +412,11 @@ msgstr ""
 msgid "Type of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:559
+#: configuration/cfg.cfg:560
 msgid "URL value"
 msgstr ""
 
-#: configuration/cfg.cfg:564
+#: configuration/cfg.cfg:565
 msgid "Image format suitable for web display"
 msgstr ""
 
@@ -1423,154 +1423,158 @@ msgid "Use secure session cookies only"
 msgstr ""
 
 #: configuration/settings.cfg:1261
+msgid "Log missing settings"
+msgstr ""
+
+#: configuration/settings.cfg:1266
 msgid "Show mail in browser instead of logging it (development server only)"
 msgstr ""
 
-#: configuration/settings.cfg:1265
+#: configuration/settings.cfg:1270
 msgid "Secret to share with other server for hashing credentials of single sign on"
 msgstr ""
 
-#: configuration/settings.cfg:1270
+#: configuration/settings.cfg:1275
 msgid "Name of website, hostname without www"
 msgstr ""
 
-#: configuration/settings.cfg:1274
+#: configuration/settings.cfg:1279
 msgid "Put site offline (return 503 error)"
 msgstr ""
 
-#: configuration/settings.cfg:1278
+#: configuration/settings.cfg:1283
 msgid "Template to show if site is offline"
 msgstr ""
 
-#: configuration/settings.cfg:1281
+#: configuration/settings.cfg:1286
 msgid "List of keys that replace a key for an SQL query just for this request"
 msgstr ""
 
-#: configuration/settings.cfg:1285
+#: configuration/settings.cfg:1290
 msgid "Secret key which forms a hash that allows a single sign-on login without password (must be identical with other server(s))"
 msgstr ""
 
-#: configuration/settings.cfg:1290
+#: configuration/settings.cfg:1295
 msgid "Timeframe in minutes during which the sso_key is valid"
 msgstr ""
 
-#: configuration/settings.cfg:1294
+#: configuration/settings.cfg:1299
 msgid "Hostname of staging server, if different from final hostname"
 msgstr ""
 
-#: configuration/settings.cfg:1298
+#: configuration/settings.cfg:1303
 msgid "PHP error code to use if there’s an error during syndication of content"
 msgstr ""
 
-#: configuration/settings.cfg:1303
+#: configuration/settings.cfg:1308
 msgid "Timeout in milliseconds when requesting a URL with cURL"
 msgstr ""
 
-#: configuration/settings.cfg:1307
+#: configuration/settings.cfg:1312
 msgid "Timeout in milliseconds when triggering a URL with cURL, increase on slow servers"
 msgstr ""
 
-#: configuration/settings.cfg:1312
+#: configuration/settings.cfg:1317
 msgid "Website page template, if different from default (needs to end in `-page`)"
 msgstr ""
 
-#: configuration/settings.cfg:1322
+#: configuration/settings.cfg:1327
 msgid "HTML template for page title, max. two variables %1$s + %2$s"
 msgstr ""
 
-#: configuration/settings.cfg:1329
+#: configuration/settings.cfg:1334
 msgid "HTML template for page title on home page, max. two variables %1$s + %2$s"
 msgstr ""
 
-#: configuration/settings.cfg:1333
+#: configuration/settings.cfg:1338
 msgid "List of available themes"
 msgstr ""
 
-#: configuration/settings.cfg:1339
+#: configuration/settings.cfg:1344
 msgid "Folder for website themes"
 msgstr ""
 
-#: configuration/settings.cfg:1345
+#: configuration/settings.cfg:1350
 msgid "Thousands separator"
 msgstr ""
 
-#: configuration/settings.cfg:1349
+#: configuration/settings.cfg:1354
 msgid "Internal timezone, format: continent/city"
 msgstr ""
 
-#: configuration/settings.cfg:1355
+#: configuration/settings.cfg:1360
 msgid "Folder for temporary items"
 msgstr ""
 
-#: configuration/settings.cfg:1362
+#: configuration/settings.cfg:1367
 msgid "Translate page titles?"
 msgstr ""
 
-#: configuration/settings.cfg:1366
+#: configuration/settings.cfg:1371
 msgid "Translate text via database"
 msgstr ""
 
-#: configuration/settings.cfg:1370
+#: configuration/settings.cfg:1375
 msgid "Translate field values in database"
 msgstr ""
 
-#: configuration/settings.cfg:1374
+#: configuration/settings.cfg:1379
 msgid "Marker that is set if a translation is not complete"
 msgstr ""
 
-#: configuration/settings.cfg:1380
+#: configuration/settings.cfg:1385
 msgid "List of MySQL sql_modes to disable"
 msgstr ""
 
-#: configuration/settings.cfg:1385
+#: configuration/settings.cfg:1390
 msgid "Use uris table for logging of requests"
 msgstr ""
 
-#: configuration/settings.cfg:1390
+#: configuration/settings.cfg:1395
 msgid "Maximum parts of path in URL, no. of slashes"
 msgstr ""
 
-#: configuration/settings.cfg:1395
+#: configuration/settings.cfg:1400
 msgid "Named URL placeholders with lists of allowed values"
 msgstr ""
 
-#: configuration/settings.cfg:1401
+#: configuration/settings.cfg:1406
 msgid "Years into the future to include in url_placeholders[year]"
 msgstr ""
 
-#: configuration/settings.cfg:1407
+#: configuration/settings.cfg:1412
 msgid "List of years that appear in URL"
 msgstr ""
 
-#: configuration/settings.cfg:1413
+#: configuration/settings.cfg:1418
 msgid "List of available packages"
 msgstr ""
 
-#: configuration/settings.cfg:1418
+#: configuration/settings.cfg:1423
 msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:1423
+#: configuration/settings.cfg:1428
 msgid "ID of current website"
 msgstr ""
 
-#: configuration/settings.cfg:1429
+#: configuration/settings.cfg:1434
 msgid "If running more than one website with one system, this is the default website that will answer to unknown domain names"
 msgstr ""
 
-#: configuration/settings.cfg:1434
+#: configuration/settings.cfg:1439
 msgid "Seconds between websites cache checks"
 msgstr ""
 
-#: configuration/settings.cfg:1439
+#: configuration/settings.cfg:1444
 msgid "Filename for cached websites list"
 msgstr ""
 
-#: configuration/settings.cfg:1443
+#: configuration/settings.cfg:1448
 msgid "Random ID for logs to mark a process as unique"
 msgstr ""
 
-#: configuration/settings.cfg:1448
+#: configuration/settings.cfg:1453
 msgid "Initial installation date of Zugzwang Project CMS (for updates)"
 msgstr ""
 
@@ -1950,35 +1954,35 @@ msgstr ""
 msgid "Reference `%s`: unknown extra_columns `%s` (TSV columns: %s)."
 msgstr ""
 
-#: zzwrap/routes.inc.php:431
+#: zzwrap/routes.inc.php:434
 msgid "No route found for `%s`."
 msgstr ""
 
-#: zzwrap/routes.inc.php:505
+#: zzwrap/routes.inc.php:537
 msgid "Calling for path `%s` for non-existent website `%s`."
 msgstr ""
 
-#: zzwrap/send.inc.php:36
+#: zzwrap/send.inc.php:38
 msgid "Unable to send file: %s is a folder, not a file."
 msgstr ""
 
-#: zzwrap/send.inc.php:51
+#: zzwrap/send.inc.php:53
 msgid "Unable to send file: %s does not exist"
 msgstr ""
 
-#: zzwrap/send.inc.php:381
+#: zzwrap/send.inc.php:392
 msgid "Unable to open file %s"
 msgstr ""
 
-#: zzwrap/send.inc.php:590
+#: zzwrap/send.inc.php:601
 msgid "Redirect to array not supported."
 msgstr ""
 
-#: zzwrap/send.inc.php:747
+#: zzwrap/send.inc.php:758
 msgid "URI path too long: %s"
 msgstr ""
 
-#: zzwrap/send.inc.php:749
+#: zzwrap/send.inc.php:760
 msgid "URI query too long: %s"
 msgstr ""
 
@@ -1998,20 +2002,20 @@ msgstr ""
 msgid "Setting `%s` requires module(s) %s."
 msgstr ""
 
-#: zzwrap/settings.inc.php:331
+#: zzwrap/settings.inc.php:332
 msgid "Setting `%s` not found in settings.cfg files."
 msgstr ""
 
-#: zzwrap/settings.inc.php:399
+#: zzwrap/settings.inc.php:400
 msgid "Could not change setting. Key: %s, value: %s, login: %s"
 msgstr ""
 
-#: zzwrap/settings.inc.php:529
-#: zzwrap/settings.inc.php:554
+#: zzwrap/settings.inc.php:530
+#: zzwrap/settings.inc.php:555
 msgid "Too many arrays in %s, not implemented."
 msgstr ""
 
-#: zzwrap/settings.inc.php:745
+#: zzwrap/settings.inc.php:746
 msgid "Value for setting %s must be an array: %s"
 msgstr ""
 
@@ -2031,55 +2035,55 @@ msgstr ""
 msgid "Syndication: Cannot convert JSON data %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:270
+#: zzwrap/syndication.inc.php:289
 msgid "Geocoder %s not supported."
 msgstr ""
 
-#: zzwrap/syndication.inc.php:318
+#: zzwrap/syndication.inc.php:337
 msgid "%s is not supported for geocoding."
 msgstr ""
 
-#: zzwrap/syndication.inc.php:322
+#: zzwrap/syndication.inc.php:341
 msgid "Syndication from %s failed with status %s. %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:592
+#: zzwrap/syndication.inc.php:611
 msgid "cURL getinfo()"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:609
+#: zzwrap/syndication.inc.php:628
 msgid "Syndication from URL %s failed. Reason: %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:615
+#: zzwrap/syndication.inc.php:634
 msgid "cURL incomplete download, URL %s: total %s, received %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:617
+#: zzwrap/syndication.inc.php:636
 msgid "cURL error, URL %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:904
+#: zzwrap/syndication.inc.php:923
 msgid "wrap_lock_wait(%s, %d) gave up after %d seconds"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1084
+#: zzwrap/syndication.inc.php:1103
 msgid "FTP: Failed to connect to %s (Port: %d)"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1089
+#: zzwrap/syndication.inc.php:1108
 msgid "FTP: Failed login to %s (User: %s, Password: %s)"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1105
+#: zzwrap/syndication.inc.php:1124
 msgid "FTP: Directory was not changed to %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1111
+#: zzwrap/syndication.inc.php:1130
 msgid "FTP: Upload local file %s to remote file %s failed"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1130
+#: zzwrap/syndication.inc.php:1149
 msgid "It was not possible to %s file %s to file %s"
 msgstr ""
 
