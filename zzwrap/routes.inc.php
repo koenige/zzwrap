@@ -6,7 +6,7 @@
  *
  * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
  * - wrap_routes_menu()
- * - wrap_path(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder()
+ * - wrap_path(), wrap_path_external_route(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder()
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -346,7 +346,7 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
 /**
  * get a path based on a route, check for access
  *
- * @param string $area Route name (key in routes.json / routes.cfg).
+ * @param string $area Route name (key in routes.json / routes.cfg), or a settings.cfg key with type = external_route.
  * @param mixed $value (optional) Path segments for placeholders; string or array, e.g. ['id'] or 'slug'.
  * @param array $settings (optional) Options:
  *   - check_rights (bool): Check wrap_access($area, detail); default true.
@@ -421,6 +421,9 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		if ($area_fallback) {
 			$area = $area_fallback;
 		} else {
+			$path = wrap_path_external_route($area, $value, $settings);
+			if ($path !== NULL)
+				return $path;
 			$path = wrap_path_fallback($area, $value, $settings);
 			if ($path !== NULL)
 				return wrap_path_add_absolute($path, $settings['absolute']);
@@ -488,6 +491,35 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 			$path = wrap_host_base($website_id).$path;
 	}
 	return wrap_path_add_absolute($path, $settings['absolute']);
+}
+
+/**
+ * resolve wrap_path() from a setting with type = external_route
+ *
+ * Used when $area is not a routes.cfg key. The setting value is a sprintf
+ * template (often a full https:// URL). No access check, no base / host_base.
+ *
+ * @param string $area
+ * @param mixed $value path placeholder values
+ * @param array $settings wrap_path() options (testing)
+ * @return string|null interpolated path, '' if the template is empty or
+ *     has too few values, NULL if $area is not an external_route
+ */
+function wrap_path_external_route($area, $value, $settings) {
+	$cfg = wrap_cfg_files('settings');
+	if (($cfg[$area]['type'] ?? '') !== 'external_route') return NULL;
+
+	$path = wrap_setting($area);
+	if (!$path) return '';
+
+	if (!is_array($value)) $value = [$value];
+	$required_count = substr_count($path, '%');
+	if (count($value) < $required_count) {
+		if (empty($settings['testing'])) return '';
+		while (count($value) < $required_count)
+			$value[] = 'testing';
+	}
+	return vsprintf($path, $value);
 }
 
 /**

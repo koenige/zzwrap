@@ -66,7 +66,7 @@ as JSON.
 | `routes.cfg` (per module, merged) | Route **keys** (`[search]`, …), optional `brick=…`, `match_parameters`, `default`, `expand`, fallbacks, access groups |
 | `wrap_routes_write()` (`zzwrap/routes.inc.php`) | Scans `webpages` for matching bricks or `parameters` with `route=<key>`; writes `config_dir/routes.json` (or `routes-<sitekey>.json` if `multiple_websites`) |
 | `wrap_routes_read()` | Reads that JSON; regenerates when missing or older than `routes_cache_seconds` |
-| `wrap_path($area, …)` | Resolves a route key to a path: loads `routes.json`, optional `wrap_access($area)`, placeholder substitution, `base` / `host_base` |
+| `wrap_path($area, …)` | Resolves a route key to a path: loads `routes.json`, optional `wrap_access($area)`, placeholder substitution, `base` / `host_base`. If the key is missing from `routes.json`, a settings.cfg entry with `type = external_route` is interpolated instead (no access check, no `base` / `host_base`). |
 
 ### Binding a route to a page
 
@@ -96,13 +96,22 @@ missing file).
 webpage exposes the brick or `route=` parameter, then check
 `routes.json`.
 
+### External routes (outgoing links off this site)
+
+A setting with `type = external_route` is a sprintf template for
+`wrap_path()`, not a page of this application. Put it in `settings.cfg`
+(not `routes.cfg`). `wrap_path()` fills `%s` / `%d` from the same callers
+as named routes (`%%% path … %%%`, zzform `area`). There is no access
+group, and `base` / `host_base` are not prepended.
+
 ## Cheatsheet
 
 | Task | Where to look |
 |------|----------------|
 | New public URL | `webpages` table — identifier, content, live |
-| Link in template/PHP | `wrap_path('route_key', …)` → `routes.json` |
+| Link in template/PHP | `wrap_path('route_key', …)` → `routes.json` or `type = external_route` setting |
 | Declare route key | Module `configuration/routes.cfg` |
+| External URL template | Module `configuration/settings.cfg`, `type = external_route` |
 | Attach key to page | Matching brick in content **or** `&route=key` in parameters |
 | Debug 404 on visit | `wrap_match_page()`, identifier, `live`, placeholders |
 | Debug empty/wrong link | `routes.cfg`, webpage binding, `routes.json`, `wrap_path()` |
