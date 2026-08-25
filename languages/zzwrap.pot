@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-24 22:36+0000\n"
+"POT-Creation-Date: 2026-08-25 21:09+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -899,11 +899,11 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: zzwrap/auth.inc.php:826
-#: zzwrap/background.inc.php:142
+#: zzwrap/background.inc.php:176
 msgid "Data"
 msgstr ""
 
-#: zzwrap/background.inc.php:89
+#: zzwrap/background.inc.php:90
 msgid "not found"
 msgstr ""
 

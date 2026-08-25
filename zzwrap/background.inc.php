@@ -73,6 +73,9 @@ function wrap_job_check($type) {
 /**
  * automatically finish a job
  *
+ * Sequential jobs stay `running` while the next URL is triggered
+ * (fire-and-forget). The queue row is finished when there is no next URL.
+ *
  * @param array $job
  * @param string $type
  * @param array $content
@@ -80,8 +83,6 @@ function wrap_job_check($type) {
  */
 function wrap_job_finish($job, $type, $content) {
 	wrap_job_debug('FINISH JOB', $job);
-	if (!wrap_job_page($type)) return true;
-	if (!wrap_path('jobmanager', '', ['check_rights' => false, 'testing' => true])) return false;
 
 	if (!$content)
 		$content = [
@@ -93,18 +94,51 @@ function wrap_job_finish($job, $type, $content) {
 		$content['text'] = json_decode($content['text']);
 	if (!empty($_POST['job_logfile_result'])) {
 		wrap_include('file', 'zzwrap');
-		wrap_file_log($_POST['job_logfile_result'], 'write', [time(), $content['extra']['job'] ?? 'job', json_encode($content['data'] ?? $content['text'])]);
+		$action = $content['extra']['job'] ?? '';
+		if ($action || (!empty($content['content_type']) && $content['content_type'] === 'json')) {
+			$payload = $content['data'] ?? $content['text'];
+			if (!is_array($payload) && !is_string($payload))
+				$payload = ['status' => $content['status'] ?? 200];
+			wrap_file_log($_POST['job_logfile_result'], 'write', [time(), $action ?: 'job', json_encode($payload, JSON_UNESCAPED_UNICODE)]);
+		}
 	}
 
+	$status = $content['status'] ?? 200;
 	$url_next = $_POST['job_url_next'] ?? $content['extra']['job_continue'] ?? '';
-	if ($url_next) {
+	$sequential = !empty($_POST['sequential'])
+		|| (is_array($job) && !empty($job['postdata']['sequential']));
+	$job_url = '';
+	if (is_array($job))
+		$job_url = $job['job_url_raw'] ?? $job['job_url'] ?? '';
+	if ($url_next === true) $url_next = $job_url;
+
+	if ($url_next && $sequential && in_array($status, [100, 200])) {
 		wrap_job_debug('NEXT JOB '.$url_next);
-		if ($url_next === true) $url_next = $job['job_url'] ?? ''; // empty if job was stopped
-		wrap_trigger_protected_url($url_next, wrap_username($job['username'] ?? '', false));
+		$next = ['sequential' => 1];
+		if (!empty($_POST['job_logfile_result']))
+			$next['job_logfile_result'] = $_POST['job_logfile_result'];
+		// different URL: sub-step should return to this job
+		if ($job_url && $url_next !== $job_url && $url_next !== ($job['job_url'] ?? ''))
+			$next['job_url_next'] = $job_url;
+		wrap_trigger_protected_url(
+			$url_next,
+			wrap_username(is_array($job) ? ($job['username'] ?? '') : '', false),
+			true,
+			$next
+		);
+		return true;
 	}
-	// do not mark job as stopped if sequential mode
-	if (!empty($job['postdata']['sequential'])) return true;
-	mod_default_make_jobmanager_finish($job, $content['status'] ?? 200, $content['text']);
+
+	if (!wrap_job_page($type)) return true;
+	if (!wrap_path('jobmanager', '', ['check_rights' => false, 'testing' => true])) return false;
+
+	if (is_array($job))
+		mod_default_make_jobmanager_finish($job, $status, $content['text']);
+
+	if ($url_next && in_array($status, [100, 200])) {
+		wrap_job_debug('NEXT JOB '.$url_next);
+		wrap_trigger_protected_url($url_next, wrap_username(is_array($job) ? ($job['username'] ?? '') : '', false));
+	}
 }
 
 /**
