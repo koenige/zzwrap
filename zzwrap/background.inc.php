@@ -140,7 +140,7 @@ function wrap_job_debug($msg, $data = []) {
 		'%s %s (%s)',
 		['values' => [wrap_setting('zzwrap_id'), $msg, wrap_setting('request_uri')],
 		'data' => $data ? [wrap_text('Data') => $data] : []]
-	]);
+	], 'job');
 }
 
 /**
