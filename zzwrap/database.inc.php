@@ -264,19 +264,24 @@ function wrap_db_query(&$sql, $error = E_USER_ERROR) {
 			$db_msg = [];
 			$warning_error = E_USER_WARNING;
 			foreach ($warnings as $warning) {
-				$db_msg[] = $warning['Level'].': '.$warning['Message'];
+				$level = $warning['Level'];
+				$i = 2;
+				while (array_key_exists($level, $db_msg)) {
+					$level = sprintf('%s (%d)', $warning['Level'], $i);
+					$i++;
+				}
+				$db_msg[$level] = $warning['Message'];
 				if ($warning['Level'] === 'Error') $warning_error = $error;
 			}
-			if ($db_msg and $error)
+			if ($db_msg and $error) {
+				$db_msg[wrap_text('SQL')] = $sql;
 				wrap_error([
 					'MySQL reports a problem.', [
 						'intro' => '['.wrap_setting('request_uri').']',
-						'data' => [
-							wrap_text('Warnings') => $db_msg,
-							wrap_text('SQL') => $sql,
-						]
+						'data' => $db_msg
 					]
 				], $warning_error);
+			}
 		}
 	} else {
 		$warnings = [];
