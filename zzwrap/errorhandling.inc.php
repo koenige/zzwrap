@@ -379,8 +379,8 @@ function wrap_error_log_payload($error) {
 }
 
 /**
- * Human-readable error text plus optional structured data (pretty-printed)
- * for mail and debug output
+ * Human-readable error text plus optional structured data for mail and debug
+ * output: simple scalar maps as key/value blocks, otherwise pretty-printed JSON
  *
  * @param array $error
  *	string $text
@@ -392,9 +392,11 @@ function wrap_error_log_payload($error) {
 function wrap_error_detail($error, $encoding) {
 	$prepared = wrap_error_prepare($error, $encoding);
 	$text = $prepared['text'];
-	if ($prepared['data'])
-		$text .= "\n\n".json_encode($prepared['data'], JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
-	return $text;
+	if (!$prepared['data']) return $text;
+	$text .= "\n\n";
+	if (wrap_error_data_is_simple($prepared['data']))
+		return $text.wrap_error_data_text($prepared['data']);
+	return $text.json_encode($prepared['data'], JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
 }
 
 /**
@@ -452,7 +454,7 @@ function wrap_error_shift_data($error) {
 }
 
 /**
- * Whether error data is a flat list of scalar values (for dl output)
+ * Whether error data is a flat list of scalar values (for dl / mail text)
  *
  * @param mixed $data
  * @return bool
@@ -477,6 +479,19 @@ function wrap_error_data_lines($data) {
 	foreach ($data as $key => $value)
 		$lines[] = ['key' => $key, 'value' => $value];
 	return $lines;
+}
+
+/**
+ * Convert flat error data to plain-text key/value blocks (mail analog of dl)
+ *
+ * @param array $data
+ * @return string
+ */
+function wrap_error_data_text($data) {
+	$blocks = [];
+	foreach ($data as $key => $value)
+		$blocks[] = $key."\n".$value;
+	return implode("\n\n", $blocks);
 }
 
 /**
