@@ -449,6 +449,7 @@ function wrap_match_redirects_placeholder($position) {
 	$break_next = false;
 	$separators = ['/', '-', '.'];
 	$path = wrap_match_path();
+	$has_extension = (bool) pathinfo($path, PATHINFO_EXTENSION);
 
 	switch ($position) {
 	case 'before':
@@ -461,6 +462,11 @@ function wrap_match_redirects_placeholder($position) {
 
 	while (!$found) {
 		$current_path = sprintf('/%s', wrap_db_escape($path));
+		if ($position === 'behind' AND $has_extension) {
+			$sql = sprintf(wrap_sql_query('core_redirects_*.*'), $current_path);
+			$redir = wrap_db_fetch($sql);
+			if ($redir) break;
+		}
 		$sql = sprintf(wrap_sql_query($r_query), $current_path);
 		$redir = wrap_db_fetch($sql);
 		if ($redir) break; // we have a result, get out of this loop!
@@ -500,8 +506,12 @@ function wrap_match_redirects_placeholder($position) {
 	elseif ($last_separator === '-') $last_separator = '/';
 	// If there's an asterisk (*) at the end of the redirect
 	// the cut part will be pasted to the end of the string
+	// `*.*` keeps a file extension in the remainder (/-*.* → /public*.*)
 	$field_name = wrap_sql_fields('core_redirects_new_url');
-	if (substr($redir[$field_name], -1) === '*') {
+	if (str_ends_with($redir[$field_name], '*.*')) {
+		$parameter = substr($parameter, 1);
+		$redir[$field_name] = substr($redir[$field_name], 0, -3).$last_separator.$parameter;
+	} elseif (substr($redir[$field_name], -1) === '*') {
 		$parameter = substr($parameter, 1);
 		$redir[$field_name] = substr($redir[$field_name], 0, -1).$last_separator.$parameter;
 	} elseif (substr($redir[$field_name], 0, 1) === '*') {

@@ -1236,7 +1236,7 @@ function wrap_sql_modify($key, $queries) {
 	if (in_array($key, $modifications)) return $queries[$key];
 
 	$modify_queries = [
-		'core_pages', 'core_redirects', 'core_redirects_*', 'core_redirects*_',
+		'core_pages', 'core_redirects', 'core_redirects_*', 'core_redirects_*.*', 'core_redirects*_',
 		'page_breadcrumbs','page_menu'
 	];
 	if (!in_array($key, $modify_queries)) return $queries[$key];
