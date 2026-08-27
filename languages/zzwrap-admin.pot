@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-26 09:05+0000\n"
+"POT-Creation-Date: 2026-08-27 19:57+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1772,27 +1772,27 @@ msgstr ""
 msgid "Cache directory %s does not exist. Caching disabled."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:666
+#: zzwrap/errorhandling.inc.php:681
 msgid "mod_rewrite does not work as expected"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:692
+#: zzwrap/errorhandling.inc.php:707
 msgid "Status %s is not a valid HTTP status code."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:877
+#: zzwrap/errorhandling.inc.php:892
 msgid "File %s is wrong in line %s."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:943
+#: zzwrap/errorhandling.inc.php:958
 msgid "Case %s in line %s not supported."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:969
+#: zzwrap/errorhandling.inc.php:984
 msgid "The server responds to the hostname %s, but this is not in the list of possible hostnames."
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1211
+#: zzwrap/errorhandling.inc.php:1226
 msgid "Username must be string."
 msgstr ""
 

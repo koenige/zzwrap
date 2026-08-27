@@ -38,6 +38,7 @@ function zzwrap() {
 	wrap_http_check_request();
 	wrap_url_prepare();
 	wrap_http_blocked_paths();
+	wrap_http_allowed_hostnames();
 	// check language
 	$language_redirect = wrap_language_set();
 	// Relative linking

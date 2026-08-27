@@ -574,3 +574,77 @@ function wrap_http_blocked_path_match($type, $pattern) {
 		return false;
 	}
 }
+
+/**
+ * If config/allowed-hostnames.json exists, Host must be on that list or the
+ * request ends with 421. Development prefixes/suffixes (dev., dev-, .local)
+ * and www / non-www are matched automatically. Missing file: no check.
+ *
+ * @return void
+ */
+function wrap_http_allowed_hostnames() {
+	$allowed = wrap_http_allowed_hostnames_list();
+	if ($allowed === null) return;
+	if (wrap_http_localhost_ip()) return;
+
+	$hostname = wrap_http_hostname_normalize(wrap_setting('hostname'));
+	if ($hostname !== '' AND in_array($hostname, $allowed, true)) return;
+
+	$status = wrap_http_status_list(421);
+	$text = $status['text']."\n";
+	wrap_http_header('content_length', strlen($text));
+	wrap_http_status_header(421);
+	header('Content-Type: text/plain; charset=utf-8');
+	header('Content-Length: '.strlen($text));
+	wrap_log_uri(421);
+	echo $text;
+	exit;
+}
+
+/**
+ * Hostnames from config/allowed-hostnames.json, with www / non-www pairs.
+ *
+ * @return array|null null if the file is missing
+ */
+function wrap_http_allowed_hostnames_list() {
+	static $hostnames = false;
+	if ($hostnames !== false) return $hostnames;
+
+	$file = wrap_setting('config_dir').'/allowed-hostnames.json';
+	if (!file_exists($file)) return $hostnames = null;
+
+	$decoded = json_decode(file_get_contents($file), true);
+	if (!is_array($decoded)) return $hostnames = [];
+
+	$normalized = [];
+	foreach ($decoded as $hostname) {
+		if (!is_string($hostname)) continue;
+		$hostname = wrap_http_hostname_normalize(rtrim(trim($hostname), '.'));
+		if ($hostname === '') continue;
+		$normalized[$hostname] = true;
+		if (filter_var($hostname, FILTER_VALIDATE_IP)) continue;
+		if (str_starts_with($hostname, 'www.'))
+			$normalized[substr($hostname, 4)] = true;
+		else
+			$normalized['www.'.$hostname] = true;
+	}
+	return $hostnames = array_keys($normalized);
+}
+
+/**
+ * Strip development hostname wrappers (dev., dev-, .local), repeatedly.
+ *
+ * @param string $hostname
+ * @return string
+ */
+function wrap_http_hostname_normalize($hostname) {
+	$hostname = strtolower($hostname);
+	while ($cut = wrap_url_dev($hostname, false)) {
+		if (str_starts_with($cut, '.'))
+			$hostname = substr($hostname, 0, -strlen($cut));
+		else
+			$hostname = substr($hostname, strlen($cut));
+		if ($hostname === '') break;
+	}
+	return $hostname;
+}
