@@ -265,7 +265,10 @@ function wrap_install_settings_page($module = false) {
 	$data = [];
 	$found = false;
 	foreach ($cfg as $key => $line) {
-		if (!empty($line['required']) OR !empty($line['install'])) $found = true;
+		$for_install = !empty($line['required']) OR !empty($line['install']);
+		if ($for_install) $found = true;
+		if (!$for_install) continue;
+		if (!empty($line['type']) AND $line['type'] === 'random') continue;
 		$line['id'] = str_replace('[', '%5B', $key);
 		if (empty($line['type'])) $line['type'] = 'text';
 		$data[] = $line + ['key' => $key, $line['type'] => 1];
@@ -286,6 +289,12 @@ function wrap_install_settings_write() {
 		if (!$value) continue;
 		$key = str_replace('%5B', '[', $key);
 		wrap_setting_write($key, $value);
+	}
+	foreach (wrap_cfg_files('settings') as $key => $line) {
+		if (empty($line['install'])) continue;
+		if (empty($line['type']) OR $line['type'] !== 'random') continue;
+		if (wrap_setting_read($key)) continue;
+		wrap_setting_write($key, wrap_random_hash(42, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=+$%_/& '));
 	}
 	return true;
 }
