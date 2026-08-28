@@ -31,7 +31,7 @@
  */
 function wrap_error($msg, $error_type = E_USER_NOTICE, $settings = []) {
 	if (wrap_setting('install')) {
-		echo $msg;
+		echo wrap_print($msg);
 		exit;
 	}
 
