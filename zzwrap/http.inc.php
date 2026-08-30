@@ -70,7 +70,7 @@ function wrap_http_site_offline() {
 	$suffix = wrap_setting('multiple_websites') ? '-'.wrap_config_sitekey() : '';
 	if (!file_exists(wrap_setting('config_dir').'/routes'.$suffix.'.json')) 
 		wrap_db_connect();
-	if (wrap_url('path') === wrap_path('login')) return;
+	if (wrap_url('path') === wrap_path('login', '', ['hide_missing' => 1, 'no_base' => true])) return;
 	if (wrap_session_value('logged_in') AND wrap_access('site_offline_backend')) return;
 	if ($tpl = wrap_setting('site_offline_template')) {
 		wrap_setting('template', $tpl);

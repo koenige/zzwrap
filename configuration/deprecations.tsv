@@ -100,3 +100,4 @@
 2026-07-21-2	code	'collect_end' => true	use wrap_error_collect_end() instead of wrap_error(..., ['collect_end' => true])
 2026-07-31-1	code	wrap_match_module_parameters	renamed to `wrap_setting_from_table()`
 2026-08-02-1	code	wrap_money_format	use wrap_money(), format=money in zzbrick
+2026-08-30-1	code_regex	wrap_authenticate_url\s*\([^)]*,	second parameter `$no_auth_urls` removed; use setting `no_auth_urls`

@@ -51,8 +51,6 @@ function wrap_auth($force = false) {
 		foreach (wrap_setting('auth_urls') as $auth_url) {
 			if (!str_starts_with(strtolower(wrap_url('path')), strtolower($auth_url)))
 				continue;
-			if (wrap_url('path') === wrap_path('login', [], ['hide_missing' => 1]))
-				continue;
 			if (wrap_authenticate_url())
 				$user_authenticated = true;
 		}
@@ -188,15 +186,17 @@ function wrap_auth_loginpage() {
  * Checks current URL against no auth URLs
  *
  * @param string $url URL from database
- * @param array $no_auth_urls
  * @return bool true if authentication is required, false if not
  */
-function wrap_authenticate_url($url = false, $no_auth_urls = []) {
+function wrap_authenticate_url($url = false) {
 	if (!$url) $url = wrap_url('path');
 	if (!$url) return false; // 400
-	if (!$no_auth_urls)
-		$no_auth_urls = wrap_setting('no_auth_urls');
-	foreach ($no_auth_urls AS $test_url)
+	$login_url = wrap_path('login', [], ['hide_missing' => 1, 'no_base' => true]);
+	if ($login_url) {
+		$login_url = rtrim($login_url, '/');
+		if ($login_url AND str_starts_with($url, $login_url)) return false;
+	}
+	foreach (wrap_setting('no_auth_urls') AS $test_url)
 		// no authentication required
 		if (str_starts_with($url, $test_url)) return false;
 	return true; // no matches: authentication required
