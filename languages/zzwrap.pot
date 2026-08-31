@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-27 19:57+0000\n"
+"POT-Creation-Date: 2026-08-31 07:05+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1115,15 +1115,15 @@ msgstr ""
 msgid "Parameters"
 msgstr ""
 
-#: zzwrap/nav.inc.php:930
+#: zzwrap/nav.inc.php:955
 msgid "Previous page"
 msgstr ""
 
-#: zzwrap/nav.inc.php:932
+#: zzwrap/nav.inc.php:957
 msgid "Next page"
 msgstr ""
 
-#: zzwrap/nav.inc.php:938
+#: zzwrap/nav.inc.php:963
 #: zzwrap/page.inc.php:712
 #: zzwrap/page.inc.php:725
 msgid "Overview"

@@ -1,0 +1,66 @@
+{
+	"file": "nav",
+	"variables": ["url"],
+	"data": [
+		{
+			"description": "Trailing placeholder segment",
+			"url": "/events/%year%",
+			"expected": true
+		},
+		{
+			"description": "Trailing placeholder with slash",
+			"url": "/events/%year%/",
+			"expected": true
+		},
+		{
+			"description": "Trailing placeholder with .html ending",
+			"url": "/events/%year%.html",
+			"expected": true
+		},
+		{
+			"description": "Placeholder followed by asterisk wildcard",
+			"url": "/events/%year%*",
+			"expected": false
+		},
+		{
+			"description": "Concrete path without placeholders",
+			"url": "/events/2024/foo",
+			"expected": false
+		},
+		{
+			"description": "Placeholder segment before concrete segment",
+			"url": "/%language%/events",
+			"expected": true
+		},
+		{
+			"description": "Empty URL",
+			"url": "",
+			"expected": false
+		},
+		{
+			"description": "Homepage path",
+			"url": "/",
+			"expected": false
+		},
+		{
+			"description": "Absolute URL with placeholder path",
+			"url": "http://example.com/events/%year%",
+			"expected": true
+		},
+		{
+			"description": "Bare placeholder identifier",
+			"url": "%year%",
+			"expected": true
+		},
+		{
+			"description": "Percent sign without placeholder delimiters",
+			"url": "100%",
+			"expected": false
+		},
+		{
+			"description": "Leading percent without closing delimiter",
+			"url": "%notplaceholder",
+			"expected": false
+		}
+	]
+}

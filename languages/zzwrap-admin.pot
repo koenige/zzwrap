@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-27 19:57+0000\n"
+"POT-Creation-Date: 2026-08-30 22:04+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1914,7 +1914,7 @@ msgstr ""
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
 
-#: zzwrap/nav.inc.php:739
+#: zzwrap/nav.inc.php:742
 msgid "Unable to parse this breadcrumb: %s"
 msgstr ""
 

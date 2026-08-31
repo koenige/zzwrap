@@ -300,8 +300,10 @@ function wrap_menu_shorten($entries, $sql) {
  * @return array $menu
  */
 function wrap_menu_asterisk_check($line, $menu, $id = 'page_id') {
-	if (!$line['url'] OR (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
-		AND substr($line['url'], -6) !== '*.html')) {
+	if (!$line['url']) return $menu;
+	if (wrap_nav_url_placeholder($line['url'])) return $menu;
+	if (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
+		AND substr($line['url'], -6) !== '*.html') {
 		if ($id === 'page_id') $id = wrap_sql_fields('page_id');
 		$menu[$line[$id]] = $line;
 		return $menu;
@@ -553,8 +555,9 @@ function wrap_breadcrumbs_read($page_id) {
 			$breadcrumbs[0]['url_path'] = '';
 			continue; // ignore current page
 		}
-		if (strpos($breadcrumb['url_path'], '*') === false) continue;
-		// remove breadcrumbs with * in URL
+		if (strpos($breadcrumb['url_path'], '*') === false
+			AND !wrap_nav_url_placeholder($breadcrumb['url_path'])) continue;
+		// remove breadcrumbs with * or placeholder in URL
 		unset($breadcrumbs[$index]);
 	}
 
@@ -768,10 +771,8 @@ function wrap_breadcrumbs_prepare($breadcrumbs) {
  * @return mixed
  */
 function wrap_breadcrumbs_link($url_path) {
-	// don't show placeholder paths
-	$paths = explode('/', $url_path);
-	foreach ($paths as $path)
-		if (str_starts_with($path, '%') AND str_ends_with($path, '%')) return NULL;
+	// don't show links for paths with a placeholder segment
+	if (wrap_nav_url_placeholder($url_path)) return NULL;
 	if (str_starts_with($url_path, '.')) return $url_path;
 
 	$url_path = wrap_nav_base().$url_path;
@@ -779,6 +780,31 @@ function wrap_breadcrumbs_link($url_path) {
 	if ($current) return '';
 	$url_path = wrap_path_add_absolute($url_path, wrap_setting('absolute_urls'));
 	return $url_path;
+}
+
+/**
+ * check whether a nav URL with a placeholder segment (e.g. /events/%year%)
+ *
+ * @param string $url
+ * @return bool
+ */
+function wrap_nav_url_placeholder($url) {
+	if (!$url) return false;
+
+	// get rid of extension if there is any
+	$url = parse_url($url, PHP_URL_PATH);
+	$url = pathinfo($url);
+	$path = [];
+	if (!empty($url['dirname']))
+		$path = explode('/', trim($url['dirname'], '/'));
+	if (!empty($url['filename']))
+		$path[] = $url['filename'];
+
+	// check for placeholders
+	foreach ($path as $segment)
+		if (str_starts_with($segment, '%') && str_ends_with($segment, '%'))
+			return true;
+	return false;
 }
 
 
