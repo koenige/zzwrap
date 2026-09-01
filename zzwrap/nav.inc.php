@@ -793,6 +793,7 @@ function wrap_nav_url_placeholder($url) {
 
 	// get rid of extension if there is any
 	$url = parse_url($url, PHP_URL_PATH);
+	if (!$url) return false;
 	$url = pathinfo($url);
 	$path = [];
 	if (!empty($url['dirname']))
