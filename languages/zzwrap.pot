@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-08-31 07:05+0000\n"
+"POT-Creation-Date: 2026-09-03 09:47+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -907,7 +907,7 @@ msgstr ""
 msgid "not found"
 msgstr ""
 
-#: zzwrap/core.inc.php:654
+#: zzwrap/core.inc.php:669
 msgid "You sent the null character in your data. No use for that."
 msgstr ""
 
@@ -1115,15 +1115,15 @@ msgstr ""
 msgid "Parameters"
 msgstr ""
 
-#: zzwrap/nav.inc.php:955
+#: zzwrap/nav.inc.php:957
 msgid "Previous page"
 msgstr ""
 
-#: zzwrap/nav.inc.php:957
+#: zzwrap/nav.inc.php:959
 msgid "Next page"
 msgstr ""
 
-#: zzwrap/nav.inc.php:963
+#: zzwrap/nav.inc.php:965
 #: zzwrap/page.inc.php:712
 #: zzwrap/page.inc.php:725
 msgid "Overview"

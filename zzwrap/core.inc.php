@@ -252,14 +252,29 @@ function wrap_static($var, $key = '', $value = NULL, $action = NULL) {
  * 
  * @param array $old			Old array
  * @param array $new			New array
- * @param bool $overwrite_with_empty (optional, if false: empty values do not overwrite existing ones)
+ * @param array $settings (optional)
+ *		bool overwrite_with_empty: if false, empty values do not overwrite existing ones (default true)
+ *		bool replace_lists: if true, sequential lists replace existing values instead of appending (default false)
  * @return array $merged		Merged array
  */
-function wrap_array_merge($old, $new, $overwrite_with_empty = true) {
+function wrap_array_merge($old, $new, $settings = []) {
+	// cater for old signature (3rd = overwrite_with_empty as bool)
+	if (!is_array($settings)) {
+		wrap_error(sprintf(
+			'wrap_array_merge(): boolean as third parameter is deprecated, use wrap_array_merge($old, $new, [\'overwrite_with_empty\' => %s])'
+			, $settings ? 'true' : 'false'
+		), E_USER_DEPRECATED);
+		$settings = ['overwrite_with_empty' => (bool) $settings];
+	}
+	$settings['overwrite_with_empty'] = $settings['overwrite_with_empty'] ?? true;
+	$settings['replace_lists'] = $settings['replace_lists'] ?? false;
+
 	foreach ($new as $index => $value) {
 		if (is_array($value)) {
-			if (!empty($old[$index]) AND is_array($old[$index])) {
-				$old[$index] = wrap_array_merge($old[$index], $new[$index], $overwrite_with_empty);
+			if ($settings['replace_lists'] AND array_is_list($value)) {
+				$old[$index] = $value;
+			} elseif (!empty($old[$index]) AND is_array($old[$index])) {
+				$old[$index] = wrap_array_merge($old[$index], $new[$index], $settings);
 			} else
 				$old[$index] = $new[$index];
 		} else {
@@ -268,7 +283,7 @@ function wrap_array_merge($old, $new, $overwrite_with_empty = true) {
 				$old[] = $value;
 			} else {
 				// named keys will be replaced
-				if ($overwrite_with_empty OR $value OR empty($old[$index]))
+				if ($settings['overwrite_with_empty'] OR $value OR empty($old[$index]))
 					$old[$index] = $value;
 			}
 		}
