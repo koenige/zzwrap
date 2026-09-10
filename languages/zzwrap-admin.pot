@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-09-10 20:15+0000\n"
+"POT-Creation-Date: 2026-09-10 21:14+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1872,7 +1872,7 @@ msgstr ""
 msgid "Unit %s not recognized for calculating duration."
 msgstr ""
 
-#: zzwrap/format.inc.php:1943
+#: zzwrap/format.inc.php:1948
 msgid "Placeholder %s not found."
 msgstr ""
 
@@ -1889,7 +1889,7 @@ msgstr ""
 msgid "Cannot parse translation map."
 msgstr ""
 
-#: zzwrap/language.inc.php:1421
+#: zzwrap/language.inc.php:1422
 msgid "Unable to determine translation log."
 msgstr ""
 

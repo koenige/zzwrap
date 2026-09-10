@@ -1744,28 +1744,33 @@ function wrap_typo_cleanup($text, $lang = '') {
 	}
 	$quotation_marks_format = wrap_setting('quotation_marks['.$lang.']') ?? $lang;
 
-	switch ($quotation_marks_format) {
-	case 'de':
-		$qm_double_open = '„';
-		$qm_double_close = '“';
-		$qm_single_open = '‚';
-		$qm_single_close = '‘';
-		break;
-	case 'de-guillemets':
+	// most specific first: format aliases, regional tags, then language prefixes
+	switch (true) {
+	case $quotation_marks_format === 'de-guillemets':
 		$qm_double_open = '»';
 		$qm_double_close = '«';
 		$qm_single_open = '›';
 		$qm_single_close = '‹';
 		break;
-	case 'ch':
-	case 'fr':
+	case wrap_lang_match($quotation_marks_format, 'de-CH'):
+	case wrap_lang_match($quotation_marks_format, 'it-CH'):
+	case wrap_lang_match($quotation_marks_format, 'fr'):
+	case $quotation_marks_format === 'ch':
+		if ($quotation_marks_format === 'ch')
+			wrap_error('quotation_marks format "ch" is deprecated; use lang de-CH/fr-CH/it-CH or quotation_marks[lang] = de-guillemets', E_USER_DEPRECATED);
 		$qm_double_open = '«';
 		$qm_double_close = '»';
 		$qm_single_open = '‹';
 		$qm_single_close = '›';
 		break;
+	case wrap_lang_match($quotation_marks_format, 'de'):
+		$qm_double_open = '„';
+		$qm_double_close = '“';
+		$qm_single_open = '‚';
+		$qm_single_close = '‘';
+		break;
+	case wrap_lang_match($quotation_marks_format, 'en'):
 	default:
-	case 'en':
 		$qm_double_open = '“';
 		$qm_double_close = '”';
 		$qm_single_open = '‘';
@@ -1933,9 +1938,9 @@ function wrap_typo_cleanup($text, $lang = '') {
 function wrap_placeholder($placeholder) {
 	switch ($placeholder) {
 	case 'mysql_date_format':
-		switch (wrap_setting('lang')) {
-			case 'de': return '%d.%m.%Y';
-			case 'en': return '%d/%m/%Y';
+		switch (true) {
+			case wrap_lang_match(wrap_setting('lang'), 'de'): return '%d.%m.%Y';
+			case wrap_lang_match(wrap_setting('lang'), 'en'): return '%d/%m/%Y';
 			default: return '%Y-%m-%d';
 		}
 		break;

@@ -102,3 +102,4 @@
 2026-08-02-1	code	wrap_money_format	use wrap_money(), format=money in zzbrick
 2026-08-30-1	code_regex	wrap_authenticate_url\s*\([^)]*,	second parameter `$no_auth_urls` removed; use setting `no_auth_urls`
 2026-09-03-1	code_regex	wrap_array_merge\s*\([^,]+,[^,]+,\s*(true|false)\s*[),]	use wrap_array_merge($old, $new, ['overwrite_with_empty' => $bool]) instead of boolean as third parameter
+2026-09-11-1	code_regex	quotation_marks\[[^]]+\] = "?ch"?	deprecated format alias "ch" in quotation_marks setting; use regional lang de-CH/fr-CH/it-CH or de-guillemets

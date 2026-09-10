@@ -1137,14 +1137,15 @@ function wrap_language_negotiate() {
  *
  */
 function wrap_set_units() {
+	$lang = wrap_setting('lang');
 	if (is_null(wrap_setting('decimal_point'))) {
-		switch (wrap_setting('lang')) {
-		case 'de':
-		case 'fr':
-		case 'es':
-		case 'pl':
-		case 'cs':
-		case 'tr':
+		switch (true) {
+		case wrap_lang_match($lang, 'de'):
+		case wrap_lang_match($lang, 'fr'):
+		case wrap_lang_match($lang, 'es'):
+		case wrap_lang_match($lang, 'pl'):
+		case wrap_lang_match($lang, 'cs'):
+		case wrap_lang_match($lang, 'tr'):
 			wrap_setting('decimal_point', ',');
 			break;
 		default:
@@ -1153,13 +1154,13 @@ function wrap_set_units() {
 		}
 	}
 	if (is_null(wrap_setting('thousands_separator'))) {
-		switch (wrap_setting('lang')) {
-		case 'de':
-		case 'fr':
-		case 'es':
-		case 'pl':
-		case 'cs':
-		case 'tr':
+		switch (true) {
+		case wrap_lang_match($lang, 'de'):
+		case wrap_lang_match($lang, 'fr'):
+		case wrap_lang_match($lang, 'es'):
+		case wrap_lang_match($lang, 'pl'):
+		case wrap_lang_match($lang, 'cs'):
+		case wrap_lang_match($lang, 'tr'):
 			if (wrap_setting('character_set') === 'utf-8') {
 				wrap_setting('thousands_separator', "\xC2\xA0"); // non-breaking space
 			} else {
