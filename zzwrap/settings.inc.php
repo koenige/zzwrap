@@ -627,6 +627,21 @@ function wrap_setting_parse($setting) {
 }
 
 /**
+ * check if a path from settings.cfg exists (after placeholder expansion)
+ *
+ * @param string $path
+ * @return bool
+ */
+function wrap_setting_path_exists($path) {
+	if (!$path) return false;
+	$path = wrap_setting_parse($path);
+	if (is_array($path)) $path = reset($path);
+	if (!is_string($path) OR $path === '') return false;
+	if (preg_match('/\.[a-zA-Z0-9]{1,10}$/', $path)) return is_file($path);
+	return is_dir($path);
+}
+
+/**
  * parse a setting value, with support for bracket array notation [1, 2, 3]
  *
  * @deprecated use wrap_setting_parse() instead

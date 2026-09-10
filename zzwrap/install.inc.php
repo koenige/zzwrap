@@ -297,7 +297,24 @@ function wrap_install_settings_write() {
 		if (wrap_setting_read($key)) continue;
 		wrap_setting_write($key, wrap_random_hash(42, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=+$%_/& '));
 	}
+	wrap_install_settings_if_path();
 	return true;
+}
+
+/**
+ * set bool settings from install_if_path in settings.cfg
+ *
+ * @param void
+ * @return void
+ */
+function wrap_install_settings_if_path() {
+	foreach (wrap_cfg_files('settings') as $key => $line) {
+		if (empty($line['install_if_path'])) continue;
+		if (empty($line['type']) OR $line['type'] !== 'bool') continue;
+		if (wrap_setting_read($key)) continue;
+		$value = wrap_setting_path_exists($line['install_if_path']) ? 'true' : 'false';
+		wrap_setting_write($key, $value);
+	}
 }
 
 /**
