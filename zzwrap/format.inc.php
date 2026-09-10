@@ -308,7 +308,9 @@ function wrap_mail_format($mail) {
  * @param string $date
  *		date in ISO format, e. g. "2004-03-12" or period "2004-03-12/2004-03-20"
  *		other date set in first part of format
- * @param string $format format which should be used:
+ * @param string $format format which should be used; if omitted, from setting
+ *		date_format, defaults to `dates`; locale from setting lang if not part
+ *		of format (e. g. `dates`, `dates-weekday`):
  *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
  *			31.12.2004-06.01.2005
  *		dates-de-plain: same as dates-de but without HTML wrapper
@@ -320,16 +322,7 @@ function wrap_mail_format($mail) {
  */
 function wrap_date($date, $format = false) {
 	if (!$date) return '';
-
-	if (!$format) {
-		$format = wrap_setting('date_format');
-		if (!$format) {
-			wrap_error([
-				'Please set at least a default format for wrap_date() via setting "date_format" = "dates-de" or so'
-			]);
-			return $date;
-		}
-	}
+	if (!$format) $format = wrap_setting('date_format');
 	
 	if (strstr($format, '->')) {
 		// reformat all inputs to timestamps
@@ -375,7 +368,9 @@ function wrap_date($date, $format = false) {
 		break;
 	}
 
-	if (str_starts_with($output_format, 'dates-')) {
+	if ($output_format === 'dates') {
+		$formats = [];
+	} elseif (str_starts_with($output_format, 'dates-')) {
 		$formats = explode('-', substr($output_format, 6));
 		$output_format = 'dates';
 	}
@@ -407,11 +402,9 @@ function wrap_date($date, $format = false) {
  * @return string
  */
 function wrap_date_plain($date) {
-	$format = wrap_setting('date_format');
-	$format = explode('-', $format);
+	$format = explode('-', wrap_setting('date_format'));
 	if (!in_array('plain', $format)) $format[] = 'plain';
-	$format = implode('-', $format);
-	return wrap_date($date, $format);
+	return wrap_date($date, implode('-', $format));
 }
 
 /**
@@ -423,25 +416,33 @@ function wrap_date_plain($date) {
  * @return string
  */
 function _wrap_dates($begin, $end, $formats) {
-	$lang = array_shift($formats);
-	if (strlen(reset($formats)) === 2)
-		$lang .= '-'.array_shift($formats);
+	// language = everything before the first known modifier
+	// no language in format? use setting lang
+	$modifiers = ['plain', 'weekday', 'long', 'short', 'no_month', 'no_year'];
+	$lang = [];
+	while ($formats AND !in_array($formats[0], $modifiers, true))
+		$lang[] = array_shift($formats);
+	$lang = $lang ? implode('-', $lang) : wrap_setting('lang');
 
 	$set['p'] = ['lang' => $lang];
 	$set['months_long'] = wrap_months($lang) ?? [];
 
-	switch ($lang) {
-		case 'de':		$set['sep'] = '.'; $set['order'] = 'DMY';
+	// most specific languages first (e. g. a future en-US before en)
+	switch (true) {
+		case wrap_lang_match($lang, 'de'):
+			$set['sep'] = '.'; $set['order'] = 'DMY';
 			$set['months_if_no_day'] = $set['months_long'];
 			if (in_array('long', $formats)) $set['sep'] = ['. ', ' '];
 			break; // dd.mm.yyyy
-		case 'nl':		$set['sep'] = '-'; $set['order'] = 'DMY';
+		case wrap_lang_match($lang, 'nl'):
+			$set['sep'] = '-'; $set['order'] = 'DMY';
 			break; // dd-mm-yyyy
-		case 'en':
-		case 'en-GB':	$set['sep'] = ' '; $set['order'] = 'DMY';
+		case wrap_lang_match($lang, 'en'):
+			$set['sep'] = ' '; $set['order'] = 'DMY';
 			$set['months'] = wrap_months_short($lang) ?? [];
 			break; // dd/mm/yyyy
-		case 'pl':		$set['sep'] = '.'; $set['order'] = 'DMY';
+		case wrap_lang_match($lang, 'pl'):
+			$set['sep'] = '.'; $set['order'] = 'DMY';
 			$set['months_if_no_day'] = $set['months_long'];
 			if (in_array('long', $formats)) $set['sep'] = ['. ', ' '];
 			break;

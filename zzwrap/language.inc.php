@@ -1565,3 +1565,17 @@ function wrap_text_msg($text) {
 	}
 	return implode(' ', $parts);
 }
+
+/**
+ * check if a language tag matches a base language
+ *
+ * de-x-informal and de-AT match de; en-GB matches en; de does not match dev
+ *
+ * @param string $lang language tag, e. g. de, en-GB, de-x-informal
+ * @param string $base base language to match against
+ * @return bool
+ */
+function wrap_lang_match($lang, $base) {
+	if ($lang === $base) return true;
+	return str_starts_with((string) $lang, $base.'-');
+}
