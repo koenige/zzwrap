@@ -98,6 +98,7 @@ function wrap_install_dbname() {
 				, wrap_html_escape($_POST['db_name_local'])
 			);
 			$_SESSION['db_name_local'] = $_POST['db_name_local'];
+			wrap_setting('db_name', $_POST['db_name_local']);
 			wrap_sql_ignores();
 			wrap_install_module('default');
 			wrap_install_module('zzform');
@@ -265,7 +266,7 @@ function wrap_install_settings_page($module = false) {
 	$data = [];
 	$found = false;
 	foreach ($cfg as $key => $line) {
-		$for_install = !empty($line['required']) OR !empty($line['install']);
+		$for_install = (!empty($line['required']) || !empty($line['install']));
 		if ($for_install) $found = true;
 		if (!$for_install) continue;
 		if (!empty($line['type']) AND $line['type'] === 'random') continue;
