@@ -311,9 +311,9 @@ function wrap_mail_format($mail) {
  * @param string $format format which should be used; if omitted, from setting
  *		date_format, defaults to `dates`; locale from setting lang if not part
  *		of format (e. g. `dates`, `dates-weekday`):
- *		dates-de: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
+ *		dates: 12.03.2004, 12.-14.03.2004, 12.04.-13.05.2004, 
  *			31.12.2004-06.01.2005
- *		dates-de-plain: same as dates-de but without HTML wrapper
+ *		dates-plain: same as dates but without HTML wrapper
  *		rfc1123->datetime,
  *		rfc1123->timestamp,
  *		timestamp->rfc1123

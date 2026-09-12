@@ -49,13 +49,13 @@ If the value is empty, formatting is skipped.
 
 `wrap_date($date, $format = false)` formats an ISO date (`YYYY-MM-DD`) or
 a period (`YYYY-MM-DD/YYYY-MM-DD`). Without a format argument, the
-`date_format` setting is used (typically `dates-de`).
+`date_format` setting is used.
 
 Common format strings:
 
-- `dates-de` — `12.03.2004`, ranges like `12.–14.03.2004`
-- `dates-de-plain` — same, without the outer `<span class="date">`
-- `dates-de-weekday` — short weekday before the date
+- `dates` — `12.03.2004`, ranges like `12.–14.03.2004`
+- `dates-plain` — same, without the outer `<span class="date">`
+- `dates-weekday` — short weekday before the date
 - `rfc1123->datetime`, `timestamp->rfc1123` — convert between representations
 
     %%% item duration format=date %%%
@@ -110,13 +110,13 @@ separated by a comma and space (`Montag, 17.06.2026`).
 Pass `weekday` as part of a `dates-*` format string to prepend the short
 weekday before the formatted date:
 
-    wrap_date('2026-06-17', 'dates-de-weekday');
+    wrap_date('2026-06-17', 'dates-weekday');
 
 Output (German): `<span class="date"><span class="weekday">Mi</span> 17.06.2026</span>`.
 
-Use `dates-de-plain-weekday` for the same layout without the outer
+Use `dates-plain-weekday` for the same layout without the outer
 `<span class="date">` wrapper. Call from PHP or pass the format via
-`format=date:dates-de-weekday`.
+`format=date:dates-weekday`.
 
 ### Ranges
 

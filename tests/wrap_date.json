@@ -10,7 +10,7 @@
 		{"date": "2004-03-12/2005-04-12", "format": "dates-de"},
 		{
 			"date": "2025-06-18",
-			"format": "dates-de-weekday",
+			"format": "dates-weekday",
 			"settings": {"lang": "de"},
 			"expected": "<span class=\"date\"><span class=\"weekday\">Mi</span> 18.06.2025</span>"
 		}
