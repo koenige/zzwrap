@@ -303,7 +303,7 @@ function wrap_menu_asterisk_check($line, $menu, $id = 'page_id') {
 	if (!$line['url']) return $menu;
 	if (wrap_nav_url_placeholder($line['url'])) return $menu;
 	if (substr($line['url'], -1) !== '*' AND substr($line['url'], -2) !== '*/'
-		AND substr($line['url'], -6) !== '*.html') {
+		AND !preg_match('/\*\.[^\/]+$/', $line['url'])) {
 		if ($id === 'page_id') $id = wrap_sql_fields('page_id');
 		$menu[$line[$id]] = $line;
 		return $menu;
