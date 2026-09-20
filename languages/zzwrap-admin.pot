@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-09-10 21:14+0000\n"
+"POT-Creation-Date: 2026-09-19 16:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -989,7 +989,7 @@ msgid "Languages that are allowed but not shown in links or negotiated (e. g. fo
 msgstr ""
 
 #: configuration/settings.cfg:707
-msgid "URL path to public layout folder on server, defaults to `/_layout`"
+msgid "URL path to public layout folder on server"
 msgstr ""
 
 #: configuration/settings.cfg:712
@@ -1499,94 +1499,102 @@ msgid "HTML template for page title on home page, max. two variables %1$s + %2$s
 msgstr ""
 
 #: configuration/settings.cfg:1344
+msgid "URL path to public behaviour folder of theme"
+msgstr ""
+
+#: configuration/settings.cfg:1349
+msgid "URL path to public layout folder of theme"
+msgstr ""
+
+#: configuration/settings.cfg:1354
 msgid "List of available themes"
 msgstr ""
 
-#: configuration/settings.cfg:1350
+#: configuration/settings.cfg:1360
 msgid "Folder for website themes"
 msgstr ""
 
-#: configuration/settings.cfg:1356
+#: configuration/settings.cfg:1366
 msgid "Thousands separator"
 msgstr ""
 
-#: configuration/settings.cfg:1360
+#: configuration/settings.cfg:1370
 msgid "Internal timezone, format: continent/city"
 msgstr ""
 
-#: configuration/settings.cfg:1366
+#: configuration/settings.cfg:1376
 msgid "Folder for temporary items"
 msgstr ""
 
-#: configuration/settings.cfg:1373
+#: configuration/settings.cfg:1383
 msgid "Translate page titles?"
 msgstr ""
 
-#: configuration/settings.cfg:1377
+#: configuration/settings.cfg:1387
 msgid "Translate text via database"
 msgstr ""
 
-#: configuration/settings.cfg:1381
+#: configuration/settings.cfg:1391
 msgid "Translate field values in database"
 msgstr ""
 
-#: configuration/settings.cfg:1385
+#: configuration/settings.cfg:1395
 msgid "Marker that is set if a translation is not complete"
 msgstr ""
 
-#: configuration/settings.cfg:1391
+#: configuration/settings.cfg:1401
 msgid "List of MySQL sql_modes to disable"
 msgstr ""
 
-#: configuration/settings.cfg:1396
+#: configuration/settings.cfg:1406
 msgid "Use uris table for logging of requests"
 msgstr ""
 
-#: configuration/settings.cfg:1401
+#: configuration/settings.cfg:1411
 msgid "Maximum parts of path in URL, no. of slashes"
 msgstr ""
 
-#: configuration/settings.cfg:1406
+#: configuration/settings.cfg:1416
 msgid "Named URL placeholders with lists of allowed values"
 msgstr ""
 
-#: configuration/settings.cfg:1412
+#: configuration/settings.cfg:1422
 msgid "Years into the future to include in url_placeholders[year]"
 msgstr ""
 
-#: configuration/settings.cfg:1418
+#: configuration/settings.cfg:1428
 msgid "List of years that appear in URL"
 msgstr ""
 
-#: configuration/settings.cfg:1424
+#: configuration/settings.cfg:1434
 msgid "List of available packages"
 msgstr ""
 
-#: configuration/settings.cfg:1429
+#: configuration/settings.cfg:1439
 msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:1434
+#: configuration/settings.cfg:1444
 msgid "ID of current website"
 msgstr ""
 
-#: configuration/settings.cfg:1440
+#: configuration/settings.cfg:1450
 msgid "If running more than one website with one system, this is the default website that will answer to unknown domain names"
 msgstr ""
 
-#: configuration/settings.cfg:1445
+#: configuration/settings.cfg:1455
 msgid "Seconds between websites cache checks"
 msgstr ""
 
-#: configuration/settings.cfg:1450
+#: configuration/settings.cfg:1460
 msgid "Filename for cached websites list"
 msgstr ""
 
-#: configuration/settings.cfg:1454
+#: configuration/settings.cfg:1464
 msgid "Random ID for logs to mark a process as unique"
 msgstr ""
 
-#: configuration/settings.cfg:1459
+#: configuration/settings.cfg:1469
 msgid "Initial installation date of Zugzwang Project CMS (for updates)"
 msgstr ""
 
