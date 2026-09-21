@@ -277,16 +277,17 @@ function wrap_filename($str, $spaceChar = '-', $replacements = []) {
  * @param string $person name of the person
  * @param string $mail e-mail address
  * @param string $attributes (optional attributes for the anchor)
- * @return string HTML anchor with mailto-Link
+ * @param bool $href_only if true, return obfuscated href value only (for href="…")
+ * @return string HTML anchor with mailto-Link, or href value if $href_only
  */
-function wrap_mailto($person, $mail, $attributes = false) {
+function wrap_mailto($person, $mail, $attributes = false, $href_only = false) {
 	if (!$mail) return '';
-	$mailto = str_replace('@', '&#64;', urlencode('<'.$mail.'>'));
-	$mail = str_replace('@', '&#64;', $mail);
-	$output = '<a href="&#109;&#x61;&#105;&#x6c;t&#111;&#x3a;%22'.str_replace(' ', '%20', $person)
-		.'%22%20'.$mailto.'"'.$attributes
-		.'>'.$mail.'</a>';
-	return $output;
+	$encoded = str_replace('@', '&#64;', urlencode($person ? '<'.$mail.'>' : $mail));
+	$href = '&#109;&#x61;&#105;&#x6c;t&#111;&#x3a;'
+		.($person ? '%22'.str_replace(' ', '%20', $person).'%22%20' : '')
+		.$encoded;
+	if ($href_only) return $href;
+	return '<a href="'.$href.'"'.$attributes.'>'.str_replace('@', '&#64;', $mail).'</a>';
 }
 
 /**
@@ -296,10 +297,7 @@ function wrap_mailto($person, $mail, $attributes = false) {
  * @return string
  */
 function wrap_mail_format($mail) {
-	$mailto = str_replace('@', '&#64;', urlencode($mail));
-	$mail = str_replace('@', '&#64;', $mail);
-	$output = sprintf('<a href="&#109;&#x61;&#105;&#x6c;t&#111;&#x3a;%s">%s</a>', $mailto, $mail);
-	return $output;
+	return wrap_mailto('', $mail);
 }
 
 /**

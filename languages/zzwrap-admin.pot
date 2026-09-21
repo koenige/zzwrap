@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-09-19 16:16+0000\n"
+"POT-Creation-Date: 2026-09-21 17:52+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1828,59 +1828,59 @@ msgstr ""
 msgid "wrap_filename() only accepts strings."
 msgstr ""
 
-#: zzwrap/format.inc.php:350
+#: zzwrap/format.inc.php:348
 msgid "Date %s is currently either not supported as ISO date or no ISO date at all."
 msgstr ""
 
-#: zzwrap/format.inc.php:367
+#: zzwrap/format.inc.php:365
 msgid "Unknown input format %s"
 msgstr ""
 
-#: zzwrap/format.inc.php:393
+#: zzwrap/format.inc.php:391
 msgid "Unknown output format %s"
 msgstr ""
 
-#: zzwrap/format.inc.php:450
+#: zzwrap/format.inc.php:448
 msgid "Language %s currently not supported"
 msgstr ""
 
-#: zzwrap/format.inc.php:923
+#: zzwrap/format.inc.php:921
 msgid "Sorry, we can only convert numbers between 1 and 3999 to roman numbers."
 msgstr ""
 
-#: zzwrap/format.inc.php:956
+#: zzwrap/format.inc.php:954
 msgid "Sorry, <strong>%s</strong> appears not to be a valid roman number."
 msgstr ""
 
-#: zzwrap/format.inc.php:978
+#: zzwrap/format.inc.php:976
 msgid "Sorry, the number format <strong>%s</strong> is not supported."
 msgstr ""
 
-#: zzwrap/format.inc.php:1050
+#: zzwrap/format.inc.php:1048
 msgid "Sorry, the money format <strong>%s</strong> is not supported."
 msgstr ""
 
-#: zzwrap/format.inc.php:1151
+#: zzwrap/format.inc.php:1149
 msgid "wrap_html_escape() only handles strings"
 msgstr ""
 
-#: zzwrap/format.inc.php:1176
+#: zzwrap/format.inc.php:1174
 msgid "wrap_html_escape_text() only handles strings"
 msgstr ""
 
-#: zzwrap/format.inc.php:1524
+#: zzwrap/format.inc.php:1522
 msgid "Need function `idn_to_ascii` to check value %s, but it does not exist."
 msgstr ""
 
-#: zzwrap/format.inc.php:1543
+#: zzwrap/format.inc.php:1541
 msgid "missing function `idn_to_utf8`"
 msgstr ""
 
-#: zzwrap/format.inc.php:1676
+#: zzwrap/format.inc.php:1674
 msgid "Unit %s not recognized for calculating duration."
 msgstr ""
 
-#: zzwrap/format.inc.php:1948
+#: zzwrap/format.inc.php:1946
 msgid "Placeholder %s not found."
 msgstr ""
 
