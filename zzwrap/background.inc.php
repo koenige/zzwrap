@@ -90,8 +90,10 @@ function wrap_job_finish($job, $type, $content) {
 			'text' => wrap_text('not found')
 		];
 	
-	if (!empty($content['content_type']) AND $content['content_type'] === 'json')
-		$content['text'] = json_decode($content['text']);
+	if (!empty($content['content_type']) AND $content['content_type'] === 'json') {
+		if (isset($content['text']) AND is_string($content['text']) AND $content['text'] !== '')
+			$content['text'] = json_decode($content['text']);
+	}
 	if (!empty($_POST['job_logfile_result'])) {
 		wrap_include('file', 'zzwrap');
 		$action = $content['extra']['job'] ?? '';
