@@ -676,6 +676,8 @@ function wrap_menu_hierarchy($area, $paths = [], $setting_key = '') {
  */
 function wrap_routes_page_ids($area, $paths = [], $setting_key = '') {
 	if (!$paths) return [];
+	$paths = wrap_routes_page_ids_paths($paths);
+	if (!$paths) return [];
 	sort($paths);
 	$setting = sprintf('%s_page_id[%s]', $area, implode(';', $paths));
 	if ($id = wrap_setting($setting)) {
@@ -714,6 +716,23 @@ function wrap_routes_page_ids($area, $paths = [], $setting_key = '') {
 	}
 	wrap_setting_write($setting, sprintf('[%s]', implode(',', $page_ids)));
 	return $page_ids;
+}
+
+/**
+ * drop empty menu-hierarchy paths so they are not used as a setting key
+ *
+ * @param array $paths
+ * @return array
+ */
+function wrap_routes_page_ids_paths($paths) {
+	$kept = [];
+	foreach ($paths as $path) {
+		if (!is_string($path)) continue;
+		$path = trim($path);
+		if ($path === '') continue;
+		$kept[] = $path;
+	}
+	return $kept;
 }
 
 /**
