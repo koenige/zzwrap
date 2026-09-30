@@ -228,6 +228,7 @@ function wrap_session_cookietest_end($token, $qs) {
  * @param string $session_name
  */
 function wrap_session_cookie_injection($session_name) {
+	wrap_session_cookie_duplicate($session_name);
 	if (empty($_COOKIE[$session_name])) return true;
 	if (is_array($_COOKIE[$session_name])) {
 		unset($_COOKIE[$session_name]);
@@ -237,6 +238,23 @@ function wrap_session_cookie_injection($session_name) {
 		wrap_error(['Illegal session cookie value found: %s', ['values' => [$_COOKIE[$session_name]]]], E_USER_NOTICE);
 		unset($_COOKIE[$session_name]);
 	}
+}
+
+/**
+ * session cookie sent twice, e. g. set by a script for a sub path:
+ * PHP uses the first one, browsers send the one with the longest path first;
+ * expire cookie for current path and use the last one
+ *
+ * @param string $session_name
+ */
+function wrap_session_cookie_duplicate($session_name) {
+	if (empty($_SERVER['HTTP_COOKIE'])) return;
+	$pattern = sprintf('/(?:^|;)\s*%s=([^;]*)/', preg_quote($session_name, '/'));
+	if (preg_match_all($pattern, $_SERVER['HTTP_COOKIE'], $matches) < 2) return;
+
+	$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+	setcookie($session_name, '', ['expires' => time() - 42000, 'path' => $path]);
+	$_COOKIE[$session_name] = urldecode(end($matches[1]));
 }
 
 /**

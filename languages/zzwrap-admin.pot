@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-09-30 10:02+0000\n"
+"POT-Creation-Date: 2026-09-30 22:40+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2030,7 +2030,7 @@ msgstr ""
 msgid "Session start not possible."
 msgstr ""
 
-#: zzwrap/session.inc.php:237
+#: zzwrap/session.inc.php:238
 msgid "Illegal session cookie value found: %s"
 msgstr ""
 
