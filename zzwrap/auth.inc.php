@@ -615,7 +615,7 @@ function wrap_login_limit_remove() {
  */
 function wrap_password_check($pass, $hash, $login_id = 0) {
 	// password must not be longer than 72 characters
-	if (strlen($pass) > 72) return false;
+	if (strlen($pass) > wrap_setting('login_password_maxlength')) return false;
 
 	switch (wrap_setting('hash_password')) {
 	case 'password_hash':
@@ -652,7 +652,7 @@ function wrap_password_check($pass, $hash, $login_id = 0) {
  */
 function wrap_password_hash($pass) {
 	// password must not be longer than 72 characters
-	if (strlen($pass) > 72) return false;
+	if (strlen($pass) > wrap_setting('login_password_maxlength')) return false;
 
 	switch (wrap_setting('hash_password')) {
 	case 'password_hash':
