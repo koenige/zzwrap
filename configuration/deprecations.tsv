@@ -89,7 +89,7 @@
 2026-04-12-3	code	setting logout_url	in templates use %%% path logout %%%
 2026-04-12-4	code	wrap_setting('homepage_url'	use route home via wrap_path('home')
 2026-04-12-5	code	setting homepage_url	use %%% path home %%%; use absolute=1 for full URLs
-2026-06-17-1	code	wrap_weekdays	use `format=date_weekday` or `format=date_weekday_long` on date field
+2026-06-17-1	code_regex	wrap_weekdays\s*\([^)]+,[^)]+,	use `format=date_weekday` or `format=date_weekday_long` on date field
 2026-07-03-1	code	['error']['msg_text']	use `['error']['_msg']` instead
 2026-07-03-2	code	['error']['msg_vars']	use `['error']['_msg_values']` instead
 2026-07-20-1	code	wrap_error('JSON	use wrap_error(['… message …', ['data' => $data]]) where $data is an array, not JSON
