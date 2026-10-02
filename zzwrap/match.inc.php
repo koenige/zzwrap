@@ -518,7 +518,9 @@ function wrap_match_redirects_placeholder($position) {
 		$parameter = substr($parameter, 0, -1);
 		$redir[$field_name] = $last_separator.$parameter.substr($redir[$field_name], 1);
 	}
-	if (str_ends_with(wrap_url('path'), '/') AND !str_ends_with($redir['new_url'], '/'))
+	// Mirror trailing slash from the old URL; skip when target has # (path ends before fragment)
+	if (str_ends_with(wrap_url('path'), '/') AND !str_contains($redir['new_url'], '#')
+		AND !str_ends_with($redir['new_url'], '/'))
 		$redir['new_url'] .= '/';
 	if (wrap_url('query'))
 		$redir['new_url'] .= sprintf('?%s', wrap_url('query'));
