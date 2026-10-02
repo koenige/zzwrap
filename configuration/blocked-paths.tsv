@@ -36,6 +36,7 @@ all	/administrator/index.php?option=com_ajax&astroid=installTemplate
 
 # hidden files, should not be accessible via web at all
 begin	/.git
+begin	/.htpasswd
 
 # Lavarel Livewire
 all	/livewire/update
