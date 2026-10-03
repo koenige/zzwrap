@@ -776,7 +776,7 @@ function wrap_print($array, $color = 'FFF', $html = true, $max_string_length = n
 	// Generate unique ID for this debug output
 	$data['count'] = count($array);
 	list($data['array'], $data['expand']) = _wrap_print_level($array, $max_string_length);
-	$data['first'] = $calls ? false : true;
+	$data['include_print_js'] = $calls ? false : true;
 	if (!$data['expand']) $data['expand'] = NULL;
 	else $calls++;
 	return wrap_template('debug-print', $data);
