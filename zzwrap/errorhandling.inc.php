@@ -766,6 +766,9 @@ function wrap_errorpage($page = []) {
 		return wrap_send_text(json_encode($page['text']), 'json', $page['status'], $page['headers'] ?? []);
 		exit;
 	}
+	if (wrap_setting('active_theme')
+		&& !in_array(wrap_setting('active_theme'), wrap_setting('activated_themes')))
+		wrap_package_activate(wrap_setting('active_theme'), 'theme');
 	wrap_htmlout_page($page);
 	exit;
 }
