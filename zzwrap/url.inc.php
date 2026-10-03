@@ -130,12 +130,42 @@ function wrap_url_forwarded() {
 /**
  * return 400 if path or query includes Unicode Replacement Character 
  * U+FFFD (hex EF BF BD, dec 239 191 189)
- * since that does not make sense
+ * since that does not make sense; reject query keys and values that are not
+ * valid in wrap_setting('character_set')
  */
 function wrap_url_check() {
 	if (strstr(wrap_url('path'), '%EF%BF%BD')) wrap_quit(400);
 	if (!wrap_url('query')) return;
 	if (strstr(wrap_url('query'), '%EF%BF%BD')) wrap_quit(400);
+	wrap_url_check_query_strings($_GET);
+}
+
+/**
+ * check query string keys and values against the website character encoding
+ *
+ * @param array $query typically $_GET
+ * @param string $prefix parameter path for error messages (nested arrays)
+ */
+function wrap_url_check_query_strings($query, $prefix = '') {
+	foreach ($query as $key => $value) {
+		$key_path = $prefix === '' ? (string) $key : $prefix.'['.$key.']';
+		if (is_string($key) AND !mb_check_encoding($key)) {
+			wrap_quit(400, wrap_text(
+				'Query string key is not valid %s: %s',
+				['values' => [wrap_setting('character_set'), $key_path]]
+			));
+		}
+		if (is_array($value)) {
+			wrap_url_check_query_strings($value, $key_path);
+			continue;
+		}
+		if (!is_string($value)) continue;
+		if (mb_check_encoding($value)) continue;
+		wrap_quit(400, wrap_text(
+			'Query string value is not valid %s: %s',
+			['values' => [wrap_setting('character_set'), $key_path]]
+		));
+	}
 }
 
 /**

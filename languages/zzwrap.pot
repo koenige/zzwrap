@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-09-30 22:40+0000\n"
+"POT-Creation-Date: 2026-10-03 21:54+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1182,4 +1182,12 @@ msgstr ""
 # check request
 #: zzwrap/url.inc.php:88
 msgid "URIs with more than %d slashes are not processed."
+msgstr ""
+
+#: zzwrap/url.inc.php:154
+msgid "Query string key is not valid %s: %s"
+msgstr ""
+
+#: zzwrap/url.inc.php:165
+msgid "Query string value is not valid %s: %s"
 msgstr ""
