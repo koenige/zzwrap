@@ -524,21 +524,20 @@ function wrap_ranges_check() {
  * @return void
  */
 function wrap_send_gzip($text, $etag_header) {
-	// start output
-	ob_start();
-	ob_start('ob_gzhandler');
-	echo $text;
-	ob_end_flush();  // The ob_gzhandler one
-	if ($etag_header) {
-		// only if HTTP status = 200
-		if (!empty($_SERVER['HTTP_ACCEPT_ENCODING'])
-			AND strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
-			// overwrite ETag with -gz ending
-			header('ETag: '.$etag_header['gz']);
-		}
+	// zzwrap compresses itself, PHP must not compress a second time
+	ini_set('zlib.output_compression', 'Off');
+
+	$accepts_gzip = !empty($_SERVER['HTTP_ACCEPT_ENCODING'])
+		&& strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip');
+	if ($accepts_gzip) {
+		$text = gzencode($text);
+		header('Content-Encoding: gzip');
+		// overwrite ETag with -gz ending, only if HTTP status = 200
+		if ($etag_header) header('ETag: '.$etag_header['gz']);
 	}
-	header('Content-Length: '.ob_get_length());
-	ob_end_flush();  // The main one
+	wrap_http_header('content_length', strlen($text));
+	header('Content-Length: '.strlen($text));
+	echo $text;
 }
 
 /*
