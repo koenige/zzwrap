@@ -633,6 +633,10 @@ function wrap_syndication_http_request($url, $settings = []) {
 			if ($info['download_content_length'] > $info['size_download']) {
 				wrap_error(['cURL incomplete download, URL %s: total %s, received %s', ['values' => [$url, $info['download_content_length'], $info['size_download']]]]);
 			} else {
+				$info = [
+					'error_no' => curl_errno($ch),
+					'error' => curl_error($ch),
+				] + $info;
 				wrap_error(['cURL error, URL %s', ['values' => [$url], 'data' => $info]]);
 			}
 		}

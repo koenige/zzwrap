@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-05 13:47+0000\n"
+"POT-Creation-Date: 2026-10-06 12:16+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2103,31 +2103,31 @@ msgstr ""
 msgid "cURL incomplete download, URL %s: total %s, received %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:636
+#: zzwrap/syndication.inc.php:640
 msgid "cURL error, URL %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:923
+#: zzwrap/syndication.inc.php:927
 msgid "wrap_lock_wait(%s, %d) gave up after %d seconds"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1103
+#: zzwrap/syndication.inc.php:1107
 msgid "FTP: Failed to connect to %s (Port: %d)"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1108
+#: zzwrap/syndication.inc.php:1112
 msgid "FTP: Failed login to %s (User: %s, Password: %s)"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1124
+#: zzwrap/syndication.inc.php:1128
 msgid "FTP: Directory was not changed to %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1130
+#: zzwrap/syndication.inc.php:1134
 msgid "FTP: Upload local file %s to remote file %s failed"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1149
+#: zzwrap/syndication.inc.php:1153
 msgid "It was not possible to %s file %s to file %s"
 msgstr ""
 
