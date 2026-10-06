@@ -241,9 +241,8 @@ function wrap_session_cookie_injection($session_name) {
 }
 
 /**
- * session cookie sent twice, e. g. set by a script for a sub path:
- * PHP uses the first one, browsers send the one with the longest path first;
- * expire cookie for current path and use the last one
+ * Same session name twice in Cookie: use local sess file(s) only; expire a
+ * path duplicate only when both values have a file here
  *
  * @param string $session_name
  */
@@ -252,9 +251,24 @@ function wrap_session_cookie_duplicate($session_name) {
 	$pattern = sprintf('/(?:^|;)\s*%s=([^;]*)/', preg_quote($session_name, '/'));
 	if (preg_match_all($pattern, $_SERVER['HTTP_COOKIE'], $matches) < 2) return;
 
-	$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-	setcookie($session_name, '', ['expires' => time() - 42000, 'path' => $path]);
-	$_COOKIE[$session_name] = urldecode(end($matches[1]));
+	$local_ids = [];
+	foreach ($matches[1] as $value) {
+		$session_id = urldecode($value);
+		if (!preg_match('/^[A-Za-z0-9,-]+$/', $session_id)) continue;
+		if (file_exists(session_save_path().'/sess_'.$session_id))
+			$local_ids[] = $session_id;
+	}
+	if (count($local_ids) === 1) {
+		$_COOKIE[$session_name] = $local_ids[0];
+		return;
+	}
+	if (count($local_ids) < 2) return;
+
+	setcookie($session_name, '', [
+		'expires' => time() - 42000,
+		'path' => parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
+	]);
+	$_COOKIE[$session_name] = end($local_ids);
 }
 
 /**
