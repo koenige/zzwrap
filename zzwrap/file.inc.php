@@ -119,12 +119,14 @@ function wrap_file_log($file, $action = 'read', $input = []) {
 	} else {
 		$detail = '';
 	}
+	$filename = $name;
+	$name = str_replace('-', '_', $name);
 	if (!wrap_setting($logprefix.$name)) return $data;
 	$fields = wrap_setting($logprefix.$name.'_fields') ?? [];
 	$validity_seconds = wrap_setting($logprefix.$name.'_validity_in_minutes') * 60;
 	if (!$validity_seconds) return $data;
 
-	$logfile = sprintf('%s/%s%s%s.log', wrap_setting('log_dir'), $folder, $name, $detail);
+	$logfile = sprintf('%s/%s%s%s.log', wrap_setting('log_dir'), $folder, $filename, $detail);
 	if (!file_exists($logfile)) {
 		wrap_mkdir(dirname($logfile));
 		touch($logfile);
