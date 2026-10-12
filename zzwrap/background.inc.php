@@ -170,13 +170,11 @@ function wrap_job_page($type) {
  * @return void
  */
 function wrap_job_debug($msg, $data = []) {
-	$page_parameters = wrap_page_field('parameters') ?? [];
-	if (empty($page_parameters['job_debug'])) return;
 	wrap_debug([
 		'%s %s (%s)',
 		['values' => [wrap_setting('zzwrap_id'), $msg, wrap_setting('request_uri')],
 		'data' => $data ? [wrap_text('Data') => $data] : []]
-	], 'job');
+	], 'job_debug');
 }
 
 /**
