@@ -264,10 +264,14 @@ function wrap_session_cookie_duplicate($session_name) {
 	}
 	if (count($local_ids) < 2) return;
 
-	setcookie($session_name, '', [
-		'expires' => time() - 42000,
-		'path' => parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
-	]);
+	if (version_compare(PHP_VERSION, '7.3.0') >= 1) {
+		setcookie($session_name, '', [
+			'expires' => time() - 42000,
+			'path' => parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+		]);
+	} else {
+		setcookie($session_name, '', time() - 42000, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+	}
 	$_COOKIE[$session_name] = end($local_ids);
 }
 
