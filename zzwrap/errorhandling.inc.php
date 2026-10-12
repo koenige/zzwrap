@@ -784,7 +784,7 @@ function wrap_errorpage($page = []) {
 function wrap_errorpage_log($status, $page) {
 	if (in_array($status, [404])) // no need to log 404 requests of people with faked headers
 		if (wrap_setting('http_forward_ip_unknown')) return false;
-	if (in_array($status, [401, 403, 404, 410, 503]))
+	if (in_array($status, [401, 403, 404, 405, 410, 503]))
 		if (wrap_error_ignore($status)) return false;
 	
 	$log_encoding = wrap_log_encoding();
