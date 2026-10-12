@@ -1000,10 +1000,44 @@ function wrap_errorpage_logignore() {
 	// is impossible (there are some special circumstances, e. g. a 
 	// script behaves differently the next time it was uploaded, but we
 	// ignore these), bad programmed script
+	// Cached local URLs that only redirect elsewhere may still appear as
+	// Referer while the browser loads subresources; those 404s are noise.
+	if (wrap_error_referer_cached_external_redirect()) return true;
 
 	$valid = wrap_error_referer_valid();
 	if (!$valid) return true;
 	return false;
+}
+
+/**
+ * Whether HTTP Referer is a cached redirect to an external URL
+ *
+ * Used to skip 404 logging when a missing asset was requested from a page
+ * that never existed as HTML on this site (only as a cached 30x).
+ *
+ * @return bool true: do not log the 404
+ */
+function wrap_error_referer_cached_external_redirect() {
+	if (!wrap_setting('cache')) return false;
+
+	// check if referer has a cache file
+	$file = wrap_cache_filename('headers', $_SERVER['HTTP_REFERER']);
+	if (!$file) return false;
+	if (!file_exists($file)) return false;
+	$content = file_get_contents($file);
+	if (!$content) return false;
+
+	// check if referer page is a redirect
+	$status_line = strtok($content, "\r\n");
+	if (!$status_line) return false;
+	if (!preg_match('/\b(301|302|303|307|308)\b/', $status_line)) return false;
+	$location = wrap_cache_get_header($file, 'location');
+	if (!$location) return false;
+
+	// check if it is an external redirect
+	$target = parse_url($location);
+	if (empty($target['host'])) return false;
+	return !wrap_error_referer_local_redirect($target['host']);
 }
 
 /**
