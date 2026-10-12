@@ -229,17 +229,23 @@ function wrap_packages($type) {
  *
  */
 function wrap_config_read() {
-	wrap_config_read_file(wrap_config_filename());
-
-	// per site
+	// read settings marked for pre-registration
+	wrap_config_read_file(wrap_config_filename(), ['pre_register' => true]);
 	if (wrap_setting('multiple_websites')) {
+		// per site
 		$website = wrap_websites(wrap_setting('site'));
 		if (!$website) $website = wrap_websites(wrap_setting('website_id_default'));
 		if ($website AND $website['domain'] !== wrap_setting('site')) {
 			wrap_setting('site', $website['domain']);
 			wrap_setting('absolute_urls', 1);
 		}
-		wrap_config_read_file(wrap_config_filename('site'));
+		wrap_config_read_file(wrap_config_filename('site'), ['pre_register' => true]);
+	}
+
+	// read all settings
+	wrap_config_read_file(wrap_config_filename(), ['pre_register' => false]);
+	if (wrap_setting('multiple_websites')) {
+		wrap_config_read_file(wrap_config_filename('site'), ['pre_register' => false]);
 	}
 
 	// per module
@@ -256,18 +262,41 @@ function wrap_config_read() {
  * read configuration from JSON file
  *
  * @param string $file path to file
+ * @param array $settings
  * @return void
  */
-function wrap_config_read_file($file) {
-	if (!file_exists($file)) return;
-	
-	if (str_ends_with($file, '.json')) {
-		$config = file_get_contents($file);
-		$config = json_decode($config, true);
-	} elseif (str_ends_with($file, '.cfg')) {
-		$config = parse_ini_file($file);
+function wrap_config_read_file($file, $settings = []) {
+	static $configs = [];
+	if (!array_key_exists($file, $configs)) {
+		$configs[$file] = [];
+		if (!file_exists($file)) return;
+		
+		if (str_ends_with($file, '.json')) {
+			$configs[$file] = file_get_contents($file);
+			$configs[$file] = json_decode($configs[$file], true);
+		} elseif (str_ends_with($file, '.cfg')) {
+			$configs[$file] = parse_ini_file($file);
+		}
+		if (!$configs[$file]) return;
 	}
-	if (!$config) return;
+	if (!empty($settings['pre_register'])) {
+		$cfg = wrap_cfg_files('settings');
+		$config = [];
+		foreach ($cfg as $key => $definition) {
+			if (!array_key_exists($key, $configs[$file])) continue;
+			if (empty($definition['pre_register'])) continue;
+			$config[$key] = $configs[$file][$key];
+		}
+	} elseif (array_key_exists('pre_register', $settings)) {
+		$cfg = wrap_cfg_files('settings');
+		$config = $configs[$file];
+		foreach (array_keys($config) as $key) {
+			if (empty($cfg[$key]['pre_register'])) continue;
+			unset($config[$key]);
+		}
+	} else {
+		$config = $configs[$file];
+	}
 	
 	wrap_setting_register($config);
 }
