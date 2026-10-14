@@ -18,11 +18,13 @@
  *
  */
 function wrap_defaults() {
+	global $zz_setting;
 	// configuration settings, defaults
 	wrap_defaults_paths();
 	wrap_defaults_pre_conf();
 	wrap_packages('modules');
 	wrap_packages('themes');
+	unset($zz_setting['startup']);
 	// now we can use wrap_setting() for all packages
 	wrap_defaults_auto();
 	wrap_config_read();
@@ -217,8 +219,6 @@ function wrap_packages($type) {
 		array_unshift($packages, 'default');
 	}
 	$zz_setting[$type] = $packages;
-	if ($type === 'modules')
-		unset($zz_setting['startup']);
 }
 
 /**
