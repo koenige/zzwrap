@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-12 12:28+0000\n"
+"POT-Creation-Date: 2026-10-14 15:51+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -801,7 +801,7 @@ msgid "Method:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1305
+#: zzwrap/errorhandling.inc.php:1339
 msgid "IP:"
 msgstr ""
 
@@ -810,7 +810,7 @@ msgid "Browser:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1307
+#: zzwrap/errorhandling.inc.php:1341
 msgid "unknown"
 msgstr ""
 
@@ -924,7 +924,7 @@ msgstr ""
 msgid "Fields <code>%s</code> are missing in SQL query"
 msgstr ""
 
-#: zzwrap/defaults.inc.php:186
+#: zzwrap/defaults.inc.php:181
 msgid "Forwarded servername %s is not in configuration"
 msgstr ""
 
@@ -953,11 +953,11 @@ msgstr ""
 msgid "Unsupported server protocol (%s)"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1307
+#: zzwrap/errorhandling.inc.php:1341
 msgid "User agent:"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1309
+#: zzwrap/errorhandling.inc.php:1343
 msgid "Referring URL:"
 msgstr ""
 

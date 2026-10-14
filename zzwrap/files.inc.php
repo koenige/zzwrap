@@ -104,6 +104,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	if (in_array('modules', $matches)) {
 		$sources['modules'] = $zz_setting['modules'] ?? [];
 		$packages = array_merge($packages, $sources['modules']);
+		if (!$packages) $packages[] = 'zzwrap';
 	}
 	if (in_array('active', $matches)) {
 		if (!empty($zz_setting['activated_modules'])) {
@@ -141,6 +142,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 			break;
 		case 'custom':
 			// check custom folder
+			if (empty($zz_setting['custom'])) break;
 			$this_path = $path ? $path : 'custom';
 			$file = sprintf('%s/%s/%s', $zz_setting['custom'], $this_path, $filename);
 			if (strstr($filename, '*')) {
@@ -190,7 +192,7 @@ function wrap_collect_files_list($packages, $filename, $path) {
 	global $zz_setting;
 
 	if (count($packages) === 1 AND $packages[0] === '_core') {
-		$files['zzwrap'] = sprintf('%s/%s', __DIR__, $filename);
+		$files['zzwrap'] = sprintf('%s/%s/%s', dirname(__DIR__), $path ?: 'zzwrap', $filename);
 		return $files;
 	}
 

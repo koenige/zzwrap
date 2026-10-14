@@ -296,7 +296,7 @@ function wrap_setting_log_missing($key, $cfg) {
 	global $zz_setting;
 	static $checked = [];
 	static $ignore_packages = [];
-	if (!$checked AND !$ignore_packages) {
+	if (!$checked AND !$ignore_packages AND empty($zz_setting['startup'])) {
 		$package_cfg = wrap_cfg_files('package', 'custom');
 		if ($package_cfg AND !empty($package_cfg['settings_ignore_packages']['default']))
 			$ignore_packages = $package_cfg['settings_ignore_packages']['default'];
@@ -897,6 +897,7 @@ function wrap_cfg_files($type, $settings = []) {
 	static $cfg = [];
 	static $single_cfg = [];
 	static $translated = false;
+	global $zz_setting;
 
 	// check if wrap_cfg_files() was called without database connection
 	// then translate all config variables read so far
@@ -914,6 +915,10 @@ function wrap_cfg_files($type, $settings = []) {
 	}
 	
 	// read data
+	if (!empty($zz_setting['startup'])) {
+		list($merged, ) = wrap_cfg_files_parse($type, ['startup' => true]);
+		return $merged;
+	}
 	if (empty($cfg[$type]))
 		list($cfg[$type], $single_cfg[$type]) = wrap_cfg_files_parse($type);
 	if (empty($cfg[$type]))
@@ -946,7 +951,7 @@ function wrap_cfg_files($type, $settings = []) {
  * @return array
  */
 function wrap_cfg_meta() {
-	$cfg_files = wrap_collect_files('configuration/cfg.cfg', 'zzwrap');
+	$cfg_files = wrap_collect_files('configuration/cfg.cfg', '_core');
 	return parse_ini_file(reset($cfg_files), true);
 }
 
@@ -975,15 +980,19 @@ function wrap_cfg_translate_fields() {
  * parse .cfg files per type
  *
  * @param string $type
+ * @param array $settings
  * @return array
  *		array $cfg configuration data indexed by package
  *		array $single_cfg configuration data, all keys in one array
  */
-function wrap_cfg_files_parse($type) {
-	$files = wrap_collect_files('configuration/'.$type.'.cfg', 'modules/themes/custom');
+function wrap_cfg_files_parse($type, $settings = []) {
+	$search = 'modules/themes/custom';
+	if (!empty($settings['startup']))
+		$search = '_core';
+	$files = wrap_collect_files('configuration/'.$type.'.cfg', $search);
 	$file_sets = [$files];
 	if ($type === 'access') {
-		$route_files = wrap_collect_files('configuration/routes.cfg', 'modules/themes/custom');
+		$route_files = wrap_collect_files('configuration/routes.cfg', $search);
 		$file_sets = [$route_files, $files];
 	}
 	if (!array_filter($file_sets)) return [[], []];

@@ -20,8 +20,11 @@
 function wrap_defaults() {
 	// configuration settings, defaults
 	wrap_defaults_paths();
-	wrap_defaults_auto();
 	wrap_defaults_pre_conf();
+	wrap_packages('modules');
+	wrap_packages('themes');
+	// now we can use wrap_setting() for all packages
+	wrap_defaults_auto();
 	wrap_config_read();
 	if (file_exists($file = wrap_setting('inc').'/config.inc.php'))
 		require_once $file;
@@ -32,7 +35,7 @@ function wrap_defaults() {
 }
 
 /**
- * default variables: paths
+ * default paths: root_dir, cms_dir, inc
  *
  * @global array $zz_setting
  */
@@ -62,17 +65,9 @@ function wrap_defaults_paths() {
 		echo 'Missing correct `cms_dir`, please set it.';
 		exit;
 	}
-
-// -------------------------------------------------------------------------
-// System paths
-// -------------------------------------------------------------------------
-
-	$zz_setting['custom'] 	= $zz_setting['inc'].'/custom';
 	
-	wrap_packages('modules');
-	wrap_packages('themes');
-
-	// now we can use wrap_setting()
+	$zz_setting['startup'] = true;
+	$zz_setting['custom'] = wrap_setting('custom');
 }
 
 /**
@@ -95,7 +90,7 @@ function wrap_defaults_auto() {
  *
  */
 function wrap_defaults_pre_conf() {
-	wrap_setting('zzwrap_id', rand());
+	wrap_setting('zzwrap_id', random_int(0, PHP_INT_MAX));
 
 // -------------------------------------------------------------------------
 // Hostname
@@ -200,7 +195,7 @@ function wrap_defaults_forwarded_hostname() {
 function wrap_packages($type) {
 	global $zz_setting;
 	$folder_key = sprintf('%s_dir', $type);
-	$folder = $zz_setting[$folder_key] = $zz_setting['inc'].'/'.$type;
+	$folder = $zz_setting[$folder_key] = wrap_setting($folder_key);
 	if (!is_dir($folder)) {
 		$zz_setting[$type] = [];
 		return;
@@ -222,6 +217,8 @@ function wrap_packages($type) {
 		array_unshift($packages, 'default');
 	}
 	$zz_setting[$type] = $packages;
+	if ($type === 'modules')
+		unset($zz_setting['startup']);
 }
 
 /**
