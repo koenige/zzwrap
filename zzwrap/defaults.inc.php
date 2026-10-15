@@ -230,18 +230,22 @@ function wrap_packages($type) {
  *
  * reads `modules_inactive` from config JSON, since settings are not loaded yet
  * @param array $installed module folder names
- * @param array $inactive (optional) list to check instead of config value
+ * @param array $activated (optional) new list of activated modules
  * @return array
  */
-function wrap_packages_inactive(array $installed, $inactive = NULL) {
-	if (!isset($inactive)) {
+function wrap_packages_inactive($installed, $activated = NULL) {
+	if ($activated !== NULL) {
+		if (!is_array($activated)) $activated = [$activated];
+		$activated = array_intersect($installed, $activated);
+		$inactive = array_diff($installed, $activated);
+	} else {
 		$config = wrap_packages_config(wrap_config_filename());
 		if (!empty($config['multiple_websites']))
 			$config = wrap_packages_config(wrap_config_filename('site'));
 		$inactive = wrap_setting_list($config['modules_inactive'] ?? '');
 		if (!is_array($inactive)) return [];
+		$inactive = array_intersect($inactive, $installed);
 	}
-	$inactive = array_intersect($inactive, $installed);
 	foreach ($inactive as $index => $package) {
 		$file = sprintf('%s/%s/configuration/package.cfg', wrap_setting('modules_dir'), $package);
 		if (!file_exists($file)) continue;
