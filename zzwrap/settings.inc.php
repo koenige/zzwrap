@@ -295,11 +295,18 @@ function wrap_setting_modules($key, $log_error = false) {
 function wrap_setting_log_missing($key, $cfg) {
 	global $zz_setting;
 	static $checked = [];
-	static $ignore_packages = [];
-	if (!$checked AND !$ignore_packages AND empty($zz_setting['startup'])) {
+	static $ignore_packages = null;
+	if (is_null($ignore_packages) AND empty($zz_setting['startup'])) {
+		$ignore_packages = [];
 		$package_cfg = wrap_cfg_files('package', 'custom');
 		if ($package_cfg AND !empty($package_cfg['settings_ignore_packages']['default']))
 			$ignore_packages = $package_cfg['settings_ignore_packages']['default'];
+		$inactive_modules = array_values(array_diff(
+			$zz_setting['modules_installed'] ?? [],
+			$zz_setting['modules'] ?? []
+		));
+		if ($inactive_modules)
+			$ignore_packages = array_merge($ignore_packages, $inactive_modules);
 	}
 
 	if (in_array($key, $checked)) return;
@@ -325,7 +332,7 @@ function wrap_setting_log_missing($key, $cfg) {
 	
 	if ($pos = strpos($base_key, '_')) {
 		$package = substr($base_key, 0, $pos);
-		if (in_array($package, $ignore_packages)) return;
+		if ($ignore_packages AND in_array($package, $ignore_packages)) return;
 	}
 
 	if (wrap_setting('setting_log_missing'))

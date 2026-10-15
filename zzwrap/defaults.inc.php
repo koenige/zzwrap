@@ -218,7 +218,49 @@ function wrap_packages($type) {
 		unset($packages[$key]);
 		array_unshift($packages, 'default');
 	}
+	if ($type === 'modules') {
+		$zz_setting['modules_installed'] = $packages;
+		$packages = array_values(array_diff($packages, wrap_packages_inactive($packages)));
+	}
 	$zz_setting[$type] = $packages;
+}
+
+/**
+ * get inactive modules of this website, without core packages
+ *
+ * reads `modules_inactive` from config JSON, since settings are not loaded yet
+ * @param array $installed module folder names
+ * @param array $inactive (optional) list to check instead of config value
+ * @return array
+ */
+function wrap_packages_inactive(array $installed, $inactive = NULL) {
+	if (!isset($inactive)) {
+		$config = wrap_packages_config(wrap_config_filename());
+		if (!empty($config['multiple_websites']))
+			$config = wrap_packages_config(wrap_config_filename('site'));
+		$inactive = wrap_setting_list($config['modules_inactive'] ?? '');
+		if (!is_array($inactive)) return [];
+	}
+	$inactive = array_intersect($inactive, $installed);
+	foreach ($inactive as $index => $package) {
+		$file = sprintf('%s/%s/configuration/package.cfg', wrap_setting('modules_dir'), $package);
+		if (!file_exists($file)) continue;
+		$package_info = parse_ini_file($file, true);
+		if (empty($package_info['runtime']['core_package'])) continue;
+		unset($inactive[$index]);
+	}
+	return array_values($inactive);
+}
+
+/**
+ * read config JSON file
+ *
+ * @param string $file
+ * @return array
+ */
+function wrap_packages_config($file) {
+	if (!file_exists($file)) return [];
+	return json_decode(file_get_contents($file), true) ?? [];
 }
 
 /**
