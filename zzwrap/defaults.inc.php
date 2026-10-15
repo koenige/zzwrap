@@ -343,19 +343,22 @@ function wrap_config_read_file($file, $settings = []) {
 /**
  * write configuration to JSON file
  *
- * @param string $site (optional)
+ * Dumps `_settings` to `config.json` or `config-{sitekey}.json`.
+ * @param string $site `''` for main config (website 1 on multi-site installs);
+ *	hostname to resolve and write that website’s site config;
+ *	`'_current'` to write the site config for `website_id` / `site` already set this request (no lookup)
  * @return void
  */
 function wrap_config_write($site = '') {
-	static $website_checked = false;
 	if (!wrap_db_connection()) return;
 	if (wrap_setting('multiple_websites') AND wrap_database_table_check('websites'))
 		wrap_filecache('websites', 'wrap_config_websites_file');
 
 	$re_read_config = false;
-	if ($site AND !$website_checked AND wrap_database_table_check('websites')) {
-		$website_checked = true;
-
+	if ($site === '_current') {
+		$website_id = wrap_setting('website_id');
+		$site = wrap_setting('site');
+	} elseif ($site AND wrap_database_table_check('websites')) {
 		$sql = sprintf('SELECT website_id
 			FROM websites WHERE domain = "%s"', wrap_db_escape($site));
 		$website_id = wrap_db_fetch($sql, '', 'single value');
