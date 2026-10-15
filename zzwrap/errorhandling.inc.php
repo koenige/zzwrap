@@ -380,7 +380,7 @@ function wrap_error_log_payload($error) {
 
 /**
  * Human-readable error text plus optional structured data for mail and debug
- * output: simple scalar maps as key/value blocks, otherwise pretty-printed JSON
+ * output: structured data as labeled sections (see wrap_error_data_text())
  *
  * @param array $error
  *	string $text
@@ -393,10 +393,7 @@ function wrap_error_detail($error, $encoding) {
 	$prepared = wrap_error_prepare($error, $encoding);
 	$text = $prepared['text'];
 	if (!$prepared['data']) return $text;
-	$text .= "\n\n";
-	if (wrap_error_data_is_simple($prepared['data']))
-		return $text.wrap_error_data_text($prepared['data']);
-	return $text.json_encode($prepared['data'], JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE);
+	return $text."\n\n".wrap_error_data_text($prepared['data']);
 }
 
 /**
@@ -454,43 +451,26 @@ function wrap_error_shift_data($error) {
 }
 
 /**
- * Whether error data is a flat list of scalar values (for dl / mail text)
+ * Plain-text blocks for wrap_error() data (mail analog of dl)
  *
  * @param mixed $data
- * @return bool
- */
-function wrap_error_data_is_simple($data) {
-	if (!is_array($data)) return false;
-	if ($data === []) return false;
-	foreach ($data as $value) {
-		if (is_array($value) || is_object($value)) return false;
-	}
-	return true;
-}
-
-/**
- * Convert flat error data to template loop rows
- *
- * @param array $data
- * @return array
- */
-function wrap_error_data_lines($data) {
-	$lines = [];
-	foreach ($data as $key => $value)
-		$lines[] = ['key' => $key, 'value' => $value];
-	return $lines;
-}
-
-/**
- * Convert flat error data to plain-text key/value blocks (mail analog of dl)
- *
- * @param array $data
  * @return string
  */
 function wrap_error_data_text($data) {
 	$blocks = [];
-	foreach ($data as $key => $value)
-		$blocks[] = $key."\n".$value;
+	foreach (wrap_error_data_sections($data) as $section) {
+		if (isset($section['list'])) {
+			$block = $section['key'].':';
+			foreach ($section['list'] as $item)
+				$block .= "\n– ".$item['line'];
+		} elseif (isset($section['json'])) {
+			$block = $section['key'] !== null ? $section['key'].":\n" : '';
+			$block .= $section['json'];
+		} else {
+			$block = $section['key']."\n".$section['text'];
+		}
+		$blocks[] = $block;
+	}
 	return implode("\n\n", $blocks);
 }
 
@@ -506,17 +486,64 @@ function wrap_error_notice($prepared) {
 	];
 	if (!$prepared['data']) return $notice;
 
-	$notice['data'] = true;
-	if (wrap_error_data_is_simple($prepared['data'])) {
-		$notice['data_simple'] = true;
-		$notice['data_lines'] = wrap_error_data_lines($prepared['data']);
-	} else {
-		$notice['data_json'] = json_encode(
-			$prepared['data'],
-			JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE
-		);
-	}
+	$notice['data_sections'] = wrap_error_data_sections($prepared['data']);
 	return $notice;
+}
+
+/**
+ * Split error data into labeled sections for mail text and notices
+ *
+ * Per key: lists of scalars as `list`, other arrays/objects as pretty-printed
+ * `json`, scalars as `text`; non-array data becomes one unlabeled `json` section
+ *
+ * @param mixed $data
+ * @return array
+ */
+function wrap_error_data_sections($data) {
+	if (!is_array($data))
+		return [['key' => null, 'json' => json_encode($data, JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE)]];
+
+	$sections = [];
+	foreach ($data as $key => $value) {
+		if (wrap_error_data_is_simple($value) && array_is_list($value))
+			$sections[] = ['key' => $key, 'list' => wrap_error_data_list($value)];
+		elseif (is_array($value) || is_object($value))
+			$sections[] = ['key' => $key, 'json' => json_encode($value, JSON_PRETTY_PRINT | JSON_INVALID_UTF8_IGNORE)];
+		else
+			$sections[] = ['key' => $key, 'text' => (string) $value];
+	}
+	return $sections;
+}
+
+/**
+ * Plain-text lines of a list of scalar values, HTML removed
+ *
+ * @param array $items
+ * @return array list of ['line' => string]
+ */
+function wrap_error_data_list($items) {
+	$lines = [];
+	foreach ($items as $item) {
+		$line = trim(html_entity_decode(strip_tags((string) $item), ENT_QUOTES, wrap_log_encoding()));
+		if ($line === '') continue;
+		$lines[] = ['line' => $line];
+	}
+	return $lines;
+}
+
+/**
+ * Whether data is a non-empty array of scalar values only
+ *
+ * @param mixed $data
+ * @return bool
+ */
+function wrap_error_data_is_simple($data) {
+	if (!is_array($data)) return false;
+	if ($data === []) return false;
+	foreach ($data as $value) {
+		if (is_array($value) || is_object($value)) return false;
+	}
+	return true;
 }
 
 /**

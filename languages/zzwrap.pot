@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-15 08:38+0000\n"
+"POT-Creation-Date: 2026-10-15 22:39+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -801,7 +801,7 @@ msgid "Method:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1339
+#: zzwrap/errorhandling.inc.php:1366
 msgid "IP:"
 msgstr ""
 
@@ -810,7 +810,7 @@ msgid "Browser:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1341
+#: zzwrap/errorhandling.inc.php:1368
 msgid "unknown"
 msgstr ""
 
@@ -936,28 +936,28 @@ msgstr ""
 msgid "Error on website"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:683
+#: zzwrap/errorhandling.inc.php:710
 msgid "URL"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:684
+#: zzwrap/errorhandling.inc.php:711
 msgid "Script"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:724
+#: zzwrap/errorhandling.inc.php:751
 msgid "Please try to find the content you were looking for from our <a href=\"%s\">main page</a>."
 msgstr ""
 
 # HTTP Status Code 500
-#: zzwrap/errorhandling.inc.php:839
+#: zzwrap/errorhandling.inc.php:866
 msgid "Unsupported server protocol (%s)"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1341
+#: zzwrap/errorhandling.inc.php:1368
 msgid "User agent:"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1343
+#: zzwrap/errorhandling.inc.php:1370
 msgid "Referring URL:"
 msgstr ""
 
