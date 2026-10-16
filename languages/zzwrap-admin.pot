@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-15 22:39+0000\n"
+"POT-Creation-Date: 2026-10-16 20:44+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1531,114 +1531,118 @@ msgid "Timeout in milliseconds when triggering a URL with cURL, increase on slow
 msgstr ""
 
 #: configuration/settings.cfg:1351
+msgid "Timeout in milliseconds for a second try if a triggered request could not be sent"
+msgstr ""
+
+#: configuration/settings.cfg:1356
 msgid "Website page template, if different from default (needs to end in `-page`)"
 msgstr ""
 
-#: configuration/settings.cfg:1361
+#: configuration/settings.cfg:1366
 msgid "HTML template for page title, max. two variables %1$s + %2$s"
 msgstr ""
 
-#: configuration/settings.cfg:1368
+#: configuration/settings.cfg:1373
 msgid "HTML template for page title on home page, max. two variables %1$s + %2$s"
 msgstr ""
 
-#: configuration/settings.cfg:1372
+#: configuration/settings.cfg:1377
 msgid "URL path to public behaviour folder of theme"
 msgstr ""
 
-#: configuration/settings.cfg:1377
+#: configuration/settings.cfg:1382
 msgid "URL path to public layout folder of theme"
 msgstr ""
 
-#: configuration/settings.cfg:1382
+#: configuration/settings.cfg:1387
 msgid "List of available themes"
 msgstr ""
 
-#: configuration/settings.cfg:1388
+#: configuration/settings.cfg:1393
 msgid "Folder for website themes"
 msgstr ""
 
-#: configuration/settings.cfg:1394
+#: configuration/settings.cfg:1399
 msgid "Thousands separator"
 msgstr ""
 
-#: configuration/settings.cfg:1398
+#: configuration/settings.cfg:1403
 msgid "Internal timezone, format: continent/city"
 msgstr ""
 
-#: configuration/settings.cfg:1404
+#: configuration/settings.cfg:1409
 msgid "Folder for temporary items"
 msgstr ""
 
-#: configuration/settings.cfg:1411
+#: configuration/settings.cfg:1416
 msgid "Translate page titles?"
 msgstr ""
 
-#: configuration/settings.cfg:1415
+#: configuration/settings.cfg:1420
 msgid "Translate text via database"
 msgstr ""
 
-#: configuration/settings.cfg:1419
+#: configuration/settings.cfg:1424
 msgid "Translate field values in database"
 msgstr ""
 
-#: configuration/settings.cfg:1423
+#: configuration/settings.cfg:1428
 msgid "Marker that is set if a translation is not complete"
 msgstr ""
 
-#: configuration/settings.cfg:1429
+#: configuration/settings.cfg:1434
 msgid "List of MySQL sql_modes to disable"
 msgstr ""
 
-#: configuration/settings.cfg:1434
+#: configuration/settings.cfg:1439
 msgid "Use uris table for logging of requests"
 msgstr ""
 
-#: configuration/settings.cfg:1439
+#: configuration/settings.cfg:1444
 msgid "Maximum parts of path in URL, no. of slashes"
 msgstr ""
 
-#: configuration/settings.cfg:1444
+#: configuration/settings.cfg:1449
 msgid "Named URL placeholders with lists of allowed values"
 msgstr ""
 
-#: configuration/settings.cfg:1450
+#: configuration/settings.cfg:1455
 msgid "Years into the future to include in url_placeholders[year]"
 msgstr ""
 
-#: configuration/settings.cfg:1456
+#: configuration/settings.cfg:1461
 msgid "List of years that appear in URL"
 msgstr ""
 
-#: configuration/settings.cfg:1462
+#: configuration/settings.cfg:1467
 msgid "List of available packages"
 msgstr ""
 
-#: configuration/settings.cfg:1467
+#: configuration/settings.cfg:1472
 msgid "Use PHPMailer library instead of mail() from PHP, sending mail over mailbox"
 msgstr ""
 
-#: configuration/settings.cfg:1472
+#: configuration/settings.cfg:1477
 msgid "ID of current website"
 msgstr ""
 
-#: configuration/settings.cfg:1478
+#: configuration/settings.cfg:1483
 msgid "If running more than one website with one system, this is the default website that will answer to unknown domain names"
 msgstr ""
 
-#: configuration/settings.cfg:1484
+#: configuration/settings.cfg:1489
 msgid "Seconds between websites cache checks"
 msgstr ""
 
-#: configuration/settings.cfg:1489
+#: configuration/settings.cfg:1494
 msgid "Filename for cached websites list"
 msgstr ""
 
-#: configuration/settings.cfg:1493
+#: configuration/settings.cfg:1498
 msgid "Random ID for logs to mark a process as unique"
 msgstr ""
 
-#: configuration/settings.cfg:1498
+#: configuration/settings.cfg:1503
 msgid "Initial installation date of Zugzwang Project CMS (for updates)"
 msgstr ""
 
@@ -2107,43 +2111,47 @@ msgstr ""
 msgid "Syndication from %s failed with status %s. %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:611
+#: zzwrap/syndication.inc.php:615
 msgid "cURL getinfo()"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:628
+#: zzwrap/syndication.inc.php:621
+msgid "Trigger of URL %s failed, request was not sent. Reason: %s"
+msgstr ""
+
+#: zzwrap/syndication.inc.php:637
 msgid "Syndication from URL %s failed. Reason: %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:634
+#: zzwrap/syndication.inc.php:643
 msgid "cURL incomplete download, URL %s: total %s, received %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:640
+#: zzwrap/syndication.inc.php:649
 msgid "cURL error, URL %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:927
+#: zzwrap/syndication.inc.php:950
 msgid "wrap_lock_wait(%s, %d) gave up after %d seconds"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1107
+#: zzwrap/syndication.inc.php:1130
 msgid "FTP: Failed to connect to %s (Port: %d)"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1112
+#: zzwrap/syndication.inc.php:1135
 msgid "FTP: Failed login to %s (User: %s, Password: %s)"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1128
+#: zzwrap/syndication.inc.php:1151
 msgid "FTP: Directory was not changed to %s"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1134
+#: zzwrap/syndication.inc.php:1157
 msgid "FTP: Upload local file %s to remote file %s failed"
 msgstr ""
 
-#: zzwrap/syndication.inc.php:1153
+#: zzwrap/syndication.inc.php:1176
 msgid "It was not possible to %s file %s to file %s"
 msgstr ""
 

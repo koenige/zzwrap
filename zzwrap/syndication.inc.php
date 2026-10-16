@@ -603,6 +603,10 @@ function wrap_syndication_http_request($url, $settings = []) {
 			// curl_setopt($ch, CURLOPT_CAINFO, wrap_setting('cainfo_file'));
 		}
 		$data = curl_exec($ch);
+		if ($timeout_ignore AND !wrap_syndication_trigger_sent($ch)) {
+			curl_setopt($ch, CURLOPT_TIMEOUT_MS, wrap_setting('syndication_trigger_retry_timeout_ms'));
+			$data = curl_exec($ch);
+		}
 		if (wrap_setting('debug')) fclose($f);
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($timeout_ignore) {
@@ -610,8 +614,13 @@ function wrap_syndication_http_request($url, $settings = []) {
 				$info = curl_getinfo($ch);
 				wrap_error(['cURL getinfo()', ['data' => $info]]);
 			}
-			// we don't know what happened but can't check it
-			$status = 200;
+			// the response is not awaited, only check if the request was sent
+			if (wrap_syndication_trigger_sent($ch)) {
+				$status = 200;
+			} else {
+				wrap_error(['Trigger of URL %s failed, request was not sent. Reason: %s', ['values' => [$url, curl_error($ch)]]], E_USER_NOTICE);
+				$status = 503;
+			}
 		} else {
 			if (!$status) {
 				$curl_error = curl_error($ch);
@@ -657,7 +666,6 @@ function wrap_syndication_http_request($url, $settings = []) {
 			}
 			$data = implode("\r\n", $lines);
 		} else {
-			$status = 200; // not necessarily true, but we don't want to wait
 			$headers = [];
 			$data = [];
 		}
@@ -674,6 +682,21 @@ function wrap_syndication_http_request($url, $settings = []) {
 		}
 	}
 	return [$status, $headers, $data];
+}
+
+/**
+ * check if a triggered request was completely sent to the server
+ *
+ * a trigger does not wait for the response, so a timeout is expected;
+ * the request is lost only if it was not sent before the timeout
+ * @param CurlHandle $ch
+ * @return bool
+ */
+function wrap_syndication_trigger_sent($ch) {
+	$info = curl_getinfo($ch);
+	if (!$info['request_size']) return false;
+	if ($info['size_upload'] < max(0, $info['upload_content_length'])) return false;
+	return true;
 }
 
 /**
