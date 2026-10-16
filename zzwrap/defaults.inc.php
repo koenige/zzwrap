@@ -22,6 +22,7 @@ function wrap_defaults() {
 	// configuration settings, defaults
 	wrap_defaults_paths();
 	wrap_defaults_pre_conf();
+	wrap_config_site();
 	wrap_packages('modules');
 	wrap_packages('themes');
 	unset($zz_setting['startup']);
@@ -239,9 +240,10 @@ function wrap_packages_inactive($installed, $activated = NULL) {
 		$activated = array_intersect($installed, $activated);
 		$inactive = array_diff($installed, $activated);
 	} else {
-		$config = wrap_packages_config(wrap_config_filename());
-		if (!empty($config['multiple_websites']))
+		if (wrap_setting('multiple_websites'))
 			$config = wrap_packages_config(wrap_config_filename('site'));
+		else
+			$config = wrap_packages_config(wrap_config_filename('main'));
 		$inactive = wrap_setting_list($config['modules_inactive'] ?? '');
 		if (!is_array($inactive)) return [];
 		$inactive = array_intersect($inactive, $installed);
@@ -268,23 +270,29 @@ function wrap_packages_config($file) {
 }
 
 /**
+ * read settings marked for pre-registration, set `site` to website domain
+ *
+ * runs before packages are registered: only pre_register settings from zzwrap are known
+ */
+function wrap_config_site() {
+	wrap_config_read_file(wrap_config_filename(), ['pre_register' => true]);
+	if (!wrap_setting('multiple_websites')) return;
+
+	// per site
+	$website = wrap_websites(wrap_setting('site'));
+	if (!$website) $website = wrap_websites(wrap_setting('website_id_default'));
+	if ($website AND $website['domain'] !== wrap_setting('site')) {
+		wrap_setting('site', $website['domain']);
+		wrap_setting('absolute_urls', 1);
+	}
+	wrap_config_read_file(wrap_config_filename('site'), ['pre_register' => true]);
+}
+
+/**
  * read all configuration files
  *
  */
 function wrap_config_read() {
-	// read settings marked for pre-registration
-	wrap_config_read_file(wrap_config_filename(), ['pre_register' => true]);
-	if (wrap_setting('multiple_websites')) {
-		// per site
-		$website = wrap_websites(wrap_setting('site'));
-		if (!$website) $website = wrap_websites(wrap_setting('website_id_default'));
-		if ($website AND $website['domain'] !== wrap_setting('site')) {
-			wrap_setting('site', $website['domain']);
-			wrap_setting('absolute_urls', 1);
-		}
-		wrap_config_read_file(wrap_config_filename('site'), ['pre_register' => true]);
-	}
-
 	// read all settings
 	wrap_config_read_file(wrap_config_filename(), ['pre_register' => false]);
 	if (wrap_setting('multiple_websites')) {
