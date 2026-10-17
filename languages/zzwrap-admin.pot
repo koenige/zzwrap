@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-16 23:57+0000\n"
+"POT-Creation-Date: 2026-10-17 22:26+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1734,11 +1734,11 @@ msgstr ""
 msgid "Cache file `%s` for headers has no content"
 msgstr ""
 
-#: zzwrap/cache.inc.php:555
+#: zzwrap/cache.inc.php:556
 msgid "Caching for URL %s disabled, looks like filename with / at the end?"
 msgstr ""
 
-#: zzwrap/cache.inc.php:568
+#: zzwrap/cache.inc.php:569
 msgid "Cache filename `%s` too long, caching disabled"
 msgstr ""
 

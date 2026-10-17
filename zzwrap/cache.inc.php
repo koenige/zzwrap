@@ -523,6 +523,7 @@ function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 		if ($base === '/') $base = '';
 	} else {
 		$url = parse_url($url);
+		if (empty($url['host'])) return false;
 		$base = '';
 	}
 	$file = wrap_setting('cache_dir_zz');
@@ -534,7 +535,7 @@ function wrap_cache_filename($type = 'url', $url = '', $log_error = true) {
 		$url['query'] = str_replace('%5B', '[', $url['query']);
 		$url['query'] = str_replace('%5D', ']', $url['query']);
 	}
-	if (!$url['path']) $url['path'] = '/'; // always have a path
+	if (empty($url['path'])) $url['path'] = '/'; // always have a path
 	$url['path'] = wrap_cache_extension($url['host'], $url['path']);
 	if (wrap_setting('cache_directories')) {
 		$url['path'] = explode('/', $url['path']);
