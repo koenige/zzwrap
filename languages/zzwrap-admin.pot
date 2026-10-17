@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-16 23:36+0000\n"
+"POT-Creation-Date: 2026-10-16 23:57+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1994,11 +1994,11 @@ msgstr ""
 msgid "An error occurred while filling the template %s. Status code %d"
 msgstr ""
 
-#: zzwrap/page.inc.php:221
+#: zzwrap/page.inc.php:222
 msgid "An error occurred while creating the resource %s. Status code %d"
 msgstr ""
 
-#: zzwrap/page.inc.php:600
+#: zzwrap/page.inc.php:601
 msgid "Template %s includes itself"
 msgstr ""
 
