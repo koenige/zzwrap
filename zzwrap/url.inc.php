@@ -50,9 +50,14 @@ function wrap_url_prepare() {
 	wrap_url_forwarded();
 	wrap_url_check();
 
+	$path_before = wrap_url('path');
 	$url_normal = wrap_url_normalize(wrap_url());
 	foreach ($url_normal as $key => $part)
 		if ($part !== wrap_url($key)) wrap_url($key, $part);
+	if ($path_before !== wrap_url('path')) {
+		wrap_url('redirect', true);
+		wrap_url('redirect_cache', false);
+	}
 
 	// get rid of unwanted query strings, set redirect if necessary
 	wrap_url_remove_query_strings();
@@ -97,18 +102,6 @@ function wrap_url_slashes() {
 function wrap_url_read() {
 	$url = parse_url(wrap_setting('host_base').wrap_setting('request_uri'));
 	if (!is_array($url)) $url = [];
-	if (empty($url['path'])) {
-		// in case, some script requests GET ? HTTP/1.1 or so:
-		$url['path'] = '/';
-		$url['redirect'] = true;
-		$url['redirect_cache'] = false;
-	} elseif (strstr($url['path'], '//')) {
-		// replace duplicate slashes for getting path, some bots add one
-		// redirect later if content was found
-		$url['path'] = str_replace('//', '/', $url['path']);
-		$url['redirect'] = true;
-		$url['redirect_cache'] = false;
-	}
 	wrap_url('', $url, 'init');
 }
 
@@ -175,6 +168,14 @@ function wrap_url_check_query_strings($query, $prefix = '') {
  * @return array
  */
 function wrap_url_normalize($url) {
+	if (($url['path'] ?? '') === '') {
+		// in case, some script requests GET ? HTTP/1.1 or so:
+		$url['path'] = '/';
+	}
+	while (strstr($url['path'], '//')) {
+		$url['path'] = str_replace('//', '/', $url['path']);
+	}
+
 	// RFC 3986 Section 6.2.2.3. Path Segment Normalization
 	// Normally, the browser will already do that
 	if (strstr($url['path'], '/../')) {
