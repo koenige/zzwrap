@@ -84,7 +84,7 @@ function wrap_url_qs_key($identifier) {
  * @return mixed NULL if there is no default
  */
 function wrap_url_qs_default($identifier, $def) {
-	if (!isset($def['default'])) return NULL;
+	if (!isset($def['default'])) return !empty($def['list']) ? [] : NULL;
 	// validation is not really necessary here, but getting the type of the variable right
 	$value = wrap_url_qs_validate($def['default'], $def);
 	if ($value !== NULL) return $value;
@@ -103,10 +103,23 @@ function wrap_url_qs_default($identifier, $def) {
  * @return mixed validated value, NULL if invalid
  */
 function wrap_url_qs_validate($value, $def) {
+	if (!empty($def['list'])) {
+		if (!is_array($value)) return NULL;
+		$item_def = $def;
+		unset($item_def['list']);
+		foreach ($value as $key => $item) {
+			if (!empty($def['key_type'])
+				AND wrap_url_qs_validate($key.'', ['type' => $def['key_type']]) === NULL) return NULL;
+			$value[$key] = wrap_url_qs_validate($item, $item_def);
+			if ($value[$key] === NULL) return NULL;
+		}
+		return $value;
+	}
 	if (is_array($value)) return NULL;
+	$type = $def['type'] ?? 'text';
 	if (!empty($def['pattern']) AND !preg_match($def['pattern'], $value)) return NULL;
 
-	switch ($def['type'] ?? 'text') {
+	switch ($type) {
 	case 'int':
 		if (intval($value).'' !== $value) return NULL;
 		$value = intval($value);
@@ -123,6 +136,9 @@ function wrap_url_qs_validate($value, $def) {
 		if (in_array($value, ['', '1'], true)) return true;
 		if ($value === '0') return false;
 		return NULL;
+	case 'fieldname':
+		if (strpbrk($value, ' ;')) return NULL;
+		return $value;
 	case 'language':
 		if (!wrap_url_qs_valid_language($value)) return NULL;
 		return $value;
