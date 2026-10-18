@@ -333,18 +333,9 @@ function wrap_url_relative() {
  */
 function wrap_url_language() {
 	if (empty($_GET['lang'])) return true;
-	
-	if (!preg_match('/^[a-z]{2}(-[A-Z]{2})?$/', $_GET['lang'])) return false;
-	// @todo the following check is not a good solution since languages_2c is only
-	// used on systems with languages with three letters
-	if (in_array($_GET['lang'], array_keys(wrap_id('languages', '', 'list')))) {
-		wrap_setting('lang', $_GET['lang']);
-		return true;
-	} elseif (in_array($_GET['lang'], array_keys(wrap_id('languages_2c', '', 'list')))) {
-		wrap_setting('lang', $_GET['lang']);
-		return true;
-	}
-	return false;
+	if (!wrap_url_qs_valid_language($_GET['lang'])) return false;
+	wrap_setting('lang', $_GET['lang']);
+	return true;
 }
 
 /**
@@ -391,7 +382,7 @@ function wrap_url_canonical($page) {
 	}
 
 	// set some query strings which are used by zzwrap
-	wrap_page_meta('query_strings', ['no-cookie', 'lang']);
+	wrap_page_meta('query_strings', array_values(wrap_url_qs_always()));
 	// allow ?code= only for direct script access (e.g. ErrorDocument 403 → /_scripts/main.php?code=403)
 	if (wrap_url('path')
 		&& str_ends_with(wrap_url('path'), basename($_SERVER['SCRIPT_NAME']))) {

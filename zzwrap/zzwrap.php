@@ -74,6 +74,8 @@ function zzwrap() {
 	// do not check if database connection is established until now
 	// to avoid infinite recursion due to calling the error page
 	wrap_check_db_connection();
+
+	wrap_url_qs_always_check();
 	
 	wrap_match_page();
 	wrap_defaults_post_match();
@@ -136,6 +138,7 @@ function wrap_includes() {
 	wrap_include('defaults', '_core');
 	wrap_include('http', '_core');
 	wrap_include('url', '_core');
+	wrap_include('url-qs', '_core');
 	wrap_include('send', '_core');
 	wrap_include('session', '_core');
 	wrap_include('background', '_core');

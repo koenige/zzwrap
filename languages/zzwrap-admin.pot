@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-18 10:50+0000\n"
+"POT-Creation-Date: 2026-10-18 21:00+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -29,426 +29,446 @@ msgid "Whether this configuration entry is active"
 msgstr ""
 
 #: configuration/cfg.cfg:18
-msgid "Author of the configuration"
+msgid "Query parameter is allowed on every page"
 msgstr ""
 
 #: configuration/cfg.cfg:23
-msgid "Automatically initialize this variable"
+msgid "Author of the configuration"
 msgstr ""
 
 #: configuration/cfg.cfg:28
-msgid "Configuration for batch operations"
+msgid "Automatically initialize this variable"
 msgstr ""
 
 #: configuration/cfg.cfg:33
+msgid "Configuration for batch operations"
+msgstr ""
+
+#: configuration/cfg.cfg:38
 msgid "Use this brick to get the path of webpage"
 msgstr ""
 
-#: configuration/cfg.cfg:37
+#: configuration/cfg.cfg:42
 msgid "Field names from the condition query that must be non-empty; without access detail, condition checks are skipped"
 msgstr ""
 
-#: configuration/cfg.cfg:42
+#: configuration/cfg.cfg:47
 msgid "Library folder names under lib/ that must exist, otherwise access is denied"
 msgstr ""
 
-#: configuration/cfg.cfg:47
+#: configuration/cfg.cfg:52
 msgid "Setting keys that must be enabled, otherwise access or route menu entry is skipped"
 msgstr ""
 
-#: configuration/cfg.cfg:53
+#: configuration/cfg.cfg:58
 msgid "Package module for the SQL query used by condition checks, when different from the access key package"
 msgstr ""
 
-#: configuration/cfg.cfg:57
+#: configuration/cfg.cfg:62
 msgid "SQL query name suffix; query key is {module}_{condition_query}_{detail} instead of {module}_{detail}"
 msgstr ""
 
-#: configuration/cfg.cfg:61
+#: configuration/cfg.cfg:66
 msgid "Field names from the condition query that must be empty; access is denied if any is non-empty"
 msgstr ""
 
-#: configuration/cfg.cfg:66
+#: configuration/cfg.cfg:71
 msgid "HTTP Content-Disposition header value"
 msgstr ""
 
-#: configuration/cfg.cfg:72
+#: configuration/cfg.cfg:77
 msgid "Path to CSV file for data synchronization"
 msgstr ""
 
-#: configuration/cfg.cfg:77
+#: configuration/cfg.cfg:82
 msgid "CSV file uses fixed width format"
 msgstr ""
 
-#: configuration/cfg.cfg:82
+#: configuration/cfg.cfg:87
 msgid "Key field name in CSV file for record identification"
 msgstr ""
 
-#: configuration/cfg.cfg:87
+#: configuration/cfg.cfg:92
 msgid "Default value for variable"
 msgstr ""
 
-#: configuration/cfg.cfg:98
+#: configuration/cfg.cfg:104
 msgid "Use empty string as default, not NULL value"
 msgstr ""
 
-#: configuration/cfg.cfg:103
+#: configuration/cfg.cfg:109
 msgid "Default value for variable, taken from another variable"
 msgstr ""
 
-#: configuration/cfg.cfg:107
+#: configuration/cfg.cfg:113
 msgid "Get default value by calling this function"
 msgstr ""
 
-#: configuration/cfg.cfg:112
+#: configuration/cfg.cfg:118
 msgid "Default value for variable, set by module?"
 msgstr ""
 
-#: configuration/cfg.cfg:117
+#: configuration/cfg.cfg:123
 msgid "Default value for variable, take from this PHP setting"
 msgstr ""
 
-#: configuration/cfg.cfg:121
+#: configuration/cfg.cfg:127
 msgid "Default value for variable, take from this setting"
 msgstr ""
 
-#: configuration/cfg.cfg:125
+#: configuration/cfg.cfg:131
 msgid "Core module, cannot be deactivated"
 msgstr ""
 
-#: configuration/cfg.cfg:131
+#: configuration/cfg.cfg:137
 msgid "Mark this variable as deprecated"
 msgstr ""
 
-#: configuration/cfg.cfg:140
+#: configuration/cfg.cfg:146
 msgid "Description of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:156
+#: configuration/cfg.cfg:163
 msgid "Default destination filetype for file conversion"
 msgstr ""
 
-#: configuration/cfg.cfg:161
+#: configuration/cfg.cfg:168
 msgid "How to handle transparency when converting to destination filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:165
+#: configuration/cfg.cfg:172
 msgid "Character encoding for file content"
 msgstr ""
 
-#: configuration/cfg.cfg:169
+#: configuration/cfg.cfg:176
 msgid "List of possible variables"
 msgstr ""
 
-#: configuration/cfg.cfg:179
+#: configuration/cfg.cfg:186
 msgid "Example for variable"
 msgstr ""
 
-#: configuration/cfg.cfg:187
+#: configuration/cfg.cfg:194
 msgid "File format supports EXIF metadata"
 msgstr ""
 
-#: configuration/cfg.cfg:192
+#: configuration/cfg.cfg:199
 msgid "File format is supported by exiftool"
 msgstr ""
 
-#: configuration/cfg.cfg:197
+#: configuration/cfg.cfg:204
 msgid "Exiftool can extract or generate thumbnails for this file format"
 msgstr ""
 
-#: configuration/cfg.cfg:202
+#: configuration/cfg.cfg:209
 msgid "File extension(s) for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:207
+#: configuration/cfg.cfg:214
 msgid "This variable can be used with this zzform field type"
 msgstr ""
 
-#: configuration/cfg.cfg:212
+#: configuration/cfg.cfg:219
 msgid "Scope definition for form fields"
 msgstr ""
 
-#: configuration/cfg.cfg:216
+#: configuration/cfg.cfg:223
 msgid "Always set a field property on the field definition"
 msgstr ""
 
-#: configuration/cfg.cfg:222
+#: configuration/cfg.cfg:229
 msgid "Name of file(s) where this variable is used"
 msgstr ""
 
-#: configuration/cfg.cfg:227
+#: configuration/cfg.cfg:234
 msgid "Type classification for file"
 msgstr ""
 
-#: configuration/cfg.cfg:231
+#: configuration/cfg.cfg:238
 msgid "Filetype identifier for filetree display"
 msgstr ""
 
-#: configuration/cfg.cfg:235
+#: configuration/cfg.cfg:242
 msgid "Group classification for related filetypes"
 msgstr ""
 
-#: configuration/cfg.cfg:239
+#: configuration/cfg.cfg:246
 msgid "Script path for form processing"
 msgstr ""
 
-#: configuration/cfg.cfg:244
+#: configuration/cfg.cfg:251
 msgid "Name of group that has access"
 msgstr ""
 
-#: configuration/cfg.cfg:249
+#: configuration/cfg.cfg:256
 msgid "Content contains or allows HTML markup"
 msgstr ""
 
-#: configuration/cfg.cfg:254
+#: configuration/cfg.cfg:261
 msgid "File format can be used in HTML <audio> tag"
 msgstr ""
 
-#: configuration/cfg.cfg:259
+#: configuration/cfg.cfg:266
 msgid "File format can be used in HTML <video> tag"
 msgstr ""
 
-#: configuration/cfg.cfg:264
+#: configuration/cfg.cfg:271
 msgid "Ignore query string parameters in URLs"
 msgstr ""
 
-#: configuration/cfg.cfg:269
+#: configuration/cfg.cfg:276
 msgid "When checking this access key, also accept usergroups (and config group) from these keys; one level only, includes and conditions of listed keys are not applied recursively"
 msgstr ""
 
-#: configuration/cfg.cfg:275
+#: configuration/cfg.cfg:282
 msgid "Request a value for this variable during installation"
 msgstr ""
 
-#: configuration/cfg.cfg:280
+#: configuration/cfg.cfg:287
 msgid "Request folder path for this variable during installation"
 msgstr ""
 
-#: configuration/cfg.cfg:285
+#: configuration/cfg.cfg:292
 msgid "Default value prefilled on install form; not used at runtime"
 msgstr ""
 
-#: configuration/cfg.cfg:290
+#: configuration/cfg.cfg:297
 msgid "Path that must exist at install; for bool settings, writes true or false to _settings"
 msgstr ""
 
-#: configuration/cfg.cfg:294
+#: configuration/cfg.cfg:301
 msgid "Allow to set language specific settings, e. g. key[en]=English version"
 msgstr ""
 
-#: configuration/cfg.cfg:298
+#: configuration/cfg.cfg:305
 msgid "List of error levels"
 msgstr ""
 
-#: configuration/cfg.cfg:302
+#: configuration/cfg.cfg:309
 msgid "Filetype may contain outbound links and serve as HTTP Referer"
 msgstr ""
 
-#: configuration/cfg.cfg:307
+#: configuration/cfg.cfg:314
 msgid "Inherit standard and forced values from another field type section; keys in this section override"
 msgstr ""
 
-#: configuration/cfg.cfg:312
+#: configuration/cfg.cfg:319
 msgid "Variable is an array"
 msgstr ""
 
-#: configuration/cfg.cfg:323
+#: configuration/cfg.cfg:330
 msgid "For zzform, this variable controls the display of the zzform list view"
 msgstr ""
 
-#: configuration/cfg.cfg:329
+#: configuration/cfg.cfg:336
 msgid "Setting is only relevant locally, not for deployment"
 msgstr ""
 
-#: configuration/cfg.cfg:334
+#: configuration/cfg.cfg:341
 msgid "Enable or disable logging for this operation"
 msgstr ""
 
-#: configuration/cfg.cfg:339
+#: configuration/cfg.cfg:346
+msgid "Maximum value for a number"
+msgstr ""
+
+#: configuration/cfg.cfg:351
 msgid "Internal area menu group for this route"
 msgstr ""
 
-#: configuration/cfg.cfg:346
+#: configuration/cfg.cfg:358
 msgid "Link description in internal area menu (after the link title)"
 msgstr ""
 
-#: configuration/cfg.cfg:352
+#: configuration/cfg.cfg:364
 msgid "Sort priority 0–10 in internal area menu, 10 = top"
 msgstr ""
 
-#: configuration/cfg.cfg:357
+#: configuration/cfg.cfg:369
 msgid "Link title in internal area menu"
 msgstr ""
 
-#: configuration/cfg.cfg:363
+#: configuration/cfg.cfg:375
 msgid "MIME type(s) for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:368
+#: configuration/cfg.cfg:380
+msgid "Minimum value for a number"
+msgstr ""
+
+#: configuration/cfg.cfg:385
 msgid "Module(s) that must be installed for this setting; or module(s) activated with this package (package.cfg only)"
 msgstr ""
 
-#: configuration/cfg.cfg:375
+#: configuration/cfg.cfg:392
 msgid "This variable has been moved to another key name"
 msgstr ""
 
-#: configuration/cfg.cfg:380
+#: configuration/cfg.cfg:397
 msgid "This variable has been moved to a $zz array key"
 msgstr ""
 
-#: configuration/cfg.cfg:384
+#: configuration/cfg.cfg:401
 msgid "File format supports multiple pages or frames"
 msgstr ""
 
-#: configuration/cfg.cfg:389
+#: configuration/cfg.cfg:406
 msgid "Which frame/page number to use for thumbnail generation"
 msgstr ""
 
-#: configuration/cfg.cfg:394
+#: configuration/cfg.cfg:411
 msgid "Name identifier for this entry"
 msgstr ""
 
-#: configuration/cfg.cfg:401
+#: configuration/cfg.cfg:418
 msgid "Do not automatically initialize this variable"
 msgstr ""
 
-#: configuration/cfg.cfg:406
+#: configuration/cfg.cfg:423
 msgid "Do not initialize this variable during standard initialization"
 msgstr ""
 
-#: configuration/cfg.cfg:411
+#: configuration/cfg.cfg:428
 msgid "Do not trim whitespace from this value"
 msgstr ""
 
-#: configuration/cfg.cfg:416
-msgid "This variable can be passed as a page parameter in the URL"
-msgstr ""
-
-#: configuration/cfg.cfg:421
-msgid "Root category path for an admin-editable subtree (module page link)"
-msgstr ""
-
-#: configuration/cfg.cfg:427
-msgid "File format can be analyzed with pdfinfo tool"
-msgstr ""
-
-#: configuration/cfg.cfg:432
-msgid "PHP constant identifier for this filetype"
-msgstr ""
-
-#: configuration/cfg.cfg:436
-msgid "Register these settings in a first round before all other settings"
+#: configuration/cfg.cfg:433
+msgid "What happens if a query string is invalid; `package.action` calls a function of a package, e. g. zzform.404"
 msgstr ""
 
 #: configuration/cfg.cfg:441
-msgid "Field type is presentational; not a normal editable database column"
+msgid "This variable can be passed as a page parameter in the URL"
 msgstr ""
 
 #: configuration/cfg.cfg:446
-msgid "This is a private setting, not for public configuration"
+msgid "Root category path for an admin-editable subtree (module page link)"
 msgstr ""
 
-#: configuration/cfg.cfg:451
-msgid "For zzform, this variable controls the display of the zzform record view"
+#: configuration/cfg.cfg:452
+msgid "Regular expression the value must match"
 msgstr ""
 
 #: configuration/cfg.cfg:456
+msgid "File format can be analyzed with pdfinfo tool"
+msgstr ""
+
+#: configuration/cfg.cfg:461
+msgid "PHP constant identifier for this filetype"
+msgstr ""
+
+#: configuration/cfg.cfg:465
+msgid "Register these settings in a first round before all other settings"
+msgstr ""
+
+#: configuration/cfg.cfg:470
+msgid "Field type is presentational; not a normal editable database column"
+msgstr ""
+
+#: configuration/cfg.cfg:475
+msgid "This is a private setting, not for public configuration"
+msgstr ""
+
+#: configuration/cfg.cfg:480
+msgid "For zzform, this variable controls the display of the zzform record view"
+msgstr ""
+
+#: configuration/cfg.cfg:485
 msgid "Additional remarks or notes about this variable"
 msgstr ""
 
-#: configuration/cfg.cfg:460
+#: configuration/cfg.cfg:489
 msgid "This variable must be set"
 msgstr ""
 
-#: configuration/cfg.cfg:466
+#: configuration/cfg.cfg:495
 msgid "Scope(s) where this variable can be set"
 msgstr ""
 
-#: configuration/cfg.cfg:477
+#: configuration/cfg.cfg:506
 msgid "Path to script for processing"
 msgstr ""
 
-#: configuration/cfg.cfg:482
+#: configuration/cfg.cfg:511
 msgid "Link to another variable that does something similar, @see"
 msgstr ""
 
-#: configuration/cfg.cfg:487
+#: configuration/cfg.cfg:516
 msgid "INI section name for this field in multi-section .cfg files; omit when the section name varies per entry (e.g. setting keys in settings.cfg); when file[] lists several cfg files, section applies only where relevant"
 msgstr ""
 
-#: configuration/cfg.cfg:491
+#: configuration/cfg.cfg:520
 msgid "Store this setting globally (website_id = 1) when running multiple websites"
 msgstr ""
 
-#: configuration/cfg.cfg:496
+#: configuration/cfg.cfg:525
 msgid "Field name for source record identifier in synchronization"
 msgstr ""
 
-#: configuration/cfg.cfg:501
+#: configuration/cfg.cfg:530
 msgid "Function for processing raw SPARQL results"
 msgstr ""
 
-#: configuration/cfg.cfg:506
+#: configuration/cfg.cfg:535
 msgid "SPARQL endpoint URI"
 msgstr ""
 
-#: configuration/cfg.cfg:511
+#: configuration/cfg.cfg:540
 msgid "SQL query or SQL-related configuration"
 msgstr ""
 
-#: configuration/cfg.cfg:516
+#: configuration/cfg.cfg:545
 msgid "Set a field property on the field definition when not already set"
 msgstr ""
 
-#: configuration/cfg.cfg:522
+#: configuration/cfg.cfg:551
 msgid "Category path segment(s) where this setting applies (with scope[] = categories)"
 msgstr ""
 
-#: configuration/cfg.cfg:527
+#: configuration/cfg.cfg:556
 msgid "Number of records to process per synchronization run"
 msgstr ""
 
-#: configuration/cfg.cfg:532
+#: configuration/cfg.cfg:561
 msgid "Short descriptive line about the package"
 msgstr ""
 
-#: configuration/cfg.cfg:539
+#: configuration/cfg.cfg:568
 msgid "This variable is for testing purposes only"
 msgstr ""
 
-#: configuration/cfg.cfg:544
+#: configuration/cfg.cfg:573
 msgid "Theme(s) activated with this package"
 msgstr ""
 
-#: configuration/cfg.cfg:550
+#: configuration/cfg.cfg:579
 msgid "Thumbnail generation is supported for this filetype"
 msgstr ""
 
-#: configuration/cfg.cfg:555
+#: configuration/cfg.cfg:584
 msgid "Display title or label for this entry"
 msgstr ""
 
-#: configuration/cfg.cfg:560
+#: configuration/cfg.cfg:589
 msgid "To do, @todo"
 msgstr ""
 
-#: configuration/cfg.cfg:563
+#: configuration/cfg.cfg:592
 msgid "Values of this property are automatically translated"
 msgstr ""
 
-#: configuration/cfg.cfg:569
+#: configuration/cfg.cfg:598
 msgid "If a translation is missing, which .pot file gets the new msgid"
 msgstr ""
 
-#: configuration/cfg.cfg:575
+#: configuration/cfg.cfg:604
 msgid "Type of variable"
 msgstr ""
 
-#: configuration/cfg.cfg:607
+#: configuration/cfg.cfg:638
 msgid "URL value"
 msgstr ""
 
-#: configuration/cfg.cfg:612
+#: configuration/cfg.cfg:643
 msgid "Image format suitable for web display"
 msgstr ""
 
@@ -458,6 +478,14 @@ msgstr ""
 
 #: configuration/package.cfg:15
 msgid "Site core: HTTP, routing, sessions, database access, mail, and configuration"
+msgstr ""
+
+#: configuration/query-strings.cfg:15
+msgid "Language of a resource"
+msgstr ""
+
+#: configuration/query-strings.cfg:21
+msgid "Check if a cookie is allowed"
 msgstr ""
 
 #: configuration/routes.cfg:12
@@ -2159,6 +2187,22 @@ msgstr ""
 msgid "Template name %s not valid."
 msgstr ""
 
-#: zzwrap/url.inc.php:432
+#: zzwrap/url.inc.php:423
 msgid "Wrong URL: query string %s [%s], Referer: %s"
+msgstr ""
+
+#: zzwrap/url-qs.inc.php:52
+msgid "Query string rule `%s` is not defined."
+msgstr ""
+
+#: zzwrap/url-qs.inc.php:60
+msgid "Query string rule `%s` has to be defined in package `%s`."
+msgstr ""
+
+#: zzwrap/url-qs.inc.php:92
+msgid "Query string rule `%s`: default value is invalid: %s"
+msgstr ""
+
+#: zzwrap/url-qs.inc.php:187
+msgid "Query string rule `%s`: unknown value for `on_error`: %s"
 msgstr ""
