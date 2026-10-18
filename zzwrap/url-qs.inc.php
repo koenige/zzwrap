@@ -126,6 +126,10 @@ function wrap_url_qs_validate($value, $def) {
 	case 'language':
 		if (!wrap_url_qs_valid_language($value)) return NULL;
 		return $value;
+	case 'enum':
+		if (empty($def['enum']) OR !is_array($def['enum'])) return NULL;
+		if (!in_array($value, $def['enum'], true)) return NULL;
+		return $value;
 	}
 	return $value;
 }
