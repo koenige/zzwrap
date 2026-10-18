@@ -320,14 +320,29 @@ function wrap_page_from_file($filename) {
  * @param string $location URL to redirect to
  * @param int $status (defaults to 302)
  * @param bool $cache cache redirect, defaults to true
+ * @param array|string $page_query_strings allowed request query strings, @see $page['query_strings']
  */
-function wrap_redirect($location = false, $status = 302, $cache = true) {
+function wrap_redirect($location = false, $status = 302, $cache = true, $page_query_strings = []) {
 	wrap_http_status_header($status);
 	$header = sprintf('Location: %s', wrap_url_expand($location));
 	wrap_setting_add('headers', $header);
 	if ($cache AND wrap_setting('cache')) {
 		// provide cache URL since internal URL might already be rewritten
-		wrap_cache('', '', wrap_setting('host_base').wrap_setting('request_uri'));
+		$cache_url = wrap_setting('host_base').wrap_setting('request_uri');
+		$parts = parse_url($cache_url);
+		if (!empty($parts['query'])) {
+			parse_str($parts['query'], $params);
+			if ($page_query_strings) {
+				if (!is_array($page_query_strings)) $page_query_strings = [$page_query_strings];
+				$params = array_intersect_key($params, array_flip($page_query_strings));
+			} else {
+				$params = [];
+			}
+			$parts['query'] = http_build_query($params);
+			if ($parts['query'] === '') unset($parts['query']);
+			$cache_url = wrap_build_url($parts);
+		}
+		wrap_cache('', '', $cache_url);
 	}
 	wrap_log_uri($status);
 	wrap_cache_header();

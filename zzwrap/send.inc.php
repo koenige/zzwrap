@@ -614,7 +614,7 @@ function wrap_quit($statuscode = 404, $error_msg = '', $page = []) {
 				$new = wrap_setting('host_base').wrap_setting('base').$new;
 			}
 		}
-		wrap_redirect($new, $page['status']);
+		wrap_redirect($new, $page['status'], true, $page['query_strings'] ?? []);
 		exit;
 	case 304:
 	case 412:
