@@ -36,7 +36,11 @@
 %%% case pre %%%
 <pre> %%% item msg format=html_escape %%% </pre>
 %%% default %%%
+%%% if html %%%
+<p class="%%% item class %%%">%%% item msg format=nl2br %%%</p>
+%%% else %%%
 <p class="%%% item class %%%">%%% item msg format[]=html_escape format[]=nl2br %%%</p>
+%%% endif %%%
 %%% switch - %%%
 %%% endif %%%
 %%% loop end %%%
