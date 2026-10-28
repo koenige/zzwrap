@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-10-18 10:50+0000\n"
+"POT-Creation-Date: 2026-10-28 13:09+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -924,7 +924,7 @@ msgstr ""
 msgid "Fields <code>%s</code> are missing in SQL query"
 msgstr ""
 
-#: zzwrap/defaults.inc.php:184
+#: zzwrap/defaults.inc.php:148
 msgid "Forwarded servername %s is not in configuration"
 msgstr ""
 
@@ -1087,11 +1087,11 @@ msgstr ""
 msgid "This value for %s sent via HTTP must not be an array: %s"
 msgstr ""
 
-#: zzwrap/http.inc.php:315
+#: zzwrap/http.inc.php:317
 msgid "HTTP Header spoofing detected. The client is attempting to impersonate localhost."
 msgstr ""
 
-#: zzwrap/http.inc.php:330
+#: zzwrap/http.inc.php:334
 msgid "HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s"
 msgstr ""
 
@@ -1167,11 +1167,11 @@ msgstr ""
 msgid "Cannot open %s for writing."
 msgstr ""
 
-#: zzwrap/template.inc.php:154
+#: zzwrap/template.inc.php:156
 msgid "Template <code>%s</code> does not exist."
 msgstr ""
 
-#: zzwrap/template.inc.php:159
+#: zzwrap/template.inc.php:161
 msgid "More than one template with the name <code>%s</code> exists."
 msgstr ""
 

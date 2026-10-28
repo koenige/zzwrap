@@ -311,6 +311,8 @@ function wrap_http_forward_localhost($remote_ip) {
 	if (!$local) return false;
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
+	if (!wrap_setting('remote_ip'))
+		wrap_setting('remote_ip', $_SERVER['REMOTE_ADDR'] ?? '');
 	wrap_quit(403, wrap_text(
 		'HTTP Header spoofing detected. The client is attempting to impersonate localhost.'
 	));
@@ -326,6 +328,8 @@ function wrap_http_forward_valid($remote_ip) {
 	if (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE + FILTER_FLAG_NO_RES_RANGE)) return true;
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
+	if (!wrap_setting('remote_ip'))
+		wrap_setting('remote_ip', $_SERVER['REMOTE_ADDR'] ?? '');
 	wrap_quit(400, wrap_text(
 		'HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s',
 		['values' => [$_SERVER['HTTP_X_FORWARDED_FOR']]]

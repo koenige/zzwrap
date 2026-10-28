@@ -19,8 +19,9 @@
  */
 function wrap_defaults() {
 	global $zz_setting;
+	$zz_setting['startup'] = true;
+	$zz_setting['custom'] = wrap_setting('custom');
 	// configuration settings, defaults
-	wrap_defaults_paths();
 	wrap_defaults_pre_conf();
 	wrap_config_site();
 	wrap_packages('modules');
@@ -35,42 +36,6 @@ function wrap_defaults() {
 
 	// module configs, will overwrite standard config
 	wrap_include('./config', 'modules');
-}
-
-/**
- * default paths: root_dir, cms_dir, inc
- *
- * @global array $zz_setting
- */
-function wrap_defaults_paths() {
-	global $zz_setting;
-
-// -------------------------------------------------------------------------
-// Main paths, deviations should be defined in main.php
-// -------------------------------------------------------------------------
-	
-	// web root directory
-	if (!isset($zz_setting['root_dir']))
-		$zz_setting['root_dir'] = $_SERVER['DOCUMENT_ROOT'];
-	if (str_ends_with($zz_setting['root_dir'], '/'))
-		$zz_setting['root_dir'] = substr($zz_setting['root_dir'], 0, -1);
-
-	// includes
-	if (!isset($zz_setting['cms_dir'])) {
-		$dir = explode('/', __DIR__);
-		$dir = array_slice($dir, 0, -4); // _inc/modules/zzwrap/zzwrap
-		$zz_setting['cms_dir'] = implode('/', $dir);
-	}
-	if (!isset($zz_setting['inc']))
-		$zz_setting['inc'] = $zz_setting['cms_dir'].'/_inc';
-	$zz_setting['inc'] = realpath($zz_setting['inc']);
-	if (!$zz_setting['inc']) {
-		echo 'Missing correct `cms_dir`, please set it.';
-		exit;
-	}
-	
-	$zz_setting['startup'] = true;
-	$zz_setting['custom'] = wrap_setting('custom');
 }
 
 /**
@@ -114,7 +79,6 @@ function wrap_defaults_pre_conf() {
 	}
 
 	wrap_setting('request_uri', $_SERVER['REQUEST_URI']);
-	wrap_setting('remote_ip', wrap_http_remote_ip());
 
 // -------------------------------------------------------------------------
 // Error Logging, Mail
@@ -585,6 +549,9 @@ function wrap_config_sitekey($site = NULL) {
  *
  */
 function wrap_defaults_post_conf() {
+	// proxy_ips is loaded by wrap_config_read(); a quit here can use routes
+	wrap_setting('remote_ip', wrap_http_remote_ip());
+
 	// -------------------------------------------------------------------------
 	// Internationalization, Language, Character Encoding
 	// -------------------------------------------------------------------------

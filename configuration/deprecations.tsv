@@ -104,3 +104,5 @@
 2026-09-03-1	code_regex	wrap_array_merge\s*\([^,]+,[^,]+,\s*(true|false)\s*[),]	use wrap_array_merge($old, $new, ['overwrite_with_empty' => $bool]) instead of boolean as third parameter
 2026-09-11-1	code_regex	quotation_marks\[[^]]+\] = "?ch"?	deprecated format alias "ch" in quotation_marks setting; use regional lang de-CH/fr-CH/it-CH or de-guillemets
 2026-10-05-1	breaking		Apache 2.4.59+ drops Content-Length from PHP unless `SetEnv ap_trust_cgilike_cl 1` in .htaccess or vhost (@see https://httpd.apache.org/docs/current/env.html#cgilike , shipped in zzwrap www/.htaccess)
+2026-10-28-1	code	$zz_setting['cms_dir']	use wrap_setting('cms_dir'), if set in main.php: use full path directly	zzwrap/files.inc.php
+2026-10-28-2	code	$zz_setting['inc']	use wrap_setting('inc'), if set in main.php: use full path directly	zzwrap/files.inc.php

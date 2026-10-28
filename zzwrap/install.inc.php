@@ -19,7 +19,7 @@ function wrap_install() {
 	wrap_setting('install', true);
 
 	$folders = ['_inc/config', '_cache'];
-	$cms_dir = __DIR__.'/../../../..';
+	$cms_dir = dirname(__DIR__, 4);
 	foreach ($folders as $folder) {
 		$folder = $cms_dir.'/'.$folder;
 		if (!file_exists($folder)) wrap_mkdir($folder);

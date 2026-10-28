@@ -102,7 +102,9 @@ function wrap_template_file($template, $show_error = true) {
 	// we cannot do anything with this here
 	if (substr($template, 0, 1) === '/') return '';
 
-	$packages = array_merge(wrap_setting('modules'), wrap_setting('themes'));
+	$packages = array_unique(array_merge(
+		wrap_setting('core_packages'), wrap_setting('modules'), wrap_setting('themes')
+	));
 
 	// get template info
 	$tpl = pathinfo($template);
@@ -139,8 +141,8 @@ function wrap_template_file($template, $show_error = true) {
 	// 3 check all packages
 	$found = [];
 	foreach ($packages as $package) {
-		$dir = in_array($package, wrap_setting('modules'))
-			? wrap_setting('modules_dir') : wrap_setting('themes_dir');
+		$dir = in_array($package, wrap_setting('themes') ?? [])
+			? wrap_setting('themes_dir') : wrap_setting('modules_dir');
 		$tpl_file = wrap_template_check($tpl, $package, $dir);
 		if ($tpl_file) $found[$package] = $tpl_file;
 	}
@@ -168,10 +170,10 @@ function wrap_template_file($template, $show_error = true) {
 		}
 	} else {
 		$package = key($found);
-		if (in_array($package, wrap_setting('modules')))
-			wrap_package_activate($package);
-		else
+		if (in_array($package, wrap_setting('themes')))
 			wrap_package_activate($package, 'theme');
+		else
+			wrap_package_activate($package);
 		$tpl_file = reset($found);
 	}
 	return $tpl_file;

@@ -123,29 +123,31 @@ function wrap_includes() {
 	if (file_exists(__DIR__.'/compatibility.inc.php'))
 		require_once __DIR__.'/compatibility.inc.php';
 
-	wrap_include('filecache', '_core');
-	wrap_include('errorhandling', '_core');
-	wrap_include('database', '_core');
-	wrap_include('core', '_core');
-	wrap_include('settings', '_core');
-	wrap_include('routes', '_core');
-	wrap_include('cache', '_core');
-	wrap_include('access', '_core');
-	wrap_include('language', '_core');
-	wrap_include('reference', '_core');
-	wrap_include('match', '_core');
-	wrap_include('template', '_core');
-	wrap_include('defaults', '_core');
-	wrap_include('http', '_core');
-	wrap_include('url', '_core');
-	wrap_include('url-qs', '_core');
-	wrap_include('send', '_core');
-	wrap_include('session', '_core');
-	wrap_include('background', '_core');
-	wrap_include('mail', '_core');
-	wrap_include('format', '_core');
-	wrap_include('page', '_core');
-	wrap_include('media', '_core');
+	wrap_files_paths();
+
+	wrap_include('filecache', 'zzwrap');
+	wrap_include('errorhandling', 'zzwrap');
+	wrap_include('database', 'zzwrap');
+	wrap_include('core', 'zzwrap');
+	wrap_include('settings', 'zzwrap');
+	wrap_include('routes', 'zzwrap');
+	wrap_include('cache', 'zzwrap');
+	wrap_include('access', 'zzwrap');
+	wrap_include('language', 'zzwrap');
+	wrap_include('reference', 'zzwrap');
+	wrap_include('match', 'zzwrap');
+	wrap_include('template', 'zzwrap');
+	wrap_include('defaults', 'zzwrap');
+	wrap_include('http', 'zzwrap');
+	wrap_include('url', 'zzwrap');
+	wrap_include('url-qs', 'zzwrap');
+	wrap_include('send', 'zzwrap');
+	wrap_include('session', 'zzwrap');
+	wrap_include('background', 'zzwrap');
+	wrap_include('mail', 'zzwrap');
+	wrap_include('format', 'zzwrap');
+	wrap_include('page', 'zzwrap');
+	wrap_include('media', 'zzwrap');
 }
 
 /**
@@ -153,5 +155,5 @@ function wrap_includes() {
  */
 function wrap_includes_postconf() {
 	if (wrap_setting('authentication_possible'))
-		wrap_include('auth', '_core');
+		wrap_include('auth', 'zzwrap');
 }

@@ -958,7 +958,7 @@ function wrap_cfg_files($type, $settings = []) {
  * @return array
  */
 function wrap_cfg_meta() {
-	$cfg_files = wrap_collect_files('configuration/cfg.cfg', '_core');
+	$cfg_files = wrap_collect_files('configuration/cfg.cfg', 'zzwrap');
 	return parse_ini_file(reset($cfg_files), true);
 }
 

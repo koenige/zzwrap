@@ -14,6 +14,40 @@
 
 
 /**
+ * main paths: root_dir, cms_dir, inc
+ * deviation of root_dir should be defined in main.php
+ *
+ * @global array $zz_setting
+ */
+function wrap_files_paths() {
+	global $zz_setting;
+
+	// web root directory
+	if (!isset($zz_setting['root_dir']))
+		$zz_setting['root_dir'] = $_SERVER['DOCUMENT_ROOT'];
+	if (str_ends_with($zz_setting['root_dir'], '/'))
+		$zz_setting['root_dir'] = substr($zz_setting['root_dir'], 0, -1);
+
+	// includes
+	$zz_setting['cms_dir'] = dirname(__DIR__, 4);
+	$zz_setting['inc'] = dirname(__DIR__, 3);
+	$zz_setting['modules_dir'] = dirname(__DIR__, 2);
+	
+	// core modules
+	$zz_setting['core_packages'] = [];
+	$packages = scandir($zz_setting['modules_dir']);
+	$template = $zz_setting['modules_dir'].'/%s/configuration/package.cfg';
+	foreach ($packages as $package) {
+		if (str_starts_with($package, '.')) continue;
+		$file = sprintf($template, $package);
+		if (!file_exists($file)) continue;
+		$cfg = parse_ini_file($file);
+		if (empty($cfg['core_package'])) continue;
+		$zz_setting['core_packages'][] = $package;
+	}
+}
+
+/**
  * include files matching file name from inside one or more packages
  * returning a list of included packages, files and functions
  *
@@ -103,8 +137,8 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	}
 	if (in_array('modules', $matches)) {
 		$sources['modules'] = $zz_setting['modules'] ?? [];
+		if (!$sources['modules']) $sources['modules'] = $zz_setting['core_packages'];
 		$packages = array_merge($packages, $sources['modules']);
-		if (!$packages) $packages[] = 'zzwrap';
 	}
 	if (in_array('active', $matches)) {
 		if (!empty($zz_setting['activated_modules'])) {
@@ -126,7 +160,7 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 	foreach ($matches as $match) {
 		switch ($match) {
 		case '_core':
-			// wrap_collect_files_list() uses key `zzwrap`, not `_core`
+			// wrap_collect_files_list() uses package key, not `_core`
 			foreach ($files_packages as $key => $file_path) {
 				$files[$key] = $file_path;
 			}
@@ -191,18 +225,16 @@ function wrap_collect_files($filename, $search = 'custom/modules') {
 function wrap_collect_files_list($packages, $filename, $path) {
 	global $zz_setting;
 
-	if (count($packages) === 1 AND $packages[0] === '_core') {
-		$files['zzwrap'] = sprintf('%s/%s/%s', dirname(__DIR__), $path ?: 'zzwrap', $filename);
-		return $files;
-	}
-
+	if (count($packages) === 1 AND $packages[0] === '_core')
+		$packages = $zz_setting['core_packages'];
+	
 	$files = [];
 	foreach ($packages as $package) {
 		$this_path = $path ? $path : $package;
 		// disable default module?
 		if ($package === 'default' AND !empty($zz_setting['default_dont_collect'][$filename]))
 			continue;
-		$type = in_array($package, $zz_setting['modules']) ? 'modules' : 'themes';
+		$type = in_array($package, $zz_setting['themes'] ?? []) ? 'themes' : 'modules';
 		$file = sprintf('%s/%s/%s/%s', $zz_setting[$type.'_dir'], $package, $this_path, $filename);
 		if (strstr($filename, '*')) {
 			$matches = glob($file, \GLOB_BRACE);
@@ -375,7 +407,7 @@ function wrap_lib($libraries = []) {
 		if (in_array($function, $included)) continue;
 		$found = false;
 
-		$folders = wrap_collect_files(sprintf('libraries/%s', $function), 'modules');
+		$folders = wrap_collect_files(sprintf('libraries/%s', $function), '_core');
 		if (array_key_exists($function, $folders)) {
 			// if library name is identical to module, just look inside module
 			require_once $folders[$function];
