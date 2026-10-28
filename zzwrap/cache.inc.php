@@ -337,7 +337,10 @@ function wrap_send_cache($age = 0, $log_error = true) {
 	$cache = wrap_cache_filenames('', $log_error);
 	// $cache['url'] might not exist (redirect!)
 	if (!$cache['headers']) return false; // invalid URL or URL too long
-	if (!file_exists($cache['headers'])) return false;
+	if (!file_exists($cache['headers'])) {
+		if (!$age AND !wrap_db_connection()) wrap_send_cache_ending_redirect();
+		return false;
+	}
 	$has_content = wrap_cache_exists($cache);
 	if ($has_content) $cache['url'] = $has_content;
 
@@ -391,6 +394,32 @@ function wrap_send_cache($age = 0, $log_error = true) {
 	];
 	wrap_cache_header();
 	wrap_send_resource('file', $file, $etag_header);
+}
+
+/**
+ * without database, the canonical URL ending is unknown: redirect to the
+ * same URL with a different ending (/, .html, none) if exactly one of these
+ * has a cached resource with content
+ *
+ * @return bool false if no redirect was sent
+ */
+function wrap_send_cache_ending_redirect() {
+	if (wrap_url('path') === '/') return false;
+
+	$path = wrap_url_ending(wrap_url('path'));
+	$found = [];
+	foreach (['/', '.html', ''] as $ending) {
+		if ($path.$ending === wrap_url('path')) continue;
+		$url = wrap_url();
+		$url['path'] = $path.$ending;
+		$location = wrap_glue_url($url);
+		$cache = wrap_cache_filenames($location, false);
+		if (!$cache['headers']) continue;
+		if (!wrap_cache_exists($cache)) continue;
+		$found[] = $location;
+	}
+	if (count($found) !== 1) return false;
+	wrap_redirect(reset($found), 302, false);
 }
 
 /**
