@@ -576,7 +576,9 @@ function wrap_text_include($file) {
  * 			that allow translation, write back to $data[$id][$field_name]
  *			example: ['maincategory' => 'categories.category'] writes value
  *			from table categories, field category to resulting field maincategory
- *			(add index main_category_id as $foreign_key_field_name)
+ *			(add index main_category_id as $foreign_key_field_name);
+ *			a list of fields is a fallback, the first field with a translation
+ *			wins: ['label' => ['categories.category_alternative', 'categories.category']]
  * @param string $foreign_key_field_name (optional) if it's not the main record but
  *			a detail record indexed by $foreign_key_field_name
  * @param bool $mark_incomplete	(optional) write back if fields are not translated?
@@ -613,20 +615,29 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 	} else {
 		$translation_map = $translation_map_in;
 	}
+	// one translation field may write to several keys, each with a priority:
+	// a list of sources is a fallback, the first one with a translation wins
 	$translation_fields = [];
-	foreach ($translation_map as $key => $field) {
-		$field = wrap_db_prefix($field);
-		// database name is optional, so add it here for all cases
-		if (substr_count($field, '.') === 1) $field = wrap_setting('db_name').'.'.$field;
-		if (is_numeric($key)) {
-			// numeric key: CMS.seiten.titel, CMS.seiten.*
-			$field_list = wrap_translate_field_list('field_name', $field);
-			if ($field_list) $translation_fields += $field_list;
-		} else {
-		// alpha key: title => CMS.seiten.titel or seiten.titel
-			$field_list = wrap_translate_field_list('"'.$key.'"', $field);
-			foreach ($field_list as $field_type => $fields)
-				$translation_fields[$field_type] = ($translation_fields[$field_type] ?? []) + $fields;
+	foreach ($translation_map as $key => $sources) {
+		if (!is_array($sources)) $sources = [$sources];
+		foreach (array_values($sources) as $priority => $field) {
+			$field = wrap_db_prefix($field);
+			// database name is optional, so add it here for all cases
+			if (substr_count($field, '.') === 1) $field = wrap_setting('db_name').'.'.$field;
+			if (is_numeric($key)) {
+				// numeric key: CMS.seiten.titel, CMS.seiten.*
+				$field_list = wrap_translate_field_list('field_name', $field);
+			} else {
+			// alpha key: title => CMS.seiten.titel or seiten.titel
+				$field_list = wrap_translate_field_list('"'.$key.'"', $field);
+			}
+			foreach ($field_list as $field_type => $fields) {
+				foreach ($fields as $translationfield_id => $field_def) {
+					if (!isset($translation_fields[$field_type][$translationfield_id]))
+						$translation_fields[$field_type][$translationfield_id] = $field_def;
+					$translation_fields[$field_type][$translationfield_id]['field_keys'][$field_def['field_key']] = $priority;
+				}
+			}
 		}
 	}
 
@@ -672,20 +683,26 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 	// there are no detail records at all?
 	if (empty($data_ids)) $translation_fields = []; // get out of here
 	
+	$field_keys = [];
+	foreach ($translation_fields as $fields)
+		foreach ($fields as $field)
+			$field_keys += $field['field_keys'];
+	// check if some of the existing fields are empty, to get the correct
+	// number of fields to translate (empty = nothing to translate!)
 	$old_empty_fields = [];
-	foreach ($translation_fields as $field_type => $fields) {
-		// check if some of the existing fields are empty, to get the correct
-		// number of fields to translate (empty = nothing to translate!)
-		foreach ($fields as $field) {
-			foreach ($data as $id => $rec) {
-				if (empty($rec[$field['field_key']])) 
-					$old_empty_fields[$field['field_key'].'['.$id.']'] = true;
-			}
+	foreach (array_keys($field_keys) as $field_key) {
+		foreach ($data as $id => $rec) {
+			if (empty($rec[$field_key]))
+				$old_empty_fields[$field_key.'['.$id.']'] = true;
 		}
-		// use count $data here, not count $data_ids because
-		// if foreign_key_field_name is given, $old_empty_fields is filled
-		$all_fields_to_translate += count($fields) * count($data);
+	}
+	// use count $data here, not count $data_ids because
+	// if foreign_key_field_name is given, $old_empty_fields is filled
+	$all_fields_to_translate = count($field_keys) * count($data);
 
+	$written = [];
+	$skipped = [];
+	foreach ($translation_fields as $field_type => $fields) {
 		// get translations corresponding to translation fields from database
 		$data_ids_flat = array_unique($data_ids);
 		$sql = sprintf($translation_sql, $field_type, implode(',', array_keys($fields)), 
@@ -708,7 +725,6 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 				if ($variation['translationfield_id'] !== $tl['translationfield_id']) continue;
 				$tl['translation'] = $variation['translation'];
 			}
-			$field_name = $fields[$tl['translationfield_id']]['field_key'];
 			$tl_ids = [];
 			if (!$foreign_key_field_name) {
 				// one translation = one field
@@ -720,26 +736,35 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 				// $tl['field_id'] = 40, returns Array(1103)
 				$tl_ids = array_keys($data_ids, $tl['field_id']);
 			}
-			foreach ($tl_ids as $tl_id) {
-				if (isset($data[$tl_id][$field_name])) {
-					if (!empty($tl['source_language'])) {
-						// language information if inside query, otherwise existing information
-						// in $data will be left as is
-						$data[$tl_id]['wrap_source_language'][$field_name] = wrap_sql_placeholders($tl['source_language']);
-						$data[$tl_id]['wrap_source_content'][$field_name] = $data[$tl_id][$field_name];
+			foreach ($fields[$tl['translationfield_id']]['field_keys'] as $field_name => $priority) {
+				foreach ($tl_ids as $tl_id) {
+					if (isset($data[$tl_id][$field_name])) {
+						if (isset($written[$tl_id][$field_name])) {
+							// a source with higher priority was already translated
+							if ($written[$tl_id][$field_name] <= $priority) continue;
+						} else {
+							if (!empty($tl['source_language'])) {
+								// language information if inside query, otherwise existing information
+								// in $data will be left as is
+								$data[$tl_id]['wrap_source_language'][$field_name] = wrap_sql_placeholders($tl['source_language']);
+								$data[$tl_id]['wrap_source_content'][$field_name] = $data[$tl_id][$field_name];
+							}
+							$translated_fields++;
+						}
+						// only save fields that already existed beforehands
+						$data[$tl_id][$field_name] = $tl['translation'];
+						$written[$tl_id][$field_name] = $priority;
+					} elseif (!isset($skipped[$tl_id][$field_name])) {
+						// ok, we do not care about this field, so don't count on it
+						$all_fields_to_translate--;
+						$skipped[$tl_id][$field_name] = true;
 					}
-					// only save fields that already existed beforehands
-					$data[$tl_id][$field_name] = $tl['translation'];
-					$translated_fields++;
-				} else {
-					// ok, we do not care about this field, so don't count on it
-					$all_fields_to_translate--;
+					// check if there is a translation for an empty field, for
+					// whatever reason. this must be unset to get the correct
+					// count for fields
+					if (isset($old_empty_fields[$field_name.'['.$tl_id.']']))
+						unset($old_empty_fields[$field_name.'['.$tl_id.']']);
 				}
-				// check if there is a translation for an empty field, for
-				// whatever reason. this must be unset to get the correct
-				// count for fields
-				if (isset($old_empty_fields[$field_name.'['.$tl_id.']']))
-					unset($old_empty_fields[$field_name.'['.$tl_id.']']);
 			}
 		}
 	}
@@ -807,18 +832,22 @@ function wrap_translate_field_list($field_key, $db_field) {
 function wrap_translate_po($map, $data, $target_language, $foreign_key_field_name) {
 	if (is_string($map)) return wrap_translate_po_table($map, $data, $target_language, $foreign_key_field_name);
 	
-	foreach ($map as $target => $source) {
-		if (strpos($source, '.') === false) {
-			wrap_error([
-				'Cannot parse translation map.',
-				['data' => ['target' => $target, 'source' => $source]]
-			]);
-			continue;
+	foreach ($map as $target => $sources) {
+		if (!is_array($sources)) $sources = [$sources];
+		// first source wins: a translated field is not overwritten
+		foreach ($sources as $source) {
+			if (strpos($source, '.') === false) {
+				wrap_error([
+					'Cannot parse translation map.',
+					['data' => ['target' => $target, 'source' => $source]]
+				]);
+				continue;
+			}
+			$source = explode('.', $source);
+			$field_map = [$target => array_pop($source)];
+			$table = array_pop($source);
+			$data = wrap_translate_po_table($table, $data, $target_language, $foreign_key_field_name, $field_map);
 		}
-		$source = explode('.', $source);
-		$field_map = [$target => array_pop($source)];
-		$table = array_pop($source);
-		$data = wrap_translate_po_table($table, $data, $target_language, $foreign_key_field_name, $field_map);
 	}
 	return $data;
 }
