@@ -625,7 +625,8 @@ function wrap_translate($data, $translation_map_in, $foreign_key_field_name = ''
 		} else {
 		// alpha key: title => CMS.seiten.titel or seiten.titel
 			$field_list = wrap_translate_field_list('"'.$key.'"', $field);
-			$translation_fields = array_merge_recursive($translation_fields, $field_list);
+			foreach ($field_list as $field_type => $fields)
+				$translation_fields[$field_type] = ($translation_fields[$field_type] ?? []) + $fields;
 		}
 	}
 
