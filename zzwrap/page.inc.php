@@ -384,9 +384,7 @@ function wrap_htmlout_page($page) {
 	}
 	
 	if (!isset($page['text'])) $page['text'] = '';
-	// init page
-	if (file_exists($file = wrap_setting('custom').'/zzbrick_page/_init.inc.php'))
-		require_once $file;
+	wrap_page_init($page);
 	wrap_page_extra($page);
 	if (empty($page['description']))
 		$page['description'] = wrap_page_field('description');
@@ -489,6 +487,35 @@ function wrap_htmlout_page($page) {
 	}
 
 	wrap_send_text($text, 'html', $page['status']);
+}
+
+/**
+ * init page
+ *
+ * @param array $page
+ */
+function wrap_page_init(&$page) {
+	$packages = ['custom'];
+	if ($theme = wrap_setting('active_theme'))
+		$packages[] = $theme;
+	$files = wrap_include('zzbrick_page/_init', $packages);
+	$functions = wrap_functions($files, 'page_init');
+	
+	// check for deprecated inclusion of file with no function
+	$migrated = array_column($functions, 'package');
+	foreach (($files['packages'] ?? []) as $package => $file) {
+		if (in_array($package, $migrated, true)) continue;
+		wrap_error([
+			'%s still runs as a script, $page is not evaluated. Define %spage_init($page) and return $page.',
+			['values' => [$file, wrap_function_prefix($package)]]
+		], E_USER_DEPRECATED);
+	}
+
+	foreach ($functions as $function) {
+		$page_return = $function['function']($page);
+		if (!$page_return) continue;
+		$page = $page_return;
+	}
 }
 
 /**
