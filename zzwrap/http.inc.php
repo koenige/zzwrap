@@ -305,10 +305,7 @@ function wrap_http_forward_localhost($remote_ip) {
 	// if the access comes from the server itself, a localhost forward is legal
 	if (wrap_http_localhost_ip()) return false;
 
-	$local = false;
-	if ($remote_ip === '::1') $local = true;
-	if (substr($remote_ip, 0, 4) === '127.') $local = true;
-	if (!$local) return false;
+	if (!wrap_http_ip_loopback($remote_ip)) return false;
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
 	if (!wrap_setting('remote_ip'))
@@ -325,6 +322,8 @@ function wrap_http_forward_localhost($remote_ip) {
  * @return bool
  */
 function wrap_http_forward_valid($remote_ip) {
+	// loopback in X-Forwarded-For is normal for a local reverse proxy on .local
+	if (wrap_setting('local_access') AND wrap_http_ip_loopback($remote_ip)) return true;
 	if (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE + FILTER_FLAG_NO_RES_RANGE)) return true;
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
@@ -334,6 +333,18 @@ function wrap_http_forward_valid($remote_ip) {
 		'HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s',
 		['values' => [$_SERVER['HTTP_X_FORWARDED_FOR']]]
 	));
+}
+
+/**
+ * loopback address (::1 or 127.0.0.0/8)
+ *
+ * @param string $ip
+ * @return bool
+ */
+function wrap_http_ip_loopback($ip) {
+	if ($ip === '::1') return true;
+	if (substr($ip, 0, 4) === '127.') return true;
+	return false;
 }
 
 /**
