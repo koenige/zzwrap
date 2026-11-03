@@ -243,8 +243,13 @@ function wrap_login($login) {
 	// ... LDAP ...
 	// ... different database server ...
 	if (wrap_setting('ldap_login') AND !$logged_in) {
-		$data = cms_login_ldap($login);
-		if ($data) $logged_in = true;
+		$files = wrap_include('login-ldap');
+		foreach (wrap_functions($files, 'login_ldap') as $function) {
+			$data = $function['function']($login);
+			if (!$data) continue;
+			$logged_in = true;
+			break;
+		}
 	}
 	if (wrap_setting('formauth_login') AND !$logged_in) {
 		$data = cms_login_formauth($login);
@@ -513,7 +518,7 @@ function wrap_register($user_id = false, $data = []) {
 			$data = wrap_db_fetch($sql);
 			$_SESSION['masquerade'] = true;
 		}
-		// data from cms_login_ldap() has to be dealt with in masquerade script
+		// data from login_ldap() has to be dealt with in masquerade script
 	}
 	
 	foreach ($data as $key => $value)

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-03 22:58+0000\n"
+"POT-Creation-Date: 2026-11-03 23:48+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -855,7 +855,7 @@ msgid "The “Forgot password” link is not activated."
 msgstr ""
 
 #: zzbrick_request/login.inc.php:269
-#: zzwrap/auth.inc.php:734
+#: zzwrap/auth.inc.php:739
 msgid "The “Forgot password” query is missing."
 msgstr ""
 
@@ -892,13 +892,13 @@ msgstr ""
 msgid "Username:"
 msgstr ""
 
-#: zzwrap/auth.inc.php:594
+#: zzwrap/auth.inc.php:599
 msgid "Too many failed login attempts. Please wait %d second."
 msgid_plural "Too many failed login attempts. Please wait %d seconds."
 msgstr[0] ""
 msgstr[1] ""
 
-#: zzwrap/auth.inc.php:826
+#: zzwrap/auth.inc.php:831
 #: zzwrap/background.inc.php:176
 msgid "Data"
 msgstr ""

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-03 22:58+0000\n"
+"POT-Creation-Date: 2026-11-03 23:48+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1722,31 +1722,31 @@ msgstr ""
 msgid "Your IP address %s is not in the allowed range."
 msgstr ""
 
-#: zzwrap/auth.inc.php:448
+#: zzwrap/auth.inc.php:453
 msgid "Login via %s is currently not supported."
 msgstr ""
 
-#: zzwrap/auth.inc.php:490
+#: zzwrap/auth.inc.php:495
 msgid "Unable to add external login for username %s and category ID %d"
 msgstr ""
 
-#: zzwrap/auth.inc.php:689
+#: zzwrap/auth.inc.php:694
 msgid "No username found for password token"
 msgstr ""
 
-#: zzwrap/auth.inc.php:740
+#: zzwrap/auth.inc.php:745
 msgid "A password was requested for e-mail %s, but there was no login in the database."
 msgstr ""
 
-#: zzwrap/auth.inc.php:746
+#: zzwrap/auth.inc.php:751
 msgid "A password was requested for e-mail %s, but the login is disabled."
 msgstr ""
 
-#: zzwrap/auth.inc.php:754
+#: zzwrap/auth.inc.php:759
 msgid "Password reminder cannot be sent, no token was generated."
 msgstr ""
 
-#: zzwrap/auth.inc.php:824
+#: zzwrap/auth.inc.php:829
 msgid "FORMAUTH login failed. Status %s."
 msgstr ""
 
