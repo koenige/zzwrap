@@ -526,6 +526,6 @@ function wrap_function_prefix($package) {
 		case 'zzwrap': return 'wrap_';
 		case 'zzform': return 'zz_';
 		case 'custom': return 'my_';
-		default: return sprintf('mf_%s_', $package);
+		default: return sprintf('mf_%s_', str_replace('-', '_', $package));
 	}
 }
