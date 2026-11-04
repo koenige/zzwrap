@@ -108,16 +108,19 @@ function wrap_url_read() {
 /**
  * replace forwarded host in URL
  *
+ * if forwarded host is in forwarded_hostnames, use it for host_base
  */
 function wrap_url_forwarded() {
 	if (empty($_SERVER['HTTP_X_FORWARDED_HOST'])) return;
 	if (!wrap_setting('hostname_in_url')) return;
-	$forwarded_host = wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_HOST']);
-	$forwarded_host = sprintf('/%s', $forwarded_host);
-	if (str_starts_with(wrap_url('path'), $forwarded_host)) {
-		wrap_url('path_forwarded', $forwarded_host);
-		wrap_setting('request_uri', substr(wrap_setting('request_uri'), strlen($forwarded_host)));
-	}
+	$hostname = wrap_url_dev_remove($_SERVER['HTTP_X_FORWARDED_HOST']);
+	$forwarded_host = sprintf('/%s', $hostname);
+	if (!str_starts_with(wrap_url('path'), $forwarded_host)) return;
+
+	wrap_url('path_forwarded', $forwarded_host);
+	wrap_setting('request_uri', substr(wrap_setting('request_uri'), strlen($forwarded_host)));
+	if (!in_array($hostname, wrap_setting('forwarded_hostnames'))) return;
+	wrap_setting('host_base', wrap_setting('protocol').'://'.wrap_url_dev_add($hostname));
 }
 
 /**
