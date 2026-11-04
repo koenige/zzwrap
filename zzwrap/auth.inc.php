@@ -177,7 +177,7 @@ function wrap_auth_loginpage() {
 		// do not unnecessarily expose URL structure
 	if ($request === wrap_path('login_entry')) unset($qs['request']); 
 	else $qs['request'] = 'url='.urlencode($request);
-	wrap_redirect(wrap_setting('host_base').wrap_path('login')
+	wrap_redirect(wrap_path('login')
 		.(count($qs) ? '?'.implode('&', $qs) : ''), 307, false);
 	exit;
 }
