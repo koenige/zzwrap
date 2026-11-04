@@ -2058,11 +2058,11 @@ msgstr ""
 msgid "Reference `%s`: unknown extra_columns `%s` (TSV columns: %s)."
 msgstr ""
 
-#: zzwrap/routes.inc.php:434
+#: zzwrap/routes.inc.php:457
 msgid "No route found for `%s`."
 msgstr ""
 
-#: zzwrap/routes.inc.php:537
+#: zzwrap/routes.inc.php:562
 msgid "Calling for path `%s` for non-existent website `%s`."
 msgstr ""
 

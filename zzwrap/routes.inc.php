@@ -6,7 +6,7 @@
  *
  * - wrap_routes_read(), wrap_routes_write(), wrap_routes_apply_default_paths(), wrap_routes_path_prepare()
  * - wrap_routes_menu()
- * - wrap_path(), wrap_path_external_route(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder()
+ * - wrap_path(), wrap_path_overwrite(), wrap_path_external_route(), wrap_path_website(), wrap_path_fallback(), wrap_path_website_fallback(), wrap_path_placeholder()
  *
  * Part of »Zugzwang Project«
  * https://www.zugzwang.org/modules/zzwrap
@@ -344,7 +344,30 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
 }
 
 /**
+ * Replace the route path wrap_path() uses for $area during this request.
+ *
+ * Only the path from routes.json is replaced; routes.json stays as it is.
+ * wrap_path() still applies access check, placeholders, base and absolute.
+ * Literal % in $path must be written as %%. A later call for the same $area
+ * replaces the previous value. This also works when no route exists for $area.
+ * Without arguments, all overwritten paths are returned.
+ *
+ * @param string $area (optional) Route name
+ * @param string $path (optional) Path or URL with scheme and host, may contain placeholders
+ * @return array|string all overwritten paths, or $path after storing it
+ */
+function wrap_path_overwrite($area = NULL, $path = NULL) {
+	static $paths = [];
+	if (func_num_args() < 2) return $paths;
+	$paths[$area] = $path;
+	return $path;
+}
+
+/**
  * get a path based on a route, check for access
+ *
+ * If wrap_path_overwrite() was called for $area in this request, that path
+ * is used instead of the one from routes.json.
  *
  * @param string $area Route name (key in routes.json / routes.cfg), or a settings.cfg key with type = external_route.
  * @param mixed $value (optional) Path segments for placeholders; string or array, e.g. ['id'] or 'slug'.
@@ -353,7 +376,7 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
  *   - testing (bool): If true, only test whether the route exists (e.g. for %%% if path area %%%); no "No route found" warning, missing placeholders filled with 'testing'; default false.
  *   - detail (string): Passed to wrap_access($area, $detail) for access detail, e.g. 'restrict_to:123'; default ''.
  *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
- *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false.
+ *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false. base is never prepended to a URL with scheme and host.
  *   - absolute (bool): If true, prepend wrap_setting('host_base') when the path is root-relative (/…) but not protocol-relative (//…); default false.
  *   - website_id (int): Owning website for route resolution (e.g. from path brick `resolve=website_id`); enables path_for_website when different from the current site.
  *   - path_website_fallback (bool): Internal flag while resolving wrap_setting('path_website_fallback'); do not set manually.
@@ -408,7 +431,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		$site = array_flip(wrap_id('websites', '', 'list'))[$foreign_website_id] ?? '';
 		$routes = $site ? wrap_routes_read($site) : [];
 	} else {
-		$routes = wrap_routes_read();
+		$routes = wrap_path_overwrite() + wrap_routes_read();
 	}
 
 	if (!array_key_exists($area, $routes)) {
@@ -480,6 +503,8 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	if (count($value) > $required_count AND $required_count === 1)
 		$value = [implode('/', $value)];
 	$base = !empty($settings['no_base']) ? '' : wrap_setting('base');
+	if (parse_url($path, PHP_URL_SCHEME) AND parse_url($path, PHP_URL_HOST))
+		$base = '';
 	$path = vsprintf($base.$path, $value);
 	if (str_ends_with($path, '#')) $path = substr($path, 0, -1);
 	if ($foreign_website_id)
