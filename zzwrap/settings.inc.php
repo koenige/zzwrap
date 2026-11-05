@@ -710,6 +710,85 @@ function wrap_setting_cfg_list($key, $value) {
 }
 
 /**
+ * parse bracket notation in sub-keys of a parameter
+ *
+ * only if settings.cfg has subkeys_cfg for this key; sub-keys with list = 1
+ * in that .cfg file are parsed with wrap_setting_list()
+ * @param string $key top-level parameter key, e. g. zzform
+ * @param mixed $value parsed parameter value
+ * @return mixed
+ */
+function wrap_setting_subkeys_list($key, $value) {
+	if (!is_array($value)) return $value;
+	$cfg = wrap_cfg_files('settings');
+	if (empty($cfg[$key]['subkeys_cfg'])) return $value;
+	$subkeys_cfg = wrap_cfg_files(basename($cfg[$key]['subkeys_cfg'], '.cfg'));
+	if (!$subkeys_cfg) return $value;
+	$level = $cfg[$key]['subkeys_level'] ?? 1;
+	return wrap_setting_subkeys_list_level($value, $subkeys_cfg, $level);
+}
+
+/**
+ * walk down to the level where sub-keys from subkeys_cfg start
+ *
+ * @param array $values
+ * @param array $subkeys_cfg
+ * @param int $level
+ * @return array
+ */
+function wrap_setting_subkeys_list_level($values, $subkeys_cfg, $level) {
+	foreach ($values as $index => $value) {
+		if ($level > 1) {
+			if (is_array($value))
+				$values[$index] = wrap_setting_subkeys_list_level($value, $subkeys_cfg, $level - 1);
+			continue;
+		}
+		$values[$index] = wrap_setting_subkeys_list_value($index, $value, $subkeys_cfg);
+	}
+	return $values;
+}
+
+/**
+ * parse one sub-key value if its definition has list = 1
+ *
+ * @param string $path sub-key path, e. g. identifier[concat]
+ * @param mixed $value
+ * @param array $subkeys_cfg
+ * @return mixed
+ */
+function wrap_setting_subkeys_list_value($path, $value, $subkeys_cfg) {
+	if (is_array($value)) {
+		foreach ($value as $index => $sub_value)
+			$value[$index] = wrap_setting_subkeys_list_value($path.'['.$index.']', $sub_value, $subkeys_cfg);
+		return $value;
+	}
+	$definition = wrap_setting_subkeys_definition($path, $subkeys_cfg);
+	if (empty($definition['list'])) return $value;
+	return wrap_setting_list($value);
+}
+
+/**
+ * definition of a sub-key path
+ *
+ * try the full path, then with numeric indices as [n], then strip
+ * bracket segments from the end until one matches
+ * @param string $path
+ * @param array $subkeys_cfg
+ * @return array
+ */
+function wrap_setting_subkeys_definition($path, $subkeys_cfg) {
+	$candidate = (string) $path;
+	while ($candidate !== '') {
+		if (array_key_exists($candidate, $subkeys_cfg)) return $subkeys_cfg[$candidate];
+		$generic = preg_replace('/\[\d+\]/', '[n]', $candidate);
+		if (array_key_exists($generic, $subkeys_cfg)) return $subkeys_cfg[$generic];
+		if (!str_contains($candidate, '[')) break;
+		$candidate = preg_replace('/\[[^\]]*\]$/', '', $candidate);
+	}
+	return [];
+}
+
+/**
  * check if setting has a setting placeholder in it
  *
  * @param string $string
