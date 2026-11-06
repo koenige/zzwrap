@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-04 09:22+0000\n"
+"POT-Creation-Date: 2026-11-06 14:20+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -801,7 +801,7 @@ msgid "Method:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:19
-#: zzwrap/errorhandling.inc.php:1366
+#: zzwrap/errorhandling.inc.php:1368
 msgid "IP:"
 msgstr ""
 
@@ -810,7 +810,7 @@ msgid "Browser:"
 msgstr ""
 
 #: templates/error-footer-mail.template.txt:22
-#: zzwrap/errorhandling.inc.php:1368
+#: zzwrap/errorhandling.inc.php:1370
 msgid "unknown"
 msgstr ""
 
@@ -953,11 +953,11 @@ msgstr ""
 msgid "Unsupported server protocol (%s)"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1368
+#: zzwrap/errorhandling.inc.php:1370
 msgid "User agent:"
 msgstr ""
 
-#: zzwrap/errorhandling.inc.php:1370
+#: zzwrap/errorhandling.inc.php:1372
 msgid "Referring URL:"
 msgstr ""
 
