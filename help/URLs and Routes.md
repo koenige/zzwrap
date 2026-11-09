@@ -91,6 +91,10 @@ missing file).
 - If several pages match and disambiguation fails, the route may be omitted
   or set to `null` in JSON — then `wrap_path()` warns or returns empty/NULL
   depending on options.
+- Webpages with `live = no` are ignored if a published webpage matches. If
+  only unpublished webpages match, the route is set to `""` in JSON:
+  `wrap_path()` returns an empty path, and `default` from `routes.cfg` is
+  not applied.
 
 **To add or fix a named route:** adjust merged `routes.cfg`, ensure a
 webpage exposes the brick or `route=` parameter, then check

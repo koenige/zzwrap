@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-06 14:20+0000\n"
+"POT-Creation-Date: 2026-11-09 11:36+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2070,11 +2070,11 @@ msgstr ""
 msgid "Reference `%s`: unknown extra_columns `%s` (TSV columns: %s)."
 msgstr ""
 
-#: zzwrap/routes.inc.php:457
+#: zzwrap/routes.inc.php:507
 msgid "No route found for `%s`."
 msgstr ""
 
-#: zzwrap/routes.inc.php:562
+#: zzwrap/routes.inc.php:612
 msgid "Calling for path `%s` for non-existent website `%s`."
 msgstr ""
 

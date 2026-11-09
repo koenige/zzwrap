@@ -64,7 +64,7 @@ function wrap_routes_write($site = NULL) {
 		$website_id = wrap_id('websites', $site);
 	if (!$website_id) { touch($lock); return; }
 	$sql = sprintf('SELECT CONCAT(identifier, IF(ending = "none", "", ending)) AS path
-			, content, parameters
+			, content, parameters, live
 		FROM /*_PREFIX_*/webpages
 		WHERE (content LIKE "%%\%%\%%\%%%%" OR parameters LIKE "%%&route=%%")
 		AND website_id = %d', $website_id);
@@ -124,6 +124,8 @@ function wrap_routes_debug($file) {
 /**
  * use per-route `default` from routes.cfg for keys that have no resolved path
  *
+ * an empty string marks a route bound to an unpublished webpage and is kept
+ *
  * @param array $paths (will be changed)
  * @param array $routes merged routes.cfg
  * @return void
@@ -131,7 +133,7 @@ function wrap_routes_debug($file) {
 function wrap_routes_apply_default_paths(&$paths, $routes) {
 	foreach ($routes as $key => $route) {
 		if (empty($route['default'])) continue;
-		if (array_key_exists($key, $paths) AND $paths[$key]) continue;
+		if (array_key_exists($key, $paths) AND $paths[$key] !== NULL) continue;
 		$paths[$key] = $route['default'];
 	}
 }
@@ -157,20 +159,28 @@ function wrap_routes_site($site) {
 /**
  * resolve route from webpages.parameters (e. g. route=login_entry)
  *
+ * if only unpublished webpages carry the route, the path is set to ''
+ *
  * @param string $key
  * @param array $pages
  * @param array $paths (will be changed)
  * @return bool true if route was handled
  */
 function wrap_routes_write_params($key, $pages, &$paths) {
+	$unpublished = false;
 	foreach ($pages as $page) {
 		if (!$page['parameters']) continue;
 		parse_str($page['parameters'], $params);
-		if (!empty($params['route']) AND $params['route'] === $key) {
-			$paths[$key] = wrap_routes_path_prepare($page['path'], $key, $page['parameters'] ?? '');
-			break;
+		if (empty($params['route'])) continue;
+		if ($params['route'] !== $key) continue;
+		if ($page['live'] !== 'yes') {
+			$unpublished = true;
+			continue;
 		}
+		$paths[$key] = wrap_routes_path_prepare($page['path'], $key, $page['parameters'] ?? '');
+		return true;
 	}
+	if ($unpublished) $paths[$key] = '';
 	return true;
 }
 
@@ -211,7 +221,12 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 				$path = wrap_routes_path_prepare($page['path'], $key, $page['parameters'] ?? '');
 				if (!is_array($paths[$key] ?? null))
 					$paths[$key] = [];
-				if (array_key_exists($subkey, $paths[$key]))
+				if ($page['live'] !== 'yes') {
+					if (!array_key_exists($subkey, $paths[$key]))
+						$paths[$key][$subkey] = '';
+					continue;
+				}
+				if (array_key_exists($subkey, $paths[$key]) AND $paths[$key][$subkey] !== '')
 					$paths[$key][$subkey] = NULL; // no ambiguous paths
 				else
 					$paths[$key][$subkey] = $path;
@@ -254,18 +269,36 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 		}
 	}
 
+	// unpublished webpages only yield an empty path if no published webpage matches
+	$unpublished = [];
+	foreach ($matches as $index => $match) {
+		if ($match['live'] === 'yes') continue;
+		$unpublished[] = $match;
+		unset($matches[$index]);
+	}
+
 	if (!empty($route['expand'])) {
 		foreach ($matches as $match) {
+			$path_key = wrap_routes_expand_key($key, $route['expand'], $match['content']);
+			if (!$path_key) continue;
 			$path = wrap_routes_path_prepare($match['path'], $key, $match['parameters'] ?? '');
-			if (!$match['content'] || !preg_match('/'.preg_quote($route['expand'], '/').'=([^\s&]+)/', $match['content'], $m)) {
-				$paths[$key.'[*]'] = $path;
-			} else {
-				$subkey = str_replace(['-', ' '], '_', trim($m[1]));
-				if (!$subkey) continue;
-				$path_key = $key.'['.$subkey.']';
+			if ($path_key === $key.'[*]')
+				$paths[$path_key] = $path;
+			else
 				$paths[$path_key] = array_key_exists($path_key, $paths) ? NULL : $path;
-			}
 		}
+		foreach ($unpublished as $match) {
+			$path_key = wrap_routes_expand_key($key, $route['expand'], $match['content']);
+			if (!$path_key) continue;
+			if (array_key_exists($path_key, $paths)) continue;
+			$paths[$path_key] = '';
+		}
+		return;
+	}
+
+	if (!$matches AND $unpublished) {
+		wrap_routes_write_params($key, $pages, $paths);
+		if (!array_key_exists($key, $paths)) $paths[$key] = '';
 		return;
 	}
 
@@ -303,6 +336,23 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 
 	$match = reset($matches);
 	$paths[$key] = wrap_routes_path_prepare($match['path'], $key, $match['parameters'] ?? '');
+}
+
+/**
+ * get route key for an expanded route, e. g. area[subkey] or area[*]
+ *
+ * @param string $key
+ * @param string $expand name of local setting used as subkey
+ * @param string $content brick local settings
+ * @return string empty if subkey is empty
+ */
+function wrap_routes_expand_key($key, $expand, $content) {
+	if (!$content) return $key.'[*]';
+	if (!preg_match('/'.preg_quote($expand, '/').'=([^\s&]+)/', $content, $matches))
+		return $key.'[*]';
+	$subkey = str_replace(['-', ' '], '_', trim($matches[1]));
+	if (!$subkey) return '';
+	return $key.'['.$subkey.']';
 }
 
 /**
