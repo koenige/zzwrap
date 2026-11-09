@@ -25,6 +25,11 @@ function wrap_access($area, $detail = '', $conditions = true) {
 	static $config = [];
 	if (!$config) $config = wrap_cfg_files('access');
 
+	if (!wrap_access_applicable($area)) {
+		wrap_debug(['Access for `%s` denied, not applicable', ['values' => [$area]]], 'debug_access');
+		return NULL;
+	}
+
 	// no access rights function: allow everything	
 	if (!function_exists('brick_access_rights')) {
 		// super simple rights system: allow everything, but not preview
@@ -93,6 +98,28 @@ function wrap_access($area, $detail = '', $conditions = true) {
 
 	wrap_debug(['Access for `%s` granted', ['values' => [$area]]], 'debug_access');
 	return $access;
+}
+
+/**
+ * check if an area is applicable at all, independent of access rights
+ *
+ * condition_if_lib: library folders that must exist
+ * condition_if_setting: settings that must be enabled
+ * @param string $area
+ * @return bool
+ */
+function wrap_access_applicable($area) {
+	static $config = [];
+	if (!$config) $config = wrap_cfg_files('access');
+	if (!array_key_exists($area, $config)) return true;
+
+	foreach ($config[$area]['condition_if_lib'] ?? [] as $condition)
+		if (!is_dir(wrap_setting('lib').'/'.$condition)) return false;
+
+	foreach ($config[$area]['condition_if_setting'] ?? [] as $condition)
+		if (!wrap_setting($condition)) return false;
+
+	return true;
 }
 
 /**
@@ -272,17 +299,11 @@ function wrap_access_quit($area, $detail = '', $conditions = true) {
 function wrap_conditions($config, $detail) {
 	static $data = [];
 
-	$definitions = [
-		'condition', 'condition_unless', 'condition_if_setting', 'condition_if_lib'
-	];
+	$definitions = ['condition', 'condition_unless'];
 	foreach ($definitions as $def) {
 		if (empty($config[$def])) $config[$def] = [];
 		elseif (!is_array($config[$def])) $config[$def] = [$config[$def]];
 	}
-
-	// check if library exists
-	foreach ($config['condition_if_lib'] as $condition)
-		if (!is_dir(wrap_setting('lib').'/'.$condition)) return false; // not applicable = 404
 
 	if (!$detail) return true;
 	if (!$config['condition']) return true;
@@ -314,9 +335,6 @@ function wrap_conditions($config, $detail) {
 	
 	foreach ($config['condition_unless'] as $condition)
 		if (!empty($data[$key][$condition])) return false; // not applicable = 404
-
-	foreach ($config['condition_if_setting'] as $condition)
-		if (!wrap_setting($condition)) return false; // not applicable = 404
 
 	return true;
 }

@@ -509,6 +509,9 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		}
 	}
 
+	// settings and libraries are only known for the current website
+	if (!$foreign_website_id AND !wrap_access_applicable($area)) return NULL;
+
 	// check rights
 	if ($settings['check_rights'] AND !$foreign_website_id AND !wrap_access($area, $settings['detail'])) return false;
 
