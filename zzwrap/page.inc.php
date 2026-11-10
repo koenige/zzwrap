@@ -723,6 +723,26 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
 }
 
 /**
+ * path of the current webpage, with * replaced
+ *
+ * `url` has no leading slash. `*` is written as `slug*`, so the
+ * replacement includes the slash.
+ * Default `$subpath` `%s` leaves a sprintf placeholder for wrap_page_links().
+ *
+ * @param string $subpath optional
+ * @return string
+ */
+function wrap_page_wildcard_path($subpath = '%s') {
+	$page_url = wrap_page_field('url');
+	if (!$page_url) return '';
+	$path = str_replace('*', '/'.$subpath, $page_url);
+	$ending = wrap_page_field('ending');
+	if ($ending === 'none') $ending = '';
+	$path = sprintf('/%s%s', $path, $ending);
+	return $path;
+}
+
+/**
  * set $page['link'] for single item
  *
  * @param array $data (_next_identifier, _next_title, _prev_identifier, _prev_title,
@@ -733,12 +753,8 @@ function wrap_get_prevnext_flat($records, $record_id, $endless = true) {
  */
 function wrap_page_links($data, $path = false, $path_overview = false) {
 	if (!$path) {
-		$page_url = wrap_page_field('url');
-		if (!$page_url) return [];
-		$path = str_replace('*', '/%s', $page_url);
-		$ending = wrap_page_field('ending');
-		if ($ending === 'none') $ending = '';
-		$path = sprintf('/%s%s', $path, $ending);
+		$path = wrap_page_wildcard_path();
+		if (!$path) return [];
 	}
 	if (!$path_overview) $path_overview = $path;
 	$link = [];
