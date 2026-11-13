@@ -215,7 +215,8 @@ function wrap_get_setting_default($key, $params) {
  * @return mixed
  */
 function wrap_get_setting_prepare($setting, $key, $cfg) {
-	if (!array_key_exists($key, $cfg)) return $setting;
+	if (!array_key_exists($key, $cfg))
+		return wrap_get_setting_prepare_bool($setting, strstr($key, '[', true) ?: $key, $cfg);
 
 	// modules required?
 	if (!wrap_setting_modules($key, false)) return NULL;
@@ -246,12 +247,25 @@ function wrap_get_setting_prepare($setting, $key, $cfg) {
 			$setting = [];
 		}
 	}
-	if (!empty($cfg[$key]['languages']) AND is_array($setting))
-		if (array_key_exists(wrap_setting('lang'), $setting))
-			return $setting[wrap_setting('lang')];
-		else
-			return NULL;
-	return $setting;
+	if (!empty($cfg[$key]['languages']) AND is_array($setting)) {
+		if (!array_key_exists(wrap_setting('lang'), $setting)) return NULL;
+		$setting = $setting[wrap_setting('lang')];
+	}
+	return wrap_get_setting_prepare_bool($setting, $key, $cfg);
+}
+
+/**
+ * cast setting to boolean if defined as `type = bool` in settings.cfg
+ *
+ * @param mixed $setting
+ * @param string $key setting key without sub key
+ * @param array $cfg
+ * @return mixed
+ */
+function wrap_get_setting_prepare_bool($setting, $key, $cfg) {
+	if (($cfg[$key]['type'] ?? '') !== 'bool') return $setting;
+	if (!is_scalar($setting)) return $setting;
+	return filter_var($setting, FILTER_VALIDATE_BOOLEAN);
 }
 
 /**

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-09 23:57+0000\n"
+"POT-Creation-Date: 2026-11-13 13:18+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -2114,24 +2114,24 @@ msgstr ""
 msgid "Unable to add value %s to key, it is not an array."
 msgstr ""
 
-#: zzwrap/settings.inc.php:279
+#: zzwrap/settings.inc.php:293
 msgid "Setting `%s` requires module(s) %s."
 msgstr ""
 
-#: zzwrap/settings.inc.php:339
+#: zzwrap/settings.inc.php:353
 msgid "Setting `%s` not found in settings.cfg files."
 msgstr ""
 
-#: zzwrap/settings.inc.php:407
+#: zzwrap/settings.inc.php:421
 msgid "Could not change setting. Key: %s, value: %s, login: %s"
 msgstr ""
 
-#: zzwrap/settings.inc.php:537
-#: zzwrap/settings.inc.php:562
+#: zzwrap/settings.inc.php:551
+#: zzwrap/settings.inc.php:576
 msgid "Too many arrays in %s, not implemented."
 msgstr ""
 
-#: zzwrap/settings.inc.php:847
+#: zzwrap/settings.inc.php:861
 msgid "Value for setting %s must be an array: %s"
 msgstr ""
 
