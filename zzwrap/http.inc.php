@@ -286,7 +286,10 @@ function wrap_http_remote_ip() {
 		wrap_http_forward_localhost($remote_ip);
 		// ignore invalid IPs
 		wrap_http_forward_valid($remote_ip);
-		if (in_array($remote_ip, wrap_setting('proxy_ips')))
+		// trusted reverse proxy: use the forwarded client address
+		if (wrap_http_trusted_proxy())
+			return $remote_ip;
+		if (in_array($remote_ip, wrap_setting('proxy_ips') ?: []))
 			return $remote_ip;
 		wrap_setting('http_forward_ip_unknown', $remote_ip);
 	}
@@ -324,7 +327,12 @@ function wrap_http_forward_localhost($remote_ip) {
 function wrap_http_forward_valid($remote_ip) {
 	// loopback in X-Forwarded-For is normal for a local reverse proxy on .local
 	if (wrap_setting('local_access') AND wrap_http_ip_loopback($remote_ip)) return true;
-	if (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE + FILTER_FLAG_NO_RES_RANGE)) return true;
+	// trusted reverse proxy may forward private client addresses; still reject reserved ranges
+	if (wrap_http_trusted_proxy()) {
+		if (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE)) return true;
+	} elseif (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE + FILTER_FLAG_NO_RES_RANGE)) {
+		return true;
+	}
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
 	if (!wrap_setting('remote_ip'))
@@ -333,6 +341,18 @@ function wrap_http_forward_valid($remote_ip) {
 		'HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s',
 		['values' => [$_SERVER['HTTP_X_FORWARDED_FOR']]]
 	));
+}
+
+/**
+ * whether the TCP peer is a configured reverse proxy
+ *
+ * @return bool
+ */
+function wrap_http_trusted_proxy() {
+	if (empty($_SERVER['REMOTE_ADDR'])) return false;
+	$proxy_ips = wrap_setting('proxy_ips');
+	if (!$proxy_ips) return false;
+	return wrap_http_ip_in_list($_SERVER['REMOTE_ADDR'], $proxy_ips);
 }
 
 /**
