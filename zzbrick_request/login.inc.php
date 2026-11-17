@@ -288,6 +288,8 @@ function mod_zzwrap_login($params, $settings = []) {
 /**
  * get redirect URL from query string
  *
+ * only path and query are kept, to stay on this website
+ *
  * @return string
  */
 function mod_zzwrap_login_redirect_url() {
@@ -295,5 +297,10 @@ function mod_zzwrap_login_redirect_url() {
 	parse_str(wrap_url('query'), $querystring);
 	if (empty($querystring['url'])) return false;
 	if (is_array($querystring['url'])) return false;
-	return $querystring['url'];
+	$url = parse_url($querystring['url']);
+	if (empty($url['path'])) return false;
+	// browsers read leading // or /\ as hostname
+	$path = '/'.ltrim($url['path'], '/\\');
+	if (!empty($url['query'])) $path .= '?'.$url['query'];
+	return $path;
 }
