@@ -242,7 +242,7 @@ function wrap_menu_webpages_category($menu) {
 
 /**
  * check for main_menu = and the likes in menu categories
- * and register menus accordingly
+ * and register the menu key for each matching flag
  *
  */
 function wrap_menu_webpages_register() {
@@ -265,7 +265,7 @@ function wrap_menu_webpages_register() {
 			if (!array_key_exists($key, $menu['parameters'])) continue;
 			$menu_name = $menu['parameters']['alias'] ?? $menu['path'];
 			if ($pos = strpos($menu_name, '/')) $menu_name = substr($menu_name, $pos + 1);
-			wrap_setting($key, $menu_name);
+			wrap_setting($key.'_key', $menu_name);
 		}
 	}
 }
@@ -339,7 +339,7 @@ function wrap_menu_asterisk_check($line, $menu, $id = 'page_id') {
  *   Required keys: 'title', 'url', 'current_page'
  *   Optional keys: 'long_title', 'id', 'class', 'subtitle', 'ignore', 'below'
  * @param string $menu_name Menu identifier or numeric ID for submenus;
- *   defaults to main_menu setting if empty
+ *   defaults to main_menu_key setting if empty
  * @param int $page_id Show only single menu entry matching this page ID
  *   and display its long title
  * @param int $level Nesting level (0 = top level, increments for submenus)
@@ -356,8 +356,8 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 		if (in_array($menu_name, $menus)) return false;
 	
 	// no menu_name: use default menu name but only if it exists, otherwise keep ''
-	if (!$menu_name AND wrap_setting('main_menu'))
-		$menu_name = wrap_setting('main_menu');
+	if (!$menu_name AND wrap_setting('main_menu_key'))
+		$menu_name = wrap_setting('main_menu_key');
 
 	if (!$menu_name OR is_numeric($menu_name)) {
 		// if we have a separate navigation table, the $nav-array comes from
@@ -393,10 +393,10 @@ function wrap_menu_out(&$nav, $menu_name = '', $page_id = 0, $level = 0, $avoid_
 	
 	// check if there's a menu defined for SESSION
 	// and add these entries to the main menu or another menu
-	if (wrap_setting('session_menu') AND !empty($_SESSION['logged_in'])
-		AND !empty($nav[wrap_setting('session_menu')])
+	if (wrap_setting('session_menu_key') AND !empty($_SESSION['logged_in'])
+		AND !empty($nav[wrap_setting('session_menu_key')])
 		AND $menu_name === wrap_setting('session_menu_in_menu')) {
-		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[wrap_setting('session_menu')]);
+		$nav[$menu_name] = array_merge($nav[$menu_name], $nav[wrap_setting('session_menu_key')]);
 	}
 
 	// OK, finally, we just get the menu together
