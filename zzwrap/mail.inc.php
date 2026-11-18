@@ -287,8 +287,8 @@ function wrap_mail_valid($e_mail, $mail_check_mx = true) {
 	}
 	
 	$time = microtime(true);
-	// MX record is not obligatory, so use ANY
-	$exists = checkdnsrr($host[1], 'ANY');
+	// MX record is not obligatory, so use MX, A and AAAA
+	$exists = checkdnsrr($host[1], 'MX') || checkdnsrr($host[1], 'A') || checkdnsrr($host[1], 'AAAA');
 	if ($wait_ms = wrap_setting('mail_mx_check_wait_ms') AND microtime(true) - $time > $wait_ms / 1000) {
 		wrap_error([
 			'Checking DNS record for host `%s` (e-mail: %s) took too long, so probably it is a timeout',
