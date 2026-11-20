@@ -146,11 +146,15 @@ function wrap_job_finish($job, $type, $content) {
 /**
  * is page a job page?
  *
+ * Jobs are always called via POST; GET requests on a job page only
+ * render output and must not claim or finish queue rows.
+ *
  * @param string $type
  * @return bool
  */
 function wrap_job_page($type) {
 	if ($type !== 'make') return false;
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST') return false;
 	$page_parameters = wrap_page_field('parameters') ?? [];
 	if (empty($page_parameters['job'])) return false;
 	
