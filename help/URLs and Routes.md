@@ -66,7 +66,7 @@ as JSON.
 | `routes.cfg` (per module, merged) | Route **keys** (`[search]`, …), optional `brick=…`, `match_parameters`, `default`, `expand`, fallbacks, access groups |
 | `wrap_routes_write()` (`zzwrap/routes.inc.php`) | Scans `webpages` for matching bricks or `parameters` with `route=<key>`; writes `config_dir/routes.json` (or `routes-<sitekey>.json` if `multiple_websites`) |
 | `wrap_routes_read()` | Reads that JSON; regenerates when missing or older than `routes_cache_seconds` |
-| `wrap_path($area, …)` | Resolves a route key to a path: loads `routes.json`, optional `wrap_access($area)`, placeholder substitution, `base` / `host_base`. If the key is missing from `routes.json`, a settings.cfg entry with `type = external_route` is interpolated instead (no access check, no `base` / `host_base`). |
+| `wrap_path($route, …)` | Resolves a route key to a path: loads `routes.json`, optional `wrap_access($route)`, placeholder substitution, `base` / `host_base`. If the key is missing from `routes.json`, a settings.cfg entry with `type = external_route` is interpolated instead (no access check, no `base` / `host_base`). |
 
 ### Binding a route to a page
 

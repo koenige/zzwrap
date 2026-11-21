@@ -394,37 +394,37 @@ function wrap_routes_path_prepare($path, $key, $parameters = '') {
 }
 
 /**
- * Replace the route path wrap_path() uses for $area during this request.
+ * Replace the route path wrap_path() uses for $route during this request.
  *
  * Only the path from routes.json is replaced; routes.json stays as it is.
  * wrap_path() still applies access check, placeholders, base and absolute.
- * Literal % in $path must be written as %%. A later call for the same $area
- * replaces the previous value. This also works when no route exists for $area.
+ * Literal % in $path must be written as %%. A later call for the same $route
+ * replaces the previous value. This also works when no route exists for $route.
  * Without arguments, all overwritten paths are returned.
  *
- * @param string $area (optional) Route name
+ * @param string $route (optional) Route name
  * @param string $path (optional) Path or URL with scheme and host, may contain placeholders
  * @return array|string all overwritten paths, or $path after storing it
  */
-function wrap_path_overwrite($area = NULL, $path = NULL) {
+function wrap_path_overwrite($route = NULL, $path = NULL) {
 	static $paths = [];
 	if (func_num_args() < 2) return $paths;
-	$paths[$area] = $path;
+	$paths[$route] = $path;
 	return $path;
 }
 
 /**
  * get a path based on a route, check for access
  *
- * If wrap_path_overwrite() was called for $area in this request, that path
+ * If wrap_path_overwrite() was called for $route in this request, that path
  * is used instead of the one from routes.json.
  *
- * @param string $area Route name (key in routes.json / routes.cfg), or a settings.cfg key with type = external_route.
+ * @param string $route Route name (key in routes.json / routes.cfg), or a settings.cfg key with type = external_route.
  * @param mixed $value (optional) Path segments for placeholders; string or array, e.g. ['id'] or 'slug'.
  * @param array $settings (optional) Options:
- *   - check_rights (bool): Check wrap_access($area, detail); default true.
- *   - testing (bool): If true, only test whether the route exists (e.g. for %%% if path area %%%); no "No route found" warning, missing placeholders filled with 'testing'; default false.
- *   - detail (string): Passed to wrap_access($area, $detail) for access detail, e.g. 'restrict_to:123'; default ''.
+ *   - check_rights (bool): Check wrap_access($route, detail); default true.
+ *   - testing (bool): If true, only test whether the route exists (e.g. for %%% if path route %%%); no "No route found" warning, missing placeholders filled with 'testing'; default false.
+ *   - detail (string): Passed to wrap_access($route, $detail) for access detail, e.g. 'restrict_to:123'; default ''.
  *   - hide_missing (bool): If true, do not emit E_USER_WARNING when the route is not found; default false.
  *   - no_base (bool): If set, do not prepend wrap_setting('base') to the path; default false. base is never prepended to a URL with scheme and host.
  *   - absolute (bool): If true, prepend wrap_setting('host_base') when the path is root-relative (/…) but not protocol-relative (//…); default false.
@@ -432,7 +432,7 @@ function wrap_path_overwrite($area = NULL, $path = NULL) {
  *   - path_website_fallback (bool): Internal flag while resolving wrap_setting('path_website_fallback'); do not set manually.
  * @return string|null|false Path string, or NULL if route not found, or false if access denied.
  */
-function wrap_path($area, $value = [], $settings = [], $testing = false, $settings_old = []) {
+function wrap_path($route, $value = [], $settings = [], $testing = false, $settings_old = []) {
 	// cater for old signature (3rd = check_rights/detail, 4th = testing, 5th = settings)
 	if (!is_array($settings)) {
 		$third = $settings;
@@ -441,14 +441,14 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		if (is_bool($third)) {
 			$settings['check_rights'] = $third;
 			wrap_error(sprintf(
-				'wrap_path(): boolean as third parameter is deprecated, use wrap_path($area, $value, [\'check_rights\' => %s])%s',
+				'wrap_path(): boolean as third parameter is deprecated, use wrap_path($route, $value, [\'check_rights\' => %s])%s',
 				$third ? 'true' : 'false',
 				$caller
 			), E_USER_DEPRECATED);
 		} elseif (is_string($third)) {
 			$settings['detail'] = $third;
 			$settings['check_rights'] = true;
-			wrap_error('wrap_path(): string as third parameter is deprecated, use wrap_path($area, $value, [\'detail\' => \'...\'])'.$caller, E_USER_DEPRECATED);
+			wrap_error('wrap_path(): string as third parameter is deprecated, use wrap_path($route, $value, [\'detail\' => \'...\'])'.$caller, E_USER_DEPRECATED);
 		} else {
 			$settings['check_rights'] = true;
 		}
@@ -456,7 +456,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		if ($settings_old) $settings += $settings_old;
 	} else {
 		if (func_num_args() >= 4) {
-			wrap_error('wrap_path(): 4th and 5th parameters are deprecated, use wrap_path($area, $value, [\'testing\' => ..., ...])'._wrap_path_deprecation_caller(), E_USER_DEPRECATED);
+			wrap_error('wrap_path(): 4th and 5th parameters are deprecated, use wrap_path($route, $value, [\'testing\' => ..., ...])'._wrap_path_deprecation_caller(), E_USER_DEPRECATED);
 		}
 		if ($testing === true) $settings['testing'] = true;
 		if ($settings_old) $settings += $settings_old;
@@ -473,7 +473,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		if (!empty($settings['website_id']))
 			$settings['path_for_website'] = true;
 		$routes_cfg = wrap_cfg_files('routes');
-		if (!empty($routes_cfg[$area]['path_for_website']) OR !empty($settings['path_for_website']))
+		if (!empty($routes_cfg[$route]['path_for_website']) OR !empty($settings['path_for_website']))
 			$foreign_website_id = $path_website_id;
 	}
 
@@ -484,38 +484,38 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 		$routes = wrap_path_overwrite() + wrap_routes_read();
 	}
 
-	if (!array_key_exists($area, $routes)) {
+	if (!array_key_exists($route, $routes)) {
 		// fallback: use base[*] when base[subkey] is missing
 		// (e.g. contacts_profile[organisation] -> contacts_profile[*])
-		$area_fallback = NULL;
-		if (preg_match('/^(.+)\[[^\]]+\]$/', $area, $m) && array_key_exists($m[1].'[*]', $routes)) {
-			$area_fallback = $m[1].'[*]';
+		$route_fallback = NULL;
+		if (preg_match('/^(.+)\[[^\]]+\]$/', $route, $m) && array_key_exists($m[1].'[*]', $routes)) {
+			$route_fallback = $m[1].'[*]';
 		}
-		if ($area_fallback) {
-			$area = $area_fallback;
+		if ($route_fallback) {
+			$route = $route_fallback;
 		} else {
-			$path = wrap_path_external_route($area, $value, $settings);
+			$path = wrap_path_external_route($route, $value, $settings);
 			if ($path !== NULL)
 				return $path;
-			$path = wrap_path_fallback($area, $value, $settings);
+			$path = wrap_path_fallback($route, $value, $settings);
 			if ($path !== NULL)
 				return wrap_path_add_absolute($path, $settings['absolute']);
-			$path = wrap_path_website_fallback($area, $value, $settings);
+			$path = wrap_path_website_fallback($route, $value, $settings);
 			if ($path !== NULL)
 				return $path;
 			if (empty($settings['testing']) AND empty($settings['hide_missing']))
-				wrap_error(['No route found for `%s`.', ['values' => [$area]]], E_USER_WARNING);
+				wrap_error(['No route found for `%s`.', ['values' => [$route]]], E_USER_WARNING);
 			return NULL;
 		}
 	}
 
 	// settings and libraries are only known for the current website
-	if (!$foreign_website_id AND !wrap_access_applicable($area)) return NULL;
+	if (!$foreign_website_id AND !wrap_access_applicable($route)) return NULL;
 
 	// check rights
-	if ($settings['check_rights'] AND !$foreign_website_id AND !wrap_access($area, $settings['detail'])) return false;
+	if ($settings['check_rights'] AND !$foreign_website_id AND !wrap_access($route, $settings['detail'])) return false;
 
-	$path = $routes[$area];
+	$path = $routes[$route];
 	if (!$path) return '';
 	// route has parameterized variants, e. g. news_article[news], news_article[projects]
 	// match longest sub-route key prefix (supports slashes in keys, e. g. lsb/nachrichten)
@@ -565,7 +565,7 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 	elseif ($website_id = wrap_setting('backend_website_id')
 		AND $website_id !== wrap_setting('website_id')) {
 		$cfg = wrap_cfg_files('settings');
-		if (!empty($cfg[$area]['backend_for_website']))
+		if (!empty($cfg[$route]['backend_for_website']))
 			$path = wrap_host_base($website_id).$path;
 	}
 	return wrap_path_add_absolute($path, $settings['absolute']);
@@ -574,20 +574,20 @@ function wrap_path($area, $value = [], $settings = [], $testing = false, $settin
 /**
  * resolve wrap_path() from a setting with type = external_route
  *
- * Used when $area is not a routes.cfg key. The setting value is a sprintf
+ * Used when $route is not a routes.cfg key. The setting value is a sprintf
  * template (often a full https:// URL). No access check, no base / host_base.
  *
- * @param string $area
+ * @param string $route
  * @param mixed $value path placeholder values
  * @param array $settings wrap_path() options (testing)
  * @return string|null interpolated path, '' if the template is empty or
- *     has too few values, NULL if $area is not an external_route
+ *     has too few values, NULL if $route is not an external_route
  */
-function wrap_path_external_route($area, $value, $settings) {
+function wrap_path_external_route($route, $value, $settings) {
 	$cfg = wrap_cfg_files('settings');
-	if (($cfg[$area]['type'] ?? '') !== 'external_route') return NULL;
+	if (($cfg[$route]['type'] ?? '') !== 'external_route') return NULL;
 
-	$path = wrap_setting($area);
+	$path = wrap_setting($route);
 	if (!$path) return '';
 
 	if (!is_array($value)) $value = [$value];
@@ -604,16 +604,16 @@ function wrap_path_external_route($area, $value, $settings) {
  * resolve a route path from another website (temporary path_website_id)
  *
  * @param string $site website domain
- * @param string $area route key (e. g. login_entry)
+ * @param string $route route key (e. g. login_entry)
  * @param array $value (optional) path placeholder values for wrap_path()
  * @param array $settings (optional) same keys as wrap_path(); path_for_website is set automatically
  * @return string|null|false same as wrap_path()
  */
-function wrap_path_website($site, $area, $value = [], $settings = []) {
+function wrap_path_website($site, $route, $value = [], $settings = []) {
 	if (!$website_id = wrap_id('websites', $site)) {
 		wrap_error([
 			'Calling for path `%s` for non-existent website `%s`.',
-			['values' => [$area, $site]]
+			['values' => [$route, $site]]
 		]);
 		return NULL;
 	}
@@ -621,7 +621,7 @@ function wrap_path_website($site, $area, $value = [], $settings = []) {
 	$settings['path_for_website'] = true;
 	$restore = wrap_setting('path_website_id');
 	wrap_setting('path_website_id', $website_id);
-	$path = wrap_path($area, $value, $settings);
+	$path = wrap_path($route, $value, $settings);
 	if (!$restore)
 		wrap_setting_delete('path_website_id');
 	else
@@ -647,7 +647,7 @@ function wrap_path_add_absolute($path, $absolute) {
 }
 
 /**
- * build path from route config fallback when area is not in routes.json
+ * build path from route config fallback when route is not in routes.json
  *
  * In routes.cfg set fallback_area, fallback_value, and optionally
  * fallback_query (e. g. "?filter[maincategory]=%d") and fallback_id_table
@@ -655,30 +655,30 @@ function wrap_path_add_absolute($path, $absolute) {
  *
  * @return string|null
  */
-function wrap_path_fallback($area, $value, $settings) {
+function wrap_path_fallback($route, $value, $settings) {
 	$cfg = wrap_cfg_files('routes');
-	if (empty($cfg[$area]['fallback_area'])) return NULL;
-	if (empty($cfg[$area]['fallback_value'])) return NULL;
+	if (empty($cfg[$route]['fallback_area'])) return NULL;
+	if (empty($cfg[$route]['fallback_value'])) return NULL;
 
 	$path = wrap_path(
-		$cfg[$area]['fallback_area'], $cfg[$area]['fallback_value'], $settings
+		$cfg[$route]['fallback_area'], $cfg[$route]['fallback_value'], $settings
 	);
 	if (!$path) {
 		// return NULL or false, depending on if path exists or just no rights
 		return $path;
 	}
-	if (empty($cfg[$area]['fallback_query'])) return $path;
+	if (empty($cfg[$route]['fallback_query'])) return $path;
 
 	if ($value) {
 		$val = is_array($value) ? $value[0] : $value;
 	} else {
 		$val = '';
 	}
-	$qs = $cfg[$area]['fallback_query'];
-	if (empty($cfg[$area]['fallback_id_table']))
+	$qs = $cfg[$route]['fallback_query'];
+	if (empty($cfg[$route]['fallback_id_table']))
 		$qs = sprintf($qs, $val);
 	else
-		$qs = sprintf($qs, wrap_id($cfg[$area]['fallback_id_table'], $val));
+		$qs = sprintf($qs, wrap_id($cfg[$route]['fallback_id_table'], $val));
 	return $path.$qs;
 }
 
@@ -687,14 +687,14 @@ function wrap_path_fallback($area, $value, $settings) {
  *
  * @return string|null|false same as wrap_path()
  */
-function wrap_path_website_fallback($area, $value, $settings) {
+function wrap_path_website_fallback($route, $value, $settings) {
 	if (!wrap_setting('path_website_fallback')) return NULL;
 	if (wrap_setting('path_website_fallback') === wrap_setting('site')) return NULL;
 	if (!empty($settings['path_website_fallback'])) return NULL;
 
 	$settings['path_website_fallback'] = true;
 	$settings['hide_missing'] = true;
-	return wrap_path_website(wrap_setting('path_website_fallback'), $area, $value, $settings);
+	return wrap_path_website(wrap_setting('path_website_fallback'), $route, $value, $settings);
 }
 
 /**
@@ -737,27 +737,27 @@ function _wrap_path_deprecation_caller() {
 	return '';
 }
 
-function wrap_menu_hierarchy($area, $paths = [], $setting_key = '') {
+function wrap_menu_hierarchy($route, $paths = [], $setting_key = '') {
 	wrap_error(__FUNCTION__.' is deprecated, use wrap_routes_page_ids() instead', E_USER_DEPRECATED);
-	return wrap_routes_page_ids($area, $paths, $setting_key);
+	return wrap_routes_page_ids($route, $paths, $setting_key);
 }
 
 /**
  * get additional page IDs for menu hierarchy
  *
- * @param string $area
+ * @param string $route
  * @param array $paths (optional)
  * @param string $setting_key (optional, defaults to category=)
  * @return array
  * @todo refactor to merge code blocks with other wrap_routes_-functions
  * @todo do not save result as setting, but in a file similar as routes.json
  */
-function wrap_routes_page_ids($area, $paths = [], $setting_key = '') {
+function wrap_routes_page_ids($route, $paths = [], $setting_key = '') {
 	if (!$paths) return [];
 	$paths = wrap_routes_page_ids_paths($paths);
 	if (!$paths) return [];
 	sort($paths);
-	$setting = sprintf('%s_page_id[%s]', $area, implode(';', $paths));
+	$setting = sprintf('%s_page_id[%s]', $route, implode(';', $paths));
 	if ($id = wrap_setting($setting)) {
 		if (is_array($id)) return $id;
 		else return [$id];
@@ -765,8 +765,8 @@ function wrap_routes_page_ids($area, $paths = [], $setting_key = '') {
 	
 	// get brick from routes
 	$cfg = wrap_cfg_files('routes');
-	if (empty($cfg[$area]['brick'])) return [];
-	$block = $cfg[$area]['brick'];
+	if (empty($cfg[$route]['brick'])) return [];
+	$block = $cfg[$route]['brick'];
 	
 	// get all matching pages
 	$sql = 'SELECT page_id, content
