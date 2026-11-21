@@ -84,10 +84,10 @@ missing file).
 
 ### Sub-routes and ambiguity
 
-- **`expand`** in `routes.cfg` can produce keys like `area[subkey]` from
+- **`expand`** in `routes.cfg` can produce keys like `route[subkey]` from
   page-local settings.
 - Bricks ending with ` *` can map multiple subkeys under one base key;
-  `area[subkey]` may fall back to `area[*]` when building paths.
+  `route[subkey]` may fall back to `route[*]` when building paths.
 - If several pages match and disambiguation fails, the route may be omitted
   or set to `null` in JSON — then `wrap_path()` warns or returns empty/NULL
   depending on options.
@@ -105,7 +105,7 @@ webpage exposes the brick or `route=` parameter, then check
 A setting with `type = external_route` is a sprintf template for
 `wrap_path()`, not a page of this application. Put it in `settings.cfg`
 (not `routes.cfg`). `wrap_path()` fills `%s` / `%d` from the same callers
-as named routes (`%%% path … %%%`, zzform `area`). There is no access
+as named routes (`%%% path … %%%`, zzform `route`). There is no access
 group, and `base` / `host_base` are not prepended.
 
 ## Cheatsheet

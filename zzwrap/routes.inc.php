@@ -339,7 +339,7 @@ function wrap_routes_write_brick($key, $route, $pages, &$paths) {
 }
 
 /**
- * get route key for an expanded route, e. g. area[subkey] or area[*]
+ * get route key for an expanded route, e. g. route[subkey] or route[*]
  *
  * @param string $key
  * @param string $expand name of local setting used as subkey

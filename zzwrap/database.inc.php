@@ -1596,9 +1596,9 @@ function wrap_sql_placeholders_replace($keyword, $match) {
 	case 'path':
 		$match = trim($match);
 		$match = explode(' ', $match);
-		$area = array_shift($match);
+		$route = array_shift($match);
 		if (!$match) $match = ''; // no array, string, to get a slash
-		return wrap_path($area, $match);
+		return wrap_path($route, $match);
 	}
 	return '';
 }
