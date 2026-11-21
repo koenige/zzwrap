@@ -649,7 +649,7 @@ function wrap_path_add_absolute($path, $absolute) {
 /**
  * build path from route config fallback when route is not in routes.json
  *
- * In routes.cfg set fallback_area, fallback_value, and optionally
+ * In routes.cfg set fallback_route, fallback_value, and optionally
  * fallback_query (e. g. "?filter[maincategory]=%d") and fallback_id_table
  * (table name for wrap_id(), e. g. categories).
  *
@@ -657,11 +657,11 @@ function wrap_path_add_absolute($path, $absolute) {
  */
 function wrap_path_fallback($route, $value, $settings) {
 	$cfg = wrap_cfg_files('routes');
-	if (empty($cfg[$route]['fallback_area'])) return NULL;
+	if (empty($cfg[$route]['fallback_route'])) return NULL;
 	if (empty($cfg[$route]['fallback_value'])) return NULL;
 
 	$path = wrap_path(
-		$cfg[$route]['fallback_area'], $cfg[$route]['fallback_value'], $settings
+		$cfg[$route]['fallback_route'], $cfg[$route]['fallback_value'], $settings
 	);
 	if (!$path) {
 		// return NULL or false, depending on if path exists or just no rights

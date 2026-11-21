@@ -1976,11 +1976,14 @@ function wrap_cfg_quote($string) {
  * format:
  * [unique_internal_key]
  * url = https://example.org/%s
+ * route = example_profile
  * title = profile for club on example.org
  * scope[] = contact/club
  * active = 1
  * fields[] = identifiers[identifier]
  * fields_scope = identifiers/code
+ * route is a wrap_path() key and is used instead of url
+ * with fields_scope, only the first matching row is used
  * @param array $data
  *		requires fields category_id, identifier, further fields in fields[] definition
  * @return array
@@ -2002,7 +2005,8 @@ function wrap_profiles($data) {
 			if (!$scope_found) continue;
 		}
 		$title = isset($profile['title']) ? _wrap_profiles_lang($profile['title']) : NULL;
-		$url = _wrap_profiles_lang($profile['url']);
+		$route = $profile['route'] ?? '';
+		$url = isset($profile['url']) ? _wrap_profiles_lang($profile['url']) : '';
 		$fields = $profile['fields'] ?? ['identifier'];
 		$values = [];
 		foreach ($fields as $field) {
@@ -2018,6 +2022,7 @@ function wrap_profiles($data) {
 					}
 					if ($line['category_id'] !== wrap_category_id($profile['fields_scope'])) continue;
 					$values[] = $line[$field[1]];
+					break;
 				}
 			} else {
 				if (!array_key_exists($field, $data)) continue 2;
@@ -2025,7 +2030,13 @@ function wrap_profiles($data) {
 			}
 		}
 		if (!$values) continue;
-		$url = vsprintf($url, $values);
+		if ($route) {
+			$url = wrap_path($route, $values, ['hide_missing' => true]);
+			if (!$url) continue;
+		} else {
+			if (!$url) continue;
+			$url = vsprintf($url, $values);
+		}
 		$my_profiles[] = ['title' => $title, 'url' => $url];
 	}
 	return $my_profiles;
