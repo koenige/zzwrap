@@ -80,6 +80,8 @@ function wrap_routes_write($site = NULL) {
 		foreach ($settings as $setting)
 			if (!wrap_setting($setting)) continue 2;
 		wrap_routes_write_brick($key, $route, $pages, $paths);
+		if (!empty($route['expand']))
+			wrap_routes_write_params_expanded($key, $pages, $paths);
 	}
 
 	wrap_routes_apply_default_paths($paths, $routes);
@@ -182,6 +184,33 @@ function wrap_routes_write_params($key, $pages, &$paths) {
 	}
 	if ($unpublished) $paths[$key] = '';
 	return true;
+}
+
+/**
+ * resolve expanded route from webpages.parameters (e. g. route=contacts_profile[person])
+ *
+ * a published webpage overrides a path found via brick;
+ * an unpublished webpage only yields '' if no path exists yet
+ *
+ * @param string $key
+ * @param array $pages
+ * @param array $paths (will be changed)
+ * @return void
+ */
+function wrap_routes_write_params_expanded($key, $pages, &$paths) {
+	foreach ($pages as $page) {
+		if (!$page['parameters']) continue;
+		parse_str($page['parameters'], $params);
+		if (empty($params['route'])) continue;
+		if (!is_string($params['route'])) continue;
+		if (!preg_match('/^'.preg_quote($key, '/').'\[[^\]]+\]$/', $params['route'])) continue;
+		$path_key = $params['route'];
+		if ($page['live'] !== 'yes') {
+			if (!array_key_exists($path_key, $paths)) $paths[$path_key] = '';
+			continue;
+		}
+		$paths[$path_key] = wrap_routes_path_prepare($page['path'], $key, $page['parameters']);
+	}
 }
 
 /**
