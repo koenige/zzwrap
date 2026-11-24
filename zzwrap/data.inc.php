@@ -149,7 +149,7 @@ function wrap_data_media_default($table, $lang) {
 		return $default_media[$key];
 
 	$path = sprintf('tags/default-%s-overview', $table);
-	$category_id = wrap_category_id($path);
+	$category_id = wrap_category_id($path, 'check');
 	if (!$category_id) {
 		$default_media[$key] = [];
 		return $default_media[$key];
