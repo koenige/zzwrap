@@ -286,7 +286,10 @@ function wrap_get_protected_url($url, $headers = [], $method = 'GET', $data = []
 		return [false, false, false];
 	}
 	$username = wrap_username($username, false);
-	$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
+	// no login (e. g. cron via rights cron): do not build a token or log a notice
+	$pwd = false;
+	if ($username)
+		$pwd = sprintf('%s:%s', $username, wrap_password_token($username));
 	$headers[] = 'X-Request-WWW-Authentication: 1';
 	// localhost: JSON
 	if (wrap_get_protected_url_local($url) AND wrap_get_protected_url_html($url))
