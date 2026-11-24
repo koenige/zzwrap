@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-23 15:00+0000\n"
+"POT-Creation-Date: 2026-11-24 16:34+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1896,7 +1896,7 @@ msgstr ""
 msgid "Temp directory %s does not exist."
 msgstr ""
 
-#: zzwrap/defaults.inc.php:756
+#: zzwrap/defaults.inc.php:748
 msgid "Cache directory %s does not exist. Caching disabled."
 msgstr ""
 
@@ -2010,7 +2010,7 @@ msgid "Unable to determine translation log."
 msgstr ""
 
 #: zzwrap/mail.inc.php:39
-#: zzwrap/mail.inc.php:386
+#: zzwrap/mail.inc.php:395
 msgid "File `%s` not found"
 msgstr ""
 
@@ -2022,19 +2022,19 @@ msgstr ""
 msgid "Checking DNS record for host `%s` (e-mail: %s) took too long, so probably it is a timeout"
 msgstr ""
 
-#: zzwrap/mail.inc.php:434
+#: zzwrap/mail.inc.php:443
 msgid "Send mail with phpmailer failed: %s"
 msgstr ""
 
-#: zzwrap/mail.inc.php:638
+#: zzwrap/mail.inc.php:647
 msgid "System’s e-mail address not set (setting `own_e_mail`)."
 msgstr ""
 
-#: zzwrap/mail.inc.php:666
+#: zzwrap/mail.inc.php:675
 msgid "PHP IMAP extension is not installed."
 msgstr ""
 
-#: zzwrap/mail.inc.php:737
+#: zzwrap/mail.inc.php:746
 msgid "Unable to open mailbox %s (Server: %s)"
 msgstr ""
 

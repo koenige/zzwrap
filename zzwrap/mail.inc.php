@@ -338,6 +338,15 @@ function wrap_mail_separator() {
 }
 
 /**
+ * default for setting `mail_header_eol`
+ *
+ * @return string
+ */
+function wrap_mail_header_eol() {
+	return "\r\n";
+}
+
+/**
  * use php’s mail() function to send mails
  *
  * @param array $mail

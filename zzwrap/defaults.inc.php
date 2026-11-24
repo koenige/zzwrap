@@ -723,14 +723,6 @@ function wrap_defaults_post_conf() {
 		wrap_setting('gzip_encode', 0);
 		wrap_setting('error_handling', 'output');
 	}
-	
-	// -------------------------------------------------------------------------
-	// Mail
-	// -------------------------------------------------------------------------
-	
-	if (is_null(wrap_setting('mail_header_eol')))
-		wrap_setting('mail_header_eol', "\r\n");
-
 }
 
 /**
