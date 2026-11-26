@@ -26,7 +26,6 @@ function zzwrap() {
 	set_error_handler('wrap_error_handler');
 	register_shutdown_function('wrap_shutdown');
 	wrap_defaults();
-	wrap_http_restrict_ip();
 	wrap_includes_postconf();
 	wrap_mail_queue_send(); // @todo allow this to be done via cron job for better performance
 	wrap_validate_post();
@@ -35,6 +34,7 @@ function zzwrap() {
 	wrap_include('_functions', 'custom/modules/themes');
 
 	// check HTTP request, build URL, set language according to URL and request
+	wrap_http_restrict_ip();
 	wrap_http_check_request();
 	wrap_url_prepare();
 	wrap_http_allowed_hostnames();

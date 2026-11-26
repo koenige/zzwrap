@@ -99,6 +99,9 @@ function wrap_http_check_request() {
 			'Request with a malformed IP address: %s',
 			['values' => [wrap_html_escape($_SERVER['REMOTE_ADDR'])]]
 		));
+
+	// check if X-Forwarded-For was spoofed
+	wrap_http_forward_check();
 }
 
 /**
@@ -277,45 +280,56 @@ function wrap_http_status_list($code) {
  * @return string
  */
 function wrap_http_remote_ip() {
-	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-		$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		if ($pos = strpos($remote_ip, ','))
-			$remote_ip = substr($remote_ip, 0, $pos);
-
-		// do not forward connections that say they're localhost
-		wrap_http_forward_localhost($remote_ip);
-		// ignore invalid IPs
-		wrap_http_forward_valid($remote_ip);
-		// trusted reverse proxy: use the forwarded client address
-		if (wrap_http_trusted_proxy())
-			return $remote_ip;
-		if (in_array($remote_ip, wrap_setting('proxy_ips') ?: []))
-			return $remote_ip;
-		wrap_setting('http_forward_ip_unknown', $remote_ip);
-	}
+	$remote_ip = wrap_http_forwarded_ip();
+	if ($remote_ip) return $remote_ip;
 	if (empty($_SERVER['REMOTE_ADDR']))
 		return '';
 	return $_SERVER['REMOTE_ADDR'];
 }
 
 /**
+ * get client IP from X-Forwarded-For if it can be trusted
+ *
+ * spoofed addresses are marked in `http_forward_ip_spoofed` and checked later
+ * by wrap_http_forward_check(), when a full error page can be rendered
+ * @return string empty if no usable forwarded IP
+ */
+function wrap_http_forwarded_ip() {
+	if (empty($_SERVER['HTTP_X_FORWARDED_FOR'])) return '';
+	$remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	if ($pos = strpos($remote_ip, ','))
+		$remote_ip = substr($remote_ip, 0, $pos);
+
+	// do not forward connections that say they're localhost
+	if (wrap_http_forward_localhost($remote_ip)) {
+		wrap_setting('http_forward_ip_spoofed', 'localhost');
+		return '';
+	}
+	// ignore invalid IPs
+	if (!wrap_http_forward_valid($remote_ip)) {
+		wrap_setting('http_forward_ip_spoofed', 'invalid');
+		return '';
+	}
+	// trusted reverse proxy: use the forwarded client address
+	if (wrap_http_trusted_proxy())
+		return $remote_ip;
+	if (in_array($remote_ip, wrap_setting('proxy_ips') ?: []))
+		return $remote_ip;
+	wrap_setting('http_forward_ip_unknown', $remote_ip);
+	return '';
+}
+
+/**
  * check if forwarded IP equals localhost
  *
  * @param string $remote_ip
- * @return bool
+ * @return bool true: client is attempting to impersonate localhost
  */
 function wrap_http_forward_localhost($remote_ip) {
 	// if the access comes from the server itself, a localhost forward is legal
 	if (wrap_http_localhost_ip()) return false;
 
-	if (!wrap_http_ip_loopback($remote_ip)) return false;
-
-	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
-	if (!wrap_setting('remote_ip'))
-		wrap_setting('remote_ip', $_SERVER['REMOTE_ADDR'] ?? '');
-	wrap_quit(403, wrap_text(
-		'HTTP Header spoofing detected. The client is attempting to impersonate localhost.'
-	));
+	return wrap_http_ip_loopback($remote_ip);
 }
 
 /**
@@ -333,10 +347,22 @@ function wrap_http_forward_valid($remote_ip) {
 	} elseif (filter_var($remote_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE + FILTER_FLAG_NO_RES_RANGE)) {
 		return true;
 	}
+	return false;
+}
+
+/**
+ * quit if X-Forwarded-For header was spoofed
+ *
+ * @return void
+ */
+function wrap_http_forward_check() {
+	if (!wrap_setting('http_forward_ip_spoofed')) return;
 
 	wrap_setting('log_username_default', $_SERVER['REMOTE_ADDR']);
-	if (!wrap_setting('remote_ip'))
-		wrap_setting('remote_ip', $_SERVER['REMOTE_ADDR'] ?? '');
+	if (wrap_setting('http_forward_ip_spoofed') === 'localhost')
+		wrap_quit(403, wrap_text(
+			'HTTP Header spoofing detected. The client is attempting to impersonate localhost.'
+		));
 	wrap_quit(400, wrap_text(
 		'HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s',
 		['values' => [$_SERVER['HTTP_X_FORWARDED_FOR']]]
@@ -350,9 +376,8 @@ function wrap_http_forward_valid($remote_ip) {
  */
 function wrap_http_trusted_proxy() {
 	if (empty($_SERVER['REMOTE_ADDR'])) return false;
-	$proxy_ips = wrap_setting('proxy_ips');
-	if (!$proxy_ips) return false;
-	return wrap_http_ip_in_list($_SERVER['REMOTE_ADDR'], $proxy_ips);
+	if (!wrap_setting('proxy_ips')) return false;
+	return wrap_http_ip_in_list($_SERVER['REMOTE_ADDR'], wrap_setting('proxy_ips'));
 }
 
 /**

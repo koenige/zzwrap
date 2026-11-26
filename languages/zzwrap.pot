@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zugzwang Project -- zzwrap module\n"
-"POT-Creation-Date: 2026-11-20 22:52+0000\n"
+"POT-Creation-Date: 2026-11-26 22:51+0000\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -1083,15 +1083,15 @@ msgstr ""
 msgid "This website is currently offline."
 msgstr ""
 
-#: zzwrap/http.inc.php:167
+#: zzwrap/http.inc.php:170
 msgid "This value for %s sent via HTTP must not be an array: %s"
 msgstr ""
 
-#: zzwrap/http.inc.php:317
+#: zzwrap/http.inc.php:364
 msgid "HTTP Header spoofing detected. The client is attempting to impersonate localhost."
 msgstr ""
 
-#: zzwrap/http.inc.php:341
+#: zzwrap/http.inc.php:367
 msgid "HTTP Header spoofing detected. The client uses an invalid forwarding IP address: %s"
 msgstr ""
 

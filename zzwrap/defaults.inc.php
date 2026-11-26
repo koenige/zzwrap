@@ -549,7 +549,7 @@ function wrap_config_sitekey($site = NULL) {
  *
  */
 function wrap_defaults_post_conf() {
-	// proxy_ips is loaded by wrap_config_read(); a quit here can use routes
+	// proxy_ips is loaded by wrap_config_read()
 	wrap_setting('remote_ip', wrap_http_remote_ip());
 
 	// -------------------------------------------------------------------------
